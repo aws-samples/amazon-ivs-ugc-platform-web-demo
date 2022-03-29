@@ -1,0 +1,10 @@
+tmp
+tmp/
+tmp/*
+
+.DS_Store
+
+/bin
+
+# Local Netlify folder
+.netlify
