@@ -5,18 +5,21 @@ import {
   aws_dynamodb as dynamodb,
   aws_iam as iam,
   aws_lambda_nodejs as lambda,
+  aws_logs as logs,
+  CfnOutput,
+  RemovalPolicy,
   Stack,
-  StackProps,
-  RemovalPolicy
+  StackProps
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
+import crypto from 'crypto';
 
 import { getLambdaEntryPath } from './utils';
-
 export interface ResourceConfig {
-  allowOrigins: string[];
+  allowedOrigin: string;
   enableUserAutoVerify: boolean;
   ivsChannelType: ChannelType;
+  logRetention?: logs.RetentionDays;
   stageName: 'dev' | 'prod';
 }
 export class UserManagementStack extends Stack {
@@ -28,8 +31,13 @@ export class UserManagementStack extends Stack {
   ) {
     super(scope, id, props);
 
-    const { allowOrigins, enableUserAutoVerify, ivsChannelType, stageName } =
-      resourceConfig;
+    const {
+      allowedOrigin,
+      enableUserAutoVerify,
+      ivsChannelType,
+      logRetention,
+      stageName
+    } = resourceConfig;
 
     /**
      * Cognito
@@ -37,6 +45,7 @@ export class UserManagementStack extends Stack {
 
     // Lambda to auto verify new users, not suitable for production
     const preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
+      ...(logRetention ? { logRetention } : {}),
       bundling: { minify: true },
       entry: getLambdaEntryPath('preSignUp')
     });
@@ -49,9 +58,28 @@ export class UserManagementStack extends Stack {
             }
           }
         : {}),
+      ...(!enableUserAutoVerify ? { autoVerify: { email: true } } : {}),
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
-      standardAttributes: { email: { mutable: true, required: true } }
+      signInAliases: { preferredUsername: true, username: true },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: false
+        }
+      },
+      userVerification: {
+        emailStyle: cognito.VerificationEmailStyle.LINK
+      }
+    });
+
+    const domainPrefixId = crypto.randomBytes(12).toString('hex');
+
+    // Cognito requires a domain when the email verification style is set to LINK
+    userPool.addDomain('CognitoDomain', {
+      cognitoDomain: {
+        domainPrefix: `stream-health-dashboard-${domainPrefixId}`
+      }
     });
 
     const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
@@ -76,9 +104,11 @@ export class UserManagementStack extends Stack {
       this,
       'RegisterUserLambda',
       {
+        ...(logRetention ? { logRetention } : {}),
         bundling: { minify: true },
         entry: getLambdaEntryPath('registerUser'),
         environment: {
+          ALLOWED_ORIGIN: allowedOrigin,
           IVS_CHANNEL_TYPE: ivsChannelType,
           USER_TABLE_NAME: userTable.tableName,
           USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId
@@ -97,19 +127,19 @@ export class UserManagementStack extends Stack {
     const userManagementApiGateway = new apiGateway.RestApi(
       this,
       'userManagementApiGateway',
-      {
-        // Enable CORS
-        defaultCorsPreflightOptions: {
-          allowOrigins,
-          allowMethods: ['POST']
-        },
-        deployOptions: { stageName }
-      }
+      { deployOptions: { stageName } }
     );
 
     // Add the POST /register endpoint
     userManagementApiGateway.root
       .addResource('register')
       .addMethod('POST', new apiGateway.LambdaIntegration(registerUserLambda));
+
+    /**
+     * Stack Outputs
+     */
+    new CfnOutput(this, 'userManagementApiGatewayEndpoint', {
+      value: userManagementApiGateway.url
+    });
   }
 }
