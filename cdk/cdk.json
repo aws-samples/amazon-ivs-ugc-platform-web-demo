@@ -25,15 +25,16 @@
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
     "dev": {
       "resourceConfig": {
-        "allowOrigins": ["*"],
+        "allowedOrigin": "*",
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
+        "logRetention": 7,
         "stageName": "dev"
       }
     },
     "prod": {
       "resourceConfig": {
-        "allowOrigins": ["http://localhost:3000"],
+        "allowedOrigin": "http://localhost:3000",
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "stageName": "prod"
