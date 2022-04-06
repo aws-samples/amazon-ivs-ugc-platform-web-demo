@@ -1,0 +1,80 @@
+.outer-input-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.outer-input-container .label {
+  font-size: 18px;
+  font-weight: 500;
+  width: fit-content;
+  text-transform: capitalize;
+  margin-bottom: 15px;
+}
+
+.outer-input-container .footer {
+  margin-top: 15px;
+}
+
+.outer-input-container .error-message {
+  align-items: center;
+  color: var(--color-error-red);
+  column-gap: 6.25px;
+  display: flex;
+  font-size: 13px;
+  font-weight: 500;
+  position: absolute;
+  top: 84px;
+}
+
+.inner-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inner-input-container input {
+  background: var(--color-gray);
+  border-radius: var(--default-border-radius);
+  border: none;
+  color: var(--color-white);
+  font-size: 15px;
+  height: 42px;
+  overflow: hidden;
+  padding: 14px;
+  text-overflow: ellipsis;
+  transition: box-shadow 0.15s ease-in-out;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.inner-input-container input[initial-type='password'] {
+  padding-right: 50px;
+}
+
+.inner-input-container input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-white);
+}
+
+.inner-input-container.error input {
+  box-shadow: inset 0 0 0 2px var(--color-error-red);
+}
+
+.password-peek {
+  position: absolute;
+  right: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.password-peek:focus-visible {
+  border-radius: var(--default-border-radius);
+  box-shadow: inset 0 0 0 2px var(--color-white);
+  outline: none;
+  padding: 4px;
+}

@@ -1,0 +1,33 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  max-width: 450px;
+  row-gap: 30px;
+  width: 100%;
+}
+
+.form > :last-child {
+  padding-top: 15px;
+}
+
+.form h2 {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.submit-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+}
+
+@media (max-width: 875px) {
+  .form {
+    margin: 0 auto;
+  }
+
+  .form h2 {
+    padding-bottom: 0px;
+  }
+}

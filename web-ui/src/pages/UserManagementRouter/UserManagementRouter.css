@@ -1,0 +1,46 @@
+.form-section {
+  background: var(--color-dark-gray);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  padding: 65px 30px;
+  width: 100%;
+}
+
+.welcome-section {
+  flex: 1;
+  max-width: 460px;
+  padding: 40px;
+  width: calc(100vw - 510px);
+}
+
+.welcome-section h1 {
+  font-size: 46px;
+  font-weight: 900;
+  margin: 20px 0;
+}
+
+@media (max-width: 970px) {
+  .welcome-section h1 {
+    font-size: min(46px, 4.58732vw);
+  }
+}
+
+@media (max-width: 875px) {
+  .form-section {
+    justify-content: flex-start;
+    height: 100%;
+  }
+
+  .welcome-section {
+    padding: 40px 30px;
+    width: 100%;
+  }
+
+  .welcome-section h1 {
+    text-align: center;
+    margin: auto;
+    font-size: 46px;
+  }
+}

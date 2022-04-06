@@ -1,0 +1,69 @@
+.button {
+  align-items: center;
+  border-radius: var(--default-border-radius);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter;
+  font-size: 15px;
+  font-weight: 700;
+  height: 42px;
+  justify-content: center;
+  padding: 14px;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+}
+
+.button.primary {
+  background: var(--color-blue);
+  color: var(--color-white);
+}
+
+.button.secondary {
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+.button.danger {
+  background: var(--color-error-red);
+  color: var(--color-white);
+}
+
+.button:disabled {
+  background: var(--color-light-gray);
+  color: var(--color-black);
+  cursor: auto;
+}
+
+.button:focus {
+  background: var(--color-medium-blue);
+  box-shadow: inset 0 0 0 2px var(--color-white);
+  outline: none;
+}
+
+/* Priamry hover/active state */
+.button.primary:hover {
+  background: var(--color-medium-blue);
+}
+
+.button.primary:active {
+  background: var(--color-medium-blue);
+}
+
+/* Secondary hover/active state */
+.button.secondary:hover {
+  background: var(--color-white-70);
+}
+
+.button.secondary:active {
+  background: var(--color-white-70);
+}
+
+/* Danger hover/active state */
+.button.danger:hover {
+  background: var(--color-error-medium-red);
+}
+
+.button.danger:active {
+  background: var(--color-error-medium-red);
+}
