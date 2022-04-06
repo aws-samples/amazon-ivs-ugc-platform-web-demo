@@ -10,15 +10,16 @@ import {
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
+import {
+  CHANNEL_CREATION_ERROR,
+  INVALID_INPUT_ERROR,
+  USER_CREATION_ERROR
+} from './constants';
 import { createFailureResponse, createSuccessResponse } from './utils';
 
-const cognitoClient = new CognitoIdentityProviderClient({
-  region: process.env.CDK_DEFAULT_REGION
-});
-const ivsClient = new IvsClient({ region: process.env.CDK_DEFAULT_REGION });
-const dynamoDbClient = new DynamoDBClient({
-  region: process.env.CDK_DEFAULT_REGION
-});
+const cognitoClient = new CognitoIdentityProviderClient({});
+const ivsClient = new IvsClient({});
+const dynamoDbClient = new DynamoDBClient({});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, password, username } = JSON.parse(event?.body || '');
@@ -28,7 +29,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       `Invalid input:\nemail: ${email}\npassword: ${password}\nusername: ${username}\n`
     );
 
-    return createFailureResponse(400);
+    return createFailureResponse({
+      message: INVALID_INPUT_ERROR,
+      statusCode: 400
+    });
   }
 
   // Create Cognito user
@@ -50,7 +54,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   } catch (error) {
     console.error(error);
 
-    return createFailureResponse();
+    return createFailureResponse({ message: USER_CREATION_ERROR });
   }
 
   // Create IVS channel
@@ -72,18 +76,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   } catch (error) {
     console.error(error);
 
-    return createFailureResponse();
+    return createFailureResponse({ message: CHANNEL_CREATION_ERROR });
   }
 
   // Create entry in the user table
   const putItemCommand = new PutItemCommand({
-    TableName: process.env.USER_TABLE_NAME,
     Item: {
-      id: { S: userSub },
-      username: { S: username },
+      channelArn: { S: channelArn },
       channelName: { S: channelName },
-      channelArn: { S: channelArn }
-    }
+      email: { S: email },
+      id: { S: userSub },
+      username: { S: username }
+    },
+    TableName: process.env.USER_TABLE_NAME
   });
 
   try {
@@ -91,8 +96,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   } catch (error) {
     console.error(error);
 
-    return createFailureResponse();
+    return createFailureResponse({ message: USER_CREATION_ERROR });
   }
 
-  return createSuccessResponse(201);
+  return createSuccessResponse({ statusCode: 201 });
 };
