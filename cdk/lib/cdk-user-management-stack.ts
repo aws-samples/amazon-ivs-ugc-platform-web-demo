@@ -40,6 +40,20 @@ export class UserManagementStack extends Stack {
     } = resourceConfig;
 
     /**
+     * Dynamo DB
+     */
+
+    const userTable = new dynamodb.Table(this, 'UserTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY
+    });
+
+    userTable.addGlobalSecondaryIndex({
+      indexName: 'emailIndex',
+      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING }
+    });
+
+    /**
      * Cognito
      */
 
@@ -47,18 +61,29 @@ export class UserManagementStack extends Stack {
     const preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
       ...(logRetention ? { logRetention } : {}),
       bundling: { minify: true },
-      entry: getLambdaEntryPath('preSignUp')
+      entry: getLambdaEntryPath('preSignUp'),
+      environment: {
+        ENABLE_USER_AUTO_VERIFY: `${enableUserAutoVerify}`,
+        USER_TABLE_NAME: userTable.tableName
+      }
     });
 
+    // Required permissions to check for email uniqueness
+    userTable.grantReadData(preSignUpLambda);
+
     const userPool = new cognito.UserPool(this, 'UserPool', {
-      ...(enableUserAutoVerify
+      ...(!enableUserAutoVerify
         ? {
-            lambdaTriggers: {
-              preSignUp: preSignUpLambda
+            // autoVerify is used to set the attribute that Cognito will use to verify users, but will not actually verify the email automatically (the user will still need to verify it upon sign-up)
+            autoVerify: { email: true },
+            userVerification: {
+              emailStyle: cognito.VerificationEmailStyle.LINK
             }
           }
         : {}),
-      ...(!enableUserAutoVerify ? { autoVerify: { email: true } } : {}),
+      lambdaTriggers: {
+        preSignUp: preSignUpLambda
+      },
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
       signInAliases: { preferredUsername: true, username: true },
@@ -67,32 +92,26 @@ export class UserManagementStack extends Stack {
           required: true,
           mutable: false
         }
-      },
-      userVerification: {
-        emailStyle: cognito.VerificationEmailStyle.LINK
       }
     });
 
-    const domainPrefixId = crypto.randomBytes(12).toString('hex');
+    if (!enableUserAutoVerify) {
+      // Cognito requires a domain when the email verification style is set to LINK
+      const domainPrefixId = crypto
+        .createHash('sha256')
+        .update(`${Stack.of(this).account}${Stack.of(this).stackName}`)
+        .digest('hex')
+        .substring(0, 12);
 
-    // Cognito requires a domain when the email verification style is set to LINK
-    userPool.addDomain('CognitoDomain', {
-      cognitoDomain: {
-        domainPrefix: `stream-health-dashboard-${domainPrefixId}`
-      }
-    });
+      userPool.addDomain('CognitoDomain', {
+        cognitoDomain: {
+          domainPrefix: `stream-health-dashboard-${domainPrefixId}`
+        }
+      });
+    }
 
     const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
       userPool
-    });
-
-    /**
-     * Dynamo DB
-     */
-
-    const userTable = new dynamodb.Table(this, 'UserTable', {
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      removalPolicy: RemovalPolicy.DESTROY
     });
 
     /**
@@ -115,13 +134,13 @@ export class UserManagementStack extends Stack {
         }
       }
     );
-    const createChannelPolicy = new iam.PolicyStatement({
+    const createIvsChannelPolicyStatement = new iam.PolicyStatement({
       actions: ['ivs:CreateChannel'],
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
 
-    registerUserLambda.addToRolePolicy(createChannelPolicy);
+    registerUserLambda.addToRolePolicy(createIvsChannelPolicyStatement);
     userTable.grantWriteData(registerUserLambda);
 
     const userManagementApiGateway = new apiGateway.RestApi(
