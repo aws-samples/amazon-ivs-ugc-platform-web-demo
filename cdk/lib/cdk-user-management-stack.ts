@@ -1,6 +1,4 @@
-import { Construct } from 'constructs';
 import {
-  aws_apigateway as apiGateway,
   aws_cognito as cognito,
   aws_dynamodb as dynamodb,
   aws_iam as iam,
@@ -12,6 +10,7 @@ import {
   StackProps
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
+import { Construct } from 'constructs';
 import crypto from 'crypto';
 
 import { getLambdaEntryPath } from './utils';
@@ -31,13 +30,8 @@ export class UserManagementStack extends Stack {
   ) {
     super(scope, id, props);
 
-    const {
-      allowedOrigin,
-      enableUserAutoVerify,
-      ivsChannelType,
-      logRetention,
-      stageName
-    } = resourceConfig;
+    const { enableUserAutoVerify, ivsChannelType, logRetention } =
+      resourceConfig;
 
     /**
      * Dynamo DB
@@ -71,6 +65,29 @@ export class UserManagementStack extends Stack {
     // Required permissions to check for email uniqueness
     userTable.grantReadData(preSignUpLambda);
 
+    // Lambda to create resources for newly confirmed users
+    const postConfirmationLambda = new lambda.NodejsFunction(
+      this,
+      'PostConfirmationLambda',
+      {
+        ...(logRetention ? { logRetention } : {}),
+        bundling: { minify: true },
+        entry: getLambdaEntryPath('postConfirmation'),
+        environment: {
+          IVS_CHANNEL_TYPE: ivsChannelType,
+          USER_TABLE_NAME: userTable.tableName
+        }
+      }
+    );
+    const createIvsChannelPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:CreateChannel'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+
+    postConfirmationLambda.addToRolePolicy(createIvsChannelPolicyStatement);
+    userTable.grantWriteData(postConfirmationLambda);
+
     const userPool = new cognito.UserPool(this, 'UserPool', {
       ...(!enableUserAutoVerify
         ? {
@@ -82,6 +99,7 @@ export class UserManagementStack extends Stack {
           }
         : {}),
       lambdaTriggers: {
+        postConfirmation: postConfirmationLambda,
         preSignUp: preSignUpLambda
       },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -111,54 +129,18 @@ export class UserManagementStack extends Stack {
     }
 
     const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
+      authFlows: { userPassword: true },
       userPool
     });
 
     /**
-     * API Gateway
-     */
-
-    // Lambda to register new users
-    const registerUserLambda = new lambda.NodejsFunction(
-      this,
-      'RegisterUserLambda',
-      {
-        ...(logRetention ? { logRetention } : {}),
-        bundling: { minify: true },
-        entry: getLambdaEntryPath('registerUser'),
-        environment: {
-          ALLOWED_ORIGIN: allowedOrigin,
-          IVS_CHANNEL_TYPE: ivsChannelType,
-          USER_TABLE_NAME: userTable.tableName,
-          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId
-        }
-      }
-    );
-    const createIvsChannelPolicyStatement = new iam.PolicyStatement({
-      actions: ['ivs:CreateChannel'],
-      effect: iam.Effect.ALLOW,
-      resources: ['*']
-    });
-
-    registerUserLambda.addToRolePolicy(createIvsChannelPolicyStatement);
-    userTable.grantWriteData(registerUserLambda);
-
-    const userManagementApiGateway = new apiGateway.RestApi(
-      this,
-      'userManagementApiGateway',
-      { deployOptions: { stageName } }
-    );
-
-    // Add the POST /register endpoint
-    userManagementApiGateway.root
-      .addResource('register')
-      .addMethod('POST', new apiGateway.LambdaIntegration(registerUserLambda));
-
-    /**
      * Stack Outputs
      */
-    new CfnOutput(this, 'userManagementApiGatewayEndpoint', {
-      value: userManagementApiGateway.url
+    new CfnOutput(this, 'userPoolId', {
+      value: userPool.userPoolId
+    });
+    new CfnOutput(this, 'userPoolClientId', {
+      value: userPoolClient.userPoolClientId
     });
   }
 }
