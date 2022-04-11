@@ -74,7 +74,6 @@ const useForm = (inputsData, submitHandler) => {
   );
 
   const clearForm = useCallback(() => {
-    updateErrors(null);
     setFormProps((prevFormProps) => {
       const nextFormProps = {};
 
@@ -84,7 +83,7 @@ const useForm = (inputsData, submitHandler) => {
 
       return nextFormProps;
     });
-  }, [updateErrors]);
+  }, []);
 
   const onChange = useCallback(
     ({ target: { name, value } }) =>
@@ -108,13 +107,13 @@ const useForm = (inputsData, submitHandler) => {
         }
       }
 
-      try {
-        const formValues = getValues(formProps);
-        await submitHandler(formValues);
-        clearForm();
-      } catch (error) {
-        console.error(error);
-      }
+      updateErrors(null);
+
+      const formValues = getValues(formProps);
+      // TEMPORARY
+      // eslint-disable-next-line no-unused-vars
+      const { result, error } = await submitHandler(formValues);
+      if (result) clearForm();
     },
     [clearForm, formProps, getValues, pathname, submitHandler, updateErrors]
   );

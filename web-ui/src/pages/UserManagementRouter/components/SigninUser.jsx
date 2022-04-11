@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 
 import Form from '../../../components/Form';
-import { signIn } from '../../../api';
+import { userManagement } from '../../../api';
 
 const SigninUser = () => (
   <Form
-    submitHandler={signIn}
+    submitHandler={userManagement.signIn}
     submitText="Sign in"
     title="Sign in to your account"
     footer={
