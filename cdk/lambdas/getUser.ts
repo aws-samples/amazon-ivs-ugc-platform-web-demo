@@ -1,9 +1,13 @@
 import { APIGatewayProxyWithCognitoAuthorizerHandler } from 'aws-lambda';
-import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
 
-import { createResponse, ResponseBody } from './utils';
+import { createResponse, getUser, ResponseBody } from './utils';
 
-const dynamoDbClient = new DynamoDBClient({});
+interface GetUserResponseBody extends ResponseBody {
+  ingestEndpoint?: string;
+  playbackUrl?: string;
+  streamKeyValue?: string;
+  username?: string;
+}
 
 export const handler: APIGatewayProxyWithCognitoAuthorizerHandler = async (
   event
@@ -14,25 +18,18 @@ export const handler: APIGatewayProxyWithCognitoAuthorizerHandler = async (
   const {
     claims: { ['cognito:username']: username, sub }
   } = authorizerContext;
-  const responseBody: ResponseBody = { username };
-
-  // Get user from userTable
-  const getItemCommand = new GetItemCommand({
-    Key: { id: { S: sub } },
-    TableName: process.env.USER_TABLE_NAME
-  });
+  const responseBody: GetUserResponseBody = { username };
 
   try {
-    const { Item = {} } = await dynamoDbClient.send(getItemCommand);
+    // Get user from userTable
+    const { Item = {} } = await getUser(sub);
 
     const {
-      channelArn: { S: channelArn },
       ingestEndpoint: { S: ingestEndpoint },
       playbackUrl: { S: playbackUrl },
       streamKeyValue: { S: streamKeyValue }
     } = Item;
 
-    responseBody.channelArn = channelArn;
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.streamKeyValue = streamKeyValue;
     responseBody.playbackUrl = playbackUrl;
