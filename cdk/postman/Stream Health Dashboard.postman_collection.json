@@ -21,6 +21,24 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "/user/streamKey/reset",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiGatewayBaseUrl}}user/streamKey/reset",
+							"host": [
+								"{{apiGatewayBaseUrl}}user"
+							],
+							"path": [
+								"streamKey",
+								"reset"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"description": "The following commands are provided for convenience if you want to make API requests without using the frontend app.\n\nSign-up a new user:\n\n``` shell\naws cognito-idp sign-up --client-id clientId --username username --password password --user-attributes Name=email,Value=\n\n```\n\nAuthenticate the newly created user:\n\n``` shell\naws cognito-idp initiate-auth --client-id clientId --auth-parameters USERNAME=username,PASSWORD=password --auth-flow USER_PASSWORD_AUTH\n\n```\n\nThe previous command will give you an `IdToken`, paste its value in the environment attached to this collection.",

@@ -38,6 +38,7 @@ export const handler: PostAuthenticationTriggerHandler = async (
   });
   let channelArn;
   let ingestEndpoint;
+  let streamKeyArn;
   let streamKeyValue;
   let playbackUrl;
 
@@ -46,11 +47,18 @@ export const handler: PostAuthenticationTriggerHandler = async (
     channelArn = channel?.arn;
     ingestEndpoint = channel?.ingestEndpoint;
     streamKeyValue = streamKey?.value;
+    streamKeyArn = streamKey?.arn;
     playbackUrl = channel?.playbackUrl;
 
-    if (!channelArn || !ingestEndpoint || !streamKeyValue || !playbackUrl) {
+    if (
+      !channelArn ||
+      !ingestEndpoint ||
+      !streamKeyArn ||
+      !streamKeyValue ||
+      !playbackUrl
+    ) {
       throw new Error(
-        `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyValue: ${ingestEndpoint}\nplaybackUrl: ${playbackUrl}`
+        `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyArn: ${streamKeyArn}\nstreamKeyValue: ${streamKeyValue}\nplaybackUrl: ${playbackUrl}`
       );
     }
   } catch (error) {
@@ -67,6 +75,7 @@ export const handler: PostAuthenticationTriggerHandler = async (
       id: { S: sub },
       ingestEndpoint: { S: `rtmps://${ingestEndpoint}:443/app/` },
       playbackUrl: { S: playbackUrl },
+      streamKeyArn: { S: streamKeyArn },
       streamKeyValue: { S: streamKeyValue }
     },
     TableName: process.env.USER_TABLE_NAME

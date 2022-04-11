@@ -156,6 +156,30 @@ export class UserManagementStack extends Stack {
 
     userTable.grantReadData(getUserLambda);
 
+    // Lambda to reset a user's stream key
+    const resetStreamKeyLambda = new lambda.NodejsFunction(
+      this,
+      'ResetStreamKeyLambda',
+      {
+        ...(logRetention ? { logRetention } : {}),
+        bundling: { minify: true },
+        entry: getLambdaEntryPath('resetStreamKey'),
+        environment: {
+          ALLOWED_ORIGIN: allowedOrigin,
+          USER_TABLE_NAME: userTable.tableName
+        }
+      }
+    );
+
+    const resetStreamKeyPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:StopStream', 'ivs:CreateStreamKey', 'ivs:DeleteStreamKey'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+
+    resetStreamKeyLambda.addToRolePolicy(resetStreamKeyPolicyStatement);
+    userTable.grantReadWriteData(resetStreamKeyLambda);
+
     const cognitoAuthorizer = new apiGateway.CognitoUserPoolsAuthorizer(
       this,
       'UserPoolAuthorizer',
@@ -173,10 +197,19 @@ export class UserManagementStack extends Stack {
       }
     );
 
+    const userResource = userManagementApiGateway.root.addResource('user');
+
     // Add the GET /user endpoint
-    userManagementApiGateway.root
-      .addResource('user')
-      .addMethod('GET', new apiGateway.LambdaIntegration(getUserLambda));
+    userResource.addMethod(
+      'GET',
+      new apiGateway.LambdaIntegration(getUserLambda)
+    );
+
+    // Add the GET /user/streamKey/reset endpoint
+    userResource
+      .addResource('streamKey')
+      .addResource('reset')
+      .addMethod('GET', new apiGateway.LambdaIntegration(resetStreamKeyLambda));
 
     /**
      * Stack Outputs
