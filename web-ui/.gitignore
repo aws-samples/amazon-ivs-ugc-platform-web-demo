@@ -2,7 +2,7 @@
 
 
 # CDK stack output
-cdk_output.json
+.env
 
 # dependencies
 /node_modules

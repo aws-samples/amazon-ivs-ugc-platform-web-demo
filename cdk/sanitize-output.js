@@ -12,5 +12,8 @@ const publicCdkOutput = {
   userPoolId
 };
 
-const outputPath = '../web-ui/src/cdk_output.json';
-writeFileSync(outputPath, JSON.stringify(publicCdkOutput));
+const outputPath = '../web-ui/.env';
+writeFileSync(
+  outputPath,
+  `REACT_APP_API_BASE_URL=${userManagementApiGatewayEndpoint}\nREACT_APP_COGNITO_USER_POOL_ID=${userPoolId}\nREACT_APP_COGNITO_USER_POOL_CLIENT_ID=${userPoolClientId}`
+);
