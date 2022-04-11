@@ -1,4 +1,5 @@
 import {
+  aws_apigateway as apiGateway,
   aws_cognito as cognito,
   aws_dynamodb as dynamodb,
   aws_iam as iam,
@@ -30,8 +31,13 @@ export class UserManagementStack extends Stack {
   ) {
     super(scope, id, props);
 
-    const { enableUserAutoVerify, ivsChannelType, logRetention } =
-      resourceConfig;
+    const {
+      allowedOrigin,
+      enableUserAutoVerify,
+      ivsChannelType,
+      logRetention,
+      stageName
+    } = resourceConfig;
 
     /**
      * Dynamo DB
@@ -134,6 +140,45 @@ export class UserManagementStack extends Stack {
     });
 
     /**
+     * API Gateway
+     */
+
+    // Lambda to get user data
+    const getUserLambda = new lambda.NodejsFunction(this, 'GetUserLambda', {
+      ...(logRetention ? { logRetention } : {}),
+      bundling: { minify: true },
+      entry: getLambdaEntryPath('getUser'),
+      environment: {
+        ALLOWED_ORIGIN: allowedOrigin,
+        USER_TABLE_NAME: userTable.tableName
+      }
+    });
+
+    userTable.grantReadData(getUserLambda);
+
+    const cognitoAuthorizer = new apiGateway.CognitoUserPoolsAuthorizer(
+      this,
+      'UserPoolAuthorizer',
+      { cognitoUserPools: [userPool] }
+    );
+    const userManagementApiGateway = new apiGateway.RestApi(
+      this,
+      'UserManagementApiGateway',
+      {
+        defaultMethodOptions: {
+          authorizer: cognitoAuthorizer,
+          authorizationType: apiGateway.AuthorizationType.COGNITO
+        },
+        deployOptions: { stageName }
+      }
+    );
+
+    // Add the GET /user endpoint
+    userManagementApiGateway.root
+      .addResource('user')
+      .addMethod('GET', new apiGateway.LambdaIntegration(getUserLambda));
+
+    /**
      * Stack Outputs
      */
     new CfnOutput(this, 'userPoolId', {
@@ -141,6 +186,9 @@ export class UserManagementStack extends Stack {
     });
     new CfnOutput(this, 'userPoolClientId', {
       value: userPoolClient.userPoolClientId
+    });
+    new CfnOutput(this, 'userManagementApiGatewayEndpoint', {
+      value: userManagementApiGateway.url
     });
   }
 }

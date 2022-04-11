@@ -37,13 +37,21 @@ export const handler: PostAuthenticationTriggerHandler = async (
     type: process.env.IVS_CHANNEL_TYPE as ChannelType
   });
   let channelArn;
+  let ingestEndpoint;
+  let streamKeyValue;
+  let playbackUrl;
 
   try {
-    const { channel } = await ivsClient.send(createChannelCommand);
+    const { channel, streamKey } = await ivsClient.send(createChannelCommand);
     channelArn = channel?.arn;
+    ingestEndpoint = channel?.ingestEndpoint;
+    streamKeyValue = streamKey?.value;
+    playbackUrl = channel?.playbackUrl;
 
-    if (!channelArn) {
-      throw new Error(`Empty ARN for channel: ${channelName}`);
+    if (!channelArn || !ingestEndpoint || !streamKeyValue || !playbackUrl) {
+      throw new Error(
+        `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyValue: ${ingestEndpoint}\nplaybackUrl: ${playbackUrl}`
+      );
     }
   } catch (error) {
     console.error(error);
@@ -56,7 +64,10 @@ export const handler: PostAuthenticationTriggerHandler = async (
     Item: {
       channelArn: { S: channelArn },
       email: { S: email },
-      id: { S: sub }
+      id: { S: sub },
+      ingestEndpoint: { S: `rtmps://${ingestEndpoint}:443/app/` },
+      playbackUrl: { S: playbackUrl },
+      streamKeyValue: { S: streamKeyValue }
     },
     TableName: process.env.USER_TABLE_NAME
   });
