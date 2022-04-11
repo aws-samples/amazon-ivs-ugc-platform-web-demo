@@ -1,0 +1,64 @@
+{
+	"info": {
+		"_postman_id": "ca06633a-eb53-40fa-868a-3587d6e53919",
+		"name": "Stream Health Dashboard",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "/user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiGatewayBaseUrl}}user",
+							"host": [
+								"{{apiGatewayBaseUrl}}user"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The following commands are provided for convenience if you want to make API requests without using the frontend app.\n\nSign-up a new user:\n\n``` shell\naws cognito-idp sign-up --client-id clientId --username username --password password --user-attributes Name=email,Value=\n\n```\n\nAuthenticate the newly created user:\n\n``` shell\naws cognito-idp initiate-auth --client-id clientId --auth-parameters USERNAME=username,PASSWORD=password --auth-flow USER_PASSWORD_AUTH\n\n```\n\nThe previous command will give you an `IdToken`, paste its value in the environment attached to this collection.",
+			"auth": {
+				"type": "oauth2",
+				"oauth2": [
+					{
+						"key": "headerPrefix",
+						"value": "",
+						"type": "string"
+					},
+					{
+						"key": "addTokenTo",
+						"value": "header",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
