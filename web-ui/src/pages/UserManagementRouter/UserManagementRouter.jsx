@@ -8,7 +8,7 @@ import SigninUser from './components/SigninUser';
 
 import './UserManagementRouter.css';
 
-const SigninAndSignup = () => (
+const UserManagementRouter = () => (
   <Grid>
     <Grid.Col>
       <section className="welcome-section">
@@ -28,4 +28,4 @@ const SigninAndSignup = () => (
   </Grid>
 );
 
-export default SigninAndSignup;
+export default UserManagementRouter;

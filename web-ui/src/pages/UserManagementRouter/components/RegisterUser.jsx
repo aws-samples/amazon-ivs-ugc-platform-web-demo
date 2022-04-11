@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 
 import Form from '../../../components/Form';
-import { register } from '../../../api';
+import { userManagement } from '../../../api';
 
 const RegisterUser = () => (
   <Form
-    submitHandler={register}
+    submitHandler={userManagement.register}
     submitText="Create account"
     title="Create a new account"
     footer={
