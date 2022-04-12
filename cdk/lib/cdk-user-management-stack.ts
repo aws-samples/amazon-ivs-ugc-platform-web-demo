@@ -180,6 +180,37 @@ export class UserManagementStack extends Stack {
     resetStreamKeyLambda.addToRolePolicy(resetStreamKeyPolicyStatement);
     userTable.grantReadWriteData(resetStreamKeyLambda);
 
+    // Lambda to delete a user account and its associated resources
+    const deleteUserLambda = new lambda.NodejsFunction(
+      this,
+      'DeleteUserLambda',
+      {
+        ...(logRetention ? { logRetention } : {}),
+        bundling: { minify: true },
+        entry: getLambdaEntryPath('deleteUser'),
+        environment: {
+          ALLOWED_ORIGIN: allowedOrigin,
+          USER_TABLE_NAME: userTable.tableName,
+          USER_POOL_ID: userPool.userPoolId
+        }
+      }
+    );
+
+    const deleteIvsChannelPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:StopStream', 'ivs:DeleteChannel'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    const deleteUserPolicyStatement = new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminDeleteUser', 'cognito-idp:AdminDisableUser'],
+      effect: iam.Effect.ALLOW,
+      resources: [userPool.userPoolArn]
+    });
+
+    deleteUserLambda.addToRolePolicy(deleteIvsChannelPolicyStatement);
+    deleteUserLambda.addToRolePolicy(deleteUserPolicyStatement);
+    userTable.grantReadWriteData(deleteUserLambda);
+
     const cognitoAuthorizer = new apiGateway.CognitoUserPoolsAuthorizer(
       this,
       'UserPoolAuthorizer',
@@ -203,6 +234,12 @@ export class UserManagementStack extends Stack {
     userResource.addMethod(
       'GET',
       new apiGateway.LambdaIntegration(getUserLambda)
+    );
+
+    // Add the DELETE /user endpoint
+    userResource.addMethod(
+      'DELETE',
+      new apiGateway.LambdaIntegration(deleteUserLambda)
     );
 
     // Add the GET /user/streamKey/reset endpoint

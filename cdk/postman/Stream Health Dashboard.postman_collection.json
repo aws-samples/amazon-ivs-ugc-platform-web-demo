@@ -23,6 +23,20 @@
 					"response": []
 				},
 				{
+					"name": "/user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{apiGatewayBaseUrl}}user",
+							"host": [
+								"{{apiGatewayBaseUrl}}user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/user/streamKey/reset",
 					"request": {
 						"method": "GET",

@@ -1,5 +1,5 @@
-import { APIGatewayProxyWithCognitoAuthorizerEvent } from 'aws-lambda';
 import {
+  DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
   UpdateItemCommand
@@ -16,7 +16,7 @@ export const createResponse = (
   body: JSON.stringify(body),
   headers: {
     'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN as string,
-    'Access-Control-Allow-Methods': 'OPTIONS, POST'
+    'Access-Control-Allow-Methods': 'OPTIONS, GET, DELETE'
   },
   statusCode
 });
@@ -30,6 +30,15 @@ export const getUser = (sub: string) => {
   });
 
   return dynamoDbClient.send(getItemCommand);
+};
+
+export const deleteUser = (sub: string) => {
+  const deleteItemCommand = new DeleteItemCommand({
+    Key: { id: { S: sub } },
+    TableName: process.env.USER_TABLE_NAME
+  });
+
+  return dynamoDbClient.send(deleteItemCommand);
 };
 
 export const updateUserStreamKey = (
