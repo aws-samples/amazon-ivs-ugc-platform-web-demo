@@ -19,8 +19,9 @@ const RegisterUser = () => (
       email: {},
       password: {
         type: 'password',
-        confirm: true
-        // footer: '8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols'
+        confirm: true,
+        description:
+          '8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.'
       }
     }}
   />

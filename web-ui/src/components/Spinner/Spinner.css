@@ -1,0 +1,38 @@
+@keyframes stroke-anim {
+  0% {
+    stroke-dasharray: 1px, 200px;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 100px, 200px;
+    stroke-dashoffset: -15px;
+  }
+
+  100% {
+    stroke-dasharray: 100px, 200px;
+    stroke-dashoffset: -125px;
+  }
+}
+
+@keyframes rotate-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  color: var(--color-white);
+  animation: 1.4s linear 0s infinite normal none running rotate-anim;
+}
+
+.spinner circle {
+  stroke: currentColor;
+  stroke-dasharray: 80px, 200px;
+  stroke-linecap: round;
+  animation: stroke-anim 1.4s ease-in-out infinite;
+}

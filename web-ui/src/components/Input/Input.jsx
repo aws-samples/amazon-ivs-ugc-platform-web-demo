@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Error, EyeEnable, EyeDisable } from '../../assets/icons';
-
 import './Input.css';
 
 const Input = ({
+  description,
   error,
   footer,
   label,
@@ -16,18 +16,11 @@ const Input = ({
   value
 }) => {
   const [inputType, setInputType] = useState(initialType);
+  const hideDescription = useRef(false);
 
-  let Footer = null;
-  if (error) {
-    Footer = (
-      <div className="error-message">
-        <Error />
-        <p>{error}</p>
-      </div>
-    );
-  } else if (footer) {
-    Footer = <span className="footer">{footer}</span>;
-  }
+  useEffect(() => {
+    hideDescription.current = hideDescription.current || !!error;
+  }, [error]);
 
   return (
     <div className="outer-input-container">
@@ -64,12 +57,26 @@ const Input = ({
           </button>
         )}
       </div>
-      {Footer}
+      {error ? (
+        <span className="error-message">
+          <Error />
+          <p>{error}</p>
+        </span>
+      ) : (
+        description &&
+        !hideDescription.current && (
+          <span className="description">
+            <p>{description}</p>
+          </span>
+        )
+      )}
+      {footer && <span className="footer">{footer}</span>}
     </div>
   );
 };
 
 Input.defaultProps = {
+  description: '',
   error: '',
   footer: undefined,
   label: '',
@@ -79,6 +86,7 @@ Input.defaultProps = {
 };
 
 Input.propTypes = {
+  description: PropTypes.string,
   error: PropTypes.string,
   footer: PropTypes.node,
   label: PropTypes.string,

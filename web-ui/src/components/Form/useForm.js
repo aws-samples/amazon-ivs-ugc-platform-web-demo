@@ -19,7 +19,12 @@ const defaultInputProps = (inputName, isConfirm) => {
     placeholder: `${
       isConfirm ? 'Confirm' : 'Enter'
     } your ${inputName.toLowerCase()}`,
-    ...(isConfirm && { error: '', footer: null, confirms: inputName })
+    ...(isConfirm && {
+      error: '',
+      footer: null,
+      description: '',
+      confirms: inputName
+    })
   };
 };
 
@@ -43,6 +48,7 @@ const generateInputProps = (inputsData) =>
 const useForm = (inputsData, submitHandler) => {
   const { pathname } = useLocation();
   const [formProps, setFormProps] = useState(generateInputProps(inputsData));
+  const [isLoading, setIsLoading] = useState(false);
 
   const getValues = useCallback(() => {
     const values = {};
@@ -97,6 +103,7 @@ const useForm = (inputsData, submitHandler) => {
   const onSubmit = useCallback(
     async (event) => {
       event.preventDefault();
+      if (isLoading) return;
 
       if (pathname === '/register' || pathname === '/recover') {
         const validationErrors = validateForm(formProps, pathname);
@@ -107,6 +114,7 @@ const useForm = (inputsData, submitHandler) => {
         }
       }
 
+      setIsLoading(true);
       updateErrors(null);
 
       const formValues = getValues(formProps);
@@ -114,11 +122,20 @@ const useForm = (inputsData, submitHandler) => {
       // eslint-disable-next-line no-unused-vars
       const { result, error } = await submitHandler(formValues);
       if (result) clearForm();
+      setIsLoading(false);
     },
-    [clearForm, formProps, getValues, pathname, submitHandler, updateErrors]
+    [
+      clearForm,
+      formProps,
+      getValues,
+      isLoading,
+      pathname,
+      submitHandler,
+      updateErrors
+    ]
   );
 
-  return [formProps, onChange, onSubmit];
+  return [formProps, isLoading, onChange, onSubmit];
 };
 
 export default useForm;
