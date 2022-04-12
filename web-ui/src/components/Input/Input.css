@@ -12,8 +12,17 @@
   margin-bottom: 15px;
 }
 
-.outer-input-container .footer {
-  margin-top: 15px;
+.outer-input-container .description {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.outer-input-container .description p {
+  color: var(--color-light-gray);
+  font-size: 13px;
+  font-weight: 500;
+  position: absolute;
+  top: 5px;
 }
 
 .outer-input-container .error-message {
@@ -25,6 +34,10 @@
   font-weight: 500;
   position: absolute;
   top: 84px;
+}
+
+.outer-input-container .footer {
+  margin-top: 15px;
 }
 
 .inner-input-container {

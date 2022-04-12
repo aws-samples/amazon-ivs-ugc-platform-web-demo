@@ -3,21 +3,20 @@
   --default-border-radius: 24px;
 
   /* Palette colors */
-  --color-blue: #42c0ff;
-  --color-medium-blue: #0081c2;
+  --color-blue: #41c0ff;
+  --color-medium-blue: #0083c3;
 
-  --color-error-red: #ff797c;
+  --color-error-red: #eb0400;
   --color-error-medium-red: #800000;
 
-  --color-extra-dark-gray: #151515;
-  --color-dark-gray: #1f1f1f;
-  --color-medium-gray: #2d2d2d;
-  --color-gray: #454545;
-  --color-light-gray: #8f8f8f;
-  --color-extra-light-gray: #dbdbdb;
+  --color-dark-gray: #16171b;
+  --color-medium-gray: #292b32;
+  --color-gray: #3e414c;
+  --color-light-gray: #abafbd;
+  --color-extra-light-gray: #d7d9e2;
 
-  --color-yellow: #ffdb73;
-  --color-neon-green: #ffdb73;
+  --color-yellow: #f19600;
+  --color-green: #34d85d;
 
   --color-white: #ffffff;
   --color-white-90: rgba(255, 255, 255, 0.9);

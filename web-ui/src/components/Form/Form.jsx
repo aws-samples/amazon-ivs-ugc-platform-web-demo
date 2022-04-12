@@ -7,7 +7,10 @@ import useForm from './useForm';
 import './Form.css';
 
 const Form = ({ footer, inputsData, submitHandler, submitText, title }) => {
-  const [formProps, onChange, onSubmit] = useForm(inputsData, submitHandler);
+  const [formProps, isLoading, onChange, onSubmit] = useForm(
+    inputsData,
+    submitHandler
+  );
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
 
   return (
@@ -17,7 +20,11 @@ const Form = ({ footer, inputsData, submitHandler, submitText, title }) => {
         <Input {...inputProps} key={inputProps.name} onChange={onChange} />
       ))}
       <div className="submit-container">
-        <Button type="submit" isDisabled={!isFormComplete}>
+        <Button
+          type="submit"
+          isDisabled={!isFormComplete}
+          isLoading={isLoading}
+        >
           {submitText}
         </Button>
         {footer}
