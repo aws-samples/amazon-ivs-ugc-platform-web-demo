@@ -15,18 +15,14 @@ import {
 const ivsClient = new IvsClient({});
 const dynamoDbClient = new DynamoDBClient({});
 
-export const handler: PostAuthenticationTriggerHandler = async (
-  event,
-  _context,
-  callback
-) => {
+export const handler: PostAuthenticationTriggerHandler = async (event) => {
   const { request, userName } = event;
   const { email, sub } = request.userAttributes;
 
   if (!email || !userName) {
     console.error(`Invalid input:\nemail: ${email}\nuserName: ${userName}\n`);
 
-    return callback(new Error(INVALID_INPUT_ERROR), null);
+    throw new Error(INVALID_INPUT_ERROR);
   }
 
   // Create IVS channel
@@ -64,7 +60,7 @@ export const handler: PostAuthenticationTriggerHandler = async (
   } catch (error) {
     console.error(error);
 
-    return callback(new Error(CHANNEL_CREATION_ERROR), null);
+    throw new Error(CHANNEL_CREATION_ERROR);
   }
 
   // Create entry in the user table
@@ -86,8 +82,8 @@ export const handler: PostAuthenticationTriggerHandler = async (
   } catch (error) {
     console.error(error);
 
-    return callback(new Error(USER_CREATION_ERROR), null);
+    throw new Error(USER_CREATION_ERROR);
   }
 
-  return callback(null, event);
+  return event;
 };

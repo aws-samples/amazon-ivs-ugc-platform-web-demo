@@ -5,7 +5,7 @@ import {
   IvsClient,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
-import { APIGatewayProxyWithCognitoAuthorizerHandler } from 'aws-lambda';
+import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
 import {
   createResponse,
@@ -13,6 +13,7 @@ import {
   ResponseBody,
   updateUserStreamKey
 } from './utils';
+import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});
 
@@ -20,15 +21,14 @@ export interface ResetStreamKeyResponseBody extends ResponseBody {
   streamKeyValue?: string;
 }
 
-export const handler: APIGatewayProxyWithCognitoAuthorizerHandler = async (
-  event
-) => {
+export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
+  UserContext
+> = async (event) => {
   const {
-    requestContext: { authorizer: authorizerContext }
+    requestContext: {
+      authorizer: { sub }
+    }
   } = event;
-  const {
-    claims: { sub }
-  } = authorizerContext;
   const responseBody: ResetStreamKeyResponseBody = {};
   let newStreamKeyArn;
   let newStreamKeyValue;
