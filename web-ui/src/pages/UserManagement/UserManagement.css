@@ -29,8 +29,9 @@
 
 @media (max-width: 875px) {
   .form-section {
-    justify-content: flex-start;
     height: 100%;
+    justify-content: flex-start;
+    padding: 30px;
   }
 
   .welcome-section {

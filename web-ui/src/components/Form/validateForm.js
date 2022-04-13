@@ -1,12 +1,6 @@
-const ERROR_MESSAGES = {
-  EMAIL: 'Enter a valid email',
-  USERNAME: 'Only letters, numbers & symbols are allowed.',
-  PASSWORD: {
-    LENGTH: 'Use 8 characters or more.',
-    STRENGTH: 'At least 1 uppercase & lowercase letter, number, and symbol.'
-  },
-  CONFIRM_PASSWORD: 'Passwords didn’t match. Try again.'
-};
+import { userManagement as $content } from '../../content';
+
+const { errorMessages } = $content;
 
 export const validatePasswordLength = (password) => {
   const regex = /\S{8,256}/;
@@ -31,29 +25,36 @@ const validateUsername = (username) => {
 };
 
 const validateForm = (formProps) => {
-  const validationErrors = Object.entries(formProps).reduce(
-    (errors, [key, { value, confirms }]) => {
+  const validationErrors = Object.values(formProps).reduce(
+    (errors, { value, name, confirms }) => {
       if (confirms) {
         if (!value || formProps[confirms].value !== value) {
-          errors[key] = ERROR_MESSAGES.CONFIRM_PASSWORD;
+          errors[name] = errorMessages.passwords_mismatch;
         }
       }
 
-      switch (key) {
+      switch (name) {
         case 'username': {
-          if (!validateUsername(value)) errors[key] = ERROR_MESSAGES.USERNAME;
+          if (!validateUsername(value))
+            errors[name] = errorMessages.invalid_username;
           break;
         }
         case 'email': {
-          if (!validateEmail(value)) errors[key] = ERROR_MESSAGES.EMAIL;
+          if (!validateEmail(value)) errors[name] = errorMessages.invalid_email;
           break;
         }
         case 'password': {
-          if (!validatePasswordLength(value)) {
-            errors[key] = ERROR_MESSAGES.PASSWORD.LENGTH;
-          } else if (!validatePasswordStrength(value)) {
-            errors[key] = ERROR_MESSAGES.PASSWORD.STRENGTH;
+          const isValidLength = validatePasswordLength(value);
+          const isValidStrength = validatePasswordStrength(value);
+
+          if (!isValidLength && !isValidStrength) {
+            errors[name] = errorMessages.invalid_password;
+          } else if (!isValidLength) {
+            errors[name] = errorMessages.invalid_password_length;
+          } else if (!isValidStrength) {
+            errors[name] = errorMessages.invalid_password_strength;
           }
+
           break;
         }
         default:

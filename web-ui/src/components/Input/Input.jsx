@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import { Error, EyeEnable, EyeDisable } from '../../assets/icons';
+import { Error, Visibility, VisibilityOff } from '../../assets/icons';
 import './Input.css';
 
 const Input = ({
@@ -53,13 +53,17 @@ const Input = ({
               );
             }}
           >
-            {inputType === 'password' ? <EyeEnable /> : <EyeDisable />}
+            {inputType === 'password' ? (
+              <Visibility className="visibility-icon" />
+            ) : (
+              <VisibilityOff className="visibility-icon" />
+            )}
           </button>
         )}
       </div>
       {error ? (
         <span className="error-message">
-          <Error />
+          <Error className="error-icon" />
           <p>{error}</p>
         </span>
       ) : (

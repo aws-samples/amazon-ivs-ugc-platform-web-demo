@@ -1,18 +1,17 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 
 import Grid from '../../components/Grid';
-// Pages
-import RecoverPassword from './components/RecoverPassword';
-import RegisterUser from './components/RegisterUser';
-import SigninUser from './components/SigninUser';
+import RecoverPassword from './subpages/RecoverPassword';
+import RegisterUser from './subpages/RegisterUser';
+import SigninUser from './subpages/SigninUser';
+import { app as $content } from '../../content';
+import './UserManagement.css';
 
-import './UserManagementRouter.css';
-
-const UserManagementRouter = () => (
+const UserManagement = () => (
   <Grid>
     <Grid.Col>
       <section className="welcome-section">
-        <h1>Stream Health</h1>
+        <h1>{$content.title}</h1>
       </section>
     </Grid.Col>
     <Grid.Col autoFit>
@@ -28,4 +27,4 @@ const UserManagementRouter = () => (
   </Grid>
 );
 
-export default UserManagementRouter;
+export default UserManagement;
