@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 
-import SigninAndSignup from './pages/UserManagementRouter';
+import UserManagement from './pages/UserManagement';
 import Dashboard from './pages/Dashboard';
 
 const App = () => {
@@ -12,7 +12,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
-      <Route path="/*" element={<SigninAndSignup />} />
+      <Route path="/*" element={<UserManagement />} />
     </Routes>
   );
 };

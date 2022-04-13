@@ -33,13 +33,13 @@ const Form = ({ footer, inputsData, submitHandler, submitText, title }) => {
   );
 };
 
-Form.defaultProps = { footer: null, inputsData: {}, submitText: 'Submit' };
+Form.defaultProps = { footer: null, inputsData: {} };
 
 Form.propTypes = {
   footer: PropTypes.node,
   inputsData: PropTypes.object,
   submitHandler: PropTypes.func.isRequired,
-  submitText: PropTypes.string,
+  submitText: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired
 };
 

@@ -43,13 +43,6 @@
   --color-black-05: rgba(0, 0, 0, 0.05);
 }
 
-@font-face {
-  font-family: Inter;
-  font-weight: 400 900;
-  src: url('/src/assets/fonts/inter/Inter-VariableFont_slnt,wght.ttf')
-    format('truetype');
-}
-
 *,
 *::before,
 *::after {
@@ -93,8 +86,11 @@ a:not([class]) {
 }
 
 a:focus-visible {
-  border-radius: 2px;
-  outline: 2px solid var(--color-white);
+  border-bottom: 2px solid var(--color-medium-blue);
+  margin-bottom: -5px;
+  outline: none;
+  padding-bottom: 3px;
+  position: relative;
 }
 
 @media (prefers-reduced-motion: reduce) {

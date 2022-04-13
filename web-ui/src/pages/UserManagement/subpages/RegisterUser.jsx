@@ -2,16 +2,17 @@ import { Link } from 'react-router-dom';
 
 import Form from '../../../components/Form';
 import { userManagement } from '../../../api';
+import { userManagement as $content } from '../../../content';
 
 const RegisterUser = () => (
   <Form
     submitHandler={userManagement.register}
-    submitText="Create account"
-    title="Create a new account"
+    submitText={$content.register.create_account}
+    title={$content.register.title}
     footer={
       <span>
-        <b>Have an account?</b>&nbsp;
-        <Link to="/login">Sign in</Link>
+        <b>{$content.register.have_an_account}</b>&nbsp;
+        <Link to="/login">{$content.sign_in}</Link>
       </span>
     }
     inputsData={{
@@ -20,8 +21,7 @@ const RegisterUser = () => (
       password: {
         type: 'password',
         confirm: true,
-        description:
-          '8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.'
+        description: $content.register.password_description
       }
     }}
   />

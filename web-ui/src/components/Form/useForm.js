@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { userManagement as $content } from '../../content';
 import validateForm from './validateForm';
 
-const defaultInputProps = (inputName, isConfirm) => {
-  const displayName = isConfirm ? `confirm ${inputName}` : inputName;
+const defaultInputProps = (inputLabel, isConfirm) => {
+  const label = isConfirm ? `${$content.confirm} ${inputLabel}` : inputLabel;
 
   const camelize = (str) =>
     str
@@ -14,30 +15,30 @@ const defaultInputProps = (inputName, isConfirm) => {
       .replace(/\s+/g, '');
 
   return {
-    label: displayName,
-    name: camelize(displayName),
+    label,
+    name: camelize(label),
     placeholder: `${
-      isConfirm ? 'Confirm' : 'Enter'
-    } your ${inputName.toLowerCase()}`,
+      isConfirm ? $content.form.confirm_your : $content.form.enter_your
+    } ${inputLabel.toLowerCase()}`,
     ...(isConfirm && {
       error: '',
       footer: null,
       description: '',
-      confirms: inputName
+      confirms: inputLabel
     })
   };
 };
 
 const generateInputProps = (inputsData) =>
-  Object.entries(inputsData).reduce((inputProps, [inputName, options]) => {
+  Object.entries(inputsData).reduce((inputProps, [inputLabel, options]) => {
     const { confirm, ...restOptions } = options;
-    inputProps[inputName] = { ...defaultInputProps(inputName), ...options };
+    inputProps[inputLabel] = { ...defaultInputProps(inputLabel), ...options };
 
     if (confirm) {
       // Add another input that will be used to confirm this input
       const confirmProps = {
         ...restOptions,
-        ...defaultInputProps(inputName, true)
+        ...defaultInputProps(inputLabel, true)
       };
       inputProps[confirmProps.name] = confirmProps;
     }

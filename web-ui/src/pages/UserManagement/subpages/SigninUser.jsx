@@ -2,23 +2,24 @@ import { Link } from 'react-router-dom';
 
 import Form from '../../../components/Form';
 import { userManagement } from '../../../api';
+import { userManagement as $content } from '../../../content';
 
 const SigninUser = () => (
   <Form
     submitHandler={userManagement.signIn}
-    submitText="Sign in"
-    title="Sign in to your account"
+    submitText={$content.sign_in}
+    title={$content.login.title}
     footer={
       <span>
-        <b>New user?</b>&nbsp;
-        <Link to="/register">Create an account</Link>
+        <b>{$content.login.new_user}</b>&nbsp;
+        <Link to="/register">{$content.login.create_an_account}</Link>
       </span>
     }
     inputsData={{
       username: {},
       password: {
         type: 'password',
-        footer: <Link to="/recover">Forgot password?</Link>
+        footer: <Link to="/recover">{$content.login.forgot_password}</Link>
       }
     }}
   />
