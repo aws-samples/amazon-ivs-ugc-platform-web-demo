@@ -3,28 +3,28 @@ import {
   AdminDisableUserCommand,
   CognitoIdentityProviderClient
 } from '@aws-sdk/client-cognito-identity-provider';
-import { APIGatewayProxyWithCognitoAuthorizerHandler } from 'aws-lambda';
 import {
   ChannelNotBroadcasting,
   DeleteChannelCommand,
   IvsClient,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
+import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
 import { createResponse, deleteUser, getUser } from './utils';
+import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});
 const cognitoClient = new CognitoIdentityProviderClient({});
 
-export const handler: APIGatewayProxyWithCognitoAuthorizerHandler = async (
-  event
-) => {
+export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
+  UserContext
+> = async (event) => {
   const {
-    requestContext: { authorizer: authorizerContext }
+    requestContext: {
+      authorizer: { sub, username }
+    }
   } = event;
-  const {
-    claims: { ['cognito:username']: username, sub }
-  } = authorizerContext;
 
   try {
     // Disable Cognito user

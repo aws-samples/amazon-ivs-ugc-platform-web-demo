@@ -31,6 +31,7 @@ export class UserManagementStack extends Stack {
   ) {
     super(scope, id, props);
 
+    // Configuration variables based on the stage (dev or prod)
     const {
       allowedOrigin,
       enableUserAutoVerify,
@@ -39,8 +40,14 @@ export class UserManagementStack extends Stack {
       stageName
     } = resourceConfig;
 
+    // Default lambda parameters
+    const defaultLambdaParams = {
+      ...(logRetention ? { logRetention } : {}),
+      bundling: { minify: true }
+    };
+
     /**
-     * Dynamo DB
+     * Dynamo DB User Table
      */
 
     const userTable = new dynamodb.Table(this, 'UserTable', {
@@ -54,13 +61,12 @@ export class UserManagementStack extends Stack {
     });
 
     /**
-     * Cognito
+     * Cognito Lambda Triggers
      */
 
     // Lambda to auto verify new users, not suitable for production
     const preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
-      ...(logRetention ? { logRetention } : {}),
-      bundling: { minify: true },
+      ...defaultLambdaParams,
       entry: getLambdaEntryPath('preSignUp'),
       environment: {
         ENABLE_USER_AUTO_VERIFY: `${enableUserAutoVerify}`,
@@ -76,8 +82,7 @@ export class UserManagementStack extends Stack {
       this,
       'PostConfirmationLambda',
       {
-        ...(logRetention ? { logRetention } : {}),
-        bundling: { minify: true },
+        ...defaultLambdaParams,
         entry: getLambdaEntryPath('postConfirmation'),
         environment: {
           IVS_CHANNEL_TYPE: ivsChannelType,
@@ -94,6 +99,11 @@ export class UserManagementStack extends Stack {
     postConfirmationLambda.addToRolePolicy(createIvsChannelPolicyStatement);
     userTable.grantWriteData(postConfirmationLambda);
 
+    /**
+     * Cognito User Pool
+     */
+
+    // Create user pool
     const userPool = new cognito.UserPool(this, 'UserPool', {
       ...(!enableUserAutoVerify
         ? {
@@ -134,6 +144,7 @@ export class UserManagementStack extends Stack {
       });
     }
 
+    // Create user pool client
     const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
       authFlows: { userPassword: true },
       userPool
@@ -144,9 +155,9 @@ export class UserManagementStack extends Stack {
      */
 
     // Lambda to get user data
-    const getUserLambda = new lambda.NodejsFunction(this, 'GetUserLambda', {
-      ...(logRetention ? { logRetention } : {}),
-      bundling: { minify: true },
+    const getUserLambdaId = 'GetUserLambda';
+    const getUserLambda = new lambda.NodejsFunction(this, getUserLambdaId, {
+      ...defaultLambdaParams,
       entry: getLambdaEntryPath('getUser'),
       environment: {
         ALLOWED_ORIGIN: allowedOrigin,
@@ -157,12 +168,12 @@ export class UserManagementStack extends Stack {
     userTable.grantReadData(getUserLambda);
 
     // Lambda to reset a user's stream key
+    const resetStreamKeyLambdaId = 'ResetStreamKeyLambda';
     const resetStreamKeyLambda = new lambda.NodejsFunction(
       this,
-      'ResetStreamKeyLambda',
+      resetStreamKeyLambdaId,
       {
-        ...(logRetention ? { logRetention } : {}),
-        bundling: { minify: true },
+        ...defaultLambdaParams,
         entry: getLambdaEntryPath('resetStreamKey'),
         environment: {
           ALLOWED_ORIGIN: allowedOrigin,
@@ -170,7 +181,6 @@ export class UserManagementStack extends Stack {
         }
       }
     );
-
     const resetStreamKeyPolicyStatement = new iam.PolicyStatement({
       actions: ['ivs:StopStream', 'ivs:CreateStreamKey', 'ivs:DeleteStreamKey'],
       effect: iam.Effect.ALLOW,
@@ -181,12 +191,12 @@ export class UserManagementStack extends Stack {
     userTable.grantReadWriteData(resetStreamKeyLambda);
 
     // Lambda to delete a user account and its associated resources
+    const deleteUserLambdaId = 'DeleteUserLambda';
     const deleteUserLambda = new lambda.NodejsFunction(
       this,
-      'DeleteUserLambda',
+      deleteUserLambdaId,
       {
-        ...(logRetention ? { logRetention } : {}),
-        bundling: { minify: true },
+        ...defaultLambdaParams,
         entry: getLambdaEntryPath('deleteUser'),
         environment: {
           ALLOWED_ORIGIN: allowedOrigin,
@@ -195,7 +205,6 @@ export class UserManagementStack extends Stack {
         }
       }
     );
-
     const deleteIvsChannelPolicyStatement = new iam.PolicyStatement({
       actions: ['ivs:StopStream', 'ivs:DeleteChannel'],
       effect: iam.Effect.ALLOW,
@@ -211,46 +220,67 @@ export class UserManagementStack extends Stack {
     deleteUserLambda.addToRolePolicy(deleteUserPolicyStatement);
     userTable.grantReadWriteData(deleteUserLambda);
 
-    const cognitoAuthorizer = new apiGateway.CognitoUserPoolsAuthorizer(
+    // Lambda to authorize requests to the API Gateway
+    const authorizerLambda = new lambda.NodejsFunction(
       this,
-      'UserPoolAuthorizer',
-      { cognitoUserPools: [userPool] }
-    );
-    const userManagementApiGateway = new apiGateway.RestApi(
-      this,
-      'UserManagementApiGateway',
+      'AuthorizerLambda',
       {
-        defaultMethodOptions: {
-          authorizer: cognitoAuthorizer,
-          authorizationType: apiGateway.AuthorizationType.COGNITO
-        },
-        deployOptions: { stageName }
+        ...defaultLambdaParams,
+        entry: getLambdaEntryPath('authorizer'),
+        environment: {
+          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+          USER_POOL_ID: userPool.userPoolId
+        }
       }
     );
 
+    const createJwtAuthorizerProps = (lambdaName: string) => ({
+      authorizer: new apiGateway.TokenAuthorizer(
+        this,
+        `JwtAuthorizer${lambdaName}`,
+        { handler: authorizerLambda }
+      ),
+      authorizationType: apiGateway.AuthorizationType.CUSTOM
+    });
+
+    // Create the API Gateway
+    const userManagementApiGateway = new apiGateway.RestApi(
+      this,
+      'UserManagementApiGateway',
+      { deployOptions: { stageName } }
+    );
+
+    // Add resources
     const userResource = userManagementApiGateway.root.addResource('user');
 
     // Add the GET /user endpoint
     userResource.addMethod(
       'GET',
-      new apiGateway.LambdaIntegration(getUserLambda)
+      new apiGateway.LambdaIntegration(getUserLambda),
+      { ...createJwtAuthorizerProps(getUserLambdaId) }
     );
 
     // Add the DELETE /user endpoint
     userResource.addMethod(
       'DELETE',
-      new apiGateway.LambdaIntegration(deleteUserLambda)
+      new apiGateway.LambdaIntegration(deleteUserLambda),
+      { ...createJwtAuthorizerProps(deleteUserLambdaId) }
     );
 
     // Add the GET /user/streamKey/reset endpoint
     userResource
       .addResource('streamKey')
       .addResource('reset')
-      .addMethod('GET', new apiGateway.LambdaIntegration(resetStreamKeyLambda));
+      .addMethod(
+        'GET',
+        new apiGateway.LambdaIntegration(resetStreamKeyLambda),
+        { ...createJwtAuthorizerProps(resetStreamKeyLambdaId) }
+      );
 
     /**
      * Stack Outputs
      */
+
     new CfnOutput(this, 'userPoolId', {
       value: userPool.userPoolId
     });

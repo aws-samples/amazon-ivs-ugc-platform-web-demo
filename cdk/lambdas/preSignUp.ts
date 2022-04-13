@@ -5,11 +5,7 @@ import { EMAIL_EXISTS_ERROR } from './constants';
 
 const dynamoDbClient = new DynamoDBClient({});
 
-export const handler: PreSignUpTriggerHandler = async (
-  event,
-  _context,
-  callback
-) => {
+export const handler: PreSignUpTriggerHandler = async (event) => {
   const { email: signupEmail = '' } = event.request.userAttributes;
 
   if (signupEmail) {
@@ -25,10 +21,10 @@ export const handler: PreSignUpTriggerHandler = async (
       const { Items } = await dynamoDbClient.send(queryCommand);
 
       if (Items && Items.length > 0) {
-        return callback(new Error(EMAIL_EXISTS_ERROR), null);
+        throw (new Error(EMAIL_EXISTS_ERROR), null);
       }
-    } catch (error: any) {
-      return callback(error, null);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -44,5 +40,5 @@ export const handler: PreSignUpTriggerHandler = async (
     }
   }
 
-  callback(null, event);
+  return event;
 };

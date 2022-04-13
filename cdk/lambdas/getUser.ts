@@ -1,23 +1,23 @@
-import { APIGatewayProxyWithCognitoAuthorizerHandler } from 'aws-lambda';
+import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
 import { createResponse, getUser, ResponseBody } from './utils';
+import { UserContext } from './authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   ingestEndpoint?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
-  username?: string;
+  username: string;
 }
 
-export const handler: APIGatewayProxyWithCognitoAuthorizerHandler = async (
-  event
-) => {
+export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
+  UserContext
+> = async (event) => {
   const {
-    requestContext: { authorizer: authorizerContext }
+    requestContext: {
+      authorizer: { sub, username }
+    }
   } = event;
-  const {
-    claims: { ['cognito:username']: username, sub }
-  } = authorizerContext;
   const responseBody: GetUserResponseBody = { username };
 
   try {
