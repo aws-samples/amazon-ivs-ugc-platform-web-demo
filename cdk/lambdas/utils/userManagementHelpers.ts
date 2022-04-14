@@ -2,24 +2,9 @@ import {
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
+  QueryCommand,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
-
-export interface ResponseBody {
-  [key: string]: string | undefined;
-}
-
-export const createResponse = (
-  statusCode: number,
-  body: ResponseBody = {}
-) => ({
-  body: JSON.stringify(body),
-  headers: {
-    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN as string,
-    'Access-Control-Allow-Methods': 'OPTIONS, GET, DELETE'
-  },
-  statusCode
-});
 
 const dynamoDbClient = new DynamoDBClient({});
 
@@ -30,6 +15,18 @@ export const getUser = (sub: string) => {
   });
 
   return dynamoDbClient.send(getItemCommand);
+};
+
+export const getUserByEmail = (userEmail: string) => {
+  const queryCommand = new QueryCommand({
+    IndexName: 'emailIndex',
+    TableName: process.env.USER_TABLE_NAME,
+    Limit: 1,
+    KeyConditionExpression: 'email = :userEmail',
+    ExpressionAttributeValues: { ':userEmail': { S: userEmail } }
+  });
+
+  return dynamoDbClient.send(queryCommand);
 };
 
 export const deleteUser = (sub: string) => {

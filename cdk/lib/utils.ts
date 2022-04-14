@@ -1,4 +1,4 @@
 import { join } from 'path';
 
-export const getLambdaEntryPath = (functionName: string) =>
-  join(__dirname, '..', 'lambdas', `${functionName}.ts`);
+export const getLambdaEntryPath = (functionPath: string) =>
+  join(__dirname, '..', 'lambdas', `${functionPath}.ts`);

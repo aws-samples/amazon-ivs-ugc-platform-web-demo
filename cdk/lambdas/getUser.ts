@@ -1,6 +1,7 @@
 import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
-import { createResponse, getUser, ResponseBody } from './utils';
+import { createResponse, ResponseBody } from './utils';
+import { getUser } from './utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
 interface GetUserResponseBody extends ResponseBody {

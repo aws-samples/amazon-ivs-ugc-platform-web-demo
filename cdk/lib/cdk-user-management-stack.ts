@@ -15,13 +15,16 @@ import { Construct } from 'constructs';
 import crypto from 'crypto';
 
 import { getLambdaEntryPath } from './utils';
+
 export interface ResourceConfig {
   allowedOrigin: string;
+  passwordResetClientBaseUrl: string;
   enableUserAutoVerify: boolean;
   ivsChannelType: ChannelType;
   logRetention?: logs.RetentionDays;
   stageName: 'dev' | 'prod';
 }
+
 export class UserManagementStack extends Stack {
   constructor(
     scope: Construct,
@@ -34,6 +37,7 @@ export class UserManagementStack extends Stack {
     // Configuration variables based on the stage (dev or prod)
     const {
       allowedOrigin,
+      passwordResetClientBaseUrl,
       enableUserAutoVerify,
       ivsChannelType,
       logRetention,
@@ -67,7 +71,7 @@ export class UserManagementStack extends Stack {
     // Lambda to auto verify new users, not suitable for production
     const preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
       ...defaultLambdaParams,
-      entry: getLambdaEntryPath('preSignUp'),
+      entry: getLambdaEntryPath('cognitoTriggers/preSignUp'),
       environment: {
         ENABLE_USER_AUTO_VERIFY: `${enableUserAutoVerify}`,
         USER_TABLE_NAME: userTable.tableName
@@ -83,7 +87,7 @@ export class UserManagementStack extends Stack {
       'PostConfirmationLambda',
       {
         ...defaultLambdaParams,
-        entry: getLambdaEntryPath('postConfirmation'),
+        entry: getLambdaEntryPath('cognitoTriggers/postConfirmation'),
         environment: {
           IVS_CHANNEL_TYPE: ivsChannelType,
           USER_TABLE_NAME: userTable.tableName
@@ -98,6 +102,19 @@ export class UserManagementStack extends Stack {
 
     postConfirmationLambda.addToRolePolicy(createIvsChannelPolicyStatement);
     userTable.grantWriteData(postConfirmationLambda);
+
+    // Lambda to auto verify new users, not suitable for production
+    const customMessageLambda = new lambda.NodejsFunction(
+      this,
+      'CustomMessageLambda',
+      {
+        ...defaultLambdaParams,
+        entry: getLambdaEntryPath('cognitoTriggers/customMessage'),
+        environment: {
+          PASSWORD_RESET_CLIENT_BASE_URL: passwordResetClientBaseUrl
+        }
+      }
+    );
 
     /**
      * Cognito User Pool
@@ -115,6 +132,7 @@ export class UserManagementStack extends Stack {
           }
         : {}),
       lambdaTriggers: {
+        customMessage: customMessageLambda,
         postConfirmation: postConfirmationLambda,
         preSignUp: preSignUpLambda
       },
@@ -243,6 +261,29 @@ export class UserManagementStack extends Stack {
       authorizationType: apiGateway.AuthorizationType.CUSTOM
     });
 
+    // Lambda to reset user password
+    const forgotPasswordLambda = new lambda.NodejsFunction(
+      this,
+      'ForgotPasswordLambda',
+      {
+        ...defaultLambdaParams,
+        entry: getLambdaEntryPath('forgotPassword'),
+        environment: {
+          ALLOWED_ORIGIN: allowedOrigin,
+          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+          USER_TABLE_NAME: userTable.tableName
+        }
+      }
+    );
+    const forgotPasswordPolicyStatement = new iam.PolicyStatement({
+      actions: ['cognito-idp:ForgotPassword'],
+      effect: iam.Effect.ALLOW,
+      resources: [userPool.userPoolArn]
+    });
+
+    forgotPasswordLambda.addToRolePolicy(forgotPasswordPolicyStatement);
+    userTable.grantReadData(forgotPasswordLambda);
+
     // Create the API Gateway
     const userManagementApiGateway = new apiGateway.RestApi(
       this,
@@ -266,6 +307,14 @@ export class UserManagementStack extends Stack {
       new apiGateway.LambdaIntegration(deleteUserLambda),
       { ...createJwtAuthorizerProps(deleteUserLambdaId) }
     );
+
+    // Add the POST /user/reset endpoint
+    userResource
+      .addResource('reset')
+      .addMethod(
+        'POST',
+        new apiGateway.LambdaIntegration(forgotPasswordLambda)
+      );
 
     // Add the GET /user/streamKey/reset endpoint
     userResource
