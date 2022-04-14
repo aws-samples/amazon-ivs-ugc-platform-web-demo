@@ -1,24 +1,14 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { PreSignUpTriggerHandler } from 'aws-lambda';
 
-import { EMAIL_EXISTS_ERROR } from './constants';
-
-const dynamoDbClient = new DynamoDBClient({});
+import { EMAIL_EXISTS_ERROR } from '../utils/constants';
+import { getUserByEmail } from '../utils/userManagementHelpers';
 
 export const handler: PreSignUpTriggerHandler = async (event) => {
   const { email: signupEmail = '' } = event.request.userAttributes;
 
   if (signupEmail) {
-    const queryCommand = new QueryCommand({
-      IndexName: 'emailIndex',
-      TableName: process.env.USER_TABLE_NAME,
-      Limit: 1,
-      KeyConditionExpression: 'email = :signupEmail',
-      ExpressionAttributeValues: { ':signupEmail': { S: signupEmail } }
-    });
-
     try {
-      const { Items } = await dynamoDbClient.send(queryCommand);
+      const { Items } = await getUserByEmail(signupEmail);
 
       if (Items && Items.length > 0) {
         throw (new Error(EMAIL_EXISTS_ERROR), null);

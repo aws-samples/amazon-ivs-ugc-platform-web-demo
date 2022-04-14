@@ -23,6 +23,35 @@
 					"response": []
 				},
 				{
+					"name": "/user/reset",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiGatewayBaseUrl}}user/reset",
+							"host": [
+								"{{apiGatewayBaseUrl}}user"
+							],
+							"path": [
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/user",
 					"request": {
 						"method": "DELETE",

@@ -7,12 +7,8 @@ import {
 } from '@aws-sdk/client-ivs';
 import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
-import {
-  createResponse,
-  getUser,
-  ResponseBody,
-  updateUserStreamKey
-} from './utils';
+import { createResponse, ResponseBody } from './utils';
+import { getUser, updateUserStreamKey } from './utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});

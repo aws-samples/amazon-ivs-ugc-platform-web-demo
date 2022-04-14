@@ -10,7 +10,7 @@ import {
   CHANNEL_CREATION_ERROR,
   INVALID_INPUT_ERROR,
   USER_CREATION_ERROR
-} from './constants';
+} from '../utils/constants';
 
 const ivsClient = new IvsClient({});
 const dynamoDbClient = new DynamoDBClient({});
@@ -72,7 +72,8 @@ export const handler: PostAuthenticationTriggerHandler = async (event) => {
       ingestEndpoint: { S: `rtmps://${ingestEndpoint}:443/app/` },
       playbackUrl: { S: playbackUrl },
       streamKeyArn: { S: streamKeyArn },
-      streamKeyValue: { S: streamKeyValue }
+      streamKeyValue: { S: streamKeyValue },
+      username: { S: userName }
     },
     TableName: process.env.USER_TABLE_NAME
   });

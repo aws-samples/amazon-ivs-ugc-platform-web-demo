@@ -11,7 +11,8 @@ import {
 } from '@aws-sdk/client-ivs';
 import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
 
-import { createResponse, deleteUser, getUser } from './utils';
+import { createResponse } from './utils';
+import { deleteUser, getUser } from './utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});
