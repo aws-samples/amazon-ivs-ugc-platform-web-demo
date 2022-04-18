@@ -7,11 +7,11 @@ import { userManagement as $content } from '../../../content';
 const RegisterUser = () => (
   <Form
     submitHandler={userManagement.register}
-    submitText={$content.register.create_account}
-    title={$content.register.title}
+    submitText={$content.register_page.create_account}
+    title={$content.register_page.title}
     footer={
       <span>
-        <b>{$content.register.have_an_account}</b>&nbsp;
+        <b>{$content.register_page.have_an_account}</b>&nbsp;
         <Link to="/login">{$content.sign_in}</Link>
       </span>
     }
@@ -21,7 +21,7 @@ const RegisterUser = () => (
       password: {
         type: 'password',
         confirm: true,
-        description: $content.register.password_description
+        description: $content.register_page.password_description
       }
     }}
   />

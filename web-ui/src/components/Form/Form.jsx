@@ -6,10 +6,20 @@ import useForm from './useForm';
 
 import './Form.css';
 
-const Form = ({ footer, inputsData, submitHandler, submitText, title }) => {
+const Form = ({
+  footer,
+  inputsData,
+  onFailure,
+  onSuccess,
+  submitHandler,
+  submitText,
+  title
+}) => {
   const [formProps, isLoading, onChange, onSubmit] = useForm(
     inputsData,
-    submitHandler
+    submitHandler,
+    onSuccess,
+    onFailure
   );
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
 
@@ -33,11 +43,19 @@ const Form = ({ footer, inputsData, submitHandler, submitText, title }) => {
   );
 };
 
-Form.defaultProps = { footer: null, inputsData: {} };
+Form.defaultProps = {
+  footer: null,
+  inputsData: {},
+  onFailure: () => {},
+  onSuccess: () => {},
+  submitText: 'Submit'
+};
 
 Form.propTypes = {
   footer: PropTypes.node,
   inputsData: PropTypes.object,
+  onFailure: PropTypes.func,
+  onSuccess: PropTypes.func,
   submitHandler: PropTypes.func.isRequired,
   submitText: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired

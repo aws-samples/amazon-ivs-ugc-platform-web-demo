@@ -11,11 +11,6 @@
   padding-top: 15px;
 }
 
-.form h2 {
-  font-size: 28px;
-  font-weight: 900;
-}
-
 .submit-container {
   display: flex;
   flex-direction: column;
@@ -25,9 +20,5 @@
 @media (max-width: 875px) {
   .form {
     margin: 0 auto;
-  }
-
-  .form h2 {
-    padding-bottom: 0px;
   }
 }

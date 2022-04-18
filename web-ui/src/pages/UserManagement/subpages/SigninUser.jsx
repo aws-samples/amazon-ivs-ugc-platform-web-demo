@@ -8,18 +8,18 @@ const SigninUser = () => (
   <Form
     submitHandler={userManagement.signIn}
     submitText={$content.sign_in}
-    title={$content.login.title}
+    title={$content.login_page.title}
     footer={
       <span>
-        <b>{$content.login.new_user}</b>&nbsp;
-        <Link to="/register">{$content.login.create_an_account}</Link>
+        <b>{$content.login_page.new_user}</b>&nbsp;
+        <Link to="/register">{$content.login_page.create_an_account}</Link>
       </span>
     }
     inputsData={{
       username: {},
       password: {
         type: 'password',
-        footer: <Link to="/recover">{$content.login.forgot_password}</Link>
+        footer: <Link to="/reset">{$content.login_page.forgot_password}</Link>
       }
     }}
   />

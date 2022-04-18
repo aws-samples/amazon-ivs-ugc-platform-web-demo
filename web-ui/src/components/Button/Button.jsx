@@ -35,7 +35,7 @@ Button.propTypes = {
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger'])
+  variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'link'])
 };
 
 export default Button;

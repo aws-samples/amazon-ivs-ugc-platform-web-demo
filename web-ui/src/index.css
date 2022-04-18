@@ -75,7 +75,7 @@ body {
 }
 
 a {
-  color: var(--color-medium-blue);
+  color: var(--color-blue);
   font-weight: 700;
   text-decoration: none;
   width: fit-content;
@@ -86,7 +86,7 @@ a:not([class]) {
 }
 
 a:focus-visible {
-  border-bottom: 2px solid var(--color-medium-blue);
+  border-bottom: 2px solid var(--color-blue);
   margin-bottom: -5px;
   outline: none;
   padding-bottom: 3px;

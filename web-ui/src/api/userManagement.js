@@ -6,9 +6,15 @@ import {
   CognitoUserAttribute
 } from 'amazon-cognito-identity-js';
 
-import { cognitoParams } from './utils';
+import { cognitoParams, apiBaseUrl } from './utils';
 
 const userPool = new CognitoUserPool(cognitoParams);
+
+const getCognitoUser = (username) => {
+  const cognitoUser = new CognitoUser({ Pool: userPool, Username: username });
+  cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+  return cognitoUser;
+};
 
 /**
  * Register a new user
@@ -53,8 +59,7 @@ export const register = async (userData) => {
  */
 export const signIn = async (userData) => {
   const { username, password } = userData;
-  const cognitoUser = new CognitoUser({ Pool: userPool, Username: username });
-  cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+  const cognitoUser = getCognitoUser(username);
   const authenticationDetails = new AuthenticationDetails({
     Username: username,
     Password: password
@@ -84,13 +89,55 @@ export const signIn = async (userData) => {
 };
 
 /**
- * Recover the password of an existing user
+ * Reset the password of an existing user
  * @param {object} userData information about the new user
  * @param {string} userData.email
  */
-export const recoverPassword = async (userData) => {
-  // TEMPORARY
-  // eslint-disable-next-line no-unused-vars
+export const sendResetPasswordRequest = async (userData) => {
   const { email } = userData;
-  return false;
+  let result, error;
+
+  try {
+    const url = `${apiBaseUrl}user/reset`;
+    result = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+  } catch (err) {
+    error = err;
+    console.error(err);
+    alert(`Password Recovery Request FAILED! \n${err.message}`);
+  }
+
+  return { result, error };
+};
+
+export const resetPassword = async (
+  username,
+  verificationCode,
+  newPassword
+) => {
+  const cognitoUser = getCognitoUser(username);
+  let result, error;
+
+  cognitoUser.confirmPassword[promisify.custom] = () =>
+    new Promise((resolve, reject) => {
+      cognitoUser.confirmPassword(verificationCode, newPassword, {
+        onSuccess: resolve,
+        onFailure: reject
+      });
+    });
+
+  try {
+    const confirmPassword = promisify(cognitoUser.confirmPassword);
+    result = await confirmPassword();
+
+    if (result) alert('Password Confirmation SUCCESSFUL!');
+  } catch (err) {
+    error = err;
+    console.error(err);
+    alert(`Password Confirmation FAILED! \n${err.message}`);
+  }
+
+  return { result, error };
 };

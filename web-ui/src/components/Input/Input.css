@@ -8,21 +8,15 @@
   font-size: 18px;
   font-weight: 500;
   width: fit-content;
-  text-transform: capitalize;
   margin-bottom: 15px;
 }
 
 .outer-input-container .description {
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.outer-input-container .description p {
   color: var(--color-light-gray);
   font-size: 13px;
   font-weight: 500;
-  position: absolute;
-  top: 5px;
+  padding-top: 5px;
+  margin-bottom: -21px;
 }
 
 .outer-input-container .error-message {
