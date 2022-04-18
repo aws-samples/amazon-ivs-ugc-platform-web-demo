@@ -31,19 +31,20 @@ const validateForm = (formProps) => {
         if (!value || formProps[confirms].value !== value) {
           errors[name] = errorMessages.passwords_mismatch;
         }
+        return errors;
       }
 
-      switch (name) {
-        case 'username': {
+      switch (true) {
+        case name.toLowerCase().includes('username'): {
           if (!validateUsername(value))
             errors[name] = errorMessages.invalid_username;
           break;
         }
-        case 'email': {
+        case name.toLowerCase().includes('email'): {
           if (!validateEmail(value)) errors[name] = errorMessages.invalid_email;
           break;
         }
-        case 'password': {
+        case name.toLowerCase().includes('password'): {
           const isValidLength = validatePasswordLength(value);
           const isValidStrength = validatePasswordStrength(value);
 
@@ -54,7 +55,6 @@ const validateForm = (formProps) => {
           } else if (!isValidStrength) {
             errors[name] = errorMessages.invalid_password_strength;
           }
-
           break;
         }
         default:

@@ -1,19 +1,23 @@
 {
-  "register": {
+  "register_page": {
     "create_account": "Create account",
     "have_an_account": "Have an account?",
     "password_description": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
     "title": "Create a new account"
   },
-  "login": {
+  "login_page": {
     "create_an_account": "Create an account",
     "forgot_password": "Forgot password?",
     "new_user": "New user?",
     "title": "Sign in to your account"
   },
-  "reset_password": {
+  "reset_password_page": {
+    "did_not_receive_email": "Didn't receive the email?",
+    "email_link_sent": "An email has been sent to you with a link to reset your password.",
+    "resend": "Resend",
+    "return_to_login": "Return to login",
     "title": "Reset your password",
-    "return_to_login": "Return to login"
+    "request_password_reset": "Request password reset"
   },
   "form": {
     "username": "Username",

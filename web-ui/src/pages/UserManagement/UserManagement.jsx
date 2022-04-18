@@ -1,7 +1,7 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 
 import Grid from '../../components/Grid';
-import RecoverPassword from './subpages/RecoverPassword';
+import ResetPassword from './subpages/ResetPassword';
 import RegisterUser from './subpages/RegisterUser';
 import SigninUser from './subpages/SigninUser';
 import { app as $content } from '../../content';
@@ -19,7 +19,7 @@ const UserManagement = () => (
         <Routes>
           <Route path="login" element={<SigninUser />} />
           <Route path="register" element={<RegisterUser />} />
-          <Route path="recover" element={<RecoverPassword />} />
+          <Route path="reset" element={<ResetPassword />} />
           <Route path="*" element={<Navigate replace to="/" />} />
         </Routes>
       </section>
