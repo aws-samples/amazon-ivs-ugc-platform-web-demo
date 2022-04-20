@@ -26,8 +26,9 @@
   display: flex;
   font-size: 13px;
   font-weight: 500;
-  padding-top: 5px;
+  height: 21px;
   margin-bottom: -21px;
+  padding-top: 5px;
 }
 
 .outer-input-container .footer {

@@ -17,7 +17,7 @@ const Button = ({
     onClick={onClick}
     type={type}
   >
-    {isLoading ? <Spinner /> : children}
+    {isLoading && type !== 'link' ? <Spinner /> : children}
   </button>
 );
 

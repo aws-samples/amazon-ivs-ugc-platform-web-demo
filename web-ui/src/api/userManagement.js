@@ -45,7 +45,6 @@ export const register = async (userData) => {
   } catch (err) {
     error = err;
     console.error(err);
-    alert(`User Registration FAILED! \n${err.message}`);
   }
 
   return { result, error };
@@ -82,7 +81,6 @@ export const signIn = async (userData) => {
   } catch (err) {
     error = err;
     console.error(err);
-    alert(`User Authentication FAILED! \n${err.message}`);
   }
 
   return { result, error };
@@ -106,7 +104,6 @@ export const sendResetPasswordRequest = async (userData) => {
   } catch (err) {
     error = err;
     console.error(err);
-    alert(`Password Recovery Request FAILED! \n${err.message}`);
   }
 
   return { result, error };
@@ -136,7 +133,6 @@ export const resetPassword = async (
   } catch (err) {
     error = err;
     console.error(err);
-    alert(`Password Confirmation FAILED! \n${err.message}`);
   }
 
   return { result, error };

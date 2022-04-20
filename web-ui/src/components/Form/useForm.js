@@ -2,7 +2,8 @@ import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { userManagement as $content } from '../../content';
-import validateForm from './validateForm';
+import { useNotif } from '../../contexts/Notification';
+import { validateForm, formatError } from './validateForm';
 
 const camelize = (str) =>
   str
@@ -54,6 +55,7 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
   const { pathname } = useLocation();
   const [formProps, setFormProps] = useState(generateInputProps(inputsData));
   const [isLoading, setIsLoading] = useState(false);
+  const { notifyError } = useNotif();
 
   const getValues = useCallback(() => {
     const values = {};
@@ -125,8 +127,19 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
 
       if (result) {
         clearForm();
-        onSuccess(result);
-      } else if (error) onFailure(error);
+        onSuccess(result, formValues);
+      } else if (error) {
+        const errorData = formatError(error);
+        const { errorType, inputType, message } = errorData;
+
+        if (errorType === 'notification') {
+          notifyError(message); // Not an input-specific error, but rather some larger-scoped error
+        } else {
+          updateErrors({ [inputType]: message });
+        }
+
+        onFailure(errorData, formValues);
+      }
 
       setIsLoading(false);
     },
@@ -135,6 +148,7 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
       formProps,
       getValues,
       isLoading,
+      notifyError,
       onFailure,
       onSuccess,
       pathname,

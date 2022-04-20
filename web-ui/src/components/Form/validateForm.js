@@ -1,13 +1,44 @@
 import { userManagement as $content } from '../../content';
 
-const { errorMessages } = $content;
+const SUBMISSION_ERROR_KEY_MAP = {
+  UsernameExistsException: {
+    type: 'input_error--username',
+    contentKey: 'unavailable_username'
+  },
+  EmailExistsException: {
+    type: 'input_error--email',
+    contentKey: 'unavailable_email'
+  },
+  // --- TEMPORARY --- //
+  UserLambdaValidationException: {
+    type: 'input_error--email',
+    contentKey: 'unavailable_email'
+  },
+  // ----------------- //
+  UserNotFoundException: {
+    type: 'notification',
+    contentKey: 'incorrect_username_or_password'
+  },
+  NotAuthorizedException: {
+    type: 'notification',
+    contentKey: 'incorrect_username_or_password'
+  },
+  UnexpectedException: {
+    type: 'notification',
+    contentKey: 'unexpected_error_occurred'
+  },
+  LimitExceededException: {
+    type: 'notification',
+    contentKey: 'attempt_limit_exceeded'
+  }
+};
 
-export const validatePasswordLength = (password) => {
+const validatePasswordLength = (password) => {
   const regex = /\S{8,256}/;
   return !!password && regex.test(password);
 };
 
-export const validatePasswordStrength = (password) => {
+const validatePasswordStrength = (password) => {
   const regex =
     /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\^$*.[\]{}()?\-"!@#%&/,><':;|_~`])/;
   return !!password && regex.test(password);
@@ -24,12 +55,14 @@ const validateUsername = (username) => {
   return !!username && regex.test(username);
 };
 
-const validateForm = (formProps) => {
+export const validateForm = (formProps) => {
+  const { input_error } = $content;
+
   const validationErrors = Object.values(formProps).reduce(
     (errors, { value, name, confirms }) => {
       if (confirms) {
         if (!value || formProps[confirms].value !== value) {
-          errors[name] = errorMessages.passwords_mismatch;
+          errors[name] = input_error.passwords_mismatch;
         }
         return errors;
       }
@@ -37,11 +70,11 @@ const validateForm = (formProps) => {
       switch (true) {
         case name.toLowerCase().includes('username'): {
           if (!validateUsername(value))
-            errors[name] = errorMessages.invalid_username;
+            errors[name] = input_error.invalid_username;
           break;
         }
         case name.toLowerCase().includes('email'): {
-          if (!validateEmail(value)) errors[name] = errorMessages.invalid_email;
+          if (!validateEmail(value)) errors[name] = input_error.invalid_email;
           break;
         }
         case name.toLowerCase().includes('password'): {
@@ -49,11 +82,11 @@ const validateForm = (formProps) => {
           const isValidStrength = validatePasswordStrength(value);
 
           if (!isValidLength && !isValidStrength) {
-            errors[name] = errorMessages.invalid_password;
+            errors[name] = input_error.invalid_password;
           } else if (!isValidLength) {
-            errors[name] = errorMessages.invalid_password_length;
+            errors[name] = input_error.invalid_password_length;
           } else if (!isValidStrength) {
-            errors[name] = errorMessages.invalid_password_strength;
+            errors[name] = input_error.invalid_password_strength;
           }
           break;
         }
@@ -69,4 +102,30 @@ const validateForm = (formProps) => {
   return Object.keys(validationErrors).length ? validationErrors : null;
 };
 
-export default validateForm;
+export const formatError = (error) => {
+  let errorName =
+    error.name || // Cognito Error
+    error.__type || // API Error
+    'UnexpectedException'; // Fallback Error
+
+  if (
+    error.name === 'NotAuthorizedException' &&
+    error.message === 'Password attempts exceeded'
+  ) {
+    // Manually handling this case because Cognito uses the same error
+    // type for "incorrect creds" and "password attempts exceeded"
+    errorName = 'LimitExceededException';
+  }
+
+  const { type, contentKey } = SUBMISSION_ERROR_KEY_MAP[errorName] || {};
+  const [errorType, inputType] = type?.split('--') || ['notification'];
+  let message = error.message.replace(/\.$/, ''); // Default to error.message if we don't have the copy for this error type yet
+
+  if (errorType === 'notification') {
+    message = $content[errorType].error[contentKey] || message;
+  } else if (errorType === 'input_error') {
+    message = $content[errorType][contentKey] || message;
+  }
+
+  return { errorType, inputType, message };
+};

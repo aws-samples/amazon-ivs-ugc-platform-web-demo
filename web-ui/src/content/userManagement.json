@@ -16,8 +16,8 @@
     "email_link_sent": "An email has been sent to you with a link to reset your password.",
     "resend": "Resend",
     "return_to_login": "Return to login",
-    "title": "Reset your password",
-    "request_password_reset": "Request password reset"
+    "title": "Reset your password.",
+    "request_password_reset": "Request password reset."
   },
   "form": {
     "username": "Username",
@@ -30,12 +30,24 @@
   "sign_in": "Sign in",
   "continue": "Continue",
   "confirm": "Confirm",
-  "errorMessages": {
+  "input_error": {
     "invalid_email": "Enter a valid email",
     "invalid_username": "Only letters, numbers & symbols are allowed.",
     "invalid_password_length": "Use 8 characters or more.",
     "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
     "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
-    "passwords_mismatch": "Passwords didn’t match. Try again."
+    "passwords_mismatch": "Passwords didn’t match. Try again.",
+    "unavailable_username": "This username is unavailable",
+    "unavailable_email": "This email has already been used"
+  },
+  "notification": {
+    "success": {
+      "resent_confirmation": "Confirmation link resent"
+    },
+    "error": {
+      "incorrect_username_or_password": "Incorrect username or password",
+      "unexpected_error": "An unexpected error occured, please try again later",
+      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later"
+    }
   }
 }
