@@ -4,7 +4,8 @@
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  padding: 65px 30px;
+  padding: 157px 30px;
+  position: relative;
   width: 100%;
 }
 

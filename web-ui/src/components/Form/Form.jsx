@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types';
+import { m } from 'framer-motion';
 
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
 
 import './Form.css';
+import { useNotif } from '../../contexts/Notification';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 
 const Form = ({
   footer,
@@ -22,9 +25,16 @@ const Form = ({
     onFailure
   );
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
+  const { notif } = useNotif();
+  const { isMobileView } = useMobileBreakpoint();
 
   return (
-    <form className="form" onSubmit={onSubmit}>
+    <m.form
+      animate={{ y: notif && isMobileView ? 58 : 0 }}
+      transition={{ duration: 0.25, type: 'tween' }}
+      className="form"
+      onSubmit={onSubmit}
+    >
       <h2>{title}</h2>
       {Object.values(formProps).map((inputProps) => (
         <Input {...inputProps} key={inputProps.name} onChange={onChange} />
@@ -39,7 +49,7 @@ const Form = ({
         </Button>
         {footer}
       </div>
-    </form>
+    </m.form>
   );
 };
 

@@ -1,10 +1,11 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 
-import Grid from '../../components/Grid';
-import ResetPassword from './subpages/ResetPassword';
-import RegisterUser from './subpages/RegisterUser';
-import SigninUser from './subpages/SigninUser';
 import { app as $content } from '../../content';
+import Grid from '../../components/Grid';
+import Notification from '../../components/Notification';
+import RegisterUser from './subpages/RegisterUser';
+import ResetPassword from './subpages/ResetPassword';
+import SigninUser from './subpages/SigninUser';
 import './UserManagement.css';
 
 const UserManagement = () => (
@@ -16,6 +17,7 @@ const UserManagement = () => (
     </Grid.Col>
     <Grid.Col autoFit>
       <section className="form-section">
+        <Notification />
         <Routes>
           <Route path="login" element={<SigninUser />} />
           <Route path="register" element={<RegisterUser />} />

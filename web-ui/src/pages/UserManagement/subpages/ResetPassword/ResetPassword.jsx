@@ -7,6 +7,7 @@ import ResetPasswordRequestForm from './ResetPasswordRequestForm';
 
 const ResetPassword = () => {
   const [requestSent, setRequestSent] = useState(false);
+  const [email, setEmail] = useState('');
   const { search } = useLocation();
   const navigate = useNavigate();
   const query = useMemo(() => new URLSearchParams(search), [search]);
@@ -16,6 +17,11 @@ const ResetPassword = () => {
 
     return { verificationCode, username };
   }, [query]);
+
+  const onRequestSuccess = (_result, formValues) => {
+    setRequestSent(true);
+    setEmail(formValues.email);
+  };
 
   useEffect(() => {
     if (!verificationCode || !username) {
@@ -31,9 +37,9 @@ const ResetPassword = () => {
       />
     );
 
-  if (requestSent) return <ResetPasswordRequestConfirmation />;
+  if (requestSent) return <ResetPasswordRequestConfirmation email={email} />;
 
-  return <ResetPasswordRequestForm onSuccess={() => setRequestSent(true)} />;
+  return <ResetPasswordRequestForm onSuccess={onRequestSuccess} />;
 };
 
 export default ResetPassword;
