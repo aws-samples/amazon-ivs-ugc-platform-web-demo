@@ -6,13 +6,12 @@ import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 import { useNotif } from '../../../../contexts/Notification';
 
-const ResetPasswordRequestConfirmation = ({ email }) => {
+const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
 
   const resend = async () => {
-    const userData = { email };
-    const { result, error } = await userManagement.sendResetPasswordRequest(
-      userData
+    const { result, error } = await userManagement.resendVerificationRequest(
+      username
     );
 
     if (result) {
@@ -26,8 +25,8 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
 
   return (
     <div className="sub-page-container">
-      <h2>{$content.reset_password_page.title}</h2>
-      <p>{$content.reset_password_page.email_link_sent}</p>
+      <h2>{$content.register_page.verify_your_account}</h2>
+      <p>{$content.register_page.email_link_sent}</p>
       <span>
         <b>{$content.did_not_receive_email}</b>&nbsp;
         <Button onClick={resend} type="button" variant="link">
@@ -39,8 +38,8 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
   );
 };
 
-ResetPasswordRequestConfirmation.propTypes = {
-  email: PropTypes.string.isRequired
+RegisterUserRequestConfirmation.propTypes = {
+  username: PropTypes.string.isRequired
 };
 
-export default ResetPasswordRequestConfirmation;
+export default RegisterUserRequestConfirmation;

@@ -4,8 +4,9 @@ import { LazyMotion } from 'framer-motion';
 
 import UserManagement from './pages/UserManagement';
 import Dashboard from './pages/Dashboard';
-import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
+import { Provider as NotificationProvider } from './contexts/Notification';
+import { Provider as UserProvider } from './contexts/User';
 
 const loadMotionFeatures = () =>
   import('./motion-features').then((res) => res.default);
@@ -17,14 +18,16 @@ const App = () => {
 
   return (
     <MobileBreakpointProvider>
-      <NotificationProvider>
-        <LazyMotion features={loadMotionFeatures} strict>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/*" element={<UserManagement />} />
-          </Routes>
-        </LazyMotion>
-      </NotificationProvider>
+      <UserProvider>
+        <NotificationProvider>
+          <LazyMotion features={loadMotionFeatures} strict>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/*" element={<UserManagement />} />
+            </Routes>
+          </LazyMotion>
+        </NotificationProvider>
+      </UserProvider>
     </MobileBreakpointProvider>
   );
 };

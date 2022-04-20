@@ -9,10 +9,11 @@ const Button = ({
   isLoading,
   variant,
   type,
-  onClick
+  onClick,
+  className
 }) => (
   <button
-    className={`button ${!isDisabled ? variant : ''}`}
+    className={`button ${!isDisabled ? variant : ''} ${className}`}
     disabled={isDisabled}
     onClick={onClick}
     type={type}
@@ -22,6 +23,7 @@ const Button = ({
 );
 
 Button.defaultProps = {
+  className: '',
   isDisabled: false,
   isLoading: false,
   onClick: undefined,
@@ -31,6 +33,7 @@ Button.defaultProps = {
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
   isDisabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,

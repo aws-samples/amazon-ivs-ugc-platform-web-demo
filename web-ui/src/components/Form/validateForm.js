@@ -1,37 +1,5 @@
+import { ERROR_KEY_MAP } from '../../constants';
 import { userManagement as $content } from '../../content';
-
-const SUBMISSION_ERROR_KEY_MAP = {
-  UsernameExistsException: {
-    type: 'input_error--username',
-    contentKey: 'unavailable_username'
-  },
-  EmailExistsException: {
-    type: 'input_error--email',
-    contentKey: 'unavailable_email'
-  },
-  // --- TEMPORARY --- //
-  UserLambdaValidationException: {
-    type: 'input_error--email',
-    contentKey: 'unavailable_email'
-  },
-  // ----------------- //
-  UserNotFoundException: {
-    type: 'notification',
-    contentKey: 'incorrect_username_or_password'
-  },
-  NotAuthorizedException: {
-    type: 'notification',
-    contentKey: 'incorrect_username_or_password'
-  },
-  UnexpectedException: {
-    type: 'notification',
-    contentKey: 'unexpected_error_occurred'
-  },
-  LimitExceededException: {
-    type: 'notification',
-    contentKey: 'attempt_limit_exceeded'
-  }
-};
 
 const validatePasswordLength = (password) => {
   const regex = /\S{8,256}/;
@@ -117,14 +85,22 @@ export const formatError = (error) => {
     errorName = 'LimitExceededException';
   }
 
-  const { type, contentKey } = SUBMISSION_ERROR_KEY_MAP[errorName] || {};
-  const [errorType, inputType] = type?.split('--') || ['notification'];
-  let message = error.message.replace(/\.$/, ''); // Default to error.message if we don't have the copy for this error type yet
+  let errorType, inputType, message;
 
-  if (errorType === 'notification') {
-    message = $content[errorType].error[contentKey] || message;
-  } else if (errorType === 'input_error') {
-    message = $content[errorType][contentKey] || message;
+  if (errorName in ERROR_KEY_MAP) {
+    const { type, contentKey } = ERROR_KEY_MAP[errorName];
+    [errorType, inputType] = type.split('--');
+    message =
+      errorType === 'notification'
+        ? $content.notification.error[contentKey]
+        : $content.input_error[contentKey];
+  } else {
+    errorType = 'notification';
+    // Default to error.message if we don't have the copy for this error type yet
+    // If error.message does not exists, then we default to an unexpected error message.
+    message =
+      error.message?.replace(/\.$/, '') ||
+      $content.notification.error.unexpected_error;
   }
 
   return { errorType, inputType, message };

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { userManagement as $content } from '../../content';
 import { useNotif } from '../../contexts/Notification';
+import { userManagement as $content } from '../../content';
 import { validateForm, formatError } from './validateForm';
 
 const camelize = (str) =>
@@ -125,10 +125,10 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
       const formValues = getValues(formProps);
       const { result, error } = await submitHandler(formValues);
 
-      if (result) {
+      if (!error) {
+        await onSuccess(result, formValues);
         clearForm();
-        onSuccess(result, formValues);
-      } else if (error) {
+      } else {
         const errorData = formatError(error);
         const { errorType, inputType, message } = errorData;
 
@@ -138,7 +138,7 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
           updateErrors({ [inputType]: message });
         }
 
-        onFailure(errorData, formValues);
+        await onFailure(errorData, formValues);
       }
 
       setIsLoading(false);

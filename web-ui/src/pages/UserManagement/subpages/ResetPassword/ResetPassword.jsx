@@ -19,15 +19,15 @@ const ResetPassword = () => {
   }, [query]);
 
   const onRequestSuccess = (_result, formValues) => {
-    setRequestSent(true);
     setEmail(formValues.email);
+    setRequestSent(true);
   };
 
   useEffect(() => {
     if (!verificationCode || !username) {
       navigate('/reset', { replace: true });
     }
-  }, [navigate, query, username, verificationCode]);
+  }, [navigate, username, verificationCode]);
 
   if (verificationCode && username)
     return (

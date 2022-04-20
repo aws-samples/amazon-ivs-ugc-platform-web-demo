@@ -93,6 +93,11 @@ a:focus-visible {
   position: relative;
 }
 
+h2 {
+  font-size: 32px;
+  font-weight: 900;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

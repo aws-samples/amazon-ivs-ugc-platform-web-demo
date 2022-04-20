@@ -55,6 +55,11 @@
   row-gap: 30px;
 }
 
+.sub-page-container p {
+  font-weight: 400;
+  line-height: 22.5px;
+}
+
 @media (max-width: 875px) {
   .sub-page-container {
     margin: 0 auto;

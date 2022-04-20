@@ -5,10 +5,11 @@ import {
   IvsClient,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
-import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { createResponse, ResponseBody } from './utils';
-import { getUser, updateUserStreamKey } from './utils/userManagementHelpers';
+import { getUser, updateUserStreamKey } from '../utils/userManagementHelpers';
+import { RESET_STREAM_KEY_EXCEPTION } from '../utils/constants';
+import { ResponseBody } from '../utils';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});
@@ -17,14 +18,8 @@ export interface ResetStreamKeyResponseBody extends ResponseBody {
   streamKeyValue?: string;
 }
 
-export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
-  UserContext
-> = async (event) => {
-  const {
-    requestContext: {
-      authorizer: { sub }
-    }
-  } = event;
+const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { sub } = request.requestContext.get('user') as UserContext;
   const responseBody: ResetStreamKeyResponseBody = {};
   let newStreamKeyArn;
   let newStreamKeyValue;
@@ -76,8 +71,12 @@ export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
   } catch (error) {
     console.error(error);
 
-    return createResponse(500);
+    reply.statusCode = 500;
+
+    return reply.send({ __type: RESET_STREAM_KEY_EXCEPTION });
   }
 
-  return createResponse(200, responseBody);
+  return reply.send(responseBody);
 };
+
+export default handler;

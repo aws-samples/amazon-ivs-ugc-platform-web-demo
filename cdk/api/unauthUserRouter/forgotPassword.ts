@@ -2,15 +2,20 @@ import {
   CognitoIdentityProviderClient,
   ForgotPasswordCommand
 } from '@aws-sdk/client-cognito-identity-provider';
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { createResponse } from './utils';
-import { getUserByEmail } from './utils/userManagementHelpers';
+import { FORGOT_PASSWORD_EXCEPTION } from '../utils/constants';
+import { getUserByEmail } from '../utils/userManagementHelpers';
+import { isCognitoError } from '../utils';
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 
-export const handler: APIGatewayProxyHandler = async (event) => {
-  const { email } = JSON.parse(event.body || '');
+type ForgotPasswordRequestBody = { email: string | undefined };
+
+const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { email }: ForgotPasswordRequestBody = JSON.parse(
+    request.body as string
+  );
 
   if (email) {
     try {
@@ -30,9 +35,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }
     } catch (error) {
       console.error(error);
+
+      if (isCognitoError(error)) {
+        reply.statusCode = 500;
+
+        return reply.send({
+          __type: FORGOT_PASSWORD_EXCEPTION,
+          message: error.message
+        });
+      }
     }
   }
 
   // This endpoint always returns 200 for security purposes
-  return createResponse(200);
+  return reply.send({});
 };
+
+export default handler;

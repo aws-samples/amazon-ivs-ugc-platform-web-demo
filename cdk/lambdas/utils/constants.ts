@@ -1,7 +1,0 @@
-/**
- * Error types sent to the client
- */
-export const EMAIL_EXISTS_ERROR = 'EMAIL_EXISTS_ERROR';
-export const INVALID_INPUT_ERROR = 'INVALID_INPUT_ERROR';
-export const USER_CREATION_ERROR = 'USER_CREATION_ERROR';
-export const CHANNEL_CREATION_ERROR = 'CHANNEL_CREATION_ERROR';

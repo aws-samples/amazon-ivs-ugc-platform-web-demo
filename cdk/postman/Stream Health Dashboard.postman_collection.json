@@ -14,9 +14,40 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiGatewayBaseUrl}}user",
+							"raw": "{{userManagementApiBaseUrl}}/user",
 							"host": [
-								"{{apiGatewayBaseUrl}}user"
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/resources/create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/resources/create",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"resources",
+								"create"
 							]
 						}
 					},
@@ -40,12 +71,43 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiGatewayBaseUrl}}user/reset",
+							"raw": "{{userManagementApiBaseUrl}}/user/reset",
 							"host": [
-								"{{apiGatewayBaseUrl}}user"
+								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
+								"user",
 								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{password}}\",\n    \"username\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/register",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
 							]
 						}
 					},
@@ -57,9 +119,12 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{apiGatewayBaseUrl}}user",
+							"raw": "{{userManagementApiBaseUrl}}/user",
 							"host": [
-								"{{apiGatewayBaseUrl}}user"
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user"
 							]
 						}
 					},
@@ -71,11 +136,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiGatewayBaseUrl}}user/streamKey/reset",
+							"raw": "{{userManagementApiBaseUrl}}/user/streamKey/reset",
 							"host": [
-								"{{apiGatewayBaseUrl}}user"
+								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
+								"user",
 								"streamKey",
 								"reset"
 							]

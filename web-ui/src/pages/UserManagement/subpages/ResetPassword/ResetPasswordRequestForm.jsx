@@ -12,9 +12,7 @@ const ResetPasswordRequestForm = ({ onSuccess }) => (
     submitHandler={userManagement.sendResetPasswordRequest}
     submitText={$content.continue}
     title={$content.reset_password_page.title}
-    footer={
-      <Link to="/login">{$content.reset_password_page.return_to_login}</Link>
-    }
+    footer={<Link to="/login">{$content.return_to_login}</Link>}
   />
 );
 

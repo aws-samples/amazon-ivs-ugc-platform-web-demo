@@ -1,0 +1,28 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "watch": "nodemon index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.72.0",
+    "@aws-sdk/client-dynamodb": "^3.72.0",
+    "@aws-sdk/client-ivs": "^3.72.0",
+    "aws-jwt-verify": "^3.0.0",
+    "fastify": "^3.28.0",
+    "fastify-cors": "^6.0.3",
+    "fastify-request-context": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.24",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.6.3"
+  }
+}

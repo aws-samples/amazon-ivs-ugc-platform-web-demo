@@ -26,7 +26,7 @@
     "dev": {
       "resourceConfig": {
         "allowedOrigin": "*",
-        "passwordResetClientBaseUrl": "http://localhost:3000",
+        "userManagementClientBaseUrl": "http://localhost:3000",
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
         "logRetention": 7,
@@ -36,7 +36,7 @@
     "prod": {
       "resourceConfig": {
         "allowedOrigin": "http://localhost:3000",
-        "passwordResetClientBaseUrl": "http://localhost:3000",
+        "userManagementClientBaseUrl": "http://localhost:3000",
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "stageName": "prod"

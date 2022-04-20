@@ -1,7 +1,8 @@
-import { APIGatewayProxyWithLambdaAuthorizerHandler } from 'aws-lambda';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { createResponse, ResponseBody } from './utils';
-import { getUser } from './utils/userManagementHelpers';
+import { getUser } from '../utils/userManagementHelpers';
+import { ResponseBody } from '../utils';
+import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 import { UserContext } from './authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
@@ -11,20 +12,13 @@ interface GetUserResponseBody extends ResponseBody {
   username: string;
 }
 
-export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
-  UserContext
-> = async (event) => {
-  const {
-    requestContext: {
-      authorizer: { sub, username }
-    }
-  } = event;
+const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { sub, username } = request.requestContext.get('user') as UserContext;
   const responseBody: GetUserResponseBody = { username };
 
   try {
     // Get user from userTable
     const { Item = {} } = await getUser(sub);
-
     const {
       ingestEndpoint: { S: ingestEndpoint },
       playbackUrl: { S: playbackUrl },
@@ -37,8 +31,12 @@ export const handler: APIGatewayProxyWithLambdaAuthorizerHandler<
   } catch (error) {
     console.error(error);
 
-    return createResponse(500);
+    reply.statusCode = 500;
+
+    return reply.send({ __type: UNEXPECTED_EXCEPTION });
   }
 
-  return createResponse(200, responseBody);
+  return reply.send(responseBody);
 };
+
+export default handler;

@@ -1,3 +1,5 @@
+import { CognitoUser, CognitoUserPool } from 'amazon-cognito-identity-js';
+
 const {
   REACT_APP_API_BASE_URL,
   REACT_APP_COGNITO_USER_POOL_ID,
@@ -16,6 +18,21 @@ if (!apiBaseUrl || !userPoolId || !userPoolClientId)
     )
   );
 
-const cognitoParams = { UserPoolId: userPoolId, ClientId: userPoolClientId };
+const COGNITO_PARAMS = { UserPoolId: userPoolId, ClientId: userPoolClientId };
 
-export { cognitoParams, apiBaseUrl };
+const userPool = new CognitoUserPool(COGNITO_PARAMS);
+
+const getCognitoUser = (username) => {
+  const cognitoUser = new CognitoUser({ Pool: userPool, Username: username });
+  cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+  return cognitoUser;
+};
+
+class SessionError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'SessionError';
+  }
+}
+
+export { getCognitoUser, userPool, apiBaseUrl, SessionError };

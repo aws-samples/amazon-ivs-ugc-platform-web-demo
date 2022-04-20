@@ -20,8 +20,13 @@ export const Provider = ({ children }) => {
   const [notif, setNotif] = useState(null);
   const timeoutID = useRef();
 
-  const notify = useCallback(
-    (message, type) => setNotif({ message, type }),
+  const notifyError = useCallback(
+    (message) => setNotif({ message, type: NOTIF_TYPES.ERROR }),
+    []
+  );
+
+  const notifySuccess = useCallback(
+    (message) => setNotif({ message, type: NOTIF_TYPES.SUCCESS }),
     []
   );
 
@@ -33,17 +38,14 @@ export const Provider = ({ children }) => {
     return () => clearTimeout(timeoutID.current);
   }, [notif]);
 
-  /**
-   *
-   */
   const value = useMemo(
     () => ({
       NOTIF_TYPES,
       notif,
-      notifyError: (message) => notify(message, NOTIF_TYPES.ERROR),
-      notifySuccess: (message) => notify(message, NOTIF_TYPES.SUCCESS)
+      notifyError,
+      notifySuccess
     }),
-    [notif, notify]
+    [notif, notifyError, notifySuccess]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

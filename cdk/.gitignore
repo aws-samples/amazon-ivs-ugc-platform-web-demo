@@ -2,6 +2,8 @@
 !sanitize-output.js
 *.d.ts
 node_modules
+dist
+cdk.context.json
 
 # temp
 temp_out.json
