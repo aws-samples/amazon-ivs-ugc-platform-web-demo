@@ -5,7 +5,7 @@ const json = readFileSync(inputPath);
 const output = JSON.parse(json);
 
 const { userManagementApiBaseUrl, userPoolClientId, userPoolId } =
-  output[`StreamHealthDashboardUserManagementStack-${process.argv[2]}`];
+  output[`StreamHealthDashboard-${process.argv[2]}`];
 const publicCdkOutput = {
   userManagementApiBaseUrl,
   userPoolClientId,

@@ -2,10 +2,8 @@
 import 'source-map-support/register';
 import { App } from 'aws-cdk-lib';
 
-import {
-  ResourceConfig,
-  UserManagementStack
-} from '../lib/cdk-user-management-stack';
+import { ResourceConfig } from '../lib/cdk-user-management-stack';
+import { StreamHealthDashboardStack } from '../lib/cdk-stream-health-dashboard-stack';
 
 const app = new App();
 
@@ -15,14 +13,10 @@ const stage = app.node.tryGetContext('stage');
 const { resourceConfig }: { resourceConfig: ResourceConfig } =
   app.node.tryGetContext(stage);
 
-new UserManagementStack(
-  new App(),
-  `StreamHealthDashboardUserManagementStack-${stage}`,
-  {
-    env: {
-      account: process.env.CDK_DEFAULT_ACCOUNT,
-      region: process.env.CDK_DEFAULT_REGION
-    }
+new StreamHealthDashboardStack(new App(), `StreamHealthDashboard-${stage}`, {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
   },
   resourceConfig
-);
+});
