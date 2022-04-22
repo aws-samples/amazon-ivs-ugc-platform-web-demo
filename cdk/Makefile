@@ -5,7 +5,7 @@
 AWS_PROFILE_FLAG	= --profile $(AWS_PROFILE)
 STAGE				?= dev
 CDK_OPTIONS 		:= $(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE)
-STACK 				?= StreamHealthDashboardUserManagementStack-$(STAGE)
+STACK 				?= StreamHealthDashboard-$(STAGE)
 
 help: ## Shows this help message
 	@echo "\n$$(tput bold)Available Rules:$$(tput sgr0)\n"

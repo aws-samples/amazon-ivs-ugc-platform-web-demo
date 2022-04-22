@@ -11,11 +11,10 @@ import {
   aws_iam as iam,
   aws_lambda_nodejs as lambda,
   aws_logs as logs,
-  CfnOutput,
   Duration,
-  RemovalPolicy,
-  Stack,
-  StackProps
+  NestedStack,
+  NestedStackProps,
+  RemovalPolicy
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 import { Construct } from 'constructs';
@@ -25,23 +24,28 @@ import { getLambdaEntryPath } from './utils';
 
 export interface ResourceConfig {
   allowedOrigin: string;
-  userManagementClientBaseUrl: string;
   enableUserAutoVerify: boolean;
   ivsChannelType: ChannelType;
   logRetention?: logs.RetentionDays;
+  maxAzs: number;
+  natGateways: number;
   stageName: string;
+  userManagementClientBaseUrl: string;
 }
 
-export class UserManagementStack extends Stack {
-  constructor(
-    scope: Construct,
-    id: string,
-    props: StackProps,
-    resourceConfig: ResourceConfig
-  ) {
+interface UserManagementStackProps extends NestedStackProps {
+  resourceConfig: ResourceConfig;
+  vpc?: ec2.IVpc;
+}
+
+export class UserManagementStack extends NestedStack {
+  public readonly outputs: { [key: string]: string };
+
+  constructor(scope: Construct, id: string, props: UserManagementStackProps) {
     super(scope, id, props);
 
-    const stackNamePrefix = this.stackName;
+    const stackNamePrefix = 'UserManagement';
+    let { resourceConfig, vpc } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
@@ -49,8 +53,19 @@ export class UserManagementStack extends Stack {
       userManagementClientBaseUrl,
       enableUserAutoVerify,
       ivsChannelType,
-      logRetention
+      logRetention,
+      maxAzs,
+      natGateways
     } = resourceConfig;
+
+    // If vpc is not provided, create your own
+    if (!vpc) {
+      // VPC
+      vpc = new ec2.Vpc(this, `${stackNamePrefix}-VPC`, {
+        maxAzs,
+        natGateways
+      });
+    }
 
     // Default lambda parameters
     const defaultLambdaParams = {
@@ -110,10 +125,7 @@ export class UserManagementStack extends Stack {
       ...(!enableUserAutoVerify
         ? {
             // autoVerify is used to set the attribute that Cognito will use to verify users, but will not actually verify the email automatically (the user will still need to verify it upon sign-up)
-            autoVerify: { email: true },
-            userVerification: {
-              emailStyle: cognito.VerificationEmailStyle.LINK
-            }
+            autoVerify: { email: true }
           }
         : {}),
       lambdaTriggers: {
@@ -135,7 +147,9 @@ export class UserManagementStack extends Stack {
       // Cognito requires a domain when the email verification style is set to LINK
       const domainPrefixId = crypto
         .createHash('sha256')
-        .update(`${Stack.of(this).account}${Stack.of(this).stackName}`)
+        .update(
+          `${NestedStack.of(this).account}${NestedStack.of(this).stackName}`
+        )
         .digest('hex')
         .substring(0, 12);
 
@@ -156,12 +170,8 @@ export class UserManagementStack extends Stack {
       }
     );
 
-    // VPC
-    const vpc = new ec2.Vpc(this, `${stackNamePrefix}-VPC`);
-
     // ECS CLUSTER
     const cluster = new ecs.Cluster(this, `${stackNamePrefix}-Cluster`, {
-      clusterName: `${stackNamePrefix}-Cluster`,
       vpc
     });
 
@@ -210,7 +220,7 @@ export class UserManagementStack extends Stack {
     // FARGATE TASK DEFINITION
     const fargateTaskDefinition = new ecs.FargateTaskDefinition(
       this,
-      `${stackNamePrefix}-Cluster-TaskDefinition`,
+      `${stackNamePrefix}-TaskDefinition`,
       {
         cpu: 1024,
         memoryLimitMiB: 2048,
@@ -254,7 +264,6 @@ export class UserManagementStack extends Stack {
     // FARGATE SERVICE
     const service = new ecs.FargateService(this, `${stackNamePrefix}-Service`, {
       cluster,
-      serviceName: 'user',
       taskDefinition: fargateTaskDefinition
     });
     const scaling = service.autoScaleTaskCount({ maxCapacity: 30 });
@@ -267,12 +276,8 @@ export class UserManagementStack extends Stack {
     // LOAD BALANCER
     const loadBalancer = new elbv2.ApplicationLoadBalancer(
       this,
-      `${stackNamePrefix}-ApplicationLoadBalancer`,
-      {
-        internetFacing: true,
-        loadBalancerName: 'user-management-api',
-        vpc
-      }
+      `${stackNamePrefix}-ALB`,
+      { internetFacing: true, vpc }
     );
     const listener = loadBalancer.addListener(`${stackNamePrefix}-Listener`, {
       port: 80,
@@ -283,7 +288,6 @@ export class UserManagementStack extends Stack {
       healthCheck: { path: '/status' },
       port: 8080,
       protocol: elbv2.ApplicationProtocol.HTTP,
-      targetGroupName: 'user-management-api',
       targets: [service]
     });
 
@@ -304,14 +308,10 @@ export class UserManagementStack extends Stack {
     );
 
     // Stack Outputs
-    new CfnOutput(this, 'userManagementApiBaseUrl', {
-      value: `https://${distribution.domainName}`
-    });
-    new CfnOutput(this, 'userPoolId', {
-      value: userPool.userPoolId
-    });
-    new CfnOutput(this, 'userPoolClientId', {
-      value: userPoolClient.userPoolClientId
-    });
+    this.outputs = {
+      userManagementApiBaseUrl: `https://${distribution.domainName}`,
+      userPoolId: userPool.userPoolId,
+      userPoolClientId: userPoolClient.userPoolClientId
+    };
   }
 }

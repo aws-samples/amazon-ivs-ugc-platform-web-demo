@@ -26,20 +26,24 @@
     "dev": {
       "resourceConfig": {
         "allowedOrigin": "*",
-        "userManagementClientBaseUrl": "http://localhost:3000",
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
         "logRetention": 7,
-        "stageName": "dev"
+        "maxAzs": 2,
+        "natGateways": 1,
+        "stageName": "dev",
+        "userManagementClientBaseUrl": "http://localhost:3000"
       }
     },
     "prod": {
       "resourceConfig": {
         "allowedOrigin": "http://localhost:3000",
-        "userManagementClientBaseUrl": "http://localhost:3000",
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
-        "stageName": "prod"
+        "maxAzs": 3,
+        "natGateways": 2,
+        "stageName": "prod",
+        "userManagementClientBaseUrl": "http://localhost:3000"
       }
     }
   }
