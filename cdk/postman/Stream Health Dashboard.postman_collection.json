@@ -26,58 +26,17 @@
 					"response": []
 				},
 				{
-					"name": "/user/resources/create",
+					"name": "/user",
 					"request": {
-						"method": "POST",
+						"method": "DELETE",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/resources/create",
+							"raw": "{{userManagementApiBaseUrl}}/user",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
-								"user",
-								"resources",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/reset",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/reset",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"reset"
+								"user"
 							]
 						}
 					},
@@ -114,17 +73,87 @@
 					"response": []
 				},
 				{
-					"name": "/user",
+					"name": "/user/resources/create",
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user",
+							"raw": "{{userManagementApiBaseUrl}}/user/resources/create",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
-								"user"
+								"user",
+								"resources",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/username/update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"newUsername\": \"not{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/username/update",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"username",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/password/reset",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/password/reset",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"password",
+								"reset"
 							]
 						}
 					},

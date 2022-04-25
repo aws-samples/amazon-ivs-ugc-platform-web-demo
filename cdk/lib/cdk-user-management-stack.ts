@@ -18,7 +18,6 @@ import {
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 import { Construct } from 'constructs';
-import crypto from 'crypto';
 
 import { getLambdaEntryPath } from './utils';
 
@@ -143,23 +142,6 @@ export class UserManagementStack extends NestedStack {
       }
     });
 
-    if (!enableUserAutoVerify) {
-      // Cognito requires a domain when the email verification style is set to LINK
-      const domainPrefixId = crypto
-        .createHash('sha256')
-        .update(
-          `${NestedStack.of(this).account}${NestedStack.of(this).stackName}`
-        )
-        .digest('hex')
-        .substring(0, 12);
-
-      userPool.addDomain('CognitoDomain', {
-        cognitoDomain: {
-          domainPrefix: `stream-health-dashboard-${domainPrefixId}`
-        }
-      });
-    }
-
     // Create user pool client
     const userPoolClient = new cognito.UserPoolClient(
       this,
@@ -208,7 +190,8 @@ export class UserManagementStack extends NestedStack {
       actions: [
         'cognito-idp:AdminDeleteUser',
         'cognito-idp:AdminDisableUser',
-        'cognito-idp:AdminGetUser'
+        'cognito-idp:AdminGetUser',
+        'cognito-idp:AdminUpdateUserAttributes'
       ],
       effect: iam.Effect.ALLOW,
       resources: [userPool.userPoolArn]

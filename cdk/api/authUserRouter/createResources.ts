@@ -17,9 +17,7 @@ type CreateResourcesRequestBody = { email: string | undefined };
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { email }: CreateResourcesRequestBody = JSON.parse(
-    request.body as string
-  );
+  const { email } = request.body as CreateResourcesRequestBody;
 
   try {
     if (!email) {

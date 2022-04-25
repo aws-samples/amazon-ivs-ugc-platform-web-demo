@@ -21,9 +21,8 @@ type SignUpRequestBody = {
 };
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { email, password, username }: SignUpRequestBody = JSON.parse(
-    request.body as string
-  );
+  const { email, password, username }: SignUpRequestBody =
+    request.body as SignUpRequestBody;
 
   // Check input
   if (!email || !password || !username) {

@@ -71,7 +71,10 @@ export const authFetch = async ({
 
     const response = await fetch(url, {
       ...(method !== 'GET' ? { body: bodyPayload } : {}),
-      headers: { Authorization: accessToken },
+      headers: {
+        Authorization: accessToken,
+        'Content-Type': 'application/json'
+      },
       method
     });
     const data = await response.json();
@@ -98,6 +101,7 @@ export const unauthFetch = async ({ url, method = 'GET', body }) => {
   try {
     const response = await fetch(url, {
       body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
       method
     });
 

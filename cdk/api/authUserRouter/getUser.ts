@@ -9,12 +9,12 @@ interface GetUserResponseBody extends ResponseBody {
   ingestEndpoint?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
-  username: string;
+  username?: string;
 }
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { sub, username } = request.requestContext.get('user') as UserContext;
-  const responseBody: GetUserResponseBody = { username };
+  const { sub } = request.requestContext.get('user') as UserContext;
+  const responseBody: GetUserResponseBody = {};
 
   try {
     // Get user from userTable
@@ -22,12 +22,14 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const {
       ingestEndpoint: { S: ingestEndpoint },
       playbackUrl: { S: playbackUrl },
-      streamKeyValue: { S: streamKeyValue }
+      streamKeyValue: { S: streamKeyValue },
+      username: { S: username }
     } = Item;
 
     responseBody.ingestEndpoint = ingestEndpoint;
-    responseBody.streamKeyValue = streamKeyValue;
     responseBody.playbackUrl = playbackUrl;
+    responseBody.streamKeyValue = streamKeyValue;
+    responseBody.username = username;
   } catch (error) {
     console.error(error);
 

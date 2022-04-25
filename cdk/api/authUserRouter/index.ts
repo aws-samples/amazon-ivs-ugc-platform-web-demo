@@ -1,12 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from 'fastify-request-context';
 
+import authorizer, { UserContext } from './authorizer';
+import changeUsername from './changeUsername';
 import createResources from './createResources';
 import deleteUser from './deleteUser';
 import getUser from './getUser';
 import resetStreamKey from './resetStreamKey';
-
-import authorizer, { UserContext } from './authorizer';
 
 declare module 'fastify-request-context' {
   interface RequestContextData {
@@ -19,8 +19,12 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.addHook('preHandler', authorizer);
 
   resource.get('/', getUser);
-  resource.post('/resources/create', createResources);
   resource.get('/streamKey/reset', resetStreamKey);
+
+  resource.post('/resources/create', createResources);
+
+  resource.put('/username/update', changeUsername);
+
   resource.delete('/', deleteUser);
 };
 
