@@ -1,0 +1,28 @@
+.session-navigator {
+  align-self: center;
+  column-gap: 10px;
+  display: flex;
+  grid-column-start: 2;
+}
+
+.session-list {
+  height: 48px;
+  padding: 9px;
+  width: 100%;
+}
+
+.nav-button {
+  height: auto;
+  padding: 6px 13px;
+}
+
+.date-time-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.time {
+  color: var(--color-light-gray);
+  font-size: 12px;
+  font-weight: 500;
+}

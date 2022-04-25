@@ -1,12 +1,14 @@
-.form-section {
+.main-user-container {
   background: var(--color-dark-gray);
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  padding: 157px 30px;
+  overflow-x: hidden;
+  padding: 89px 30px;
   position: relative;
   width: 100%;
+  position: relative;
 }
 
 .welcome-section {
@@ -17,34 +19,7 @@
 }
 
 .welcome-section h1 {
-  font-size: 46px;
-  font-weight: 900;
   margin: 20px 0;
-}
-
-@media (max-width: 970px) {
-  .welcome-section h1 {
-    font-size: min(46px, 4.58732vw);
-  }
-}
-
-@media (max-width: 875px) {
-  .form-section {
-    height: 100%;
-    justify-content: flex-start;
-    padding: 30px;
-  }
-
-  .welcome-section {
-    padding: 40px 30px;
-    width: 100%;
-  }
-
-  .welcome-section h1 {
-    text-align: center;
-    margin: auto;
-    font-size: 46px;
-  }
 }
 
 .sub-page-container {
@@ -60,7 +35,30 @@
   line-height: 22.5px;
 }
 
+@media (max-width: 970px) {
+  .welcome-section h1 {
+    font-size: min(46px, 4.58732vw);
+  }
+}
+
 @media (max-width: 875px) {
+  .main-user-container {
+    height: 100%;
+    justify-content: flex-start;
+    padding: 30px;
+  }
+
+  .welcome-section {
+    padding: 40px 30px;
+    width: 100%;
+  }
+
+  .welcome-section h1 {
+    text-align: center;
+    margin: auto;
+    font-size: 46px;
+  }
+
   .sub-page-container {
     margin: 0 auto;
   }

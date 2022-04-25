@@ -1,14 +1,28 @@
 .outer-input-container {
   display: flex;
-  flex-direction: column;
   position: relative;
+  justify-content: center;
+}
+
+.outer-input-container.vertical {
+  flex-direction: column;
+}
+
+.outer-input-container.horizontal {
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
 }
 
 .outer-input-container .label {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 500;
   width: fit-content;
   margin-bottom: 15px;
+}
+
+.outer-input-container.horizontal .label {
+  margin-bottom: 0;
 }
 
 .outer-input-container .description {
@@ -16,12 +30,11 @@
   font-size: 13px;
   font-weight: 500;
   padding-top: 5px;
-  margin-bottom: -21px;
 }
 
 .outer-input-container .error-message {
   align-items: flex-start;
-  color: var(--color-error-red);
+  color: var(--color-red);
   column-gap: 6.33px;
   display: flex;
   font-size: 13px;
@@ -39,26 +52,42 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .inner-input-container input {
-  background: var(--color-gray);
+  -webkit-appearance: none;
+  background: var(--color-medium-gray);
   border-radius: var(--default-border-radius);
   border: none;
   color: var(--color-white);
+  font-family: 'Inter';
   font-size: 15px;
+  font-weight: 400;
   height: 42px;
-  overflow: hidden;
   padding: 14px;
-  text-overflow: ellipsis;
-  transition: box-shadow 0.15s ease-in-out;
-  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
   width: 100%;
-  -webkit-appearance: none;
+}
+
+.inner-input-container input:read-only {
+  cursor: auto;
+}
+
+.inner-input-container input:not([type='password']) {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .inner-input-container input[initial-type='password'] {
-  padding-right: 50px;
+  padding-right: 52px;
+}
+
+.inner-input-container input[type='button'] {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 26.5px;
 }
 
 .inner-input-container input:focus {
@@ -67,7 +96,7 @@
 }
 
 .inner-input-container.error input {
-  box-shadow: inset 0 0 0 2px var(--color-error-red);
+  box-shadow: inset 0 0 0 2px var(--color-red);
 }
 
 .password-peek {
@@ -90,7 +119,7 @@
 }
 
 .error-icon {
-  fill: var(--color-error-red);
+  fill: var(--color-red);
   height: 16px;
   min-width: 16px;
   width: 16px;
@@ -98,6 +127,4 @@
 
 .visibility-icon {
   fill: var(--color-white);
-  height: 18px;
-  width: 18px;
 }

@@ -5,15 +5,15 @@ import './Button.css';
 
 const Button = ({
   children,
+  className,
   isDisabled,
   isLoading,
-  variant,
-  type,
   onClick,
-  className
+  type,
+  variant
 }) => (
   <button
-    className={`button ${!isDisabled ? variant : ''} ${className}`}
+    className={`button ${variant} ${className}`}
     disabled={isDisabled}
     onClick={onClick}
     type={type}
@@ -38,7 +38,13 @@ Button.propTypes = {
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'link'])
+  variant: PropTypes.oneOf([
+    'primary',
+    'tertiary',
+    'secondary',
+    'destructive',
+    'link'
+  ])
 };
 
 export default Button;

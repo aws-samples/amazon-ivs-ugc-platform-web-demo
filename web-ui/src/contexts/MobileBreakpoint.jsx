@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import { createContext, useEffect, useMemo, useState } from 'react';
 
-import { MOBILE_BREAKPOINT } from '../constants';
 import useContextHook from './useContextHook';
 
 const Context = createContext(null);
 Context.displayName = 'MobileBreakpoint';
+
+const MOBILE_BREAKPOINT = 875; // px
 
 export const Provider = ({ children }) => {
   const [isMobileView, setIsMobileView] = useState(undefined);

@@ -14,7 +14,7 @@
     "title": "Sign in to your account"
   },
   "reset_password_page": {
-    "email_link_sent": "An email has been sent to you with a link to reset your password.",
+    "email_link_sent": "If an account with this email address exists, you will receive an email with a link to reset your password.",
     "request_password_reset": "Request password reset",
     "resend": "Resend",
     "return_to_login": "Return to login",

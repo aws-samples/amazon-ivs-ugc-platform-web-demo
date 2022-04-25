@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import ResetPasswordConfirmation from './ResetPasswordConfirmation';
 import ResetPasswordRequestConfirmation from './ResetPasswordRequestConfirmation';
@@ -8,15 +8,15 @@ import ResetPasswordRequestForm from './ResetPasswordRequestForm';
 const ResetPassword = () => {
   const [requestSent, setRequestSent] = useState(false);
   const [email, setEmail] = useState('');
-  const { search } = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const query = useMemo(() => new URLSearchParams(search), [search]);
-  const { verificationCode, username } = useMemo(() => {
-    const verificationCode = query.get('code');
-    const username = query.get('username');
-
-    return { verificationCode, username };
-  }, [query]);
+  const { verificationCode, username } = useMemo(
+    () => ({
+      verificationCode: searchParams.get('code'),
+      username: searchParams.get('username')
+    }),
+    [searchParams]
+  );
 
   const onRequestSuccess = (_result, formValues) => {
     setEmail(formValues.email);

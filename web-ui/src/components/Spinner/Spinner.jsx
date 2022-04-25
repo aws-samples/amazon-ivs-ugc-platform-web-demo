@@ -1,24 +1,25 @@
+import PropTypes from 'prop-types';
 import './Spinner.css';
 
-const diameter = '24px';
-const strokeWidth = '4px';
+const DIAMETER = { small: '24px', medium: '36px' };
 
-const Spinner = () => (
+const Spinner = ({ variant, size }) => (
   <span
-    className="spinner"
-    style={{ width: diameter, height: diameter }}
+    className={`spinner ${variant} ${size}`}
     role="progressbar"
+    style={{ width: DIAMETER[size], height: DIAMETER[size] }}
   >
     <svg viewBox="22 22 44 44">
-      <circle
-        cx="44"
-        cy="44"
-        r="20.2"
-        fill="none"
-        strokeWidth={strokeWidth}
-      ></circle>
+      <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="4px" />
     </svg>
   </span>
 );
+
+Spinner.defaultProps = { variant: 'dark', size: 'small' };
+
+Spinner.propTypes = {
+  variant: PropTypes.oneOf(['light', 'dark']),
+  size: PropTypes.oneOf(['small', 'medium'])
+};
 
 export default Spinner;

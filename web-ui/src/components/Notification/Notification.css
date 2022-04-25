@@ -11,13 +11,13 @@
   padding: 10px 20px;
   position: absolute;
   right: 0;
-  top: 89px;
+  top: 15px;
   width: fit-content;
-  z-index: 100;
+  z-index: 10;
 }
 
 .notification.error {
-  background-color: var(--color-error-red);
+  background-color: var(--color-red);
 }
 
 .notification.success {
@@ -26,13 +26,4 @@
 
 .notif-icon {
   fill: var(--color-black);
-  height: 18px;
-  min-width: 18px;
-  width: 18px;
-}
-
-@media (max-width: 875px) {
-  .notification {
-    top: 25.5px;
-  }
 }

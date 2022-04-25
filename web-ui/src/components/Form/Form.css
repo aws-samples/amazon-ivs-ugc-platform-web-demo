@@ -3,12 +3,12 @@
   flex-direction: column;
   margin: auto;
   max-width: 450px;
-  row-gap: 30px;
+  row-gap: 40px;
   width: 100%;
 }
 
 .form > :last-child {
-  padding-top: 15px;
+  padding-top: 20px;
 }
 
 .submit-container {
