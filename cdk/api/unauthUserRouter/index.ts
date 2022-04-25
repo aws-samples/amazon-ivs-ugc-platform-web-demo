@@ -5,7 +5,7 @@ import signUp from './signUp';
 
 const router: FastifyPluginAsync = async (resource) => {
   resource.post('/register', signUp);
-  resource.post('/reset', forgotPassword);
+  resource.post('/password/reset', forgotPassword);
 };
 
 export default router;

@@ -13,9 +13,8 @@ const cognitoClient = new CognitoIdentityProviderClient({});
 type ForgotPasswordRequestBody = { email: string | undefined };
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { email }: ForgotPasswordRequestBody = JSON.parse(
-    request.body as string
-  );
+  const { email }: ForgotPasswordRequestBody =
+    request.body as ForgotPasswordRequestBody;
 
   if (email) {
     try {

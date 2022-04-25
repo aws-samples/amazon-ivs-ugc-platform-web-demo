@@ -1,4 +1,5 @@
 import {
+  AttributeValueUpdate,
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
@@ -38,16 +39,22 @@ export const deleteUser = (sub: string) => {
   return dynamoDbClient.send(deleteItemCommand);
 };
 
-export const updateUserStreamKey = (
+export const updateDynamoUserAttributes = (
   sub: string,
-  newStreamKeyArn: string,
-  newStreamKeyValue: string
+  attributes = [] as { key: string; value: string }[]
 ) => {
+  if (!attributes.length) return;
+
+  const attributesToUpdate = attributes.reduce(
+    (acc, { key, value }) => ({
+      ...acc,
+      [key]: { Action: 'PUT', Value: { S: value } }
+    }),
+    {}
+  ) as { [key: string]: AttributeValueUpdate };
+
   const putItemCommand = new UpdateItemCommand({
-    AttributeUpdates: {
-      streamKeyArn: { Action: 'PUT', Value: { S: newStreamKeyArn } },
-      streamKeyValue: { Action: 'PUT', Value: { S: newStreamKeyValue } }
-    },
+    AttributeUpdates: attributesToUpdate,
     Key: { id: { S: sub } },
     TableName: process.env.USER_TABLE_NAME
   });
