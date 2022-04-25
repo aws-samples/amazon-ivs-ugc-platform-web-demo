@@ -1,35 +1,56 @@
-import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
 import { LazyMotion } from 'framer-motion';
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route,
+  Routes
+} from 'react-router-dom';
 
-import UserManagement from './pages/UserManagement';
-import Dashboard from './pages/Dashboard';
+// Context Providers
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as UserProvider } from './contexts/User';
 
+// Layout Pages
+import Dashboard from './pages/Dashboard';
+import UserManagement from './pages/UserManagement';
+
+// Dashboard Pages
+import { Settings, StreamSession } from './pages/Dashboard/subpages';
+
+// UserManagement Pages
+import {
+  RegisterUser,
+  ResetPassword,
+  SigninUser
+} from './pages/UserManagement/subpages';
+
 const loadMotionFeatures = () =>
   import('./motion-features').then((res) => res.default);
 
-const App = () => {
-  const { pathname } = useLocation();
-
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
-
-  return (
-    <MobileBreakpointProvider>
+const App = () => (
+  <Router>
+    <LazyMotion features={loadMotionFeatures} strict>
       <UserProvider>
-        <NotificationProvider>
-          <LazyMotion features={loadMotionFeatures} strict>
+        <MobileBreakpointProvider>
+          <NotificationProvider>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/*" element={<UserManagement />} />
+              <Route element={<Dashboard />}>
+                <Route index element={<StreamSession />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+              <Route element={<UserManagement />}>
+                <Route path="login" element={<SigninUser />} />
+                <Route path="register" element={<RegisterUser />} />
+                <Route path="reset" element={<ResetPassword />} />
+              </Route>
+              <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
-          </LazyMotion>
-        </NotificationProvider>
+          </NotificationProvider>
+        </MobileBreakpointProvider>
       </UserProvider>
-    </MobileBreakpointProvider>
-  );
-};
+    </LazyMotion>
+  </Router>
+);
 
 export default App;

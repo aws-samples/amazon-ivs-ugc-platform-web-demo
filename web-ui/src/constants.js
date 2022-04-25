@@ -1,5 +1,3 @@
-export const MOBILE_BREAKPOINT = 875; // px
-
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';

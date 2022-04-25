@@ -7,6 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import useContextHook from './useContextHook';
 
@@ -18,6 +19,7 @@ const NOTIF_TIMEOUT = 5000; // ms
 
 export const Provider = ({ children }) => {
   const [notif, setNotif] = useState(null);
+  const { pathname } = useLocation();
   const timeoutID = useRef();
 
   const notifyError = useCallback(
@@ -29,6 +31,11 @@ export const Provider = ({ children }) => {
     (message) => setNotif({ message, type: NOTIF_TYPES.SUCCESS }),
     []
   );
+
+  useEffect(() => {
+    clearTimeout(timeoutID.current);
+    setNotif(null);
+  }, [pathname]);
 
   useEffect(() => {
     if (notif) {

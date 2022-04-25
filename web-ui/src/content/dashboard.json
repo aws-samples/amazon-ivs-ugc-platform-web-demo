@@ -1,3 +1,44 @@
 {
-  "account_setup_error": "An error occured setting up your account. Please refresh the page to try again."
+  "header": {
+    "return_to_session": "Return to session",
+    "log_out": "Log out"
+  },
+  "stream_session_page": {
+    "account_setup_error": "An error occured setting up your account. Please refresh the page to try again."
+  },
+  "settings_page": {
+    "title": "Settings",
+    "copy": "Copy",
+    "save": "Save",
+    "reset": "Reset",
+    "stream_settings": "Stream settings",
+    "stream_key": "Stream key",
+    "ingest_server_url": "Ingest server URL",
+    "account_settings": "Account settings",
+    "username": "Username",
+    "enter_your_username": "Enter your username",
+    "current_password": "Current password",
+    "enter_your_current_password": "Enter your current password",
+    "new_password": "New password",
+    "enter_your_new_password": "Enter your new password",
+    "confirm_password": "Confirm password",
+    "confirm_your_password": "Confirm your password",
+    "account_deletion": "Account deletion",
+    "delete_my_account": "Delete my account"
+  },
+  "notification": {
+    "success": {
+      "stream_key_reset": "Stream key has been reset",
+      "stream_key_copied": "Stream key copied",
+      "ingest_endpoint_copied": "Ingest server URL copied",
+      "username_saved": "Username saved",
+      "password_saved": "Password saved"
+    },
+    "error": {
+      "reset_stream_key_failed": "Stream key failed to reset",
+      "username_save_failed": "Username failed to save",
+      "password_save_failed": "Password failed to save",
+      "account_deletion_failed": "Account failed to delete"
+    }
+  }
 }

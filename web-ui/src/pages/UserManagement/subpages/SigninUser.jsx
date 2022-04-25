@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { userManagement } from '../../../api';
 import { userManagement as $content } from '../../../content';
@@ -8,21 +8,24 @@ import Form from '../../../components/Form';
 import { useNotif } from '../../../contexts/Notification';
 
 const SigninUser = () => {
-  const navigate = useNavigate();
-  const { search } = useLocation();
-  const { updateUserData } = useUser();
+  const { fetchUserData } = useUser();
   const { notifySuccess, notifyError } = useNotif();
-  const query = useMemo(() => new URLSearchParams(search), [search]);
-  const { verificationCode, username } = useMemo(() => {
-    const verificationCode = query.get('code');
-    const username = query.get('username');
-
-    return { verificationCode, username };
-  }, [query]);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { verificationCode, username } = useMemo(
+    () => ({
+      verificationCode: searchParams.get('code'),
+      username: searchParams.get('username')
+    }),
+    [searchParams]
+  );
 
   useEffect(() => {
     const confirmUser = async () => {
-      const { result, error } = await userManagement.verifyUserEmail();
+      const { result, error } = await userManagement.verifyUserEmail(
+        username,
+        verificationCode
+      );
 
       if (result)
         notifySuccess($content.notification.success.registration_confirmed);
@@ -36,9 +39,7 @@ const SigninUser = () => {
     }
   }, [notifyError, notifySuccess, username, verificationCode]);
 
-  const submitHandler = async (formValues) => {
-    const { result, error } = await userManagement.signIn(formValues);
-
+  const onSuccess = async () => {
     /**
      * If sign-in is successful, then we attempt to get this user's data and save it
      * in the context.
@@ -51,17 +52,16 @@ const SigninUser = () => {
      * created resources for this user previously. Therefore, this call will retrieve
      * that information and save it in the context.
      */
-    if (result) await updateUserData();
-
-    return { result, error };
+    await fetchUserData();
+    navigate('/', { replace: true });
   };
 
   return (
     <Form
-      submitHandler={submitHandler}
+      submitHandler={userManagement.signIn}
       submitText={$content.sign_in}
       title={$content.login_page.title}
-      onSuccess={() => navigate('/')}
+      onSuccess={onSuccess}
       footer={
         <span>
           <b>{$content.login_page.new_user}</b>&nbsp;

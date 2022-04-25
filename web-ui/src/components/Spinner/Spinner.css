@@ -26,8 +26,15 @@
 
 .spinner {
   display: inline-block;
-  color: var(--color-black);
   animation: 1.4s linear 0s infinite normal none running rotate-anim;
+}
+
+.spinner.light {
+  color: var(--color-white);
+}
+
+.spinner.dark {
+  color: var(--color-black);
 }
 
 .spinner circle {

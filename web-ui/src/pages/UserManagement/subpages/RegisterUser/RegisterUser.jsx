@@ -1,27 +1,26 @@
 import { Link, useNavigate } from 'react-router-dom';
 
-import Form from '../../../../components/Form';
 import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 import { useState } from 'react';
-
-import RegisterUserRequestConfirmation from './RegisterUserRequestConfirmation';
 import { useUser } from '../../../../contexts/User';
+import Form from '../../../../components/Form';
+import RegisterUserRequestConfirmation from './RegisterUserRequestConfirmation';
 
 const RegisterUser = () => {
   const [isRequestSent, setRequestSent] = useState(false);
   const [username, setUsername] = useState('');
 
   const navigate = useNavigate();
-  const { updateUserData } = useUser();
+  const { fetchUserData } = useUser();
 
   const onRequestSuccess = async (result, formValues) => {
     if (result.userConfirmed) {
       const { result: signInResult } = await userManagement.signIn(formValues);
 
       if (signInResult) {
-        await updateUserData();
-        navigate('/');
+        await fetchUserData();
+        navigate('/', { replace: true });
       }
     } else {
       setUsername(formValues.username);
