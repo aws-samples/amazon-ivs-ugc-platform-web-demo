@@ -9,6 +9,7 @@ interface UserManagementCognitoTriggersProps
 
 export default class UserManagementCognitoTriggers extends Construct {
   public readonly customMessageLambda: lambda.NodejsFunction;
+  public readonly preAuthenticationLambda: lambda.NodejsFunction;
   public readonly preSignUpLambda: lambda.NodejsFunction | undefined;
 
   constructor(
@@ -40,7 +41,6 @@ export default class UserManagementCognitoTriggers extends Construct {
 
     this.preSignUpLambda = preSignUpLambda;
 
-    // Lambda to auto verify new users, not suitable for production
     const customMessageLambda = new lambda.NodejsFunction(
       this,
       'CustomMessageLambda',
@@ -54,5 +54,16 @@ export default class UserManagementCognitoTriggers extends Construct {
     );
 
     this.customMessageLambda = customMessageLambda;
+
+    let preAuthenticationLambda = new lambda.NodejsFunction(
+      this,
+      'PreAuthenticationLambda',
+      {
+        ...defaultLambdaParams,
+        entry: getLambdaEntryPath('cognitoTriggers/preAuthentication')
+      }
+    );
+
+    this.preAuthenticationLambda = preAuthenticationLambda;
   }
 }

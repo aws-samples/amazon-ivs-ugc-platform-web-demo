@@ -51,7 +51,7 @@ export class UserManagementStack extends NestedStack {
     });
 
     // Cognito Lambda triggers
-    const { customMessageLambda, preSignUpLambda } =
+    const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
       new UserManagementCognitoTriggers(
         this,
         `${stackNamePrefix}-UserManagementCognitoTriggers`,
@@ -68,7 +68,8 @@ export class UserManagementStack extends NestedStack {
         : {}),
       lambdaTriggers: {
         ...(enableUserAutoVerify ? { preSignUp: preSignUpLambda } : {}),
-        customMessage: customMessageLambda
+        customMessage: customMessageLambda,
+        preAuthentication: preAuthenticationLambda
       },
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
