@@ -4,9 +4,9 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { FORGOT_PASSWORD_EXCEPTION } from '../utils/constants';
-import { getUserByEmail } from '../utils/userManagementHelpers';
-import { isCognitoError } from '../utils';
+import { FORGOT_PASSWORD_EXCEPTION } from '../../utils/constants';
+import { getUserByEmail } from '../../utils/userManagementHelpers';
+import { isCognitoError } from '../../utils';
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 

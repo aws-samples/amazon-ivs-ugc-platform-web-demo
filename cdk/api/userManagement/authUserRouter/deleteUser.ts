@@ -11,8 +11,8 @@ import {
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { ACCOUNT_DELETION_EXCEPTION } from '../utils/constants';
-import { deleteUser, getUser } from '../utils/userManagementHelpers';
+import { ACCOUNT_DELETION_EXCEPTION } from '../../utils/constants';
+import { deleteUser, getUser } from '../../utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});

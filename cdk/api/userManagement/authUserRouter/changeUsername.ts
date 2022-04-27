@@ -4,9 +4,9 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { CHANGE_USERNAME_EXCEPTION } from '../utils/constants';
-import { ResponseBody } from '../utils';
-import { updateDynamoUserAttributes } from '../utils/userManagementHelpers';
+import { CHANGE_USERNAME_EXCEPTION } from '../../utils/constants';
+import { ResponseBody } from '../../utils';
+import { updateDynamoUserAttributes } from '../../utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
 const cognitoClient = new CognitoIdentityProviderClient({});

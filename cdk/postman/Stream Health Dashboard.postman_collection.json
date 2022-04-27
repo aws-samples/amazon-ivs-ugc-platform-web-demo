@@ -10,6 +10,20 @@
 			"item": [
 				{
 					"name": "/user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { channelArnSuffix } = JSON.parse(responseBody);",
+									"",
+									"pm.environment.set('channelArnSuffix', channelArnSuffix);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -180,6 +194,117 @@
 				}
 			],
 			"description": "The following commands are provided for convenience if you want to make API requests without using the frontend app.\n\nSign-up a new user:\n\n``` shell\naws cognito-idp sign-up --client-id clientId --username username --password password --user-attributes Name=email,Value=\n\n```\n\nAuthenticate the newly created user:\n\n``` shell\naws cognito-idp initiate-auth --client-id clientId --auth-parameters USERNAME=username,PASSWORD=password --auth-flow USER_PASSWORD_AUTH\n\n```\n\nThe previous command will give you an `AccessToken`, paste its value in the environment attached to this collection.",
+			"auth": {
+				"type": "oauth2",
+				"oauth2": [
+					{
+						"key": "headerPrefix",
+						"value": "",
+						"type": "string"
+					},
+					{
+						"key": "addTokenTo",
+						"value": "header",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Metrics",
+			"item": [
+				{
+					"name": "/metrics/:channelArnSuffix/streamSessions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { streamSessions } = JSON.parse(responseBody);",
+									"",
+									"if (streamSessions.length > 0) {",
+									"  pm.environment.set('streamSessionId', streamSessions[0].streamId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelArnSuffix/streamSessions",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"metrics",
+								":channelArnSuffix",
+								"streamSessions"
+							],
+							"variable": [
+								{
+									"key": "channelArnSuffix",
+									"value": null
+								}
+							]
+						},
+						"description": "The tests attached to this request will automatically set the stream ID of the most recent stream session as an environment variable."
+					},
+					"response": []
+				},
+				{
+					"name": "/metrics/:channelArnSuffix/streamSessions/:streamSessionId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelArnSuffix/streamSessions/:streamSessionId",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"metrics",
+								":channelArnSuffix",
+								"streamSessions",
+								":streamSessionId"
+							],
+							"variable": [
+								{
+									"key": "channelArnSuffix",
+									"value": "{{channelArnSuffix}}"
+								},
+								{
+									"key": "streamSessionId",
+									"value": "{{streamSessionId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
 			"auth": {
 				"type": "oauth2",
 				"oauth2": [

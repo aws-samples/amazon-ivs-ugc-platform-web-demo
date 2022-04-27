@@ -1,13 +1,20 @@
-import { aws_ec2 as ec2, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import path from 'path';
 
 import {
-  ResourceConfig,
-  UserManagementStack
-} from './cdk-user-management-stack';
+  aws_ec2 as ec2,
+  aws_ecs as ecs,
+  aws_iam as iam,
+  CfnOutput,
+  Stack,
+  StackProps
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+
+import { UserManagementResourceConfig } from './UserManagementStack/constants';
+import { UserManagementStack } from './UserManagementStack/cdk-user-management-stack';
 
 interface StreamHealthDashboardStackProps extends StackProps {
-  resourceConfig: ResourceConfig;
+  resourceConfig: UserManagementResourceConfig;
 }
 
 export class StreamHealthDashboardStack extends Stack {
@@ -28,12 +35,27 @@ export class StreamHealthDashboardStack extends Stack {
       natGateways
     });
 
+    // Container image
+    const containerImage = ecs.ContainerImage.fromAsset(
+      path.join(__dirname, '../api')
+    );
+
     const {
+      ecsTaskExecutionRole,
       outputs: { userManagementApiBaseUrl, userPoolId, userPoolClientId }
     } = new UserManagementStack(this, `UserManagement`, {
+      containerImage,
       resourceConfig,
       vpc
     });
+
+    // IAM permissions required for the stream health dashboard
+    const metricsIvsPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:GetStreamSession', 'ivs:ListStreamSessions'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    ecsTaskExecutionRole.addToPolicy(metricsIvsPolicyStatement);
 
     new CfnOutput(this, 'userManagementApiBaseUrl', {
       value: userManagementApiBaseUrl
