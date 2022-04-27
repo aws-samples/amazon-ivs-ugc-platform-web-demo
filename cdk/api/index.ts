@@ -1,19 +1,19 @@
 import fastify from 'fastify';
 import fastifyCors from 'fastify-cors';
 
-import authUserRouter from './authUserRouter';
-import unauthUserRouter from './unauthUserRouter';
+import userManagementRouters from './userManagement/';
+import metricsRouter from './metrics/';
 
 const server = fastify();
 
 // CORS
 server.register(fastifyCors, { origin: process.env.ALLOWED_ORIGIN });
 
-// Create /user authenticated resource
-server.register(authUserRouter, { prefix: 'user' });
+// Create /user authenticated and unauthenticated resources
+server.register(userManagementRouters, { prefix: 'user' });
 
-// Create /user unauthenticated resource
-server.register(unauthUserRouter, { prefix: 'user' });
+// Create /metrics authenticated resource
+server.register(metricsRouter, { prefix: 'metrics' });
 
 // Health check
 server.get('/status', async () => {

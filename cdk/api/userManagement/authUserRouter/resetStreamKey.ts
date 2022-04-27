@@ -10,9 +10,9 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   getUser,
   updateDynamoUserAttributes
-} from '../utils/userManagementHelpers';
-import { RESET_STREAM_KEY_EXCEPTION } from '../utils/constants';
-import { ResponseBody } from '../utils';
+} from '../../utils/userManagementHelpers';
+import { RESET_STREAM_KEY_EXCEPTION } from '../../utils/constants';
+import { ResponseBody } from '../../utils';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});

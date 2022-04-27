@@ -8,9 +8,9 @@ import {
   ACCOUNT_REGISTRATION_EXCEPTION,
   EMAIL_EXISTS_EXCEPTION,
   UNEXPECTED_EXCEPTION
-} from '../utils/constants';
-import { getUserByEmail } from '../utils/userManagementHelpers';
-import { isCognitoError } from '../utils';
+} from '../../utils/constants';
+import { getUserByEmail } from '../../utils/userManagementHelpers';
+import { isCognitoError } from '../../utils';
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 

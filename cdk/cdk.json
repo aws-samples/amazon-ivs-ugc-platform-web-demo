@@ -30,6 +30,7 @@
         "ivsChannelType": "BASIC",
         "logRetention": 7,
         "maxAzs": 2,
+        "minScalingCapacity": 1,
         "natGateways": 1,
         "stageName": "dev",
         "userManagementClientBaseUrl": "http://localhost:3000"
@@ -41,6 +42,7 @@
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "maxAzs": 3,
+        "minScalingCapacity": 1,
         "natGateways": 2,
         "stageName": "prod",
         "userManagementClientBaseUrl": "http://localhost:3000"

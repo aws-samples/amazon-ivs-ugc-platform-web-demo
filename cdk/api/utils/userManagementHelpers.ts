@@ -61,3 +61,17 @@ export const updateDynamoUserAttributes = (
 
   return dynamoDbClient.send(putItemCommand);
 };
+
+export const getChannelArnParams = (
+  channelArn: string
+): { accountId?: string; region?: string; suffix?: string } => {
+  const groups = channelArn.match(
+    /^arn:aws:ivs:(?<region>[a-z0-9-]+):(?<accountId>\d+):channel\/(?<suffix>.+)/
+  )?.groups;
+
+  if (groups) {
+    return groups;
+  }
+
+  return {};
+};

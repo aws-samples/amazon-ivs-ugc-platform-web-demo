@@ -1,11 +1,15 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser } from '../utils/userManagementHelpers';
-import { ResponseBody } from '../utils';
-import { UNEXPECTED_EXCEPTION } from '../utils/constants';
+import {
+  getChannelArnParams,
+  getUser
+} from '../../utils/userManagementHelpers';
+import { ResponseBody } from '../../utils';
+import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import { UserContext } from './authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
+  channelArnSuffix?: string;
   ingestEndpoint?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
@@ -20,12 +24,16 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     // Get user from userTable
     const { Item = {} } = await getUser(sub);
     const {
+      channelArn: { S: channelArn },
       ingestEndpoint: { S: ingestEndpoint },
       playbackUrl: { S: playbackUrl },
       streamKeyValue: { S: streamKeyValue },
       username: { S: username }
     } = Item;
 
+    if (channelArn) {
+      responseBody.channelArnSuffix = getChannelArnParams(channelArn).suffix;
+    }
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.playbackUrl = playbackUrl;
     responseBody.streamKeyValue = streamKeyValue;

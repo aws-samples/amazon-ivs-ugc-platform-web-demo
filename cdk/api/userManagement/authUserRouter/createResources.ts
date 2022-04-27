@@ -6,8 +6,8 @@ import {
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser } from '../utils/userManagementHelpers';
-import { UNEXPECTED_EXCEPTION } from '../utils/constants';
+import { getUser } from '../../utils/userManagementHelpers';
+import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import { UserContext } from './authorizer';
 
 const ivsClient = new IvsClient({});
