@@ -33,8 +33,9 @@ export const signIn = async (userData) => {
   const { username, password } = userData;
   const cognitoUser = await getCognitoUser(username);
   const authenticationDetails = new AuthenticationDetails({
-    Username: username,
-    Password: password
+    ClientMetadata: { submittedUsername: username },
+    Password: password,
+    Username: username
   });
   let result, error;
 
