@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import { useNotif } from '../../contexts/Notification';
 import { userManagement as $content } from '../../content';
-import { validateForm, formatError } from './validateForm';
+import { validateForm, defaultErrorHandler } from './validateForm';
 
 const camelize = (str) =>
   str
@@ -22,7 +22,7 @@ const defaultInputProps = (inputLabel, isConfirm) => {
       isConfirm ? $content.form.confirm_your : $content.form.enter_your
     } ${inputLabel.toLowerCase()}`,
     ...(isConfirm && {
-      error: '',
+      error: null,
       footer: null,
       description: '',
       confirms: camelize(inputLabel)
@@ -51,7 +51,14 @@ const generateInputProps = (inputsData) =>
     return inputProps;
   }, {});
 
-const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
+const useForm = ({
+  inputsData,
+  submitHandler,
+  onSuccess = () => {},
+  onFailure = () => {},
+  validationCheck = () => {},
+  errorHandler = () => {}
+}) => {
   const { pathname } = useLocation();
   const [formProps, setFormProps] = useState(generateInputProps(inputsData));
   const [isLoading, setIsLoading] = useState(false);
@@ -72,13 +79,11 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
       setFormProps((prevFormProps) => {
         const nextFormProps = {};
 
-        for (const key in prevFormProps) {
-          const inputProps = prevFormProps[key];
+        for (const inputName in prevFormProps) {
+          const inputProps = prevFormProps[inputName];
+          const error = errors ? errors[inputName] : null;
 
-          nextFormProps[key] = {
-            ...inputProps,
-            error: errors && errors[key] ? errors[key] : ''
-          };
+          nextFormProps[inputName] = { ...inputProps, error };
         }
 
         return nextFormProps;
@@ -108,12 +113,21 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
   );
 
   const onSubmit = useCallback(
-    async (event) => {
+    async (event, clearFormOnSuccess = true) => {
       event.preventDefault();
       if (isLoading) return;
 
-      if (pathname === '/register' || pathname === '/reset') {
-        const validationErrors = validateForm(formProps, pathname);
+      if (
+        pathname === '/register' ||
+        pathname === '/reset' ||
+        pathname === '/settings'
+      ) {
+        const autoValidationErrors = validateForm(formProps, pathname);
+        const manualValidationErrors = validationCheck(formProps);
+        const validationErrors =
+          autoValidationErrors || manualValidationErrors
+            ? { ...autoValidationErrors, ...manualValidationErrors }
+            : null;
 
         if (validationErrors) {
           updateErrors(validationErrors);
@@ -127,15 +141,16 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
 
       if (!error) {
         await onSuccess(result, formValues);
-        clearForm();
+        if (clearFormOnSuccess) clearForm();
       } else {
-        const errorData = formatError(error);
-        const { errorType, inputType, message } = errorData;
+        const errorData = errorHandler(error) || [defaultErrorHandler(error)];
 
-        if (errorType === 'notification') {
-          notifyError(message); // Not an input-specific error, but rather some larger-scoped error
-        } else {
-          updateErrors({ [inputType]: message });
+        for (let { errorType, inputName, message } of errorData) {
+          if (errorType === 'notification') {
+            notifyError(message); // Not an input-specific error, but rather some larger-scoped error
+          } else {
+            updateErrors({ [inputName]: message });
+          }
         }
 
         await onFailure(errorData, formValues);
@@ -144,6 +159,7 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
       setIsLoading(false);
     },
     [
+      errorHandler,
       clearForm,
       formProps,
       getValues,
@@ -153,7 +169,8 @@ const useForm = (inputsData, submitHandler, onSuccess, onFailure) => {
       onSuccess,
       pathname,
       submitHandler,
-      updateErrors
+      updateErrors,
+      validationCheck
     ]
   );
 

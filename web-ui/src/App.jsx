@@ -8,6 +8,7 @@ import {
 
 // Context Providers
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
+import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as UserProvider } from './contexts/User';
 
@@ -34,18 +35,20 @@ const App = () => (
       <UserProvider>
         <MobileBreakpointProvider>
           <NotificationProvider>
-            <Routes>
-              <Route element={<Dashboard />}>
-                <Route index element={<StreamSession />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-              <Route element={<UserManagement />}>
-                <Route path="login" element={<SigninUser />} />
-                <Route path="register" element={<RegisterUser />} />
-                <Route path="reset" element={<ResetPassword />} />
-              </Route>
-              <Route path="*" element={<Navigate replace to="/" />} />
-            </Routes>
+            <ModalProvider>
+              <Routes>
+                <Route element={<Dashboard />}>
+                  <Route index element={<StreamSession />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+                <Route element={<UserManagement />}>
+                  <Route path="login" element={<SigninUser />} />
+                  <Route path="register" element={<RegisterUser />} />
+                  <Route path="reset" element={<ResetPassword />} />
+                </Route>
+                <Route path="*" element={<Navigate replace to="/" />} />
+              </Routes>
+            </ModalProvider>
           </NotificationProvider>
         </MobileBreakpointProvider>
       </UserProvider>

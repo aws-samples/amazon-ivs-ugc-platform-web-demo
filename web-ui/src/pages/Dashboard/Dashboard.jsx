@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 
 import { dashboard as $content } from '../../content';
+import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement } from '../../api';
 import { useUser } from '../../contexts/User';
 import Header from './Header';
+import Modal from '../../components/Modal';
 import Notification from '../../components/Notification';
 import useFirstMountState from '../../hooks/useFirstMountState';
 import withSessionLoader from '../../components/withSessionLoader';
@@ -17,8 +19,16 @@ const Dashboard = ({ children }) => {
   const [isCreatingResources, setIsCreatingResources] = useState(false);
   const { isSessionValid, fetchUserData, userData } = useUser();
   const { notifyError } = useNotif();
+  const { modal } = useModal();
   const location = useLocation();
   const isFirstMount = useFirstMountState();
+
+  // Set theme-colour
+  useEffect(() => {
+    document
+      .querySelector('meta[name="theme-color"]')
+      .setAttribute('content', '#292b32');
+  }, []);
 
   useEffect(() => window.scrollTo(0, 0), [location.pathname]);
 
@@ -42,8 +52,9 @@ const Dashboard = ({ children }) => {
 
   return (
     <>
+      <Modal isOpen={!!modal} />
       <Header />
-      <main className="main-dashboard-container">
+      <main id="main-dashboard-container" className="main-dashboard-container">
         <Notification />
         {children ? children : <Outlet />}
       </main>

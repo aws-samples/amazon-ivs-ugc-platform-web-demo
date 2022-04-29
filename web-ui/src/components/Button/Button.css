@@ -9,7 +9,8 @@
   font-weight: 700;
   height: 42px;
   justify-content: center;
-  padding: 12px 26.5px;
+  min-width: 90px;
+  padding: 12px 24px;
   transition: all 0.15s ease-in-out;
   user-select: none;
   white-space: nowrap;
@@ -43,8 +44,8 @@
   display: inline-flex;
   font-size: 15px;
   font-weight: 700;
-  height: auto;
-  padding: 0 0 3px 0;
+  min-width: auto;
+  padding: 0;
   position: relative;
   transition: none;
 }
@@ -107,6 +108,5 @@ button > svg {
 .button.link:active:not(:disabled),
 .button.link:focus {
   outline: none;
-  margin-bottom: -2px;
   border-bottom: 2px solid var(--color-blue);
 }

@@ -10,6 +10,7 @@ import {
 import { useLocation } from 'react-router-dom';
 
 import useContextHook from './useContextHook';
+import { scrollToTop } from '../utils';
 
 const Context = createContext(null);
 Context.displayName = 'Notification';
@@ -22,15 +23,15 @@ export const Provider = ({ children }) => {
   const { pathname } = useLocation();
   const timeoutID = useRef();
 
-  const notifyError = useCallback(
-    (message) => setNotif({ message, type: NOTIF_TYPES.ERROR }),
-    []
-  );
+  const notifyError = useCallback((message) => {
+    scrollToTop();
+    setNotif({ message, type: NOTIF_TYPES.ERROR });
+  }, []);
 
-  const notifySuccess = useCallback(
-    (message) => setNotif({ message, type: NOTIF_TYPES.SUCCESS }),
-    []
-  );
+  const notifySuccess = useCallback((message) => {
+    scrollToTop();
+    setNotif({ message, type: NOTIF_TYPES.SUCCESS });
+  }, []);
 
   useEffect(() => {
     clearTimeout(timeoutID.current);
