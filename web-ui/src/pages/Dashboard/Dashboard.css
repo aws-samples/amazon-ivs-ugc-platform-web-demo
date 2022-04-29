@@ -1,4 +1,16 @@
 .main-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 60px 30px;
   position: relative;
   top: 64px;
+  width: 100%;
+}
+
+@media (max-width: 875px) {
+  .main-dashboard-container {
+    justify-content: flex-start;
+    padding: 60px 15px 120px 15px;
+  }
 }

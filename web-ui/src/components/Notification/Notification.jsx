@@ -1,10 +1,11 @@
+import PropTypes from 'prop-types';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { Check, Error } from '../../assets/icons';
 import { useNotif } from '../../contexts/Notification';
 import './Notification.css';
 
-const Notification = () => {
+const Notification = ({ top }) => {
   const { NOTIF_TYPES, notif } = useNotif();
 
   let NotifIcon = null;
@@ -15,16 +16,17 @@ const Notification = () => {
     <AnimatePresence exitBeforeEnter>
       {notif && (
         <m.div
-          key={`${notif.type}-notification`}
-          initial="hidden"
           animate="visible"
-          exit="hidden"
-          variants={{
-            visible: { opacity: 1, y: 0 },
-            hidden: { opacity: 0, y: -25 }
-          }}
-          transition={{ duration: 0.25, type: 'tween' }}
           className={`notification ${notif.type}`}
+          exit="hidden"
+          initial="hidden"
+          key={`${notif.type}-notification`}
+          style={{ top }}
+          transition={{ duration: 0.25, type: 'tween' }}
+          variants={{
+            hidden: { opacity: 0, y: -25 },
+            visible: { opacity: 1, y: 0 }
+          }}
         >
           <NotifIcon className="notif-icon" />
           {notif.message}
@@ -33,5 +35,9 @@ const Notification = () => {
     </AnimatePresence>
   );
 };
+
+Notification.defaultProps = { top: 15 };
+
+Notification.propTypes = { top: PropTypes.number };
 
 export default Notification;

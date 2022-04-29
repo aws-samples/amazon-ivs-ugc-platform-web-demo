@@ -10,12 +10,14 @@ const Button = ({
   isLoading,
   onClick,
   type,
-  variant
+  variant,
+  customStyles
 }) => (
   <button
     className={`button ${variant} ${className}`}
     disabled={isDisabled}
     onClick={onClick}
+    style={customStyles}
     type={type}
   >
     {isLoading && type !== 'link' ? <Spinner /> : children}
@@ -24,11 +26,13 @@ const Button = ({
 
 Button.defaultProps = {
   className: '',
+  customStyles: {},
   isDisabled: false,
   isLoading: false,
   onClick: undefined,
   type: 'button',
-  variant: 'primary'
+  variant: 'primary',
+  width: ''
 };
 
 Button.propTypes = {
@@ -38,6 +42,7 @@ Button.propTypes = {
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  customStyles: PropTypes.object,
   variant: PropTypes.oneOf([
     'primary',
     'tertiary',

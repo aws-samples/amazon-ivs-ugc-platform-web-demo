@@ -6,7 +6,8 @@
   height: 64px;
   position: fixed;
   width: 100%;
-  z-index: 20;
+  z-index: 100;
+  top: 0;
 }
 
 .header-buttons {
@@ -19,4 +20,5 @@
 
 .settings-button {
   padding: 9px;
+  min-width: auto;
 }

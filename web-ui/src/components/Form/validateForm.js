@@ -1,4 +1,4 @@
-import { ERROR_KEY_MAP } from '../../constants';
+import { ERROR_KEY_MAP, LIMIT_EXCEEDED_EXCEPTION } from '../../constants';
 import { userManagement as $content } from '../../content';
 
 const validatePasswordLength = (password) => {
@@ -27,7 +27,9 @@ export const validateForm = (formProps) => {
   const { input_error } = $content;
 
   const validationErrors = Object.values(formProps).reduce(
-    (errors, { value, name, confirms }) => {
+    (errors, { value, name, confirms, skipValidation }) => {
+      if (skipValidation) return errors;
+
       if (confirms) {
         if (!value || formProps[confirms].value !== value) {
           errors[name] = input_error.passwords_mismatch;
@@ -70,7 +72,7 @@ export const validateForm = (formProps) => {
   return Object.keys(validationErrors).length ? validationErrors : null;
 };
 
-export const formatError = (error) => {
+export const defaultErrorHandler = (error) => {
   let errorName =
     error.name || // Cognito Error
     error.__type || // API Error
@@ -81,15 +83,15 @@ export const formatError = (error) => {
     error.message === 'Password attempts exceeded'
   ) {
     // Manually handling this case because Cognito uses the same error
-    // type for "incorrect creds" and "password attempts exceeded"
-    errorName = 'LimitExceededException';
+    // type for "incorrect credentials" and "password attempts exceeded"
+    errorName = LIMIT_EXCEEDED_EXCEPTION;
   }
 
-  let errorType, inputType, message;
+  let errorType, inputName, message;
 
   if (errorName in ERROR_KEY_MAP) {
     const { type, contentKey } = ERROR_KEY_MAP[errorName];
-    [errorType, inputType] = type.split('--');
+    [errorType, inputName] = type.split('--');
     message =
       errorType === 'notification'
         ? $content.notification.error[contentKey]
@@ -100,8 +102,8 @@ export const formatError = (error) => {
     // If error.message does not exists, then we default to an unexpected error message.
     message =
       error.message?.replace(/\.$/, '') ||
-      $content.notification.error.unexpected_error;
+      $content.notification.error.unexpected_error_occurred;
   }
 
-  return { errorType, inputType, message };
+  return { errorType, inputName, message };
 };

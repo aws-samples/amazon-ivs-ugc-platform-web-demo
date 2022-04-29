@@ -4,7 +4,7 @@
     "log_out": "Log out"
   },
   "stream_session_page": {
-    "account_setup_error": "An error occured setting up your account. Please refresh the page to try again."
+    "account_setup_error": "An error occurred setting up your account. Please refresh the page to try again."
   },
   "settings_page": {
     "title": "Settings",
@@ -15,16 +15,32 @@
     "stream_key": "Stream key",
     "ingest_server_url": "Ingest server URL",
     "account_settings": "Account settings",
-    "username": "Username",
-    "enter_your_username": "Enter your username",
-    "current_password": "Current password",
-    "enter_your_current_password": "Enter your current password",
-    "new_password": "New password",
-    "enter_your_new_password": "Enter your new password",
-    "confirm_password": "Confirm password",
-    "confirm_your_password": "Confirm your password",
+    "create_your_new_password": "Create your new password",
     "account_deletion": "Account deletion",
-    "delete_my_account": "Delete my account"
+    "delete_my_account": "Delete my account",
+    "input_error": {
+      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later",
+      "incorrect_password": "Incorrect password",
+      "invalid_password_length": "Use 8 characters or more",
+      "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol",
+      "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols",
+      "invalid_username": "Only letters, numbers & symbols are allowed",
+      "passwords_mismatch": "Passwords didn’t match. Try again.",
+      "same_as_old_password": "Your new password cannot be the same as your old password",
+      "unavailable_username": "This username is unavailable",
+      "unexpected_error_occurred": "An unexpected error occurred, please try again later"
+    }
+  },
+  "modal": {
+    "reset_stream_key_modal": {
+      "reset_stream_key": "Reset stream key",
+      "confirm_intent_message": "Are you sure you would like to reset your stream key?",
+      "stream_will_terminate": "Your current live stream will be terminated when you reset your stream key."
+    },
+    "account_deletion_modal": {
+      "delete_account": "Delete account",
+      "confirm_intent_message": "Are you sure you would like to delete your account?"
+    }
   },
   "notification": {
     "success": {

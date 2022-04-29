@@ -14,6 +14,7 @@
 .nav-button {
   height: auto;
   padding: 6px 13px;
+  min-width: auto;
 }
 
 .date-time-container {

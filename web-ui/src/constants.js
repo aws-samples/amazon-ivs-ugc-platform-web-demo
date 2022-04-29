@@ -3,6 +3,7 @@ export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 export const NOT_AUTHORIZED_EXCEPTION = 'NotAuthorizedException';
 export const LIMIT_EXCEEDED_EXCEPTION = 'LimitExceededException';
+export const ALIAS_EXISTS_EXCEPTION = 'AliasExistsException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 
 export const ACCOUNT_REGISTRATION_EXCEPTION = 'AccountRegistrationException';
@@ -13,6 +14,10 @@ export const CHANGE_USERNAME_EXCEPTION = 'ChangeUsernameException';
 
 export const ERROR_KEY_MAP = {
   [USERNAME_EXISTS_EXCEPTION]: {
+    type: 'input_error--username',
+    contentKey: 'unavailable_username'
+  },
+  [ALIAS_EXISTS_EXCEPTION]: {
     type: 'input_error--username',
     contentKey: 'unavailable_username'
   },

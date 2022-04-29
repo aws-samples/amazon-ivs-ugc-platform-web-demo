@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
 import { Error, Visibility, VisibilityOff } from '../../assets/icons';
+import Spinner from '../Spinner';
 import './Input.css';
 
 const Input = ({
@@ -10,6 +11,7 @@ const Input = ({
   description,
   error,
   footer,
+  isLoading,
   label,
   name,
   onChange,
@@ -18,7 +20,8 @@ const Input = ({
   readOnly,
   type: initialType,
   value,
-  variant
+  variant,
+  customStyles
 }) => {
   const [inputType, setInputType] = useState(initialType);
   const hideDescription = useRef(false);
@@ -44,11 +47,14 @@ const Input = ({
       )}
       <div
         id={`${name}-input-container`}
-        className={`inner-input-container ${error ? 'error' : ''}`}
+        style={customStyles}
+        className={`inner-input-container ${
+          error !== undefined && error !== null ? 'error' : ''
+        }`}
       >
         <input
           {...(onChange ? { onChange } : {})}
-          {...(onClick ? { onClick } : {})}
+          {...(onClick && !isLoading ? { onClick } : {})}
           className={inputClasses.join(' ')}
           id={name}
           initial-type={initialType}
@@ -56,8 +62,14 @@ const Input = ({
           placeholder={placeholder}
           readOnly={readOnly}
           type={inputType}
-          value={value}
+          value={isLoading ? '' : value}
         />
+        {error && (
+          <span className="error-message">
+            <Error className="error-icon" />
+            <p>{error}</p>
+          </span>
+        )}
         {initialType === 'password' && value && (
           <button
             className="password-peek"
@@ -71,19 +83,16 @@ const Input = ({
             )}
           </button>
         )}
+        {isLoading && (
+          <div className="spinner-container">
+            <Spinner />
+          </div>
+        )}
       </div>
-      {error ? (
-        <span className="error-message">
-          <Error className="error-icon" />
-          <p>{error}</p>
+      {!error && description && !hideDescription.current && (
+        <span className="description">
+          <p>{description}</p>
         </span>
-      ) : (
-        description &&
-        !hideDescription.current && (
-          <span className="description">
-            <p>{description}</p>
-          </span>
-        )
       )}
       {footer && <span className="footer">{footer}</span>}
     </div>
@@ -93,9 +102,11 @@ const Input = ({
 Input.defaultProps = {
   btnVariant: 'primary',
   className: '',
+  customStyles: {},
   description: '',
-  error: '',
+  error: null,
   footer: undefined,
+  isLoading: false,
   label: '',
   onChange: null,
   onClick: null,
@@ -115,9 +126,11 @@ Input.propTypes = {
     'secondary'
   ]),
   className: PropTypes.string,
+  customStyles: PropTypes.object,
   description: PropTypes.string,
   error: PropTypes.string,
   footer: PropTypes.node,
+  isLoading: PropTypes.bool,
   label: PropTypes.string,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,

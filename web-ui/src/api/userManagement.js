@@ -34,8 +34,8 @@ export const signIn = async (userData) => {
   const cognitoUser = await getCognitoUser(username);
   const authenticationDetails = new AuthenticationDetails({
     ClientMetadata: { submittedUsername: username },
-    Password: password,
-    Username: username
+    Username: username,
+    Password: password
   });
   let result, error;
 
@@ -103,13 +103,13 @@ export const resetPassword = async (
   return { result, error };
 };
 
-export const changePassword = async (oldPassword, newPassword) => {
+export const changePassword = async ({ currentPassword, newPassword }) => {
   const cognitoUser = await getCognitoUser();
   let result, error;
 
   cognitoUser.changePassword[promisify.custom] = () =>
     new Promise((resolve, reject) => {
-      cognitoUser.changePassword(oldPassword, newPassword, (err, val) => {
+      cognitoUser.changePassword(currentPassword, newPassword, (err, val) => {
         if (val) resolve(val);
         reject(err);
       });
@@ -184,7 +184,7 @@ export const createResources = async () =>
 export const getUserData = async () =>
   await authFetch({ url: `${apiBaseUrl}/user` });
 
-export const changeUsername = async (newUsername) =>
+export const changeUsername = async ({ username: newUsername }) =>
   await authFetch({
     body: { newUsername },
     method: 'PUT',

@@ -5,7 +5,7 @@ import {
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { CHANGE_USERNAME_EXCEPTION } from '../../utils/constants';
-import { ResponseBody } from '../../utils';
+import { ResponseBody, isCognitoError } from '../../utils';
 import { updateDynamoUserAttributes } from '../../utils/userManagementHelpers';
 import { UserContext } from './authorizer';
 
@@ -43,6 +43,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
     reply.statusCode = 500;
 
+    if (isCognitoError(error)) {
+      return reply.send({ __type: error.name });
+    }
     return reply.send({ __type: CHANGE_USERNAME_EXCEPTION });
   }
   const responseBody: ChangeUsernameResponseBody = { username: newUsername };
