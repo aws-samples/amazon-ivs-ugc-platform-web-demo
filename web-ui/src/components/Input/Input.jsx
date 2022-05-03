@@ -8,10 +8,12 @@ import './Input.css';
 const Input = ({
   btnVariant,
   className,
+  customStyles,
   description,
   error,
   footer,
   isLoading,
+  isRequired,
   label,
   name,
   onChange,
@@ -20,8 +22,7 @@ const Input = ({
   readOnly,
   type: initialType,
   value,
-  variant,
-  customStyles
+  variant
 }) => {
   const [inputType, setInputType] = useState(initialType);
   const hideDescription = useRef(false);
@@ -61,6 +62,7 @@ const Input = ({
           name={name}
           placeholder={placeholder}
           readOnly={readOnly}
+          required={isRequired}
           type={inputType}
           value={isLoading ? '' : value}
         />
@@ -107,6 +109,7 @@ Input.defaultProps = {
   error: null,
   footer: undefined,
   isLoading: false,
+  isRequired: true,
   label: '',
   onChange: null,
   onClick: null,
@@ -131,6 +134,7 @@ Input.propTypes = {
   error: PropTypes.string,
   footer: PropTypes.node,
   isLoading: PropTypes.bool,
+  isRequired: PropTypes.bool,
   label: PropTypes.string,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,

@@ -16,6 +16,7 @@ const defaultInputProps = (inputLabel, isConfirm) => {
   const label = isConfirm ? `${$content.confirm} ${inputLabel}` : inputLabel;
 
   return {
+    isRequired: true,
     label: label.charAt(0).toUpperCase() + label.slice(1),
     name: camelize(label),
     placeholder: `${
@@ -26,7 +27,9 @@ const defaultInputProps = (inputLabel, isConfirm) => {
       footer: null,
       description: '',
       confirms: camelize(inputLabel)
-    })
+    }),
+    skipValidation: false,
+    value: ''
   };
 };
 

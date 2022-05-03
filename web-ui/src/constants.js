@@ -5,12 +5,7 @@ export const NOT_AUTHORIZED_EXCEPTION = 'NotAuthorizedException';
 export const LIMIT_EXCEEDED_EXCEPTION = 'LimitExceededException';
 export const ALIAS_EXISTS_EXCEPTION = 'AliasExistsException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
-
-export const ACCOUNT_REGISTRATION_EXCEPTION = 'AccountRegistrationException';
-export const FORGOT_PASSWORD_EXCEPTION = 'ForgotPasswordException';
-export const ACCOUNT_DELETION_EXCEPTION = 'AccountDeletionException';
-export const RESET_STREAM_KEY_EXCEPTION = 'ResetStreamKeyException';
-export const CHANGE_USERNAME_EXCEPTION = 'ChangeUsernameException';
+export const USER_LAMBDA_VALIDATION_EXCEPTION = 'UserLambdaValidationException';
 
 export const ERROR_KEY_MAP = {
   [USERNAME_EXISTS_EXCEPTION]: {
@@ -42,5 +37,9 @@ export const ERROR_KEY_MAP = {
     contentKey: 'unexpected_error_occurred'
   }
 };
+
+export const KEY_MAP_REGEX = new RegExp(
+  `${Object.keys(ERROR_KEY_MAP).join('|')}`
+);
 
 export const GENERIC_ERROR_MESSAGE = 'Unexpected Error Occurred';

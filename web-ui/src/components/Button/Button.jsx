@@ -16,8 +16,8 @@ const Button = ({
   customStyles
 }) => (
   <button
+    aria-disabled={isDisabled}
     className={`button ${variant} ${className}`}
-    disabled={isDisabled}
     onClick={onClick}
     onFocus={onFocus}
     onMouseDown={onMouseDown}
