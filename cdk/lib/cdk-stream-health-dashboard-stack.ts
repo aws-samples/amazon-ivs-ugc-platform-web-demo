@@ -41,6 +41,7 @@ export class StreamHealthDashboardStack extends Stack {
     );
 
     const {
+      containerEnv,
       ecsTaskExecutionRole,
       outputs: { userManagementApiBaseUrl, userPoolId, userPoolClientId }
     } = new UserManagementStack(this, `UserManagement`, {
@@ -51,12 +52,21 @@ export class StreamHealthDashboardStack extends Stack {
 
     // IAM permissions required for the stream health dashboard
     const metricsIvsPolicyStatement = new iam.PolicyStatement({
-      actions: ['ivs:GetStreamSession', 'ivs:ListStreamSessions'],
+      actions: [
+        'cloudwatch:GetMetricData',
+        'ivs:GetStreamSession',
+        'ivs:ListStreamSessions'
+      ],
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
     ecsTaskExecutionRole.addToPolicy(metricsIvsPolicyStatement);
 
+    new CfnOutput(this, 'containerEnvStr', {
+      value: `${Object.entries(containerEnv)
+        .map(([key, val]) => `${key}=${val}`)
+        .join(' \\\n')}`
+    });
     new CfnOutput(this, 'userManagementApiBaseUrl', {
       value: userManagementApiBaseUrl
     });

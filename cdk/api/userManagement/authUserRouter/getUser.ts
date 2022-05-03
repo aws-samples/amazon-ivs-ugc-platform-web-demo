@@ -9,7 +9,7 @@ import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import { UserContext } from './authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
-  channelArnSuffix?: string;
+  channelResourceId?: string;
   ingestEndpoint?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
@@ -32,7 +32,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     } = Item;
 
     if (channelArn) {
-      responseBody.channelArnSuffix = getChannelArnParams(channelArn).suffix;
+      responseBody.channelResourceId =
+        getChannelArnParams(channelArn).resourceId;
     }
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.playbackUrl = playbackUrl;

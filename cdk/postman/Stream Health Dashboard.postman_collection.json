@@ -15,9 +15,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const { channelArnSuffix } = JSON.parse(responseBody);",
+									"const { channelResourceId } = JSON.parse(responseBody);",
 									"",
-									"pm.environment.set('channelArnSuffix', channelArnSuffix);",
+									"pm.environment.set('channelResourceId', channelResourceId);",
 									""
 								],
 								"type": "text/javascript"
@@ -234,7 +234,7 @@
 			"name": "Metrics",
 			"item": [
 				{
-					"name": "/metrics/:channelArnSuffix/streamSessions",
+					"name": "/metrics/:channelResourceId/streamSessions",
 					"event": [
 						{
 							"listen": "test",
@@ -254,19 +254,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelArnSuffix/streamSessions",
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
 								"metrics",
-								":channelArnSuffix",
+								":channelResourceId",
 								"streamSessions"
 							],
 							"variable": [
 								{
-									"key": "channelArnSuffix",
-									"value": null
+									"key": "channelResourceId",
+									"value": "{{channelResourceId}}"
 								}
 							]
 						},
@@ -275,25 +275,56 @@
 					"response": []
 				},
 				{
-					"name": "/metrics/:channelArnSuffix/streamSessions/:streamSessionId",
+					"name": "/metrics/:channelResourceId/streamSessions/:streamSessionId",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelArnSuffix/streamSessions/:streamSessionId",
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
 								"metrics",
-								":channelArnSuffix",
+								":channelResourceId",
 								"streamSessions",
 								":streamSessionId"
 							],
 							"variable": [
 								{
-									"key": "channelArnSuffix",
-									"value": "{{channelArnSuffix}}"
+									"key": "channelResourceId",
+									"value": "{{channelResourceId}}"
+								},
+								{
+									"key": "streamSessionId",
+									"value": "{{streamSessionId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/metrics/:channelResourceId/streamSessions/:streamSessionId/metricsData",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId/metricsData",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"metrics",
+								":channelResourceId",
+								"streamSessions",
+								":streamSessionId",
+								"metricsData"
+							],
+							"variable": [
+								{
+									"key": "channelResourceId",
+									"value": "{{channelResourceId}}"
 								},
 								{
 									"key": "streamSessionId",
