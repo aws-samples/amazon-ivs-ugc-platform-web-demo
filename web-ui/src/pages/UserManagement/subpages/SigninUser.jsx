@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { userManagement } from '../../../api';
 import { userManagement as $content } from '../../../content';
@@ -8,9 +8,8 @@ import Form from '../../../components/Form';
 import { useNotif } from '../../../contexts/Notification';
 
 const SigninUser = () => {
-  const { fetchUserData } = useUser();
+  const { fetchUserData, checkSessionStatus } = useUser();
   const { notifySuccess, notifyError } = useNotif();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { verificationCode, username } = useMemo(
     () => ({
@@ -53,7 +52,7 @@ const SigninUser = () => {
      * that information and save it in the context.
      */
     await fetchUserData();
-    navigate('/', { replace: true });
+    checkSessionStatus();
   };
 
   return (

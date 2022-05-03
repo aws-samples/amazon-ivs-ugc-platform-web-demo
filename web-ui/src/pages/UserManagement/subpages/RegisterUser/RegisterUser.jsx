@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
@@ -11,8 +11,7 @@ const RegisterUser = () => {
   const [isRequestSent, setRequestSent] = useState(false);
   const [username, setUsername] = useState('');
 
-  const navigate = useNavigate();
-  const { fetchUserData } = useUser();
+  const { fetchUserData, checkSessionStatus } = useUser();
 
   const onRequestSuccess = async (result, formValues) => {
     if (result.userConfirmed) {
@@ -20,7 +19,7 @@ const RegisterUser = () => {
 
       if (signInResult) {
         await fetchUserData();
-        navigate('/', { replace: true });
+        checkSessionStatus();
       }
     } else {
       setUsername(formValues.username);
