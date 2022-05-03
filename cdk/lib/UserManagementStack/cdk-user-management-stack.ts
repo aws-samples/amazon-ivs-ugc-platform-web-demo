@@ -25,6 +25,7 @@ interface UserManagementStackProps extends NestedStackProps {
 }
 
 export class UserManagementStack extends NestedStack {
+  public readonly containerEnv: { [key: string]: string };
   public readonly ecsTaskExecutionRole: iam.Role;
   public readonly outputs: { [key: string]: string };
 
@@ -100,6 +101,17 @@ export class UserManagementStack extends NestedStack {
     );
     this.ecsTaskExecutionRole = ecsTaskExecutionRole;
 
+    const containerEnv = {
+      ACCOUNT_ID: NestedStack.of(this).account,
+      ALLOWED_ORIGIN: allowedOrigin,
+      IVS_CHANNEL_TYPE: ivsChannelType,
+      REGION: NestedStack.of(this).region,
+      USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      USER_POOL_ID: userPool.userPoolId,
+      USER_TABLE_NAME: userTable.tableName
+    };
+    this.containerEnv = containerEnv;
+
     // Load Balancer -> Cluster -> Service + Autoscaling -> Tasks
     const { loadBalancer } = new UserManagementService(
       this,
@@ -108,15 +120,7 @@ export class UserManagementStack extends NestedStack {
         ...resourceConfig,
         containerImage,
         ecsTaskExecutionRole,
-        environment: {
-          ACCOUNT_ID: NestedStack.of(this).account,
-          ALLOWED_ORIGIN: allowedOrigin,
-          IVS_CHANNEL_TYPE: ivsChannelType,
-          REGION: NestedStack.of(this).region,
-          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-          USER_POOL_ID: userPool.userPoolId,
-          USER_TABLE_NAME: userTable.tableName
-        },
+        environment: containerEnv,
         prefix: stackNamePrefix,
         vpc
       }

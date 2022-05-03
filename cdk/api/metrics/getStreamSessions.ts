@@ -12,8 +12,8 @@ const ivsClient = new IvsClient({});
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { params } = request;
-  const { channelArnSuffix } = params as {
-    channelArnSuffix: string;
+  const { channelResourceId } = params as {
+    channelResourceId: string;
   };
   const responseBody: Partial<ListStreamSessionsCommandOutput> = {
     streamSessions: []
@@ -21,7 +21,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
   try {
     const listStreamSessionsCommand = new ListStreamSessionsCommand({
-      channelArn: buildChannelArn(channelArnSuffix)
+      channelArn: buildChannelArn(channelResourceId)
     });
     const { streamSessions } = await ivsClient.send(listStreamSessionsCommand);
 

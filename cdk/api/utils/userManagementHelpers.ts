@@ -64,9 +64,9 @@ export const updateDynamoUserAttributes = (
 
 export const getChannelArnParams = (
   channelArn: string
-): { accountId?: string; region?: string; suffix?: string } => {
+): { accountId?: string; region?: string; resourceId?: string } => {
   const groups = channelArn.match(
-    /^arn:aws:ivs:(?<region>[a-z0-9-]+):(?<accountId>\d+):channel\/(?<suffix>.+)/
+    /^arn:aws:ivs:(?<region>[a-z0-9-]+):(?<accountId>\d+):channel\/(?<resourceId>.+)/
   )?.groups;
 
   if (groups) {
