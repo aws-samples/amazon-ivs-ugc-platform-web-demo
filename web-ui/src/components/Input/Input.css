@@ -83,6 +83,7 @@
   cursor: pointer;
   font-weight: 700;
   padding: 12px 26.5px;
+  width: auto;
 }
 
 .inner-input-container input:focus {

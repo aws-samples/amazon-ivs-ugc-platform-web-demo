@@ -1,4 +1,9 @@
-import { ERROR_KEY_MAP, LIMIT_EXCEEDED_EXCEPTION } from '../../constants';
+import {
+  ERROR_KEY_MAP,
+  KEY_MAP_REGEX,
+  LIMIT_EXCEEDED_EXCEPTION,
+  USER_LAMBDA_VALIDATION_EXCEPTION
+} from '../../constants';
 import { userManagement as $content } from '../../content';
 
 const validatePasswordLength = (password) => {
@@ -77,6 +82,7 @@ export const defaultErrorHandler = (error) => {
     error.name || // Cognito Error
     error.__type || // API Error
     'UnexpectedException'; // Fallback Error
+  let { message: errorMessage } = error;
 
   if (
     error.name === 'NotAuthorizedException' &&
@@ -85,6 +91,14 @@ export const defaultErrorHandler = (error) => {
     // Manually handling this case because Cognito uses the same error
     // type for "incorrect credentials" and "password attempts exceeded"
     errorName = LIMIT_EXCEEDED_EXCEPTION;
+  }
+
+  if (errorName === USER_LAMBDA_VALIDATION_EXCEPTION) {
+    const [match] = errorMessage.match(KEY_MAP_REGEX);
+
+    if (match) {
+      errorName = match;
+    }
   }
 
   let errorType, inputName, message;
@@ -101,7 +115,7 @@ export const defaultErrorHandler = (error) => {
     // Default to error.message if we don't have the copy for this error type yet
     // If error.message does not exists, then we default to an unexpected error message.
     message =
-      error.message?.replace(/\.$/, '') ||
+      errorMessage?.replace(/\.$/, '') ||
       $content.notification.error.unexpected_error_occurred;
   }
 

@@ -41,57 +41,64 @@
   color: var(--color-white);
 }
 
-.button:disabled {
-  cursor: auto;
-  opacity: 0.3;
-}
 
 .button:focus {
   box-shadow: inset 0 0 0 2px var(--color-white);
   outline: none;
 }
 
-/* Priamry hover/active state */
-.button.primary:hover:not(:disabled) {
-  background: #75d1ff; /* Temporary: will be replaced with HSL */
+/* Primary hover/active state */
+.button.primary:hover {
+  background: #75d1ff;
+  /* Temporary: will be replaced with HSL */
 }
+
 .button.primary:focus {
   background: var(--color-blue);
   box-shadow: inset 0 0 0 2px var(--color-white);
 }
 
 /* Secondary hover/active state */
-.button.secondary:hover:not(:disabled) {
-  background: #555968; /* Temporary: will be replaced with HSL */
+.button.secondary:hover {
+  background: #555968;
+  /* Temporary: will be replaced with HSL */
 }
+
 .button.secondary:focus {
   background: var(--color-gray);
   box-shadow: inset 0 0 0 2px var(--color-white);
 }
 
 /* Tertiary hover/active state */
-.button.tertiary:hover:not(:disabled) {
-  background: #f3f4f6; /* Temporary: will be replaced with HSL */
+.button.tertiary:hover {
+  background: #f3f4f6;
+  /* Temporary: will be replaced with HSL */
 }
+
 .button.tertiary:focus {
   background: var(--color-extra-light-gray);
   box-shadow: inset 0 0 0 2px var(--color-white);
 }
 
 /* Destructive hover/active state */
-.button.destructive:hover:not(:disabled) {
-  background: #e16256; /* Temporary: will be replaced with HSL */
+.button.destructive:hover {
+  background: #e16256;
+  /* Temporary: will be replaced with HSL */
 }
+
 .button.destructive:focus {
   background: #d93a2c;
   box-shadow: inset 0 0 0 2px var(--color-white);
 }
 
 /* Link focus state */
-.button.link:hover:not(:disabled) {
-  background: #555968; /* Temporary: will be replaced with HSL */
+.button.link:hover {
+  background: #555968;
+  /* Temporary: will be replaced with HSL */
 }
+
 .button.link:focus {
-  background: #292b32; /* Temporary: will be replaced with HSL */
+  background: #292b32;
+  /* Temporary: will be replaced with HSL */
   box-shadow: inset 0 0 0 2px var(--color-white);
 }

@@ -60,8 +60,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     reply.statusCode = 500;
 
     return reply.send({
-      __type: ACCOUNT_REGISTRATION_EXCEPTION,
-      ...(isCognitoError(error) ? { message: error.message } : {})
+      ...(isCognitoError(error)
+        ? { __type: error.name, message: error.message }
+        : { __type: ACCOUNT_REGISTRATION_EXCEPTION })
     });
   }
 
