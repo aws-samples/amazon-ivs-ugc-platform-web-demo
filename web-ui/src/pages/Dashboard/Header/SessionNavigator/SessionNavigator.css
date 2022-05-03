@@ -17,6 +17,10 @@
   min-width: auto;
 }
 
+.icon {
+  fill: var(--color-white);
+}
+
 .date-time-container {
   display: flex;
   flex-direction: column;

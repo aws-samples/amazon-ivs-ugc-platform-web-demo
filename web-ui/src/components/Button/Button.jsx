@@ -9,6 +9,8 @@ const Button = ({
   isDisabled,
   isLoading,
   onClick,
+  onFocus,
+  onMouseDown,
   type,
   variant,
   customStyles
@@ -17,6 +19,8 @@ const Button = ({
     className={`button ${variant} ${className}`}
     disabled={isDisabled}
     onClick={onClick}
+    onFocus={onFocus}
+    onMouseDown={onMouseDown}
     style={customStyles}
     type={type}
   >
@@ -29,7 +33,11 @@ Button.defaultProps = {
   customStyles: {},
   isDisabled: false,
   isLoading: false,
+  onBlur: undefined,
   onClick: undefined,
+  onFocus: undefined,
+  onMouseDown: undefined,
+  tabIndex: 0,
   type: 'button',
   variant: 'primary',
   width: ''
@@ -38,11 +46,13 @@ Button.defaultProps = {
 Button.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  customStyles: PropTypes.object,
   isDisabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,
+  onFocus: PropTypes.func,
+  onMouseDown: PropTypes.func,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  customStyles: PropTypes.object,
   variant: PropTypes.oneOf([
     'primary',
     'tertiary',

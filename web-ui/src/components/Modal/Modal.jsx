@@ -98,7 +98,7 @@ const Modal = () => {
         <div className="modal-buttons">
           {cancellable && (
             <Button
-              className="cancel-button"
+              customStyles={{ width: isMobileView ? '100%' : 'auto' }}
               onClick={handleClose}
               variant="link"
             >

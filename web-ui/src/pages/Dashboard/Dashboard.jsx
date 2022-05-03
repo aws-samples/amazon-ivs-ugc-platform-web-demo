@@ -7,6 +7,8 @@ import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement } from '../../api';
 import { useUser } from '../../contexts/User';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import FloatingMenu from './FloatingMenu';
 import Header from './Header';
 import Modal from '../../components/Modal';
 import Notification from '../../components/Notification';
@@ -17,6 +19,7 @@ import './Dashboard.css';
 const Dashboard = ({ children }) => {
   // eslint-disable-next-line no-unused-vars
   const [isCreatingResources, setIsCreatingResources] = useState(false);
+  const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid, fetchUserData, userData } = useUser();
   const { notifyError } = useNotif();
   const { modal } = useModal();
@@ -58,6 +61,7 @@ const Dashboard = ({ children }) => {
         <Notification />
         {children ? children : <Outlet />}
       </main>
+      {isMobileView && <FloatingMenu />}
     </>
   );
 };

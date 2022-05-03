@@ -23,7 +23,7 @@ const AccountSettings = () => {
   const { isMobileView } = useMobileBreakpoint();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
-  const { userData, fetchUserData, clearUserData } = useUser();
+  const { userData, fetchUserData, logOut } = useUser();
   const inputVariant = isMobileView ? 'vertical' : 'horizontal';
 
   const handleDeleteAccount = async () => {
@@ -33,10 +33,7 @@ const AccountSettings = () => {
       setIsDeleteAccountLoading(true);
       const { result, error } = await userManagement.deleteAccount();
 
-      if (result) {
-        userManagement.signOut();
-        clearUserData();
-      }
+      if (result) logOut();
       if (error)
         notifyError($content.notification.error.account_deletion_failed);
 

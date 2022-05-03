@@ -27,7 +27,9 @@ export const Provider = ({ children }) => {
     if (result) setUserData(result);
   }, [checkSession]);
 
-  const clearUserData = useCallback(() => setUserData(null), []);
+  const logOut = useCallback(() => {
+    userManagement.signOut() && setUserData(null);
+  }, []);
 
   // Initial session check on page load
   useEffect(() => {
@@ -36,12 +38,12 @@ export const Provider = ({ children }) => {
 
   const value = useMemo(
     () => ({
-      clearUserData,
-      isSessionValid,
       fetchUserData,
+      isSessionValid,
+      logOut,
       userData
     }),
-    [clearUserData, isSessionValid, fetchUserData, userData]
+    [logOut, fetchUserData, isSessionValid, userData]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -32,7 +32,7 @@ const SessionNavigator = () => {
         onClick={handlePreviousStream}
         variant="secondary"
       >
-        <ChevronLeft />
+        <ChevronLeft className="icon" />
       </Button>
       <Button
         onClick={handleSessionNavigator}
@@ -54,7 +54,7 @@ const SessionNavigator = () => {
         onClick={handleNextStream}
         variant="secondary"
       >
-        <ChevronRight />
+        <ChevronRight className="icon" />
       </Button>
     </div>
   );
