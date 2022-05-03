@@ -35,8 +35,14 @@ export const Provider = ({ children }) => {
 
   const fetchUserData = useCallback(async () => {
     const { result } = await userManagement.getUserData();
-
-    if (result) setUserData(result);
+    if (result) {
+      setUserData(
+        (prevUserData) =>
+          JSON.stringify(result) === JSON.stringify(prevUserData)
+            ? prevUserData // userData is the same, no need to re-render any downstream context subscribers
+            : result // userData changed, so we must re-render all downstream context subscribers
+      );
+    }
   }, []);
 
   const logOut = useCallback(() => {

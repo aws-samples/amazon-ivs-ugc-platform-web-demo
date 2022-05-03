@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { scrollToTop } from '../../utils';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement as $content } from '../../content';
 import { validateForm, defaultErrorHandler } from './validateForm';
@@ -159,6 +160,7 @@ const useForm = ({
         await onFailure(errorData, formValues);
       }
 
+      scrollToTop();
       setIsLoading(false);
     },
     [

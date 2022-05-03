@@ -103,6 +103,11 @@ h3 {
   font-weight: 700;
 }
 
+h4 {
+  font-size: 15px;
+  font-weight: 500;
+}
+
 @media (max-width: 875px) {
   h1 {
     font-size: 32px;
