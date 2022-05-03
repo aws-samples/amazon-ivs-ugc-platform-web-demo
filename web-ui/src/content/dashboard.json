@@ -4,7 +4,25 @@
     "log_out": "Log out"
   },
   "stream_session_page": {
-    "account_setup_error": "An error occurred setting up your account. Please refresh the page to try again."
+    "account_setup_error": "An error occurred setting up your account. Please refresh the page to try again.",
+    "encoder_configuration": {
+      "title": "Encoder configuration",
+      "video_encoder": "Video encoder",
+      "video_codec": "Video codec",
+      "audio_codec": "Audio codec",
+      "audio_sample_rate": "Audio sample rate",
+      "audio_channels": "Audio channels",
+      "mono": "mono",
+      "stereo": "stereo",
+      "resolution": "Resolution",
+      "keyframe_interval": "Keyframe interval",
+      "target_bitrate": "Target bitrate",
+      "target_audio_bitrate": "Target audio bitrate",
+      "kHz": "kHz",
+      "kbps": "kbps",
+      "mbps": "mbps",
+      "copied": "copied"
+    }
   },
   "settings_page": {
     "title": "Settings",

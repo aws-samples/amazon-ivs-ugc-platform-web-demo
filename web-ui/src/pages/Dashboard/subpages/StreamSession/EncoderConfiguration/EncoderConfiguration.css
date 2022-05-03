@@ -1,0 +1,83 @@
+.encoder-config-section {
+  padding: 30px;
+  width: 100%;
+}
+
+.encoder-config-section h3 {
+  margin-bottom: 30px;
+}
+
+.config-grid {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 30px 60px;
+  height: 220px;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  column-gap: 30px;
+}
+
+.config-label {
+  color: var(--color-light-gray);
+  min-width: 145px;
+  position: relative;
+}
+
+.config-label.error {
+  color: var(--color-red);
+}
+
+.config-label > svg {
+  fill: var(--color-red);
+  margin-left: 6.5px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.config-value {
+  align-items: center;
+  column-gap: 5px;
+  display: flex;
+  max-width: 270px;
+  min-width: 0;
+}
+
+.config-value p {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.copy-button:focus-visible {
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--color-white);
+  outline: none;
+}
+
+.copy-button svg {
+  fill: var(--color-light-gray);
+}
+
+@media (max-width: 875px) {
+  .config-grid {
+    flex-wrap: nowrap;
+    height: auto;
+  }
+
+  .config-value {
+    max-width: none;
+  }
+}

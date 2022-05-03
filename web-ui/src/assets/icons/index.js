@@ -1,6 +1,7 @@
 export { ReactComponent as Check } from './check.svg';
 export { ReactComponent as ChevronLeft } from './chevron-left.svg';
 export { ReactComponent as ChevronRight } from './chevron-right.svg';
+export { ReactComponent as Copy } from './copy.svg';
 export { ReactComponent as Error } from './error.svg';
 export { ReactComponent as Home } from './home.svg';
 export { ReactComponent as Logout } from './logout.svg';

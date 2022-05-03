@@ -1,0 +1,22 @@
+#tooltip-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 2px 0;
+  position: absolute;
+  width: max-content;
+  z-index: 200;
+}
+
+.with-tooltip {
+  min-width: 0;
+  position: relative;
+}
+
+.tooltip {
+  background: #292b32;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 500;
+}

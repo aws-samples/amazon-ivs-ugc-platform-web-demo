@@ -1,28 +1,29 @@
 import { createPortal } from 'react-dom';
-import { useEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
-const initContainer = (containerId) => {
-  let container = document.getElementById(containerId);
+import { boundContainerWithinViewport } from './utils';
 
-  if (!container) {
-    container = document.createElement('div');
-    container.setAttribute('id', containerId);
-    document.body.appendChild(container);
-  }
+const initContainer = (containerId, parentEl = document.body) => {
+  let container = document.createElement('div');
+  container.setAttribute('id', containerId);
+  parentEl.appendChild(container);
 
   return container;
 };
 
 const withPortal =
-  (WrappedComponent, containerId) =>
-  ({ isOpen, ...props }) => {
-    const container = isOpen ? initContainer(`${containerId}-container`) : null;
+  (WrappedComponent, containerId, { keepInViewport = false } = {}) =>
+  ({ isOpen, parentEl, ...props }) => {
+    const id = useRef(`${containerId}-container`);
+    const container = isOpen ? initContainer(id.current, parentEl) : null;
 
-    useEffect(() => {
-      return () => {
-        container?.parentNode?.removeChild(container);
-      };
-    }, [container]);
+    useLayoutEffect(() => {
+      if (keepInViewport) {
+        boundContainerWithinViewport(container);
+      }
+
+      return () => container?.remove();
+    }, [container, parentEl]);
 
     return (
       container && createPortal(<WrappedComponent {...props} />, container)

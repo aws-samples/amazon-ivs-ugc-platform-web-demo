@@ -1,6 +1,7 @@
-.temp-dashboard-section {
-  width: 100%;
-  display: flex;
+.stream-session {
   align-items: center;
+  display: flex;
   justify-content: center;
+  max-width: 960px;
+  width: 100%;
 }
