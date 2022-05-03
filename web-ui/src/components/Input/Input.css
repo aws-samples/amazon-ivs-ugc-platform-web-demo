@@ -90,6 +90,10 @@
   outline: none;
 }
 
+.inner-input-container input:hover {
+  background: #40434e; /* Temporary: will be replaced with HSL */
+}
+
 .inner-input-container.error input {
   box-shadow: inset 0 0 0 2px var(--color-red);
 }

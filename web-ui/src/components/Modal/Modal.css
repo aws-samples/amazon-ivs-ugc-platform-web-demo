@@ -2,12 +2,12 @@
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  height: 100vh;
+  height: 100%;
   justify-content: center;
   left: 0;
   position: fixed;
   top: 0;
-  width: 100vw;
+  width: 100%;
   z-index: 1000;
 }
 
@@ -20,7 +20,7 @@
 
 .modal-buttons {
   align-items: center;
-  column-gap: 40px;
+  column-gap: 30px;
   display: flex;
   justify-content: flex-end;
   margin-top: 30px;
@@ -34,14 +34,6 @@
   color: var(--color-extra-light-gray);
   line-height: 22.5px;
   margin-top: 20px;
-}
-
-.cancel-button {
-  color: var(--color-white) !important;
-}
-.cancel-button:active:not(:disabled),
-.cancel-button:focus {
-  border-bottom: 2px solid var(--color-white) !important;
 }
 
 @media (max-width: 875px) {

@@ -22,3 +22,11 @@
   padding: 9px;
   min-width: auto;
 }
+
+.icon {
+  fill: var(--color-white);
+}
+
+.icon.settings {
+  width: 24px;
+}
