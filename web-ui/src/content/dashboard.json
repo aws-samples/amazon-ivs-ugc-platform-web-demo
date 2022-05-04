@@ -4,7 +4,6 @@
     "log_out": "Log out"
   },
   "stream_session_page": {
-    "account_setup_error": "An error occurred setting up your account. Please refresh the page to try again.",
     "encoder_configuration": {
       "title": "Encoder configuration",
       "video_encoder": "Video encoder",

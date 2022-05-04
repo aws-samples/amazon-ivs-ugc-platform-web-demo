@@ -32,9 +32,9 @@ const loadMotionFeatures = () =>
 const App = () => (
   <Router>
     <LazyMotion features={loadMotionFeatures} strict>
-      <UserProvider>
-        <MobileBreakpointProvider>
-          <NotificationProvider>
+      <MobileBreakpointProvider>
+        <NotificationProvider>
+          <UserProvider>
             <ModalProvider>
               <Routes>
                 <Route element={<Dashboard />}>
@@ -49,9 +49,9 @@ const App = () => (
                 <Route path="*" element={<Navigate replace to="/" />} />
               </Routes>
             </ModalProvider>
-          </NotificationProvider>
-        </MobileBreakpointProvider>
-      </UserProvider>
+          </UserProvider>
+        </NotificationProvider>
+      </MobileBreakpointProvider>
     </LazyMotion>
   </Router>
 );

@@ -1,18 +1,23 @@
-import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
+import './UserManagement.css';
 import { app as $content } from '../../content';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
+import FullScreenLoader from '../../components/FullScreenLoader';
 import Grid from '../../components/Grid';
 import Notification from '../../components/Notification';
 import withSessionLoader from '../../components/withSessionLoader';
-import './UserManagement.css';
 
-const UserManagement = ({ children }) => {
+const UserManagement = () => {
   const { isMobileView } = useMobileBreakpoint();
-  const { isSessionValid } = useUser();
+  const {
+    hasErrorCreatingResources,
+    initUserResources,
+    isCreatingResources,
+    isSessionValid
+  } = useUser();
   const location = useLocation();
 
   // Set theme-colour
@@ -24,7 +29,13 @@ const UserManagement = ({ children }) => {
 
   useEffect(() => window.scrollTo(0, 0), [location.pathname]);
 
-  if (isSessionValid === true) return <Navigate to="/" replace />;
+  if (
+    isSessionValid === true &&
+    !isCreatingResources &&
+    !hasErrorCreatingResources
+  ) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <Grid>
@@ -35,16 +46,21 @@ const UserManagement = ({ children }) => {
       </Grid.Col>
       <Grid.Col autoFit>
         <main id="main-user-container" className="main-user-container">
-          <Notification top={isMobileView ? 15 : 89} />
-          {children ? children : <Outlet />}
+          {isCreatingResources || hasErrorCreatingResources ? (
+            <FullScreenLoader
+              hasError={hasErrorCreatingResources}
+              onClick={initUserResources}
+            />
+          ) : (
+            <>
+              <Notification top={isMobileView ? 15 : 89} />
+              <Outlet />
+            </>
+          )}
         </main>
       </Grid.Col>
     </Grid>
   );
 };
-
-UserManagement.defaultProps = { children: null };
-
-UserManagement.propTypes = { children: PropTypes.node };
 
 export default withSessionLoader(UserManagement);

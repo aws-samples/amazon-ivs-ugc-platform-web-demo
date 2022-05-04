@@ -130,7 +130,7 @@ const AccountSettings = () => {
             type="button"
             value={$content.settings_page.delete_my_account}
             variant={inputVariant}
-            customStyles={{ width: '185px' }}
+            customStyles={{ width: '190px' }}
           />
         </span>
       </section>

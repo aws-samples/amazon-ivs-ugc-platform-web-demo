@@ -2,5 +2,9 @@
   "title": "Stream Health",
   "modal": {
     "cancel": "Cancel"
+  },
+  "full_screen_loader": {
+    "error_occurred": "Error occurred",
+    "try_again": "Try again"
   }
 }
