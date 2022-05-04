@@ -83,7 +83,7 @@
   cursor: pointer;
   font-weight: 700;
   padding: 12px 26.5px;
-  width: auto;
+  width: 100%;
 }
 
 .inner-input-container input:focus {
@@ -92,7 +92,8 @@
 }
 
 .inner-input-container input:hover {
-  background: #40434e; /* Temporary: will be replaced with HSL */
+  background: #40434e;
+  /* Temporary: will be replaced with HSL */
 }
 
 .inner-input-container.error input {

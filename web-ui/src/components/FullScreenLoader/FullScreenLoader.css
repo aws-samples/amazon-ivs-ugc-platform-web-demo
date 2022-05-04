@@ -1,0 +1,39 @@
+.loading-container {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.error-message {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  top: calc(50% + 42px - 15px);
+  transform: translate(-50%, -50%);
+}
+
+.error-message>h2 {
+  font-family: 'Inter';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 29px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+@media (max-width: 875px) {
+  .loading-container {
+    height: 100%;
+  }
+
+  #root>.loading-container {
+    height: 100vh;
+  }
+}

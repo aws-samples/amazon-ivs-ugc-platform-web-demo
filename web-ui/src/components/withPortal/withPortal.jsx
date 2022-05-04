@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { boundContainerWithinViewport } from './utils';
 
 const initContainer = (containerId, parentEl = document.body) => {
-  let container = document.createElement('div');
+  const container = document.createElement('div');
   container.setAttribute('id', containerId);
   parentEl.appendChild(container);
 

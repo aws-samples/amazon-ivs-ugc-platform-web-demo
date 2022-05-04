@@ -24,6 +24,9 @@ const getCurrentSessionFetcher = async () => {
 };
 
 export const Provider = ({ children }) => {
+  const [isCreatingResources, setIsCreatingResources] = useState(false);
+  const [hasErrorCreatingResources, setHasErrorCreatingResources] =
+    useState(false);
   const [userData, setUserData] = useState();
   const [isSessionValid, setIsSessionValid] = useState();
 
@@ -35,6 +38,7 @@ export const Provider = ({ children }) => {
 
   const fetchUserData = useCallback(async () => {
     const { result } = await userManagement.getUserData();
+
     if (result) {
       setUserData(
         (prevUserData) =>
@@ -43,7 +47,23 @@ export const Provider = ({ children }) => {
             : result // userData changed, so we must re-render all downstream context subscribers
       );
     }
+
+    return result;
   }, []);
+
+  // Initialize user resources
+  const initUserResources = useCallback(async () => {
+    if (await fetchUserData()) return;
+
+    setIsCreatingResources(true);
+    setHasErrorCreatingResources(false);
+    const { result, error } = await userManagement.createResources();
+
+    if (result) await fetchUserData();
+    if (error) setHasErrorCreatingResources(true);
+
+    setIsCreatingResources(false);
+  }, [fetchUserData]);
 
   const logOut = useCallback(() => {
     userManagement.signOut() && checkSessionStatus() && setUserData(null);
@@ -62,11 +82,23 @@ export const Provider = ({ children }) => {
     () => ({
       checkSessionStatus,
       fetchUserData,
+      hasErrorCreatingResources,
+      initUserResources,
+      isCreatingResources,
       isSessionValid,
       logOut,
       userData
     }),
-    [checkSessionStatus, logOut, fetchUserData, isSessionValid, userData]
+    [
+      checkSessionStatus,
+      fetchUserData,
+      hasErrorCreatingResources,
+      initUserResources,
+      isCreatingResources,
+      isSessionValid,
+      logOut,
+      userData
+    ]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

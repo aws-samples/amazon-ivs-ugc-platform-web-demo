@@ -8,7 +8,7 @@ import Form from '../../../components/Form';
 import { useNotif } from '../../../contexts/Notification';
 
 const SigninUser = () => {
-  const { fetchUserData, checkSessionStatus } = useUser();
+  const { checkSessionStatus, initUserResources } = useUser();
   const { notifySuccess, notifyError } = useNotif();
   const [searchParams] = useSearchParams();
   const { verificationCode, username } = useMemo(
@@ -51,7 +51,7 @@ const SigninUser = () => {
      * created resources for this user previously. Therefore, this call will retrieve
      * that information and save it in the context.
      */
-    await fetchUserData();
+    await initUserResources();
     checkSessionStatus();
   };
 

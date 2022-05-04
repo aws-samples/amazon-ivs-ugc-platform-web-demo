@@ -11,14 +11,14 @@ const RegisterUser = () => {
   const [isRequestSent, setRequestSent] = useState(false);
   const [username, setUsername] = useState('');
 
-  const { fetchUserData, checkSessionStatus } = useUser();
+  const { initUserResources, checkSessionStatus } = useUser();
 
   const onRequestSuccess = async (result, formValues) => {
     if (result.userConfirmed) {
       const { result: signInResult } = await userManagement.signIn(formValues);
 
       if (signInResult) {
-        await fetchUserData();
+        await initUserResources();
         checkSessionStatus();
       }
     } else {
