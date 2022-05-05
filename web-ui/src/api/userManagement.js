@@ -116,8 +116,23 @@ export const changePassword = async ({ currentPassword, newPassword }) => {
     });
 
   try {
+    // 1. Update password
     const changeUserPassword = promisify(cognitoUser.changePassword);
     result = await changeUserPassword();
+
+    // 2. Sign out of all sessions
+    cognitoUser.globalSignOut[promisify.custom] = () =>
+      new Promise((resolve, reject) => {
+        cognitoUser.globalSignOut({
+          onSuccess: resolve,
+          onFailure: reject
+        });
+      });
+    const globalUserSignOut = promisify(cognitoUser.globalSignOut);
+    await globalUserSignOut();
+
+    // 3. Sign back in the current session
+    await signIn({ username: cognitoUser.username, password: newPassword });
   } catch (err) {
     error = err;
     console.error(err);

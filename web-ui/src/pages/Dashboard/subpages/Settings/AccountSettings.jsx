@@ -105,9 +105,16 @@ const AccountSettings = () => {
               placeholder: $content.settings_page.create_your_new_password
             }
           }}
-          onSuccess={() =>
-            notifySuccess($content.notification.success.password_saved)
-          }
+          onSuccess={() => {
+            notifySuccess($content.notification.success.password_saved);
+            openModal({
+              cancellable: false,
+              confirmText: $content.modal.password_updated_modal.okay,
+              message: $content.modal.password_updated_modal.password_updated,
+              subMessage:
+                $content.modal.password_updated_modal.confirmation_message
+            });
+          }}
           submitHandler={userManagement.changePassword}
           validationCheck={({ currentPassword, newPassword }) => {
             if (currentPassword.value === newPassword.value) {
