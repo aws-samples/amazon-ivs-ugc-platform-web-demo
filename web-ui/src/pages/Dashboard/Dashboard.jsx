@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 
@@ -14,12 +13,12 @@ import Notification from '../../components/Notification';
 import withSessionLoader from '../../components/withSessionLoader';
 import './Dashboard.css';
 
-const Dashboard = ({ children }) => {
+const Dashboard = () => {
   const [activeStreamSession, setActiveStreamSession] = useState(null);
   const [activeStreamSessionIdx, setActiveStreamSessionIdx] = useState(0);
   const [streamSessions, setStreamSessions] = useState([]);
   const { isMobileView } = useMobileBreakpoint();
-  const { isSessionValid, userData } = useUser();
+  const { fetchUserData, isSessionValid, userData } = useUser();
   const { modal } = useModal();
   const { notifyError } = useNotif();
   const location = useLocation();
@@ -70,6 +69,12 @@ const Dashboard = ({ children }) => {
 
   useEffect(() => window.scrollTo(0, 0), [location.pathname]);
 
+  useEffect(() => {
+    if (!userData && isSessionValid) {
+      fetchUserData();
+    }
+  }, [fetchUserData, isSessionValid, userData]);
+
   if (isSessionValid === false) return <Navigate to="/login" replace />;
 
   return (
@@ -78,15 +83,11 @@ const Dashboard = ({ children }) => {
       <Header streamSessions={streamSessions} />
       <main className="main-dashboard-container">
         <Notification />
-        {children ? children : <Outlet context={activeStreamSession} />}
+        <Outlet context={activeStreamSession} />
       </main>
       {isMobileView && <FloatingMenu />}
     </>
   );
 };
-
-Dashboard.defaultProps = { children: null };
-
-Dashboard.propTypes = { children: PropTypes.node };
 
 export default withSessionLoader(Dashboard);

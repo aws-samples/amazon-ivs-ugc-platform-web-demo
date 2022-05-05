@@ -30,7 +30,10 @@ const Modal = () => {
 
   const handleConfirm = () => {
     handleClose();
-    onConfirm();
+
+    if (typeof onConfirm === 'function') {
+      onConfirm();
+    }
   };
 
   // Focus trap to constrain the tab focus to elements within the Modal container

@@ -57,6 +57,11 @@
     "account_deletion_modal": {
       "delete_account": "Delete account",
       "confirm_intent_message": "Are you sure you would like to delete your account?"
+    },
+    "password_updated_modal": {
+      "password_updated": "Password updated",
+      "confirmation_message": "The password change will logout the other devices and sessions.",
+      "okay": "Okay"
     }
   },
   "notification": {

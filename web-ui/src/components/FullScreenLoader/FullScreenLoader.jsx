@@ -10,7 +10,7 @@ const noop = () => {};
 
 const FullScreenLoader = ({ hasError, onClick }) =>
   hasError ? (
-    <div className="error-message">
+    <div className="full-screen-loader-error">
       <SyncError />
       <h2>{$content.full_screen_loader.error_occurred}</h2>
       <Button
