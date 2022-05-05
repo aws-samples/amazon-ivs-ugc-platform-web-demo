@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import './Grid.css';
 
 const Grid = ({ children: columns, reverse }) => {
-  let classList = ['grid'];
+  const classList = ['grid'];
 
   if (reverse) classList.push('reverse');
 
@@ -12,7 +12,7 @@ const Grid = ({ children: columns, reverse }) => {
 };
 
 const GridItem = ({ type, children, autoFit }) => {
-  let classList = ['flex'];
+  const classList = ['flex'];
 
   if (type === 'row') classList.push('grid-row');
   if (type === 'col') classList.push('grid-col');

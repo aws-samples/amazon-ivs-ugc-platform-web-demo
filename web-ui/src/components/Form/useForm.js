@@ -149,7 +149,7 @@ const useForm = ({
       } else {
         const errorData = errorHandler(error) || [defaultErrorHandler(error)];
 
-        for (let { errorType, inputName, message } of errorData) {
+        for (const { errorType, inputName, message } of errorData) {
           if (errorType === 'notification') {
             notifyError(message); // Not an input-specific error, but rather some larger-scoped error
           } else {

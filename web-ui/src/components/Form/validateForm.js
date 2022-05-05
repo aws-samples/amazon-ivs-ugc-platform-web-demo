@@ -82,7 +82,7 @@ export const defaultErrorHandler = (error) => {
     error.name || // Cognito Error
     error.__type || // API Error
     'UnexpectedException'; // Fallback Error
-  let { message: errorMessage } = error;
+  const { message: errorMessage } = error;
 
   if (
     error.name === 'NotAuthorizedException' &&
