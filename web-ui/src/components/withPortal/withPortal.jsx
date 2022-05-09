@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useLayoutEffect, useRef } from 'react';
+import { forwardRef, useLayoutEffect, useRef } from 'react';
 
 import { boundContainerWithinViewport } from './utils';
 
@@ -15,9 +15,13 @@ const initContainer = (containerId, parentEl = document.body) => {
   return container;
 };
 
-const withPortal =
-  (WrappedComponent, containerId, { keepInViewport = false } = {}) =>
-  ({ isOpen, parentEl, ...props }) => {
+const withPortal = (
+  WrappedComponent,
+  containerId,
+  { keepInViewport = false } = {}
+) =>
+  // eslint-disable-next-line react/prop-types
+  forwardRef(({ isOpen, parentEl, ...props }, ref) => {
     const id = useRef(`${containerId}-container`);
     const container = isOpen ? initContainer(id.current, parentEl) : null;
 
@@ -30,8 +34,9 @@ const withPortal =
     }, [container, parentEl]);
 
     return (
-      container && createPortal(<WrappedComponent {...props} />, container)
+      container &&
+      createPortal(<WrappedComponent ref={ref} {...props} />, container)
     );
-  };
+  });
 
 export default withPortal;

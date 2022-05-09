@@ -27,7 +27,11 @@
 }
 
 .time {
+  align-items: center;
   color: var(--color-light-gray);
+  column-gap: 2px;
+  display: flex;
   font-size: 12px;
   font-weight: 500;
+  justify-content: center;
 }

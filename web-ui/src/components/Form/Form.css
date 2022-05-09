@@ -35,7 +35,8 @@
 }
 
 @media (max-width: 875px) {
-  .form {
-    margin: 0 auto !important;
+  .form.vertical,
+  .form.horizontal {
+    margin: 0 auto;
   }
 }

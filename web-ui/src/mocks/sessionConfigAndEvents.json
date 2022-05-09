@@ -1,0 +1,42 @@
+{
+  "ingestConfiguration": {
+    "audio": {
+      "channels": 2,
+      "codec": "mp4a.40.2",
+      "sampleRate": 48000,
+      "targetBitrate": 160000
+    },
+    "video": {
+      "avcLevel": "3.0",
+      "avcProfile": "High",
+      "codec": "avc1.64001E",
+      "encoder": "obs-output module (libobs version 27.2.4)",
+      "targetBitrate": 750000,
+      "targetFramerate": 30,
+      "videoHeight": 432,
+      "videoWidth": 768
+    }
+  },
+  "truncatedEvents": [
+    {
+      "eventTime": "2022-05-09T20:10:57.000Z",
+      "name": "Session Ended",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-09T20:10:57.000Z",
+      "name": "Stream End",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-09T20:08:16.000Z",
+      "name": "Stream Start",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-09T20:08:07.000Z",
+      "name": "Session Created",
+      "type": "IVS Stream State Change"
+    }
+  ]
+}

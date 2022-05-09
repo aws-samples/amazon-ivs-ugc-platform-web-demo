@@ -33,3 +33,13 @@ export const copyToClipboard = (value) => {
 export const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
+
+
+export const bound = (value, min = null, max = null) => {
+  let boundedValue = value;
+
+  if (min !== null) boundedValue = Math.max(min, value);
+  if (max !== null) boundedValue = Math.min(max, boundedValue);
+
+  return boundedValue;
+};

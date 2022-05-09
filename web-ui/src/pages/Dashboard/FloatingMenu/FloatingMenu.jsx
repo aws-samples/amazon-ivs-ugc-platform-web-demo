@@ -46,7 +46,7 @@ const FloatingMenu = () => {
     });
   };
 
-  useClickAway(floatingMenuRef, () => setIsExpanded(false));
+  useClickAway([floatingMenuRef], () => setIsExpanded(false));
 
   useEffect(() => {
     setIsExpanded(false);
