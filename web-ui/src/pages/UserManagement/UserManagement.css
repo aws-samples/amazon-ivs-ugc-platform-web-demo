@@ -66,3 +66,9 @@
     margin: 0 auto;
   }
 }
+
+@supports (overflow: overlay) {
+  .main-user-container {
+    overflow-y: overlay;
+  }
+}

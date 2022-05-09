@@ -66,7 +66,7 @@ const Modal = () => {
     [handleClose, handleTabKey]
   );
 
-  useClickAway(modalRef, handleClose);
+  useClickAway([modalRef], handleClose);
 
   useEffect(() => {
     const keyListener = (event) => {

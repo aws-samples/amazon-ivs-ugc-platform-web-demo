@@ -52,6 +52,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Firefox scrollbars */
+  scrollbar-width: auto;
+  scrollbar-color: var(--color-gray) transparent;
 }
 
 body {
@@ -61,12 +64,25 @@ body {
     Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-size: 15px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative;
   text-rendering: optimizeSpeed;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+}
+
+/* WebKit scrollbars */
+::-webkit-scrollbar {
+  width: 17px;
+}
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 100px;
+  box-shadow: inset 0 0 10px 10px var(--color-gray);
+  border: solid 5px transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 0 0 10px 10px #555968;
 }
 
 a {
@@ -80,7 +96,7 @@ a:not([class]) {
   text-decoration-skip-ink: auto;
 }
 
-a:focus-visible {
+a:focus {
   border-bottom: 2px solid var(--color-blue);
   margin-bottom: -5px;
   outline: none;
@@ -117,6 +133,20 @@ h4 {
   h2 {
     font-size: 24px;
     font-weight: 700;
+  }
+
+  body {
+    overflow-y: auto;
+  }
+
+  html {
+    scrollbar-color: var(--color-gray) var(--color-dark-gray);
+  }
+
+  @supports (overflow: overlay) {
+    body {
+      overflow-y: overlay;
+    }
   }
 }
 

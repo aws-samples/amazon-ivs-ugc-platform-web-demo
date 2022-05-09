@@ -3,15 +3,21 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 60px 30px;
   position: relative;
-  top: 64px;
   width: 100%;
+  overflow: auto;
+  height: calc(100vh - 64px);
 }
 
 @media (max-width: 875px) {
   .main-dashboard-container {
-    justify-content: flex-start;
-    padding: 60px 15px 120px 15px;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+@supports (overflow: overlay) {
+  .main-dashboard-container {
+    overflow: overlay;
   }
 }

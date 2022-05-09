@@ -22,13 +22,11 @@ const Tooltip = ({ children, message }) => {
       ref={parentRef}
     >
       {children}
-      {parentRef.current && (
-        <TooltipPortal
-          isOpen={isOpen}
-          parentEl={parentRef.current}
-          message={message}
-        />
-      )}
+      <TooltipPortal
+        isOpen={isOpen}
+        parentEl={parentRef.current}
+        message={message}
+      />
     </div>
   );
 };

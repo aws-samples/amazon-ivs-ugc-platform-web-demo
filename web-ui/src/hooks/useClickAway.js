@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 
-const defaultEvents = ['mouseup', 'touchend'];
+const defaultEvents = ['pointerdown'];
 
-const useClickAway = (ref, onClickAway, events = defaultEvents) => {
+const useClickAway = (targetRefs, onClickAway, events = defaultEvents) => {
   const savedCallback = useRef(onClickAway);
+  const refs = useRef(targetRefs);
 
   useEffect(() => {
     savedCallback.current = onClickAway;
@@ -11,10 +12,9 @@ const useClickAway = (ref, onClickAway, events = defaultEvents) => {
 
   useEffect(() => {
     const handler = (event) => {
-      const target = ref.current;
-      target &&
-        !target.contains(event.target) &&
-        setTimeout(() => savedCallback.current(event), 50);
+      refs.current.every(
+        ({ current: target }) => target && !target.contains(event.target)
+      ) && setTimeout(() => savedCallback.current(event), 50);
     };
 
     for (const eventName of events) {
@@ -26,7 +26,7 @@ const useClickAway = (ref, onClickAway, events = defaultEvents) => {
         document.removeEventListener(eventName, handler);
       }
     };
-  }, [events, ref]);
+  }, [events]);
 };
 
 export default useClickAway;

@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 
+import { reindexSessions } from '../../mocks/utils';
+import { SESSIONS, SESSION_CONFIG_AND_EVENTS } from '../../mocks';
+import { USE_MOCKS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
@@ -15,50 +18,86 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const [activeStreamSession, setActiveStreamSession] = useState(null);
-  const [activeStreamSessionIdx, setActiveStreamSessionIdx] = useState(0);
   const [streamSessions, setStreamSessions] = useState([]);
-  const { isMobileView } = useMobileBreakpoint();
   const { fetchUserData, isSessionValid, userData } = useUser();
+  const { isMobileView } = useMobileBreakpoint();
   const { modal } = useModal();
   const { notifyError } = useNotif();
   const location = useLocation();
 
-  // Fetch all stream sessions for this user's channel
-  useEffect(() => {
-    const fetchStreamSessions = async () => {
-      const { channelResourceId } = userData;
-      const { result, error } = await userManagement.getStreamSessions(
-        channelResourceId
+  const updateSessionsList = useCallback(async () => {
+    if (!userData) return;
+
+    const { result, error } = await userManagement.getStreamSessions(
+      userData.channelResourceId
+    );
+
+    if (result) {
+      let sessions = result.streamSessions.map((session, index) => ({
+        ...session,
+        index,
+        isLive: !session.endTime
+      }));
+
+      sessions = USE_MOCKS
+        ? [...sessions, ...reindexSessions(SESSIONS, sessions.length)]
+        : sessions;
+
+      setStreamSessions((prevSessions) =>
+        JSON.stringify(prevSessions) === JSON.stringify(sessions)
+          ? prevSessions
+          : sessions
       );
-
-      if (result) setStreamSessions(result.streamSessions);
-      if (error) notifyError('Failed to load stream session list'); // TEMPORARY MESSAGE
-    };
-
-    if (userData) fetchStreamSessions();
+    }
+    if (error) notifyError('Failed to load stream session list'); // TEMPORARY MESSAGE
   }, [notifyError, userData]);
 
-  // Fetch data for the active stream session
-  useEffect(() => {
-    const fetchStreamSessionData = async () => {
-      const { channelResourceId } = userData;
-      const streamSessionId = streamSessions[activeStreamSessionIdx].streamId;
-      const { result: session, error } =
-        await userManagement.getStreamSessionData(
-          channelResourceId,
-          streamSessionId
-        );
+  const updateActiveSession = useCallback(
+    async (nextStreamSession) => {
+      if (
+        !userData ||
+        !streamSessions.length ||
+        !nextStreamSession?.streamId ||
+        nextStreamSession.streamId === activeStreamSession?.streamId
+      )
+        return;
 
-      if (session) {
-        // Attach a live indicator to the stream session for convenience
-        const isLive = !session.endTime;
-        setActiveStreamSession({ ...session, isLive });
+      // Fetch the session data for the currently active (selected) stream session
+      const { result, error } = await userManagement.getStreamSessionData(
+        userData.channelResourceId,
+        nextStreamSession.streamId
+      );
+      const sessionData = USE_MOCKS ? SESSION_CONFIG_AND_EVENTS : result;
+
+      // Supplement the retrieved session data and save the result in state
+      if (sessionData) {
+        const isLive = !sessionData.endTime;
+        sessionData.streamId = nextStreamSession.streamId;
+        setActiveStreamSession({
+          ...nextStreamSession,
+          ...sessionData,
+          isLive // Attach a live indicator to the stream session for convenience
+        });
+
+        return;
       }
       if (error) notifyError('Failed to load stream session'); // TEMPORARY MESSAGE
-    };
+    },
+    [activeStreamSession?.streamId, notifyError, streamSessions, userData]
+  );
 
-    if (userData && streamSessions.length) fetchStreamSessionData();
-  }, [activeStreamSessionIdx, notifyError, streamSessions, userData]);
+  useEffect(() => {
+    updateSessionsList();
+  }, [updateSessionsList]);
+
+  const isInitialized = useRef(false);
+  useEffect(() => {
+    if (!isInitialized.current && streamSessions.length) {
+      const initialSession = streamSessions[0];
+      updateActiveSession(initialSession);
+      isInitialized.current = true;
+    }
+  }, [streamSessions, updateActiveSession]);
 
   // Set theme-colour
   useEffect(() => {
@@ -79,13 +118,18 @@ const Dashboard = () => {
 
   return (
     <>
-      <Modal isOpen={!!modal} />
-      <Header streamSessions={streamSessions} />
+      <Header
+        activeStreamSession={activeStreamSession}
+        streamSessions={streamSessions}
+        updateActiveSession={updateActiveSession}
+        updateSessionsList={updateSessionsList}
+      />
       <main className="main-dashboard-container">
+        <Modal isOpen={!!modal} />
         <Notification />
         <Outlet context={activeStreamSession} />
+        {isMobileView && <FloatingMenu />}
       </main>
-      {isMobileView && <FloatingMenu />}
     </>
   );
 };

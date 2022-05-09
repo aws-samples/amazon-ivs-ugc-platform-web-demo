@@ -37,7 +37,7 @@ const Form = ({
       <div className="submit-container">
         <Button
           type="submit"
-          isDisabled={!isFormComplete || disableSubmit(formProps)}
+          ariaDisabled={!isFormComplete || disableSubmit(formProps)}
           isLoading={isLoading}
           variant={submitBtnVariant}
           customStyles={{

@@ -3,8 +3,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin: 0 auto;
+  margin: 60px auto;
   max-width: 960px;
+  padding: 0 30px;
   row-gap: 30px;
   width: 100%;
 }
@@ -41,5 +42,10 @@
 @media (max-width: 875px) {
   .input-btn-group {
     align-items: flex-end;
+  }
+
+  .settings-container {
+    margin: 60px auto 120px auto;
+    padding: 0 15px;
   }
 }
