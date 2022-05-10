@@ -17,7 +17,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       buildChannelArn(channelResourceId),
       streamSessionId
     );
-    const { channel, recordingConfiguration, streamId, ...rest } =
+    const { channel, recordingConfiguration, ...rest } =
       streamSession as StreamSession;
 
     responseBody = rest;
