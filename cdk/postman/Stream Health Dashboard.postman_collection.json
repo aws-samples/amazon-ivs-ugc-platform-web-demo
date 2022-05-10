@@ -2,60 +2,13 @@
 	"info": {
 		"_postman_id": "ca06633a-eb53-40fa-868a-3587d6e53919",
 		"name": "Stream Health Dashboard",
+		"description": "# Stream Health Dashboard\n\nThe Stream Health Dashboard backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics (WIP)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "User Management",
 			"item": [
-				{
-					"name": "/user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { channelResourceId } = JSON.parse(responseBody);",
-									"",
-									"pm.environment.set('channelResourceId', channelResourceId);",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"user"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"user"
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "/user/register",
 					"request": {
@@ -82,7 +35,8 @@
 								"user",
 								"register"
 							]
-						}
+						},
+						"description": "This endpoint creates a new user in the Cognito user pool. This new user will be auto verified in stage `dev`. In stage `prod`, the registration process requires the user to confirm their email."
 					},
 					"response": []
 				},
@@ -110,7 +64,42 @@
 								"resources",
 								"create"
 							]
+						},
+						"description": "This endpoint creates the following resources for the corresponding user account:\n\n*   an IVS channel\n*   a DynamoDB record with the user's account information and channel details\n    \n\nIt should only be called once, particularly when the user first signs in."
+					},
+					"response": []
+				},
+				{
+					"name": "/user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { channelResourceId } = JSON.parse(responseBody);",
+									"",
+									"if (channelResourceId) {",
+									"    pm.environment.set('channelResourceId', channelResourceId);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "This endpoint fetches a set of fields stored in the DynamoDB table for the authenticated user.\n\nThe response will contain the `channelResourceId` which is required for other endpoints. Alternatively, Postman will set this variable to your environment after a successful response."
 					},
 					"response": []
 				},
@@ -138,7 +127,28 @@
 								"username",
 								"update"
 							]
-						}
+						},
+						"description": "This endpoint will update the username for a user."
+					},
+					"response": []
+				},
+				{
+					"name": "/user/streamKey/reset",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/streamKey/reset",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"streamKey",
+								"reset"
+							]
+						},
+						"description": "This endpoint will destroy the existing stream key and create a new one."
 					},
 					"response": []
 				},
@@ -169,31 +179,31 @@
 								"password",
 								"reset"
 							]
-						}
+						},
+						"description": "This endpoint starts a forgot password flow, which will send an email to the account holder containing a link to reset their password.\n\nIf the email is not associated with an existing account, no further action is taken."
 					},
 					"response": []
 				},
 				{
-					"name": "/user/streamKey/reset",
+					"name": "/user",
 					"request": {
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/streamKey/reset",
+							"raw": "{{userManagementApiBaseUrl}}/user",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
 							"path": [
-								"user",
-								"streamKey",
-								"reset"
+								"user"
 							]
-						}
+						},
+						"description": "This endpoint will delete all of the resources associated with the corresponding user account, along with the Cognito user account itself."
 					},
 					"response": []
 				}
 			],
-			"description": "The following commands are provided for convenience if you want to make API requests without using the frontend app.\n\nSign-up a new user:\n\n``` shell\naws cognito-idp sign-up --client-id clientId --username username --password password --user-attributes Name=email,Value=\n\n```\n\nAuthenticate the newly created user:\n\n``` shell\naws cognito-idp initiate-auth --client-id clientId --auth-parameters USERNAME=username,PASSWORD=password --auth-flow USER_PASSWORD_AUTH\n\n```\n\nThe previous command will give you an `AccessToken`, paste its value in the environment attached to this collection.",
+			"description": "## User Management\n\nThis API serves a purpose of creating new users and managing their account information and their associated AWS resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation.\nSome endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n    \n``` shell\naws cognito-idp initiate-auth --client-id <userPoolClientId> --auth-parameters USERNAME=<username>,PASSWORD=<password> --auth-flow USER_PASSWORD_AUTH\n```\n\nThis command will give you an `AccessToken`, paste its value in the environment attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code>\n```\n\nYou will find `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage argument.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code> --password <password>\n```\n\nYou will find `confirmation-code` in the confirmation email sent calling the `/user/password/reset` endpoint.",
 			"auth": {
 				"type": "oauth2",
 				"oauth2": [
@@ -270,7 +280,7 @@
 								}
 							]
 						},
-						"description": "The tests attached to this request will automatically set the stream ID of the most recent stream session as an environment variable."
+						"description": "This endpoint will return a list of all the past and present streams.\n\nEvery stream session object in the list will contain a `streamId` which is required for other endpoints. Alternatively, Postman will set the latest stream's ID to your environment after a successful response."
 					},
 					"response": []
 				},
@@ -300,7 +310,8 @@
 									"value": "{{streamSessionId}}"
 								}
 							]
-						}
+						},
+						"description": "This endpoint gets metadata of a specified stream. The metadata includes start and end time, the ingest configuration and the truncated stream events."
 					},
 					"response": []
 				},
@@ -331,11 +342,13 @@
 									"value": "{{streamSessionId}}"
 								}
 							]
-						}
+						},
+						"description": "This endpoint fetches CloudWatch metrics data for a specified stream. In particular, the Video Bitrate, the Frame Rate and the average Keyframe Interval will be returned.\n\nThe response will be an array of `FormattedMetricData` objects:\n\n``` typescript\ntype FormattedMetricData = {\n  data: { timestamp: Date; value: number }[];\n  label: string;\n};\n\n```"
 					},
 					"response": []
 				}
 			],
+			"description": "## Metrics\n\nThis API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated User Management endpoints.",
 			"auth": {
 				"type": "oauth2",
 				"oauth2": [
