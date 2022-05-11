@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 
 import Spinner from '../Spinner';
 import './Button.css';
@@ -7,28 +7,28 @@ import './Button.css';
 const Button = forwardRef(
   (
     {
+      ariaDisabled,
       children,
       className,
+      customStyles,
       isDisabled,
       isLoading,
       onClick,
       onFocus,
       onMouseDown,
       type,
-      variant,
-      customStyles,
-      ariaDisabled
+      variant
     },
     ref
   ) => (
     <button
-      ref={ref}
       aria-disabled={ariaDisabled}
-      disabled={isDisabled}
       className={`button ${variant} ${className}`}
+      disabled={isDisabled}
       onClick={onClick}
       onFocus={onFocus}
       onMouseDown={onMouseDown}
+      ref={ref}
       style={customStyles}
       type={type}
     >
