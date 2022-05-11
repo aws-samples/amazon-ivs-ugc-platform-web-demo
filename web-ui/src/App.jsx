@@ -11,6 +11,7 @@ import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoin
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as UserProvider } from './contexts/User';
+import { Provider as StreamsProvider } from './contexts/Streams';
 
 // Layout Pages
 import Dashboard from './pages/Dashboard';
@@ -37,7 +38,13 @@ const App = () => (
           <UserProvider>
             <ModalProvider>
               <Routes>
-                <Route element={<Dashboard />}>
+                <Route
+                  element={
+                    <StreamsProvider>
+                      <Dashboard />
+                    </StreamsProvider>
+                  }
+                >
                   <Route index element={<StreamSession />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>

@@ -1,55 +1,55 @@
 [
   {
-    "streamId": "st-A176HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-A176HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-05-05T23:00:00.000Z",
     "endTime": "2022-05-05T23:30:00.000Z",
     "hasErrorEvent": false,
     "isLive": false
   },
   {
-    "streamId": "st-1A76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-1A76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-05-05T01:03:10.000Z",
     "endTime": "2022-05-05T03:13:19.000Z",
     "hasErrorEvent": false,
     "isLive": false
   },
   {
-    "streamId": "st-2B76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-2B76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-05-03T07:23:01.000Z",
     "endTime": "2022-05-03T08:12:19.000Z",
     "hasErrorEvent": true,
     "isLive": false
   },
   {
-    "streamId": "st-3C76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-3C76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-04-28T21:45:12.000Z",
     "endTime": "2022-04-29T08:06:19.000Z",
     "hasErrorEvent": false,
     "isLive": false
   },
   {
-    "streamId": "st-4D76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-4D76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-04-20T04:30:47.000Z",
     "endTime": "2022-04-20T05:05:19.000Z",
     "hasErrorEvent": false,
     "isLive": false
   },
   {
-    "streamId": "st-5E76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-5E76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-04-05T04:12:56.000Z",
     "endTime": "2022-04-05T08:56:11.000Z",
     "hasErrorEvent": true,
     "isLive": false
   },
   {
-    "streamId": "st-6F76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-6F76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-03-15T07:54:10.000Z",
     "endTime": "2022-03-17T07:54:10.000Z",
     "hasErrorEvent": true,
     "isLive": false
   },
   {
-    "streamId": "st-7G76HL45wEMhPnRbo5jnTsB",
+    "streamId": "mock-st-7G76HL45wEMhPnRbo5jnTsB",
     "startTime": "2022-01-02T12:59:13.000Z",
     "endTime": "2022-01-02T15:15:20.000Z",
     "hasErrorEvent": false,

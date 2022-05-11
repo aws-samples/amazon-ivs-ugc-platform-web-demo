@@ -1,13 +1,15 @@
-import { useEffect } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import './UserManagement.css';
 import { app as $content } from '../../content';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import Grid from '../../components/Grid';
 import Notification from '../../components/Notification';
+import useScrollTopOnPathnameChange from '../../hooks/useScrollTopOnPathnameChange';
+import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const UserManagement = () => {
@@ -18,16 +20,8 @@ const UserManagement = () => {
     isCreatingResources,
     isSessionValid
   } = useUser();
-  const location = useLocation();
-
-  // Set theme-colour
-  useEffect(() => {
-    document
-      .querySelector('meta[name="theme-color"]')
-      .setAttribute('content', '#000000');
-  }, []);
-
-  useEffect(() => window.scrollTo(0, 0), [location.pathname]);
+  useScrollTopOnPathnameChange();
+  useThemeColor(USER_MANAGEMENT_THEME_COLOR);
 
   if (
     isSessionValid === true &&
