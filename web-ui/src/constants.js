@@ -1,4 +1,6 @@
 export const USE_MOCKS = false;
+export const DASHBOARD_THEME_COLOR = '#292b32';
+export const USER_MANAGEMENT_THEME_COLOR = '#000000';
 
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';

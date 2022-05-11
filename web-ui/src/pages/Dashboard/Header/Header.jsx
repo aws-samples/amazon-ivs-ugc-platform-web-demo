@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { dashboard as $content } from '../../../content';
@@ -9,12 +8,7 @@ import Button from '../../../components/Button';
 import SessionNavigator from './SessionNavigator';
 import './Header.css';
 
-const Header = ({
-  activeStreamSession,
-  streamSessions,
-  updateActiveSession,
-  updateSessionsList
-}) => {
+const Header = () => {
   const { isMobileView } = useMobileBreakpoint();
   const { logOut } = useUser();
   const { pathname } = useLocation();
@@ -26,12 +20,7 @@ const Header = ({
 
   return (
     <header className="header">
-      <SessionNavigator
-        activeStreamSession={activeStreamSession}
-        streamSessions={streamSessions}
-        updateActiveSession={updateActiveSession}
-        updateSessionsList={updateSessionsList}
-      />
+      <SessionNavigator />
       {!isMobileView && (
         <div className="header-buttons">
           <Button
@@ -48,18 +37,6 @@ const Header = ({
       )}
     </header>
   );
-};
-
-Header.defaultProps = {
-  activeStreamSession: null,
-  streamSessions: []
-};
-
-Header.propTypes = {
-  activeStreamSession: PropTypes.object,
-  streamSessions: PropTypes.array,
-  updateActiveSession: PropTypes.func.isRequired,
-  updateSessionsList: PropTypes.func.isRequired
 };
 
 export default Header;

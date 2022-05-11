@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -6,24 +5,26 @@ import { bound } from '../../../../utils';
 import { ChevronLeft, ChevronRight } from '../../../../assets/icons';
 import { dashboard as $content } from '../../../../content';
 import { formatDate, formatTime, getDayDiff } from './utils';
+import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import NavigatorPopup from './NavigatorPopup';
 import useClickAway from '../../../../hooks/useClickAway';
 import useThrottledCallback from '../../../../hooks/useThrottledCallback';
 import './SessionNavigator.css';
 
-const SessionNavigator = ({
-  activeStreamSession,
-  streamSessions,
-  updateActiveSession,
-  updateSessionsList
-}) => {
+const SessionNavigator = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const navPopupRef = useRef();
   const navButtonRef = useRef();
   const rootRef = useRef(document.getElementById('root'));
+  const {
+    activeStreamSession,
+    streamSessions,
+    updateActiveSession,
+    updateSessionsList
+  } = useStreams();
   const throttledUpdateSessionsList = useThrottledCallback(
     updateSessionsList,
     2000
@@ -60,8 +61,7 @@ const SessionNavigator = ({
         0,
         streamSessions.length
       );
-      const nextStreamSession = streamSessions[nextStreamSessionIdx];
-      updateActiveSession(nextStreamSession);
+      updateActiveSession(streamSessions[nextStreamSessionIdx]);
     }
   };
 
@@ -72,8 +72,7 @@ const SessionNavigator = ({
         0,
         streamSessions.length
       );
-      const prevStreamSession = streamSessions[prevStreamSessionIdx];
-      updateActiveSession(prevStreamSession);
+      updateActiveSession(streamSessions[prevStreamSessionIdx]);
     }
   };
 
@@ -95,8 +94,8 @@ const SessionNavigator = ({
       <span className="date-time-container">
         {isNavOpen || !activeStreamSession ? (
           <>
-            <p className="date">Stream Session</p>
-            <p className="time">Select a stream session to view</p>
+            <p className="date">{$content.header.stream_session}</p>
+            <p className="time">{$content.header.select_stream_session}</p>
           </>
         ) : (
           <>
@@ -143,24 +142,10 @@ const SessionNavigator = ({
         isOpen={isNavOpen}
         parentEl={rootRef.current}
         ref={navPopupRef}
-        streamSessions={streamSessions}
         toggleNavPopup={toggleNavPopup}
-        updateActiveSession={updateActiveSession}
       />
     </>
   );
-};
-
-SessionNavigator.defaultProps = {
-  activeStreamSession: null,
-  streamSessions: []
-};
-
-SessionNavigator.propTypes = {
-  activeStreamSession: PropTypes.object,
-  streamSessions: PropTypes.array,
-  updateActiveSession: PropTypes.func.isRequired,
-  updateSessionsList: PropTypes.func.isRequired
 };
 
 export default SessionNavigator;
