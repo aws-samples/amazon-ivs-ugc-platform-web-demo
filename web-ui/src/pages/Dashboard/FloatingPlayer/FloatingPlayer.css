@@ -1,0 +1,145 @@
+.floating-player {
+  align-items: flex-end;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column-reverse;
+  position: fixed;
+  right: 15px;
+  row-gap: 10px;
+}
+
+.floating-player .icon-button {
+  height: auto;
+  min-width: auto;
+  padding: 6px;
+  width: auto;
+}
+
+.floating-player .icon-button g {
+  fill: var(--color-dark-gray);
+}
+
+.floating-player .icon-button .sensors-origin.is-live {
+  fill: var(--color-white);
+  transition: fill 0.5s;
+}
+
+@keyframes pulse-first-waves {
+  0% {
+    fill: var(--color-dark-gray);
+  }
+
+  7% {
+    fill: var(--color-dark-gray);
+  }
+
+  21% {
+    fill: var(--color-white);
+  }
+
+  78% {
+    fill: var(--color-white);
+  }
+
+  100% {
+    fill: var(--color-dark-gray);
+  }
+}
+
+@keyframes pulse-second-waves {
+  0% {
+    fill: var(--color-dark-gray);
+  }
+
+  28% {
+    fill: var(--color-dark-gray);
+  }
+
+  42% {
+    fill: var(--color-white);
+  }
+
+  78% {
+    fill: var(--color-white);
+  }
+
+  100% {
+    fill: var(--color-dark-gray);
+  }
+}
+
+.sensors-first-waves,
+.sensors-second-waves {
+  animation-iteration-count: infinite;
+  animation-duration: 3.5s;
+  animation-timing-function: ease-in-out;
+}
+
+.sensors-first-waves.is-live {
+  animation-name: pulse-first-waves;
+
+}
+
+.sensors-second-waves.is-live {
+  animation-name: pulse-second-waves;
+}
+
+.mini-player-container {
+  background: var(--color-medium-gray);
+  border-radius: var(--default-border-radius);
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 10px;
+  row-gap: 10px;
+  transform-origin: bottom right;
+  width: 210px;
+}
+
+.video-container {
+  background: var(--color-dark-gray);
+  border-radius: 15px;
+  height: 0;
+  overflow: hidden;
+  padding-top: 56.25%;
+  position: relative;
+  width: 100%;
+}
+
+.video-container .spinner {
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+video {
+  height: 100%;
+  left: 0;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.red-pill {
+  background-color: var(--color-red);
+  border-radius: var(--default-border-radius);
+  font-family: 'Inter';
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  left: 10px;
+  line-height: 12px;
+  padding: 4px 8px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 10px;
+}
+
+@media (min-width: 875px) {
+  .video-container {
+    height: 100%;
+  }
+}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Navigate, useLocation, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
+import './Dashboard.css';
 import { reindexSessions } from '../../mocks/utils';
 import { SESSIONS, SESSION_CONFIG_AND_EVENTS } from '../../mocks';
 import { USE_MOCKS } from '../../constants';
@@ -10,13 +11,14 @@ import { useNotif } from '../../contexts/Notification';
 import { userManagement } from '../../api';
 import { useUser } from '../../contexts/User';
 import FloatingMenu from './FloatingMenu';
+import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import Modal from '../../components/Modal';
 import Notification from '../../components/Notification';
 import withSessionLoader from '../../components/withSessionLoader';
-import './Dashboard.css';
 
 const Dashboard = () => {
+  const [isStreamLive, setIsStreamLive] = useState();
   const [activeStreamSession, setActiveStreamSession] = useState(null);
   const [streamSessions, setStreamSessions] = useState([]);
   const { fetchUserData, isSessionValid, userData } = useUser();
@@ -88,7 +90,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     updateSessionsList();
-  }, [updateSessionsList]);
+  }, [updateSessionsList, isStreamLive]);
 
   const isInitialized = useRef(false);
   useEffect(() => {
@@ -128,8 +130,19 @@ const Dashboard = () => {
         <Modal isOpen={!!modal} />
         <Notification />
         <Outlet context={activeStreamSession} />
-        {isMobileView && <FloatingMenu />}
       </main>
+      {isMobileView ? (
+        <FloatingMenu />
+      ) : (
+        <FloatingPlayer
+          activeStreamSession={activeStreamSession}
+          isLive={isStreamLive}
+          playbackUrl={userData?.playbackUrl}
+          setIsLive={setIsStreamLive}
+          streamSessions={streamSessions}
+          updateActiveSession={updateActiveSession}
+        />
+      )}
     </>
   );
 };

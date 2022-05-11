@@ -26,7 +26,7 @@ const AccountSettings = () => {
   const { userData, fetchUserData, logOut } = useUser();
   const inputVariant = isMobileView ? 'vertical' : 'horizontal';
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;
 
     const deleteAccount = async () => {

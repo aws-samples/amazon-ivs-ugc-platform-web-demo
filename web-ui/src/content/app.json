@@ -6,5 +6,9 @@
   "full_screen_loader": {
     "error_occurred": "Error occurred",
     "try_again": "Try again"
+  },
+  "floating_player": {
+    "view_stream_session": "View stream session",
+    "live": "live"
   }
 }

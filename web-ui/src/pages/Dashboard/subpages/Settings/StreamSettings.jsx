@@ -29,7 +29,7 @@ const StreamSettings = () => {
     notifySuccess($content.notification.success.ingest_endpoint_copied);
   };
 
-  const handleResetStreamKey = async () => {
+  const handleResetStreamKey = () => {
     if (isResetStreamKeyLoading) return;
 
     const resetStreamKey = async () => {

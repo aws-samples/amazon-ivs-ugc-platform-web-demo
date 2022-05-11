@@ -1,4 +1,4 @@
-export const USE_MOCKS = true;
+export const USE_MOCKS = false;
 
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
