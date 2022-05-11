@@ -26,12 +26,19 @@ export const Provider = ({ children }) => {
   const [streamSessions, setStreamSessions] = useStateWithCallback([]);
   const { isSessionValid, userData } = useUser();
   const { notifyError } = useNotif();
+  const [isPlayerLive, setIsPlayerLive] = useState(false);
+  const isStreamSessionLive = useMemo(
+    () => !!streamSessions?.[0]?.isLive,
+    [streamSessions]
+  );
   const isInitialized = useRef(false);
   const activeStreamSession = useMemo(
     () =>
       streamSessions.find(({ streamId }) => streamId === activeStreamSessionId),
     [activeStreamSessionId, streamSessions]
   );
+
+  const isLive = isStreamSessionLive || isPlayerLive;
 
   const updateSessionsList = useCallback(async () => {
     const { result, error } = await userManagement.getStreamSessions(
@@ -126,12 +133,17 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       activeStreamSession,
+      isLive,
+      setIsPlayerLive,
+      setStreamSessions,
       streamSessions,
       updateActiveSession,
       updateSessionsList
     }),
     [
       activeStreamSession,
+      isLive,
+      setStreamSessions,
       streamSessions,
       updateActiveSession,
       updateSessionsList

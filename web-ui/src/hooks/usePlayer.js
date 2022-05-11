@@ -10,7 +10,7 @@ const {
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
 const { ERROR } = PlayerEventType;
 
-const usePlayer = ({ setIsLive, playbackUrl }) => {
+const usePlayer = ({ setIsPlayerLive, playbackUrl }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const isReady = useRef(false);
@@ -24,14 +24,14 @@ const usePlayer = ({ setIsLive, playbackUrl }) => {
 
     if (newState === READY) {
       isReady.current = true;
-      setIsLive(true);
+      setIsPlayerLive(true);
     } else if (newState === ENDED) {
       isReady.current = false;
-      setIsLive(false);
+      setIsPlayerLive(false);
     }
 
     setIsLoading(newState !== PLAYING);
-  }, [setIsLive]);
+  }, [setIsPlayerLive]);
 
   // Generic PlayerEventType event listener
   const onError = useCallback(
@@ -39,9 +39,9 @@ const usePlayer = ({ setIsLive, playbackUrl }) => {
       console.warn(`Player Event - ERROR:`, err, playerRef.current);
 
       isReady.current = false;
-      setIsLive(false);
+      setIsPlayerLive(false);
     },
-    [setIsLive]
+    [setIsPlayerLive]
   );
 
   const destroy = useCallback(() => {

@@ -1,11 +1,12 @@
 import { m } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import './FloatingPlayer.css';
 import { app as $content } from '../../../content';
 import { Sensors } from '../../../assets/icons';
+import { useStreams } from '../../../contexts/Streams';
+import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
@@ -24,17 +25,20 @@ const defaultAnimationProps = {
   }
 };
 
-const FloatingPlayer = ({
-  activeStreamSession,
-  isLive,
-  playbackUrl,
-  setIsLive,
-  streamSessions,
-  updateActiveSession
-}) => {
+const FloatingPlayer = () => {
+  const {
+    activeStreamSession,
+    isLive,
+    setIsPlayerLive,
+    streamSessions,
+    updateActiveSession
+  } = useStreams();
+  const { userData } = useUser();
+  const { isLoading, videoRef } = usePlayer({
+    setIsPlayerLive,
+    playbackUrl: userData?.playbackUrl
+  });
   const [isExpanded, setIsExpanded] = useState(false);
-  const { isLoading, videoRef } = usePlayer({ setIsLive, playbackUrl });
-
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -74,22 +78,6 @@ const FloatingPlayer = ({
       </m.div>
     </div>
   );
-};
-
-FloatingPlayer.propTypes = {
-  activeStreamSession: PropTypes.object,
-  isLive: PropTypes.bool,
-  playbackUrl: PropTypes.string,
-  setIsLive: PropTypes.func.isRequired,
-  streamSessions: PropTypes.array,
-  updateActiveSession: PropTypes.func.isRequired
-};
-
-FloatingPlayer.defaultProps = {
-  activeStreamSession: null,
-  isLive: false,
-  playbackUrl: '',
-  streamSessions: []
 };
 
 export default FloatingPlayer;
