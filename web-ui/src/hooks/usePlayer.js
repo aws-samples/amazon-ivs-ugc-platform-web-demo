@@ -10,11 +10,16 @@ const {
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
 const { ERROR } = PlayerEventType;
 
-const usePlayer = ({ setIsPlayerLive, playbackUrl }) => {
+const usePlayer = ({ isLive, playbackUrl }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const isReady = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const intervalId = useRef(null);
+  const resetIntervalId = useCallback(() => {
+    clearInterval(intervalId.current);
+    intervalId.current = null;
+  }, []);
 
   // Generic PlayerState event listener
   const onStateChange = useCallback(() => {
@@ -22,27 +27,15 @@ const usePlayer = ({ setIsPlayerLive, playbackUrl }) => {
 
     console.log(`Player State - ${newState}`);
 
-    if (newState === READY) {
-      isReady.current = true;
-      setIsPlayerLive(true);
-    } else if (newState === ENDED) {
-      isReady.current = false;
-      setIsPlayerLive(false);
-    }
+    if (newState === PLAYING) resetIntervalId();
 
     setIsLoading(newState !== PLAYING);
-  }, [setIsPlayerLive]);
+  }, [resetIntervalId]);
 
   // Generic PlayerEventType event listener
-  const onError = useCallback(
-    (err) => {
-      console.warn(`Player Event - ERROR:`, err, playerRef.current);
-
-      isReady.current = false;
-      setIsPlayerLive(false);
-    },
-    [setIsPlayerLive]
-  );
+  const onError = useCallback((err) => {
+    console.warn(`Player Event - ERROR:`, err, playerRef.current);
+  }, []);
 
   const destroy = useCallback(() => {
     if (!playerRef.current) return;
@@ -83,41 +76,29 @@ const usePlayer = ({ setIsPlayerLive, playbackUrl }) => {
     playerRef.current.addEventListener(ERROR, onError);
   }, [destroy, onError, onStateChange]);
 
-  const play = useCallback(() => {
-    if (!playerRef.current) return;
-
-    if (playerRef.current.isPaused()) {
-      playerRef.current.play();
-    }
-  }, []);
-
   const load = useCallback(
     (playbackUrl) => {
       if (!playerRef.current) create();
-      if (!isReady.current) {
-        playerRef.current.load(playbackUrl);
-        play();
-      }
+
+      playerRef.current.setAutoplay(true);
+      playerRef.current.load(playbackUrl);
     },
-    [create, play]
+    [create]
   );
 
   useEffect(() => {
-    const retryPlayer = () => {
-      load(playbackUrl);
-    };
-    let intervalId;
+    const retryPlayer = () => load(playbackUrl);
 
-    if (playbackUrl) {
-      retryPlayer();
-      intervalId = setInterval(retryPlayer, 5000);
+    if (playbackUrl && isLive) {
+      intervalId.current = setInterval(retryPlayer, 1000);
 
       return () => {
         destroy();
-        clearInterval(intervalId);
+        resetIntervalId();
+        setIsLoading(true);
       };
     }
-  }, [destroy, load, playbackUrl]);
+  }, [destroy, isLive, load, playbackUrl, resetIntervalId]);
 
   return { isLoading, videoRef };
 };

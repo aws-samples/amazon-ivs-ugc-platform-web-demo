@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCallback, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -12,8 +12,7 @@ import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
 
 const defaultAnimationProps = {
-  animate: 'expanded',
-  initial: 'collapsed',
+  initial: 'expanded',
   exit: 'collapsed',
   transition: {
     duration: 0.5,
@@ -26,26 +25,25 @@ const defaultAnimationProps = {
 };
 
 const FloatingPlayer = () => {
-  const {
-    activeStreamSession,
-    isLive,
-    setIsPlayerLive,
-    streamSessions,
-    updateActiveSession
-  } = useStreams();
+  const { activeStreamSession, isLive, streamSessions, updateActiveSession } =
+    useStreams();
   const { userData } = useUser();
   const { isLoading, videoRef } = usePlayer({
-    setIsPlayerLive,
+    isLive,
     playbackUrl: userData?.playbackUrl
   });
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const hasStreamSessions = !!streamSessions?.length;
+  const shouldShowFloatingPlayer = isLive || hasStreamSessions;
 
   const setLiveActiveStreamSession = useCallback(() => {
-    updateActiveSession(streamSessions[0]);
+    updateActiveSession(streamSessions?.[0]);
     navigate('/');
   }, [navigate, streamSessions, updateActiveSession]);
+
+  if (!shouldShowFloatingPlayer) return null;
 
   return (
     <div className="floating-player">
@@ -59,7 +57,7 @@ const FloatingPlayer = () => {
       <m.div
         {...defaultAnimationProps}
         animate={isExpanded ? 'expanded' : 'collapsed'}
-        className="mini-player-container"
+        className={`mini-player-container ${isLive ? 'is-live' : ''}`}
       >
         {isLive &&
           (activeStreamSession?.index > 0 || pathname === '/settings') && (
@@ -75,6 +73,23 @@ const FloatingPlayer = () => {
           <video ref={videoRef} playsInline muted></video>
           <div className="red-pill">{$content.floating_player.live}</div>
         </div>
+        {!isLive && (
+          <div className="offline-stream-container">
+            {hasStreamSessions ? (
+              <p className="mini-player-text ">
+                {$content.floating_player.no_current_live_stream}
+              </p>
+            ) : (
+              <>
+                <h4>{$content.floating_player.no_current_live_stream}</h4>
+                <p className="mini-player-text offline-instructions">
+                  {$content.floating_player.offline_instructions}
+                </p>
+                <Link to="/settings">{$content.floating_player.settings}</Link>
+              </>
+            )}
+          </div>
+        )}
       </m.div>
     </div>
   );

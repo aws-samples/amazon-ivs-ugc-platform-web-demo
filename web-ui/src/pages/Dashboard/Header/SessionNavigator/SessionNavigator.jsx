@@ -37,17 +37,18 @@ const SessionNavigator = ({ headerRef }) => {
     activeStreamSession?.isLive,
     5
   );
+  const sessionsLength = streamSessions?.length;
   const isNotOnDashboard = pathname !== '/';
   const isPrevDisabled =
     isNotOnDashboard ||
     !activeStreamSession ||
-    !streamSessions.length ||
+    !sessionsLength ||
     activeStreamSession.index === 0;
   const isNextDisabled =
     isNotOnDashboard ||
     !activeStreamSession ||
-    !streamSessions.length ||
-    activeStreamSession.index === streamSessions.length - 1;
+    !sessionsLength ||
+    activeStreamSession.index === sessionsLength - 1;
 
   const toggleNavPopup = useCallback(() => {
     setIsNavOpen((prev) => !prev);
@@ -67,9 +68,9 @@ const SessionNavigator = ({ headerRef }) => {
       const nextStreamSessionIdx = bound(
         activeStreamSession.index + 1,
         0,
-        streamSessions.length
+        sessionsLength
       );
-      updateActiveSession(streamSessions[nextStreamSessionIdx]);
+      updateActiveSession(streamSessions?.[nextStreamSessionIdx]);
     }
   };
 
@@ -78,9 +79,9 @@ const SessionNavigator = ({ headerRef }) => {
       const prevStreamSessionIdx = bound(
         activeStreamSession.index - 1,
         0,
-        streamSessions.length
+        sessionsLength
       );
-      updateActiveSession(streamSessions[prevStreamSessionIdx]);
+      updateActiveSession(streamSessions?.[prevStreamSessionIdx]);
     }
   };
 
