@@ -6,6 +6,7 @@ import { copyToClipboard } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { useNotif } from '../../../../../contexts/Notification';
 import Tooltip from '../../../../../components/Tooltip';
+import './EncoderConfiguration.css';
 
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
@@ -39,7 +40,7 @@ const ConfigRow = ({ label, value, error }) => {
         {label}
         {error && <Error />}
       </h4>
-      <span className="config-value">
+      <span className={`config-value ${error ? 'error' : ''}`}>
         <button
           className="copy-button"
           onClick={() => handleCopy(label, value)}
@@ -59,12 +60,12 @@ const ConfigRow = ({ label, value, error }) => {
   );
 };
 
-ConfigRow.defaultProps = { error: '' };
+ConfigRow.defaultProps = { error: false };
 
 ConfigRow.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
-  error: PropTypes.string
+  error: PropTypes.bool
 };
 
 export default ConfigRow;
