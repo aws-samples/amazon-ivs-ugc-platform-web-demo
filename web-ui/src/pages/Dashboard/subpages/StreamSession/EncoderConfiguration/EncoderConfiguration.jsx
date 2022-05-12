@@ -10,10 +10,23 @@ const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
 const EncoderConfiguration = () => {
   const activeStreamSession = useOutletContext();
-  const encoderConfigValues = useMemo(
-    () => processEncoderConfigData(activeStreamSession?.ingestConfiguration),
-    [activeStreamSession]
-  );
+  const encoderConfigValues = useMemo(() => {
+    const { ingestConfiguration, channel, metrics } = activeStreamSession || {};
+    const { type: channelType } = channel || {};
+    const {
+      data: {
+        0: { value: keyframeIntervalAvg }
+      }
+    } = metrics?.find(({ label }) => label === 'KeyframeIntervalAvg') || {
+      data: [{ value: null }]
+    };
+
+    if (ingestConfiguration) {
+      ingestConfiguration.video.keyframeIntervalAvg = keyframeIntervalAvg;
+    }
+
+    return processEncoderConfigData(ingestConfiguration, channelType);
+  }, [activeStreamSession]);
 
   return (
     <section className="encoder-config-section">

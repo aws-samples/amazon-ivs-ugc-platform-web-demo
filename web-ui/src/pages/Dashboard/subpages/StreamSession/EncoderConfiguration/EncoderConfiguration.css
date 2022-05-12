@@ -53,6 +53,10 @@
   overflow: hidden;
 }
 
+.config-value.error {
+  color: var(--color-red);
+}
+
 .copy-button {
   background: none;
   border: none;
