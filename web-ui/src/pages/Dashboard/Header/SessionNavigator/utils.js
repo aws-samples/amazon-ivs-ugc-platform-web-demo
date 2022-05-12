@@ -21,7 +21,7 @@ export const groupStreamSessions = (streamSessions) => {
     sessionData: []
   };
 
-  streamSessions.forEach((streamSession) => {
+  streamSessions?.forEach((streamSession) => {
     const dayDiff = getDayDiff(streamSession.startTime);
 
     if (dayDiff < 1) {

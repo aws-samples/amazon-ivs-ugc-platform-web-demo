@@ -9,7 +9,10 @@
   },
   "floating_player": {
     "view_stream_session": "View stream session",
-    "live": "live"
+    "live": "live",
+    "no_current_live_stream": "No current live stream",
+    "offline_instructions": "To start streaming, find your ingest server url and stream key in settings.",
+    "settings": "Settings"
   },
   "date_time": {
     "just_now": "just now",

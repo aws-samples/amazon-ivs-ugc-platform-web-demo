@@ -20,7 +20,7 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
 
   return (
     <div className="nav-popup" ref={ref}>
-      {streamSessions.length ? (
+      {streamSessions?.length ? (
         groupStreamSessions(streamSessions).map(
           ({ groupLabel, sessionData }) => (
             <div

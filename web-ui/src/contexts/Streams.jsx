@@ -23,22 +23,18 @@ Context.displayName = 'Streams';
 
 export const Provider = ({ children }) => {
   const [activeStreamSessionId, setActiveStreamSessionId] = useState();
-  const [streamSessions, setStreamSessions] = useStateWithCallback([]);
+  const [streamSessions, setStreamSessions] = useStateWithCallback();
   const { isSessionValid, userData } = useUser();
   const { notifyError } = useNotif();
-  const [isPlayerLive, setIsPlayerLive] = useState(false);
-  const isStreamSessionLive = useMemo(
-    () => !!streamSessions?.[0]?.isLive,
-    [streamSessions]
-  );
+  const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
   const isInitialized = useRef(false);
   const activeStreamSession = useMemo(
     () =>
-      streamSessions.find(({ streamId }) => streamId === activeStreamSessionId),
+      streamSessions?.find(
+        ({ streamId }) => streamId === activeStreamSessionId
+      ),
     [activeStreamSessionId, streamSessions]
   );
-
-  const isLive = isStreamSessionLive || isPlayerLive;
 
   const updateSessionsList = useCallback(async () => {
     const { result, error } = await userManagement.getStreamSessions(
@@ -46,17 +42,20 @@ export const Provider = ({ children }) => {
     );
 
     if (result) {
-      let nextSessions = result.streamSessions.map((session, index, arr) => ({
-        ...session,
-        index,
-        isLive: !session.endTime
-      }));
+      let nextSessions =
+        result.streamSessions?.map((session, index, arr) => ({
+          ...session,
+          index,
+          isLive: !session.endTime
+        })) || [];
 
       nextSessions = USE_MOCKS
         ? [...nextSessions, ...reindexSessions(SESSIONS, nextSessions.length)]
         : nextSessions;
 
       setStreamSessions((prevSessions) => {
+        if (!prevSessions) return nextSessions;
+
         // Merge previous stream data with the new stream data we just fetched
         const indexOffset = nextSessions.length - prevSessions.length;
         for (let i = nextSessions.length - 1; i >= 0; i--) {
@@ -96,7 +95,7 @@ export const Provider = ({ children }) => {
       if (streamSessionMetadata) {
         return setStreamSessions(
           (prevStreamSessions) =>
-            prevStreamSessions.map((streamSession) => {
+            prevStreamSessions?.map((streamSession) => {
               return streamSession.streamId === streamId
                 ? {
                     ...streamSession,
@@ -115,7 +114,7 @@ export const Provider = ({ children }) => {
     [notifyError, setStreamSessions, userData]
   );
 
-  // Inital fetch of the streams lists
+  // Initial fetch of the streams lists
   useEffect(() => {
     if (userData && isSessionValid) {
       updateSessionsList();
@@ -124,7 +123,7 @@ export const Provider = ({ children }) => {
 
   // Initial fetch of the first stream metadata
   useEffect(() => {
-    if (!isInitialized.current && streamSessions.length) {
+    if (!isInitialized.current && streamSessions?.length) {
       updateActiveSession(streamSessions[0]);
       isInitialized.current = true;
     }
@@ -134,7 +133,6 @@ export const Provider = ({ children }) => {
     () => ({
       activeStreamSession,
       isLive,
-      setIsPlayerLive,
       setStreamSessions,
       streamSessions,
       updateActiveSession,
