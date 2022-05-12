@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { bound } from '../../../../utils';
@@ -9,10 +10,11 @@ import Button from '../../../../components/Button';
 import NavigatorPopup from './NavigatorPopup';
 import useClickAway from '../../../../hooks/useClickAway';
 import useDateTime from '../../../../hooks/useDateTime';
+import useFocusTrap from '../../../../hooks/useFocusTrap';
 import useThrottledCallback from '../../../../hooks/useThrottledCallback';
 import './SessionNavigator.css';
 
-const SessionNavigator = () => {
+const SessionNavigator = ({ headerRef }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -83,6 +85,24 @@ const SessionNavigator = () => {
   };
 
   useClickAway([navPopupRef, navButtonRef], toggleNavPopup);
+  useFocusTrap([headerRef, navPopupRef], isNavOpen);
+
+  useEffect(() => {
+    setIsNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleCloseNav = (event) => {
+      if (event.keyCode === 27) {
+        setIsNavOpen(false);
+        navButtonRef.current.focus();
+      }
+    };
+
+    if (isNavOpen) document.addEventListener('keydown', handleCloseNav);
+
+    return () => document.removeEventListener('keydown', handleCloseNav);
+  }, [isNavOpen]);
 
   const renderSessionNavigatorContent = () => {
     if (isNotOnDashboard) return <p>{$content.header.return_to_session}</p>;
@@ -144,5 +164,7 @@ const SessionNavigator = () => {
     </>
   );
 };
+
+SessionNavigator.propTypes = { headerRef: PropTypes.object.isRequired };
 
 export default SessionNavigator;

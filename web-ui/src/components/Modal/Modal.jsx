@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
 import { app as $content } from '../../content';
@@ -6,6 +6,7 @@ import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import Button from '../Button';
 import useClickAway from '../../hooks/useClickAway';
+import useFocusTrap from '../../hooks/useFocusTrap';
 import withPortal from '../withPortal';
 import './Modal.css';
 
@@ -36,52 +37,18 @@ const Modal = () => {
     }
   };
 
-  // Focus trap to constrain the tab focus to elements within the Modal container
-  const handleTabKey = useCallback((event) => {
-    const focusableModalElements = modalRef.current.querySelectorAll(
-      'a[href], button, textarea, input, select'
-    );
-    const {
-      0: firstElement,
-      [focusableModalElements.length - 1]: lastElement
-    } = focusableModalElements;
-
-    if (!event.shiftKey && document.activeElement !== firstElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-
-    if (event.shiftKey && document.activeElement !== lastElement) {
-      event.preventDefault();
-      lastElement.focus();
-    }
-  }, []);
-
-  const keyListenersMap = useMemo(
-    () =>
-      new Map([
-        [27, handleClose],
-        [9, handleTabKey]
-      ]),
-    [handleClose, handleTabKey]
-  );
-
   useClickAway([modalRef], handleClose);
+  useFocusTrap([modalRef], !!modal);
 
   useEffect(() => {
-    const keyListener = (event) => {
-      const listener = keyListenersMap.get(event.keyCode);
-      return listener && listener(event);
-    };
-
-    if (modal) {
-      document.addEventListener('keydown', keyListener);
+    if (!!modal) {
+      document.addEventListener('keydown', handleClose);
       lastFocusedElement.current = document.activeElement;
       lastFocusedElement.current.blur();
     }
 
-    return () => document.removeEventListener('keydown', keyListener);
-  }, [handleClose, keyListenersMap, modal]);
+    return () => document.removeEventListener('keydown', handleClose);
+  }, [handleClose, modal]);
 
   return (
     modal && (

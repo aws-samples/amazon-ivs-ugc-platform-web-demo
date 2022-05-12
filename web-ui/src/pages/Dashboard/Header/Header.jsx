@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { dashboard as $content } from '../../../content';
@@ -12,6 +13,7 @@ const Header = () => {
   const { isMobileView } = useMobileBreakpoint();
   const { logOut } = useUser();
   const { pathname } = useLocation();
+  const headerRef = useRef();
   const navigate = useNavigate();
 
   const handleSettings = () => {
@@ -19,8 +21,8 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
-      <SessionNavigator />
+    <header ref={headerRef} className="header">
+      <SessionNavigator headerRef={headerRef} />
       {!isMobileView && (
         <div className="header-buttons">
           <Button
