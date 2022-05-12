@@ -4,11 +4,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { bound } from '../../../../utils';
 import { ChevronLeft, ChevronRight } from '../../../../assets/icons';
 import { dashboard as $content } from '../../../../content';
-import { formatDate, formatTime, getDayDiff } from './utils';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import NavigatorPopup from './NavigatorPopup';
 import useClickAway from '../../../../hooks/useClickAway';
+import useDateTime from '../../../../hooks/useDateTime';
 import useThrottledCallback from '../../../../hooks/useThrottledCallback';
 import './SessionNavigator.css';
 
@@ -29,24 +29,30 @@ const SessionNavigator = () => {
     updateSessionsList,
     2000
   );
+  const [date, time, dayDiff] = useDateTime(
+    activeStreamSession?.startTime,
+    activeStreamSession?.endTime,
+    activeStreamSession?.isLive,
+    5
+  );
+  const isNotOnDashboard = pathname !== '/';
   const isPrevDisabled =
-    pathname !== '/' ||
+    isNotOnDashboard ||
     !activeStreamSession ||
     !streamSessions.length ||
     activeStreamSession.index === 0;
   const isNextDisabled =
-    pathname !== '/' ||
+    isNotOnDashboard ||
     !activeStreamSession ||
     !streamSessions.length ||
     activeStreamSession.index === streamSessions.length - 1;
-  const returnToDashboard = pathname !== '/';
 
   const toggleNavPopup = useCallback(() => {
     setIsNavOpen((prev) => !prev);
   }, []);
 
   const handleSessionNavigator = () => {
-    if (pathname !== '/') {
+    if (isNotOnDashboard) {
       navigate(-1);
     } else {
       if (!isNavOpen) throttledUpdateSessionsList();
@@ -79,16 +85,7 @@ const SessionNavigator = () => {
   useClickAway([navPopupRef, navButtonRef], toggleNavPopup);
 
   const renderSessionNavigatorContent = () => {
-    let date, time, dayDiff;
-
-    if (returnToDashboard) return <p>{$content.header.return_to_session}</p>;
-
-    if (activeStreamSession) {
-      const { startTime, endTime, isLive } = activeStreamSession;
-      date = formatDate(startTime);
-      time = formatTime(startTime, endTime);
-      dayDiff = !isLive && getDayDiff(startTime, endTime);
-    }
+    if (isNotOnDashboard) return <p>{$content.header.return_to_session}</p>;
 
     return (
       <span className="date-time-container">

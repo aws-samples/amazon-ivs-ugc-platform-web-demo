@@ -10,5 +10,9 @@
   "floating_player": {
     "view_stream_session": "View stream session",
     "live": "live"
+  },
+  "date_time": {
+    "just_now": "just now",
+    "started": "Started"
   }
 }
