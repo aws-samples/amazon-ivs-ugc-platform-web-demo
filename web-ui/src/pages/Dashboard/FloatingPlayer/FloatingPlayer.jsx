@@ -28,7 +28,7 @@ const FloatingPlayer = () => {
   const { activeStreamSession, isLive, streamSessions, updateActiveSession } =
     useStreams();
   const { userData } = useUser();
-  const { isLoading, videoRef } = usePlayer({
+  const { isLoading, playerRef, videoRef } = usePlayer({
     isLive,
     playbackUrl: userData?.playbackUrl
   });
@@ -108,6 +108,18 @@ const FloatingPlayer = () => {
       return clearCanvas;
     }
   }, [isLive, isLoading, shouldBlurPlayer, startBlur]);
+
+  // Lower the rendition of the player to the lowest available resolution
+  useEffect(() => {
+    if (playerRef.current && isLive && !isLoading) {
+      const qualities = playerRef.current?.getQualities() || [];
+      const lowestQuality = qualities.pop();
+
+      if (lowestQuality) {
+        playerRef.current.setQuality(lowestQuality, true);
+      }
+    }
+  }, [isLive, isLoading, playerRef]);
 
   if (!shouldShowFloatingPlayer) return null;
 

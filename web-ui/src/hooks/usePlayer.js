@@ -100,7 +100,7 @@ const usePlayer = ({ isLive, playbackUrl }) => {
     }
   }, [destroy, isLive, load, playbackUrl, resetIntervalId]);
 
-  return { isLoading, videoRef };
+  return { isLoading, playerRef, videoRef };
 };
 
 export default usePlayer;
