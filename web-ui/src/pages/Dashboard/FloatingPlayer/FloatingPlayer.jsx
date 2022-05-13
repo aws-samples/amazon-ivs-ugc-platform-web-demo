@@ -36,7 +36,7 @@ const FloatingPlayer = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const hasStreamSessions = !!streamSessions?.length;
-  const shouldShowFloatingPlayer = isLive || hasStreamSessions;
+  const shouldShowFloatingPlayer = isLive || streamSessions;
 
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveSession(streamSessions?.[0]);
