@@ -1,6 +1,6 @@
-import { m } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useCallback, useState } from 'react';
+import { m } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
 import { app as $content } from '../../../content';
@@ -37,11 +37,77 @@ const FloatingPlayer = () => {
   const navigate = useNavigate();
   const hasStreamSessions = !!streamSessions?.length;
   const shouldShowFloatingPlayer = isLive || streamSessions;
+  const canvasRef = useRef();
+  const isBlurring = useRef(false);
+  const shouldBlurPlayer = useMemo(() => {
+    const liveSession = streamSessions?.find(
+      (streamSession) => streamSession.isLive
+    );
+
+    if (liveSession) {
+      const videoWidth = liveSession?.ingestConfiguration?.video?.videoWidth;
+      const videoHeight = liveSession?.ingestConfiguration?.video?.videoHeight;
+
+      if (videoWidth && videoHeight) {
+        // If the video ratio isn't 16:9, blur the sides
+        return !!(videoHeight / videoWidth !== 0.5625);
+      }
+    }
+
+    return true;
+  }, [streamSessions]);
 
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveSession(streamSessions?.[0]);
     navigate('/');
   }, [navigate, streamSessions, updateActiveSession]);
+
+  const startBlur = useCallback(() => {
+    if (canvasRef.current && !isBlurring.current) {
+      clearCanvas();
+      isBlurring.current = true;
+
+      const context = canvasRef.current.getContext('2d');
+      context.filter = 'blur(5px)';
+
+      const draw = () => {
+        if (canvasRef.current) {
+          context.drawImage(
+            videoRef.current,
+            0,
+            0,
+            canvasRef.current.width,
+            canvasRef.current.height
+          );
+
+          requestAnimationFrame(draw);
+        }
+      };
+
+      requestAnimationFrame(draw);
+    }
+  }, [videoRef]);
+
+  const clearCanvas = () => {
+    if (canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+
+      context.clearRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (isLive && !isLoading && shouldBlurPlayer) {
+      startBlur();
+
+      return clearCanvas;
+    }
+  }, [isLive, isLoading, shouldBlurPlayer, startBlur]);
 
   if (!shouldShowFloatingPlayer) return null;
 
@@ -71,6 +137,7 @@ const FloatingPlayer = () => {
         >
           {isLoading && isLive !== false && <Spinner variant="light" />}
           <video ref={videoRef} playsInline muted></video>
+          <canvas ref={canvasRef} />
           <div className="red-pill">{$content.floating_player.live}</div>
         </div>
         {!isLive && (

@@ -121,8 +121,20 @@
 video {
   height: 100%;
   left: 0;
-  object-fit: cover;
   position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+canvas {
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  object-fit: cover;
+  opacity: 0.6;
+  position: absolute;
+  right: 0;
   top: 0;
   width: 100%;
 }
@@ -171,11 +183,4 @@ video {
 
 .offline-stream-container a {
   align-self: flex-end;
-}
-
-
-@media (min-width: 875px) {
-  .video-container {
-    height: 100%;
-  }
 }
