@@ -7,27 +7,124 @@ import {
   useRef,
   useState
 } from 'react';
+import useSWRInfinite from 'swr/infinite';
 
 import { dashboard as $content } from '../content';
 import { reindexSessions } from '../mocks/utils';
 import { SESSIONS, SESSION_CONFIG_AND_EVENTS } from '../mocks';
-import { USE_MOCKS } from '../constants';
+import {
+  STREAM_SESSION_DATA_REFRESH_INTERVAL,
+  STREAM_SESSIONS_REFRESH_INTERVAL,
+  USE_MOCKS
+} from '../constants';
 import { useNotif } from '../contexts/Notification';
 import { userManagement } from '../api';
 import { useUser } from '../contexts/User';
 import useContextHook from './useContextHook';
+import useDebouncedCallback from '../hooks/useDebouncedCallback';
 import useStateWithCallback from '../hooks/useStateWithCallback';
+import useSWRWithKeyUpdate from '../hooks/useSWRWithKeyUpdate';
+import useThrottledCallback from '../hooks/useThrottledCallback';
 
 const Context = createContext(null);
 Context.displayName = 'Streams';
 
+const STREAM_SESSION_MOCK_DATA = SESSIONS.map((sessionData) => ({
+  ...sessionData,
+  ...SESSION_CONFIG_AND_EVENTS
+}));
+
+const streamSessionsFetcher = async (channelResourceId) => {
+  // Fetch up to 50 streams for this channel, ordered by start time
+  const { result: data, error } = await userManagement.getStreamSessions(
+    channelResourceId
+  );
+
+  if (error) throw error;
+
+  // Supplement the data to each stream session object
+  let nextSessions =
+    data.streamSessions?.map((session, index, arr) => ({
+      ...session,
+      index,
+      isLive: !session.endTime
+    })) || [];
+
+  // Mix in the mock data
+  nextSessions = USE_MOCKS
+    ? [
+        ...nextSessions,
+        ...reindexSessions(STREAM_SESSION_MOCK_DATA, nextSessions.length)
+      ]
+    : nextSessions;
+
+  return nextSessions;
+};
+
+const activeStreamSessionFetcher = async (channelResourceId, streamSession) => {
+  if (!channelResourceId || !streamSession) return;
+
+  const { isLive, isMetadataFetched, streamId } = streamSession;
+
+  // Check if we have already fetched metadata for this stream
+  if (!isLive && isMetadataFetched) return streamSession;
+
+  // Fetch the stream metadata for the next active (selected) session
+  const { result: streamSessionMetadata, error } =
+    await userManagement.getStreamSessionData(channelResourceId, streamId);
+
+  if (streamSessionMetadata) return streamSessionMetadata;
+
+  if (error) throw error;
+};
+
 export const Provider = ({ children }) => {
-  const [activeStreamSessionId, setActiveStreamSessionId] = useState();
-  const [streamSessions, setStreamSessions] = useStateWithCallback();
   const { isSessionValid, userData } = useUser();
   const { notifyError } = useNotif();
-  const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
   const isInitialized = useRef(false);
+
+  /**
+   * STREAM SESSIONS
+   */
+  const [streamSessions, setStreamSessions] = useStateWithCallback();
+  const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
+  const { mutate: updateStreamSessionsList } = useSWRInfinite(
+    () => isSessionValid && userData?.channelResourceId,
+    streamSessionsFetcher,
+    {
+      dedupingInterval: 1000,
+      fallbackData: [],
+      refreshInterval: STREAM_SESSIONS_REFRESH_INTERVAL,
+      revalidateOnMount: true,
+      onError: () => {
+        notifyError($content.notification.error.streams_fetch_failed);
+      },
+      onSuccess: ([nextSessions]) => {
+        setStreamSessions((prevSessions) => {
+          if (!prevSessions) return nextSessions;
+
+          // Merge previous stream data with the new stream data we just fetched
+          const indexOffset = nextSessions.length - prevSessions.length;
+          for (let i = nextSessions.length - 1; i >= 0; i--) {
+            nextSessions[i] = {
+              ...prevSessions[i - indexOffset],
+              ...nextSessions[i]
+            };
+          }
+          const shouldUpdateStreams =
+            nextSessions.length !== prevSessions.length ||
+            JSON.stringify(nextSessions) !== JSON.stringify(prevSessions);
+
+          return shouldUpdateStreams ? nextSessions : prevSessions;
+        });
+      }
+    }
+  );
+
+  /**
+   * ACTIVE STREAM SESSION DATA
+   */
+  const [activeStreamSessionId, setActiveStreamSessionId] = useState();
   const activeStreamSession = useMemo(
     () =>
       streamSessions?.find(
@@ -35,116 +132,85 @@ export const Provider = ({ children }) => {
       ),
     [activeStreamSessionId, streamSessions]
   );
-
-  const updateSessionsList = useCallback(async () => {
-    const { result, error } = await userManagement.getStreamSessions(
-      userData.channelResourceId
-    );
-
-    if (result) {
-      let nextSessions =
-        result.streamSessions?.map((session, index, arr) => ({
-          ...session,
-          index,
-          isLive: !session.endTime
-        })) || [];
-
-      nextSessions = USE_MOCKS
-        ? [...nextSessions, ...reindexSessions(SESSIONS, nextSessions.length)]
-        : nextSessions;
-
-      setStreamSessions((prevSessions) => {
-        if (!prevSessions) return nextSessions;
-
-        // Merge previous stream data with the new stream data we just fetched
-        const indexOffset = nextSessions.length - prevSessions.length;
-        for (let i = nextSessions.length - 1; i >= 0; i--) {
-          nextSessions[i] = {
-            ...prevSessions[i - indexOffset],
-            ...nextSessions[i]
-          };
-        }
-        const shouldUpdateStreams =
-          nextSessions.length !== prevSessions.length ||
-          JSON.stringify(nextSessions) !== JSON.stringify(prevSessions);
-
-        return shouldUpdateStreams ? nextSessions : prevSessions;
-      });
-    }
-    if (error) notifyError($content.notification.error.streams_fetch_failed);
-  }, [notifyError, setStreamSessions, userData]);
-
-  const updateActiveSession = useCallback(
-    async (streamSession) => {
-      if (!streamSession || !userData) return;
-
-      const { streamId, isMetadataFetched } = streamSession;
-
-      // Check if we have already fetched metadata for this stream
-      if (isMetadataFetched) return setActiveStreamSessionId(streamId);
-
-      // Fetch the stream metadata for the next active (selected) session
-      const { result, error } = await userManagement.getStreamSessionData(
-        userData.channelResourceId,
-        streamId
-      );
-
-      const streamSessionMetadata =
-        !result && USE_MOCKS ? SESSION_CONFIG_AND_EVENTS : result;
-
-      if (streamSessionMetadata) {
-        return setStreamSessions(
+  const { updateKey: updateActiveStreamSession } = useSWRWithKeyUpdate(
+    userData && isSessionValid && userData.channelResourceId,
+    activeStreamSessionFetcher,
+    {
+      refreshInterval: STREAM_SESSION_DATA_REFRESH_INTERVAL,
+      revalidateOnMount: true,
+      dedupingInterval: 0,
+      onError: () => {
+        notifyError($content.notification.error.session_fetch_failed);
+      },
+      onSuccess: (streamSessionMetadata) => {
+        setStreamSessions(
           (prevStreamSessions) =>
-            prevStreamSessions?.map((streamSession) => {
-              return streamSession.streamId === streamId
+            prevStreamSessions?.map((prevStreamSession) =>
+              prevStreamSession.streamId === streamSessionMetadata.streamId
                 ? {
-                    ...streamSession,
+                    ...prevStreamSession,
                     ...streamSessionMetadata,
-                    isLive: !streamSession.endTime, // Attach a live indicator to the stream session for convenience
+                    isLive: !prevStreamSession.endTime, // Attach a live indicator to the stream session for convenience
                     isMetadataFetched: true,
-                    streamId
+                    streamId: streamSessionMetadata.streamId
                   }
-                : streamSession;
-            }),
-          () => setActiveStreamSessionId(streamId)
+                : prevStreamSession
+            ),
+          () => setActiveStreamSessionId(streamSessionMetadata.streamId)
         );
       }
-      if (error) notifyError($content.notification.error.session_fetch_failed);
-    },
-    [notifyError, setStreamSessions, userData]
+    }
   );
 
-  // Initial fetch of the streams lists
+  const throttledUpdateStreamSessionsList = useThrottledCallback(
+    updateStreamSessionsList,
+    1000,
+    [updateStreamSessionsList]
+  );
+
+  const debouncedUpdateActiveStreamSession = useDebouncedCallback(
+    updateActiveStreamSession,
+    500,
+    [updateActiveStreamSession]
+  );
+
+  const eagerUpdateActiveStreamSession = useCallback(
+    (session) => {
+      setActiveStreamSessionId(session.streamId);
+      debouncedUpdateActiveStreamSession(session);
+    },
+    [debouncedUpdateActiveStreamSession]
+  );
+
+  // Initial fetch of the stream sessions list
   useEffect(() => {
     if (userData && isSessionValid) {
-      updateSessionsList();
+      updateStreamSessionsList();
     }
-  }, [isSessionValid, updateSessionsList, userData]);
+  }, [isSessionValid, updateStreamSessionsList, userData]);
 
   // Initial fetch of the first stream metadata
   useEffect(() => {
     if (!isInitialized.current && streamSessions?.length) {
-      updateActiveSession(streamSessions[0]);
+      updateActiveStreamSession(streamSessions[0]);
       isInitialized.current = true;
     }
-  }, [streamSessions, updateActiveSession]);
+  }, [streamSessions, updateActiveStreamSession]);
 
   const value = useMemo(
     () => ({
       activeStreamSession,
       isLive,
-      setStreamSessions,
       streamSessions,
-      updateActiveSession,
-      updateSessionsList
+      updateActiveStreamSession: eagerUpdateActiveStreamSession,
+      updateStreamSessionsList: throttledUpdateStreamSessionsList
     }),
     [
       activeStreamSession,
+      eagerUpdateActiveStreamSession,
       isLive,
-      setStreamSessions,
       streamSessions,
-      updateActiveSession,
-      updateSessionsList
+      throttledUpdateStreamSessionsList
     ]
   );
 

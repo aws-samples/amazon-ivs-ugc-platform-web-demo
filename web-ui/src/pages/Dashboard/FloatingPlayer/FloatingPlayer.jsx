@@ -25,8 +25,12 @@ const defaultAnimationProps = {
 };
 
 const FloatingPlayer = () => {
-  const { activeStreamSession, isLive, streamSessions, updateActiveSession } =
-    useStreams();
+  const {
+    activeStreamSession,
+    isLive,
+    streamSessions,
+    updateActiveStreamSession
+  } = useStreams();
   const { userData } = useUser();
   const { isLoading, playerRef, videoRef } = usePlayer({
     isLive,
@@ -58,9 +62,9 @@ const FloatingPlayer = () => {
   }, [streamSessions]);
 
   const setLiveActiveStreamSession = useCallback(() => {
-    updateActiveSession(streamSessions?.[0]);
+    updateActiveStreamSession(streamSessions?.[0]);
     navigate('/');
-  }, [navigate, streamSessions, updateActiveSession]);
+  }, [navigate, streamSessions, updateActiveStreamSession]);
 
   const startBlur = useCallback(() => {
     if (canvasRef.current && !isBlurring.current) {

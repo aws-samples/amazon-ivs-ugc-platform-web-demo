@@ -1,16 +1,16 @@
 import { useCallback, useRef } from 'react';
 
-import { throttle } from '../utils';
+import { debounce } from '../utils';
 
-const useThrottledCallback = (callback, delay, dependencies = []) => {
+const useDebouncedCallback = (callback, delay, dependencies = []) => {
   const callbackRef = useRef();
   callbackRef.current = callback;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
-    throttle((...args) => callbackRef.current(...args), delay),
+    debounce((...args) => callbackRef.current(...args), delay),
     [delay, ...dependencies]
   );
 };
 
-export default useThrottledCallback;
+export default useDebouncedCallback;

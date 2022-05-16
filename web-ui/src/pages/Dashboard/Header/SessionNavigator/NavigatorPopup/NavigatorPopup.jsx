@@ -11,10 +11,10 @@ import './NavigatorPopup.css';
 const $content = $dashboardContent.header.session_navigator;
 
 const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
-  const { streamSessions, updateActiveSession } = useStreams();
+  const { streamSessions, updateActiveStreamSession } = useStreams();
 
   const handleSessionClick = (streamSession) => {
-    updateActiveSession(streamSession);
+    updateActiveStreamSession(streamSession);
     toggleNavPopup();
   };
 

@@ -11,7 +11,6 @@ import NavigatorPopup from './NavigatorPopup';
 import useClickAway from '../../../../hooks/useClickAway';
 import useDateTime from '../../../../hooks/useDateTime';
 import useFocusTrap from '../../../../hooks/useFocusTrap';
-import useThrottledCallback from '../../../../hooks/useThrottledCallback';
 import './SessionNavigator.css';
 
 const SessionNavigator = ({ headerRef }) => {
@@ -24,13 +23,9 @@ const SessionNavigator = ({ headerRef }) => {
   const {
     activeStreamSession,
     streamSessions,
-    updateActiveSession,
-    updateSessionsList
+    updateActiveStreamSession,
+    updateStreamSessionsList
   } = useStreams();
-  const throttledUpdateSessionsList = useThrottledCallback(
-    updateSessionsList,
-    2000
-  );
   const [date, time, dayDiff] = useDateTime(
     activeStreamSession?.startTime,
     activeStreamSession?.endTime,
@@ -58,7 +53,7 @@ const SessionNavigator = ({ headerRef }) => {
     if (isNotOnDashboard) {
       navigate(-1);
     } else {
-      if (!isNavOpen) throttledUpdateSessionsList();
+      if (!isNavOpen) updateStreamSessionsList();
       toggleNavPopup();
     }
   };
@@ -70,7 +65,8 @@ const SessionNavigator = ({ headerRef }) => {
         0,
         sessionsLength
       );
-      updateActiveSession(streamSessions?.[nextStreamSessionIdx]);
+
+      updateActiveStreamSession(streamSessions?.[nextStreamSessionIdx]);
     }
   };
 
@@ -81,7 +77,7 @@ const SessionNavigator = ({ headerRef }) => {
         0,
         sessionsLength
       );
-      updateActiveSession(streamSessions?.[prevStreamSessionIdx]);
+      updateActiveStreamSession(streamSessions?.[prevStreamSessionIdx]);
     }
   };
 
