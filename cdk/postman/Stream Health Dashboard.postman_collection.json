@@ -311,39 +311,7 @@
 								}
 							]
 						},
-						"description": "This endpoint gets metadata of a specified stream. The metadata includes start and end time, the ingest configuration and the truncated stream events."
-					},
-					"response": []
-				},
-				{
-					"name": "/metrics/:channelResourceId/streamSessions/:streamSessionId/metricsData",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId/metricsData",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"metrics",
-								":channelResourceId",
-								"streamSessions",
-								":streamSessionId",
-								"metricsData"
-							],
-							"variable": [
-								{
-									"key": "channelResourceId",
-									"value": "{{channelResourceId}}"
-								},
-								{
-									"key": "streamSessionId",
-									"value": "{{streamSessionId}}"
-								}
-							]
-						},
-						"description": "This endpoint fetches CloudWatch metrics data for a specified stream. In particular, the Video Bitrate, the Frame Rate and the average Keyframe Interval will be returned.\n\nThe response will be an array of `FormattedMetricData` objects:\n\n``` typescript\ntype FormattedMetricData = {\n  data: { timestamp: Date; value: number }[];\n  label: string;\n};\n\n```"
+						"description": "This endpoint gets metadata and CloudWatch metrics data of a specified stream. The metadata includes start and end time, the ingest configuration and the truncated stream events.\n\nThe metrics include the Video Bitrate, the Frame Rate and the average Keyframe Interval will be returned.\n\nThe metrics data will be an array of `FormattedMetricData` objects:\n\n``` typescript\ntype FormattedMetricData = {\n  data: { timestamp: Date; value: number }[];\n  label: string;\n};\n\n```"
 					},
 					"response": []
 				}

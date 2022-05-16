@@ -3,7 +3,6 @@ import { fastifyRequestContextPlugin } from 'fastify-request-context';
 
 import authorizer from '../userManagement/authUserRouter/authorizer';
 import getStreamSession from './getStreamSession';
-import getStreamSessionMetricsData from './getStreamSessionMetricsData';
 import getStreamSessions from './getStreamSessions';
 
 const router: FastifyPluginAsync = async (resource) => {
@@ -14,10 +13,6 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.get(
     '/:channelResourceId/streamSessions/:streamSessionId',
     getStreamSession
-  );
-  resource.get(
-    '/:channelResourceId/streamSessions/:streamSessionId/metricsData',
-    getStreamSessionMetricsData
   );
 };
 
