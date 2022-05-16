@@ -212,9 +212,9 @@ export const resetStreamKey = async () =>
 export const deleteAccount = async () =>
   await authFetch({ url: `${apiBaseUrl}/user`, method: 'DELETE' });
 
-export const getStreamSessions = async (channelResourceId) =>
+export const getStreamSessions = async (channelResourceId, nextToken = '') =>
   await authFetch({
-    url: `${apiBaseUrl}/metrics/${channelResourceId}/streamSessions`
+    url: `${apiBaseUrl}/metrics/${channelResourceId}/streamSessions?nextToken=${nextToken}`
   });
 
 export const getStreamSessionData = async (

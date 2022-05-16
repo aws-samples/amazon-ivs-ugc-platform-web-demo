@@ -204,21 +204,6 @@
 				}
 			],
 			"description": "## User Management\n\nThis API serves a purpose of creating new users and managing their account information and their associated AWS resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation.\nSome endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n    \n``` shell\naws cognito-idp initiate-auth --client-id <userPoolClientId> --auth-parameters USERNAME=<username>,PASSWORD=<password> --auth-flow USER_PASSWORD_AUTH --client-metadata submittedUsername=<username>\n```\n\nThis command will give you an `AccessToken`, paste its value in the environment attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code>\n```\n\nYou will find `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage argument.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code> --password <password>\n```\n\nYou will find `confirmation-code` in the confirmation email sent calling the `/user/password/reset` endpoint.",
-			"auth": {
-				"type": "oauth2",
-				"oauth2": [
-					{
-						"key": "headerPrefix",
-						"value": "",
-						"type": "string"
-					},
-					{
-						"key": "addTokenTo",
-						"value": "header",
-						"type": "string"
-					}
-				]
-			},
 			"event": [
 				{
 					"listen": "prerequest",
@@ -250,10 +235,16 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const { streamSessions } = JSON.parse(responseBody);",
+									"const { nextToken, streamSessions } = JSON.parse(responseBody);",
 									"",
 									"if (streamSessions.length > 0) {",
 									"  pm.environment.set('streamSessionId', streamSessions[0].streamId);",
+									"}",
+									"",
+									"if (nextToken) {",
+									"    pm.environment.set('nextToken', nextToken);",
+									"} else {",
+									"    pm.environment.set('nextToken', '');",
 									"}"
 								],
 								"type": "text/javascript"
@@ -264,7 +255,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions",
+							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions?nextToken={{nextToken}}",
 							"host": [
 								"{{userManagementApiBaseUrl}}"
 							],
@@ -272,6 +263,12 @@
 								"metrics",
 								":channelResourceId",
 								"streamSessions"
+							],
+							"query": [
+								{
+									"key": "nextToken",
+									"value": "{{nextToken}}"
+								}
 							],
 							"variable": [
 								{
@@ -317,21 +314,6 @@
 				}
 			],
 			"description": "## Metrics\n\nThis API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated User Management endpoints.",
-			"auth": {
-				"type": "oauth2",
-				"oauth2": [
-					{
-						"key": "headerPrefix",
-						"value": "",
-						"type": "string"
-					},
-					{
-						"key": "addTokenTo",
-						"value": "header",
-						"type": "string"
-					}
-				]
-			},
 			"event": [
 				{
 					"listen": "prerequest",
@@ -352,6 +334,56 @@
 					}
 				}
 			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "grant_type",
+				"value": "password_credentials",
+				"type": "string"
+			},
+			{
+				"key": "headerPrefix",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "accessToken",
+				"value": "{{accessToken}}",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

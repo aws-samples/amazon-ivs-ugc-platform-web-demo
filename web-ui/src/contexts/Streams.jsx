@@ -34,19 +34,19 @@ const STREAM_SESSION_MOCK_DATA = SESSIONS.map((sessionData) => ({
   ...SESSION_CONFIG_AND_EVENTS
 }));
 
-const streamSessionsFetcher = async (channelResourceId) => {
+const streamSessionsFetcher = async (channelResourceId, nextToken) => {
   // Fetch up to 50 streams for this channel, ordered by start time
   const { result: data, error } = await userManagement.getStreamSessions(
-    channelResourceId
+    channelResourceId,
+    nextToken
   );
 
   if (error) throw error;
 
   // Supplement the data to each stream session object
   let nextSessions =
-    data.streamSessions?.map((session, index, arr) => ({
+    data.streamSessions?.map((session) => ({
       ...session,
-      index,
       isLive: !session.endTime
     })) || [];
 
@@ -58,7 +58,10 @@ const streamSessionsFetcher = async (channelResourceId) => {
       ]
     : nextSessions;
 
-  return nextSessions;
+  return {
+    streamSessions: nextSessions,
+    nextToken: data.nextToken
+  };
 };
 
 const activeStreamSessionFetcher = async (channelResourceId, streamSession) => {
@@ -87,9 +90,24 @@ export const Provider = ({ children }) => {
    * STREAM SESSIONS
    */
   const [streamSessions, setStreamSessions] = useStateWithCallback();
+  const [canLoadMoreStreamSessions, setCanLoadMoreStreamSessions] =
+    useState(true);
   const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
-  const { mutate: updateStreamSessionsList } = useSWRInfinite(
-    () => isSessionValid && userData?.channelResourceId,
+  // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
+  // revalidation of all the subsequent pages as well.
+  const { setSize, mutate: updateStreamSessionsList } = useSWRInfinite(
+    // This function is called before each fetcher request.
+    // It is also triggered by a call to setSize().
+    (_pageIndex, previousPageData) => {
+      if (!isSessionValid || !userData) return null;
+
+      if (previousPageData && !previousPageData.nextToken) return null; // reached the end of the stream sessions list
+
+      if (previousPageData && previousPageData.nextToken)
+        return [userData.channelResourceId, previousPageData.nextToken]; // fetch the next page of stream sessions
+
+      return [userData.channelResourceId]; // fetch the first page
+    },
     streamSessionsFetcher,
     {
       dedupingInterval: 1000,
@@ -99,7 +117,18 @@ export const Provider = ({ children }) => {
       onError: () => {
         notifyError($content.notification.error.streams_fetch_failed);
       },
-      onSuccess: ([nextSessions]) => {
+      onSuccess: (sessions) => {
+        const nextSessions = sessions
+          .reduce((sessionsAcc, { streamSessions }) => {
+            return [...sessionsAcc, ...streamSessions];
+          }, [])
+          .map((session, index) => ({ ...session, index }));
+
+        const { nextToken: lastToken } = sessions[sessions.length - 1];
+        if (!lastToken) {
+          setCanLoadMoreStreamSessions(false);
+        }
+
         setStreamSessions((prevSessions) => {
           if (!prevSessions) return nextSessions;
 
@@ -163,7 +192,13 @@ export const Provider = ({ children }) => {
   );
 
   const throttledUpdateStreamSessionsList = useThrottledCallback(
-    updateStreamSessionsList,
+    (shouldFetchNextPage = false) => {
+      if (shouldFetchNextPage && canLoadMoreStreamSessions) {
+        setSize((size) => size + 1);
+      } else {
+        updateStreamSessionsList();
+      }
+    },
     1000,
     [updateStreamSessionsList]
   );
@@ -184,7 +219,7 @@ export const Provider = ({ children }) => {
 
   // Initial fetch of the stream sessions list
   useEffect(() => {
-    if (userData && isSessionValid) {
+    if (!isInitialized.current && userData && isSessionValid) {
       updateStreamSessionsList();
     }
   }, [isSessionValid, updateStreamSessionsList, userData]);
@@ -200,6 +235,7 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       activeStreamSession,
+      canLoadMoreStreamSessions,
       isLive,
       streamSessions,
       updateActiveStreamSession: eagerUpdateActiveStreamSession,
@@ -207,6 +243,7 @@ export const Provider = ({ children }) => {
     }),
     [
       activeStreamSession,
+      canLoadMoreStreamSessions,
       eagerUpdateActiveStreamSession,
       isLive,
       streamSessions,

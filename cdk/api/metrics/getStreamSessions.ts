@@ -11,21 +11,29 @@ import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 const ivsClient = new IvsClient({});
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { params } = request;
+  const { params, query } = request;
   const { channelResourceId } = params as {
     channelResourceId: string;
   };
-  const responseBody: Partial<ListStreamSessionsCommandOutput> = {
-    streamSessions: []
+  const { nextToken: nextTokenRequest } = query as {
+    nextToken: string;
   };
+  let responseBody: Partial<ListStreamSessionsCommandOutput>;
 
   try {
     const listStreamSessionsCommand = new ListStreamSessionsCommand({
-      channelArn: buildChannelArn(channelResourceId)
+      channelArn: buildChannelArn(channelResourceId),
+      nextToken: nextTokenRequest
     });
-    const { streamSessions } = await ivsClient.send(listStreamSessionsCommand);
+    const { nextToken, streamSessions = [] } = await ivsClient.send(
+      listStreamSessionsCommand
+    );
 
-    responseBody.streamSessions = streamSessions;
+    responseBody = { streamSessions };
+
+    if (nextToken) {
+      responseBody.nextToken = encodeURIComponent(nextToken);
+    }
   } catch (error) {
     console.error(error);
 

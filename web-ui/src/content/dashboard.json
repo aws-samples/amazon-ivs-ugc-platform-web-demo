@@ -12,7 +12,8 @@
         "previous_7_days": "Previous 7 days",
         "previous_30_days": "Previous 30 days",
         "earlier": "Earlier"
-      }
+      },
+      "load_more": "Load more"
     }
   },
   "stream_session_page": {
