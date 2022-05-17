@@ -1,0 +1,41 @@
+.metrics-section {
+  align-items: flex-start;
+  background: var(--color-dark-gray);
+  border-radius: 24px;
+  column-gap: 21px;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  margin: 30px 0;
+  max-height: 550px;
+  padding-top: 30px;
+  width: 100%;
+}
+
+.metrics-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.metrics-panel-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  min-height: 29px;
+}
+
+.metrics-panel-footer {
+  align-items: center;
+  display: flex;
+  height: 20px;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.metrics-panel-footer p {
+  color: var(--color-light-gray);
+  font-size: 13px;
+  font-weight: 400;
+}
