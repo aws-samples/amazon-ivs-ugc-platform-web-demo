@@ -152,6 +152,7 @@ canvas {
   position: absolute;
   text-transform: uppercase;
   top: 10px;
+  z-index: 20;
 }
 
 .mini-player-text {
