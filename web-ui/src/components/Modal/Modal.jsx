@@ -24,10 +24,16 @@ const Modal = () => {
     subMessage
   } = modal || {};
 
-  const handleClose = useCallback(() => {
-    closeModal();
-    setTimeout(() => lastFocusedElement.current?.focus());
-  }, [closeModal]);
+  const handleClose = useCallback(
+    (event) => {
+      if (event && event instanceof KeyboardEvent && event.keyCode !== 27)
+        return;
+
+      closeModal();
+      setTimeout(() => lastFocusedElement.current?.focus());
+    },
+    [closeModal]
+  );
 
   const handleConfirm = () => {
     handleClose();

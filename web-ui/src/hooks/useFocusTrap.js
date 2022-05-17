@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const focusableSelectors = 'a[href], button, textarea, input, select';
 
-const useFocusTrap = (refs, isEnabled, returnFocusTo) => {
+const useFocusTrap = (refs, isEnabled) => {
   const [elements, setElements] = useState([]);
   const currIndex = useRef(null);
   const targetRefs = useRef(refs);
