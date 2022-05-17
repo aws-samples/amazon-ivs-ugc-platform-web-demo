@@ -1,0 +1,28 @@
+.stream-events {
+  height: 100%;
+  max-width: 320px;
+  width: 100%;
+}
+
+.stream-events-header {
+  padding-left: 15px;
+}
+
+.stream-events-list {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 15px;
+  scrollbar-color: var(--color-gray) var(--color-dark-gray);
+}
+
+.stream-events-list::-webkit-scrollbar-track {
+  margin-top: -5px;
+  margin-bottom: 11px;
+}
+
+@supports (overflow: overlay) {
+  .stream-events-list {
+    overflow-y: overlay;
+  }
+}

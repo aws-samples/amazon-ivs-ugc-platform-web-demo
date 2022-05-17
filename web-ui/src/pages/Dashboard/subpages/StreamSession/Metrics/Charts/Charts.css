@@ -1,0 +1,60 @@
+.charts {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-left: 30px;
+  width: 100%;
+  row-gap: 45px;
+}
+
+.chart {
+  align-items: center;
+  display: flex;
+  height: 100px;
+  justify-content: center;
+
+  /* Temporary */
+  background: black;
+  font-weight: 900;
+}
+
+.chart-controls {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-right: 9px;
+  row-gap: 30px;
+}
+
+.cursor-reading {
+  line-height: 29px;
+  margin-right: 9px;
+}
+
+.preset-zoom-buttons {
+  column-gap: 30px;
+  display: flex;
+  height: 16px;
+}
+
+.preset-zoom-buttons button {
+  background: none;
+  border: none;
+  color: var(--color-light-gray);
+  cursor: pointer;
+  font-family: Inter;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.zoom-slider {
+  background: var(--color-gray);
+  border-radius: 100px;
+  height: 4px;
+  margin: 4px 0;
+  width: 100%;
+}
+
+.chart-time-range-footer {
+  margin-right: 9px;
+}

@@ -34,6 +34,18 @@
       "kbps": "kbps",
       "mbps": "mbps",
       "copied": "copied"
+    },
+    "charts": {
+      "video_bitrate": "Video bitrate",
+      "frame_rate": "Frame rate",
+      "all": "All",
+      "one_hour": "1 hr",
+      "thirty_min": "30 min",
+      "five_min": "5 min"
+    },
+    "stream_events": {
+      "stream_events": "Stream events",
+      "learn_how_to_fix_it": "Learn how to fix it"
     }
   },
   "settings_page": {
