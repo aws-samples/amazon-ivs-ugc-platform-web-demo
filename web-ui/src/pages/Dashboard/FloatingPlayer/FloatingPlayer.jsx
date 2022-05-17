@@ -60,6 +60,7 @@ const FloatingPlayer = () => {
 
     return true;
   }, [streamSessions]);
+  const prevIsLiveValue = useRef(isLive);
 
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
@@ -104,6 +105,12 @@ const FloatingPlayer = () => {
       );
     }
   };
+
+  useEffect(() => {
+    if (isLive) {
+      prevIsLiveValue.current = true;
+    }
+  }, [isLive]);
 
   useEffect(() => {
     if (isLive && !isLoading && shouldBlurPlayer) {
@@ -160,7 +167,9 @@ const FloatingPlayer = () => {
           <div className="offline-stream-container">
             {hasStreamSessions ? (
               <p className="mini-player-text ">
-                {$content.floating_player.no_current_live_stream}
+                {prevIsLiveValue.current
+                  ? $content.floating_player.stream_went_offline
+                  : $content.floating_player.no_current_live_stream}
               </p>
             ) : (
               <>
