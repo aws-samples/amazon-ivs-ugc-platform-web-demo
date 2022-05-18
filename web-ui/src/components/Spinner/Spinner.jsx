@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import './Spinner.css';
 
-const DIAMETER = { small: '24px', medium: '36px' };
+const DIAMETER = { small: '24px', medium: '30px', large: '36px' };
 
 const Spinner = ({ variant, size }) => (
   <span
@@ -18,8 +18,8 @@ const Spinner = ({ variant, size }) => (
 Spinner.defaultProps = { variant: 'dark', size: 'small' };
 
 Spinner.propTypes = {
-  variant: PropTypes.oneOf(['light', 'dark']),
-  size: PropTypes.oneOf(['small', 'medium'])
+  variant: PropTypes.oneOf(['light', 'semi-dark', 'dark']),
+  size: PropTypes.oneOf(['small', 'medium', 'large'])
 };
 
 export default Spinner;

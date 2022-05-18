@@ -161,7 +161,10 @@ export const Provider = ({ children }) => {
       ),
     [activeStreamSessionId, streamSessions]
   );
-  const { updateKey: updateActiveStreamSession } = useSWRWithKeyUpdate(
+  const {
+    error: activeStreamSessionError,
+    updateKey: updateActiveStreamSession
+  } = useSWRWithKeyUpdate(
     userData && isSessionValid && userData.channelResourceId,
     activeStreamSessionFetcher,
     {
@@ -235,14 +238,21 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       activeStreamSession,
+      activeStreamSessionError,
       canLoadMoreStreamSessions,
       isLive,
       streamSessions,
       updateActiveStreamSession: eagerUpdateActiveStreamSession,
-      updateStreamSessionsList: throttledUpdateStreamSessionsList
+      updateStreamSessionsList: throttledUpdateStreamSessionsList,
+      isInitialLoadingActiveStreamSession:
+        streamSessions === undefined ||
+        (streamSessions.length > 0 &&
+          !activeStreamSession &&
+          !activeStreamSessionError)
     }),
     [
       activeStreamSession,
+      activeStreamSessionError,
       canLoadMoreStreamSessions,
       eagerUpdateActiveStreamSession,
       isLive,

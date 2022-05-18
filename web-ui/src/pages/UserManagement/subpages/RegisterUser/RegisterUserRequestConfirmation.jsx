@@ -26,7 +26,7 @@ const RegisterUserRequestConfirmation = ({ username }) => {
   return (
     <div className="sub-page-container">
       <h2>{$content.register_page.verify_your_account}</h2>
-      <p>{$content.register_page.email_link_sent}</p>
+      <p className="p1">{$content.register_page.email_link_sent}</p>
       <span>
         <b>{$content.did_not_receive_email}</b>&nbsp;
         <Button onClick={resend} type="button" variant="link">

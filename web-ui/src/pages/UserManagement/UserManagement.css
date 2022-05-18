@@ -31,11 +31,6 @@
   row-gap: 30px;
 }
 
-.sub-page-container p {
-  font-weight: 400;
-  line-height: 22.5px;
-}
-
 @media (max-width: 970px) {
   .welcome-section h1 {
     font-size: min(46px, 4.58732vw);

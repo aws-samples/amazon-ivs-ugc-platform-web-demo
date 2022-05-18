@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import { DASHBOARD_THEME_COLOR } from '../../constants';
@@ -17,10 +17,27 @@ import withSessionLoader from '../../components/withSessionLoader';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { activeStreamSession } = useStreams();
+  const {
+    activeStreamSession,
+    activeStreamSessionError,
+    isInitialLoadingActiveStreamSession
+  } = useStreams();
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid, userData, fetchUserData } = useUser();
   const { modal } = useModal();
+  const outletContext = useMemo(
+    () => ({
+      activeStreamSession,
+      activeStreamSessionError,
+      isInitialLoadingActiveStreamSession
+    }),
+    [
+      activeStreamSession,
+      activeStreamSessionError,
+      isInitialLoadingActiveStreamSession
+    ]
+  );
+
   useScrollTopOnPathnameChange();
   useThemeColor(DASHBOARD_THEME_COLOR);
 
@@ -39,7 +56,7 @@ const Dashboard = () => {
       <main className="main-dashboard-container">
         <Modal isOpen={!!modal} />
         <Notification />
-        <Outlet context={activeStreamSession} />
+        <Outlet context={outletContext} />
       </main>
       {isMobileView ? <FloatingMenu /> : <FloatingPlayer />}
     </>

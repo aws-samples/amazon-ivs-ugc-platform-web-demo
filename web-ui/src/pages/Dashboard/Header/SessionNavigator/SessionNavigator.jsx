@@ -109,14 +109,14 @@ const SessionNavigator = ({ headerRef }) => {
         {isNavOpen || !activeStreamSession ? (
           <>
             <p className="date">{$content.header.stream_session}</p>
-            <p className="time">{$content.header.select_stream_session}</p>
+            <p className="time p3">{$content.header.select_stream_session}</p>
           </>
         ) : (
           <>
             <p className="date">{date}</p>
             <span className="time p3">
               {time}
-              {dayDiff > 0 && <p className="day-diff">+{dayDiff}d</p>}
+              {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
             </span>
           </>
         )}

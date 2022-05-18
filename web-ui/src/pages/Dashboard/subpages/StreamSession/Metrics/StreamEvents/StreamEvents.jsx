@@ -1,6 +1,8 @@
+import { useOutletContext } from 'react-router-dom';
+
 import { dashboard as $dashboardContent } from '../../../../../../content';
-import Panel from '../MetricsPanel';
 import Button from '../../../../../../components/Button';
+import MetricPanel from '../MetricPanel';
 import './StreamEvents.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
@@ -13,7 +15,7 @@ const TestStreamEventsList = () =>
       <h4 className="event-name">Stream Event {index}</h4>
       <p className="event-time p2">Tamago</p>
       {index === 1 && (
-        <p className="event-description">
+        <p className="event-description p1">
           Your stream is experiencing performance or network issues. Please
           check your configuration settings and network connection.
         </p>
@@ -24,17 +26,27 @@ const TestStreamEventsList = () =>
     </span>
   ));
 
-const StreamEvents = () => (
-  <div className="stream-events">
-    <Panel
-      title={$content.stream_events}
-      headerClassNames={['stream-events-header']}
-    >
-      <div className="stream-events-list">
-        <TestStreamEventsList />
-      </div>
-    </Panel>
-  </div>
-);
+const StreamEvents = () => {
+  const { activeStreamSession } = useOutletContext();
+
+  return (
+    <div className="stream-events">
+      <MetricPanel
+        title={$content.stream_events}
+        headerClassNames={['stream-events-header']}
+        wrapper={{ classNames: ['stream-events-list'] }}
+      >
+        {activeStreamSession?.truncatedEvents?.length ? (
+          <TestStreamEventsList />
+        ) : (
+          <span className="no-stream-events">
+            <h4>{$content.no_stream_events}</h4>
+            <p className="p2">{$content.no_stream_events_message}</p>
+          </span>
+        )}
+      </MetricPanel>
+    </div>
+  );
+};
 
 export default StreamEvents;

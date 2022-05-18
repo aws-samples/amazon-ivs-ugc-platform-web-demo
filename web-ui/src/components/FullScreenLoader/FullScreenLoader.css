@@ -23,6 +23,12 @@
   text-align: center;
 }
 
+.full-screen-loader-error > svg {
+  fill: var(--palette-color-white);
+  width: 48px;
+  height: 48px;
+}
+
 @media (max-width: 875px) {
   .loading-container {
     height: 100%;

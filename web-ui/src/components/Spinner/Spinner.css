@@ -34,6 +34,10 @@
   color: var(--palette-color-white);
 }
 
+.spinner.semi-dark {
+  color: var(--palette-color-gray);
+}
+
 .spinner.dark {
   color: var(--palette-color-black);
 }
@@ -43,4 +47,14 @@
   stroke-dasharray: 80px, 200px;
   stroke-linecap: round;
   animation: stroke-anim 1.4s ease-in-out infinite;
+}
+
+@media (prefers-color-scheme: light) {
+  .spinner.light {
+    color: var(--palette-color-black);
+  }
+
+  .spinner.semi-dark {
+    color: var(--palette-color-medium-gray);
+  }
 }
