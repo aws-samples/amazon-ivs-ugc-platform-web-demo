@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 
+// https://fonts.google.com/icons?selected=Material%20Icons%20Round%3Asensors%3A
 const Sensors = ({ isLive }) => (
   <svg
     width="36"

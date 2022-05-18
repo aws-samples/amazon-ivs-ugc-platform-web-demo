@@ -23,7 +23,7 @@ const FullScreenLoader = ({ hasError, onClick }) =>
     </div>
   ) : (
     <div className="loading-container">
-      <Spinner size="medium" variant="light" />
+      <Spinner size="large" variant="light" />
     </div>
   );
 

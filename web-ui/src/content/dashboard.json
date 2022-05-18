@@ -17,6 +17,7 @@
     }
   },
   "stream_session_page": {
+    "failed_to_load": "Failed to load",
     "encoder_configuration": {
       "title": "Encoder configuration",
       "video_encoder": "Video encoder",
@@ -36,6 +37,7 @@
       "copied": "copied"
     },
     "charts": {
+      "cant_load_data": "Can’t load data",
       "video_bitrate": "Video bitrate",
       "frame_rate": "Frame rate",
       "all": "All",
@@ -45,6 +47,8 @@
     },
     "stream_events": {
       "stream_events": "Stream events",
+      "no_stream_events": "No stream events",
+      "no_stream_events_message": "Stream events will show up here when there is data.",
       "learn_how_to_fix_it": "Learn how to fix it"
     }
   },

@@ -67,9 +67,9 @@ const Input = ({
           value={isLoading ? '' : value}
         />
         {error && (
-          <span className="error-message p3">
+          <span className="error-message">
             <Error className="error-icon" />
-            <p>{error}</p>
+            <p className="p3">{error}</p>
           </span>
         )}
         {initialType === 'password' && value && (
@@ -92,8 +92,8 @@ const Input = ({
         )}
       </div>
       {!error && description && !hideDescription.current && (
-        <span className="description p3">
-          <p>{description}</p>
+        <span className="description">
+          <p className="p3">{description}</p>
         </span>
       )}
       {footer && <span className="footer">{footer}</span>}

@@ -9,7 +9,7 @@ import './EncoderConfiguration.css';
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
 const EncoderConfiguration = () => {
-  const activeStreamSession = useOutletContext();
+  const { activeStreamSession } = useOutletContext();
   const encoderConfigValues = useMemo(() => {
     const { ingestConfiguration, channel, metrics } = activeStreamSession || {};
     const { type: channelType } = channel || {};
