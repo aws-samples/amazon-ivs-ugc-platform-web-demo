@@ -1,5 +1,5 @@
 .header {
-  background-color: var(--color-medium-gray);
+  background-color: var(--palette-color-medium-gray);
   display: grid;
   grid-column-gap: 15px;
   grid-template-columns: 1fr minmax(auto, 654px) 1fr;
@@ -23,10 +23,12 @@
   min-width: auto;
 }
 
-.icon {
-  fill: var(--color-white);
-}
-
 .icon.settings {
   width: 24px;
+}
+
+@media (prefers-color-scheme: light) {
+  .header {
+    background-color: var(--palette-color-extra-light-gray);
+  }
 }

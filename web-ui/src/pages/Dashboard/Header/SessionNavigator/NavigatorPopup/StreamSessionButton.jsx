@@ -21,8 +21,8 @@ const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
           {isLive && <p>LIVE</p>}
         </span>
         <span className="session-time">
-          <p>{time}</p>
-          {dayDiff > 0 && <p className="day-diff">+{dayDiff}d</p>}
+          <p className="p1">{time}</p>
+          {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
         </span>
       </div>
       {hasErrorEvent ? (

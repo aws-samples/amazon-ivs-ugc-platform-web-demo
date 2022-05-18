@@ -17,7 +17,7 @@ const Notification = ({ top }) => {
       {notif && (
         <m.div
           animate="visible"
-          className={`notification ${notif.type}`}
+          className={`notification ${notif.type} button-link`}
           exit="hidden"
           initial="hidden"
           key={`${notif.type}-notification`}
@@ -28,7 +28,7 @@ const Notification = ({ top }) => {
             visible: { opacity: 1, y: 0 }
           }}
         >
-          <NotifIcon className="notif-icon" />
+          <NotifIcon className="notification-icon" />
           {notif.message}
         </m.div>
       )}

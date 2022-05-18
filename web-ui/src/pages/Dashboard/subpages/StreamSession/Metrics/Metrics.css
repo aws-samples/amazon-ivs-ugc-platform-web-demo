@@ -1,7 +1,7 @@
 .metrics-section {
   align-items: flex-start;
-  background: var(--color-dark-gray);
-  border-radius: 24px;
+  background: var(--palette-color-dark-gray);
+  border-radius: var(--default-border-radius);
   column-gap: 21px;
   display: flex;
   height: 100%;
@@ -35,7 +35,20 @@
 }
 
 .metrics-panel-footer p {
-  color: var(--color-light-gray);
-  font-size: 13px;
-  font-weight: 400;
+  color: var(--palette-color-light-gray);
+}
+
+@media (prefers-color-scheme: light) {
+  .metrics-section {
+    background: var(--palette-color-extra-light-gray);
+  }
+
+  .metrics-panel-footer p {
+    color: var(--palette-color-medium-gray);
+  }
+
+  h2,
+  h3 {
+    color: var(--palette-color-dark-gray);
+  }
 }

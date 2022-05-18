@@ -19,6 +19,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -30,11 +31,11 @@
 }
 
 .spinner.light {
-  color: var(--color-white);
+  color: var(--palette-color-white);
 }
 
 .spinner.dark {
-  color: var(--color-black);
+  color: var(--palette-color-black);
 }
 
 .spinner circle {

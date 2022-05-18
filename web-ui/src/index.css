@@ -2,44 +2,91 @@
   --mobile-breakpoint: 875px;
   --default-border-radius: 24px;
 
-  /* Palette colors */
-  --color-blue: #41c0ff;
-  --color-medium-blue: #0083c3;
+  /* Dark palette colors */
+  --base-color-dark-gray: 228, 10%;
+  --palette-color-dark-gray: hsl(var(--base-color-dark-gray), 10%);
+  --palette-color-dark-gray-hover: hsl(var(--base-color-dark-gray), 20%);
 
-  --color-red: #d93a2c;
+  --base-color-medium-gray: 227, 10%;
+  --palette-color-medium-gray: hsl(var(--base-color-medium-gray), 18%);
+  --palette-color-medium-gray-hover: hsl(var(--base-color-medium-gray), 28%);
 
-  --color-dark-gray: #16171b;
-  --color-medium-gray: #292b32;
-  --color-gray: #3e414c;
-  --color-light-gray: #abafbd;
-  --color-extra-light-gray: #d7d9e2;
+  --palette-color-gray: hsl(var(--base-color-medium-gray), 27%);
+  --palette-color-gray-hover: hsl(var(--base-color-medium-gray), 37%);
 
-  --color-yellow: #f19600;
-  --color-green: #34d85d;
+  --base-color-light-gray: 227, 12%;
+  --palette-color-light-gray: hsl(var(--base-color-light-gray), 71%);
+  --palette-color-light-gray-hover: hsl(var(--base-color-light-gray), 81%);
 
-  --color-white: #ffffff;
-  --color-white-90: rgba(255, 255, 255, 0.9);
-  --color-white-80: rgba(255, 255, 255, 0.8);
-  --color-white-70: rgba(255, 255, 255, 0.7);
-  --color-white-60: rgba(255, 255, 255, 0.6);
-  --color-white-50: rgba(255, 255, 255, 0.5);
-  --color-white-40: rgba(255, 255, 255, 0.4);
-  --color-white-30: rgba(255, 255, 255, 0.3);
-  --color-white-20: rgba(255, 255, 255, 0.2);
-  --color-white-10: rgba(255, 255, 255, 0.1);
-  --color-white-05: rgba(255, 255, 255, 0.05);
+  --base-color-extra-light-gray: 229, 16%;
+  --palette-color-extra-light-gray: hsl(
+    var(--base-color-extra-light-gray),
+    86%
+  );
+  --palette-color-extra-light-gray-hover: hsl(
+    var(--base-color-extra-light-gray),
+    96%
+  );
 
-  --color-black: #000;
-  --color-black-90: rgba(0, 0, 0, 0.9);
-  --color-black-80: rgba(0, 0, 0, 0.8);
-  --color-black-70: rgba(0, 0, 0, 0.7);
-  --color-black-60: rgba(0, 0, 0, 0.6);
-  --color-black-50: rgba(0, 0, 0, 0.5);
-  --color-black-40: rgba(0, 0, 0, 0.4);
-  --color-black-30: rgba(0, 0, 0, 0.3);
-  --color-black-20: rgba(0, 0, 0, 0.2);
-  --color-black-10: rgba(0, 0, 0, 0.1);
-  --color-black-05: rgba(0, 0, 0, 0.05);
+  --base-color-white: 0, 0%;
+  --palette-color-white: hsl(var(--base-color-white), 100%);
+  --palette-color-white-hover: hsl(var(--base-color-white), 90%);
+
+  --base-color-green: 135, 68%;
+  --palette-color-green: hsl(var(--base-color-green), 53%);
+  --palette-color-green-hover: hsl(var(--base-color-green), 63%);
+
+  --base-color-red: 5, 69%;
+  --palette-color-red: hsl(var(--base-color-red), 51%);
+  --palette-color-red-hover: hsl(var(--base-color-red), 61%);
+
+  --base-color-blue: 200, 100%;
+  --palette-color-blue: hsl(var(--base-color-blue), 63%);
+  --palette-color-blue-hover: hsl(var(--base-color-blue), 73%);
+
+  --palette-color-medium-blue: hsl(var(--base-color-blue), 38%);
+  --palette-color-medium-blue-hover: hsl(var(--base-color-blue), 48%);
+
+  --palette-color-black: hsl(var(--base-color-white), 0%);
+  --palette-color-black-hover: hsl(var(--base-color-white), 10%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Light palette colors */
+    --base-color-dark-gray: 0, 0%;
+    --palette-color-dark-gray: hsl(var(--base-color-dark-gray), 27%);
+    --palette-color-dark-gray-hover: hsl(var(--base-color-dark-gray), 17%);
+
+    --palette-color-medium-gray: hsl(var(--base-color-dark-gray), 42%);
+    --palette-color-medium-gray-hover: hsl(var(--base-color-dark-gray), 32%);
+
+    --palette-color-gray: hsl(var(--base-color-dark-gray), 80%);
+    --palette-color-gray-hover: hsl(var(--base-color-dark-gray), 70%);
+
+    --palette-color-light-gray: hsl(var(--base-color-dark-gray), 91%);
+    --palette-color-light-gray-hover: hsl(var(--base-color-dark-gray), 81%);
+
+    --palette-color-extra-light-gray: hsl(var(--base-color-dark-gray), 96%);
+    --palette-color-extra-light-gray-hover: hsl(
+      var(--base-color-dark-gray),
+      86%
+    );
+
+    --base-color-green: 135, 61%;
+    --palette-color-green: hsl(var(--base-color-green), 33%);
+    --palette-color-green-hover: hsl(var(--base-color-green), 23%);
+
+    --base-color-red: 359, 76%;
+    --palette-color-red: hsl(var(--base-color-red), 45%);
+    --palette-color-red-hover: hsl(var(--base-color-red), 35%);
+
+    --palette-color-blue-hover: hsl(var(--base-color-blue), 53%);
+
+    --base-color-medium-blue: 205, 79%;
+    --palette-color-medium-blue: hsl(var(--base-color-medium-blue), 37%);
+    --palette-color-medium-blue-hover: hsl(var(--base-color-medium-blue), 27%);
+  }
 }
 
 *,
@@ -52,18 +99,19 @@
 
 html {
   scroll-behavior: smooth;
-  /* Firefox scrollbars */
+  /* Firefox scrollbar */
   scrollbar-width: auto;
-  scrollbar-color: var(--color-gray) transparent;
+  scrollbar-color: var(--palette-color-gray) transparent;
 }
 
 body {
-  background: var(--color-black);
-  color: var(--color-white);
+  background: var(--palette-color-black);
+  color: var(--palette-color-white);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-size: 15px;
+  font-style: normal;
   overflow: hidden;
   position: relative;
   text-rendering: optimizeSpeed;
@@ -71,23 +119,90 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* WebKit scrollbars */
+/* WebKit scrollbar */
 ::-webkit-scrollbar {
   width: 17px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: transparent;
   border-radius: 100px;
-  box-shadow: inset 0 0 10px 10px var(--color-gray);
+  box-shadow: inset 0 0 10px 10px var(--palette-color-gray);
   border: solid 5px transparent;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  box-shadow: inset 0 0 10px 10px #555968;
+  box-shadow: inset 0 0 10px 10px var(--palette-color-gray-hover);
+}
+
+/* Typography */
+h1.display {
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 52px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 38.73px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 29.05px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 21.78px;
+}
+
+h4,
+.h4 {
+  color: var(--palette-color-white);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18.15px;
+}
+
+.p1 {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+}
+
+.p2 {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 19.5px;
+}
+
+.p3 {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 15px;
+}
+
+a,
+button,
+.button-link {
+  font-family: Inter;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+button,
+.button-link {
+  color: var(--palette-color-white);
 }
 
 a {
-  color: var(--color-blue);
-  font-weight: 700;
+  color: var(--palette-color-blue);
   text-decoration: none;
   width: fit-content;
 }
@@ -97,31 +212,11 @@ a:not([class]) {
 }
 
 a:focus {
-  border-bottom: 2px solid var(--color-blue);
+  border-bottom: 2px solid var(--palette-color-blue);
   margin-bottom: -5px;
   outline: none;
   padding-bottom: 3px;
   position: relative;
-}
-
-h1 {
-  font-size: 32px;
-  font-weight: 900;
-}
-
-h2 {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-h3 {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-h4 {
-  font-size: 15px;
-  font-weight: 500;
 }
 
 @media (max-width: 875px) {
@@ -139,10 +234,6 @@ h4 {
     overflow-y: auto;
   }
 
-  html {
-    scrollbar-color: var(--color-gray) var(--color-dark-gray);
-  }
-
   @supports (overflow: overlay) {
     body {
       overflow-y: overlay;
@@ -156,5 +247,30 @@ h4 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background: var(--palette-color-white);
+    color: var(--palette-color-black);
+  }
+
+  h4,
+  .h4 {
+    color: var(--palette-color-dark-gray);
+  }
+
+  button,
+  .button-link {
+    color: var(--palette-color-dark-gray);
+  }
+
+  a {
+    color: var(--palette-color-medium-blue);
+  }
+
+  a:focus {
+    border-bottom: 2px solid var(--palette-color-medium-blue);
   }
 }

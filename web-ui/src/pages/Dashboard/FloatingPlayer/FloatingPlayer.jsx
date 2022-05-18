@@ -161,12 +161,12 @@ const FloatingPlayer = () => {
           {isLoading && isLive !== false && <Spinner variant="light" />}
           <video ref={videoRef} playsInline muted></video>
           <canvas ref={canvasRef} />
-          <div className="red-pill">{$content.floating_player.live}</div>
+          <div className="red-pill ">{$content.floating_player.live}</div>
         </div>
         {!isLive && (
           <div className="offline-stream-container">
             {hasStreamSessions ? (
-              <p className="mini-player-text ">
+              <p className="mini-player-text p2">
                 {prevIsLiveValue.current
                   ? $content.floating_player.stream_went_offline
                   : $content.floating_player.no_current_live_stream}
@@ -174,7 +174,7 @@ const FloatingPlayer = () => {
             ) : (
               <>
                 <h4>{$content.floating_player.no_current_live_stream}</h4>
-                <p className="mini-player-text offline-instructions">
+                <p className="mini-player-text offline-instructions p2">
                   {$content.floating_player.offline_instructions}
                 </p>
                 <Link to="/settings">{$content.floating_player.settings}</Link>

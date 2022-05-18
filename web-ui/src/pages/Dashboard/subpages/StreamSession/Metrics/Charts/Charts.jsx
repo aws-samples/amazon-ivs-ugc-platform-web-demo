@@ -11,8 +11,8 @@ const Charts = () => (
       header={<h2 className="cursor-reading">0.2 mbps</h2>}
       footer={
         <>
-          <p>5 min ago</p>
-          <p>Now</p>
+          <p className="p2">5 min ago</p>
+          <p className="p2">Now</p>
         </>
       }
       footerClassNames={['chart-time-range-footer']}
@@ -24,8 +24,8 @@ const Charts = () => (
       header={<h2 className="cursor-reading">30 fps</h2>}
       footer={
         <>
-          <p>5 min ago</p>
-          <p>Now</p>
+          <p className="p2">5 min ago</p>
+          <p className="p2">Now</p>
         </>
       }
       footerClassNames={['chart-time-range-footer']}

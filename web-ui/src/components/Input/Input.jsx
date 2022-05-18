@@ -42,7 +42,7 @@ const Input = ({
   return (
     <div className={`outer-input-container ${variant}`}>
       {label && (
-        <label className="label" htmlFor={name}>
+        <label className="label h4" htmlFor={name}>
           {label}
         </label>
       )}
@@ -67,7 +67,7 @@ const Input = ({
           value={isLoading ? '' : value}
         />
         {error && (
-          <span className="error-message">
+          <span className="error-message p3">
             <Error className="error-icon" />
             <p>{error}</p>
           </span>
@@ -92,7 +92,7 @@ const Input = ({
         )}
       </div>
       {!error && description && !hideDescription.current && (
-        <span className="description">
+        <span className="description p3">
           <p>{description}</p>
         </span>
       )}

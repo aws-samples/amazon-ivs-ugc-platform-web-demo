@@ -5,7 +5,7 @@ import withPortal from '../withPortal';
 import './Tooltip.css';
 
 const TooltipPortal = withPortal(
-  ({ message }) => <span className="tooltip">{message}</span>,
+  ({ message }) => <span className="tooltip p3">{message}</span>,
   'tooltip',
   { keepInViewport: true }
 );

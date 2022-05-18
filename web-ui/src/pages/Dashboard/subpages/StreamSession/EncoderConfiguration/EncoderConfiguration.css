@@ -12,7 +12,7 @@
   flex-direction: column;
   flex-wrap: wrap;
   gap: 30px 60px;
-  height: 220px;
+  height: 235px;
 }
 
 .config-item {
@@ -22,17 +22,17 @@
 }
 
 .config-label {
-  color: var(--color-light-gray);
+  color: var(--palette-color-light-gray);
   min-width: 145px;
   position: relative;
 }
 
 .config-label.error {
-  color: var(--color-red);
+  color: var(--palette-color-red);
 }
 
 .config-label > svg {
-  fill: var(--color-red);
+  fill: var(--palette-color-red);
   margin-left: 6.5px;
   position: absolute;
   top: 50%;
@@ -54,7 +54,7 @@
 }
 
 .config-value.error {
-  color: var(--color-red);
+  color: var(--palette-color-red);
 }
 
 .copy-button {
@@ -67,12 +67,16 @@
 
 .copy-button:focus-visible {
   border-radius: 4px;
-  box-shadow: inset 0 0 0 2px var(--color-white);
+  box-shadow: inset 0 0 0 2px var(--palette-color-white);
   outline: none;
 }
 
 .copy-button svg {
-  fill: var(--color-light-gray);
+  fill: var(--palette-color-light-gray);
+}
+
+.encoder-value {
+  color: var(--palette-color-white);
 }
 
 @media (max-width: 875px) {
@@ -83,5 +87,23 @@
 
   .config-value {
     max-width: none;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .config-label {
+    color: var(--palette-color-medium-gray);
+  }
+
+  .copy-button:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--palette-color-medium-gray);
+  }
+
+  .copy-button svg {
+    fill: var(--palette-color-dark-gray);
+  }
+
+  .encoder-value {
+    color: var(--palette-color-dark-gray);
   }
 }

@@ -9,39 +9,11 @@ const TEST_STREAM_EVENTS_COUNT = 20;
 
 const TestStreamEventsList = () =>
   [...new Array(TEST_STREAM_EVENTS_COUNT)].map((_, index) => (
-    <span
-      key={index}
-      style={{
-        background: index === 1 ? 'var(--color-medium-gray)' : 'transparent',
-        borderRadius: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        marginBottom: '1rem',
-        justifyContent: 'center',
-        padding: '15px',
-        rowGap: '5px'
-      }}
-    >
-      <p
-        style={{
-          fontWeight: 500,
-          fontSize: '15px',
-          color: index === 1 ? 'var(--color-red)' : 'var(--color-white)'
-        }}
-      >
-        Stream Event {index}
-      </p>
-      <p
-        style={{
-          color: 'var(--color-light-gray)',
-          fontWeight: 400,
-          fontSize: '13px'
-        }}
-      >
-        Tamago
-      </p>
+    <span className={`event-item ${index === 1 ? 'selected' : ''}`} key={index}>
+      <h4 className="event-name">Stream Event {index}</h4>
+      <p className="event-time p2">Tamago</p>
       {index === 1 && (
-        <p style={{ lineHeight: '22.5px', padding: '10px 0 30px 0' }}>
+        <p className="event-description">
           Your stream is experiencing performance or network issues. Please
           check your configuration settings and network connection.
         </p>

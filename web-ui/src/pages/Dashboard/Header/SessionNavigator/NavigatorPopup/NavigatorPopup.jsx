@@ -29,38 +29,40 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
   };
 
   return (
-    <div className="nav-popup" ref={ref}>
-      {streamSessions?.length ? (
-        <>
-          {groupStreamSessions(streamSessions).map(
-            ({ groupLabel, sessionData }) => (
-              <div
-                className="session-group"
-                key={groupLabel.replace(/\s+/g, '-').toLowerCase()}
-              >
-                <h4>{groupLabel}</h4>
-                {sessionData.map((streamSession, i) => (
-                  <StreamSessionButton
-                    key={streamSession.streamId}
-                    streamSession={streamSession}
-                    handleSessionClick={handleSessionClick}
-                  />
-                ))}
-              </div>
-            )
-          )}
-          {canLoadMoreStreamSessions && (
-            <Button onClick={handleLoadMoreStreamSessions} variant="link">
-              {$content.load_more}
-            </Button>
-          )}
-        </>
-      ) : (
-        <span className="no-streams">
-          <b>{$content.no_stream_sessions}</b>
-          <p>{$content.no_stream_sessions_message}</p>
-        </span>
-      )}
+    <div className="nav-popup-wrapper">
+      <div className="nav-popup" ref={ref}>
+        {streamSessions?.length ? (
+          <>
+            {groupStreamSessions(streamSessions).map(
+              ({ groupLabel, sessionData }) => (
+                <div
+                  className="session-group"
+                  key={groupLabel.replace(/\s+/g, '-').toLowerCase()}
+                >
+                  <h4>{groupLabel}</h4>
+                  {sessionData.map((streamSession, i) => (
+                    <StreamSessionButton
+                      key={streamSession.streamId}
+                      streamSession={streamSession}
+                      handleSessionClick={handleSessionClick}
+                    />
+                  ))}
+                </div>
+              )
+            )}
+            {canLoadMoreStreamSessions && (
+              <Button onClick={handleLoadMoreStreamSessions} variant="link">
+                {$content.load_more}
+              </Button>
+            )}
+          </>
+        ) : (
+          <span className="no-streams">
+            <b>{$content.no_stream_sessions}</b>
+            <p>{$content.no_stream_sessions_message}</p>
+          </span>
+        )}
+      </div>
     </div>
   );
 });

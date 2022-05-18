@@ -1,30 +1,35 @@
 #nav-popup-container {
-  background: rgba(0, 0, 0, 0.5);
+  background: hsla(var(--base-color-white), 0%, 0.5);
   display: flex;
+  height: calc(100% - 64px);
   justify-content: center;
   position: absolute;
   top: 64px;
   width: 100%;
   z-index: 200;
-  height: calc(100% - 64px);
 }
 
-.nav-popup {
-  align-items: center;
-  background: var(--color-dark-gray);
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
+.nav-popup-wrapper {
+  background: var(--palette-color-dark-gray);
+  border-radius: var(--default-border-radius);
   height: calc(100% - 15px);
   margin: 15px;
   max-height: 810px;
   max-width: 650px;
+  width: 100%;
+}
+
+.nav-popup {
+  align-items: center;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   padding: 30px;
   row-gap: 30px;
-  scrollbar-color: var(--color-gray) var(--color-dark-gray);
-  width: 100%;
+  scrollbar-color: var(--palette-color-gray) transparent;
 }
 
 .nav-popup::-webkit-scrollbar-track {
@@ -32,7 +37,6 @@
 }
 
 .session-group {
-  color: var(--color-light-gray);
   display: flex;
   flex-direction: column;
   row-gap: 15px;
@@ -40,17 +44,19 @@
 }
 
 .button.secondary.session-button {
-  background: var(--color-medium-gray);
+  background: var(--palette-color-medium-gray);
   height: 90px;
   justify-content: space-between;
   padding: 20px 30px;
   width: 100%;
 }
+
 .button.secondary.session-button:hover {
-  background: #40434e;
+  background: var(--palette-color-medium-gray-hover);
 }
+
 .button.secondary.session-button:focus {
-  background: var(--color-medium-gray);
+  background: var(--palette-color-medium-gray);
 }
 
 .session-data {
@@ -67,9 +73,9 @@
 }
 
 .session-date p {
-  background: var(--color-red);
+  background: var(--palette-color-red);
   border-radius: var(--default-border-radius);
-  color: var(--color-white);
+  color: var(--palette-color-white);
   font-size: 10px;
   font-weight: 700;
   padding: 4px 8.5px;
@@ -82,17 +88,14 @@
 
 .session-time p {
   color: #c7c7c7;
-  font-weight: 400;
 }
 
 .session-time .day-diff {
-  color: var(--color-light-gray);
-  font-size: 12px;
-  font-weight: 500;
+  color: var(--palette-color-light-gray);
 }
 
 .no-streams {
-  color: var(--color-light-gray);
+  color: var(--palette-color-light-gray);
   margin-top: calc(21% - 30px);
   text-align: center;
   width: 200px;
@@ -113,29 +116,69 @@
 }
 
 .session-icon.error {
-  fill: var(--color-red);
+  fill: var(--palette-color-red);
 }
 
 .session-icon.success {
-  fill: var(--color-green);
+  fill: var(--palette-color-green);
 }
 
 @media (max-width: 875px) {
   #nav-popup-container {
-    height: auto;
+    height: calc(100vh + 64px);
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    z-index: 400;
   }
 
-  .nav-popup {
+  .nav-popup-wrapper {
     border-radius: 0;
     height: 100%;
     margin: 0;
-    max-height: 100%;
-    max-width: 100%;
+  }
+
+  .nav-popup {
+    height: 100%;
   }
 }
 
 @supports (overflow: overlay) {
   .nav-popup {
     overflow-y: overlay;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  #nav-popup-container {
+    background: hsla(var(--base-color-white), 0%, 0.2);
+  }
+
+  .nav-popup-wrapper {
+    background: var(--palette-color-extra-light-gray);
+  }
+
+  .button.secondary.session-button {
+    background: var(--palette-color-white);
+  }
+
+  .button.secondary.session-button:hover {
+    background: var(--palette-color-white-hover);
+  }
+
+  .button.secondary.session-button:focus {
+    background: var(--palette-color-white);
+  }
+
+  .session-time p {
+    color: var(--palette-color-medium-gray);
+  }
+
+  .session-time .day-diff {
+    color: var(--palette-color-medium-gray);
+  }
+
+  .no-streams {
+    color: var(--palette-color-medium-gray);
   }
 }

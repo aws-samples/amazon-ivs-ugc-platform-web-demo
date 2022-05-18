@@ -11,6 +11,7 @@
 }
 
 .grid-col {
+  background: var(--palette-color-black);
   height: auto;
   flex-direction: column;
 }
@@ -48,5 +49,11 @@
 
   .grid-row {
     flex-direction: column;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .grid-col {
+    background: var(--palette-color-extra-light-gray);
   }
 }
