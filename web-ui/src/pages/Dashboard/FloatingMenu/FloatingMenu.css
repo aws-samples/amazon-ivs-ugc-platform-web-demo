@@ -19,7 +19,7 @@
 .floating-menu .icon-button svg {
   width: 32px;
   height: 32px;
-  fill: var(--color-white);
+  fill: var(--palette-color-white);
 }
 
 .action-buttons {
@@ -44,7 +44,7 @@
 .hamburger.is-active .hamburger-inner,
 .hamburger.is-active .hamburger-inner::before,
 .hamburger.is-active .hamburger-inner::after {
-  background-color: var(--color-white);
+  background-color: var(--palette-color-white);
 }
 
 .hamburger-box {
@@ -65,7 +65,7 @@
 .hamburger-inner::after {
   width: 24px;
   height: 3px;
-  background-color: var(--color-white);
+  background-color: var(--palette-color-white);
   border-radius: 3px;
   position: absolute;
   transition-property: transform;
@@ -118,4 +118,19 @@
   transform: rotate(-90deg);
   transition: bottom 0.075s ease,
     transform 0.075s 0.12s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@media (prefers-color-scheme: light) {
+  .floating-menu .icon-button.secondary {
+    background: var(--palette-color-gray);
+    color: var(--palette-color-black);
+  }
+
+  .floating-menu .icon-button.secondary:hover {
+    background: var(--palette-color-gray-hover);
+  }
+
+  .floating-menu .icon-button.secondary:focus {
+    background: var(--palette-color-gray);
+  }
 }

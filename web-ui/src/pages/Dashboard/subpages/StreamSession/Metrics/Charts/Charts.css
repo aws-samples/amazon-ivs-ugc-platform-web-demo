@@ -40,7 +40,7 @@
 .preset-zoom-buttons button {
   background: none;
   border: none;
-  color: var(--color-light-gray);
+  color: var(--palette-color-light-gray);
   cursor: pointer;
   font-family: Inter;
   font-size: 13px;
@@ -48,7 +48,7 @@
 }
 
 .zoom-slider {
-  background: var(--color-gray);
+  background: var(--palette-color-gray);
   border-radius: 100px;
   height: 4px;
   margin: 4px 0;
@@ -57,4 +57,10 @@
 
 .chart-time-range-footer {
   margin-right: 9px;
+}
+
+@media (prefers-color-scheme: light) {
+  .preset-zoom-buttons button {
+    color: var(--palette-color-medium-gray);
+  }
 }

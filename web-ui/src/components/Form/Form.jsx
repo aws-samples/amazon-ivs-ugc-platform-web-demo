@@ -49,7 +49,7 @@ const Form = ({
         >
           {submitText}
         </Button>
-        {footer}
+        {!!footer && <div className="button-link">{footer}</div>}
       </div>
     ),
     [

@@ -70,7 +70,7 @@ const Modal = () => {
         }}
       >
         <h3>{message}</h3>
-        {subMessage && <p>{subMessage}</p>}
+        {subMessage && <p className="p1">{subMessage}</p>}
         <div className="modal-buttons">
           {cancellable && (
             <Button

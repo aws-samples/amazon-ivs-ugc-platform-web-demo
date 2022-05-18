@@ -11,7 +11,7 @@
   row-gap: 30px;
 }
 
-.form.vertical> :last-child {
+.form.vertical > :last-child {
   padding-top: 30px;
 }
 

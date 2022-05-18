@@ -114,7 +114,7 @@ const SessionNavigator = ({ headerRef }) => {
         ) : (
           <>
             <p className="date">{date}</p>
-            <span className="time">
+            <span className="time p3">
               {time}
               {dayDiff > 0 && <p className="day-diff">+{dayDiff}d</p>}
             </span>
@@ -133,7 +133,7 @@ const SessionNavigator = ({ headerRef }) => {
           onClick={handleNextStream}
           variant="secondary"
         >
-          <ChevronLeft className="icon" />
+          <ChevronLeft />
         </Button>
         <Button
           className="session-list"
@@ -149,7 +149,7 @@ const SessionNavigator = ({ headerRef }) => {
           onClick={handlePreviousStream}
           variant="secondary"
         >
-          <ChevronRight className="icon" />
+          <ChevronRight />
         </Button>
       </div>
       <NavigatorPopup

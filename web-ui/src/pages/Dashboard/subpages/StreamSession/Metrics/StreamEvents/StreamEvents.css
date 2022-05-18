@@ -13,7 +13,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding-right: 15px;
-  scrollbar-color: var(--color-gray) var(--color-dark-gray);
+  scrollbar-color: var(--palette-color-gray) transparent;
 }
 
 .stream-events-list::-webkit-scrollbar-track {
@@ -21,8 +21,54 @@
   margin-bottom: 11px;
 }
 
+.event-item {
+  background: transparent;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 1rem;
+  padding: 15px;
+  row-gap: 5px;
+}
+
+.event-item.selected {
+  background: var(--palette-color-medium-gray);
+}
+
+.event-name {
+  color: var(--palette-color-white);
+}
+
+.event-item.selected .event-name {
+  color: var(--palette-color-red);
+}
+
+.event-time {
+  color: var(--palette-color-light-gray);
+}
+
+.event-description {
+  line-height: 22.5px;
+  padding: 10px 0 30px 0;
+}
+
 @supports (overflow: overlay) {
   .stream-events-list {
     overflow-y: overlay;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .event-name {
+    color: var(--palette-color-dark-gray);
+  }
+
+  .event-time {
+    color: var(--palette-color-medium-gray);
+  }
+
+  .event-item.selected {
+    background: var(--palette-color-light-gray);
   }
 }

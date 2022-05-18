@@ -14,7 +14,7 @@ const FullScreenLoader = ({ hasError, onClick }) =>
       <SyncError />
       <h2>{$content.full_screen_loader.error_occurred}</h2>
       <Button
-        customStyles={{ color: 'var(--color-blue)' }}
+        customStyles={{ color: 'var(--palette-color-blue)' }}
         onClick={onClick}
         variant="link"
       >

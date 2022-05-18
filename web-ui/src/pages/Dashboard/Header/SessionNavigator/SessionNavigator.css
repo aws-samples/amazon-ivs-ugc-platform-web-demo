@@ -17,10 +17,6 @@
   min-width: auto;
 }
 
-.icon {
-  fill: var(--color-white);
-}
-
 .date-time-container {
   display: flex;
   flex-direction: column;
@@ -28,10 +24,14 @@
 
 .time {
   align-items: center;
-  color: var(--color-light-gray);
+  color: var(--palette-color-light-gray);
   column-gap: 2px;
   display: flex;
-  font-size: 12px;
-  font-weight: 500;
   justify-content: center;
+}
+
+@media (prefers-color-scheme: light) {
+  .time {
+    color: var(--palette-color-medium-gray);
+  }
 }

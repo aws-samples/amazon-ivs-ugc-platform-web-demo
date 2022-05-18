@@ -14,9 +14,13 @@
 }
 
 .tooltip {
-  background: #292b32;
+  background: var(--palette-color-medium-gray);
   border-radius: 12px;
   padding: 10px;
-  font-size: 12px;
-  font-weight: 500;
+}
+
+@media (prefers-color-scheme: light) {
+  .tooltip {
+    background: var(--palette-color-light-gray);
+  }
 }

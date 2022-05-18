@@ -1,5 +1,5 @@
 .main-user-container {
-  background: var(--color-dark-gray);
+  background: var(--palette-color-dark-gray);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -61,7 +61,6 @@
   .welcome-section h1 {
     text-align: center;
     margin: auto;
-    font-size: 32px;
   }
 
   .sub-page-container {
@@ -72,5 +71,11 @@
 @supports (overflow: overlay) {
   .main-user-container {
     overflow-y: overlay;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .main-user-container {
+    background: var(--palette-color-white);
   }
 }

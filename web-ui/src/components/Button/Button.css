@@ -4,9 +4,6 @@
   border: none;
   cursor: pointer;
   display: flex;
-  font-family: Inter;
-  font-size: 15px;
-  font-weight: 700;
   height: 42px;
   justify-content: center;
   min-width: 90px;
@@ -16,89 +13,142 @@
   white-space: nowrap;
 }
 
+.button svg {
+  fill: var(--palette-color-white);
+}
+
 .button:disabled {
   opacity: 0.3;
   cursor: auto;
   pointer-events: none;
 }
 
+.button:focus {
+  box-shadow: inset 0 0 0 2px var(--palette-color-white);
+  outline: none;
+}
+
 .button.primary {
-  background: var(--color-blue);
-  color: var(--color-black);
+  background: var(--palette-color-blue);
+  color: var(--palette-color-black);
+}
+
+.button.primary:hover {
+  background: var(--palette-color-blue-hover);
+}
+
+.button.primary:focus {
+  background: var(--palette-color-blue);
 }
 
 .button.secondary {
-  background: var(--color-gray);
-  color: var(--color-white);
+  background: var(--palette-color-gray);
+  color: var(--palette-color-white);
+}
+
+.button.secondary:hover {
+  background: var(--palette-color-gray-hover);
+}
+
+.button.secondary:focus {
+  background: var(--palette-color-gray);
 }
 
 .button.tertiary {
-  background: var(--color-extra-light-gray);
-  color: var(--color-black);
+  background: var(--palette-color-extra-light-gray);
+  color: var(--palette-color-black);
 }
 
-.button.destructive {
-  background: var(--color-red);
-  color: var(--color-black);
+.button.tertiary:hover {
+  background: var(--palette-color-extra-light-gray-hover);
+}
+
+.button.tertiary:focus {
+  background: var(--palette-color-extra-light-gray);
 }
 
 .button.link {
   background: none;
-  color: var(--color-white);
+  color: var(--palette-color-white);
 }
 
-.button:focus {
-  box-shadow: inset 0 0 0 2px var(--color-white);
-  outline: none;
-}
-
-/* Primary hover/active state */
-.button.primary:hover {
-  background: #75d1ff;
-  /* Temporary: will be replaced with HSL */
-}
-
-.button.primary:focus {
-  background: var(--color-blue);
-}
-
-/* Secondary hover/active state */
-.button.secondary:hover {
-  background: #555968;
-  /* Temporary: will be replaced with HSL */
-}
-
-.button.secondary:focus {
-  background: var(--color-gray);
-}
-
-/* Tertiary hover/active state */
-.button.tertiary:hover {
-  background: #f3f4f6;
-  /* Temporary: will be replaced with HSL */
-}
-
-.button.tertiary:focus {
-  background: var(--color-extra-light-gray);
-}
-
-/* Destructive hover/active state */
-.button.destructive:hover {
-  background: #e16256;
-  /* Temporary: will be replaced with HSL */
-}
-
-.button.destructive:focus {
-  background: #d93a2c;
-}
-
-/* Link focus state */
 .button.link:hover {
-  background: #555968;
-  /* Temporary: will be replaced with HSL */
+  background: var(--palette-color-gray-hover);
 }
 
 .button.link:focus {
-  background: #292b32;
-  /* Temporary: will be replaced with HSL */
+  background: var(--palette-color-medium-gray);
+}
+
+.button.destructive {
+  background: var(--palette-color-red);
+  color: var(--palette-color-black);
+}
+
+.button.destructive:hover {
+  background: var(--palette-color-red-hover);
+}
+
+.button.destructive:focus {
+  background: var(--palette-color-red);
+}
+
+@media (prefers-color-scheme: light) {
+  .button svg {
+    fill: var(--palette-color-black);
+  }
+
+  .button:disabled svg {
+    fill: var(--palette-color-dark-gray);
+  }
+
+  .button:focus {
+    box-shadow: inset 0 0 0 2px var(--palette-color-black);
+  }
+
+  .button.secondary {
+    background: var(--palette-color-white);
+    color: var(--palette-color-black);
+  }
+
+  .button.secondary:hover {
+    background: var(--palette-color-white-hover);
+  }
+
+  .button.secondary:focus {
+    background: var(--palette-color-white);
+  }
+
+  .button.tertiary {
+    background: var(--palette-color-gray);
+    color: var(--palette-color-black);
+  }
+
+  .button.tertiary:hover {
+    background: var(--palette-color-gray-hover);
+  }
+
+  .button.tertiary:focus {
+    background: var(--palette-color-gray);
+  }
+
+  .button.link {
+    color: var(--palette-color-black);
+  }
+
+  .button.link:hover {
+    background: var(--palette-color-light-gray-hover);
+  }
+
+  .button.link:focus {
+    background: var(--palette-color-light-gray);
+  }
+
+  .button.destructive {
+    color: var(--palette-color-white);
+  }
+
+  .button.destructive .spinner {
+    color: var(--palette-color-white);
+  }
 }

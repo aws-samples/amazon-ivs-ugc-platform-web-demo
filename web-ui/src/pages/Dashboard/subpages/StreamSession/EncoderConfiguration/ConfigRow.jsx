@@ -50,10 +50,14 @@ const ConfigRow = ({ label, value, error }) => {
         </button>
         {isOverflowing ? (
           <Tooltip message={value}>
-            <p ref={valueRef}>{value}</p>
+            <p className="encoder-value p1" ref={valueRef}>
+              {value}
+            </p>
           </Tooltip>
         ) : (
-          <p ref={valueRef}>{value}</p>
+          <p className="encoder-value p1" ref={valueRef}>
+            {value}
+          </p>
         )}
       </span>
     </span>

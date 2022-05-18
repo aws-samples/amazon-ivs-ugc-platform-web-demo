@@ -1,11 +1,9 @@
-.notification {
+.notification.button-link {
   align-items: center;
-  border-radius: 24px;
-  color: var(--color-black);
+  border-radius: var(--default-border-radius);
+  color: var(--palette-color-black);
   column-gap: 11.5px;
   display: flex;
-  font-size: 15px;
-  font-weight: 700;
   left: 0;
   margin: 0 auto;
   padding: 10px 20px;
@@ -16,13 +14,23 @@
 }
 
 .notification.error {
-  background-color: var(--color-red);
+  background-color: var(--palette-color-red);
 }
 
 .notification.success {
-  background-color: var(--color-green);
+  background-color: var(--palette-color-green);
 }
 
-.notif-icon {
-  fill: var(--color-black);
+.notification-icon {
+  fill: var(--palette-color-black);
+}
+
+@media (prefers-color-scheme: light) {
+  .notification.button-link {
+    color: var(--palette-color-white);
+  }
+
+  .notification-icon {
+    fill: var(--palette-color-white);
+  }
 }
