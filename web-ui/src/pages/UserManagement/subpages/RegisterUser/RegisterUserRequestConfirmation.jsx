@@ -1,10 +1,12 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import Button from '../../../../components/Button';
+import './RegisterUserRequestConfirmation.css';
+import { useNotif } from '../../../../contexts/Notification';
 import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
-import { useNotif } from '../../../../contexts/Notification';
+import Button from '../../../../components/Button';
+import { LIMIT_EXCEEDED_EXCEPTION } from '../../../../constants';
 
 const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
@@ -19,7 +21,11 @@ const RegisterUserRequestConfirmation = ({ username }) => {
     }
 
     if (error) {
-      notifyError($content.notification.error.unexpected_error);
+      const errorNotificationMessage =
+        error?.name === LIMIT_EXCEEDED_EXCEPTION
+          ? $content.notification.error.resent_confirmation_limit_error
+          : $content.notification.error.resent_confirmation_error;
+      notifyError(errorNotificationMessage);
     }
   };
 
@@ -27,9 +33,9 @@ const RegisterUserRequestConfirmation = ({ username }) => {
     <div className="sub-page-container">
       <h2>{$content.register_page.verify_your_account}</h2>
       <p className="p1">{$content.register_page.email_link_sent}</p>
-      <span>
-        <b>{$content.did_not_receive_email}</b>&nbsp;
-        <Button onClick={resend} type="button" variant="link">
+      <span className="resend-action-container">
+        <b>{$content.did_not_receive_email}</b>
+        <Button onClick={resend} type="button" variant="secondary">
           {$content.resend}
         </Button>
       </span>
