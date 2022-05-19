@@ -45,11 +45,11 @@
 @media (prefers-color-scheme: light) {
   @keyframes pulse-first-waves {
     0% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
 
     7% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
 
     21% {
@@ -61,17 +61,17 @@
     }
 
     100% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
   }
 
   @keyframes pulse-second-waves {
     0% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
 
     28% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
 
     42% {
@@ -83,7 +83,7 @@
     }
 
     100% {
-      fill: var(--palette-color-medium-gray);
+      fill: hsla(var(--base-color-medium-gray), 0.5);
     }
   }
 }
@@ -229,7 +229,7 @@ canvas {
   }
 
   .floating-player .icon-button g {
-    fill: var(--palette-color-medium-gray);
+    fill: hsla(var(--base-color-medium-gray), 0.5);
   }
 
   .floating-player .icon-button .sensors-origin.is-live {
