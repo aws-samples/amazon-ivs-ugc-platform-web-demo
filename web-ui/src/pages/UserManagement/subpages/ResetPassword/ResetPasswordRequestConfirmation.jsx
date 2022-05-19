@@ -20,7 +20,7 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
     }
 
     if (error) {
-      notifyError($content.notification.error.unexpected_error);
+      notifyError($content.notification.error.unexpected_error_occurred);
     }
   };
 

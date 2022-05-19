@@ -174,4 +174,8 @@
   .visibility-icon {
     fill: var(--palette-color-dark-gray);
   }
+
+  .button.destructive + .spinner-container .spinner {
+    color: var(--palette-color-white);
+  }
 }
