@@ -31,7 +31,10 @@ export const copyToClipboard = (value) => {
 };
 
 export const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const scrollableContainer =
+    document.querySelector('[id$=scrollable]') || window;
+
+  scrollableContainer.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 export const bound = (value, min = null, max = null) => {

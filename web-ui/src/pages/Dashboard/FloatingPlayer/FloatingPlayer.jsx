@@ -8,6 +8,7 @@ import { Sensors } from '../../../assets/icons';
 import { useStreams } from '../../../contexts/Streams';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
+import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
 
@@ -161,7 +162,7 @@ const FloatingPlayer = () => {
           {isLoading && isLive !== false && <Spinner variant="light" />}
           <video ref={videoRef} playsInline muted></video>
           <canvas ref={canvasRef} />
-          <div className="red-pill ">{$content.floating_player.live}</div>
+          <LivePill />
         </div>
         {!isLive && (
           <div className="offline-stream-container">

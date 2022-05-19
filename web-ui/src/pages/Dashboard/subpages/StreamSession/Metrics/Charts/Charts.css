@@ -30,7 +30,6 @@
 }
 
 .cursor-reading {
-  line-height: 29px;
   margin-right: 9px;
 }
 
@@ -58,8 +57,32 @@
   width: 100%;
 }
 
-.chart-time-range-footer {
-  margin-right: 9px;
+@media (max-width: 875px) {
+  .charts {
+    padding: 0 15px;
+  }
+
+  .chart-controls {
+    margin-right: 0;
+  }
+
+  .cursor-reading {
+    margin-right: 0;
+  }
+
+  .charts .metrics-panel:nth-child(1) {
+    margin-bottom: 30px;
+  }
+
+  .charts .metrics-panel:nth-child(2) {
+    margin-bottom: 15px;
+  }
+}
+
+@media (min-width: 875px) {
+  .chart-time-range-footer {
+    margin-right: 9px;
+  }
 }
 
 @media (prefers-color-scheme: light) {

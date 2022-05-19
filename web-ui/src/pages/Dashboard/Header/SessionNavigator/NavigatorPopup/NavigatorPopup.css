@@ -33,7 +33,7 @@
 }
 
 .nav-popup::-webkit-scrollbar-track {
-  margin: 25px 0;
+  margin: 15px 0;
 }
 
 .session-group {
@@ -70,6 +70,7 @@
   align-items: center;
   column-gap: 15px;
   display: flex;
+  height: 20px;
 }
 
 .session-date p {
@@ -125,21 +126,15 @@
 
 @media (max-width: 875px) {
   #nav-popup-container {
-    height: calc(100vh + 64px);
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    z-index: 400;
+    height: calc(100vh - 64px);
   }
 
   .nav-popup-wrapper {
     border-radius: 0;
     height: 100%;
     margin: 0;
-  }
-
-  .nav-popup {
-    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
   }
 }
 
