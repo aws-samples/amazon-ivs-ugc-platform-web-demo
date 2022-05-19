@@ -133,7 +133,7 @@ export const Provider = ({ children }) => {
           if (!prevSessions) return nextSessions;
 
           // Merge previous stream data with the new stream data we just fetched
-          nextSessions.reduce((mergedSessions, nextSession) => {
+          const mergedSessions = nextSessions.reduce((acc, nextSession) => {
             const { streamId: nextStreamId } = nextSession;
             const prevSession =
               prevSessions.find(
@@ -142,14 +142,14 @@ export const Provider = ({ children }) => {
 
             const mergedSession = { ...prevSession, ...nextSession };
 
-            return [...mergedSessions, mergedSession];
+            return [...acc, mergedSession];
           }, []);
 
           const shouldUpdateStreams =
             nextSessions.length !== prevSessions.length ||
             JSON.stringify(nextSessions) !== JSON.stringify(prevSessions);
 
-          return shouldUpdateStreams ? nextSessions : prevSessions;
+          return shouldUpdateStreams ? mergedSessions : prevSessions;
         });
       }
     }

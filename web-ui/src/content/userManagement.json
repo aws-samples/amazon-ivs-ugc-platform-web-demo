@@ -46,7 +46,7 @@
   },
   "notification": {
     "success": {
-      "resent_confirmation": "Confirmation link resent",
+      "resent_confirmation": "Verification email has been resent",
       "registration_confirmed": "Your registration has been confirmed"
     },
     "error": {

@@ -58,7 +58,8 @@
     --palette-color-dark-gray: hsl(var(--base-color-dark-gray), 27%);
     --palette-color-dark-gray-hover: hsl(var(--base-color-dark-gray), 17%);
 
-    --palette-color-medium-gray: hsl(var(--base-color-dark-gray), 42%);
+    --base-color-medium-gray: var(--base-color-dark-gray), 42%;
+    --palette-color-medium-gray: hsl(var(--base-color-medium-gray));
     --palette-color-medium-gray-hover: hsl(var(--base-color-dark-gray), 32%);
 
     --palette-color-gray: hsl(var(--base-color-dark-gray), 80%);
@@ -211,7 +212,8 @@ a:not([class]) {
   text-decoration-skip-ink: auto;
 }
 
-a:focus {
+a:focus,
+a:hover {
   border-bottom: 2px solid var(--palette-color-blue);
   margin-bottom: -5px;
   outline: none;
@@ -270,7 +272,8 @@ a:focus {
     color: var(--palette-color-medium-blue);
   }
 
-  a:focus {
+  a:focus,
+  a:hover {
     border-bottom: 2px solid var(--palette-color-medium-blue);
   }
 }
