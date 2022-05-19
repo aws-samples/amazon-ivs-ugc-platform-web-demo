@@ -163,6 +163,13 @@
   top: 0;
 }
 
+.video-container .live-pill {
+  left: 10px;
+  position: absolute;
+  top: 10px;
+  z-index: 20;
+}
+
 video {
   height: 100%;
   left: 0;
@@ -182,22 +189,6 @@ canvas {
   right: 0;
   top: 0;
   width: 100%;
-}
-
-.red-pill {
-  background-color: var(--palette-color-red);
-  border-radius: var(--default-border-radius);
-  font-family: 'Inter';
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 700;
-  left: 10px;
-  line-height: 12px;
-  padding: 4px 8px;
-  position: absolute;
-  text-transform: uppercase;
-  top: 10px;
-  z-index: 20;
 }
 
 .mini-player-text {
@@ -252,12 +243,6 @@ canvas {
 
   .video-container {
     background: var(--palette-color-extra-light-gray);
-  }
-
-  .red-pill {
-    background-color: var(--palette-color-red);
-    border-radius: var(--default-border-radius);
-    color: var(--palette-color-white);
   }
 
   .offline-stream-container {

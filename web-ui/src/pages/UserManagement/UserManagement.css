@@ -69,6 +69,13 @@
   }
 }
 
+@media (min-width: 875px) {
+  .main-user-container > .form {
+    min-height: 650px;
+    justify-content: center;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   .main-user-container {
     background: var(--palette-color-white);

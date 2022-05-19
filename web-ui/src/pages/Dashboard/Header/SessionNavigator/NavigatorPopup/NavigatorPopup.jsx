@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { groupStreamSessions } from '../utils';
 import { useStreams } from '../../../../../contexts/Streams';
+import { useMobileBreakpoint } from '../../../../../contexts/MobileBreakpoint';
 import Button from '../../../../../components/Button';
 import StreamSessionButton from './StreamSessionButton';
 import withPortal from '../../../../../components/withPortal';
@@ -12,6 +13,7 @@ import './NavigatorPopup.css';
 const $content = $dashboardContent.header.session_navigator;
 
 const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
+  const { isMobileView } = useMobileBreakpoint();
   const {
     canLoadMoreStreamSessions,
     streamSessions,
@@ -27,6 +29,14 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
   const handleLoadMoreStreamSessions = () => {
     updateStreamSessionsList(true);
   };
+
+  useEffect(() => {
+    if (isMobileView) {
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => (document.body.style.overflow = null);
+  }, [isMobileView]);
 
   return (
     <div className="nav-popup-wrapper">

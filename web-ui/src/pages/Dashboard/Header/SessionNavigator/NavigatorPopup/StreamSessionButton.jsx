@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import { Check, Error } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button';
+import LivePill from '../../../../../components/LivePill';
 import useDateTime from '../../../../../hooks/useDateTime';
 import './NavigatorPopup.css';
 
@@ -18,7 +19,7 @@ const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
       <div className="session-data">
         <span className="session-date">
           <h3>{date}</h3>
-          {isLive && <p>LIVE</p>}
+          {isLive && <LivePill />}
         </span>
         <span className="session-time">
           <p className="p1">{time}</p>

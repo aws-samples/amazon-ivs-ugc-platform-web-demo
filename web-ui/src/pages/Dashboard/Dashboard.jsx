@@ -53,7 +53,10 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      <main className="main-dashboard-container">
+      <main
+        id={`main-dashboard-container${isMobileView ? '' : '-scrollable'}`}
+        className="main-dashboard-container"
+      >
         <Modal isOpen={!!modal} />
         <Notification />
         <Outlet context={outletContext} />

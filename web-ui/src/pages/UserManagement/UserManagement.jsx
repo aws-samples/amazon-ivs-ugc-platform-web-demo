@@ -39,7 +39,10 @@ const UserManagement = () => {
         </aside>
       </Grid.Col>
       <Grid.Col autoFit>
-        <main id="main-user-container" className="main-user-container">
+        <main
+          id={`main-user-container${isMobileView ? '' : '-scrollable'}`}
+          className="main-user-container"
+        >
           {isCreatingResources || hasErrorCreatingResources ? (
             <FullScreenLoader
               hasError={hasErrorCreatingResources}
