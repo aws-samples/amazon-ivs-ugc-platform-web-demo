@@ -143,7 +143,16 @@ export const changePassword = async ({ currentPassword, newPassword }) => {
 
 export const verifyUserEmail = async (username, verificationCode) => {
   const cognitoUser = await getCognitoUser(username);
+  let isEmailVerified = false;
   let result, error;
+
+  cognitoUser.getUserData[promisify.custom] = () =>
+    new Promise((resolve, reject) => {
+      cognitoUser.getUserData((err, val) => {
+        if (val) resolve(val);
+        reject(err);
+      });
+    });
 
   cognitoUser.confirmRegistration[promisify.custom] = () =>
     new Promise((resolve, reject) => {
@@ -154,8 +163,24 @@ export const verifyUserEmail = async (username, verificationCode) => {
     });
 
   try {
+    const getUserData = promisify(cognitoUser.getUserData);
     const confirmRegistration = promisify(cognitoUser.confirmRegistration);
-    result = await confirmRegistration();
+
+    try {
+      const userData = await getUserData();
+      const { Value } =
+        userData.UserAttributes.find(
+          ({ Name: attrName }) => attrName === 'email_verified'
+        ) || {};
+
+      isEmailVerified = Value === 'true';
+    } catch (error) {
+      /* swallow the error - user data is unavailable, so their email was likely not verified  */
+    }
+
+    if (!isEmailVerified) {
+      result = await confirmRegistration();
+    }
   } catch (err) {
     error = err;
     console.error(err);
