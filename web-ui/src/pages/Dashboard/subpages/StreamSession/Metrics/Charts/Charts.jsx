@@ -9,8 +9,15 @@ import './Charts.css';
 const $content = $dashboardContent.stream_session_page.charts;
 
 const Charts = () => {
-  const { activeStreamSession } = useOutletContext();
-  const isMetricDataAvailable = !!activeStreamSession?.metrics;
+  const {
+    activeStreamSession,
+    activeStreamSessionError,
+    isInitialLoadingActiveStreamSession
+  } = useOutletContext();
+  const isMetricDataAvailable =
+    !isInitialLoadingActiveStreamSession &&
+    !activeStreamSessionError &&
+    !!activeStreamSession?.metrics;
 
   const getChartMetricPanelProps = useCallback(
     (metricType) => {

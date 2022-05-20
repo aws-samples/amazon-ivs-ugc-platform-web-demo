@@ -92,6 +92,8 @@ export const Provider = ({ children }) => {
   const [streamSessions, setStreamSessions] = useStateWithCallback();
   const [canLoadMoreStreamSessions, setCanLoadMoreStreamSessions] =
     useState(true);
+  const [isLoadingNextStreamSessionsPage, setIsLoadingNextStreamSessionsPage] =
+    useState(false);
   const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
   // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
   // revalidation of all the subsequent pages as well.
@@ -116,6 +118,8 @@ export const Provider = ({ children }) => {
       revalidateOnMount: true,
       onError: () => {
         notifyError($content.notification.error.streams_fetch_failed);
+        if (isLoadingNextStreamSessionsPage)
+          setIsLoadingNextStreamSessionsPage(false);
       },
       onSuccess: (sessions) => {
         const nextSessions = sessions
@@ -151,6 +155,9 @@ export const Provider = ({ children }) => {
 
           return shouldUpdateStreams ? mergedSessions : prevSessions;
         });
+
+        if (isLoadingNextStreamSessionsPage)
+          setIsLoadingNextStreamSessionsPage(false);
       }
     }
   );
@@ -202,6 +209,7 @@ export const Provider = ({ children }) => {
   const throttledUpdateStreamSessionsList = useThrottledCallback(
     (shouldFetchNextPage = false) => {
       if (shouldFetchNextPage && canLoadMoreStreamSessions) {
+        setIsLoadingNextStreamSessionsPage(true);
         setSize((size) => size + 1);
       } else {
         updateStreamSessionsList();
@@ -245,6 +253,7 @@ export const Provider = ({ children }) => {
       activeStreamSession,
       activeStreamSessionError,
       canLoadMoreStreamSessions,
+      isLoadingNextStreamSessionsPage,
       isLive,
       streamSessions,
       updateActiveStreamSession: eagerUpdateActiveStreamSession,
@@ -260,6 +269,7 @@ export const Provider = ({ children }) => {
       activeStreamSessionError,
       canLoadMoreStreamSessions,
       eagerUpdateActiveStreamSession,
+      isLoadingNextStreamSessionsPage,
       isLive,
       streamSessions,
       throttledUpdateStreamSessionsList

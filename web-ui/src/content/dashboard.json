@@ -5,6 +5,7 @@
     "stream_session": "Stream Session",
     "select_stream_session": "Select a stream session to view",
     "session_navigator": {
+      "started": "Started",
       "no_stream_sessions": "No stream sessions",
       "no_stream_sessions_message": "Stream sessions will show up here when there is data.",
       "session_group_labels": {
@@ -13,7 +14,7 @@
         "previous_30_days": "Previous 30 days",
         "earlier": "Earlier"
       },
-      "load_more": "Load more"
+      "load_more_sessions": "Load more sessions"
     }
   },
   "stream_session_page": {

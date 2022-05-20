@@ -54,6 +54,10 @@
   background: var(--palette-color-gray);
 }
 
+.button.secondary .spinner {
+  color: var(--palette-color-white);
+}
+
 .button.tertiary {
   background: var(--palette-color-extra-light-gray);
   color: var(--palette-color-black);
@@ -146,6 +150,10 @@
 
   .button.destructive {
     color: var(--palette-color-white);
+  }
+
+  .button.button.secondary .spinner {
+    color: var(--palette-color-black);
   }
 
   .button.destructive .spinner {
