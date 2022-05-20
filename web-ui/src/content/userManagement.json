@@ -55,7 +55,7 @@
       "attempt_limit_exceeded": "Attempt limit exceeded, please try again later",
       "registration_not_confirmed": "Your registration has not been confirmed",
       "resent_confirmation_error": "Verification email failed to resend. Please try again.",
-      "resent_confirmation_limit_error": "Verification email could not be resent. The maximum of 5 emails per hour has been reached. Please try again in one hour."
+      "resent_confirmation_limit_error": "Limit has been exceeded. Please try again in one hour."
     }
   }
 }
