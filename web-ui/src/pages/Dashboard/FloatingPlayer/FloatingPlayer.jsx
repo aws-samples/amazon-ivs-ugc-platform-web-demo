@@ -62,6 +62,12 @@ const FloatingPlayer = () => {
     return true;
   }, [streamSessions]);
   const prevIsLiveValue = useRef(isLive);
+  const [isBlurReady, setIsBlurReady] = useState(false);
+  const shouldShowSpinner =
+    (isLoading && isLive !== false) || (shouldBlurPlayer && !isBlurReady);
+  const additionalStyles = shouldShowSpinner
+    ? { style: { display: 'none' } }
+    : {};
 
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
@@ -85,6 +91,7 @@ const FloatingPlayer = () => {
             canvasRef.current.width,
             canvasRef.current.height
           );
+          setIsBlurReady(true);
 
           requestAnimationFrame(draw);
         }
@@ -117,7 +124,10 @@ const FloatingPlayer = () => {
     if (isLive && !isLoading && shouldBlurPlayer) {
       startBlur();
 
-      return clearCanvas;
+      return () => {
+        setIsBlurReady(true);
+        clearCanvas();
+      };
     }
   }, [isLive, isLoading, shouldBlurPlayer, startBlur]);
 
@@ -159,9 +169,9 @@ const FloatingPlayer = () => {
           className="video-container"
           style={isLive ? {} : { display: 'none' }}
         >
-          {isLoading && isLive !== false && <Spinner variant="light" />}
-          <video ref={videoRef} playsInline muted></video>
-          <canvas ref={canvasRef} />
+          {shouldShowSpinner && <Spinner variant="light" />}
+          <video {...additionalStyles} ref={videoRef} playsInline muted></video>
+          <canvas {...additionalStyles} ref={canvasRef} />
           <LivePill />
         </div>
         {!isLive && (
