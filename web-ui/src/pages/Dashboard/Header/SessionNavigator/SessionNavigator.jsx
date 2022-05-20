@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { bound } from '../../../../utils';
 import { ChevronLeft, ChevronRight } from '../../../../assets/icons';
-import { dashboard as $content } from '../../../../content';
+import { dashboard as $dashboardContent } from '../../../../content';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import NavigatorPopup from './NavigatorPopup';
@@ -12,6 +12,8 @@ import useClickAway from '../../../../hooks/useClickAway';
 import useDateTime from '../../../../hooks/useDateTime';
 import useFocusTrap from '../../../../hooks/useFocusTrap';
 import './SessionNavigator.css';
+
+const $content = $dashboardContent.header;
 
 const SessionNavigator = ({ headerRef }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -26,12 +28,11 @@ const SessionNavigator = ({ headerRef }) => {
     updateActiveStreamSession,
     updateStreamSessionsList
   } = useStreams();
-  const [date, time, dayDiff] = useDateTime(
-    activeStreamSession?.startTime,
-    activeStreamSession?.endTime,
-    activeStreamSession?.isLive,
-    5
-  );
+  const { startTime, endTime, isLive } = activeStreamSession || {};
+  const [date, time, dayDiff] = useDateTime(startTime, endTime, {
+    updateIntervalInSeconds: 5,
+    formatAsTimeAgo: isLive
+  });
   const sessionsLength = streamSessions?.length;
   const isNotOnDashboard = pathname !== '/';
   const isPrevDisabled =
@@ -102,20 +103,20 @@ const SessionNavigator = ({ headerRef }) => {
   }, [isNavOpen]);
 
   const renderSessionNavigatorContent = () => {
-    if (isNotOnDashboard) return <p>{$content.header.return_to_session}</p>;
+    if (isNotOnDashboard) return <p>{$content.return_to_session}</p>;
 
     return (
       <span className="date-time-container">
         {isNavOpen || !activeStreamSession ? (
           <>
-            <p className="date">{$content.header.stream_session}</p>
-            <p className="time p3">{$content.header.select_stream_session}</p>
+            <p className="date">{$content.stream_session}</p>
+            <p className="time p3">{$content.select_stream_session}</p>
           </>
         ) : (
           <>
             <p className="date">{date}</p>
             <span className="time p3">
-              {time}
+              {isLive ? `${$content.session_navigator.started} ${time}` : time}
               {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
             </span>
           </>

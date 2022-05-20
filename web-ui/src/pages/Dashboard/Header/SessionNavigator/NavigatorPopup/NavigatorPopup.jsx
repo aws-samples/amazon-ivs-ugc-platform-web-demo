@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { groupStreamSessions } from '../utils';
@@ -14,8 +14,10 @@ const $content = $dashboardContent.header.session_navigator;
 
 const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
   const { isMobileView } = useMobileBreakpoint();
+  const loadMoreSessionsBtnRef = useRef();
   const {
     canLoadMoreStreamSessions,
+    isLoadingNextStreamSessionsPage,
     streamSessions,
     updateActiveStreamSession,
     updateStreamSessionsList
@@ -29,6 +31,12 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
   const handleLoadMoreStreamSessions = () => {
     updateStreamSessionsList(true);
   };
+
+  useEffect(() => {
+    if (!isLoadingNextStreamSessionsPage) {
+      loadMoreSessionsBtnRef.current?.blur();
+    }
+  }, [isLoadingNextStreamSessionsPage]);
 
   useEffect(() => {
     if (isMobileView) {
@@ -61,8 +69,14 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
               )
             )}
             {canLoadMoreStreamSessions && (
-              <Button onClick={handleLoadMoreStreamSessions} variant="link">
-                {$content.load_more}
+              <Button
+                className="load-more-button"
+                isLoading={isLoadingNextStreamSessionsPage}
+                onClick={handleLoadMoreStreamSessions}
+                ref={loadMoreSessionsBtnRef}
+                variant="secondary"
+              >
+                {$content.load_more_sessions}
               </Button>
             )}
           </>

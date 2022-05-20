@@ -16,7 +16,6 @@
     "stream_went_offline": "Your stream just went offline. Try reconnecting your streaming software."
   },
   "date_time": {
-    "just_now": "just now",
-    "started": "Started"
+    "just_now": "just now"
   }
 }

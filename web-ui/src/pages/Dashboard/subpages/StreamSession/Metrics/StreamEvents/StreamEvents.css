@@ -32,7 +32,7 @@
 
 .no-stream-events {
   align-items: center;
-  color: var(--palette-color-gray);
+  color: var(--palette-color-light-gray);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -47,7 +47,7 @@
 }
 
 .no-stream-events h4 {
-  color: var(--palette-color-gray);
+  color: var(--palette-color-light-gray);
 }
 
 .event-item {
@@ -75,10 +75,10 @@
 
 .event-time {
   color: var(--palette-color-light-gray);
-  padding-bottom: 15px;
 }
 
 .event-description {
+  padding-top: 15px;
   padding-bottom: 30px;
 }
 

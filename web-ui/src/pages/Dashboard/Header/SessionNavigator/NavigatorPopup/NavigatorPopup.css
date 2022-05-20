@@ -59,6 +59,10 @@
   background: var(--palette-color-medium-gray);
 }
 
+.button.secondary.load-more-button {
+  width: 194px;
+}
+
 .session-data {
   align-items: flex-start;
   display: flex;

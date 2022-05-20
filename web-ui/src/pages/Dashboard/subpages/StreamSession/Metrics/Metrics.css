@@ -63,7 +63,7 @@
 
 .metrics-error-container {
   align-items: center;
-  color: var(--palette-color-gray);
+  color: var(--palette-color-light-gray);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -74,7 +74,7 @@
 }
 
 .metrics-error-container svg {
-  fill: var(--palette-color-gray);
+  fill: var(--palette-color-light-gray);
   height: 36px;
   width: 36px;
 }

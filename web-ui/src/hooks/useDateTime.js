@@ -58,7 +58,11 @@ export const formatDate = (utcDate) => {
   return `${weekday} ${month} ${day}, ${year}`;
 };
 
-export const formatTime = (utcStartDate, utcEndDate) => {
+export const formatTime = (
+  utcStartDate,
+  utcEndDate,
+  formatAsTimeAgo = true
+) => {
   const formatAbsoluteTime = (date) =>
     new Intl.DateTimeFormat('en-US', { timeStyle: 'short' })
       .format(new Date(date))
@@ -90,16 +94,21 @@ export const formatTime = (utcStartDate, utcEndDate) => {
         }).format(-relativeValue, relativeUnit);
   };
 
-  return !!utcEndDate
-    ? `${formatAbsoluteTime(utcStartDate)} - ${formatAbsoluteTime(utcEndDate)}`
-    : `${$content.started} ${formatRelativeTime(utcStartDate)}`;
+  if (utcEndDate) {
+    return `${formatAbsoluteTime(utcStartDate)} – ${formatAbsoluteTime(
+      utcEndDate
+    )}`;
+  } else if (formatAsTimeAgo) {
+    return formatRelativeTime(utcStartDate);
+  } else {
+    return formatAbsoluteTime(utcStartDate);
+  }
 };
 
 export const useDateTime = (
   startTime,
   endTime,
-  isLive,
-  updateIntervalInSeconds
+  { updateIntervalInSeconds, formatAsTimeAgo }
 ) => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -112,7 +121,7 @@ export const useDateTime = (
     const update = () => {
       const newDate = formatDate(startTime);
       const newTime = formatTime(startTime, endTime);
-      const newDayDiff = !isLive && getDayDiff(startTime, endTime);
+      const newDayDiff = !formatAsTimeAgo && getDayDiff(startTime, endTime);
 
       setDate(newDate);
       setTime(newTime);
@@ -120,12 +129,12 @@ export const useDateTime = (
     };
 
     update();
-    if (isLive) {
+    if (updateIntervalInSeconds > 0) {
       intervalId.current = setInterval(update, updateIntervalInSeconds * 1000);
     }
 
     return () => clearInterval(intervalId.current);
-  }, [endTime, isLive, startTime, updateIntervalInSeconds]);
+  }, [endTime, formatAsTimeAgo, startTime, updateIntervalInSeconds]);
 
   return [date, time, dayDiff];
 };
