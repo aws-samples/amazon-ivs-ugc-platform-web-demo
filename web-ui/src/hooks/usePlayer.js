@@ -27,7 +27,7 @@ const usePlayer = ({ isLive, playbackUrl }) => {
 
     console.log(`Player State - ${newState}`);
 
-    if (newState === PLAYING) resetIntervalId();
+    if (newState !== ENDED) resetIntervalId();
 
     setIsLoading(newState !== PLAYING);
   }, [resetIntervalId]);
