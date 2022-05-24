@@ -94,7 +94,10 @@ export const Provider = ({ children }) => {
     useState(true);
   const [isLoadingNextStreamSessionsPage, setIsLoadingNextStreamSessionsPage] =
     useState(false);
-  const isLive = useMemo(() => !!streamSessions?.[0]?.isLive, [streamSessions]);
+  const isLive = useMemo(
+    () => streamSessions?.some(({ isLive }) => isLive) || false,
+    [streamSessions]
+  );
   // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
   // revalidation of all the subsequent pages as well.
   const { setSize, mutate: updateStreamSessionsList } = useSWRInfinite(
@@ -128,10 +131,8 @@ export const Provider = ({ children }) => {
           }, [])
           .map((session, index) => ({ ...session, index }));
 
-        const { nextToken: lastToken } = sessions[sessions.length - 1];
-        if (!lastToken) {
-          setCanLoadMoreStreamSessions(false);
-        }
+        const { nextToken: lastestToken } = sessions[sessions.length - 1];
+        setCanLoadMoreStreamSessions(!!lastestToken);
 
         setStreamSessions((prevSessions) => {
           if (!prevSessions) return nextSessions;
