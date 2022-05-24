@@ -21,22 +21,26 @@
     {
       "eventTime": "2022-05-09T20:10:57.000Z",
       "name": "Session Ended",
-      "type": "IVS Stream State Change"
+      "type": "IVS Stream State Change",
+      "id": "bbfc4cb9e817cb673faf55f2f0bb2c3a"
     },
     {
       "eventTime": "2022-05-09T20:10:57.000Z",
       "name": "Stream End",
-      "type": "IVS Stream State Change"
+      "type": "IVS Stream State Change",
+      "id": "1b30cb956442d05ea697be53a6640f1b"
     },
     {
       "eventTime": "2022-05-09T20:08:16.000Z",
       "name": "Stream Start",
-      "type": "IVS Stream State Change"
+      "type": "IVS Stream State Change",
+      "id": "2173d93eceeff5f496758a73582a5beb"
     },
     {
       "eventTime": "2022-05-09T20:08:07.000Z",
       "name": "Session Created",
-      "type": "IVS Stream State Change"
+      "type": "IVS Stream State Change",
+      "id": "2f8186e28fb36c487152d70196715ea1"
     }
   ]
 }

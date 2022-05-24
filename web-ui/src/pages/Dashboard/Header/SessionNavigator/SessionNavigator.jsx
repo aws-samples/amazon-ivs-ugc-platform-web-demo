@@ -29,10 +29,7 @@ const SessionNavigator = ({ headerRef }) => {
     updateStreamSessionsList
   } = useStreams();
   const { startTime, endTime, isLive } = activeStreamSession || {};
-  const [date, time, dayDiff] = useDateTime(startTime, endTime, {
-    updateIntervalInSeconds: 5,
-    formatAsTimeAgo: isLive
-  });
+  const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
   const sessionsLength = streamSessions?.length;
   const isNotOnDashboard = pathname !== '/';
   const isPrevDisabled =

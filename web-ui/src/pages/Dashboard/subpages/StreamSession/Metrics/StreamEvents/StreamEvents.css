@@ -1,6 +1,7 @@
 .stream-events {
   height: 100%;
   max-width: 320px;
+  padding-top: 30px;
   width: 100%;
 }
 
@@ -56,7 +57,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
   padding: 15px;
 }
 
@@ -64,13 +65,35 @@
   background: var(--palette-color-medium-gray);
 }
 
+.event-button {
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.event-button:disabled {
+  cursor: auto;
+}
+
 .event-name {
+  align-items: center;
   color: var(--palette-color-white);
+  display: flex;
+  justify-content: space-between;
   padding-bottom: 5px;
 }
 
-.event-item.selected .event-name {
+.event-name.error {
   color: var(--palette-color-red);
+}
+
+.event-name svg.error-icon {
+  fill: var(--palette-color-red);
+}
+
+.event-name svg.success-icon {
+  fill: var(--palette-color-green);
 }
 
 .event-time {
@@ -79,7 +102,10 @@
 
 .event-description {
   padding-top: 15px;
-  padding-bottom: 30px;
+}
+
+.learn-more-button {
+  margin-top: 30px;
 }
 
 @media (max-width: 875px) {

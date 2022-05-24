@@ -76,7 +76,18 @@ const activeStreamSessionFetcher = async (channelResourceId, streamSession) => {
   const { result: streamSessionMetadata, error } =
     await userManagement.getStreamSessionData(channelResourceId, streamId);
 
-  if (streamSessionMetadata) return streamSessionMetadata;
+  if (streamSessionMetadata) {
+    const streamEvents = streamSessionMetadata.truncatedEvents.map(
+      (streamEvent) => {
+        const { eventTime, name } = streamEvent;
+        const id = name + ' - ' + eventTime;
+
+        return { ...streamEvent, id };
+      }
+    );
+
+    return { ...streamSessionMetadata, truncatedEvents: streamEvents };
+  }
 
   if (error) throw error;
 };
@@ -261,6 +272,7 @@ export const Provider = ({ children }) => {
       updateStreamSessionsList: throttledUpdateStreamSessionsList,
       isInitialLoadingActiveStreamSession:
         streamSessions === undefined ||
+        !activeStreamSession?.isMetadataFetched ||
         (streamSessions.length > 0 &&
           !activeStreamSession &&
           !activeStreamSessionError)
