@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { Check, Error } from '../../../../../assets/icons';
+import { Check, ErrorIcon } from '../../../../../assets/icons';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import Button from '../../../../../components/Button';
 import LivePill from '../../../../../components/LivePill';
@@ -11,10 +11,7 @@ const $content = $dashboardContent.header.session_navigator;
 
 const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
   const { startTime, endTime, hasErrorEvent, isLive } = streamSession;
-  const [date, time, dayDiff] = useDateTime(startTime, endTime, {
-    updateIntervalInSeconds: 5,
-    formatAsTimeAgo: isLive
-  });
+  const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
 
   return (
     <Button
@@ -33,7 +30,7 @@ const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
         </span>
       </div>
       {hasErrorEvent ? (
-        <Error className="session-icon error" />
+        <ErrorIcon className="session-icon error" />
       ) : (
         <Check className="session-icon success" />
       )}

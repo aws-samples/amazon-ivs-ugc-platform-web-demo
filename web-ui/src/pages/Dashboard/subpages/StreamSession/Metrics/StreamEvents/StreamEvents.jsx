@@ -1,64 +1,120 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 import { dashboard as $dashboardContent } from '../../../../../../content';
+import { ErrorIcon, Check } from '../../../../../../assets/icons';
 import { formatDate, formatTime } from '../../../../../../hooks/useDateTime';
+import { processEvents } from './utils';
 import Button from '../../../../../../components/Button';
+import LearnMoreMessage from './LearnMoreMessage';
 import MetricPanel from '../MetricPanel';
 import './StreamEvents.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
-const TEST_STREAM_EVENTS_COUNT = 20;
-const TIME_BETWEEN_TEST_EVENTS = 300000; // 5 min
-
-const TestStreamEventsList = ({
-  activeStreamSession: { startTime, isLive }
-} = {}) =>
-  [...new Array(TEST_STREAM_EVENTS_COUNT)].map((_, index) => {
-    let time, date;
-    const multiplier = isLive ? -index : index;
-    if (startTime) {
-      const offsetStartTime =
-        new Date(startTime).getTime() + multiplier * TIME_BETWEEN_TEST_EVENTS;
-      const offsetStartUtcDate = new Date(offsetStartTime).toISOString();
-      time = formatTime(offsetStartUtcDate, null, isLive);
-      date = formatDate(offsetStartUtcDate);
-    }
-    let eventTime = isLive ? time : `${date} ${time}`;
-    eventTime = eventTime.charAt(0).toUpperCase() + eventTime.slice(1);
-
-    return (
-      <span
-        className={`event-item ${index === 1 ? 'selected' : ''}`}
-        key={index}
-      >
-        <h4 className="event-name">Stream Event {index}</h4>
-        <p className="event-time p2">{eventTime}</p>
-        {index === 1 && (
-          <p className="event-description p1">
-            Your stream is experiencing performance or network issues. Please
-            check your configuration settings and network connection.
-          </p>
-        )}
-        {index === 1 && (
-          <Button variant="secondary">{$content.learn_how_to_fix_it}</Button>
-        )}
-      </span>
-    );
-  });
-
 const StreamEvents = () => {
   const { activeStreamSession } = useOutletContext();
+  const { isLive, truncatedEvents } = activeStreamSession || {};
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
+  const selectedEventRef = useRef();
+  const streamEvents = useMemo(
+    () => processEvents(truncatedEvents),
+    [truncatedEvents]
+  );
+  const selectedEvent = useMemo(
+    () => streamEvents.find(({ id }) => id === selectedEventId),
+    [selectedEventId, streamEvents]
+  );
 
-  return (
+  const handleEventClick = ({ target }, id) => {
+    setSelectedEventId((prevId) => {
+      if (prevId === id) {
+        selectedEventRef.current = null;
+        return null;
+      }
+
+      return id;
+    });
+  };
+
+  const toggleLearnMore = useCallback(() => {
+    setIsLearnMoreVisible((prev) => !prev);
+  }, []);
+
+  const setSelectedEventRef = useCallback(
+    (eventEl) => {
+      const eventId = eventEl?.attributes['data-id'].value;
+      if (eventId === selectedEventId) selectedEventRef.current = eventEl;
+    },
+    [selectedEventId]
+  );
+
+  useEffect(() => {
+    const scrollOptions = { behavior: 'smooth', block: 'nearest' };
+    selectedEventRef.current?.scrollIntoView(scrollOptions);
+  }, [selectedEventId]);
+
+  return isLearnMoreVisible ? (
+    <LearnMoreMessage event={selectedEvent} toggleLearnMore={toggleLearnMore} />
+  ) : (
     <div className="stream-events">
       <MetricPanel
         title={$content.stream_events}
         headerClassNames={['stream-events-header']}
         wrapper={{ classNames: ['stream-events-list'] }}
       >
-        {activeStreamSession?.truncatedEvents?.length ? (
-          <TestStreamEventsList activeStreamSession={activeStreamSession} />
+        {!!truncatedEvents?.length ? (
+          streamEvents.map(
+            ({ id, name, error, success, eventTime, shortMsg, longMsg }) => {
+              const isSelected = id === selectedEventId;
+              const isExpandable = !!shortMsg;
+              const hasLearnMore = !!longMsg;
+              const date = formatDate(eventTime);
+              const time = formatTime(eventTime, null, isLive);
+              let eventTimestamp = isLive ? time : `${date} ${time}`;
+              eventTimestamp =
+                eventTimestamp.charAt(0).toUpperCase() +
+                eventTimestamp.slice(1);
+
+              return (
+                <span
+                  className={`event-item${isSelected ? ' selected' : ''}`}
+                  data-id={id}
+                  key={id}
+                  ref={setSelectedEventRef}
+                >
+                  <button
+                    className="event-button"
+                    type="button"
+                    disabled={!isExpandable}
+                    onClick={(e) => handleEventClick(e, id)}
+                  >
+                    <h4 className={`event-name${error ? ' error' : ''}`}>
+                      {name}
+                      {error && <ErrorIcon className="error-icon" />}
+                      {success && <Check className="success-icon" />}
+                    </h4>
+                    <p className="event-time p2">{eventTimestamp}</p>
+                  </button>
+                  {isSelected && isExpandable && (
+                    <>
+                      <p className="event-description p1">{shortMsg}</p>
+                      {hasLearnMore && (
+                        <Button
+                          className="learn-more-button"
+                          onClick={toggleLearnMore}
+                          variant="secondary"
+                        >
+                          {$content.learn_how_to_fix_it}
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </span>
+              );
+            }
+          )
         ) : (
           <span className="no-stream-events">
             <h4>{$content.no_stream_events}</h4>

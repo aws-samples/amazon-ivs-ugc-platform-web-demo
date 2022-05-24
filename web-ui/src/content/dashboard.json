@@ -50,7 +50,36 @@
       "stream_events": "Stream events",
       "no_stream_events": "No stream events",
       "no_stream_events_message": "Stream events will show up here when there is data.",
-      "learn_how_to_fix_it": "Learn how to fix it"
+      "learn_how_to_fix_it": "Learn how to fix it",
+      "event_names": {
+        "session_created": "Session created",
+        "session_ended": "Session ended",
+        "stream_start": "Stream started",
+        "stream_end": "Stream ended",
+        "stream_failure": "Stream failure",
+        "starvation_start": "Poor stability",
+        "starvation_end": "Good stability",
+        "ingest_bitrate": "Bitrate limit breach",
+        "ingest_resolution": "Resolution limit breach",
+        "concurrent_broadcasts": "Concurrent broadcasts limit breach",
+        "concurrent_viewers": "Concurrent viewers limit breach",
+        "recording_start": "Recording started",
+        "recording_end": "Recording ended",
+        "recording_start_failure": "Recording start failure",
+        "recording_end_failure": "Recording end failure"
+      },
+      "event_messages": {
+        "short": {
+          "stream_failure": "The stream is not being processed and is not available because processing capacity was exceeded.",
+          "starvation_start": "Your stream is experiencing performance or network issues. Please check your configuration settings and network connection.",
+          "ingest_bitrate": "Your stream session ended because the bitrate setting is too high. Please change your encoder settings.",
+          "ingest_resolution": "Your stream session ended because the resolution setting is too high. Please change your encoder settings.",
+          "concurrent_broadcasts": "Your stream session ended because the number of channels streaming at the same time was too high. Please change your encoder settings.",
+          "concurrent_viewers": "Your stream session ended because the number of concurrent viewers was too high. Please change your encoder settings.",
+          "recording_start_failure": "Recording failed to start due to errors. This live stream was not recorded.",
+          "recording_end_failure": "Due to errors encountered during the stream, the recording was not completed successfully. Some objects may have been written to the configured storage location."
+        }
+      }
     }
   },
   "settings_page": {

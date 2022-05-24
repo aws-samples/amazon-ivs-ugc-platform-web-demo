@@ -105,11 +105,7 @@ export const formatTime = (
   }
 };
 
-export const useDateTime = (
-  startTime,
-  endTime,
-  { updateIntervalInSeconds, formatAsTimeAgo }
-) => {
+export const useDateTime = (startTime, endTime, updateIntervalInSeconds) => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [dayDiff, setDayDiff] = useState('');
@@ -121,7 +117,7 @@ export const useDateTime = (
     const update = () => {
       const newDate = formatDate(startTime);
       const newTime = formatTime(startTime, endTime);
-      const newDayDiff = !formatAsTimeAgo && getDayDiff(startTime, endTime);
+      const newDayDiff = getDayDiff(startTime, endTime);
 
       setDate(newDate);
       setTime(newTime);
@@ -134,7 +130,7 @@ export const useDateTime = (
     }
 
     return () => clearInterval(intervalId.current);
-  }, [endTime, formatAsTimeAgo, startTime, updateIntervalInSeconds]);
+  }, [endTime, startTime, updateIntervalInSeconds]);
 
   return [date, time, dayDiff];
 };

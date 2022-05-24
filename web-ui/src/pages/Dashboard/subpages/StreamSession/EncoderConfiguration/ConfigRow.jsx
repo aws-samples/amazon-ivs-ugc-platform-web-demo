@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import { Copy, Error } from '../../../../../assets/icons';
+import { Copy, ErrorIcon } from '../../../../../assets/icons';
 import { copyToClipboard } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { useNotif } from '../../../../../contexts/Notification';
@@ -38,7 +38,7 @@ const ConfigRow = ({ label, value, error }) => {
     <span className="config-item">
       <h4 className={`config-label ${error ? 'error' : ''}`}>
         {label}
-        {error && <Error />}
+        {error && <ErrorIcon />}
       </h4>
       <span className={`config-value ${error ? 'error' : ''}`}>
         <button

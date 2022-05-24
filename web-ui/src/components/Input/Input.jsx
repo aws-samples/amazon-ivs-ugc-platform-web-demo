@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import { Error, Visibility, VisibilityOff } from '../../assets/icons';
+import { ErrorIcon, Visibility, VisibilityOff } from '../../assets/icons';
 import Spinner from '../Spinner';
 import './Input.css';
 
@@ -68,7 +68,7 @@ const Input = ({
         />
         {error && (
           <span className="error-message">
-            <Error className="error-icon" />
+            <ErrorIcon className="error-icon" />
             <p className="p3">{error}</p>
           </span>
         )}
