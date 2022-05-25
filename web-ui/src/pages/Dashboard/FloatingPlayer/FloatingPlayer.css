@@ -145,7 +145,7 @@
 }
 
 .video-container {
-  background: var(--palette-color-dark-gray);
+  background: var(--palette-color-black);
   border-radius: 15px;
   height: 0;
   overflow: hidden;
@@ -184,7 +184,7 @@ canvas {
   height: 100%;
   left: 0;
   object-fit: cover;
-  opacity: 0.6;
+  opacity: 0.5;
   position: absolute;
   right: 0;
   top: 0;
@@ -239,10 +239,6 @@ canvas {
   .mini-player-container.is-live {
     background: var(--palette-color-light-gray);
     border: 10px solid var(--palette-color-light-gray);
-  }
-
-  .video-container {
-    background: var(--palette-color-extra-light-gray);
   }
 
   .offline-stream-container {
