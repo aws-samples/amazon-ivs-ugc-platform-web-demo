@@ -30,13 +30,27 @@ interface GetStreamSessionBody
 const INGEST_FRAMERATE = 'IngestFramerate';
 const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
 const KEYFRAME_INTERVAL = 'KeyframeInterval';
-const KEYFRAME_INTERVAL_AVG = 'KeyframeIntervalAvg';
+const CONCURRENT_VIEWS = 'ConcurrentViews';
 
 const streamHealthMetricsNames = [
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE,
-  KEYFRAME_INTERVAL
+  KEYFRAME_INTERVAL,
+  CONCURRENT_VIEWS
 ];
+
+const getMetricAverage = (metricName: string) => {
+  const averageMetricName = `${metricName}Avg`;
+
+  return {
+    Id: averageMetricName.toLowerCase(),
+    Label: averageMetricName,
+    // Averages have to be returned as a time series
+    Expression: `TIME_SERIES(AVG(${metricName.toLowerCase()}))`
+  };
+};
+
+const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
 
 const cloudwatchClient = new CloudWatchClient({});
 
@@ -53,10 +67,11 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       buildChannelArn(channelResourceId),
       streamSessionId
     );
-    const { endTime = new Date(), startTime } = streamSession;
+    const { endTime, startTime } = streamSession;
     const { channel, recordingConfiguration, ...streamSessionRest } =
       streamSession as StreamSession;
     const { type } = channel as Channel;
+    const isLive = !endTime;
 
     if (!startTime) {
       throw new Error(`Missing startTime for session: ${streamSessionId}`);
@@ -78,12 +93,12 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       })
     );
 
-    metricDataQueries.push({
-      Id: KEYFRAME_INTERVAL_AVG.toLowerCase(),
-      Label: KEYFRAME_INTERVAL_AVG,
-      // The keyframe interval average has to be returned as a time series
-      Expression: `TIME_SERIES(AVG(${KEYFRAME_INTERVAL.toLowerCase()}))`
-    });
+    metricDataQueries.push(getMetricAverage(KEYFRAME_INTERVAL));
+
+    // We only need the concurrent views average if the stream is offline
+    if (!isLive) {
+      metricDataQueries.push(getMetricAverage(CONCURRENT_VIEWS));
+    }
 
     const alignedStartTimeDown = new Date(
       alignTimeWithPeriod(startTime, period, 'down') * 1000
@@ -92,7 +107,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       alignTimeWithPeriod(startTime, period, 'up') * 1000
     );
     const alignedEndTime = new Date(
-      alignTimeWithPeriod(endTime, period, 'up') * 1000
+      alignTimeWithPeriod(endTime || new Date(), period, 'up') * 1000
     );
 
     const getMetricDataCommand = new GetMetricDataCommand({
@@ -114,8 +129,12 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       (acc, { Label, Timestamps, Values }) => {
         if (
           !Label ||
-          // We only need the keyframe interval average, not the time series
+          // We need the keyframe interval average, not the time series
           Label === KEYFRAME_INTERVAL ||
+          // If the stream is offline, we need the concurrent views average, not the time series
+          (Label === CONCURRENT_VIEWS && !isLive) ||
+          // If the stream is live, we need the concurrent views, not the average
+          (Label === `${CONCURRENT_VIEWS}Avg` && isLive) ||
           !Timestamps?.length ||
           !Values?.length ||
           Timestamps.length !== Values.length
@@ -123,7 +142,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
           return acc;
         }
 
-        if (Label === KEYFRAME_INTERVAL_AVG) {
+        if (isAvgMetric(Label)) {
           return [
             ...acc,
             {
@@ -158,7 +177,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       ...streamSessionRest,
       channel: { type },
       metrics: formattedMetricsData.map((metricSeries) => {
-        if (metricSeries.label === KEYFRAME_INTERVAL_AVG) {
+        if (isAvgMetric(metricSeries.label)) {
           return metricSeries;
         } else {
           return {

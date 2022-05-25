@@ -80,6 +80,11 @@
           "recording_end_failure": "Due to errors encountered during the stream, the recording was not completed successfully. Some objects may have been written to the configured storage location."
         }
       }
+    },
+    "stats_card": {
+      "offline": "Offline",
+      "avg": "(avg)",
+      "concurrent_views": "Concurrent views"
     }
   },
   "settings_page": {
