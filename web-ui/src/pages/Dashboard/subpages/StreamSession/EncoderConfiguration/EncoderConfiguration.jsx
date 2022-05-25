@@ -20,12 +20,17 @@ const EncoderConfiguration = () => {
     } = metrics?.find(({ label }) => label === 'KeyframeIntervalAvg') || {
       data: [{ value: null }]
     };
+    let extendedIngestConfiguration;
 
     if (ingestConfiguration) {
-      ingestConfiguration.video.keyframeIntervalAvg = keyframeIntervalAvg;
+      const { video: ingestVideoConfiguration } = ingestConfiguration || {};
+      extendedIngestConfiguration = {
+        ...ingestConfiguration,
+        video: { ...ingestVideoConfiguration, keyframeIntervalAvg }
+      };
     }
 
-    return processEncoderConfigData(ingestConfiguration, channelType);
+    return processEncoderConfigData(extendedIngestConfiguration, channelType);
   }, [activeStreamSession]);
 
   return (
