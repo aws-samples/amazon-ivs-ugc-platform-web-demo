@@ -192,7 +192,7 @@ export const Provider = ({ children }) => {
     userData && isSessionValid && userData.channelResourceId,
     activeStreamSessionFetcher,
     {
-      refreshInterval: STREAM_SESSION_DATA_REFRESH_INTERVAL,
+      refreshInterval: isLive ? STREAM_SESSION_DATA_REFRESH_INTERVAL : 0,
       revalidateOnMount: true,
       dedupingInterval: 0,
       onError: () => {
@@ -272,7 +272,7 @@ export const Provider = ({ children }) => {
       updateStreamSessionsList: throttledUpdateStreamSessionsList,
       isInitialLoadingActiveStreamSession:
         streamSessions === undefined ||
-        !activeStreamSession?.isMetadataFetched ||
+        (activeStreamSession && !activeStreamSession.isMetadataFetched) ||
         (streamSessions.length > 0 &&
           !activeStreamSession &&
           !activeStreamSessionError)

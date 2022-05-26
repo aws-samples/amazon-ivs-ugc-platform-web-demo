@@ -1,4 +1,8 @@
-import { dashboard as $dashboardContent } from '../../../../../../content';
+import {
+  dashboard as $dashboardContent,
+  longEventMessages,
+  shortEventMessages
+} from '../../../../../../content';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
@@ -18,7 +22,11 @@ const STREAM_EVENT_MAP = [
     key: 'Stream Start',
     name: $content.event_names.stream_start
   },
-  { type: 'none', key: 'Stream End', name: $content.event_names.stream_end },
+  {
+    type: 'none',
+    key: 'Stream End',
+    name: $content.event_names.stream_end
+  },
   {
     type: 'none',
     key: 'Recording Start',
@@ -38,57 +46,57 @@ const STREAM_EVENT_MAP = [
     type: 'error',
     key: 'Stream Failure',
     name: $content.event_names.stream_failure,
-    shortMsg: $content.event_messages.short.stream_failure,
-    longMsg: ''
+    shortMsg: shortEventMessages.stream_failure,
+    longMsg: longEventMessages.stream_failure
   },
   {
     type: 'error',
     key: 'Starvation Start',
     name: $content.event_names.starvation_start,
-    shortMsg: $content.event_messages.short.starvation_start,
-    longMsg: ''
+    shortMsg: shortEventMessages.starvation_start,
+    longMsg: longEventMessages.starvation_start
   },
   {
     type: 'error',
     key: 'Ingest Bitrate',
     name: $content.event_names.ingest_bitrate,
-    shortMsg: $content.event_messages.short.ingest_bitrate,
-    longMsg: ''
+    shortMsg: shortEventMessages.ingest_bitrate,
+    longMsg: longEventMessages.ingest_bitrate
   },
   {
     type: 'error',
     key: 'Ingest Resolution',
     name: $content.event_names.ingest_resolution,
-    shortMsg: $content.event_messages.short.ingest_resolution,
-    longMsg: ''
+    shortMsg: shortEventMessages.ingest_resolution,
+    longMsg: longEventMessages.ingest_resolution
   },
   {
     type: 'error',
     key: 'Concurrent Broadcasts',
     name: $content.event_names.concurrent_broadcasts,
-    shortMsg: $content.event_messages.short.concurrent_broadcasts,
-    longMsg: ''
+    shortMsg: shortEventMessages.concurrent_broadcasts,
+    longMsg: longEventMessages.concurrent_broadcasts
   },
   {
     type: 'error',
     key: 'Concurrent Viewers',
     name: $content.event_names.concurrent_viewers,
-    shortMsg: $content.event_messages.short.concurrent_viewers,
-    longMsg: ''
+    shortMsg: shortEventMessages.concurrent_viewers,
+    longMsg: longEventMessages.concurrent_viewers
   },
   {
     type: 'error',
     key: 'Recording Start Failure',
     name: $content.event_names.recording_start_failure,
-    shortMsg: $content.event_messages.short.recording_start_failure,
-    longMsg: ''
+    shortMsg: shortEventMessages.recording_start_failure,
+    longMsg: longEventMessages.recording_start_failure
   },
   {
     type: 'error',
     key: 'Recording End Failure',
     name: $content.event_names.recording_end_failure,
-    shortMsg: $content.event_messages.short.recording_end_failure,
-    longMsg: ''
+    shortMsg: shortEventMessages.recording_end_failure,
+    longMsg: longEventMessages.recording_end_failure
   }
 ];
 
@@ -100,9 +108,5 @@ export const processEvents = (events = []) =>
     if (type === 'error') event.error = true;
     if (type === 'success') event.success = true;
 
-    if (name) event.name = name;
-    if (shortMsg) event.shortMsg = shortMsg;
-    if (longMsg) event.longMsg = longMsg;
-
-    return event;
+    return { ...event, name, shortMsg, longMsg };
   });
