@@ -4,7 +4,7 @@ const ivsClient = new IvsClient({});
 const SEC_PER_HOUR = 3600;
 const SEC_PER_DAY = SEC_PER_HOUR * 24;
 
-type Period = 3600 | 300 | 60 | 5;
+export type Period = 3600 | 300 | 60 | 5;
 
 export const buildChannelArn = (resourceId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:channel/${resourceId}`;

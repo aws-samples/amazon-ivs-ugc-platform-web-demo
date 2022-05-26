@@ -10,13 +10,16 @@ import {
   alignTimeWithPeriod,
   buildChannelArn,
   getPeriodValue,
-  getStreamSession
+  getStreamSession,
+  Period
 } from '../utils/metricsHelpers';
 import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 
 type FormattedMetricData = {
-  data: { timestamp: Date; value: number }[];
+  alignedStartTime: Date;
+  data: number[];
   label: string;
+  period: Period;
 };
 
 interface GetStreamSessionBody
@@ -31,7 +34,6 @@ const INGEST_FRAMERATE = 'IngestFramerate';
 const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
 const KEYFRAME_INTERVAL = 'KeyframeInterval';
 const CONCURRENT_VIEWS = 'ConcurrentViews';
-
 const streamHealthMetricsNames = [
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE,
@@ -47,6 +49,15 @@ const getMetricAverage = (metricName: string) => {
     Label: averageMetricName,
     // Averages have to be returned as a time series
     Expression: `TIME_SERIES(AVG(${metricName.toLowerCase()}))`
+  };
+};
+const getFilledMetricSeries = (metricName: string) => {
+  const filledMetricName = `${metricName}Filled`;
+
+  return {
+    Id: filledMetricName.toLowerCase(),
+    Label: filledMetricName,
+    Expression: `FILL(${metricName.toLowerCase()}, REPEAT)`
   };
 };
 
@@ -78,6 +89,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     }
 
     const period = getPeriodValue(startTime);
+
+    // Base queries to get the time series
     const metricDataQueries: MetricDataQuery[] = streamHealthMetricsNames.map(
       (streamHealthMetricsName) => ({
         Id: streamHealthMetricsName.toLowerCase(),
@@ -94,11 +107,14 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     );
 
     metricDataQueries.push(getMetricAverage(KEYFRAME_INTERVAL));
-
     // We only need the concurrent views average if the stream is offline
     if (!isLive) {
       metricDataQueries.push(getMetricAverage(CONCURRENT_VIEWS));
     }
+
+    // We need to fill the missing data point as these two are used for the charts
+    metricDataQueries.push(getFilledMetricSeries(INGEST_FRAMERATE));
+    metricDataQueries.push(getFilledMetricSeries(INGEST_VIDEO_BITRATE));
 
     const alignedStartTimeDown = new Date(
       alignTimeWithPeriod(startTime, period, 'down') * 1000
@@ -110,27 +126,30 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       alignTimeWithPeriod(endTime || new Date(), period, 'up') * 1000
     );
 
+    // If alignedStartTimeDown is in a different period threshold, fall back to alignedStartTimeUp
+    // ex: startTime is 62 days and 23 hours ago and alignedStartTimeDown is 63 days ago
+    const alignedStartTime =
+      getPeriodValue(alignedStartTimeDown) !== period
+        ? alignedStartTimeUp
+        : alignedStartTimeDown;
     const getMetricDataCommand = new GetMetricDataCommand({
       EndTime: alignedEndTime,
       MetricDataQueries: metricDataQueries,
-      StartTime:
-        // If alignedStartTimeDown is in a different period threshold, fall back to alignedStartTimeUp
-        // ex: startTime is 62 days and 23 hours ago and alignedStartTimeDown is 63 days ago
-        getPeriodValue(alignedStartTimeDown) !== period
-          ? alignedStartTimeUp
-          : alignedStartTimeDown
+      StartTime: alignedStartTime
     });
     const { MetricDataResults = [] } = await cloudwatchClient.send(
       getMetricDataCommand
     );
 
-    let seriesLength: number;
     const formattedMetricsData = MetricDataResults.reduce(
       (acc, { Label, Timestamps, Values }) => {
         if (
           !Label ||
           // We need the keyframe interval average, not the time series
-          Label === KEYFRAME_INTERVAL ||
+          // We need the filled time series for the charts metrics
+          [KEYFRAME_INTERVAL, INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(
+            Label
+          ) ||
           // If the stream is offline, we need the concurrent views average, not the time series
           (Label === CONCURRENT_VIEWS && !isLive) ||
           // If the stream is live, we need the concurrent views, not the average
@@ -146,26 +165,28 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
           return [
             ...acc,
             {
+              alignedStartTime,
               // All the values in "Values" are the same here
-              data: [{ timestamp: Timestamps[0], value: Values[0] }],
-              label: Label
+              data: [Values[0]],
+              label: Label,
+              period
             }
           ];
         } else {
-          if (!seriesLength || Timestamps.length < seriesLength) {
-            seriesLength = Timestamps.length;
-          }
-
           return [
             ...acc,
             {
+              alignedStartTime,
               // Zip the arrays
               data: Timestamps.map((timestamp, i) => ({
                 timestamp,
                 value: Values[i]
                 // Sort by timestamp in ascending order
-              })).sort((a, b) => +a.timestamp - +b.timestamp),
-              label: Label
+              }))
+                .sort((a, b) => +a.timestamp - +b.timestamp)
+                .map(({ value }) => value),
+              label: Label.replace('Filled', ''),
+              period
             }
           ];
         }
@@ -176,17 +197,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody = {
       ...streamSessionRest,
       channel: { type },
-      metrics: formattedMetricsData.map((metricSeries) => {
-        if (isAvgMetric(metricSeries.label)) {
-          return metricSeries;
-        } else {
-          return {
-            ...metricSeries,
-            // Ensure that we return metric arrays of the same size
-            data: metricSeries.data.slice(0, seriesLength)
-          };
-        }
-      })
+      metrics: formattedMetricsData
     };
   } catch (error) {
     console.error(error);
