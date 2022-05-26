@@ -84,7 +84,8 @@
     "stats_card": {
       "offline": "Offline",
       "avg": "(avg)",
-      "concurrent_views": "Concurrent views"
+      "concurrent_views": "Concurrent views",
+      "concurrent_views_offline": "Average concurrent views for the entire session"
     }
   },
   "settings_page": {
