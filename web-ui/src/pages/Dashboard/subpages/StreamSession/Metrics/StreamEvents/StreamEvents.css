@@ -5,8 +5,14 @@
   width: 100%;
 }
 
+.stream-events.learn-more {
+  padding-top: 0;
+  position: relative;
+}
+
 .stream-events .metrics-panel {
   height: 100%;
+  z-index: 5;
 }
 
 .stream-events .metrics-spinner-container,
@@ -16,19 +22,6 @@
 
 .stream-events-header {
   padding-left: 15px;
-}
-
-.stream-events-list {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-right: 15px;
-  scrollbar-color: var(--palette-color-gray) transparent;
-}
-
-.stream-events-list::-webkit-scrollbar-track {
-  margin-bottom: 15px;
-  margin-top: -5px;
 }
 
 .no-stream-events {
@@ -51,71 +44,9 @@
   color: var(--palette-color-light-gray);
 }
 
-.event-item {
-  background: transparent;
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-bottom: 15px;
-  padding: 15px;
-}
-
-.event-item.selected {
-  background: var(--palette-color-medium-gray);
-}
-
-.event-button {
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.event-button:disabled {
-  cursor: auto;
-}
-
-.event-name {
-  align-items: center;
-  color: var(--palette-color-white);
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 5px;
-}
-
-.event-name.error {
-  color: var(--palette-color-red);
-}
-
-.event-name svg.error-icon {
-  fill: var(--palette-color-red);
-}
-
-.event-name svg.success-icon {
-  fill: var(--palette-color-green);
-}
-
-.event-time {
-  color: var(--palette-color-light-gray);
-}
-
-.event-description {
-  padding-top: 15px;
-}
-
-.learn-more-button {
-  margin-top: 30px;
-}
-
 @media (max-width: 875px) {
   .stream-events {
     max-width: 100%;
-  }
-
-  .stream-events-list {
-    padding: 0;
-    margin-bottom: 30px;
   }
 
   .no-stream-events {
@@ -124,26 +55,8 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .event-name {
-    color: var(--palette-color-dark-gray);
-  }
-
-  .event-time {
-    color: var(--palette-color-medium-gray);
-  }
-
-  .event-item.selected {
-    background: var(--palette-color-light-gray);
-  }
-
   .no-stream-events,
   .no-stream-events > h4 {
     color: var(--palette-color-medium-gray);
-  }
-}
-
-@supports (overflow: overlay) {
-  .stream-events-list {
-    overflow-y: overlay;
   }
 }
