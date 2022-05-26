@@ -22,7 +22,7 @@ const StatsCard = (props) => {
 
   if (concurrentViewsMetric?.data?.length) {
     concurrentViewsValue =
-      concurrentViewsMetric.data[concurrentViewsMetric.data.length - 1].value;
+      concurrentViewsMetric.data[concurrentViewsMetric.data.length - 1];
   }
 
   return (
@@ -33,7 +33,11 @@ const StatsCard = (props) => {
           {isLive ? <TimeElapsed /> : $content.offline}
         </p>
       </div>
-      <Tooltip message={$content.concurrent_views}>
+      <Tooltip
+        message={
+          isLive ? $content.concurrent_views : $content.concurrent_views_offline
+        }
+      >
         <div className="stats-card-views-count">
           <Visibility />
           <p
