@@ -1,12 +1,28 @@
 import { useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
+import {
+  INGEST_FRAMERATE,
+  INGEST_VIDEO_BITRATE
+} from '../../../../../../constants';
+import './Charts.css';
 import { dashboard as $dashboardContent } from '../../../../../../content';
+import {
+  convertMetricValue,
+  ingestFramerateTooltipFormatter,
+  ingestVideoBitrateTooltipFormatter,
+  processMetricData
+} from './utils';
 import { SyncError } from '../../../../../../assets/icons';
 import MetricPanel from '../MetricPanel';
-import './Charts.css';
+import ResponsiveChart from './Chart';
 
 const $content = $dashboardContent.stream_session_page.charts;
+
+const UNITS = {
+  [INGEST_FRAMERATE]: 'fps',
+  [INGEST_VIDEO_BITRATE]: 'mbps'
+};
 
 const Charts = () => {
   const {
@@ -14,13 +30,26 @@ const Charts = () => {
     activeStreamSessionError,
     isInitialLoadingActiveStreamSession
   } = useOutletContext();
+  const { isLive, metrics } = activeStreamSession || {};
   const isMetricDataAvailable =
     !isInitialLoadingActiveStreamSession &&
     !activeStreamSessionError &&
-    !!activeStreamSession?.metrics;
+    metrics;
+  const {
+    IngestVideoBitrate: ingestVideoBitrateData = {},
+    IngestFramerate: ingestFramerateData = {}
+  } =
+    metrics?.reduce((dataSet, metric) => {
+      const { label } = metric;
+      if (label === INGEST_VIDEO_BITRATE || label === INGEST_FRAMERATE) {
+        dataSet[label] = metric;
+      }
+
+      return dataSet;
+    }, {}) || {};
 
   const getChartMetricPanelProps = useCallback(
-    (metricType) => {
+    (metricData) => {
       let zoomStart, zoomEnd, currentValue;
 
       if (isMetricDataAvailable) {
@@ -29,8 +58,21 @@ const Charts = () => {
         zoomEnd = 'Now';
 
         // TODO: derive the current value for the given metric type from the metrics/charts
-        if (metricType === 'IngestVideoBitrate') currentValue = '0.2 mbps';
-        if (metricType === 'IngestFramerate') currentValue = '30 fps';
+        if (metricData?.data?.length && isLive) {
+          currentValue = metricData.data[metricData.data.length - 1];
+        } else if (metricData?.statistics?.average && !isLive) {
+          currentValue = metricData.statistics.average;
+        }
+
+        currentValue = convertMetricValue(currentValue, metricData.label);
+        currentValue =
+          typeof currentValue === 'number'
+            ? `${
+                metricData.label === INGEST_VIDEO_BITRATE
+                  ? currentValue.toFixed(1)
+                  : currentValue.toFixed(0)
+              } ${UNITS[metricData.label]}`
+            : '----';
       } else {
         zoomStart = zoomEnd = currentValue = '----';
       }
@@ -47,7 +89,7 @@ const Charts = () => {
         )
       };
     },
-    [isMetricDataAvailable]
+    [isLive, isMetricDataAvailable]
   );
 
   const renderChart = useCallback(
@@ -71,15 +113,33 @@ const Charts = () => {
     <div className="charts">
       <MetricPanel
         title={$content.video_bitrate}
-        {...getChartMetricPanelProps('IngestVideoBitrate')}
+        {...getChartMetricPanelProps(ingestVideoBitrateData)}
       >
-        {renderChart(<div>Video Bitrate Chart</div>)}
+        {renderChart(
+          <ResponsiveChart
+            data={processMetricData(ingestVideoBitrateData)}
+            formatter={ingestVideoBitrateTooltipFormatter}
+            maximum={convertMetricValue(
+              ingestVideoBitrateData.statistics?.maximum,
+              INGEST_VIDEO_BITRATE
+            )}
+          />
+        )}
       </MetricPanel>
       <MetricPanel
         title={$content.frame_rate}
-        {...getChartMetricPanelProps('IngestFramerate')}
+        {...getChartMetricPanelProps(ingestFramerateData)}
       >
-        {renderChart(<div>Frame Rate Chart</div>)}
+        {renderChart(
+          <ResponsiveChart
+            data={processMetricData(ingestFramerateData)}
+            formatter={ingestFramerateTooltipFormatter}
+            maximum={convertMetricValue(
+              ingestFramerateData.statistics?.maximum,
+              INGEST_FRAMERATE
+            )}
+          />
+        )}
       </MetricPanel>
       <div className="chart-controls">
         <span className="zoom-slider" />

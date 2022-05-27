@@ -49,6 +49,9 @@
 
   --palette-color-black: hsl(var(--base-color-white), 0%);
   --palette-color-black-hover: hsl(var(--base-color-white), 10%);
+
+  --palette-color-chart-gradient-start: hsla(var(--base-color-blue), 63%, 0.25);
+  --palette-color-chart-gradient-end: hsla(240, 100, 63%, 0);
 }
 
 @media (prefers-color-scheme: light) {

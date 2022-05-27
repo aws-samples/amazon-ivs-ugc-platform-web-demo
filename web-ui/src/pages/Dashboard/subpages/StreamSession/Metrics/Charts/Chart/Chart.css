@@ -1,0 +1,36 @@
+.chart-tooltip {
+  position: absolute;
+}
+
+.chart-tooltip > div {
+  align-items: center;
+  background: var(--palette-color-medium-gray);
+  border-radius: 12px;
+  color: var(--palette-color-white);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+  pointer-events: none;
+  row-gap: 5px;
+  width: 100%;
+}
+
+.chart-element {
+  border: solid 1px transparent;
+}
+
+.chart-tooltip .p3 {
+  color: var(--palette-color-light-gray);
+}
+
+@media (prefers-color-scheme: light) {
+  .chart-tooltip > div {
+    background: var(--palette-color-light-gray);
+    color: var(--palette-color-black);
+  }
+
+  .chart-tooltip .p3 {
+    color: var(--palette-color-medium-gray);
+  }
+}

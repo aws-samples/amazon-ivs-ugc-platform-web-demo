@@ -11,18 +11,15 @@ const $content = $dashboardContent.stream_session_page.stats_card;
 const StatsCard = (props) => {
   const { activeStreamSession = {} } = useOutletContext();
   const { hasErrorEvent, isLive, metrics } = activeStreamSession;
-  const concurrentViewsMetricLabel = isLive
-    ? 'ConcurrentViews'
-    : `ConcurrentViewsAvg`;
-
   const concurrentViewsMetric = metrics?.find(
-    (metric) => metric.label === concurrentViewsMetricLabel
+    (metric) => metric.label === 'ConcurrentViews'
   );
   let concurrentViewsValue;
-
-  if (concurrentViewsMetric?.data?.length) {
+  if (concurrentViewsMetric?.data?.length && isLive) {
     concurrentViewsValue =
       concurrentViewsMetric.data[concurrentViewsMetric.data.length - 1];
+  } else if (concurrentViewsMetric?.statistics?.average && !isLive) {
+    concurrentViewsValue = concurrentViewsMetric.statistics.average;
   }
 
   return (

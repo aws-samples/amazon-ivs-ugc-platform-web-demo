@@ -1,4 +1,4 @@
-export const USE_MOCKS = false;
+export const USE_MOCKS = true;
 export const DASHBOARD_THEME_COLOR = '#292b32';
 export const USER_MANAGEMENT_THEME_COLOR = '#000000';
 export const STREAM_SESSIONS_REFRESH_INTERVAL = 15000; // 15 seconds
@@ -50,3 +50,6 @@ export const KEY_MAP_REGEX = new RegExp(
 );
 
 export const GENERIC_ERROR_MESSAGE = 'Unexpected Error Occurred';
+
+export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
+export const INGEST_FRAMERATE = 'IngestFramerate';

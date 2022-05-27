@@ -20,6 +20,10 @@ type FormattedMetricData = {
   data: number[];
   label: string;
   period: Period;
+  statistics: {
+    average?: number;
+    maximum?: number;
+  };
 };
 
 interface GetStreamSessionBody
@@ -41,14 +45,17 @@ const streamHealthMetricsNames = [
   CONCURRENT_VIEWS
 ];
 
-const getMetricAverage = (metricName: string) => {
-  const averageMetricName = `${metricName}Avg`;
+const getMetricStatistic = (
+  metricName: string,
+  statistic: 'Avg' | 'Max'
+): MetricDataQuery => {
+  const averageMetricName = `${metricName}${statistic}`;
 
   return {
     Id: averageMetricName.toLowerCase(),
     Label: averageMetricName,
     // Averages have to be returned as a time series
-    Expression: `TIME_SERIES(AVG(${metricName.toLowerCase()}))`
+    Expression: `TIME_SERIES(${statistic.toUpperCase()}(${metricName.toLowerCase()}))`
   };
 };
 const getFilledMetricSeries = (metricName: string) => {
@@ -62,6 +69,7 @@ const getFilledMetricSeries = (metricName: string) => {
 };
 
 const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
+const isMaxMetric = (metricName: string) => metricName.endsWith('Max');
 
 const cloudwatchClient = new CloudWatchClient({});
 
@@ -91,26 +99,28 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const period = getPeriodValue(startTime);
 
     // Base queries to get the time series
-    const metricDataQueries: MetricDataQuery[] = streamHealthMetricsNames.map(
-      (streamHealthMetricsName) => ({
-        Id: streamHealthMetricsName.toLowerCase(),
-        MetricStat: {
-          Metric: {
-            Dimensions: [{ Name: 'Channel', Value: channelResourceId }],
-            MetricName: streamHealthMetricsName,
-            Namespace: 'AWS/IVS'
-          },
-          Period: period,
-          Stat: 'Average'
-        }
-      })
-    );
+    const metricDataQueries = streamHealthMetricsNames.reduce(
+      (queries, streamHealthMetricsName) => {
+        const baseQuery: MetricDataQuery = {
+          Id: streamHealthMetricsName.toLowerCase(),
+          Label: streamHealthMetricsName,
+          MetricStat: {
+            Metric: {
+              Dimensions: [{ Name: 'Channel', Value: channelResourceId }],
+              MetricName: streamHealthMetricsName,
+              Namespace: 'AWS/IVS'
+            },
+            Period: period,
+            Stat: 'Average'
+          }
+        };
+        const avgQuery = getMetricStatistic(streamHealthMetricsName, 'Avg');
+        const maxQuery = getMetricStatistic(streamHealthMetricsName, 'Max');
 
-    metricDataQueries.push(getMetricAverage(KEYFRAME_INTERVAL));
-    // We only need the concurrent views average if the stream is offline
-    if (!isLive) {
-      metricDataQueries.push(getMetricAverage(CONCURRENT_VIEWS));
-    }
+        return [...queries, baseQuery, avgQuery, maxQuery];
+      },
+      [] as MetricDataQuery[]
+    );
 
     // We need to fill the missing data point as these two are used for the charts
     metricDataQueries.push(getFilledMetricSeries(INGEST_FRAMERATE));
@@ -141,19 +151,22 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       getMetricDataCommand
     );
 
+    const averageMetricDataResults = MetricDataResults.filter(
+      ({ Label }) => Label && isAvgMetric(Label)
+    );
+    const maximumMetricDataResults = MetricDataResults.filter(
+      ({ Label }) => Label && isMaxMetric(Label)
+    );
+
     const formattedMetricsData = MetricDataResults.reduce(
       (acc, { Label, Timestamps, Values }) => {
         if (
           !Label ||
           // We need the keyframe interval average, not the time series
           // We need the filled time series for the charts metrics
-          [KEYFRAME_INTERVAL, INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(
-            Label
-          ) ||
-          // If the stream is offline, we need the concurrent views average, not the time series
-          (Label === CONCURRENT_VIEWS && !isLive) ||
-          // If the stream is live, we need the concurrent views, not the average
-          (Label === `${CONCURRENT_VIEWS}Avg` && isLive) ||
+          [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(Label) ||
+          isAvgMetric(Label) ||
+          isMaxMetric(Label) ||
           !Timestamps?.length ||
           !Values?.length ||
           Timestamps.length !== Values.length
@@ -161,35 +174,39 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
           return acc;
         }
 
-        if (isAvgMetric(Label)) {
-          return [
-            ...acc,
-            {
-              alignedStartTime,
-              // All the values in "Values" are the same here
-              data: [Values[0]],
-              label: Label,
-              period
+        const deleteCount = Math.round(30 / period);
+        const upperValueCountBound = Timestamps.length - deleteCount;
+        const cleanedLabel = Label.replace('Filled', '');
+
+        return [
+          ...acc,
+          {
+            alignedStartTime,
+            // Zip the arrays
+            data: Timestamps.map((timestamp, i) => ({
+              timestamp,
+              value: Values[i]
+            }))
+              // Sort by timestamp in ascending order
+              .sort((a, b) => +a.timestamp - +b.timestamp)
+              .reduce((metricValues, { value }, index) => {
+                if (index >= upperValueCountBound) return metricValues;
+                return [...metricValues, value];
+              }, [] as number[]),
+            label: cleanedLabel,
+            period,
+            statistics: {
+              average: averageMetricDataResults.find(
+                (averageMetricDataResult) =>
+                  averageMetricDataResult.Label!.includes(cleanedLabel)
+              )?.Values?.[0],
+              maximum: maximumMetricDataResults.find(
+                (maximumMetricDataResult) =>
+                  maximumMetricDataResult.Label!.includes(cleanedLabel)
+              )?.Values?.[0]
             }
-          ];
-        } else {
-          return [
-            ...acc,
-            {
-              alignedStartTime,
-              // Zip the arrays
-              data: Timestamps.map((timestamp, i) => ({
-                timestamp,
-                value: Values[i]
-                // Sort by timestamp in ascending order
-              }))
-                .sort((a, b) => +a.timestamp - +b.timestamp)
-                .map(({ value }) => value),
-              label: Label.replace('Filled', ''),
-              period
-            }
-          ];
-        }
+          }
+        ];
       },
       [] as FormattedMetricData[]
     );

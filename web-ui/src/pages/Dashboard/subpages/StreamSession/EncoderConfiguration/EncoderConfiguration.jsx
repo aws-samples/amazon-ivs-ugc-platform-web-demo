@@ -14,9 +14,9 @@ const EncoderConfiguration = () => {
     const { ingestConfiguration, channel, metrics } = activeStreamSession || {};
     const { type: channelType } = channel || {};
     const {
-      data: { 0: keyframeIntervalAvg }
-    } = metrics?.find(({ label }) => label === 'KeyframeIntervalAvg') || {
-      data: [null]
+      statistics: { average: keyframeIntervalAvg }
+    } = metrics?.find(({ label }) => label === 'KeyframeInterval') || {
+      statistics: { average: null }
     };
     let extendedIngestConfiguration;
 
