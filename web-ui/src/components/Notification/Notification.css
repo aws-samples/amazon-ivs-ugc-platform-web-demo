@@ -8,7 +8,7 @@
   margin: 0 auto;
   max-width: 595px;
   padding: 10px 20px;
-  position: absolute;
+  position: sticky;
   right: 0;
   width: fit-content;
   z-index: 50;
