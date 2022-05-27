@@ -70,6 +70,8 @@ const getFilledMetricSeries = (metricName: string) => {
 
 const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
 const isMaxMetric = (metricName: string) => metricName.endsWith('Max');
+const isChartMetric = (metricName: string) =>
+  [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(metricName);
 
 const cloudwatchClient = new CloudWatchClient({});
 
@@ -164,7 +166,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
           !Label ||
           // We need the keyframe interval average, not the time series
           // We need the filled time series for the charts metrics
-          [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(Label) ||
+          isChartMetric(Label) ||
           isAvgMetric(Label) ||
           isMaxMetric(Label) ||
           !Timestamps?.length ||
@@ -190,7 +192,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
               // Sort by timestamp in ascending order
               .sort((a, b) => +a.timestamp - +b.timestamp)
               .reduce((metricValues, { value }, index) => {
-                if (index >= upperValueCountBound) return metricValues;
+                // We only slice the array for charts metrics
+                if (index >= upperValueCountBound && isChartMetric(Label))
+                  return metricValues;
                 return [...metricValues, value];
               }, [] as number[]),
             label: cleanedLabel,
