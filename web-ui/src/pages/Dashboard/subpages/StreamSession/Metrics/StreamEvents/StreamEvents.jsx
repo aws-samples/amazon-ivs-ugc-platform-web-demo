@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { processEvents } from './utils';
+import { scrollToTop } from '../../../../../../utils';
 import LearnMoreMessage from './LearnMoreMessage';
 import MetricPanel from '../MetricPanel';
 import StreamEventsList from './StreamEventsList';
@@ -30,16 +32,19 @@ const StreamEvents = () => {
   useEffect(() => {
     setIsLearnMoreVisible(false);
     setSelectedEventId(null);
+    scrollToTop('.stream-events-list', 'auto');
   }, [activeStreamSession?.streamId]);
 
   return (
-    <div className={`stream-events ${isLearnMoreVisible ? 'learn-more' : ''}`}>
-      {isLearnMoreVisible && (
-        <LearnMoreMessage
-          event={selectedEvent}
-          toggleLearnMore={toggleLearnMore}
-        />
-      )}
+    <div className="stream-events">
+      <AnimatePresence>
+        {isLearnMoreVisible && (
+          <LearnMoreMessage
+            event={selectedEvent}
+            toggleLearnMore={toggleLearnMore}
+          />
+        )}
+      </AnimatePresence>
       <MetricPanel
         title={$content.stream_events}
         headerClassNames={['stream-events-header']}

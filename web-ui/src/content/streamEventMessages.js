@@ -6,9 +6,9 @@ export const shortEventMessages = {
   ingest_bitrate:
     'Your stream session ended because the bitrate setting is too high. Reduce the bitrate in your encoder settings.',
   ingest_resolution:
-    'Your stream session ended because the resolution setting is too high. Reduce the resolution in your encoder settings.',
+    'Your stream session ended because the resolution setting is too high. Change your encoder settings to avoid the stream automatically ending.',
   concurrent_broadcasts:
-    'Your stream session ended because the number of channels concurrently streaming was too high.',
+    'A system error prevented your stream from starting. Contact your system administrator with the following error code for more details: \n{CONCURRENT_BROADCASTS_ERROR_CODE}',
   concurrent_viewers:
     'Your stream session ended because the number of concurrent viewers was too high. Request a limit increase to allow more viewers to watch your stream.',
   recording_start_failure:
@@ -37,16 +37,17 @@ export const longEventMessages = {
   <br>  
   {bitrate} kbps  
   <br>  
-  For a {channelType} channel, Amazon IVS has a bitrate limit of {BITRATE_LIMIT} kbps. Change your encoder settings to avoid the stream automatically ending.`,
-  ingest_resolution: `Your stream session ended because the resolution setting is too high:  
+  There is a bitrate limit of {BITRATE_LIMIT} kbps. Change your encoder settings to avoid the stream automatically ending.`,
+  // FINAL
+  ingest_resolution: `Your stream session ended because the resolution setting is too high.  
   <br>  
-  {resolution}  
-  <br>  
-  For a {channelType} channel, Amazon IVS has a resolution limit of {RESOLUTION_LIMIT}. Change your encoder settings to avoid the stream automatically ending.`,
+  There is a resolution limit of {RESOLUTION_LIMIT}. Change your encoder settings to avoid the stream automatically ending.`,
   concurrent_broadcasts: ``, // No long message
-  concurrent_viewers: `Your stream session ended because the number of viewers was too high.  
+  concurrent_viewers: `Your stream session ended because the number of viewers was too high:  
   <br>  
-  Amazon IVS has a default limit of {VIEWER_LIMIT} viewers. Request a limit increase in the AWS Quotas console to allow more viewers to watch your stream.`,
+  {concurrent_viewers} viewers  
+  <br>  
+  There is a limit of {VIEWER_LIMIT} viewers. Request a limit increase in the AWS Quotas console to allow more viewers to watch your stream.`,
   recording_start_failure: ``, // No long message
   recording_end_failure: `` // No long message
 };
