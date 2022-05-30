@@ -1,33 +1,18 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef, useState } from 'react';
 
 import { Copy, ErrorIcon } from '../../../../../assets/icons';
 import { copyToClipboard } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { useNotif } from '../../../../../contexts/Notification';
 import Tooltip from '../../../../../components/Tooltip';
+import useStringOverflow from '../../../../../hooks/useStringOverflow';
 import './EncoderConfiguration.css';
 
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
 const ConfigRow = ({ label, value, error }) => {
-  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isValueOverflowing, valueRef] = useStringOverflow(value);
   const { notifySuccess } = useNotif();
-  const valueRef = useRef();
-
-  useEffect(() => {
-    const updateOverflow = () => {
-      if (valueRef.current) {
-        const { offsetWidth, scrollWidth } = valueRef.current;
-        setIsOverflowing(offsetWidth < scrollWidth);
-      }
-    };
-
-    window.addEventListener('resize', updateOverflow);
-    updateOverflow();
-
-    return () => window.removeEventListener('resize', updateOverflow);
-  }, [value]);
 
   const handleCopy = (label, value) => {
     copyToClipboard(value);
@@ -48,7 +33,7 @@ const ConfigRow = ({ label, value, error }) => {
         >
           <Copy />
         </button>
-        {isOverflowing ? (
+        {isValueOverflowing ? (
           <Tooltip message={value}>
             <p className="encoder-value p1" ref={valueRef}>
               {value}

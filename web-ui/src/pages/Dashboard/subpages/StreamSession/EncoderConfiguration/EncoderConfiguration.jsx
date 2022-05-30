@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 import { dashboard as $dashboardContent } from '../../../../../content';
+import { KEYFRAME_INTERVAL } from '../../../../../constants';
 import { processEncoderConfigData } from './utils';
 import ConfigRow from './ConfigRow';
 import './EncoderConfiguration.css';
@@ -15,7 +16,7 @@ const EncoderConfiguration = () => {
     const { type: channelType } = channel || {};
     const {
       statistics: { average: keyframeIntervalAvg }
-    } = metrics?.find(({ label }) => label === 'KeyframeInterval') || {
+    } = metrics?.find(({ label }) => label === KEYFRAME_INTERVAL) || {
       statistics: { average: null }
     };
     let extendedIngestConfiguration;

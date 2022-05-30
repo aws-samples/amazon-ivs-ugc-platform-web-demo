@@ -1,16 +1,25 @@
 .learn-more-container {
-  background: var(--palette-color-medium-gray);
-  border-radius: var(--default-border-radius);
+  background: var(--palette-color-dark-gray);
+  border-radius: calc(var(--default-border-radius) - 10px)
+    var(--default-border-radius) var(--default-border-radius)
+    calc(var(--default-border-radius) - 10px);
   height: 100%;
   max-width: 320px;
-  padding: 30px 0;
   position: absolute;
   width: 100%;
   z-index: 10;
 }
 
+.learn-more {
+  background: var(--palette-color-medium-gray);
+  border-radius: var(--default-border-radius);
+  height: 100%;
+  padding: 30px 0;
+  width: 100%;
+}
+
 .learn-more-header {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   justify-content: space-between;
   margin-bottom: 22px;
@@ -20,7 +29,7 @@
 .learn-more-message {
   height: calc(100% - 16px);
   overflow: auto;
-  padding: 0 15px 15px 15px;
+  padding: 0 15px 30px 15px;
 }
 
 .learn-more-message::-webkit-scrollbar-track {
@@ -60,13 +69,17 @@
 }
 
 @media (max-width: 875px) {
-  .learn-more-container {
+  .learn-more {
     max-width: 100%;
   }
 }
 
 @media (prefers-color-scheme: light) {
   .learn-more-container {
+    background: var(--palette-color-extra-light-gray);
+  }
+
+  .learn-more {
     background: var(--palette-color-light-gray);
   }
 
@@ -84,7 +97,7 @@
 }
 
 @supports (overflow: overlay) {
-  .main-dashboard-container {
+  .learn-more-message {
     overflow: overlay;
   }
 }

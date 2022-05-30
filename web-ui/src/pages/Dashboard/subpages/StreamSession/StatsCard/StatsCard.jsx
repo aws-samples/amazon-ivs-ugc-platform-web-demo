@@ -1,6 +1,7 @@
 import { useOutletContext } from 'react-router-dom';
 
 import './StatsCard.css';
+import { CONCURRENT_VIEWS } from '../../../../../constants';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { Visibility } from '../../../../../assets/icons';
 import TimeElapsed from './TimeElapsed';
@@ -12,7 +13,7 @@ const StatsCard = (props) => {
   const { activeStreamSession = {} } = useOutletContext();
   const { hasErrorEvent, isLive, metrics } = activeStreamSession;
   const concurrentViewsMetric = metrics?.find(
-    (metric) => metric.label === 'ConcurrentViews'
+    (metric) => metric.label === CONCURRENT_VIEWS
   );
   let concurrentViewsValue;
   if (concurrentViewsMetric?.data?.length && isLive) {

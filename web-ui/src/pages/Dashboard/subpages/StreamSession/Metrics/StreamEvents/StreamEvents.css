@@ -1,13 +1,9 @@
 .stream-events {
   height: 100%;
   max-width: 320px;
-  padding-top: 30px;
-  width: 100%;
-}
-
-.stream-events.learn-more {
-  padding-top: 0;
+  overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .stream-events .metrics-panel {
@@ -22,6 +18,7 @@
 
 .stream-events-header {
   padding-left: 15px;
+  padding-top: 30px;
 }
 
 .no-stream-events {

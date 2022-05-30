@@ -51,5 +51,7 @@ export const KEY_MAP_REGEX = new RegExp(
 
 export const GENERIC_ERROR_MESSAGE = 'Unexpected Error Occurred';
 
-export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
+export const CONCURRENT_VIEWS = 'ConcurrentViews';
 export const INGEST_FRAMERATE = 'IngestFramerate';
+export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
+export const KEYFRAME_INTERVAL = 'KeyframeInterval';
