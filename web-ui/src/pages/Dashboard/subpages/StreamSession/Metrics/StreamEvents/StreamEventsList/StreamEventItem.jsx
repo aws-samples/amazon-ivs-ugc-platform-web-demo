@@ -50,7 +50,7 @@ const StreamEventItem = ({
         >
           <span className={`event-name${error ? ' error' : ''}`}>
             {isNameOverflowing ? (
-              <Tooltip message={name}>
+              <Tooltip position="above" message={name}>
                 <h4 ref={eventNameRef}>{name}</h4>
               </Tooltip>
             ) : (

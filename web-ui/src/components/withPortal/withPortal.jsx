@@ -1,7 +1,5 @@
 import { createPortal } from 'react-dom';
-import { memo, useLayoutEffect, useRef, forwardRef } from 'react';
-
-import { boundContainerWithinViewport } from './utils';
+import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
 
 const initContainer = (containerId, parentEl = document.body) => {
   let container = document.getElementById(containerId);
@@ -15,21 +13,22 @@ const initContainer = (containerId, parentEl = document.body) => {
   return container;
 };
 
-const withPortal = (
-  WrappedComponent,
-  containerId,
-  { keepInViewport = false } = {}
-) =>
+const withPortal = (WrappedComponent, containerId) =>
   memo(
-    forwardRef(({ isOpen, parentEl, ...props }, ref) => {
+    forwardRef(({ isOpen, parentEl, position, ...props }, ref) => {
       const id = useRef(`${containerId}-container`);
       const container = isOpen ? initContainer(id.current, parentEl) : null;
 
       useLayoutEffect(() => {
-        if (keepInViewport) {
-          boundContainerWithinViewport(container);
+        if (position && container) {
+          for (const attr in position) {
+            const val = position[attr];
+            if (val) container.style[attr] = `${val}px`;
+          }
         }
+      }, [container, parentEl, position]);
 
+      useEffect(() => {
         return () => container?.remove();
       }, [container, parentEl]);
 
