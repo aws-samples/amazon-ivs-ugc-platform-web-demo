@@ -2,7 +2,6 @@
   align-items: center;
   display: flex;
   justify-content: center;
-  margin: 2px 0;
   position: absolute;
   width: max-content;
   z-index: 200;
@@ -14,13 +13,13 @@
 }
 
 .tooltip {
-  background: var(--palette-color-medium-gray);
+  background: var(--palette-color-gray);
   border-radius: 12px;
   padding: 10px;
 }
 
 @media (prefers-color-scheme: light) {
   .tooltip {
-    background: var(--palette-color-light-gray);
+    background: var(--palette-color-gray);
   }
 }
