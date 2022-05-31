@@ -4,16 +4,15 @@ import { forwardRef, useEffect, useRef } from 'react';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { groupStreamSessions } from '../utils';
 import { useStreams } from '../../../../../contexts/Streams';
-import { useMobileBreakpoint } from '../../../../../contexts/MobileBreakpoint';
 import Button from '../../../../../components/Button';
 import StreamSessionButton from './StreamSessionButton';
+import useMobileOverlay from '../../../../../hooks/useMobileOverlay';
 import withPortal from '../../../../../components/withPortal';
 import './NavigatorPopup.css';
 
 const $content = $dashboardContent.header.session_navigator;
 
 const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
-  const { isMobileView } = useMobileBreakpoint();
   const loadMoreSessionsBtnRef = useRef();
   const {
     canLoadMoreStreamSessions,
@@ -38,13 +37,7 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
     }
   }, [isLoadingNextStreamSessionsPage]);
 
-  useEffect(() => {
-    if (isMobileView) {
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => (document.body.style.overflow = null);
-  }, [isMobileView]);
+  useMobileOverlay();
 
   return (
     <div className="nav-popup-wrapper">

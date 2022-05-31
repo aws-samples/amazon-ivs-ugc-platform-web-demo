@@ -5,6 +5,7 @@ import { m } from 'framer-motion';
 
 import { Close } from '../../../../../../../assets/icons';
 import { substitutePlaceholders } from './utils';
+import Button from '../../../../../../../components/Button';
 import './LearnMoreMessage.css';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
@@ -17,39 +18,33 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
       animate="visible"
       exit="hidden"
       variants={{ hidden: { x: '100%' }, visible: { x: 0 } }}
-      transition={{ duration: 0.2, type: 'tween' }}
-      className="learn-more-container"
+      transition={{ duration: 0.25, type: 'tween' }}
+      className="learn-more"
     >
-      <div className="learn-more">
-        <span className="learn-more-header">
-          <h3>{name}</h3>
-          <button
-            className="close-learn-more-btn"
-            onClick={toggleLearnMore}
-            type="button"
-          >
-            <Close className="close-icon" />
-          </button>
-        </span>
-        <ReactMarkdown
-          components={{
-            p: ({ children, node, ...props }) => (
-              <p className="p1" {...props}>
-                {children}
-              </p>
-            ),
-            li: ({ children, node, ordered, ...props }) => (
-              <li {...props}>
-                <span className="p1">{children}</span>
-              </li>
-            )
-          }}
-          skipHtml={true}
-          className="learn-more-message"
-        >
-          {subbedMsg}
-        </ReactMarkdown>
-      </div>
+      <span className="learn-more-header">
+        <h3>{name}</h3>
+        <Button onClick={toggleLearnMore} variant="icon">
+          <Close className="close-icon" />
+        </Button>
+      </span>
+      <ReactMarkdown
+        components={{
+          p: ({ children, node, ...props }) => (
+            <p className="p1" {...props}>
+              {children}
+            </p>
+          ),
+          li: ({ children, node, ordered, ...props }) => (
+            <li {...props}>
+              <span className="p1">{children}</span>
+            </li>
+          )
+        }}
+        skipHtml={true}
+        className="learn-more-message"
+      >
+        {subbedMsg}
+      </ReactMarkdown>
     </m.div>
   );
 };

@@ -103,6 +103,9 @@
 
 html {
   scroll-behavior: smooth;
+  text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
   /* Firefox scrollbar */
   scrollbar-width: auto;
   scrollbar-color: var(--palette-color-gray) transparent;
