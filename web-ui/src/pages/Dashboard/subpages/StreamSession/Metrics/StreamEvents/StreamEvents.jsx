@@ -5,8 +5,10 @@ import { AnimatePresence } from 'framer-motion';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { processEvents } from './utils';
 import { scrollToTop } from '../../../../../../utils';
+import { useMobileBreakpoint } from '../../../../../../contexts/MobileBreakpoint';
 import LearnMoreMessage from './LearnMoreMessage';
 import MetricPanel from '../MetricPanel';
+import MobilePanel from '../../../../../../components/MobilePanel';
 import StreamEventsList from './StreamEventsList';
 import './StreamEvents.css';
 
@@ -15,8 +17,10 @@ const $content = $dashboardContent.stream_session_page.stream_events;
 const StreamEvents = () => {
   const { activeStreamSession } = useOutletContext();
   const { isLive, truncatedEvents } = activeStreamSession || {};
+  const { isMobileView } = useMobileBreakpoint();
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
+  const [isStreamEventListHidden, setIsStreamEventListHidden] = useState(false);
   const streamEvents = useMemo(
     () => processEvents(truncatedEvents),
     [truncatedEvents]
@@ -26,8 +30,13 @@ const StreamEvents = () => {
     [selectedEventId, streamEvents]
   );
   const toggleLearnMore = useCallback(() => {
-    setIsLearnMoreVisible((prev) => !prev);
-  }, []);
+    setIsLearnMoreVisible((prev) => {
+      if (prev || isMobileView) setIsStreamEventListHidden(false);
+      else setTimeout(() => setIsStreamEventListHidden(true), 250);
+
+      return !prev;
+    });
+  }, [isMobileView]);
 
   useEffect(() => {
     setIsLearnMoreVisible(false);
@@ -38,14 +47,23 @@ const StreamEvents = () => {
   return (
     <div className="stream-events">
       <AnimatePresence>
-        {isLearnMoreVisible && (
-          <LearnMoreMessage
-            event={selectedEvent}
-            toggleLearnMore={toggleLearnMore}
-          />
-        )}
+        {isLearnMoreVisible &&
+          (isMobileView ? (
+            <MobilePanel isOpen={isLearnMoreVisible}>
+              <LearnMoreMessage
+                event={selectedEvent}
+                toggleLearnMore={toggleLearnMore}
+              />
+            </MobilePanel>
+          ) : (
+            <LearnMoreMessage
+              event={selectedEvent}
+              toggleLearnMore={toggleLearnMore}
+            />
+          ))}
       </AnimatePresence>
       <MetricPanel
+        style={isStreamEventListHidden ? { display: 'none' } : {}}
         title={$content.stream_events}
         headerClassNames={['stream-events-header']}
         wrapper={{ classNames: ['stream-events-list'] }}

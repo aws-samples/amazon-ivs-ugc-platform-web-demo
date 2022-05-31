@@ -6,7 +6,7 @@
   position: fixed;
   top: 64px;
   width: 100%;
-  z-index: 200;
+  z-index: 350;
 }
 
 .nav-popup-wrapper {
@@ -129,10 +129,6 @@
 }
 
 @media (max-width: 875px) {
-  #nav-popup-container {
-    height: calc(100vh - 64px);
-  }
-
   .nav-popup-wrapper {
     border-radius: 0;
     height: 100%;

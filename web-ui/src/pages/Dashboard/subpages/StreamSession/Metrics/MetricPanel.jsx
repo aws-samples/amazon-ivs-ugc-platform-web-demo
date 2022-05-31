@@ -16,7 +16,8 @@ const MetricPanel = ({
   header,
   headerClassNames,
   title,
-  wrapper
+  wrapper,
+  style
 }) => {
   const { activeStreamSessionError, isInitialLoadingActiveStreamSession } =
     useOutletContext();
@@ -47,7 +48,7 @@ const MetricPanel = ({
   };
 
   return (
-    <div className="metrics-panel">
+    <div style={style} className="metrics-panel">
       {(title || header) && (
         <div className={headerClasses.join(' ')}>
           {title && <h3>{title}</h3>}
@@ -72,6 +73,7 @@ MetricPanel.defaultProps = {
   footerClassNames: [],
   header: null,
   headerClassNames: [],
+  style: {},
   title: '',
   wrapper: { tag: 'div', classNames: [] }
 };
@@ -82,6 +84,7 @@ MetricPanel.propTypes = {
   footerClassNames: PropTypes.arrayOf(PropTypes.string),
   header: PropTypes.node,
   headerClassNames: PropTypes.arrayOf(PropTypes.string),
+  style: PropTypes.object,
   title: PropTypes.string,
   wrapper: PropTypes.shape({
     tag: PropTypes.string,

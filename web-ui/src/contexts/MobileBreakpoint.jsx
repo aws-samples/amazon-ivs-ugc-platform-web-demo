@@ -1,5 +1,11 @@
 import PropTypes from 'prop-types';
-import { createContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import useContextHook from './useContextHook';
 
@@ -10,6 +16,23 @@ const MOBILE_BREAKPOINT = 875; // px
 
 export const Provider = ({ children }) => {
   const [isMobileView, setIsMobileView] = useState(undefined);
+  const [mobileOverlayCount, setMobileOverlayCount] = useState(0);
+  const addMobileOverlay = useCallback(
+    () => setMobileOverlayCount((prev) => (isMobileView ? prev + 1 : prev)),
+    [isMobileView]
+  );
+  const removeMobileOverlay = useCallback(
+    () => setMobileOverlayCount((prev) => (isMobileView ? prev - 1 : prev)),
+    [isMobileView]
+  );
+
+  useEffect(() => {
+    if (isMobileView && mobileOverlayCount > 0) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = null;
+    }
+  }, [isMobileView, mobileOverlayCount]);
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -22,7 +45,10 @@ export const Provider = ({ children }) => {
     return () => window.removeEventListener('resize', handleWindowResize);
   }, []);
 
-  const value = useMemo(() => ({ isMobileView }), [isMobileView]);
+  const value = useMemo(
+    () => ({ isMobileView, addMobileOverlay, removeMobileOverlay }),
+    [isMobileView, addMobileOverlay, removeMobileOverlay]
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

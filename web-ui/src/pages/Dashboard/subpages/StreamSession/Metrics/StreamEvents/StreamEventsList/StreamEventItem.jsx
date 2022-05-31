@@ -6,8 +6,8 @@ import { ErrorIcon, Check } from '../../../../../../../assets/icons';
 import { formatDate, formatTime } from '../../../../../../../hooks/useDateTime';
 import Button from '../../../../../../../components/Button';
 import Tooltip from '../../../../../../../components/Tooltip';
-import './StreamEventsList.css';
 import useStringOverflow from '../../../../../../../hooks/useStringOverflow';
+import './StreamEventsList.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 

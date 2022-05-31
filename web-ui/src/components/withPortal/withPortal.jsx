@@ -1,6 +1,8 @@
 import { createPortal } from 'react-dom';
 import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
 
+import useFirstMountState from '../../hooks/useFirstMountState';
+
 const initContainer = (containerId, parentEl = document.body) => {
   let container = document.getElementById(containerId);
 
@@ -16,6 +18,7 @@ const initContainer = (containerId, parentEl = document.body) => {
 const withPortal = (WrappedComponent, containerId) =>
   memo(
     forwardRef(({ isOpen, parentEl, position, ...props }, ref) => {
+      const isFirstMount = useFirstMountState();
       const id = useRef(`${containerId}-container`);
       const container = isOpen ? initContainer(id.current, parentEl) : null;
 
@@ -29,8 +32,10 @@ const withPortal = (WrappedComponent, containerId) =>
       }, [container, parentEl, position]);
 
       useEffect(() => {
-        return () => container?.remove();
-      }, [container, parentEl]);
+        if (!isFirstMount) {
+          return () => container?.remove();
+        }
+      }, [container, isFirstMount]);
 
       return (
         container &&
