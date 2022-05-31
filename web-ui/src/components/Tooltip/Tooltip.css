@@ -18,6 +18,10 @@
   padding: 10px;
 }
 
+.tooltip.fixed-width {
+  max-width: 200px;
+}
+
 @media (prefers-color-scheme: light) {
   .tooltip {
     background: var(--palette-color-gray);

@@ -5,7 +5,7 @@ import { keepWithinViewport } from './utils';
 import TooltipPortal from './TooltipPortal';
 import './Tooltip.css';
 
-const Tooltip = ({ children, message, position }) => {
+const Tooltip = ({ children, hasFixedWidth, message, position }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
   const parentRef = useRef();
@@ -56,17 +56,19 @@ const Tooltip = ({ children, message, position }) => {
         isOpen={isOpen}
         message={message}
         position={offsets}
+        hasFixedWidth={hasFixedWidth}
       />
     </div>
   );
 };
 
-Tooltip.defaultProps = { position: 'below' };
+Tooltip.defaultProps = { position: 'below', hasFixedWidth: false };
 
 Tooltip.propTypes = {
   children: PropTypes.node.isRequired,
+  hasFixedWidth: PropTypes.bool,
   message: PropTypes.string.isRequired,
-  position: PropTypes.string
+  position: PropTypes.oneOf(['above', 'below'])
 };
 
 export default Tooltip;

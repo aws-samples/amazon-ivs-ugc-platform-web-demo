@@ -68,7 +68,8 @@ Button.propTypes = {
     'tertiary',
     'secondary',
     'destructive',
-    'link'
+    'link',
+    'icon'
   ])
 };
 

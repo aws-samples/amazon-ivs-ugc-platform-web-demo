@@ -50,7 +50,10 @@ const UserManagement = () => {
             />
           ) : (
             <>
-              <Notification top={isMobileView ? 15 : 89} />
+              <Notification
+                isPositionFixed={false}
+                top={isMobileView ? 15 : 89}
+              />
               <Outlet />
             </>
           )}
