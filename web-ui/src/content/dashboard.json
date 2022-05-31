@@ -35,7 +35,17 @@
       "kHz": "kHz",
       "kbps": "kbps",
       "mbps": "mbps",
-      "copied": "copied"
+      "copied": "copied",
+      "errors": {
+        "encoderAudioSampleRateError": "Recommended sample rates are 44.1kHz and 48kHz.",
+        "encoderNumberOfAudioChannelsError": "The audio has more than two channels, but only one (mono) or two (stereo) channels are supported. Please correct the number of audio channels.",
+        "encoderResolutionErrorBasic": "480p (415K total pixels, 855 pixels/edge) is the maximum resolution in pixels that can be streamed to a channel whose type is BASIC. There are two relevant thresholds: total pixels and pixels per edge. If you exceed either of these thresholds, the stream probably will disconnect immediately. See the Amazon IVS API reference for details about channel type.",
+        "encoderResolutionErrorStandard": "1080p (2.1M total pixels, 1920 pixels/edge) is the maximum resolution in pixels that can be streamed to a channel whose type is STANDARD (the default). There are two relevant thresholds: total pixels and pixels per edge. If you exceed either of these thresholds, the stream probably will disconnect immediately. See the Amazon IVS API reference for details about channel type.",
+        "encoderKeyframeIntervalError": "To achieve low latency, Amazon IVS recommends a keyframe interval of 2.",
+        "encoderTargetBitrateErrorBasic": "1.5 Mbps are the maximum bits per second that can be streamed to a channel whose type is BASIC. If you exceed this threshold, the stream probably will disconnect immediately. See the Amazon IVS API reference for details about channel type.",
+        "encoderTargetBitrateErrorStandard": "8.5 Mbps are the maximum bits per second that can be streamed to a channel whose type is STANDARD (the default). If you exceed this threshold, the stream probably will disconnect immediately. See the Amazon IVS API reference for details about channel type.",
+        "encoderTargetAudioBitrateError": "The audio stream's target bitrate is higher than recommended. We recommend an audio stream bitrate of 320kbps or lower."
+      }
     },
     "charts": {
       "cant_load_data": "Can’t load data",

@@ -11,7 +11,7 @@ import useSWRInfinite from 'swr/infinite';
 
 import { dashboard as $content } from '../content';
 import { reindexSessions } from '../mocks/utils';
-import { SESSIONS, SESSION_CONFIG_AND_EVENTS } from '../mocks';
+import STREAM_SESSION_MOCK_DATA from '../mocks';
 import {
   STREAM_SESSION_DATA_REFRESH_INTERVAL,
   STREAM_SESSIONS_REFRESH_INTERVAL,
@@ -28,11 +28,6 @@ import useThrottledCallback from '../hooks/useThrottledCallback';
 
 const Context = createContext(null);
 Context.displayName = 'Streams';
-
-const STREAM_SESSION_MOCK_DATA = SESSIONS.map((sessionData) => ({
-  ...sessionData,
-  ...SESSION_CONFIG_AND_EVENTS
-}));
 
 const streamSessionsFetcher = async (channelResourceId, nextToken) => {
   // Fetch up to 50 streams for this channel, ordered by start time

@@ -19,16 +19,23 @@
   display: flex;
   align-items: center;
   column-gap: 30px;
+  max-height: 22.5px;
+}
+
+.config-item.error .config-label,
+.config-item.error .config-value,
+.config-item.error .encoder-value {
+  color: var(--palette-color-red);
+}
+
+.config-item .tooltip {
+  color: var(--palette-color-white);
 }
 
 .config-label {
   color: var(--palette-color-light-gray);
   min-width: 145px;
   position: relative;
-}
-
-.config-label.error {
-  color: var(--palette-color-red);
 }
 
 .config-label > svg {
@@ -53,28 +60,6 @@
   overflow: hidden;
 }
 
-.config-value.error {
-  color: var(--palette-color-red);
-}
-
-.copy-button {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.copy-button:focus-visible {
-  border-radius: 4px;
-  box-shadow: inset 0 0 0 2px var(--palette-color-white);
-  outline: none;
-}
-
-.copy-button svg {
-  fill: var(--palette-color-light-gray);
-}
-
 .encoder-value {
   color: var(--palette-color-white);
 }
@@ -86,6 +71,7 @@
   }
 
   .config-value {
+    column-gap: 10px;
     max-width: none;
   }
 }
@@ -95,15 +81,11 @@
     color: var(--palette-color-medium-gray);
   }
 
-  .copy-button:focus-visible {
-    box-shadow: inset 0 0 0 2px var(--palette-color-medium-gray);
-  }
-
-  .copy-button svg {
-    fill: var(--palette-color-dark-gray);
-  }
-
   .encoder-value {
     color: var(--palette-color-dark-gray);
+  }
+
+  .config-item .tooltip {
+    color: var(--palette-color-black);
   }
 }

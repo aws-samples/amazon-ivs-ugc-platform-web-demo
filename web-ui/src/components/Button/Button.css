@@ -97,6 +97,22 @@
   background: var(--palette-color-red);
 }
 
+.button.icon {
+  background: transparent;
+  border-radius: 6px;
+  height: auto;
+  padding: 7px;
+  min-width: auto;
+}
+
+.button.icon:hover {
+  background: var(--palette-color-gray-hover);
+}
+
+.button.icon:focus {
+  background: var(--palette-color-gray-hover);
+}
+
 @media (prefers-color-scheme: light) {
   .button svg {
     fill: var(--palette-color-black);
@@ -158,5 +174,25 @@
 
   .button.destructive .spinner {
     color: var(--palette-color-white);
+  }
+
+  .button.icon svg {
+    fill: var(--palette-color-dark-gray);
+  }
+
+  .button.icon:hover {
+    background: var(--palette-color-light-gray-hover);
+  }
+
+  .button.icon:hover svg {
+    fill: var(--palette-color-black);
+  }
+
+  .button.icon:focus {
+    background: var(--palette-color-light-gray-hover);
+  }
+
+  .button.icon:focus svg {
+    fill: var(--palette-color-black);
   }
 }

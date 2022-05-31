@@ -26,10 +26,15 @@ const ENCODER_CONFIG_DATA = [
     id: 'audio-sample-rate',
     label: $content.audio_sample_rate,
     path: [['audio', 'sampleRate']],
-    transform: ([sampleRate]) => Math.floor(sampleRate / 1000),
+    transform: ([sampleRate]) => +Math.floor(sampleRate / 1000).toFixed(2),
     units: $content.kHz,
-    validate: ([audioSampleRate]) =>
-      !audioSampleRate || audioSampleRate === 44100 || audioSampleRate === 48000
+    validate: ([audioSampleRate]) => {
+      if (!audioSampleRate) return null;
+      else if (audioSampleRate !== 44100 && audioSampleRate !== 48000) {
+        return 'encoderAudioSampleRateError';
+      }
+      return null;
+    }
   },
   {
     id: 'audio-channels',
@@ -46,7 +51,8 @@ const ENCODER_CONFIG_DATA = [
       }
     },
     units: '',
-    validate: ([audioChannels]) => audioChannels <= 2
+    validate: ([audioChannels]) =>
+      audioChannels <= 2 ? null : 'encoderNumberOfAudioChannelsError'
   },
   {
     id: 'video-resolution',
@@ -68,7 +74,7 @@ const ENCODER_CONFIG_DATA = [
           videoHeight > edgeLimitBasic ||
           videoWidth > edgeLimitBasic)
       ) {
-        return false;
+        return 'encoderResolutionErrorBasic';
       }
 
       if (
@@ -77,10 +83,10 @@ const ENCODER_CONFIG_DATA = [
           videoHeight > edgeLimitStandard ||
           videoWidth > edgeLimitStandard)
       ) {
-        return false;
+        return 'encoderResolutionErrorStandard';
       }
 
-      return true;
+      return null;
     }
   },
   {
@@ -89,30 +95,34 @@ const ENCODER_CONFIG_DATA = [
     path: [['video', 'keyframeIntervalAvg']], // Retrieved from Metrics API
     transform: ([keyframeInterval]) => keyframeInterval.toFixed(1),
     units: '',
-    validate: ([keyframeInterval]) => keyframeInterval < 3
+    validate: ([keyframeInterval]) =>
+      keyframeInterval < 3 ? null : 'encoderKeyframeIntervalError'
   },
   {
     id: 'video-target-bitrate',
     label: $content.target_bitrate,
     path: [['video', 'targetBitrate']],
-    transform: ([targetBitrate]) => targetBitrate * Math.pow(10, -6),
+    transform: ([targetBitrate]) =>
+      +(targetBitrate * Math.pow(10, -6)).toFixed(2),
     units: $content.mbps,
     validate: ([targetBitrate], channelType) => {
       if (channelType === CHANNEL_TYPE.BASIC && targetBitrate > 1500000)
-        return false;
+        return 'encoderTargetBitrateErrorBasic';
       if (channelType === CHANNEL_TYPE.STANDARD && targetBitrate > 8500000)
-        return false;
+        return 'encoderTargetBitrateErrorStandard';
 
-      return true;
+      return null;
     }
   },
   {
     id: 'audio-target-bitrate',
     label: $content.target_audio_bitrate,
     path: [['audio', 'targetBitrate']],
-    transform: ([targetAudioBitrate]) => targetAudioBitrate * Math.pow(10, -3),
+    transform: ([targetAudioBitrate]) =>
+      +(targetAudioBitrate * Math.pow(10, -3)).toFixed(2),
     units: $content.kbps,
-    validate: (targetAudioBitrate) => targetAudioBitrate <= 320000
+    validate: (targetAudioBitrate) =>
+      targetAudioBitrate <= 320000 ? null : 'encoderTargetAudioBitrateError'
   }
 ];
 
@@ -129,10 +139,10 @@ export const processEncoderConfigData = (ingestConfiguration, channelType) => {
       path,
       transform = (values) => values[0],
       units,
-      validate = () => true
+      validate = () => null
     }) => {
       const values = path.map(([type, key]) => ingestConfiguration[type][key]);
-      const error = !validate(values, channelType);
+      const error = validate(values, channelType);
 
       let value = '----';
       if (values.length && !values.some((v) => !v)) {

@@ -58,7 +58,7 @@ const Dashboard = () => {
         className="main-dashboard-container"
       >
         <Modal isOpen={!!modal} />
-        <Notification />
+        <Notification top={79} />
         <Outlet context={outletContext} />
       </main>
       {isMobileView ? <FloatingMenu /> : <FloatingPlayer />}
