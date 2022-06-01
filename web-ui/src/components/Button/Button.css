@@ -113,6 +113,23 @@
   background: var(--palette-color-gray-hover);
 }
 
+.button.text {
+  background: transparent;
+  color: var(--palette-color-blue);
+}
+
+.button.text .spinner {
+  color: var(--palette-color-white);
+}
+
+.button.text:hover {
+  background: var(--palette-color-gray-hover);
+}
+
+.button.text:focus {
+  background: var(--palette-color-medium-gray);
+}
+
 @media (prefers-color-scheme: light) {
   .button svg {
     fill: var(--palette-color-black);
@@ -194,5 +211,21 @@
 
   .button.icon:focus svg {
     fill: var(--palette-color-black);
+  }
+
+  .button.text {
+    color: var(--palette-color-medium-blue);
+  }
+
+  .button.text .spinner {
+    color: var(--palette-color-black);
+  }
+
+  .button.text:hover {
+    background: var(--palette-color-light-gray-hover);
+  }
+
+  .button.text:focus {
+    background: var(--palette-color-light-gray-hover);
   }
 }

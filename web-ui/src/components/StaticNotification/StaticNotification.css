@@ -1,0 +1,29 @@
+.static-notification-container {
+  align-items: center;
+  background: var(--palette-color-gray);
+  border-radius: var(--default-border-radius);
+  display: flex;
+  gap: 90px;
+  justify-content: space-between;
+  margin-top: 15px;
+  padding: 20px 30px;
+}
+
+.static-notification-content {
+  align-items: center;
+  display: flex;
+  gap: 15px;
+  max-width: 478px;
+}
+
+.static-notification-content svg {
+  flex-shrink: 0;
+  height: 36px;
+  width: 36px;
+}
+
+@media (prefers-color-scheme: light) {
+  .static-notification-container {
+    background: var(--palette-color-light-gray);
+  }
+}

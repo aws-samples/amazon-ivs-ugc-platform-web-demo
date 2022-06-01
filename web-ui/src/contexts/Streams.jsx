@@ -127,8 +127,7 @@ export const Provider = ({ children }) => {
       revalidateOnMount: true,
       onError: () => {
         notifyError($content.notification.error.streams_fetch_failed);
-        if (isLoadingNextStreamSessionsPage)
-          setIsLoadingNextStreamSessionsPage(false);
+        setIsLoadingNextStreamSessionsPage(false);
       },
       onSuccess: (sessions) => {
         const nextSessions = sessions
@@ -163,8 +162,7 @@ export const Provider = ({ children }) => {
           return shouldUpdateStreams ? mergedSessions : prevSessions;
         });
 
-        if (isLoadingNextStreamSessionsPage)
-          setIsLoadingNextStreamSessionsPage(false);
+        setIsLoadingNextStreamSessionsPage(false);
       }
     }
   );
@@ -173,6 +171,7 @@ export const Provider = ({ children }) => {
    * ACTIVE STREAM SESSION DATA
    */
   const [activeStreamSessionId, setActiveStreamSessionId] = useState();
+  const [isLoadingActiveSession, setIsLoadingActiveSession] = useState(false);
   const activeStreamSession = useMemo(
     () =>
       streamSessions?.find(
@@ -182,7 +181,12 @@ export const Provider = ({ children }) => {
   );
   const {
     error: activeStreamSessionError,
-    updateKey: updateActiveStreamSession
+    // updateActiveStreamSession is used to change the key that SWR is using to poll the data.
+    // Here, the key contains the streamId of the selected session. It is used as an URL parameter when calling the API.
+    updateKey: updateActiveStreamSession,
+    // refreshCurrentActiveStreamSession is used to manually poll new data based on a user interaction after an error occurred with a previous data fetching.
+    // It does not update the key and polls for the currently selected session.
+    mutate: refreshCurrentActiveStreamSession
   } = useSWRWithKeyUpdate(
     userData && isSessionValid && userData.channelResourceId,
     activeStreamSessionFetcher,
@@ -192,6 +196,7 @@ export const Provider = ({ children }) => {
       dedupingInterval: 0,
       onError: () => {
         notifyError($content.notification.error.session_fetch_failed);
+        setIsLoadingActiveSession(false);
       },
       onSuccess: (streamSessionMetadata) => {
         setStreamSessions(
@@ -209,7 +214,9 @@ export const Provider = ({ children }) => {
             ),
           () => setActiveStreamSessionId(streamSessionMetadata.streamId)
         );
-      }
+        setIsLoadingActiveSession(false);
+      },
+      shouldRetryOnError: false
     }
   );
 
@@ -240,6 +247,15 @@ export const Provider = ({ children }) => {
     [debouncedUpdateActiveStreamSession]
   );
 
+  const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
+    () => {
+      setIsLoadingActiveSession(true);
+      refreshCurrentActiveStreamSession();
+    },
+    1000,
+    [refreshCurrentActiveStreamSession]
+  );
+
   // Initial fetch of the stream sessions list
   useEffect(() => {
     if (!isInitialized.current && userData && isSessionValid) {
@@ -250,6 +266,7 @@ export const Provider = ({ children }) => {
   // Initial fetch of the first stream metadata
   useEffect(() => {
     if (!isInitialized.current && streamSessions?.length) {
+      setActiveStreamSessionId(streamSessions[0].streamId);
       updateActiveStreamSession(streamSessions[0]);
       isInitialized.current = true;
     }
@@ -260,6 +277,9 @@ export const Provider = ({ children }) => {
       activeStreamSession,
       activeStreamSessionError,
       canLoadMoreStreamSessions,
+      refreshCurrentActiveStreamSession:
+        throttledRefreshCurrentActiveStreamSession,
+      isLoadingActiveSession,
       isLoadingNextStreamSessionsPage,
       isLive,
       streamSessions,
@@ -267,7 +287,9 @@ export const Provider = ({ children }) => {
       updateStreamSessionsList: throttledUpdateStreamSessionsList,
       isInitialLoadingActiveStreamSession:
         streamSessions === undefined ||
-        (activeStreamSession && !activeStreamSession.isMetadataFetched) ||
+        (activeStreamSession &&
+          !activeStreamSession.isMetadataFetched &&
+          !activeStreamSessionError) ||
         (streamSessions.length > 0 &&
           !activeStreamSession &&
           !activeStreamSessionError)
@@ -276,10 +298,12 @@ export const Provider = ({ children }) => {
       activeStreamSession,
       activeStreamSessionError,
       canLoadMoreStreamSessions,
-      eagerUpdateActiveStreamSession,
+      throttledRefreshCurrentActiveStreamSession,
+      isLoadingActiveSession,
       isLoadingNextStreamSessionsPage,
       isLive,
       streamSessions,
+      eagerUpdateActiveStreamSession,
       throttledUpdateStreamSessionsList
     ]
   );

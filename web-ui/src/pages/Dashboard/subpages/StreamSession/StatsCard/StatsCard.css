@@ -5,6 +5,7 @@
   color: var(--palette-color-white);
   column-gap: 30px;
   display: flex;
+  margin-top: 30px;
   padding: 8px 15px;
 }
 
