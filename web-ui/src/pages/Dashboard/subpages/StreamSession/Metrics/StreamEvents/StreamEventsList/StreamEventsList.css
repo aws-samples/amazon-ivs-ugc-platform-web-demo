@@ -91,6 +91,10 @@
   margin-top: 15px;
 }
 
+.close-events-list-btn {
+  margin-right: 8px;
+}
+
 @media (max-width: 875px) {
   .stream-events-list {
     padding: 0;

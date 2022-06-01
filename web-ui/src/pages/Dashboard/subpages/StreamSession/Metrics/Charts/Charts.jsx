@@ -5,7 +5,6 @@ import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE
 } from '../../../../../../constants';
-import './Charts.css';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import {
   convertMetricValue,
@@ -16,6 +15,7 @@ import {
 import { SyncError } from '../../../../../../assets/icons';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
+import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 

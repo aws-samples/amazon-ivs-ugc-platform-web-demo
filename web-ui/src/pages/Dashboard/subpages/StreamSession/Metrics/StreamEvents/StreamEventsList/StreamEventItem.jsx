@@ -46,7 +46,7 @@ const StreamEventItem = ({
           className="event-button"
           type="button"
           disabled={!isExpandable}
-          onClick={(e) => handleEventClick(e, id)}
+          onClick={() => handleEventClick(id)}
         >
           <span className={`event-name${error ? ' error' : ''}`}>
             {isNameOverflowing ? (
@@ -56,7 +56,6 @@ const StreamEventItem = ({
             ) : (
               <h4 ref={eventNameRef}>{name}</h4>
             )}
-
             {error && <ErrorIcon className="error-icon" />}
             {success && <Check className="success-icon" />}
           </span>

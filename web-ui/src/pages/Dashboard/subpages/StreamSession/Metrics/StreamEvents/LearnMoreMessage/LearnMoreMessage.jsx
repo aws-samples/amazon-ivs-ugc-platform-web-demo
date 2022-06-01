@@ -5,11 +5,13 @@ import { m } from 'framer-motion';
 
 import { Close } from '../../../../../../../assets/icons';
 import { substitutePlaceholders } from './utils';
+import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import Button from '../../../../../../../components/Button';
 import './LearnMoreMessage.css';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useOutletContext();
+  const { isMobileView } = useMobileBreakpoint();
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
 
   return (
@@ -17,7 +19,7 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      variants={{ hidden: { x: '100%' }, visible: { x: 0 } }}
+      variants={!isMobileView && { hidden: { x: '100%' }, visible: { x: 0 } }}
       transition={{ duration: 0.25, type: 'tween' }}
       className="learn-more"
     >
