@@ -104,18 +104,40 @@ export const Provider = ({ children }) => {
     () => streamSessions?.some(({ isLive }) => isLive) || false,
     [streamSessions]
   );
+  const latestStreamSessionPage = useRef();
   // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
   // revalidation of all the subsequent pages as well.
   const { setSize, mutate: updateStreamSessionsList } = useSWRInfinite(
     // This function is called before each fetcher request.
     // It is also triggered by a call to setSize().
-    (_pageIndex, previousPageData) => {
+    (pageIndex, previousPageData) => {
       if (!isSessionValid || !userData) return null;
 
       if (previousPageData && !previousPageData.nextToken) return null; // reached the end of the stream sessions list
 
-      if (previousPageData && previousPageData.nextToken)
+      if (pageIndex === 1) {
+        const {
+          streamSessions: latestStreamSessions,
+          nextToken: latestNextToken
+        } = latestStreamSessionPage.current;
+        const latestStreamId = latestStreamSessions[0].streamId;
+        const previousStreamSession = previousPageData.streamSessions[0];
+        const previousStreamId = previousStreamSession.streamId;
+
+        if (previousStreamId !== latestStreamId) {
+          // We have at least one new stream, so we must revalidate this page
+          latestStreamSessionPage.current = previousPageData;
+
+          return [userData.channelResourceId, previousPageData.nextToken];
+        } else {
+          // We have no new stream, so we will not revalidate this page
+          return [userData.channelResourceId, latestNextToken];
+        }
+      }
+
+      if (previousPageData && previousPageData.nextToken) {
         return [userData.channelResourceId, previousPageData.nextToken]; // fetch the next page of stream sessions
+      }
 
       return [userData.channelResourceId]; // fetch the first page
     },
@@ -129,15 +151,26 @@ export const Provider = ({ children }) => {
         notifyError($content.notification.error.streams_fetch_failed);
         setIsLoadingNextStreamSessionsPage(false);
       },
-      onSuccess: (sessions) => {
-        const nextSessions = sessions
+      onSuccess: (sessionPages) => {
+        const [firstPage] = sessionPages;
+        const firstStreamId = firstPage?.streamSessions[0]?.streamId;
+
+        if (
+          firstStreamId !==
+          latestStreamSessionPage.current?.streamSessions[0]?.streamId
+        ) {
+          latestStreamSessionPage.current = firstPage;
+        }
+
+        const nextSessions = sessionPages
           .reduce((sessionsAcc, { streamSessions }) => {
             return [...sessionsAcc, ...streamSessions];
           }, [])
           .map((session, index) => ({ ...session, index }));
 
-        const { nextToken: lastestToken } = sessions[sessions.length - 1];
-        setCanLoadMoreStreamSessions(!!lastestToken);
+        const { nextToken: latestToken } =
+          sessionPages[sessionPages.length - 1];
+        setCanLoadMoreStreamSessions(!!latestToken);
 
         setStreamSessions((prevSessions) => {
           if (!prevSessions) return nextSessions;
