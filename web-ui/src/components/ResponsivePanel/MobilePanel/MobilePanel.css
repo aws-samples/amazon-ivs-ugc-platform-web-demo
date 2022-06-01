@@ -12,6 +12,7 @@
 .mobile-panel {
   height: 100%;
   pointer-events: auto;
+  position: absolute;
   width: 100%;
 }
 

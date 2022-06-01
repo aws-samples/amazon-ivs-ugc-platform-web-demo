@@ -1,16 +1,28 @@
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useRef } from 'react';
+import { useOutletContext } from 'react-router-dom';
 
+import { Close } from '../../../../../../../assets/icons';
+import { dashboard as $dashboardContent } from '../../../../../../../content';
+import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
+import Button from '../../../../../../../components/Button';
+import MetricPanel from '../../MetricPanel';
 import StreamEventItem from './StreamEventItem';
 import './StreamEventsList.css';
 
+const $content = $dashboardContent.stream_session_page.stream_events;
+
 const StreamEventsList = ({
-  isLive,
+  isHidden,
+  isPreview,
   selectedEventId,
+  setIsStreamEventsListVisible,
   setSelectedEventId,
   streamEvents,
   toggleLearnMore
 }) => {
+  const { isMobileView } = useMobileBreakpoint();
+  const { activeStreamSession = {} } = useOutletContext();
   const selectedEventRef = useRef();
   const setSelectedEventRef = useCallback(
     (eventEl) => {
@@ -31,7 +43,7 @@ const StreamEventsList = ({
     );
   }, [selectedEventId]);
 
-  const handleEventClick = ({ target }, id) => {
+  const handleEventClick = (id) => {
     setSelectedEventId((prevId) => {
       if (prevId === id) {
         selectedEventRef.current = null;
@@ -42,28 +54,65 @@ const StreamEventsList = ({
     });
   };
 
-  return streamEvents.map((streamEvent) => (
-    <StreamEventItem
-      key={streamEvent.id}
-      handleEventClick={handleEventClick}
-      isLive={isLive}
-      selectedEventId={selectedEventId}
-      setSelectedEventRef={setSelectedEventRef}
-      streamEvent={streamEvent}
-      toggleLearnMore={toggleLearnMore}
-    />
-  ));
+  const handleCloseEventsList = () => {
+    setIsStreamEventsListVisible(false);
+    setSelectedEventId(null);
+  };
+
+  return (
+    <MetricPanel
+      style={isHidden ? { display: 'none' } : {}}
+      title={$content.stream_events}
+      header={
+        isMobileView &&
+        !isPreview && (
+          <Button
+            className="close-events-list-btn"
+            onClick={handleCloseEventsList}
+            variant="icon"
+          >
+            <Close className="close-icon" />
+          </Button>
+        )
+      }
+      headerClassNames={['stream-events-header']}
+      wrapper={{ classNames: ['stream-events-list'] }}
+    >
+      {streamEvents.length ? (
+        streamEvents.map((streamEvent) => (
+          <StreamEventItem
+            key={streamEvent.id}
+            handleEventClick={handleEventClick}
+            isLive={activeStreamSession.isLive}
+            selectedEventId={selectedEventId}
+            setSelectedEventRef={setSelectedEventRef}
+            streamEvent={streamEvent}
+            toggleLearnMore={toggleLearnMore}
+          />
+        ))
+      ) : (
+        <span className="no-stream-events">
+          <h4>{$content.no_stream_events}</h4>
+          <p className="p2">{$content.no_stream_events_message}</p>
+        </span>
+      )}
+    </MetricPanel>
+  );
 };
 
 StreamEventsList.defaultProps = {
-  isLive: false,
+  isHidden: false,
+  isPreview: false,
   selectedEventId: null,
+  setIsStreamEventsListVisible: () => {},
   streamEvents: []
 };
 
 StreamEventsList.propTypes = {
-  isLive: PropTypes.bool,
+  isHidden: PropTypes.bool,
+  isPreview: PropTypes.bool,
   selectedEventId: PropTypes.string,
+  setIsStreamEventsListVisible: PropTypes.func,
   setSelectedEventId: PropTypes.func.isRequired,
   streamEvents: PropTypes.array,
   toggleLearnMore: PropTypes.func.isRequired

@@ -60,6 +60,7 @@
       "stream_events": "Stream events",
       "no_stream_events": "No stream events",
       "no_stream_events_message": "Stream events will show up here when there is data.",
+      "view_all_events": "View all events",
       "learn_how_to_fix_it": "Learn how to fix it",
       "event_names": {
         "session_created": "Session created",

@@ -41,9 +41,14 @@
   color: var(--palette-color-light-gray);
 }
 
+.view-all-events-btn {
+  margin: auto;
+}
+
 @media (max-width: 875px) {
   .stream-events {
     max-width: 100%;
+    margin-bottom: 30px;
   }
 
   .no-stream-events {
