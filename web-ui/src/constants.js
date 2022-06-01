@@ -1,4 +1,4 @@
-export const USE_MOCKS = true;
+export const USE_MOCKS = false;
 export const DASHBOARD_THEME_COLOR = '#292b32';
 export const USER_MANAGEMENT_THEME_COLOR = '#000000';
 export const STREAM_SESSIONS_REFRESH_INTERVAL = 15000; // 15 seconds

@@ -96,6 +96,12 @@
       "avg": "(avg)",
       "concurrent_views": "Concurrent views",
       "concurrent_views_offline": "Average concurrent views for the entire session"
+    },
+    "notification_with_cta": {
+      "failed_to_load": "Failed to load data",
+      "try_again": "Try again",
+      "settings": "Settings",
+      "stream_instructions": "To monitor stream health you must first start a live stream. Your ingest server url and stream key are found in settings."
     }
   },
   "settings_page": {
@@ -136,6 +142,11 @@
     "password_updated_modal": {
       "password_updated": "Password updated",
       "confirmation_message": "Your password has been updated. This change will log out your sessions on all other devices.",
+      "okay": "Okay"
+    },
+    "live_stream_ended_modal": {
+      "live_stream_ended": "Live stream ended",
+      "live_stream_ended_message": "The live stream you were monitoring has ended.",
       "okay": "Okay"
     }
   },

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
+import './Dashboard.css';
 import { DASHBOARD_THEME_COLOR } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
@@ -14,13 +15,15 @@ import Notification from '../../components/Notification';
 import useScrollTopOnPathnameChange from '../../hooks/useScrollTopOnPathnameChange';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
-import './Dashboard.css';
 
 const Dashboard = () => {
   const {
     activeStreamSession,
     activeStreamSessionError,
-    isInitialLoadingActiveStreamSession
+    refreshCurrentActiveStreamSession,
+    isInitialLoadingActiveStreamSession,
+    isLoadingActiveSession,
+    streamSessions
   } = useStreams();
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid, userData, fetchUserData } = useUser();
@@ -29,12 +32,18 @@ const Dashboard = () => {
     () => ({
       activeStreamSession,
       activeStreamSessionError,
-      isInitialLoadingActiveStreamSession
+      refreshCurrentActiveStreamSession,
+      isInitialLoadingActiveStreamSession,
+      isLoadingActiveSession,
+      hasStreamSessions: !streamSessions ? undefined : streamSessions.length > 0
     }),
     [
       activeStreamSession,
       activeStreamSessionError,
-      isInitialLoadingActiveStreamSession
+      refreshCurrentActiveStreamSession,
+      isInitialLoadingActiveStreamSession,
+      isLoadingActiveSession,
+      streamSessions
     ]
   );
 
