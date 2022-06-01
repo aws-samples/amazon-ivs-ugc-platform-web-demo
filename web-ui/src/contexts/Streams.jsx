@@ -212,7 +212,13 @@ export const Provider = ({ children }) => {
             ? mergedSessions
             : prevSessions;
 
-          setSize(Math.ceil(newSessions.length / maxResults));
+          const prevSize = Math.ceil(prevSessions.length / maxResults);
+          const nextSize = Math.ceil(newSessions.length / maxResults);
+
+          // Calling setSize will force revalidation even if the value doesn't change
+          if (prevSize !== nextSize) {
+            setSize(nextSize);
+          }
 
           return newSessions;
         });
