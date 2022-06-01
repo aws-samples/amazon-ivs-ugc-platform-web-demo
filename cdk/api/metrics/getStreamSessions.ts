@@ -8,6 +8,13 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { buildChannelArn } from '../utils/metricsHelpers';
 import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 
+interface GetStreamSessionsBody
+  extends Partial<ListStreamSessionsCommandOutput> {
+  maxResults: number;
+}
+
+const STREAMS_PER_PAGE = 50;
+
 const ivsClient = new IvsClient({});
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -18,18 +25,20 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { nextToken: nextTokenRequest } = query as {
     nextToken: string;
   };
-  let responseBody: Partial<ListStreamSessionsCommandOutput>;
+  let responseBody: GetStreamSessionsBody;
 
   try {
+    const maxResults = STREAMS_PER_PAGE;
     const listStreamSessionsCommand = new ListStreamSessionsCommand({
       channelArn: buildChannelArn(channelResourceId),
+      maxResults,
       nextToken: nextTokenRequest
     });
     const { nextToken, streamSessions = [] } = await ivsClient.send(
       listStreamSessionsCommand
     );
 
-    responseBody = { streamSessions };
+    responseBody = { maxResults, streamSessions };
 
     if (nextToken) {
       responseBody.nextToken = encodeURIComponent(nextToken);

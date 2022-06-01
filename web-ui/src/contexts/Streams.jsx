@@ -55,7 +55,8 @@ const streamSessionsFetcher = async (channelResourceId, nextToken) => {
 
   return {
     streamSessions: nextSessions,
-    nextToken: data.nextToken
+    nextToken: data.nextToken,
+    maxResults: data.maxResults
   };
 };
 
@@ -115,6 +116,18 @@ export const Provider = ({ children }) => {
 
       if (previousPageData && !previousPageData.nextToken) return null; // reached the end of the stream sessions list
 
+      /**
+       * The value of nextToken will change on every fetch. Therefore, we cannot use it directly as a reliable key parameter.
+       * Whenever we try to load more pages, only the first page is revalidated. Since we expect new sessions to be added to
+       * the top of the first page only, we can simply check whether or not the first stream ID has changed since the previous
+       * revalidation.
+       *
+       * If the first stream ID has changed, then we must revalidate the first page. SWR will then see that all the subsequent
+       * page keys have changed, and revalidate those pages as well.
+       *
+       * Otherwise, we will use the same token as the previous fetch so that SWR knows this is the same key and will not
+       * revalidate the subsequent pages.
+       */
       if (pageIndex === 1) {
         const {
           streamSessions: latestStreamSessions,
@@ -153,6 +166,7 @@ export const Provider = ({ children }) => {
       },
       onSuccess: (sessionPages) => {
         const [firstPage] = sessionPages;
+        const { maxResults } = firstPage;
         const firstStreamId = firstPage?.streamSessions[0]?.streamId;
 
         if (
@@ -175,24 +189,32 @@ export const Provider = ({ children }) => {
         setStreamSessions((prevSessions) => {
           if (!prevSessions) return nextSessions;
 
+          const streamIds = new Set(
+            [...nextSessions, ...prevSessions].map(({ streamId }) => streamId)
+          );
+
           // Merge previous stream data with the new stream data we just fetched
-          const mergedSessions = nextSessions.reduce((acc, nextSession) => {
-            const { streamId: nextStreamId } = nextSession;
+          const mergedSessions = [...streamIds].map((streamId) => {
             const prevSession =
-              prevSessions.find(
-                ({ streamId: prevStreamId }) => prevStreamId === nextStreamId
-              ) || {};
+              prevSessions.find((session) => session.streamId === streamId) ||
+              {};
+            const nextSession =
+              nextSessions.find((session) => session.streamId === streamId) ||
+              {};
 
-            const mergedSession = { ...prevSession, ...nextSession };
-
-            return [...acc, mergedSession];
-          }, []);
+            return { ...prevSession, ...nextSession };
+          });
 
           const shouldUpdateStreams =
             nextSessions.length !== prevSessions.length ||
             JSON.stringify(nextSessions) !== JSON.stringify(prevSessions);
+          const newSessions = shouldUpdateStreams
+            ? mergedSessions
+            : prevSessions;
 
-          return shouldUpdateStreams ? mergedSessions : prevSessions;
+          setSize(Math.ceil(newSessions.length / maxResults));
+
+          return newSessions;
         });
 
         setIsLoadingNextStreamSessionsPage(false);
