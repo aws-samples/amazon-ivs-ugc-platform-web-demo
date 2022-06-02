@@ -1,5 +1,26 @@
+import { extent } from 'd3-array';
+import { scaleTime, scaleLinear } from '@visx/scale';
+
 import { INGEST_VIDEO_BITRATE } from '../../../../../../constants';
 import { formatTime } from '../../../../../../hooks/useDateTime';
+
+// accessors
+export const getDate = ({ timestamp }) => timestamp;
+export const getDataValue = ({ value }) => value;
+
+// scales
+export const getXScale = (width, data) =>
+  scaleTime({
+    range: [0, width],
+    domain: extent(data, getDate)
+  });
+
+export const getYScale = (height, maximum) =>
+  scaleLinear({
+    range: [height, 0],
+    domain: [0, 1.2 * maximum || 0],
+    nice: false
+  });
 
 export const convertMetricValue = (value, label) => {
   switch (label) {

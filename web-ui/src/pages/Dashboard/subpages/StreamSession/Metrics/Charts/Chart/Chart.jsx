@@ -1,105 +1,118 @@
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { AreaClosed, Line, Bar } from '@visx/shape';
 import { LinearGradient } from '@visx/gradient';
-import { localPoint } from '@visx/event';
 import { bisector, extent } from 'd3-array';
-import { scaleTime, scaleLinear } from '@visx/scale';
+import { getDate, getDataValue, getXScale, getYScale } from '../utils';
+import { scaleLinear } from '@visx/scale';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+
+import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
+import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
 
-// accessors
-const getDate = ({ timestamp }) => timestamp;
-const getDataValue = ({ value }) => value;
 const bisectDate = bisector(getDate).left;
 
-const Chart = ({ width, height, data, formatter, maximum }) => {
+const Chart = ({
+  data,
+  formatter,
+  hideSynchronizedTooltips,
+  handleSynchronizedTooltips,
+  height,
+  maximum,
+  width,
+  xValue: x
+}) => {
   const {
     hideTooltip,
     showTooltip,
     tooltipData,
-    tooltipOpen,
     tooltipLeft = 0,
+    tooltipOpen,
     tooltipTop = 0
   } = useTooltip();
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     scroll: true,
-    detectBounds: true,
     debounce: 100
   });
+  const { isMobileView } = useMobileBreakpoint();
   const tooltipRef = useRef();
-
-  // scales
-  const xScale = useMemo(
-    () =>
-      scaleTime({
-        range: [0, width],
-        domain: extent(data, getDate)
-      }),
-    [data, width]
-  );
-
-  const yScale = useMemo(
-    () =>
-      scaleLinear({
-        range: [height, 0],
-        domain: [0, 1.2 * maximum || 0],
-        nice: false
-      }),
-    [height, maximum]
-  );
-
-  const mouseXCoord = useRef();
-  // tooltip handler
-  const handleTooltip = useCallback(
-    (event) => {
-      const dateToPixels = scaleLinear({
-        range: [0, width],
-        domain: extent(data, getDate),
-        nice: false
-      });
-
-      const { x } = localPoint(event) || { x: mouseXCoord?.current || 0 };
-      const x0 = xScale.invert(x);
-      const index = bisectDate(data, x0, 1);
-      const d0 = data[index - 1];
-      const d1 = data[index];
-      const { timestamp: t0, value: v0 } = d0;
-      const { timestamp: t1, value: v1 } = d1;
-
-      const t0px = dateToPixels(t0);
-      const t1px = dateToPixels(t1);
-      const v0px = yScale(v0);
-      const v1px = yScale(v1);
-
-      const slope = (v1px - v0px) / (t1px - t0px);
-      const yInt = v0px - slope * t0px;
-      const y = slope * x + yInt;
-
-      let d = d0;
-      if (d1 && getDate(d1)) {
-        d =
-          x0.valueOf() - getDate(d0).valueOf() >
-          getDate(d1).valueOf() - x0.valueOf()
-            ? d1
-            : d0;
-      }
-
-      showTooltip({
-        tooltipData: formatter({ timestamp: x0, value: d.value }),
-        tooltipLeft: x,
-        tooltipTop: y
-      });
-      mouseXCoord.current = x;
-    },
-    [data, formatter, showTooltip, width, xScale, yScale]
-  );
+  const xScale = useMemo(() => getXScale(width, data), [width, data]);
+  const yScale = useMemo(() => getYScale(height, maximum), [height, maximum]);
+  const [isTooltipOpenDelayed, setIsTooltipOpenDelayed] =
+    useStateWithCallback(false);
 
   useEffect(() => {
-    if (data?.length && tooltipOpen) {
-      handleTooltip();
+    setIsTooltipOpenDelayed(tooltipOpen);
+  }, [setIsTooltipOpenDelayed, tooltipOpen]);
+
+  // tooltip handler
+  useEffect(() => {
+    if (x === null) {
+      setIsTooltipOpenDelayed(false, hideTooltip);
+      return;
     }
-  }, [data, handleTooltip, tooltipOpen]);
+
+    const dateToPixels = scaleLinear({
+      range: [0, width],
+      domain: extent(data, getDate),
+      nice: false
+    });
+    const x0 = xScale.invert(x);
+    const index = bisectDate(data, x0, 1);
+    const d0 = data[index - 1];
+    const d1 = data[index];
+    if (!d0 || !d1) {
+      setIsTooltipOpenDelayed(false, hideTooltip);
+      return;
+    }
+
+    const { timestamp: t0, value: v0 } = d0;
+    const { timestamp: t1, value: v1 } = d1;
+    const t0px = dateToPixels(t0);
+    const t1px = dateToPixels(t1);
+    const v0px = yScale(v0);
+    const v1px = yScale(v1);
+
+    const slope = (v1px - v0px) / (t1px - t0px);
+    const yInt = v0px - slope * t0px;
+    const y = slope * x + yInt;
+
+    let d = d0;
+    if (d1 && getDate(d1)) {
+      d =
+        x0.valueOf() - getDate(d0).valueOf() >
+        getDate(d1).valueOf() - x0.valueOf()
+          ? d1
+          : d0;
+    }
+
+    showTooltip({
+      tooltipData: formatter({ timestamp: x0, value: d.value }),
+      tooltipLeft: x,
+      tooltipTop: y
+    });
+  }, [
+    data,
+    formatter,
+    hideTooltip,
+    setIsTooltipOpenDelayed,
+    showTooltip,
+    width,
+    x,
+    xScale,
+    yScale
+  ]);
+
+  useEffect(() => {
+    if (isMobileView) {
+      if (isTooltipOpenDelayed) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = null;
+      }
+    }
+  }, [isMobileView, isTooltipOpenDelayed]);
 
   if (width < 10) return null;
 
@@ -134,12 +147,13 @@ const Chart = ({ width, height, data, formatter, maximum }) => {
           height={height}
           fill="transparent"
           rx={14}
-          onTouchStart={handleTooltip}
-          onTouchMove={handleTooltip}
-          onMouseMove={handleTooltip}
-          onMouseLeave={hideTooltip}
+          onTouchStart={handleSynchronizedTooltips}
+          onTouchMove={handleSynchronizedTooltips}
+          onTouchEnd={hideSynchronizedTooltips}
+          onMouseMove={handleSynchronizedTooltips}
+          onMouseLeave={hideSynchronizedTooltips}
         />
-        {tooltipOpen && (
+        {isTooltipOpenDelayed && (
           <g>
             <Line
               from={{ x: tooltipLeft, y: 0 }}
@@ -173,21 +187,19 @@ const Chart = ({ width, height, data, formatter, maximum }) => {
           </g>
         )}
       </svg>
-      {tooltipOpen && (
-        <TooltipInPortal
-          className="chart-tooltip"
-          key={Math.random()}
-          left={tooltipLeft - tooltipRef.current?.clientWidth - 20 || 0}
-          top={tooltipTop - tooltipRef.current?.clientHeight - 20 || 0}
-          style={tooltipRef.current ? {} : { display: 'none' }}
-          unstyled
-        >
-          <div ref={tooltipRef}>
-            <h4>{getDataValue(tooltipData)}</h4>
-            <p className="p3">{getDate(tooltipData)}</p>
-          </div>
-        </TooltipInPortal>
-      )}
+      <TooltipInPortal
+        className={`chart-tooltip ${isTooltipOpenDelayed ? '' : 'hidden'}`}
+        key={Math.random()}
+        left={tooltipLeft - tooltipRef.current?.clientWidth - 20 || 0}
+        top={tooltipTop - tooltipRef.current?.clientHeight - 20 || 0}
+        detectBounds={false}
+        unstyled
+      >
+        <div ref={tooltipRef}>
+          <h4>{tooltipData && getDataValue(tooltipData)}</h4>
+          <p className="p3">{tooltipData && getDate(tooltipData)}</p>
+        </div>
+      </TooltipInPortal>
     </div>
   );
 };
@@ -195,15 +207,19 @@ const Chart = ({ width, height, data, formatter, maximum }) => {
 Chart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object),
   formatter: PropTypes.func,
+  hideSynchronizedTooltips: PropTypes.func.isRequired,
+  handleSynchronizedTooltips: PropTypes.func.isRequired,
   maximum: PropTypes.number,
   height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired
+  width: PropTypes.number.isRequired,
+  xValue: PropTypes.number
 };
 
 Chart.defaultProps = {
   data: [],
   formatter: (data) => data,
-  maximum: null
+  maximum: null,
+  xValue: null
 };
 
 export default Chart;
