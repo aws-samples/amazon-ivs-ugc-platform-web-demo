@@ -47,7 +47,9 @@ const StatsCard = (props) => {
               ? Math.round(concurrentViewsValue)
               : '----'}
           </p>
-          {!isLive && <p className="p2">{$content.avg}</p>}
+          {!isLive && !!concurrentViewsValue && (
+            <p className="p2">{$content.avg}</p>
+          )}
         </div>
       </Tooltip>
     </div>
