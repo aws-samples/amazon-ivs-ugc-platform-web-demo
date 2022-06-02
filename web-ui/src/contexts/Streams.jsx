@@ -256,7 +256,6 @@ export const Provider = ({ children }) => {
       revalidateOnMount: true,
       dedupingInterval: 0,
       onError: () => {
-        notifyError($content.notification.error.session_fetch_failed);
         setIsLoadingActiveSession(false);
       },
       onSuccess: (streamSessionMetadata) => {
