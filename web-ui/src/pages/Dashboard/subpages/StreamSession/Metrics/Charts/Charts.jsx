@@ -31,10 +31,6 @@ const Charts = () => {
     isInitialLoadingActiveStreamSession
   } = useOutletContext();
   const { isLive, metrics } = activeStreamSession || {};
-  const isMetricDataAvailable =
-    !isInitialLoadingActiveStreamSession &&
-    !activeStreamSessionError &&
-    metrics;
   const {
     IngestVideoBitrate: ingestVideoBitrateData = {},
     IngestFramerate: ingestFramerateData = {}
@@ -47,6 +43,11 @@ const Charts = () => {
 
       return dataSet;
     }, {}) || {};
+  const isMetricDataAvailable =
+    !isInitialLoadingActiveStreamSession &&
+    !activeStreamSessionError &&
+    ingestVideoBitrateData.data?.length &&
+    ingestFramerateData.data?.length;
 
   const getChartMetricPanelProps = useCallback(
     (metricData) => {
