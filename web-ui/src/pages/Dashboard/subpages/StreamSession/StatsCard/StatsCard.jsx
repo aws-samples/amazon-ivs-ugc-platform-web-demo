@@ -22,6 +22,10 @@ const StatsCard = (props) => {
   } else if (concurrentViewsMetric?.statistics?.average && !isLive) {
     concurrentViewsValue = concurrentViewsMetric.statistics.average;
   }
+  concurrentViewsValue =
+    typeof concurrentViewsValue === 'number'
+      ? Math.round(concurrentViewsValue)
+      : '----';
 
   return (
     <div className={`stats-card-container ${isLive ? '' : 'offline'}`}>
@@ -43,11 +47,9 @@ const StatsCard = (props) => {
               hasErrorEvent && isLive ? 'error' : ''
             }`}
           >
-            {typeof concurrentViewsValue === 'number'
-              ? Math.round(concurrentViewsValue)
-              : '----'}
+            {concurrentViewsValue}
           </p>
-          {!isLive && !!concurrentViewsValue && (
+          {!isLive && typeof concurrentViewsValue === 'number' && (
             <p className="p2">{$content.avg}</p>
           )}
         </div>
