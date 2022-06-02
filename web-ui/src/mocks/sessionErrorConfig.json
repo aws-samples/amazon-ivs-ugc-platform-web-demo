@@ -23,6 +23,16 @@
   },
   "metrics": [
     {
+      "label": "IngestVideoBitrate",
+      "data": [],
+      "statistics": {}
+    },
+    {
+      "label": "IngestFramerate",
+      "data": [],
+      "statistics": {}
+    },
+    {
       "label": "KeyframeInterval",
       "data": [3],
       "statistics": { "average": 3 }

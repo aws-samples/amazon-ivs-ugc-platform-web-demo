@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { localPoint } from '@visx/event';
 
 import {
   INGEST_FRAMERATE,
@@ -31,10 +32,6 @@ const Charts = () => {
     isInitialLoadingActiveStreamSession
   } = useOutletContext();
   const { isLive, metrics } = activeStreamSession || {};
-  const isMetricDataAvailable =
-    !isInitialLoadingActiveStreamSession &&
-    !activeStreamSessionError &&
-    metrics;
   const {
     IngestVideoBitrate: ingestVideoBitrateData = {},
     IngestFramerate: ingestFramerateData = {}
@@ -47,6 +44,11 @@ const Charts = () => {
 
       return dataSet;
     }, {}) || {};
+  const isMetricDataAvailable =
+    !isInitialLoadingActiveStreamSession &&
+    !activeStreamSessionError &&
+    ingestVideoBitrateData.data?.length &&
+    ingestFramerateData.data?.length;
 
   const getChartMetricPanelProps = useCallback(
     (metricData) => {
@@ -109,6 +111,30 @@ const Charts = () => {
     [activeStreamSession, isMetricDataAvailable]
   );
 
+  const [xValue, setXValue] = useState();
+  const isTooltipOpen = useMemo(() => xValue !== undefined, [xValue]);
+  const mouseXCoord = useRef();
+  const handleSynchronizedTooltips = useCallback((event) => {
+    const { x } = localPoint(event) || { x: mouseXCoord?.current || 0 };
+
+    setXValue(x);
+    mouseXCoord.current = x;
+  }, []);
+
+  useEffect(() => {
+    if (isMetricDataAvailable && isTooltipOpen) {
+      handleSynchronizedTooltips();
+    }
+  }, [
+    ingestVideoBitrateData,
+    isMetricDataAvailable,
+    handleSynchronizedTooltips,
+    isTooltipOpen
+  ]);
+  const hideSynchronizedTooltips = useCallback(() => {
+    setXValue(undefined);
+  }, []);
+
   return (
     <div className="charts">
       <MetricPanel
@@ -119,10 +145,13 @@ const Charts = () => {
           <ResponsiveChart
             data={processMetricData(ingestVideoBitrateData)}
             formatter={ingestVideoBitrateTooltipFormatter}
+            handleSynchronizedTooltips={handleSynchronizedTooltips}
+            hideSynchronizedTooltips={hideSynchronizedTooltips}
             maximum={convertMetricValue(
               ingestVideoBitrateData.statistics?.maximum,
               INGEST_VIDEO_BITRATE
             )}
+            xValue={xValue}
           />
         )}
       </MetricPanel>
@@ -134,10 +163,13 @@ const Charts = () => {
           <ResponsiveChart
             data={processMetricData(ingestFramerateData)}
             formatter={ingestFramerateTooltipFormatter}
+            handleSynchronizedTooltips={handleSynchronizedTooltips}
+            hideSynchronizedTooltips={hideSynchronizedTooltips}
             maximum={convertMetricValue(
               ingestFramerateData.statistics?.maximum,
               INGEST_FRAMERATE
             )}
+            xValue={xValue}
           />
         )}
       </MetricPanel>

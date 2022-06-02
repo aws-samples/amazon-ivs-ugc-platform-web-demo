@@ -1,5 +1,6 @@
 .chart-tooltip {
   position: absolute;
+  pointer-events: none;
 }
 
 .chart-tooltip > div {
@@ -22,6 +23,10 @@
 
 .chart-tooltip .p3 {
   color: var(--palette-color-light-gray);
+}
+
+.chart-tooltip.hidden {
+  visibility: hidden;
 }
 
 @media (prefers-color-scheme: light) {
