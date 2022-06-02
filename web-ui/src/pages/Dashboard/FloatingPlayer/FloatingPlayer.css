@@ -245,4 +245,8 @@ canvas {
     background: var(--palette-color-white);
     border: 10px solid var(--palette-color-light-gray);
   }
+
+  .spinner.light {
+    color: var(--palette-color-white);
+  }
 }
