@@ -136,7 +136,12 @@
   flex-direction: column-reverse;
   row-gap: 10px;
   transform-origin: bottom right;
+  visibility: hidden;
   width: 210px;
+}
+
+.mini-player-container.is-expanded {
+  visibility: visible;
 }
 
 .mini-player-container.is-live {

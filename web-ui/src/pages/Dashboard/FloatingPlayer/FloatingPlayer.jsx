@@ -1,5 +1,4 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { m } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -11,19 +10,6 @@ import Button from '../../../components/Button';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
-
-const defaultAnimationProps = {
-  initial: 'expanded',
-  exit: 'collapsed',
-  transition: {
-    duration: 0.5,
-    ease: 'easeInOut'
-  },
-  variants: {
-    collapsed: { scale: 0, x: -21 },
-    expanded: { scale: 1, x: 0 }
-  }
-};
 
 const FloatingPlayer = () => {
   const {
@@ -145,6 +131,10 @@ const FloatingPlayer = () => {
 
   if (!shouldShowFloatingPlayer) return null;
 
+  const classNames = ['mini-player-container'];
+  if (isLive) classNames.push('is-live');
+  if (isExpanded) classNames.push('is-expanded');
+
   return (
     <div className="floating-player">
       <Button
@@ -154,11 +144,7 @@ const FloatingPlayer = () => {
       >
         <Sensors isLive={isLive} />
       </Button>
-      <m.div
-        {...defaultAnimationProps}
-        animate={isExpanded ? 'expanded' : 'collapsed'}
-        className={`mini-player-container ${isLive ? 'is-live' : ''}`}
-      >
+      <div className={classNames.join(' ')}>
         {isLive &&
           (activeStreamSession?.index > 0 || pathname === '/settings') && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
@@ -193,7 +179,7 @@ const FloatingPlayer = () => {
             )}
           </div>
         )}
-      </m.div>
+      </div>
     </div>
   );
 };

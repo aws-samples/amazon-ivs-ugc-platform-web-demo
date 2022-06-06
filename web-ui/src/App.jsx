@@ -1,4 +1,4 @@
-import { LazyMotion } from 'framer-motion';
+import { LazyMotion, MotionConfig } from 'framer-motion';
 import {
   BrowserRouter as Router,
   Navigate,
@@ -33,32 +33,34 @@ const loadMotionFeatures = () =>
 const App = () => (
   <Router>
     <LazyMotion features={loadMotionFeatures} strict>
-      <MobileBreakpointProvider>
-        <NotificationProvider>
-          <UserProvider>
-            <ModalProvider>
-              <Routes>
-                <Route
-                  element={
-                    <StreamsProvider>
-                      <Dashboard />
-                    </StreamsProvider>
-                  }
-                >
-                  <Route index element={<StreamSession />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
-                <Route element={<UserManagement />}>
-                  <Route path="login" element={<SigninUser />} />
-                  <Route path="register" element={<RegisterUser />} />
-                  <Route path="reset" element={<ResetPassword />} />
-                </Route>
-                <Route path="*" element={<Navigate replace to="/" />} />
-              </Routes>
-            </ModalProvider>
-          </UserProvider>
-        </NotificationProvider>
-      </MobileBreakpointProvider>
+      <MotionConfig reducedMotion="user">
+        <MobileBreakpointProvider>
+          <NotificationProvider>
+            <UserProvider>
+              <ModalProvider>
+                <Routes>
+                  <Route
+                    element={
+                      <StreamsProvider>
+                        <Dashboard />
+                      </StreamsProvider>
+                    }
+                  >
+                    <Route index element={<StreamSession />} />
+                    <Route path="settings" element={<Settings />} />
+                  </Route>
+                  <Route element={<UserManagement />}>
+                    <Route path="login" element={<SigninUser />} />
+                    <Route path="register" element={<RegisterUser />} />
+                    <Route path="reset" element={<ResetPassword />} />
+                  </Route>
+                  <Route path="*" element={<Navigate replace to="/" />} />
+                </Routes>
+              </ModalProvider>
+            </UserProvider>
+          </NotificationProvider>
+        </MobileBreakpointProvider>
+      </MotionConfig>
     </LazyMotion>
   </Router>
 );

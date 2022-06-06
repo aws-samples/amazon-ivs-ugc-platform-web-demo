@@ -8,7 +8,7 @@ import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import Grid from '../../components/Grid';
 import Notification from '../../components/Notification';
-import useScrollTopOnPathnameChange from '../../hooks/useScrollTopOnPathnameChange';
+import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
 
@@ -20,7 +20,7 @@ const UserManagement = () => {
     isCreatingResources,
     isSessionValid
   } = useUser();
-  useScrollTopOnPathnameChange();
+  const { mainRef } = useScrollToTop();
   useThemeColor(USER_MANAGEMENT_THEME_COLOR);
 
   if (
@@ -42,6 +42,7 @@ const UserManagement = () => {
         <main
           id={`main-user-container${isMobileView ? '' : '-scrollable'}`}
           className="main-user-container"
+          ref={mainRef}
         >
           {isCreatingResources || hasErrorCreatingResources ? (
             <FullScreenLoader

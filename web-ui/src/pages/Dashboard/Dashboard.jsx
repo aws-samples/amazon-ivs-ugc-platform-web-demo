@@ -12,7 +12,7 @@ import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import Modal from '../../components/Modal';
 import Notification from '../../components/Notification';
-import useScrollTopOnPathnameChange from '../../hooks/useScrollTopOnPathnameChange';
+import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
 
@@ -47,7 +47,7 @@ const Dashboard = () => {
     ]
   );
 
-  useScrollTopOnPathnameChange();
+  const { mainRef } = useScrollToTop(activeStreamSession?.streamId);
   useThemeColor(DASHBOARD_THEME_COLOR);
 
   // Initial fetch of the user data
@@ -65,6 +65,7 @@ const Dashboard = () => {
       <main
         id={`main-dashboard-container${isMobileView ? '' : '-scrollable'}`}
         className="main-dashboard-container"
+        ref={mainRef}
       >
         <Modal isOpen={!!modal} />
         <Notification top={79} />
