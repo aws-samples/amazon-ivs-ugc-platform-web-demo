@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { m } from 'framer-motion';
+import { useEffect } from 'react';
+import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
 import { dashboard as $dashboardContent } from '../../../../../../../content';
 import { ErrorIcon, Check } from '../../../../../../../assets/icons';
@@ -19,6 +20,8 @@ const StreamEventItem = ({
   streamEvent,
   toggleLearnMore
 }) => {
+  const controls = useAnimation();
+  const shouldReduceMotion = useReducedMotion();
   const [isNameOverflowing, eventNameRef] = useStringOverflow();
   const { id, name, error, success, eventTime, shortMsg, longMsg } =
     streamEvent;
@@ -34,6 +37,16 @@ const StreamEventItem = ({
   const eventItemClasses = ['event-item'];
   if (isSelected) eventItemClasses.push('selected');
   if (isExpandable) eventItemClasses.push('expandable');
+
+  useEffect(() => {
+    const variant = isSelected ? 'open' : 'collapsed';
+
+    if (shouldReduceMotion) {
+      controls.set(variant);
+    } else {
+      controls.start(variant);
+    }
+  }, [controls, isSelected, shouldReduceMotion]);
 
   return (
     <div
@@ -66,7 +79,7 @@ const StreamEventItem = ({
             className="event-description-container"
             key="event-content"
             initial="collapsed"
-            animate={isSelected ? 'open' : 'collapsed'}
+            animate={controls}
             exit="collapsed"
             variants={{
               open: { opacity: 1, height: 'auto' },
