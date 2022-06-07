@@ -65,6 +65,13 @@
     max-width: 100%;
     border-radius: 0;
   }
+
+  @media (prefers-color-scheme: dark) {
+    .learn-more {
+      border-top: 2px solid var(--palette-color-gray);
+      padding: 28px 0 30px 0;
+    }
+  }
 }
 
 @media (prefers-color-scheme: light) {
