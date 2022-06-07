@@ -18,7 +18,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
     isLoadingNextStreamSessionsPage,
     streamSessions,
     updateActiveStreamSession,
-    updateStreamSessionsList
+    refreshCurrentStreamSessions
   } = useStreams();
   const { isMobileView } = useMobileBreakpoint();
   const loadMoreSessionsBtnRef = useRef();
@@ -29,7 +29,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
   };
 
   const handleLoadMoreStreamSessions = () => {
-    updateStreamSessionsList(true);
+    refreshCurrentStreamSessions(true);
   };
 
   useEffect(() => {

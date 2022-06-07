@@ -14,10 +14,10 @@ const $content = $dashboardContent.stream_session_page.encoder_configuration;
 const valueRegex = /({.+})/;
 
 const ConfigRow = ({ label, value, error }) => {
-  const { activeStreamSession, shouldShowSpinner } = useOutletContext();
+  const { activeStreamSession, isLoadingStreamData } = useOutletContext();
   const [isValueOverflowing, valueRef] = useStringOverflow(value);
   const { notifySuccess } = useNotif();
-  const renderedValue = shouldShowSpinner ? '----' : value;
+  const renderedValue = isLoadingStreamData ? '----' : value;
   let ErrorMessage;
 
   if (error && $content.errors[error]) {
@@ -53,8 +53,8 @@ const ConfigRow = ({ label, value, error }) => {
             '{label}',
             label.toLowerCase()
           )}`}
-          ariaDisabled={shouldShowSpinner}
-          {...(shouldShowSpinner
+          ariaDisabled={isLoadingStreamData}
+          {...(isLoadingStreamData
             ? {}
             : { onClick: () => handleCopy(label, value) })}
           variant="icon"

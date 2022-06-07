@@ -19,7 +19,8 @@ const MetricPanel = ({
   title,
   wrapper
 }) => {
-  const { activeStreamSessionError, shouldShowSpinner } = useOutletContext();
+  const { fetchActiveStreamSessionError, isLoadingStreamData } =
+    useOutletContext();
   const Wrapper = useMemo(() => wrapper.tag || 'div', [wrapper.tag]);
 
   const headerClasses = ['metrics-panel-header'];
@@ -28,14 +29,14 @@ const MetricPanel = ({
   footerClasses.push(...footerClassNames);
 
   const renderBody = () => {
-    if (shouldShowSpinner)
+    if (isLoadingStreamData)
       return (
         <div className="metrics-spinner-container">
           <Spinner size="medium" variant="semi-dark" />
         </div>
       );
 
-    if (activeStreamSessionError)
+    if (fetchActiveStreamSessionError)
       return (
         <div className="metrics-error-container">
           <SyncError />

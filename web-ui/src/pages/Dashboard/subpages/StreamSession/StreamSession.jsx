@@ -2,7 +2,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import './StreamSession.css';
-import { dashboard as $content } from '../../../../content';
+import { dashboard as $dashboardContent } from '../../../../content';
 import { SyncError } from '../../../../assets/icons';
 import { useModal } from '../../../../contexts/Modal';
 import StaticNotification from '../../../../components/StaticNotification';
@@ -12,40 +12,52 @@ import StatsCard from './StatsCard/StatsCard';
 import usePrevious from '../../../../hooks/usePrevious';
 import Button from '../../../../components/Button';
 
+const $notificationWithCTAContent =
+  $dashboardContent.stream_session_page.notification_with_cta;
+const $liveStreamEndedModalContent =
+  $dashboardContent.modal.live_stream_ended_modal;
+
 const StreamSession = () => {
   const { closeModal, openModal } = useModal();
   const {
     activeStreamSession,
-    activeStreamSessionError,
+    fetchActiveStreamSessionError,
+    fetchStreamSessionsError,
+    hasStreamSessions,
+    isLoadingStreamData,
     refreshCurrentActiveStreamSession,
-    isInitialLoadingActiveStreamSession,
-    isLoadingActiveSession,
-    hasStreamSessions
+    refreshCurrentStreamSessions
   } = useOutletContext();
-  const prevSession = usePrevious(activeStreamSession);
+  const prevActiveStreamSession = usePrevious(activeStreamSession);
   const shouldShowFailedToLoadNotif =
-    !isInitialLoadingActiveStreamSession && !!activeStreamSessionError;
+    !!fetchStreamSessionsError || !!fetchActiveStreamSessionError;
   const shouldShowNewUserNotif = hasStreamSessions === false;
+  let message = $notificationWithCTAContent.stream_instructions;
+
+  if (shouldShowFailedToLoadNotif) {
+    message = !!fetchStreamSessionsError
+      ? $notificationWithCTAContent.failed_to_load_sessions
+      : $notificationWithCTAContent.failed_to_load_session;
+  }
 
   // Inform the user that the currently monitored stream has ended
   useEffect(() => {
-    if (!prevSession || !activeStreamSession) return;
+    if (!prevActiveStreamSession || !activeStreamSession) return;
 
     if (
-      prevSession.streamId === activeStreamSession.streamId &&
-      prevSession.isLive &&
+      prevActiveStreamSession.streamId === activeStreamSession.streamId &&
+      prevActiveStreamSession.isLive &&
       !activeStreamSession.isLive
     ) {
       openModal({
         cancellable: false,
-        confirmText: $content.modal.live_stream_ended_modal.okay,
-        message: $content.modal.live_stream_ended_modal.live_stream_ended,
+        confirmText: $liveStreamEndedModalContent.okay,
+        message: $liveStreamEndedModalContent.live_stream_ended,
         onConfirm: closeModal,
-        subMessage:
-          $content.modal.live_stream_ended_modal.live_stream_ended_message
+        subMessage: $liveStreamEndedModalContent.live_stream_ended_message
       });
     }
-  }, [activeStreamSession, closeModal, openModal, prevSession]);
+  }, [activeStreamSession, closeModal, openModal, prevActiveStreamSession]);
 
   return (
     <article className="stream-session">
@@ -55,26 +67,22 @@ const StreamSession = () => {
             shouldShowFailedToLoadNotif ? (
               <Button
                 customStyles={{ width: '117px' }}
-                isLoading={isLoadingActiveSession}
-                onClick={refreshCurrentActiveStreamSession}
+                isLoading={isLoadingStreamData}
+                onClick={
+                  !!fetchStreamSessionsError
+                    ? () => refreshCurrentStreamSessions()
+                    : () => refreshCurrentActiveStreamSession()
+                }
                 variant="text"
               >
-                {$content.stream_session_page.notification_with_cta.try_again}
+                {$notificationWithCTAContent.try_again}
               </Button>
             ) : (
-              <Link to="/settings">
-                {$content.stream_session_page.notification_with_cta.settings}
-              </Link>
+              <Link to="/settings">{$notificationWithCTAContent.settings}</Link>
             )
           }
           icon={shouldShowFailedToLoadNotif ? <SyncError /> : null}
-          message={
-            shouldShowFailedToLoadNotif
-              ? $content.stream_session_page.notification_with_cta
-                  .failed_to_load
-              : $content.stream_session_page.notification_with_cta
-                  .stream_instructions
-          }
+          message={message}
         />
       )}
       <StatsCard />
