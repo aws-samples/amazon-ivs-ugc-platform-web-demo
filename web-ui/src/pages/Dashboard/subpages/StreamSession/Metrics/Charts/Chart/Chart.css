@@ -1,3 +1,7 @@
+.chart-container {
+  position: relative;
+}
+
 .chart-tooltip {
   position: absolute;
   pointer-events: none;

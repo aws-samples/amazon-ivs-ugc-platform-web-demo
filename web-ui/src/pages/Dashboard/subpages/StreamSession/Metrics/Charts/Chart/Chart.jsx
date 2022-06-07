@@ -1,28 +1,20 @@
 import PropTypes from 'prop-types';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AreaClosed, Line, Bar } from '@visx/shape';
 import { LinearGradient } from '@visx/gradient';
-import { bisector, extent } from 'd3-array';
+import { max, bisector, extent } from 'd3-array';
 import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { scaleLinear } from '@visx/scale';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip, Tooltip } from '@visx/tooltip';
 
+import { useSynchronizedChartTooltip } from '../../../../../../../contexts/SynchronizedChartTooltip';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
 
 const bisectDate = bisector(getDate).left;
 
-const Chart = ({
-  data,
-  formatter,
-  hideSynchronizedTooltips,
-  handleSynchronizedTooltips,
-  height,
-  maximum,
-  width,
-  xValue: x
-}) => {
+const Chart = ({ data, formatter, height, maximum, width }) => {
   const {
     hideTooltip,
     showTooltip,
@@ -31,25 +23,31 @@ const Chart = ({
     tooltipOpen,
     tooltipTop = 0
   } = useTooltip();
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    scroll: true,
-    debounce: 100
-  });
+  const {
+    handleSynchronizedTooltips,
+    hideSynchronizedTooltips,
+    showSynchronizedTooltips,
+    xValue: x
+  } = useSynchronizedChartTooltip();
   const { isMobileView } = useMobileBreakpoint();
   const tooltipRef = useRef();
   const xScale = useMemo(() => getXScale(width, data), [width, data]);
-  const yScale = useMemo(() => getYScale(height, maximum), [height, maximum]);
-  const [isTooltipOpenDelayed, setIsTooltipOpenDelayed] =
+  const yScale = useMemo(
+    () => getYScale(height, maximum || max(data, getDataValue)),
+    [data, height, maximum]
+  );
+  const [hasTooltipRendered, setHasTooltipRendered] =
     useStateWithCallback(false);
+  const [isTooltipReady, setIsTooltipReady] = useState(false);
 
   useEffect(() => {
-    setIsTooltipOpenDelayed(tooltipOpen);
-  }, [setIsTooltipOpenDelayed, tooltipOpen]);
+    setHasTooltipRendered(tooltipOpen);
+  }, [setHasTooltipRendered, tooltipOpen]);
 
   // tooltip handler
   useEffect(() => {
     if (x === null) {
-      setIsTooltipOpenDelayed(false, hideTooltip);
+      setHasTooltipRendered(false, hideTooltip);
       return;
     }
 
@@ -63,12 +61,13 @@ const Chart = ({
     const d0 = data[index - 1];
     const d1 = data[index];
     if (!d0 || !d1) {
-      setIsTooltipOpenDelayed(false, hideTooltip);
+      setHasTooltipRendered(false, hideTooltip);
       return;
     }
 
     const { timestamp: t0, value: v0 } = d0;
     const { timestamp: t1, value: v1 } = d1;
+
     const t0px = dateToPixels(t0);
     const t1px = dateToPixels(t1);
     const v0px = yScale(v0);
@@ -96,7 +95,7 @@ const Chart = ({
     data,
     formatter,
     hideTooltip,
-    setIsTooltipOpenDelayed,
+    setHasTooltipRendered,
     showTooltip,
     width,
     x,
@@ -106,24 +105,23 @@ const Chart = ({
 
   useEffect(() => {
     if (isMobileView) {
-      if (isTooltipOpenDelayed) {
+      if (hasTooltipRendered) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = null;
       }
     }
-  }, [isMobileView, isTooltipOpenDelayed]);
+  }, [isMobileView, hasTooltipRendered]);
+
+  useEffect(() => {
+    setIsTooltipReady(hasTooltipRendered);
+  }, [hasTooltipRendered]);
 
   if (width < 10) return null;
 
   return (
-    <div>
-      <svg
-        className="chart-element"
-        ref={containerRef}
-        width={width}
-        height={height}
-      >
+    <div className="chart-container">
+      <svg className="chart-element" width={width} height={height}>
         <LinearGradient
           id="area-gradient"
           from="var(--palette-color-chart-gradient-start)"
@@ -150,10 +148,11 @@ const Chart = ({
           onTouchStart={handleSynchronizedTooltips}
           onTouchMove={handleSynchronizedTooltips}
           onTouchEnd={hideSynchronizedTooltips}
+          onMouseEnter={showSynchronizedTooltips}
           onMouseMove={handleSynchronizedTooltips}
           onMouseLeave={hideSynchronizedTooltips}
         />
-        {isTooltipOpenDelayed && (
+        {hasTooltipRendered && (
           <g>
             <Line
               from={{ x: tooltipLeft, y: 0 }}
@@ -187,19 +186,25 @@ const Chart = ({
           </g>
         )}
       </svg>
-      <TooltipInPortal
-        className={`chart-tooltip ${isTooltipOpenDelayed ? '' : 'hidden'}`}
-        key={Math.random()}
-        left={tooltipLeft - tooltipRef.current?.clientWidth - 20 || 0}
-        top={tooltipTop - tooltipRef.current?.clientHeight - 20 || 0}
-        detectBounds={false}
-        unstyled
+      <Tooltip
+        className={`chart-tooltip ${
+          hasTooltipRendered && isTooltipReady ? '' : 'hidden'
+        }`}
+        left={0}
+        top={0}
+        style={{
+          transform: `translate(${Math.max(
+            -10,
+            tooltipLeft - tooltipRef.current?.clientWidth - 20 || 0
+          )}px, ${tooltipTop - tooltipRef.current?.clientHeight - 20 || 0}px)`,
+          transition: isTooltipReady ? 'transform 100ms linear' : undefined
+        }}
       >
         <div ref={tooltipRef}>
           <h4>{tooltipData && getDataValue(tooltipData)}</h4>
           <p className="p3">{tooltipData && getDate(tooltipData)}</p>
         </div>
-      </TooltipInPortal>
+      </Tooltip>
     </div>
   );
 };
@@ -207,19 +212,15 @@ const Chart = ({
 Chart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object),
   formatter: PropTypes.func,
-  hideSynchronizedTooltips: PropTypes.func.isRequired,
-  handleSynchronizedTooltips: PropTypes.func.isRequired,
   maximum: PropTypes.number,
   height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  xValue: PropTypes.number
+  width: PropTypes.number.isRequired
 };
 
 Chart.defaultProps = {
   data: [],
   formatter: (data) => data,
-  maximum: null,
-  xValue: null
+  maximum: null
 };
 
 export default Chart;

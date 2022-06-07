@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { localPoint } from '@visx/event';
 
 import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE
 } from '../../../../../../constants';
-import { dashboard as $dashboardContent } from '../../../../../../content';
 import {
   convertMetricValue,
   ingestFramerateTooltipFormatter,
   ingestVideoBitrateTooltipFormatter,
   processMetricData
 } from './utils';
+import './Charts.css';
+import { dashboard as $dashboardContent } from '../../../../../../content';
 import { SyncError } from '../../../../../../assets/icons';
+import { useSynchronizedChartTooltip } from '../../../../../../contexts/SynchronizedChartTooltip';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
-import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -31,6 +31,8 @@ const Charts = () => {
     activeStreamSessionError,
     isInitialLoadingActiveStreamSession
   } = useOutletContext();
+  const { handleSynchronizedTooltips, isTooltipOpen } =
+    useSynchronizedChartTooltip();
   const { isLive, metrics } = activeStreamSession || {};
   const {
     IngestVideoBitrate: ingestVideoBitrateData = {},
@@ -111,16 +113,6 @@ const Charts = () => {
     [activeStreamSession, isMetricDataAvailable]
   );
 
-  const [xValue, setXValue] = useState();
-  const isTooltipOpen = useMemo(() => xValue !== undefined, [xValue]);
-  const mouseXCoord = useRef();
-  const handleSynchronizedTooltips = useCallback((event) => {
-    const { x } = localPoint(event) || { x: mouseXCoord?.current || 0 };
-
-    setXValue(x);
-    mouseXCoord.current = x;
-  }, []);
-
   useEffect(() => {
     if (isMetricDataAvailable && isTooltipOpen) {
       handleSynchronizedTooltips();
@@ -131,9 +123,6 @@ const Charts = () => {
     handleSynchronizedTooltips,
     isTooltipOpen
   ]);
-  const hideSynchronizedTooltips = useCallback(() => {
-    setXValue(undefined);
-  }, []);
 
   return (
     <div className="charts">
@@ -145,13 +134,10 @@ const Charts = () => {
           <ResponsiveChart
             data={processMetricData(ingestVideoBitrateData)}
             formatter={ingestVideoBitrateTooltipFormatter}
-            handleSynchronizedTooltips={handleSynchronizedTooltips}
-            hideSynchronizedTooltips={hideSynchronizedTooltips}
             maximum={convertMetricValue(
               ingestVideoBitrateData.statistics?.maximum,
               INGEST_VIDEO_BITRATE
             )}
-            xValue={xValue}
           />
         )}
       </MetricPanel>
@@ -163,13 +149,10 @@ const Charts = () => {
           <ResponsiveChart
             data={processMetricData(ingestFramerateData)}
             formatter={ingestFramerateTooltipFormatter}
-            handleSynchronizedTooltips={handleSynchronizedTooltips}
-            hideSynchronizedTooltips={hideSynchronizedTooltips}
             maximum={convertMetricValue(
               ingestFramerateData.statistics?.maximum,
               INGEST_FRAMERATE
             )}
-            xValue={xValue}
           />
         )}
       </MetricPanel>
