@@ -18,9 +18,11 @@ const SessionNavigator = forwardRef(
     const navigate = useNavigate();
     const {
       activeStreamSession,
+      fetchStreamSessionsError,
+      isInitialFetchingStreamData,
       streamSessions,
       updateActiveStreamSession,
-      updateStreamSessionsList
+      refreshCurrentStreamSessions
     } = useStreams();
     const { startTime, endTime, isLive } = activeStreamSession || {};
     const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
@@ -41,7 +43,7 @@ const SessionNavigator = forwardRef(
       if (isNotOnDashboard) {
         navigate(-1);
       } else {
-        if (!isNavOpen) updateStreamSessionsList();
+        if (!isNavOpen) refreshCurrentStreamSessions();
         toggleNavPopup();
       }
     };
@@ -77,7 +79,9 @@ const SessionNavigator = forwardRef(
           {isNavOpen || !activeStreamSession ? (
             <>
               <p className="date">{$content.stream_session}</p>
-              <p className="time p3">{$content.select_stream_session}</p>
+              {!fetchStreamSessionsError && !isInitialFetchingStreamData && (
+                <p className="time p3">{$content.select_stream_session}</p>
+              )}
             </>
           ) : (
             <>
@@ -107,6 +111,7 @@ const SessionNavigator = forwardRef(
           </Button>
           <Button
             className="session-list"
+            isDisabled={!!fetchStreamSessionsError}
             onClick={handleSessionNavigator}
             ref={navButtonRef}
             variant="secondary"

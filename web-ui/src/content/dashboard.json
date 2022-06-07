@@ -100,7 +100,8 @@
       "concurrent_views_offline": "Average concurrent views for the entire session"
     },
     "notification_with_cta": {
-      "failed_to_load": "Failed to load data",
+      "failed_to_load_session": "Failed to load session data",
+      "failed_to_load_sessions": "Failed to load stream sessions",
       "try_again": "Try again",
       "settings": "Settings",
       "stream_instructions": "To monitor stream health you must first start a live stream. Your ingest server url and stream key are found in settings."
@@ -164,9 +165,7 @@
       "reset_stream_key_failed": "Stream key failed to reset",
       "username_save_failed": "Username failed to save",
       "password_save_failed": "Password failed to save",
-      "account_deletion_failed": "Account failed to delete",
-      "streams_fetch_failed": "Failed to load stream session list",
-      "session_fetch_failed": "Failed to load stream session"
+      "account_deletion_failed": "Account failed to delete"
     }
   }
 }

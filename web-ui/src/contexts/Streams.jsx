@@ -9,7 +9,6 @@ import {
 } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
-import { dashboard as $content } from '../content';
 import { reindexSessions } from '../mocks/utils';
 import STREAM_SESSION_MOCK_DATA from '../mocks';
 import {
@@ -17,11 +16,11 @@ import {
   STREAM_SESSIONS_REFRESH_INTERVAL,
   USE_MOCKS
 } from '../constants';
-import { useNotif } from '../contexts/Notification';
 import { userManagement } from '../api';
 import { useUser } from '../contexts/User';
 import useContextHook from './useContextHook';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
+import usePrevious from '../hooks/usePrevious';
 import useStateWithCallback from '../hooks/useStateWithCallback';
 import useSWRWithKeyUpdate from '../hooks/useSWRWithKeyUpdate';
 import useThrottledCallback from '../hooks/useThrottledCallback';
@@ -90,7 +89,6 @@ const activeStreamSessionFetcher = async (channelResourceId, streamSession) => {
 
 export const Provider = ({ children }) => {
   const { isSessionValid, userData } = useUser();
-  const { notifyError } = useNotif();
   const isInitialized = useRef(false);
 
   /**
@@ -108,7 +106,12 @@ export const Provider = ({ children }) => {
   const latestStreamSessionPage = useRef();
   // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
   // revalidation of all the subsequent pages as well.
-  const { setSize, mutate: updateStreamSessionsList } = useSWRInfinite(
+  const {
+    error: fetchStreamSessionsError,
+    isValidating: isValidatingStreamSessions,
+    setSize,
+    mutate: refreshCurrentStreamSessions
+  } = useSWRInfinite(
     // This function is called before each fetcher request.
     // It is also triggered by a call to setSize().
     (pageIndex, previousPageData) => {
@@ -161,7 +164,6 @@ export const Provider = ({ children }) => {
       refreshInterval: STREAM_SESSIONS_REFRESH_INTERVAL,
       revalidateOnMount: true,
       onError: () => {
-        notifyError($content.notification.error.streams_fetch_failed);
         setIsLoadingNextStreamSessionsPage(false);
       },
       onSuccess: (sessionPages) => {
@@ -224,7 +226,8 @@ export const Provider = ({ children }) => {
         });
 
         setIsLoadingNextStreamSessionsPage(false);
-      }
+      },
+      shouldRetryOnError: false
     }
   );
 
@@ -232,7 +235,6 @@ export const Provider = ({ children }) => {
    * ACTIVE STREAM SESSION DATA
    */
   const [activeStreamSessionId, setActiveStreamSessionId] = useState();
-  const [isLoadingActiveSession, setIsLoadingActiveSession] = useState(false);
   const activeStreamSession = useMemo(
     () =>
       streamSessions?.find(
@@ -241,7 +243,8 @@ export const Provider = ({ children }) => {
     [activeStreamSessionId, streamSessions]
   );
   const {
-    error: activeStreamSessionError,
+    error: fetchActiveStreamSessionError,
+    isValidating: isValidatingActiveStreamSession,
     // updateActiveStreamSession is used to change the key that SWR is using to poll the data.
     // Here, the key contains the streamId of the selected session. It is used as an URL parameter when calling the API.
     updateKey: updateActiveStreamSession,
@@ -255,9 +258,6 @@ export const Provider = ({ children }) => {
       refreshInterval: isLive ? STREAM_SESSION_DATA_REFRESH_INTERVAL : 0,
       revalidateOnMount: true,
       dedupingInterval: 0,
-      onError: () => {
-        setIsLoadingActiveSession(false);
-      },
       onSuccess: (streamSessionMetadata) => {
         setStreamSessions(
           (prevStreamSessions) =>
@@ -274,23 +274,22 @@ export const Provider = ({ children }) => {
             ),
           () => setActiveStreamSessionId(streamSessionMetadata.streamId)
         );
-        setIsLoadingActiveSession(false);
       },
       shouldRetryOnError: false
     }
   );
 
-  const throttledUpdateStreamSessionsList = useThrottledCallback(
+  const throttledUpdateStreamSessions = useThrottledCallback(
     (shouldFetchNextPage = false) => {
       if (shouldFetchNextPage && canLoadMoreStreamSessions) {
         setIsLoadingNextStreamSessionsPage(true);
         setSize((size) => size + 1);
       } else {
-        updateStreamSessionsList();
+        refreshCurrentStreamSessions();
       }
     },
     1000,
-    [updateStreamSessionsList]
+    [refreshCurrentStreamSessions]
   );
 
   const debouncedUpdateActiveStreamSession = useDebouncedCallback(
@@ -308,10 +307,7 @@ export const Provider = ({ children }) => {
   );
 
   const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
-    () => {
-      setIsLoadingActiveSession(true);
-      refreshCurrentActiveStreamSession();
-    },
+    () => refreshCurrentActiveStreamSession(),
     1000,
     [refreshCurrentActiveStreamSession]
   );
@@ -319,9 +315,9 @@ export const Provider = ({ children }) => {
   // Initial fetch of the stream sessions list
   useEffect(() => {
     if (!isInitialized.current && userData && isSessionValid) {
-      updateStreamSessionsList();
+      refreshCurrentStreamSessions();
     }
-  }, [isSessionValid, updateStreamSessionsList, userData]);
+  }, [isSessionValid, refreshCurrentStreamSessions, userData]);
 
   // Initial fetch of the first stream metadata
   useEffect(() => {
@@ -332,39 +328,78 @@ export const Provider = ({ children }) => {
     }
   }, [streamSessions, updateActiveStreamSession]);
 
+  // isLoadingStreamData logic
+  const [isLoadingStreamData, setIsLoadingStreamData] = useState(false);
+  const prevActiveStreamSession = usePrevious(activeStreamSession);
+  const forceSpinner = useCallback(() => {
+    setIsLoadingStreamData(true);
+
+    return setTimeout(() => setIsLoadingStreamData(false), 500);
+  }, []);
+  const refreshCurrentStreamSessionsWithLoading = useCallback(() => {
+    forceSpinner();
+    throttledUpdateStreamSessions();
+  }, [forceSpinner, throttledUpdateStreamSessions]);
+  const refreshCurrentActiveStreamSessionWithLoading = useCallback(() => {
+    forceSpinner();
+    throttledRefreshCurrentActiveStreamSession();
+  }, [forceSpinner, throttledRefreshCurrentActiveStreamSession]);
+  const isInitialFetchingStreamData =
+    (streamSessions === undefined && !fetchStreamSessionsError) ||
+    (activeStreamSession &&
+      !activeStreamSession.isMetadataFetched &&
+      !fetchActiveStreamSessionError) ||
+    (streamSessions?.length > 0 &&
+      !activeStreamSession &&
+      !fetchActiveStreamSessionError);
+
+  useEffect(() => {
+    if (prevActiveStreamSession?.streamId !== activeStreamSession?.streamId) {
+      forceSpinner();
+    }
+  }, [
+    activeStreamSession?.streamId,
+    forceSpinner,
+    prevActiveStreamSession?.streamId
+  ]);
+
   const value = useMemo(
     () => ({
       activeStreamSession,
-      activeStreamSessionError,
+      fetchActiveStreamSessionError,
       canLoadMoreStreamSessions,
-      refreshCurrentActiveStreamSession:
-        throttledRefreshCurrentActiveStreamSession,
-      isLoadingActiveSession,
+      isInitialFetchingStreamData,
       isLoadingNextStreamSessionsPage,
+      isLoadingStreamData:
+        isInitialFetchingStreamData ||
+        (isValidatingActiveStreamSession && fetchActiveStreamSessionError) ||
+        (isValidatingStreamSessions && fetchStreamSessionsError) ||
+        isLoadingStreamData ||
+        prevActiveStreamSession?.streamId !== activeStreamSession?.streamId,
       isLive,
+      fetchStreamSessionsError,
       streamSessions,
-      updateActiveStreamSession: eagerUpdateActiveStreamSession,
-      updateStreamSessionsList: throttledUpdateStreamSessionsList,
-      isInitialLoadingActiveStreamSession:
-        streamSessions === undefined ||
-        (activeStreamSession &&
-          !activeStreamSession.isMetadataFetched &&
-          !activeStreamSessionError) ||
-        (streamSessions.length > 0 &&
-          !activeStreamSession &&
-          !activeStreamSessionError)
+      refreshCurrentActiveStreamSession:
+        refreshCurrentActiveStreamSessionWithLoading,
+      refreshCurrentStreamSessions: refreshCurrentStreamSessionsWithLoading,
+      updateActiveStreamSession: eagerUpdateActiveStreamSession
     }),
     [
       activeStreamSession,
-      activeStreamSessionError,
       canLoadMoreStreamSessions,
-      throttledRefreshCurrentActiveStreamSession,
-      isLoadingActiveSession,
-      isLoadingNextStreamSessionsPage,
-      isLive,
-      streamSessions,
       eagerUpdateActiveStreamSession,
-      throttledUpdateStreamSessionsList
+      fetchActiveStreamSessionError,
+      fetchStreamSessionsError,
+      isInitialFetchingStreamData,
+      isLive,
+      isLoadingNextStreamSessionsPage,
+      isLoadingStreamData,
+      isValidatingActiveStreamSession,
+      isValidatingStreamSessions,
+      prevActiveStreamSession?.streamId,
+      refreshCurrentActiveStreamSessionWithLoading,
+      refreshCurrentStreamSessionsWithLoading,
+      streamSessions
     ]
   );
 
