@@ -13,9 +13,13 @@
     "no_current_live_stream": "No current live stream",
     "offline_instructions": "To start streaming, find your ingest server url and stream key in settings.",
     "settings": "Settings",
-    "stream_went_offline": "Your stream just went offline. Try reconnecting your streaming software."
+    "stream_went_offline": "Your stream just went offline. Try reconnecting your streaming software.",
+    "expand": "Expand player",
+    "collapse": "Collapse player"
   },
   "date_time": {
     "just_now": "just now"
-  }
+  },
+  "hide": "Hide",
+  "show": "Show"
 }

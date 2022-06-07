@@ -1,3 +1,4 @@
+import { useOutletContext } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import './EncoderConfiguration.css';
@@ -12,9 +13,11 @@ import useStringOverflow from '../../../../../hooks/useStringOverflow';
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
 const ConfigRow = ({ label, value, error }) => {
+  const { shouldShowSpinner } = useOutletContext();
   const [isValueOverflowing, valueRef] = useStringOverflow(value);
   const { notifySuccess } = useNotif();
   const errorMessage = error && $content.errors[error];
+  const renderedValue = shouldShowSpinner ? '----' : value;
 
   const handleCopy = (label, value) => {
     copyToClipboard(value);
@@ -28,21 +31,31 @@ const ConfigRow = ({ label, value, error }) => {
         {error && <ErrorIcon />}
       </h4>
       <span className="config-value">
-        <Button onClick={() => handleCopy(label, value)} variant="icon">
+        <Button
+          ariaLabel={`${$content.copy_the_label.replace(
+            '{label}',
+            label.toLowerCase()
+          )}`}
+          ariaDisabled={shouldShowSpinner}
+          {...(shouldShowSpinner
+            ? {}
+            : { onClick: () => handleCopy(label, value) })}
+          variant="icon"
+        >
           <Copy />
         </Button>
         {isValueOverflowing || errorMessage ? (
           <Tooltip
             hasFixedWidth={!!errorMessage}
-            message={errorMessage || value}
+            message={errorMessage || renderedValue}
           >
             <p className="encoder-value p1" ref={valueRef}>
-              {value}
+              {renderedValue}
             </p>
           </Tooltip>
         ) : (
           <p className="encoder-value p1" ref={valueRef}>
-            {value}
+            {renderedValue}
           </p>
         )}
       </span>

@@ -1,13 +1,15 @@
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { dashboard as $content } from '../../../content';
+import { dashboard as $dashboardContent } from '../../../content';
 import { Settings } from '../../../assets/icons';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import SessionNavigator from './SessionNavigator';
 import './Header.css';
+
+const $content = $dashboardContent.header;
 
 const Header = () => {
   const { isMobileView } = useMobileBreakpoint();
@@ -26,6 +28,7 @@ const Header = () => {
       {!isMobileView && (
         <div className="header-buttons">
           <Button
+            ariaLabel={$content.settings}
             className="settings-button"
             onClick={handleSettings}
             variant="secondary"
@@ -33,7 +36,7 @@ const Header = () => {
             <Settings className="icon settings" />
           </Button>
           <Button onClick={logOut} variant="secondary">
-            {$content.header.log_out}
+            {$content.log_out}
           </Button>
         </div>
       )}

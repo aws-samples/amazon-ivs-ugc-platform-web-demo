@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
-import { app as $content } from '../../../content';
+import { app as $appContent } from '../../../content';
 import { Sensors } from '../../../assets/icons';
 import { useStreams } from '../../../contexts/Streams';
 import { useUser } from '../../../contexts/User';
@@ -10,6 +10,8 @@ import Button from '../../../components/Button';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
+
+const $content = $appContent.floating_player;
 
 const FloatingPlayer = () => {
   const {
@@ -138,6 +140,7 @@ const FloatingPlayer = () => {
   return (
     <div className="floating-player">
       <Button
+        ariaLabel={isExpanded ? $content.collapse : $content.expand}
         className="icon-button"
         onClick={() => setIsExpanded((prev) => !prev)}
         variant="secondary"
@@ -148,7 +151,7 @@ const FloatingPlayer = () => {
         {isLive &&
           (activeStreamSession?.index > 0 || pathname === '/settings') && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
-              {$content.floating_player.view_stream_session}
+              {$content.view_stream_session}
             </Button>
           )}
         <div
@@ -165,16 +168,16 @@ const FloatingPlayer = () => {
             {hasStreamSessions ? (
               <p className="mini-player-text p2">
                 {prevIsLiveValue.current
-                  ? $content.floating_player.stream_went_offline
-                  : $content.floating_player.no_current_live_stream}
+                  ? $content.stream_went_offline
+                  : $content.no_current_live_stream}
               </p>
             ) : (
               <>
-                <h4>{$content.floating_player.no_current_live_stream}</h4>
+                <h4>{$content.no_current_live_stream}</h4>
                 <p className="mini-player-text offline-instructions p2">
-                  {$content.floating_player.offline_instructions}
+                  {$content.offline_instructions}
                 </p>
-                <Link to="/settings">{$content.floating_player.settings}</Link>
+                <Link to="/settings">{$content.settings}</Link>
               </>
             )}
           </div>

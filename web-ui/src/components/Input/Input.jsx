@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
+import './Input.css';
+import { app as $content } from '../../content';
 import { ErrorIcon, Visibility, VisibilityOff } from '../../assets/icons';
 import Spinner from '../Spinner';
-import './Input.css';
 
 const Input = ({
   btnVariant,
@@ -38,6 +39,8 @@ const Input = ({
   useEffect(() => {
     hideDescription.current = hideDescription.current || !!error;
   }, [error]);
+
+  const isPasswordHidden = inputType === 'password';
 
   return (
     <div className={`outer-input-container ${variant}`}>
@@ -74,11 +77,14 @@ const Input = ({
         )}
         {initialType === 'password' && value && (
           <button
+            aria-label={`${
+              isPasswordHidden ? $content.show : $content.hide
+            } ${label.toLowerCase()}`}
             className="password-peek"
             onClick={passwordPeek}
             type="button"
           >
-            {inputType === 'password' ? (
+            {isPasswordHidden ? (
               <Visibility className="visibility-icon" />
             ) : (
               <VisibilityOff className="visibility-icon" />

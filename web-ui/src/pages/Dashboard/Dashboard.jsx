@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import './Dashboard.css';
@@ -12,6 +12,7 @@ import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import Modal from '../../components/Modal';
 import Notification from '../../components/Notification';
+import usePrevious from '../../hooks/usePrevious';
 import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
@@ -28,6 +29,8 @@ const Dashboard = () => {
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid, userData, fetchUserData } = useUser();
   const { modal } = useModal();
+  const [shouldShowSpinner, setShouldShowSpinner] = useState(true);
+  const prevActiveSession = usePrevious(activeStreamSession);
   const outletContext = useMemo(
     () => ({
       activeStreamSession,
@@ -35,14 +38,23 @@ const Dashboard = () => {
       refreshCurrentActiveStreamSession,
       isInitialLoadingActiveStreamSession,
       isLoadingActiveSession,
-      hasStreamSessions: !streamSessions ? undefined : streamSessions.length > 0
+      hasStreamSessions: !streamSessions
+        ? undefined
+        : streamSessions.length > 0,
+      shouldShowSpinner:
+        isInitialLoadingActiveStreamSession ||
+        isLoadingActiveSession ||
+        shouldShowSpinner ||
+        prevActiveSession?.streamId !== activeStreamSession?.streamId
     }),
     [
       activeStreamSession,
       activeStreamSessionError,
-      refreshCurrentActiveStreamSession,
       isInitialLoadingActiveStreamSession,
       isLoadingActiveSession,
+      prevActiveSession?.streamId,
+      refreshCurrentActiveStreamSession,
+      shouldShowSpinner,
       streamSessions
     ]
   );
@@ -56,6 +68,17 @@ const Dashboard = () => {
       fetchUserData();
     }
   }, [fetchUserData, isSessionValid, userData]);
+
+  useEffect(() => {
+    if (!activeStreamSession?.streamId && isLoadingActiveSession) return;
+
+    const hideSpinner = () => setShouldShowSpinner(false);
+
+    setShouldShowSpinner(true);
+    const timeoutId = setTimeout(hideSpinner, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [activeStreamSession?.streamId, isLoadingActiveSession]);
 
   if (isSessionValid === false) return <Navigate to="/login" replace />;
 
