@@ -12,10 +12,17 @@
 .learn-more-header {
   align-items: center;
   display: flex;
-  height: 24px;
+  min-height: 24px;
   justify-content: space-between;
   margin-bottom: 20px;
-  padding: 0 15px;
+  padding: 0 68px 0 15px;
+  position: relative;
+}
+
+.learn-more-btn {
+  position: absolute;
+  right: 15px;
+  top: -7px;
 }
 
 .learn-more-message {
