@@ -3,11 +3,11 @@ import ReactMarkdown from 'react-markdown';
 import { useOutletContext } from 'react-router-dom';
 import { m } from 'framer-motion';
 
+import './LearnMoreMessage.css';
 import { Close } from '../../../../../../../assets/icons';
-import { substitutePlaceholders } from './utils';
+import { substitutePlaceholders } from '../../../../../../../utils';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import Button from '../../../../../../../components/Button';
-import './LearnMoreMessage.css';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useOutletContext();

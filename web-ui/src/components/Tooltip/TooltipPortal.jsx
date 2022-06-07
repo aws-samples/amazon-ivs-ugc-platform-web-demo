@@ -17,7 +17,7 @@ TooltipPortal.defaultProps = { hasFixedWidth: false };
 
 TooltipPortal.propTypes = {
   hasFixedWidth: PropTypes.bool,
-  message: PropTypes.string.isRequired
+  message: PropTypes.node.isRequired
 };
 
 export default withPortal(TooltipPortal, 'tooltip');

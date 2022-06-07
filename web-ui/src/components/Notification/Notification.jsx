@@ -17,6 +17,7 @@ const Notification = ({ isPositionFixed, top }) => {
       {notif && (
         <m.div
           animate="visible"
+          aria-live="polite"
           className={`notification ${notif.type} button-link ${
             isPositionFixed ? 'fixed' : ''
           }`}
