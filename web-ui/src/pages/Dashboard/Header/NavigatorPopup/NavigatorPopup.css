@@ -1,12 +1,12 @@
-#nav-popup-container {
+.nav-popup-container {
   background: hsla(var(--base-color-white), 0%, 0.5);
   display: flex;
-  height: calc(100% - 64px);
+  height: 100%;
   justify-content: center;
   position: fixed;
   top: 64px;
   width: 100%;
-  z-index: 350;
+  z-index: 250;
 }
 
 .nav-popup-wrapper {
@@ -129,6 +129,12 @@
 }
 
 @media (max-width: 875px) {
+  .nav-popup-container {
+    background: none;
+    position: absolute;
+    top: auto;
+  }
+
   .nav-popup-wrapper {
     border-radius: 0;
     height: 100%;

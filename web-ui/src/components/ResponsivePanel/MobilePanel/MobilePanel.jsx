@@ -1,32 +1,52 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { m } from 'framer-motion';
 
+import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import useFocusTrap from '../../../hooks/useFocusTrap';
-import useMobileOverlay from '../../../hooks/useMobileOverlay';
 import withPortal from '../../withPortal';
 import './MobilePanel.css';
 
-const MobilePanel = ({ children, controls }) => {
+const MobilePanel = ({ children, controls, slideInDirection }) => {
+  const { addMobileOverlay, removeMobileOverlay } = useMobileBreakpoint();
   const headerRef = useRef();
   const panelRef = useRef();
+  const variants = useMemo(() => {
+    switch (slideInDirection) {
+      case 'top':
+        return { hidden: { y: '-100%' }, visible: { y: 0 } };
+      case 'right':
+        return { hidden: { x: '100%' }, visible: { x: 0 } };
+      case 'bottom':
+        return { hidden: { y: '100%' }, visible: { y: 0 } };
+      case 'left':
+        return { hidden: { x: '-100%' }, visible: { x: 0 } };
+      default:
+        return;
+    }
+  }, [slideInDirection]);
 
   useEffect(() => {
     headerRef.current = document.getElementsByClassName('header')[0];
   }, []);
 
-  useMobileOverlay();
+  useEffect(() => {
+    addMobileOverlay();
+
+    return () => removeMobileOverlay();
+  }, [addMobileOverlay, removeMobileOverlay]);
+
   useFocusTrap([headerRef, panelRef]);
 
   return (
     <m.div
-      animate={controls}
-      initial="hidden"
-      exit="hidden"
-      variants={{ hidden: { x: '100%' }, visible: { x: 0 } }}
-      transition={{ duration: 0.25, type: 'tween' }}
-      className="mobile-panel"
       ref={panelRef}
+      className="mobile-panel"
+      transition={{ duration: 0.25, type: 'tween' }}
+      variants={variants}
+      initial="hidden"
+      animate={controls}
+      exit="hidden"
     >
       {children}
     </m.div>
@@ -35,7 +55,8 @@ const MobilePanel = ({ children, controls }) => {
 
 MobilePanel.propTypes = {
   children: PropTypes.node.isRequired,
-  controls: PropTypes.object.isRequired
+  controls: PropTypes.object.isRequired,
+  slideInDirection: PropTypes.string.isRequired
 };
 
 export default withPortal(MobilePanel, 'mobile-panel', true);

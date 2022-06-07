@@ -20,8 +20,7 @@ const StreamEvents = () => {
   const { activeStreamSession = {} } = useOutletContext();
   const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
-  const [isStreamEventsListVisible, setIsStreamEventsListVisible] =
-    useState(true);
+  const [isStreamEventsListVisible, setIsStreamEventsListVisible] = useState();
 
   const streamEvents = useMemo(
     () => processEvents(activeStreamSession.truncatedEvents),

@@ -5,7 +5,12 @@ import { AnimatePresence, useAnimation } from 'framer-motion';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import MobilePanel from './MobilePanel';
 
-const ResponsivePanel = ({ children, isOpen }) => {
+const ResponsivePanel = ({
+  slideInDirection,
+  children,
+  isOpen,
+  preserveVisible
+}) => {
   const { isMobileView } = useMobileBreakpoint();
   const controls = useAnimation();
 
@@ -13,11 +18,19 @@ const ResponsivePanel = ({ children, isOpen }) => {
     if (isOpen) controls.start('visible');
   }, [controls, isOpen]);
 
+  useEffect(() => {
+    if (preserveVisible && isOpen) controls.set('visible');
+  }, [controls, isOpen, preserveVisible, isMobileView]);
+
   return (
     <AnimatePresence>
       {isOpen &&
         (isMobileView ? (
-          <MobilePanel controls={controls} isOpen={isOpen}>
+          <MobilePanel
+            controls={controls}
+            isOpen={isOpen}
+            slideInDirection={slideInDirection}
+          >
             {children}
           </MobilePanel>
         ) : (
@@ -27,11 +40,17 @@ const ResponsivePanel = ({ children, isOpen }) => {
   );
 };
 
-ResponsivePanel.defaultProps = { isOpen: false };
+ResponsivePanel.defaultProps = {
+  isOpen: false,
+  preserveVisible: false,
+  slideInDirection: 'right'
+};
 
 ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
-  isOpen: PropTypes.bool
+  isOpen: PropTypes.bool,
+  preserveVisible: PropTypes.bool,
+  slideInDirection: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
 };
 
 export default ResponsivePanel;

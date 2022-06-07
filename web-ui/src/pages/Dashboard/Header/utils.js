@@ -1,5 +1,5 @@
-import { dashboard as $dashboardContent } from '../../../../content';
-import { getDayDiff } from '../../../../hooks/useDateTime';
+import { dashboard as $dashboardContent } from '../../../content';
+import { getDayDiff } from '../../../hooks/useDateTime';
 
 const $content = $dashboardContent.header.session_navigator;
 

@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
-import { Check, ErrorIcon } from '../../../../../assets/icons';
-import { dashboard as $dashboardContent } from '../../../../../content';
-import Button from '../../../../../components/Button';
-import LivePill from '../../../../../components/LivePill';
-import useDateTime from '../../../../../hooks/useDateTime';
+import { Check, ErrorIcon } from '../../../../assets/icons';
+import { dashboard as $dashboardContent } from '../../../../content';
+import Button from '../../../../components/Button';
+import LivePill from '../../../../components/LivePill';
+import useDateTime from '../../../../hooks/useDateTime';
 import './NavigatorPopup.css';
 
 const $content = $dashboardContent.header.session_navigator;

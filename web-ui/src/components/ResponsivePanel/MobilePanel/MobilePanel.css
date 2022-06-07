@@ -6,7 +6,7 @@
   position: fixed;
   top: 64px;
   width: 100vw;
-  z-index: 300;
+  z-index: 250;
 }
 
 .mobile-panel {

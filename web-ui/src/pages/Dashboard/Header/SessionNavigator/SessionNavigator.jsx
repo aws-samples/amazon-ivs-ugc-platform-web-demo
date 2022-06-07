@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { bound } from '../../../../utils';
@@ -7,159 +7,131 @@ import { ChevronLeft, ChevronRight } from '../../../../assets/icons';
 import { dashboard as $dashboardContent } from '../../../../content';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
-import NavigatorPopup from './NavigatorPopup';
-import useClickAway from '../../../../hooks/useClickAway';
 import useDateTime from '../../../../hooks/useDateTime';
-import useFocusTrap from '../../../../hooks/useFocusTrap';
 import './SessionNavigator.css';
 
 const $content = $dashboardContent.header;
 
-const SessionNavigator = ({ headerRef }) => {
-  const [isNavOpen, setIsNavOpen] = useState(false);
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const navPopupRef = useRef();
-  const navButtonRef = useRef();
-  const rootRef = useRef(document.getElementById('root'));
-  const {
-    activeStreamSession,
-    streamSessions,
-    updateActiveStreamSession,
-    updateStreamSessionsList
-  } = useStreams();
-  const { startTime, endTime, isLive } = activeStreamSession || {};
-  const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
-  const sessionsLength = streamSessions?.length;
-  const isNotOnDashboard = pathname !== '/';
-  const isPrevDisabled =
-    isNotOnDashboard ||
-    !activeStreamSession ||
-    !sessionsLength ||
-    activeStreamSession.index === 0;
-  const isNextDisabled =
-    isNotOnDashboard ||
-    !activeStreamSession ||
-    !sessionsLength ||
-    activeStreamSession.index === sessionsLength - 1;
+const SessionNavigator = forwardRef(
+  ({ isNavOpen, toggleNavPopup }, navButtonRef) => {
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const {
+      activeStreamSession,
+      streamSessions,
+      updateActiveStreamSession,
+      updateStreamSessionsList
+    } = useStreams();
+    const { startTime, endTime, isLive } = activeStreamSession || {};
+    const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
+    const sessionsLength = streamSessions?.length;
+    const isNotOnDashboard = pathname !== '/';
+    const isPrevDisabled =
+      isNotOnDashboard ||
+      !activeStreamSession ||
+      !sessionsLength ||
+      activeStreamSession.index === 0;
+    const isNextDisabled =
+      isNotOnDashboard ||
+      !activeStreamSession ||
+      !sessionsLength ||
+      activeStreamSession.index === sessionsLength - 1;
 
-  const toggleNavPopup = useCallback(() => {
-    setIsNavOpen((prev) => !prev);
-  }, []);
-
-  const handleSessionNavigator = () => {
-    if (isNotOnDashboard) {
-      navigate(-1);
-    } else {
-      if (!isNavOpen) updateStreamSessionsList();
-      toggleNavPopup();
-    }
-  };
-
-  const handleNextStream = (e) => {
-    if (!isNextDisabled) {
-      const nextStreamSessionIdx = bound(
-        activeStreamSession.index + 1,
-        0,
-        sessionsLength
-      );
-
-      updateActiveStreamSession(streamSessions?.[nextStreamSessionIdx]);
-    }
-  };
-
-  const handlePreviousStream = () => {
-    if (!isPrevDisabled) {
-      const prevStreamSessionIdx = bound(
-        activeStreamSession.index - 1,
-        0,
-        sessionsLength
-      );
-      updateActiveStreamSession(streamSessions?.[prevStreamSessionIdx]);
-    }
-  };
-
-  useClickAway([navPopupRef, navButtonRef], toggleNavPopup);
-  useFocusTrap([headerRef, navPopupRef], isNavOpen);
-
-  useEffect(() => {
-    setIsNavOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const handleCloseNav = (event) => {
-      if (event.keyCode === 27) {
-        setIsNavOpen(false);
-        navButtonRef.current.focus();
+    const handleSessionNavigator = () => {
+      if (isNotOnDashboard) {
+        navigate(-1);
+      } else {
+        if (!isNavOpen) updateStreamSessionsList();
+        toggleNavPopup();
       }
     };
 
-    if (isNavOpen) document.addEventListener('keydown', handleCloseNav);
+    const handleNextStream = (e) => {
+      if (!isNextDisabled) {
+        const nextStreamSessionIdx = bound(
+          activeStreamSession.index + 1,
+          0,
+          sessionsLength
+        );
 
-    return () => document.removeEventListener('keydown', handleCloseNav);
-  }, [isNavOpen]);
+        updateActiveStreamSession(streamSessions?.[nextStreamSessionIdx]);
+      }
+    };
 
-  const renderSessionNavigatorContent = () => {
-    if (isNotOnDashboard) return <p>{$content.return_to_session}</p>;
+    const handlePreviousStream = () => {
+      if (!isPrevDisabled) {
+        const prevStreamSessionIdx = bound(
+          activeStreamSession.index - 1,
+          0,
+          sessionsLength
+        );
+        updateActiveStreamSession(streamSessions?.[prevStreamSessionIdx]);
+      }
+    };
+
+    const renderSessionNavigatorContent = () => {
+      if (isNotOnDashboard) return <p>{$content.return_to_session}</p>;
+
+      return (
+        <span className="date-time-container">
+          {isNavOpen || !activeStreamSession ? (
+            <>
+              <p className="date">{$content.stream_session}</p>
+              <p className="time p3">{$content.select_stream_session}</p>
+            </>
+          ) : (
+            <>
+              <p className="date">{date}</p>
+              <span className="time p3">
+                {isLive
+                  ? `${$content.session_navigator.started} ${time}`
+                  : time}
+                {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
+              </span>
+            </>
+          )}
+        </span>
+      );
+    };
 
     return (
-      <span className="date-time-container">
-        {isNavOpen || !activeStreamSession ? (
-          <>
-            <p className="date">{$content.stream_session}</p>
-            <p className="time p3">{$content.select_stream_session}</p>
-          </>
-        ) : (
-          <>
-            <p className="date">{date}</p>
-            <span className="time p3">
-              {isLive ? `${$content.session_navigator.started} ${time}` : time}
-              {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
-            </span>
-          </>
-        )}
-      </span>
+      <>
+        <div className="session-navigator">
+          <Button
+            className={`nav-button`}
+            isDisabled={isNextDisabled}
+            onClick={handleNextStream}
+            variant="secondary"
+          >
+            <ChevronLeft />
+          </Button>
+          <Button
+            className="session-list"
+            onClick={handleSessionNavigator}
+            ref={navButtonRef}
+            variant="secondary"
+          >
+            {renderSessionNavigatorContent()}
+          </Button>
+          <Button
+            className={`nav-button`}
+            isDisabled={isPrevDisabled}
+            onClick={handlePreviousStream}
+            variant="secondary"
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      </>
     );
-  };
+  }
+);
 
-  return (
-    <>
-      <div className="session-navigator">
-        <Button
-          className={`nav-button`}
-          isDisabled={isNextDisabled}
-          onClick={handleNextStream}
-          variant="secondary"
-        >
-          <ChevronLeft />
-        </Button>
-        <Button
-          className="session-list"
-          onClick={handleSessionNavigator}
-          ref={navButtonRef}
-          variant="secondary"
-        >
-          {renderSessionNavigatorContent()}
-        </Button>
-        <Button
-          className={`nav-button`}
-          isDisabled={isPrevDisabled}
-          onClick={handlePreviousStream}
-          variant="secondary"
-        >
-          <ChevronRight />
-        </Button>
-      </div>
-      <NavigatorPopup
-        isOpen={isNavOpen}
-        parentEl={rootRef.current}
-        ref={navPopupRef}
-        toggleNavPopup={toggleNavPopup}
-      />
-    </>
-  );
+SessionNavigator.defaultProps = { isNavOpen: false };
+
+SessionNavigator.propTypes = {
+  isNavOpen: PropTypes.bool,
+  toggleNavPopup: PropTypes.func.isRequired
 };
-
-SessionNavigator.propTypes = { headerRef: PropTypes.object.isRequired };
 
 export default SessionNavigator;
