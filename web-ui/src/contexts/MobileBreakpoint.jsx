@@ -15,7 +15,7 @@ Context.displayName = 'MobileBreakpoint';
 const MOBILE_BREAKPOINT = 875; // px
 
 export const Provider = ({ children }) => {
-  const [isMobileView, setIsMobileView] = useState(undefined);
+  const [isMobileView, setIsMobileView] = useState();
   const [mobileOverlayCount, setMobileOverlayCount] = useState(0);
   const addMobileOverlay = useCallback(
     () => setMobileOverlayCount((prev) => (isMobileView ? prev + 1 : prev)),

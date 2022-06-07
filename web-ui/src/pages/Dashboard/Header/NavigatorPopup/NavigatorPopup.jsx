@@ -1,19 +1,18 @@
 import PropTypes from 'prop-types';
 import { forwardRef, useEffect, useRef } from 'react';
+import { m } from 'framer-motion';
 
-import { dashboard as $dashboardContent } from '../../../../../content';
+import { dashboard as $dashboardContent } from '../../../../content';
 import { groupStreamSessions } from '../utils';
-import { useStreams } from '../../../../../contexts/Streams';
-import Button from '../../../../../components/Button';
+import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
+import { useStreams } from '../../../../contexts/Streams';
+import Button from '../../../../components/Button';
 import StreamSessionButton from './StreamSessionButton';
-import useMobileOverlay from '../../../../../hooks/useMobileOverlay';
-import withPortal from '../../../../../components/withPortal';
 import './NavigatorPopup.css';
 
 const $content = $dashboardContent.header.session_navigator;
 
-const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
-  const loadMoreSessionsBtnRef = useRef();
+const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
   const {
     canLoadMoreStreamSessions,
     isLoadingNextStreamSessionsPage,
@@ -21,6 +20,8 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
     updateActiveStreamSession,
     updateStreamSessionsList
   } = useStreams();
+  const { isMobileView } = useMobileBreakpoint();
+  const loadMoreSessionsBtnRef = useRef();
 
   const handleSessionClick = (streamSession) => {
     updateActiveStreamSession(streamSession);
@@ -37,10 +38,20 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
     }
   }, [isLoadingNextStreamSessionsPage]);
 
-  useMobileOverlay();
-
-  return (
-    <div className="nav-popup-wrapper">
+  const renderPopup = () => (
+    <m.div
+      initial="hidden"
+      animate={isNavOpen ? 'visible' : 'hidden'}
+      exit="hidden"
+      variants={!isMobileView && { hidden: { y: '-102%' }, visible: { y: 0 } }}
+      transition={{
+        damping: 25,
+        duration: 0.25,
+        stiffness: 250,
+        type: 'spring'
+      }}
+      className="nav-popup-wrapper"
+    >
       <div className="nav-popup" ref={ref}>
         {streamSessions?.length ? (
           <>
@@ -80,10 +91,32 @@ const NavigatorPopup = forwardRef(({ toggleNavPopup }, ref) => {
           </span>
         )}
       </div>
-    </div>
+    </m.div>
+  );
+
+  return isMobileView ? (
+    renderPopup()
+  ) : (
+    <m.div
+      initial="hidden"
+      animate={isNavOpen ? 'visible' : 'hidden'}
+      exit="hidden"
+      variants={
+        !isMobileView && { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+      }
+      transition={{ duration: 0.25, type: 'tween' }}
+      className="nav-popup-container"
+    >
+      {renderPopup()}
+    </m.div>
   );
 });
 
-NavigatorPopup.propTypes = { toggleNavPopup: PropTypes.func.isRequired };
+NavigatorPopup.defaultProps = { isNavOpen: false };
 
-export default withPortal(NavigatorPopup, 'nav-popup');
+NavigatorPopup.propTypes = {
+  isNavOpen: PropTypes.bool,
+  toggleNavPopup: PropTypes.func.isRequired
+};
+
+export default NavigatorPopup;
