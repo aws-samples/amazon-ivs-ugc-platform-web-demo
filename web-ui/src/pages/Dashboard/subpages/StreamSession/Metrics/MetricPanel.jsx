@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
+import './Metrics.css';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { SyncError } from '../../../../../assets/icons';
 import Spinner from '../../../../../components/Spinner';
-import './Metrics.css';
 
 const $content = $dashboardContent.stream_session_page;
 
@@ -15,12 +15,11 @@ const MetricPanel = ({
   footerClassNames,
   header,
   headerClassNames,
+  style,
   title,
-  wrapper,
-  style
+  wrapper
 }) => {
-  const { activeStreamSessionError, isInitialLoadingActiveStreamSession } =
-    useOutletContext();
+  const { activeStreamSessionError, shouldShowSpinner } = useOutletContext();
   const Wrapper = useMemo(() => wrapper.tag || 'div', [wrapper.tag]);
 
   const headerClasses = ['metrics-panel-header'];
@@ -29,7 +28,7 @@ const MetricPanel = ({
   footerClasses.push(...footerClassNames);
 
   const renderBody = () => {
-    if (isInitialLoadingActiveStreamSession)
+    if (shouldShowSpinner)
       return (
         <div className="metrics-spinner-container">
           <Spinner size="medium" variant="semi-dark" />

@@ -4,6 +4,7 @@
     "log_out": "Log out",
     "stream_session": "Stream Session",
     "select_stream_session": "Select a stream session to view",
+    "settings": "Settings",
     "session_navigator": {
       "started": "Started",
       "no_stream_sessions": "No stream sessions",
@@ -36,6 +37,7 @@
       "kbps": "kbps",
       "mbps": "mbps",
       "copied": "copied",
+      "copy_the_label": "Copy the {label} value",
       "errors": {
         "encoderAudioSampleRateError": "Recommended sample rates are 44.1kHz and 48kHz.",
         "encoderNumberOfAudioChannelsError": "The audio has more than two channels, but only one (mono) or two (stereo) channels are supported. Please correct the number of audio channels.",

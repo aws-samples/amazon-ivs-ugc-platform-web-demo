@@ -26,11 +26,8 @@ const UNITS = {
 };
 
 const Charts = () => {
-  const {
-    activeStreamSession,
-    activeStreamSessionError,
-    isInitialLoadingActiveStreamSession
-  } = useOutletContext();
+  const { activeStreamSession, activeStreamSessionError, shouldShowSpinner } =
+    useOutletContext();
   const { handleSynchronizedTooltips, isTooltipOpen } =
     useSynchronizedChartTooltip();
   const { isLive, metrics } = activeStreamSession || {};
@@ -47,7 +44,7 @@ const Charts = () => {
       return dataSet;
     }, {}) || {};
   const isMetricDataAvailable =
-    !isInitialLoadingActiveStreamSession &&
+    !shouldShowSpinner &&
     !activeStreamSessionError &&
     ingestVideoBitrateData.data?.length &&
     ingestFramerateData.data?.length;
