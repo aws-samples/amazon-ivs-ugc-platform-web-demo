@@ -67,7 +67,7 @@ Tooltip.defaultProps = { position: 'below', hasFixedWidth: false };
 Tooltip.propTypes = {
   children: PropTypes.node.isRequired,
   hasFixedWidth: PropTypes.bool,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.node.isRequired,
   position: PropTypes.oneOf(['above', 'below'])
 };
 

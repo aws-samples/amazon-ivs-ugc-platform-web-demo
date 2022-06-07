@@ -69,21 +69,16 @@ const ENCODER_CONFIG_DATA = [
       const edgeLimitStandard = 1920;
 
       if (
-        channelType === CHANNEL_TYPE.BASIC &&
-        (pixels > 415000 ||
-          videoHeight > edgeLimitBasic ||
-          videoWidth > edgeLimitBasic)
+        (channelType === CHANNEL_TYPE.BASIC &&
+          (pixels > 415000 ||
+            videoHeight > edgeLimitBasic ||
+            videoWidth > edgeLimitBasic)) ||
+        (channelType === CHANNEL_TYPE.STANDARD &&
+          (pixels > 2100000 ||
+            videoHeight > edgeLimitStandard ||
+            videoWidth > edgeLimitStandard))
       ) {
-        return 'encoderResolutionErrorBasic';
-      }
-
-      if (
-        channelType === CHANNEL_TYPE.STANDARD &&
-        (pixels > 2100000 ||
-          videoHeight > edgeLimitStandard ||
-          videoWidth > edgeLimitStandard)
-      ) {
-        return 'encoderResolutionErrorStandard';
+        return 'encoderResolutionError';
       }
 
       return null;
@@ -106,10 +101,11 @@ const ENCODER_CONFIG_DATA = [
       +(targetBitrate * Math.pow(10, -6)).toFixed(2),
     units: $content.mbps,
     validate: ([targetBitrate], channelType) => {
-      if (channelType === CHANNEL_TYPE.BASIC && targetBitrate > 1500000)
-        return 'encoderTargetBitrateErrorBasic';
-      if (channelType === CHANNEL_TYPE.STANDARD && targetBitrate > 8500000)
-        return 'encoderTargetBitrateErrorStandard';
+      if (
+        (channelType === CHANNEL_TYPE.BASIC && targetBitrate > 1500000) ||
+        (channelType === CHANNEL_TYPE.STANDARD && targetBitrate > 8500000)
+      )
+        return 'encoderTargetBitrateError';
 
       return null;
     }
