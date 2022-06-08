@@ -1,0 +1,19 @@
+{
+  "clearMocks": true,
+  "collectCoverage": true,
+  "collectCoverageFrom": ["**/*.ts"],
+  "coveragePathIgnorePatterns": ["/node_modules/", "/dist/"],
+  "coverageDirectory": "coverage",
+  "coverageThreshold": {
+    "global": {
+      "branches": 10,
+      "functions": 10,
+      "lines": 10,
+      "statements": 10
+    }
+  },
+  "preset": "ts-jest",
+  "testMatch": ["**/*.test.ts"],
+  "testPathIgnorePatterns": ["/node_modules/", "/dist/"],
+  "testEnvironment": "node"
+}
