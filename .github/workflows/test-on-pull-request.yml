@@ -7,7 +7,7 @@ on:
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label }}'
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label }}"
   cancel-in-progress: true
 
 jobs:
@@ -25,7 +25,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'npm'
+          cache: "npm"
+          cache-dependency-path: ./cdk/api/package-lock.json
 
       - name: Install Dependencies
         run: npm ci
