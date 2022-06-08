@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/jest": "^28.1.1",
     "@types/node": "^17.0.29",
+    "aws-sdk-client-mock": "^0.6.2",
     "jest": "^28.1.1",
     "nodemon": "^2.0.15",
     "ts-jest": "^28.0.4",

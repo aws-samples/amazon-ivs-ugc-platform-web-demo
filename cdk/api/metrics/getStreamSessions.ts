@@ -13,19 +13,30 @@ interface GetStreamSessionsBody
   maxResults: number;
 }
 
+interface GetStreamSessionsQueryString {
+  nextToken?: string;
+}
+
 const STREAMS_PER_PAGE = 50;
 
-const ivsClient = new IvsClient({});
+export const ivsClient = new IvsClient({});
 
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+const handler = async (
+  request: FastifyRequest<{
+    Querystring: GetStreamSessionsQueryString | null;
+  }>,
+  reply: FastifyReply
+) => {
   const { params, query } = request;
   const { channelResourceId } = params as {
     channelResourceId: string;
   };
-  const { nextToken: nextTokenRequest } = query as {
-    nextToken: string;
-  };
   let responseBody: GetStreamSessionsBody;
+  let nextTokenRequest;
+
+  if (query) {
+    nextTokenRequest = query.nextToken;
+  }
 
   try {
     const maxResults = STREAMS_PER_PAGE;
