@@ -14,6 +14,7 @@ const $content = $dashboardContent.stream_session_page.stream_events;
 
 const StreamEventsList = ({
   isHidden,
+  isLearnMoreVisible,
   isPreview,
   selectedEventId,
   setIsStreamEventsListVisible,
@@ -88,6 +89,7 @@ const StreamEventsList = ({
             setSelectedEventRef={setSelectedEventRef}
             streamEvent={streamEvent}
             toggleLearnMore={toggleLearnMore}
+            isLearnMoreVisible={isLearnMoreVisible}
           />
         ))
       ) : (
@@ -102,6 +104,7 @@ const StreamEventsList = ({
 
 StreamEventsList.defaultProps = {
   isHidden: false,
+  isLearnMoreVisible: false,
   isPreview: false,
   selectedEventId: null,
   setIsStreamEventsListVisible: () => {},
@@ -110,6 +113,7 @@ StreamEventsList.defaultProps = {
 
 StreamEventsList.propTypes = {
   isHidden: PropTypes.bool,
+  isLearnMoreVisible: PropTypes.bool,
   isPreview: PropTypes.bool,
   selectedEventId: PropTypes.string,
   setIsStreamEventsListVisible: PropTypes.func,

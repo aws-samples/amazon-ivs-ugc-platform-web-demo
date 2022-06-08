@@ -22,13 +22,10 @@
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  padding: 15px;
   pointer-events: none;
   transition: background 0.4s;
 }
-
-.event-item.selected,
-.event-item.expandable:hover {
+.event-item.selected {
   background: hsla(var(--base-color-medium-gray), 18%, 1);
 }
 
@@ -38,6 +35,19 @@
   text-align: left;
   cursor: pointer;
   pointer-events: auto;
+  padding: 15px;
+  border-radius: 24px;
+  transition: background 0.4s;
+}
+
+.event-item.expandable .event-button:hover {
+  background: hsla(var(--base-color-medium-gray), 18%, 1);
+}
+
+.event-button:focus {
+  box-shadow: inset 0 0 0 2px var(--palette-color-white);
+  outline: none;
+  background: hsla(var(--base-color-medium-gray), 18%, 1);
 }
 
 .event-button:disabled {
@@ -83,12 +93,17 @@
 .event-description {
   overflow-wrap: anywhere;
   padding: 15px 0;
+  margin: 0 15px;
+  border-top: 2px solid var(--palette-color-gray);
+}
+
+.learn-more-button-container {
+  margin: 15px;
 }
 
 .learn-more-button {
   pointer-events: auto;
   width: 100%;
-  margin-top: 15px;
 }
 
 .close-events-list-btn {
