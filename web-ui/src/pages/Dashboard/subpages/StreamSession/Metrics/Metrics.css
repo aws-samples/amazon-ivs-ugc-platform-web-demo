@@ -76,6 +76,12 @@
   }
 }
 
+@media (max-width: 875px) and (prefers-color-scheme: light) {
+  .metrics-panel {
+    background: var(--palette-color-extra-light-gray);
+  }
+}
+
 @media (prefers-color-scheme: light) {
   h2,
   h3 {
@@ -83,10 +89,6 @@
   }
 
   .metrics-section {
-    background: var(--palette-color-extra-light-gray);
-  }
-
-  .metrics-panel {
     background: var(--palette-color-extra-light-gray);
   }
 
