@@ -11,10 +11,10 @@
   "coverageDirectory": "coverage",
   "coverageThreshold": {
     "global": {
-      "branches": 3,
-      "functions": 11,
-      "lines": 36,
-      "statements": 38
+      "statements": 39,
+      "branches": 4,
+      "functions": 13,
+      "lines": 38
     }
   },
   "preset": "ts-jest",
