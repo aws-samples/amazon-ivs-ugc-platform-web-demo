@@ -1,6 +1,10 @@
 import { FastifyInstance, HTTPMethods, InjectOptions } from 'fastify';
 
-export const createRouteAuthenticationTest = (
+/**
+ * This function will create and run two tests to ensure
+ * that a given route isn't accessible when the provided OAuth token is missing or invalid
+ */
+export const createRouteAuthenticationTests = (
   server: FastifyInstance,
   route: string,
   method: HTTPMethods = 'GET'

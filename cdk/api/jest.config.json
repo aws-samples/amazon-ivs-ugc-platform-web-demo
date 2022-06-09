@@ -1,24 +1,28 @@
 {
   "clearMocks": true,
   "collectCoverage": true,
-  "collectCoverageFrom": ["**/*.ts"],
-  "coveragePathIgnorePatterns": [
-    "/node_modules/",
-    "/dist/",
-    "./index.ts",
-    "./testUtils.ts"
+  "collectCoverageFrom": [
+    "**/*.ts",
+    "!**/node_modules/**",
+    "!**/dist/**",
+    "!./index.ts",
+    "!./testUtils.ts"
   ],
   "coverageDirectory": "coverage",
   "coverageThreshold": {
     "global": {
-      "statements": 39,
-      "branches": 4,
-      "functions": 13,
-      "lines": 38
+      "statements": 15,
+      "branches": 2,
+      "functions": 9,
+      "lines": 15
+    }
+  },
+  "globals": {
+    "ts-jest": {
+      "tsconfig": "tsconfig.json"
     }
   },
   "preset": "ts-jest",
   "testMatch": ["**/*.test.ts"],
-  "testPathIgnorePatterns": ["/node_modules/", "/dist/", "./testUtils.ts"],
   "testEnvironment": "node"
 }

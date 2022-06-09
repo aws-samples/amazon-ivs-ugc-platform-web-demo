@@ -2,7 +2,7 @@ import { ListStreamSessionsCommand } from '@aws-sdk/client-ivs';
 import { mockClient } from 'aws-sdk-client-mock';
 
 import {
-  createRouteAuthenticationTest,
+  createRouteAuthenticationTests,
   injectAuthorizedRequest
 } from '../../testUtils';
 import { ivsClient } from '../getStreamSessions';
@@ -27,7 +27,11 @@ describe('getStreamSessions controller', () => {
     console.error = mockConsoleError;
   });
 
-  createRouteAuthenticationTest(server, route);
+  afterEach(() => {
+    mockIvsClient.reset();
+  });
+
+  createRouteAuthenticationTests(server, route);
 
   it('should handle a request with an empty query string', async () => {
     mockIvsClient.on(ListStreamSessionsCommand).resolves({});
