@@ -24,6 +24,7 @@ const StreamEventsList = ({
 }) => {
   const { isMobileView } = useMobileBreakpoint();
   const { activeStreamSession = {} } = useOutletContext();
+  const wrapperRef = useRef();
   const selectedEventRef = useRef();
   const setSelectedEventRef = useCallback(
     (eventEl) => {
@@ -32,17 +33,6 @@ const StreamEventsList = ({
     },
     [selectedEventId]
   );
-
-  useEffect(() => {
-    setTimeout(
-      () =>
-        selectedEventRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
-        }),
-      300
-    );
-  }, [selectedEventId]);
 
   const handleEventClick = (id) => {
     setSelectedEventId((prevId) => {
@@ -59,6 +49,28 @@ const StreamEventsList = ({
     setIsStreamEventsListVisible(false);
     setSelectedEventId(null);
   };
+
+  useEffect(() => {
+    setTimeout(
+      () =>
+        selectedEventRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        }),
+      300
+    );
+  }, [selectedEventId]);
+
+  useEffect(() => {
+    const removeSpacebarScroll = (e) => {
+      if (e.keyCode === 32) e.preventDefault(); // keyCode 32 => Spacebar
+    };
+
+    const wrapper = wrapperRef.current;
+    wrapper?.addEventListener('keypress', removeSpacebarScroll);
+
+    return () => wrapper?.removeEventListener('keypress', removeSpacebarScroll);
+  }, []);
 
   return (
     <MetricPanel
@@ -77,6 +89,7 @@ const StreamEventsList = ({
         )
       }
       headerClassNames={['stream-events-header']}
+      ref={wrapperRef}
       wrapper={{ classNames: ['stream-events-list'] }}
     >
       {streamEvents.length ? (

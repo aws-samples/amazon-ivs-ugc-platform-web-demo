@@ -31,16 +31,25 @@ const StreamEvents = () => {
     [selectedEventId, streamEvents]
   );
 
-  const toggleLearnMore = useCallback(() => {
-    setIsLearnMoreVisible((prev) => {
-      if (!isMobileView) {
-        if (prev) setIsStreamEventsListVisible(true);
-        else setTimeout(() => setIsStreamEventsListVisible(false), 250);
-      }
+  const toggleLearnMore = useCallback(
+    (forceSet) => {
+      setIsLearnMoreVisible((prev) => {
+        let next = !prev;
 
-      return !prev;
-    });
-  }, [isMobileView]);
+        if (forceSet === true || forceSet === false) {
+          next = forceSet;
+        }
+
+        if (!isMobileView) {
+          if (next) setTimeout(() => setIsStreamEventsListVisible(false), 250);
+          else setIsStreamEventsListVisible(true);
+        }
+
+        return next;
+      });
+    },
+    [isMobileView]
+  );
 
   useEffect(() => {
     setIsStreamEventsListVisible(!isMobileView);

@@ -42,6 +42,15 @@ const StreamEventItem = ({
   if (isSelected) eventItemClasses.push('selected');
   if (isExpandable) eventItemClasses.push('expandable');
 
+  const handleEvent = (e) => {
+    if (
+      e.target.id !== 'learn-more-button' &&
+      (e.keyCode === 32 || e.keyCode === 13 || e.type === 'click') // keyCode 32 => Spacebar, keyCode 13 => Enter
+    ) {
+      handleEventClick(id);
+    }
+  };
+
   // Return focus back to the "learn more" button after closing the "learn more" panel
   useEffect(() => {
     if (
@@ -70,14 +79,19 @@ const StreamEventItem = ({
       data-id={id}
       ref={setSelectedEventRef}
     >
-      <div className={eventItemClasses.join(' ')}>
-        <button
-          className="event-button"
-          type="button"
-          disabled={!isExpandable}
-          onClick={() => handleEventClick(id)}
-        >
-          <span className={`event-name${error ? ' error' : ''}`}>
+      <div
+        aria-disabled={!isExpandable}
+        aria-label={`${
+          isSelected ? 'Hide' : 'Show'
+        } description for the ${name.toLowerCase()} stream event`}
+        className={eventItemClasses.join(' ')}
+        onClick={handleEvent}
+        onKeyUp={handleEvent}
+        role="button"
+        tabIndex={isExpandable ? '0' : '-1'}
+      >
+        <div className="event-header">
+          <div className={`event-name${error ? ' error' : ''}`}>
             {isNameOverflowing ? (
               <Tooltip position="above" message={name}>
                 <h4 ref={eventNameRef}>{name}</h4>
@@ -87,9 +101,9 @@ const StreamEventItem = ({
             )}
             {error && <ErrorIcon className="error-icon" />}
             {success && <Check className="success-icon" />}
-          </span>
+          </div>
           <p className="event-time p2">{eventTimestamp}</p>
-        </button>
+        </div>
         {isExpandable && (
           <m.div
             className="event-description-container"
@@ -107,7 +121,8 @@ const StreamEventItem = ({
               <div className="learn-more-button-container">
                 <Button
                   className="learn-more-button"
-                  onClick={toggleLearnMore}
+                  id="learn-more-button"
+                  onClick={() => toggleLearnMore(true)}
                   ref={learnMoreBtnRef}
                   variant="secondary"
                 >
