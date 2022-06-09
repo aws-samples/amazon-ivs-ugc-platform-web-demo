@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 
 import './StreamSession.css';
 import { dashboard as $dashboardContent } from '../../../../content';
-import { SyncError } from '../../../../assets/icons';
 import { useModal } from '../../../../contexts/Modal';
 import StaticNotification from '../../../../components/StaticNotification';
 import EncoderConfiguration from './EncoderConfiguration';
@@ -81,7 +80,6 @@ const StreamSession = () => {
               <Link to="/settings">{$notificationWithCTAContent.settings}</Link>
             )
           }
-          icon={shouldShowFailedToLoadNotif ? <SyncError /> : null}
           message={message}
         />
       )}
