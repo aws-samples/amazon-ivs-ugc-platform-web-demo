@@ -99,7 +99,7 @@
 
 .button.icon {
   background: transparent;
-  border-radius: 6px;
+  border-radius: 50%;
   height: auto;
   padding: 7px;
   min-width: auto;
