@@ -1,9 +1,9 @@
 .stream-events {
+  flex-shrink: 0;
   height: 100%;
-  max-width: 320px;
   overflow: hidden;
   position: relative;
-  width: 100%;
+  width: 320px;
 }
 
 .stream-events .metrics-panel {
@@ -47,8 +47,8 @@
 
 @media (max-width: 875px) {
   .stream-events {
-    max-width: 100%;
     margin-bottom: 30px;
+    width: 100%;
   }
 
   .no-stream-events {
