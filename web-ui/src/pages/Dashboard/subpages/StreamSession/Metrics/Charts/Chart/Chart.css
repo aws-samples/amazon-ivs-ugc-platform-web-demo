@@ -21,10 +21,6 @@
   width: 100%;
 }
 
-.chart-element {
-  border: solid 1px transparent;
-}
-
 .chart-tooltip .p3 {
   color: var(--palette-color-light-gray);
 }
@@ -41,5 +37,12 @@
 
   .chart-tooltip .p3 {
     color: var(--palette-color-medium-gray);
+  }
+}
+
+@media (min-width: 875px) {
+  .parent-size {
+    max-width: 589px;
+    max-height: 100px;
   }
 }

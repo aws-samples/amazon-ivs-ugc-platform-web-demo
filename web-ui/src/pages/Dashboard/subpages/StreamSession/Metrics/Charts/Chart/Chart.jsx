@@ -121,7 +121,7 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
 
   return (
     <div className="chart-container">
-      <svg className="chart-element" width={width} height={height}>
+      <svg width="100%" height={height}>
         <LinearGradient
           id="area-gradient"
           from="var(--palette-color-chart-gradient-start)"
@@ -137,6 +137,7 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
           strokeWidth={2}
           stroke="var(--palette-color-blue)"
           fill="url(#area-gradient)"
+          clipPath="inset(0 1px 1px 0)"
         />
         <Bar
           x={0}
