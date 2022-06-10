@@ -11,7 +11,8 @@ import {
   buildChannelArn,
   getPeriodValue,
   getStreamSession,
-  Period
+  Period,
+  SEC_PER_HOUR
 } from '../utils/metricsHelpers';
 import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 
@@ -88,7 +89,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       buildChannelArn(channelResourceId),
       streamSessionId
     );
-    const { endTime, startTime } = streamSession;
+    let { startTime } = streamSession;
+    const { endTime } = streamSession;
     const { channel, recordingConfiguration, ...streamSessionRest } =
       streamSession as StreamSession;
     const { type } = channel as Channel;
@@ -96,6 +98,16 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
     if (!startTime) {
       throw new Error(`Missing startTime for session: ${streamSessionId}`);
+    }
+
+    if (isLive) {
+      const threeHoursAgoTimeInMs = Date.now() - SEC_PER_HOUR * 3 * 1000;
+
+      startTime = new Date(
+        // While a stream is live we return high-resolution metrics only
+        // i.e.: metrics going as far back as three hours ago
+        Math.max(threeHoursAgoTimeInMs, startTime.getTime())
+      );
     }
 
     const period = getPeriodValue(startTime);

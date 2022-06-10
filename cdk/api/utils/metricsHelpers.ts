@@ -1,7 +1,7 @@
 import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
 
 const ivsClient = new IvsClient({});
-const SEC_PER_HOUR = 3600;
+export const SEC_PER_HOUR = 3600;
 const SEC_PER_DAY = SEC_PER_HOUR * 24;
 
 export type Period = 3600 | 300 | 60 | 5;
