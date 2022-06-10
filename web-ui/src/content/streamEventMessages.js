@@ -8,9 +8,9 @@ export const shortEventMessages = {
   ingest_resolution:
     'Your stream session ended because the resolution setting is too high. Change your encoder settings to avoid the stream automatically ending.',
   concurrent_broadcasts:
-    'A system error prevented your stream from starting. Contact your system administrator with the following error code for more details: \n{CONCURRENT_BROADCASTS_ERROR_CODE}',
+    'A system error has occurred. Please contact your administrator.',
   concurrent_viewers:
-    'Your stream session ended because the number of concurrent viewers was too high. Request a limit increase to allow more viewers to watch your stream.',
+    'A system error has occurred. Please contact your administrator.',
   recording_start_failure:
     'Recording failed to start due to errors. This live stream was not recorded.',
   recording_end_failure:
@@ -43,11 +43,7 @@ export const longEventMessages = {
   <br>  
   There is a resolution limit of {RESOLUTION_LIMIT}. Change your encoder settings to avoid the stream automatically ending.`,
   concurrent_broadcasts: ``, // No long message
-  concurrent_viewers: `Your stream session ended because the number of viewers was too high:  
-  <br>  
-  {concurrent_viewers} viewers  
-  <br>  
-  There is a limit of {VIEWER_LIMIT} viewers. Request a limit increase in the AWS Quotas console to allow more viewers to watch your stream.`,
+  concurrent_viewers: ``, // No long message
   recording_start_failure: ``, // No long message
   recording_end_failure: `` // No long message
 };

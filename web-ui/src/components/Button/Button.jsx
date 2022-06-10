@@ -7,11 +7,12 @@ import './Button.css';
 const Button = forwardRef(
   (
     {
-      ariaLabel,
       ariaDisabled,
+      ariaLabel,
       children,
       className,
       customStyles,
+      id,
       isDisabled,
       isLoading,
       onClick,
@@ -27,6 +28,7 @@ const Button = forwardRef(
       aria-disabled={ariaDisabled}
       className={`button ${variant} ${className}`}
       disabled={isDisabled}
+      id={id}
       onClick={onClick}
       onFocus={onFocus}
       onMouseDown={onMouseDown}
@@ -40,10 +42,11 @@ const Button = forwardRef(
 );
 
 Button.defaultProps = {
-  ariaLabel: '',
   ariaDisabled: false,
+  ariaLabel: '',
   className: '',
   customStyles: {},
+  id: '',
   isDisabled: false,
   isLoading: false,
   onBlur: undefined,
@@ -56,11 +59,12 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
-  ariaLabel: PropTypes.string,
   ariaDisabled: PropTypes.bool,
+  ariaLabel: PropTypes.string,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   customStyles: PropTypes.object,
+  id: PropTypes.string,
   isDisabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
 import { dashboard as $dashboardContent } from '../../../../../../../content';
@@ -7,6 +7,7 @@ import { ErrorIcon, Check } from '../../../../../../../assets/icons';
 import { formatDate, formatTime } from '../../../../../../../hooks/useDateTime';
 import Button from '../../../../../../../components/Button';
 import Tooltip from '../../../../../../../components/Tooltip';
+import usePrevious from '../../../../../../../hooks/usePrevious';
 import useStringOverflow from '../../../../../../../hooks/useStringOverflow';
 import './StreamEventsList.css';
 
@@ -18,10 +19,13 @@ const StreamEventItem = ({
   selectedEventId,
   setSelectedEventRef,
   streamEvent,
-  toggleLearnMore
+  toggleLearnMore,
+  isLearnMoreVisible
 }) => {
   const controls = useAnimation();
   const shouldReduceMotion = useReducedMotion();
+  const learnMoreBtnRef = useRef();
+  const prevIsLearnMoreVisible = usePrevious(isLearnMoreVisible);
   const [isNameOverflowing, eventNameRef] = useStringOverflow();
   const { id, name, error, success, eventTime, shortMsg, longMsg } =
     streamEvent;
@@ -37,6 +41,27 @@ const StreamEventItem = ({
   const eventItemClasses = ['event-item'];
   if (isSelected) eventItemClasses.push('selected');
   if (isExpandable) eventItemClasses.push('expandable');
+
+  const handleEvent = (e) => {
+    if (
+      e.target.id !== 'learn-more-button' &&
+      (e.keyCode === 32 || e.keyCode === 13 || e.type === 'click') // keyCode 32 => Spacebar, keyCode 13 => Enter
+    ) {
+      handleEventClick(id);
+    }
+  };
+
+  // Return focus back to the "learn more" button after closing the "learn more" panel
+  useEffect(() => {
+    if (
+      isExpandable &&
+      isSelected &&
+      prevIsLearnMoreVisible &&
+      !isLearnMoreVisible
+    ) {
+      learnMoreBtnRef.current?.focus();
+    }
+  }, [isExpandable, isLearnMoreVisible, isSelected, prevIsLearnMoreVisible]);
 
   useEffect(() => {
     const variant = isSelected ? 'open' : 'collapsed';
@@ -54,14 +79,19 @@ const StreamEventItem = ({
       data-id={id}
       ref={setSelectedEventRef}
     >
-      <div className={eventItemClasses.join(' ')}>
-        <button
-          className="event-button"
-          type="button"
-          disabled={!isExpandable}
-          onClick={() => handleEventClick(id)}
-        >
-          <span className={`event-name${error ? ' error' : ''}`}>
+      <div
+        aria-disabled={!isExpandable}
+        aria-label={`${
+          isSelected ? 'Hide' : 'Show'
+        } description for the ${name.toLowerCase()} stream event`}
+        className={eventItemClasses.join(' ')}
+        onClick={handleEvent}
+        onKeyUp={handleEvent}
+        role="button"
+        tabIndex={isExpandable ? '0' : '-1'}
+      >
+        <div className="event-header">
+          <div className={`event-name${error ? ' error' : ''}`}>
             {isNameOverflowing ? (
               <Tooltip position="above" message={name}>
                 <h4 ref={eventNameRef}>{name}</h4>
@@ -71,9 +101,9 @@ const StreamEventItem = ({
             )}
             {error && <ErrorIcon className="error-icon" />}
             {success && <Check className="success-icon" />}
-          </span>
+          </div>
           <p className="event-time p2">{eventTimestamp}</p>
-        </button>
+        </div>
         {isExpandable && (
           <m.div
             className="event-description-container"
@@ -88,13 +118,17 @@ const StreamEventItem = ({
           >
             <p className="event-description p1">{shortMsg}</p>
             {hasLearnMore && isSelected && (
-              <Button
-                className="learn-more-button"
-                onClick={toggleLearnMore}
-                variant="secondary"
-              >
-                {$content.learn_how_to_fix_it}
-              </Button>
+              <div className="learn-more-button-container">
+                <Button
+                  className="learn-more-button"
+                  id="learn-more-button"
+                  onClick={() => toggleLearnMore(true)}
+                  ref={learnMoreBtnRef}
+                  variant="secondary"
+                >
+                  {$content.learn_how_to_fix_it}
+                </Button>
+              </div>
             )}
           </m.div>
         )}
@@ -110,6 +144,7 @@ StreamEventItem.defaultProps = {
 
 StreamEventItem.propTypes = {
   handleEventClick: PropTypes.func.isRequired,
+  isLearnMoreVisible: PropTypes.bool.isRequired,
   isLive: PropTypes.bool,
   selectedEventId: PropTypes.string,
   setSelectedEventRef: PropTypes.func.isRequired,

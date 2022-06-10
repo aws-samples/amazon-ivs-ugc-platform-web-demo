@@ -25,7 +25,11 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
     >
       <span className="learn-more-header">
         <h3>{name}</h3>
-        <Button onClick={toggleLearnMore} variant="icon">
+        <Button
+          className="learn-more-btn"
+          onClick={toggleLearnMore}
+          variant="icon"
+        >
           <Close className="close-icon" />
         </Button>
       </span>

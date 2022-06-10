@@ -16,12 +16,6 @@
   max-width: 478px;
 }
 
-.static-notification-content svg {
-  flex-shrink: 0;
-  height: 36px;
-  width: 36px;
-}
-
 @media (prefers-color-scheme: light) {
   .static-notification-container {
     background: var(--palette-color-light-gray);

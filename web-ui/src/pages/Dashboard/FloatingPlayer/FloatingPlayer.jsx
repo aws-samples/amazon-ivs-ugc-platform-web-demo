@@ -29,7 +29,6 @@ const FloatingPlayer = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const hasStreamSessions = !!streamSessions?.length;
-  const shouldShowFloatingPlayer = isLive || streamSessions;
   const canvasRef = useRef();
   const isBlurring = useRef(false);
   const shouldBlurPlayer = useMemo(() => {
@@ -130,8 +129,6 @@ const FloatingPlayer = () => {
       }
     }
   }, [isLive, isLoading, playerRef]);
-
-  if (!shouldShowFloatingPlayer) return null;
 
   const classNames = ['mini-player-container'];
   if (isLive) classNames.push('is-live');

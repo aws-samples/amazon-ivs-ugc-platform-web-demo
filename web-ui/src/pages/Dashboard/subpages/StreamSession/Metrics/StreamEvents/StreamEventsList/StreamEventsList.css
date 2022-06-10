@@ -18,30 +18,30 @@
 .event-item {
   background: hsla(var(--base-color-medium-gray), 18%, 0);
   border-radius: 24px;
+  cursor: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  padding: 15px;
-  pointer-events: none;
+  pointer-events: auto;
   transition: background 0.4s;
 }
-
-.event-item.selected,
-.event-item.expandable:hover {
+.event-item.expandable:hover,
+.event-item.expandable:focus,
+.event-item.expandable.selected {
   background: hsla(var(--base-color-medium-gray), 18%, 1);
 }
-
-.event-button {
-  background: none;
-  border: none;
-  text-align: left;
+.event-item.expandable:focus {
+  box-shadow: inset 0 0 0 2px var(--palette-color-white);
+  outline: none;
+}
+.event-item.expandable[aria-disabled='false'] {
   cursor: pointer;
-  pointer-events: auto;
 }
 
-.event-button:disabled {
-  cursor: auto;
+.event-header {
+  text-align: left;
+  padding: 15px;
 }
 
 .event-name {
@@ -82,17 +82,21 @@
 
 .event-description {
   overflow-wrap: anywhere;
-  padding: 15px 0;
+  padding-bottom: 15px;
+  margin: 0 15px;
+}
+
+.learn-more-button-container {
+  margin: 15px;
 }
 
 .learn-more-button {
   pointer-events: auto;
   width: 100%;
-  margin-top: 15px;
 }
 
 .close-events-list-btn {
-  margin-right: 8px;
+  margin-right: 15px;
 }
 
 @media (max-width: 875px) {
@@ -102,9 +106,14 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .event-item.selected,
-  .event-item.expandable:hover {
+  .event-item.expandable:hover,
+  .event-item.expandable:focus,
+  .event-item.expandable.selected {
     background: hsla(var(--base-color-dark-gray), 91%, 1);
+  }
+  .event-item.expandable:focus {
+    box-shadow: inset 0 0 0 2px var(--palette-color-black);
+    outline: none;
   }
 
   .event-name h4 {

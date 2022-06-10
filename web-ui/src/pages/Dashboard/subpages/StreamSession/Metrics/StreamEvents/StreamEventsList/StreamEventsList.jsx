@@ -14,6 +14,7 @@ const $content = $dashboardContent.stream_session_page.stream_events;
 
 const StreamEventsList = ({
   isHidden,
+  isLearnMoreVisible,
   isPreview,
   selectedEventId,
   setIsStreamEventsListVisible,
@@ -23,6 +24,7 @@ const StreamEventsList = ({
 }) => {
   const { isMobileView } = useMobileBreakpoint();
   const { activeStreamSession = {} } = useOutletContext();
+  const wrapperRef = useRef();
   const selectedEventRef = useRef();
   const setSelectedEventRef = useCallback(
     (eventEl) => {
@@ -31,17 +33,6 @@ const StreamEventsList = ({
     },
     [selectedEventId]
   );
-
-  useEffect(() => {
-    setTimeout(
-      () =>
-        selectedEventRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
-        }),
-      300
-    );
-  }, [selectedEventId]);
 
   const handleEventClick = (id) => {
     setSelectedEventId((prevId) => {
@@ -58,6 +49,28 @@ const StreamEventsList = ({
     setIsStreamEventsListVisible(false);
     setSelectedEventId(null);
   };
+
+  useEffect(() => {
+    setTimeout(
+      () =>
+        selectedEventRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        }),
+      300
+    );
+  }, [selectedEventId]);
+
+  useEffect(() => {
+    const removeSpacebarScroll = (e) => {
+      if (e.keyCode === 32) e.preventDefault(); // keyCode 32 => Spacebar
+    };
+
+    const wrapper = wrapperRef.current;
+    wrapper?.addEventListener('keypress', removeSpacebarScroll);
+
+    return () => wrapper?.removeEventListener('keypress', removeSpacebarScroll);
+  }, []);
 
   return (
     <MetricPanel
@@ -76,6 +89,7 @@ const StreamEventsList = ({
         )
       }
       headerClassNames={['stream-events-header']}
+      ref={wrapperRef}
       wrapper={{ classNames: ['stream-events-list'] }}
     >
       {streamEvents.length ? (
@@ -88,6 +102,7 @@ const StreamEventsList = ({
             setSelectedEventRef={setSelectedEventRef}
             streamEvent={streamEvent}
             toggleLearnMore={toggleLearnMore}
+            isLearnMoreVisible={isLearnMoreVisible}
           />
         ))
       ) : (
@@ -102,6 +117,7 @@ const StreamEventsList = ({
 
 StreamEventsList.defaultProps = {
   isHidden: false,
+  isLearnMoreVisible: false,
   isPreview: false,
   selectedEventId: null,
   setIsStreamEventsListVisible: () => {},
@@ -110,6 +126,7 @@ StreamEventsList.defaultProps = {
 
 StreamEventsList.propTypes = {
   isHidden: PropTypes.bool,
+  isLearnMoreVisible: PropTypes.bool,
   isPreview: PropTypes.bool,
   selectedEventId: PropTypes.string,
   setIsStreamEventsListVisible: PropTypes.func,

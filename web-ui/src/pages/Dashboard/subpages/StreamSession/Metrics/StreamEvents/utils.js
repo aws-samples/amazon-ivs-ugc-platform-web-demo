@@ -73,14 +73,14 @@ const STREAM_EVENT_MAP = [
   {
     type: 'error',
     key: 'Concurrent Broadcasts',
-    name: $content.event_names.concurrent_broadcasts,
+    name: $content.event_names.critical_system_error,
     shortMsg: shortEventMessages.concurrent_broadcasts,
     longMsg: longEventMessages.concurrent_broadcasts
   },
   {
     type: 'error',
     key: 'Concurrent Viewers',
-    name: $content.event_names.concurrent_viewers,
+    name: $content.event_names.critical_system_error,
     shortMsg: shortEventMessages.concurrent_viewers,
     longMsg: longEventMessages.concurrent_viewers
   },
