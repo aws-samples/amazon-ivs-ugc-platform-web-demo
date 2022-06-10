@@ -24,7 +24,7 @@ const Dashboard = () => {
     isInitialFetchingStreamData,
     isLoadingStreamData,
     refreshCurrentActiveStreamSession,
-    refreshCurrentStreamSessions,
+    refreshCurrentStreamSessionsWithLoading,
     streamSessions
   } = useStreams();
   const { isMobileView } = useMobileBreakpoint();
@@ -41,7 +41,7 @@ const Dashboard = () => {
         : streamSessions.length > 0,
       isLoadingStreamData,
       refreshCurrentActiveStreamSession,
-      refreshCurrentStreamSessions
+      refreshCurrentStreamSessionsWithLoading
     }),
     [
       activeStreamSession,
@@ -50,7 +50,7 @@ const Dashboard = () => {
       isInitialFetchingStreamData,
       isLoadingStreamData,
       refreshCurrentActiveStreamSession,
-      refreshCurrentStreamSessions,
+      refreshCurrentStreamSessionsWithLoading,
       streamSessions
     ]
   );

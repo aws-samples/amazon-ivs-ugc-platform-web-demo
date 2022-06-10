@@ -25,7 +25,7 @@ const StreamSession = () => {
     hasStreamSessions,
     isLoadingStreamData,
     refreshCurrentActiveStreamSession,
-    refreshCurrentStreamSessions
+    refreshCurrentStreamSessionsWithLoading
   } = useOutletContext();
   const prevActiveStreamSession = usePrevious(activeStreamSession);
   const shouldShowFailedToLoadNotif =
@@ -69,7 +69,7 @@ const StreamSession = () => {
                 isLoading={isLoadingStreamData}
                 onClick={
                   !!fetchStreamSessionsError
-                    ? () => refreshCurrentStreamSessions()
+                    ? () => refreshCurrentStreamSessionsWithLoading()
                     : () => refreshCurrentActiveStreamSession()
                 }
                 variant="text"

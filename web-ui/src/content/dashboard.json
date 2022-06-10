@@ -34,8 +34,8 @@
       "target_bitrate": "Target bitrate",
       "target_audio_bitrate": "Target audio bitrate",
       "kHz": "kHz",
-      "kbps": "kbps",
-      "mbps": "mbps",
+      "kbps": "Kbps",
+      "mbps": "Mbps",
       "copied": "copied",
       "copy_the_label": "Copy the {label} value",
       "errors": {
@@ -43,7 +43,7 @@
         "encoderNumberOfAudioChannelsError": "The audio has more than two channels, but only one (mono) or two (stereo) channels are supported. Please correct the number of audio channels.",
         "encoderResolutionError": "Your stream session ended because the {resolution} resolution setting is too high. Change your encoder settings to avoid the stream automatically ending.",
         "encoderKeyframeIntervalError": "To achieve low latency, Amazon IVS recommends a keyframe interval of 2.",
-        "encoderTargetBitrateError": "Your stream session ended because the {bitrate} kbps target bitrate setting is too high. Change your encoder settings to avoid the stream automatically ending.",
+        "encoderTargetBitrateError": "Your stream session ended because the {bitrate} Mbps target bitrate setting is too high. Change your encoder settings to avoid the stream automatically ending.",
         "encoderTargetAudioBitrateError": "The audio stream's target bitrate is higher than recommended. We recommend an audio stream bitrate of 320kbps or lower."
       }
     },

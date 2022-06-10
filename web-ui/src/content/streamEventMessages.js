@@ -35,9 +35,9 @@ export const longEventMessages = {
   `,
   ingest_bitrate: `Your stream session ended because the bitrate setting is too high:  
   <br>  
-  {bitrate} kbps  
+  {bitrate} Mbps  
   <br>  
-  There is a bitrate limit of {BITRATE_LIMIT} kbps. Change your encoder settings to avoid the stream automatically ending.`,
+  There is a bitrate limit of {BITRATE_LIMIT} Mbps. Change your encoder settings to avoid the stream automatically ending.`,
   // FINAL
   ingest_resolution: `Your stream session ended because the resolution setting is too high.  
   <br>  

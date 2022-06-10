@@ -171,7 +171,8 @@ export const Provider = ({ children }) => {
       streamSessions,
       refreshCurrentActiveStreamSession:
         refreshCurrentActiveStreamSessionWithLoading,
-      refreshCurrentStreamSessions: refreshCurrentStreamSessionsWithLoading,
+      refreshCurrentStreamSessions,
+      refreshCurrentStreamSessionsWithLoading,
       updateActiveStreamSession: eagerUpdateActiveStreamSession
     }),
     [
@@ -185,6 +186,7 @@ export const Provider = ({ children }) => {
       isLoadingNextStreamSessionsPage,
       isLoadingStreamData,
       refreshCurrentActiveStreamSessionWithLoading,
+      refreshCurrentStreamSessions,
       refreshCurrentStreamSessionsWithLoading,
       streamSessions
     ]
