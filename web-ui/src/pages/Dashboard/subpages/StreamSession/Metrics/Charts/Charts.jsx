@@ -1,22 +1,24 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
-import {
-  INGEST_FRAMERATE,
-  INGEST_VIDEO_BITRATE
-} from '../../../../../../constants';
 import {
   convertMetricValue,
   ingestFramerateTooltipFormatter,
   ingestVideoBitrateTooltipFormatter,
   processMetricData
 } from './utils';
-import './Charts.css';
+import {
+  INGEST_FRAMERATE,
+  INGEST_VIDEO_BITRATE
+} from '../../../../../../constants';
+import { bound } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { SyncError } from '../../../../../../assets/icons';
 import { useSynchronizedChartTooltip } from '../../../../../../contexts/SynchronizedChartTooltip';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
+import ZoomButtons from './ZoomButtons';
+import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -51,6 +53,9 @@ const Charts = () => {
     !fetchActiveStreamSessionError &&
     ingestVideoBitrateData.data?.length &&
     ingestFramerateData.data?.length;
+  const dataLength = ingestVideoBitrateData?.data?.length || 1;
+  const dataPeriod = ingestVideoBitrateData?.period || 0;
+  const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
 
   const getChartMetricPanelProps = useCallback(
     (metricData) => {
@@ -61,7 +66,6 @@ const Charts = () => {
         zoomStart = '5 min ago';
         zoomEnd = 'Now';
 
-        // TODO: derive the current value for the given metric type from the metrics/charts
         if (metricData?.data?.length && isLive) {
           currentValue = metricData.data[metricData.data.length - 1];
         } else if (metricData?.statistics?.average && !isLive) {
@@ -113,6 +117,31 @@ const Charts = () => {
     [activeStreamSession, isMetricDataAvailable]
   );
 
+  const updateZoomBounds = useCallback(
+    (zoomAmountInSeconds) => {
+      if (zoomAmountInSeconds === -1) return setZoomBounds([0, dataLength - 1]);
+
+      const numOfDatapoints = bound(zoomAmountInSeconds / dataPeriod, 1);
+      const lowerBound = dataLength - 1 - numOfDatapoints;
+
+      setZoomBounds(() => [
+        bound(lowerBound, 0, dataLength - 1),
+        bound(dataLength - 1, 0, dataLength - 1)
+      ]);
+    },
+    [dataLength, dataPeriod]
+  );
+
+  useEffect(() => {
+    if (isMetricDataAvailable) {
+      setZoomBounds((prevBounds) => {
+        const [, prevUpperBound] = prevBounds;
+
+        return prevUpperBound === 0 ? [0, dataLength - 1] : prevBounds;
+      });
+    }
+  }, [dataLength, isMetricDataAvailable]);
+
   useEffect(() => {
     if (isMetricDataAvailable && isTooltipOpen) {
       handleSynchronizedTooltips();
@@ -132,12 +161,13 @@ const Charts = () => {
       >
         {renderChart(
           <ResponsiveChart
-            data={processMetricData(ingestVideoBitrateData)}
+            initialData={processMetricData(ingestVideoBitrateData)}
             formatter={ingestVideoBitrateTooltipFormatter}
             maximum={convertMetricValue(
               ingestVideoBitrateData.statistics?.maximum,
               INGEST_VIDEO_BITRATE
             )}
+            zoomBounds={zoomBounds}
           />
         )}
       </MetricPanel>
@@ -147,23 +177,19 @@ const Charts = () => {
       >
         {renderChart(
           <ResponsiveChart
-            data={processMetricData(ingestFramerateData)}
+            initialData={processMetricData(ingestFramerateData)}
             formatter={ingestFramerateTooltipFormatter}
             maximum={convertMetricValue(
               ingestFramerateData.statistics?.maximum,
               INGEST_FRAMERATE
             )}
+            zoomBounds={zoomBounds}
           />
         )}
       </MetricPanel>
       <div className="chart-controls">
         <span className="zoom-slider" />
-        <span className="preset-zoom-buttons">
-          <button>{$content.all}</button>
-          <button>{$content.one_hour}</button>
-          <button>{$content.thirty_min}</button>
-          <button>{$content.five_min}</button>
-        </span>
+        <ZoomButtons updateZoomBounds={updateZoomBounds} />
       </div>
     </div>
   );

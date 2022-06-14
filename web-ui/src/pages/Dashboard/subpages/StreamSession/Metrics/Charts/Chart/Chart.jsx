@@ -7,14 +7,22 @@ import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, Tooltip } from '@visx/tooltip';
 
-import { useSynchronizedChartTooltip } from '../../../../../../../contexts/SynchronizedChartTooltip';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
+import { useSynchronizedChartTooltip } from '../../../../../../../contexts/SynchronizedChartTooltip';
+import usePrevious from '../../../../../../../hooks/usePrevious';
 import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
 
 const bisectDate = bisector(getDate).left;
 
-const Chart = ({ data, formatter, height, maximum, width }) => {
+const Chart = ({
+  formatter,
+  height,
+  initialData,
+  maximum,
+  width,
+  zoomBounds
+}) => {
   const {
     hideTooltip,
     showTooltip,
@@ -29,20 +37,41 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
     showSynchronizedTooltips,
     xValue: x
   } = useSynchronizedChartTooltip();
-  const { isMobileView } = useMobileBreakpoint();
   const tooltipRef = useRef();
-  const xScale = useMemo(() => getXScale(width, data), [width, data]);
-  const yScale = useMemo(
-    () => getYScale(height, maximum || max(data, getDataValue)),
-    [data, height, maximum]
-  );
   const [hasTooltipRendered, setHasTooltipRendered] =
     useStateWithCallback(false);
   const [isTooltipReady, setIsTooltipReady] = useState(false);
+  const [transformedData, setTransformedData] = useState(initialData);
+  const prevZoomBounds = usePrevious(zoomBounds);
+  const xScale = useMemo(
+    () => getXScale(width, transformedData),
+    [width, transformedData]
+  );
+  const yScale = useMemo(
+    () => getYScale(height, maximum || max(transformedData, getDataValue)),
+    [transformedData, height, maximum]
+  );
+  const { isMobileView } = useMobileBreakpoint();
+
+  // Update the transformed data when the zoom bounds have been updated
+  useEffect(() => {
+    if (!prevZoomBounds) return;
+
+    const [lowerBound, upperBound] = zoomBounds;
+    const [prevLowerBound, prevUpperBound] = prevZoomBounds;
+
+    if (prevLowerBound !== lowerBound || prevUpperBound !== upperBound) {
+      setTransformedData(initialData.slice(lowerBound, upperBound));
+    }
+  }, [initialData, prevZoomBounds, zoomBounds]);
 
   useEffect(() => {
     setHasTooltipRendered(tooltipOpen);
   }, [setHasTooltipRendered, tooltipOpen]);
+
+  useEffect(() => {
+    setIsTooltipReady(hasTooltipRendered);
+  }, [hasTooltipRendered]);
 
   // tooltip handler
   useEffect(() => {
@@ -53,13 +82,13 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
 
     const dateToPixels = scaleLinear({
       range: [0, width],
-      domain: extent(data, getDate),
+      domain: extent(transformedData, getDate),
       nice: false
     });
     const x0 = xScale.invert(x);
-    const index = bisectDate(data, x0, 1);
-    const d0 = data[index - 1];
-    const d1 = data[index];
+    const index = bisectDate(transformedData, x0, 1);
+    const d0 = transformedData[index - 1];
+    const d1 = transformedData[index];
     if (!d0 || !d1) {
       setHasTooltipRendered(false, hideTooltip);
       return;
@@ -92,7 +121,7 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
       tooltipTop: y
     });
   }, [
-    data,
+    transformedData,
     formatter,
     hideTooltip,
     setHasTooltipRendered,
@@ -113,10 +142,6 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
     }
   }, [isMobileView, hasTooltipRendered]);
 
-  useEffect(() => {
-    setIsTooltipReady(hasTooltipRendered);
-  }, [hasTooltipRendered]);
-
   if (width < 10) return null;
 
   return (
@@ -130,14 +155,14 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
           toOpacity={0}
         />
         <AreaClosed
-          data={data}
+          data={transformedData}
           x={(d) => xScale(getDate(d)) ?? 0}
           y={(d) => yScale(getDataValue(d)) ?? 0}
           yScale={yScale}
           strokeWidth={2}
           stroke="var(--palette-color-blue)"
           fill="url(#area-gradient)"
-          clipPath="inset(0 1px 1px 0)"
+          clipPath="inset(0 1px 1px 1px)"
         />
         <Bar
           x={0}
@@ -156,33 +181,15 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
         {hasTooltipRendered && (
           <g>
             <Line
+              className="tooltip-line"
               from={{ x: tooltipLeft, y: 0 }}
               to={{ x: tooltipLeft, y: height }}
-              stroke="var(--palette-color-white)"
-              strokeWidth={2}
-              pointerEvents="none"
-              strokeDasharray="2,5"
-              strokeLinecap="round"
             />
             <circle
-              cx={tooltipLeft}
-              cy={tooltipTop + 1}
-              r={4}
-              fill="black"
-              fillOpacity={0.1}
-              stroke="black"
-              strokeOpacity={0.1}
-              strokeWidth={2}
-              pointerEvents="none"
-            />
-            <circle
+              className="tooltip-circle"
               cx={tooltipLeft}
               cy={tooltipTop}
               r={4}
-              fill="var(--palette-color-white)"
-              stroke="white"
-              strokeWidth={2}
-              pointerEvents="none"
             />
           </g>
         )}
@@ -211,15 +218,16 @@ const Chart = ({ data, formatter, height, maximum, width }) => {
 };
 
 Chart.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object),
   formatter: PropTypes.func,
-  maximum: PropTypes.number,
   height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired
+  initialData: PropTypes.arrayOf(PropTypes.object),
+  maximum: PropTypes.number,
+  width: PropTypes.number.isRequired,
+  zoomBounds: PropTypes.arrayOf(PropTypes.number).isRequired
 };
 
 Chart.defaultProps = {
-  data: [],
+  initialData: [],
   formatter: (data) => data,
   maximum: null
 };

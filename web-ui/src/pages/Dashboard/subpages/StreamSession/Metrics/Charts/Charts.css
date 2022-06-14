@@ -44,6 +44,12 @@
   font-family: Inter;
   font-size: 13px;
   font-weight: 400;
+  line-height: 15.73px;
+}
+
+.preset-zoom-buttons button.selected {
+  color: var(--palette-color-white);
+  font-weight: 700;
 }
 
 .zoom-slider {
@@ -85,5 +91,10 @@
 @media (prefers-color-scheme: light) {
   .preset-zoom-buttons button {
     color: var(--palette-color-medium-gray);
+  }
+
+  .preset-zoom-buttons button.selected {
+    color: var(--palette-color-dark-gray);
+    font-weight: 700;
   }
 }

@@ -29,6 +29,21 @@
   visibility: hidden;
 }
 
+.tooltip-line {
+  stroke: var(--palette-color-white);
+  stroke-width: 1px;
+  pointer-events: none;
+  stroke-dasharray: 2, 3;
+  stroke-linecap: round;
+}
+
+.tooltip-circle {
+  fill: var(--palette-color-white);
+  stroke: var(--palette-color-white);
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
 @media (prefers-color-scheme: light) {
   .chart-tooltip > div {
     background: var(--palette-color-light-gray);
@@ -37,6 +52,15 @@
 
   .chart-tooltip .p3 {
     color: var(--palette-color-medium-gray);
+  }
+
+  .tooltip-line {
+    stroke: var(--palette-color-medium-gray);
+  }
+
+  .tooltip-circle {
+    fill: var(--palette-color-medium-gray);
+    stroke: var(--palette-color-medium-gray);
   }
 }
 

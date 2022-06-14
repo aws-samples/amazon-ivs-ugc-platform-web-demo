@@ -12,6 +12,7 @@
     "@visx/scale": "^2.2.2",
     "@visx/shape": "^2.10.0",
     "@visx/tooltip": "^2.10.0",
+    "@visx/zoom": "^2.10.0",
     "amazon-cognito-identity-js": "^5.2.8",
     "context-filter-polyfill": "^0.2.4",
     "d3-array": "^3.1.6",
@@ -48,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "crypto-random-string": "^3.3.1"
   }
 }
