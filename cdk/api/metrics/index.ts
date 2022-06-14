@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import { fastifyRequestContextPlugin } from 'fastify-request-context';
+import { fastifyRequestContextPlugin } from '@fastify/request-context';
 
 import authorizer from '../userManagement/authUserRouter/authorizer';
 import getStreamSession from './getStreamSession';

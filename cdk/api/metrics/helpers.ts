@@ -1,8 +1,14 @@
+import { MetricDataQuery } from '@aws-sdk/client-cloudwatch';
 import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
 
-const ivsClient = new IvsClient({});
-export const SEC_PER_HOUR = 3600;
-const SEC_PER_DAY = SEC_PER_HOUR * 24;
+import {
+  INGEST_FRAMERATE,
+  INGEST_VIDEO_BITRATE,
+  SEC_PER_DAY,
+  SEC_PER_HOUR
+} from '../utils/constants';
+
+export const ivsClient = new IvsClient({});
 
 export type Period = 3600 | 300 | 60 | 5;
 
@@ -64,3 +70,32 @@ export const getStreamSession = (
 
   return ivsClient.send(getStreamSessionCommand);
 };
+
+export const buildMetricStatisticQuery = (
+  metricName: string,
+  statistic: 'Avg' | 'Max'
+): MetricDataQuery => {
+  const averageMetricName = `${metricName}${statistic}`;
+
+  return {
+    Id: averageMetricName.toLowerCase(),
+    Label: averageMetricName,
+    // Averages have to be returned as a time series
+    Expression: `TIME_SERIES(${statistic.toUpperCase()}(${metricName.toLowerCase()}))`
+  };
+};
+
+export const buildFilledMetricQuery = (metricName: string) => {
+  const filledMetricName = `${metricName}Filled`;
+
+  return {
+    Id: filledMetricName.toLowerCase(),
+    Label: filledMetricName,
+    Expression: `FILL(${metricName.toLowerCase()}, REPEAT)`
+  };
+};
+
+export const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
+export const isMaxMetric = (metricName: string) => metricName.endsWith('Max');
+export const isChartMetric = (metricName: string) =>
+  [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(metricName);

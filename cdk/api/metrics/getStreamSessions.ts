@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { buildChannelArn } from '../utils/metricsHelpers';
+import { buildChannelArn } from './helpers';
 import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 
 interface GetStreamSessionsBody
@@ -23,7 +23,7 @@ export const ivsClient = new IvsClient({});
 
 const handler = async (
   request: FastifyRequest<{
-    Querystring: GetStreamSessionsQueryString | null;
+    Querystring: GetStreamSessionsQueryString;
   }>,
   reply: FastifyReply
 ) => {

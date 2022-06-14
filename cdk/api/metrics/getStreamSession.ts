@@ -3,18 +3,28 @@ import {
   GetMetricDataCommand,
   MetricDataQuery
 } from '@aws-sdk/client-cloudwatch';
+import { ChannelType, StreamSession } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { Channel, ChannelType, StreamSession } from '@aws-sdk/client-ivs';
 
 import {
   alignTimeWithPeriod,
   buildChannelArn,
+  buildFilledMetricQuery,
+  buildMetricStatisticQuery,
   getPeriodValue,
   getStreamSession,
-  Period,
-  SEC_PER_HOUR
-} from '../utils/metricsHelpers';
-import { UNEXPECTED_EXCEPTION } from '../utils/constants';
+  isAvgMetric,
+  isChartMetric,
+  isMaxMetric,
+  Period
+} from './helpers';
+import {
+  INGEST_FRAMERATE,
+  INGEST_VIDEO_BITRATE,
+  SEC_PER_HOUR,
+  STREAM_HEALTH_METRICS_NAMES,
+  UNEXPECTED_EXCEPTION
+} from '../utils/constants';
 
 type FormattedMetricData = {
   alignedStartTime: Date;
@@ -27,7 +37,7 @@ type FormattedMetricData = {
   };
 };
 
-interface GetStreamSessionBody
+export interface GetStreamSessionBody
   extends Omit<StreamSession, 'recordingConfiguration'> {
   channel: {
     type?: ChannelType | string;
@@ -35,46 +45,7 @@ interface GetStreamSessionBody
   metrics: FormattedMetricData[];
 }
 
-const INGEST_FRAMERATE = 'IngestFramerate';
-const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
-const KEYFRAME_INTERVAL = 'KeyframeInterval';
-const CONCURRENT_VIEWS = 'ConcurrentViews';
-const streamHealthMetricsNames = [
-  INGEST_FRAMERATE,
-  INGEST_VIDEO_BITRATE,
-  KEYFRAME_INTERVAL,
-  CONCURRENT_VIEWS
-];
-
-const getMetricStatistic = (
-  metricName: string,
-  statistic: 'Avg' | 'Max'
-): MetricDataQuery => {
-  const averageMetricName = `${metricName}${statistic}`;
-
-  return {
-    Id: averageMetricName.toLowerCase(),
-    Label: averageMetricName,
-    // Averages have to be returned as a time series
-    Expression: `TIME_SERIES(${statistic.toUpperCase()}(${metricName.toLowerCase()}))`
-  };
-};
-const getFilledMetricSeries = (metricName: string) => {
-  const filledMetricName = `${metricName}Filled`;
-
-  return {
-    Id: filledMetricName.toLowerCase(),
-    Label: filledMetricName,
-    Expression: `FILL(${metricName.toLowerCase()}, REPEAT)`
-  };
-};
-
-const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
-const isMaxMetric = (metricName: string) => metricName.endsWith('Max');
-const isChartMetric = (metricName: string) =>
-  [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(metricName);
-
-const cloudwatchClient = new CloudWatchClient({});
+export const cloudwatchClient = new CloudWatchClient({});
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { params } = request;
@@ -91,9 +62,12 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     );
     let { startTime } = streamSession;
     const { endTime } = streamSession;
-    const { channel, recordingConfiguration, ...streamSessionRest } =
-      streamSession as StreamSession;
-    const { type } = channel as Channel;
+    const {
+      channel = {},
+      recordingConfiguration,
+      ...streamSessionRest
+    } = streamSession;
+    const { type } = channel;
     const isLive = !endTime;
 
     if (!startTime) {
@@ -113,7 +87,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const period = getPeriodValue(startTime);
 
     // Base queries to get the time series
-    const metricDataQueries = streamHealthMetricsNames.reduce(
+    const metricDataQueries = STREAM_HEALTH_METRICS_NAMES.reduce(
       (queries, streamHealthMetricsName) => {
         const baseQuery: MetricDataQuery = {
           Id: streamHealthMetricsName.toLowerCase(),
@@ -128,8 +102,14 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
             Stat: 'Average'
           }
         };
-        const avgQuery = getMetricStatistic(streamHealthMetricsName, 'Avg');
-        const maxQuery = getMetricStatistic(streamHealthMetricsName, 'Max');
+        const avgQuery = buildMetricStatisticQuery(
+          streamHealthMetricsName,
+          'Avg'
+        );
+        const maxQuery = buildMetricStatisticQuery(
+          streamHealthMetricsName,
+          'Max'
+        );
 
         return [...queries, baseQuery, avgQuery, maxQuery];
       },
@@ -137,8 +117,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     );
 
     // We need to fill the missing data point as these two are used for the charts
-    metricDataQueries.push(getFilledMetricSeries(INGEST_FRAMERATE));
-    metricDataQueries.push(getFilledMetricSeries(INGEST_VIDEO_BITRATE));
+    metricDataQueries.push(buildFilledMetricQuery(INGEST_FRAMERATE));
+    metricDataQueries.push(buildFilledMetricQuery(INGEST_VIDEO_BITRATE));
 
     const alignedStartTimeDown = new Date(
       alignTimeWithPeriod(startTime, period, 'down') * 1000
@@ -151,7 +131,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     );
 
     // If alignedStartTimeDown is in a different period threshold, fall back to alignedStartTimeUp
-    // ex: startTime is 62 days and 23 hours ago and alignedStartTimeDown is 63 days ago
+    // ex: startTime is 62 days, 23 hours and 59 minutes ago and alignedStartTimeDown is 63 days ago
     const alignedStartTime =
       getPeriodValue(alignedStartTimeDown) !== period
         ? alignedStartTimeUp
@@ -204,8 +184,14 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
               // Sort by timestamp in ascending order
               .sort((a, b) => +a.timestamp - +b.timestamp)
               .reduce((metricValues, { value }, index) => {
-                // We only slice the array for charts metrics
-                if (index >= upperValueCountBound && isChartMetric(Label))
+                /**
+                 * For live streams, there is a ~30sec delay for the metrics to be populated.
+                 * So we slice the last 30sec of the metrics array to avoid showing filled values.
+                 */
+                if (
+                  index >= upperValueCountBound &&
+                  isChartMetric(cleanedLabel)
+                )
                   return metricValues;
                 return [...metricValues, value];
               }, [] as number[]),

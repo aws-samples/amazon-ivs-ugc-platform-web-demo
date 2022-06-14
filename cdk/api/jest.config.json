@@ -11,10 +11,10 @@
   "coverageDirectory": "coverage",
   "coverageThreshold": {
     "global": {
-      "statements": 15,
-      "branches": 2,
-      "functions": 9,
-      "lines": 15
+      "statements": 63,
+      "branches": 46,
+      "functions": 65,
+      "lines": 62
     }
   },
   "globals": {

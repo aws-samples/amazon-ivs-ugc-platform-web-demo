@@ -2,7 +2,7 @@ import buildServer from './buildServer';
 
 const server = buildServer();
 
-server.listen(8080, '0.0.0.0', (err, address) => {
+server.listen({ host: '0.0.0.0', port: 8080 }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
