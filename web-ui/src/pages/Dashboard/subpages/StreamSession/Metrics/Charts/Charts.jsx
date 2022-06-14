@@ -17,6 +17,7 @@ import { SyncError } from '../../../../../../assets/icons';
 import { useSynchronizedChartTooltip } from '../../../../../../contexts/SynchronizedChartTooltip';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
+import usePrevious from '../../../../../../hooks/usePrevious';
 import ZoomButtons from './ZoomButtons';
 import './Charts.css';
 
@@ -54,6 +55,7 @@ const Charts = () => {
     ingestVideoBitrateData.data?.length &&
     ingestFramerateData.data?.length;
   const dataLength = ingestVideoBitrateData?.data?.length || 1;
+  const prevDataLength = usePrevious(dataLength);
   const dataPeriod = ingestVideoBitrateData?.period || 0;
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
 
@@ -132,15 +134,33 @@ const Charts = () => {
     [dataLength, dataPeriod]
   );
 
+  // Update the inital zoom bounds when new metrics data is fetched
   useEffect(() => {
     if (isMetricDataAvailable) {
       setZoomBounds((prevBounds) => {
-        const [, prevUpperBound] = prevBounds;
+        const [prevLowerBound, prevUpperBound] = prevBounds;
 
-        return prevUpperBound === 0 ? [0, dataLength - 1] : prevBounds;
+        if (prevUpperBound === 0) {
+          return [0, dataLength - 1];
+        } else if (
+          prevDataLength < dataLength &&
+          prevUpperBound === prevDataLength - 1
+        ) {
+          const newUpperBound = dataLength - 1;
+          let newLowerBound = prevLowerBound;
+
+          if (prevLowerBound > 0) {
+            const offset = dataLength - prevDataLength;
+            newLowerBound += offset;
+          }
+
+          return [newLowerBound, newUpperBound];
+        }
+
+        return prevBounds;
       });
     }
-  }, [dataLength, isMetricDataAvailable]);
+  }, [dataLength, isMetricDataAvailable, prevDataLength]);
 
   useEffect(() => {
     if (isMetricDataAvailable && isTooltipOpen) {
