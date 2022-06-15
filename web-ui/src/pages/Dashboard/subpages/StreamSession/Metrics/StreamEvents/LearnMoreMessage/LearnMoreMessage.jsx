@@ -11,7 +11,7 @@ import Button from '../../../../../../../components/Button';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useOutletContext();
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
 
   return (
@@ -19,7 +19,9 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      variants={!isMobileView && { hidden: { x: '100%' }, visible: { x: 0 } }}
+      variants={
+        !isDefaultResponsiveView && { hidden: { x: '100%' }, visible: { x: 0 } }
+      }
       transition={{ duration: 0.25, type: 'tween' }}
       className="learn-more"
     >

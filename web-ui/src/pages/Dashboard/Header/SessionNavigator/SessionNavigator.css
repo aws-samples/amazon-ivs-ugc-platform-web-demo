@@ -2,6 +2,7 @@
   align-self: center;
   column-gap: 10px;
   display: flex;
+  justify-content: center;
   grid-column-start: 2;
 }
 
@@ -28,6 +29,18 @@
   column-gap: 2px;
   display: flex;
   justify-content: center;
+}
+
+@media (min-width: 576px) {
+  .session-list {
+    max-width: 320px;
+  }
+}
+
+@media (min-width: 768px) {
+  .session-list {
+    max-width: 510px;
+  }
 }
 
 @media (prefers-color-scheme: light) {

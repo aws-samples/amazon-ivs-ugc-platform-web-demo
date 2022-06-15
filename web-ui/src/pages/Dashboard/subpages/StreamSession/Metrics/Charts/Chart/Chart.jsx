@@ -3,10 +3,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AreaClosed, Line, Bar } from '@visx/shape';
 import { LinearGradient } from '@visx/gradient';
 import { max, bisector, extent } from 'd3-array';
-import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, Tooltip } from '@visx/tooltip';
 
+import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import { useSynchronizedChartTooltip } from '../../../../../../../contexts/SynchronizedChartTooltip';
 import usePrevious from '../../../../../../../hooks/usePrevious';
@@ -51,7 +51,7 @@ const Chart = ({
     () => getYScale(height, maximum || max(transformedData, getDataValue)),
     [transformedData, height, maximum]
   );
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
 
   // Update the transformed data when the zoom bounds have been updated
   useEffect(() => {
@@ -133,14 +133,14 @@ const Chart = ({
   ]);
 
   useEffect(() => {
-    if (isMobileView) {
+    if (isDefaultResponsiveView) {
       if (hasTooltipRendered) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = null;
       }
     }
-  }, [isMobileView, hasTooltipRendered]);
+  }, [isDefaultResponsiveView, hasTooltipRendered]);
 
   if (width < 10) return null;
 

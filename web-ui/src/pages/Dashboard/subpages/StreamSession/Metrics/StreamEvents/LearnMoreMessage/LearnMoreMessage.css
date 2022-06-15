@@ -61,7 +61,7 @@
   fill: var(--palette-color-white);
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .learn-more {
     max-width: 100%;
     border-radius: 0;

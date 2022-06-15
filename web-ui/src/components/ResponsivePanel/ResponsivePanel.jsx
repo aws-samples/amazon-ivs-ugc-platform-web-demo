@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { AnimatePresence, useAnimation } from 'framer-motion';
 
+import { BREAKPOINTS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import MobilePanel from './MobilePanel';
 
@@ -9,9 +10,11 @@ const ResponsivePanel = ({
   slideInDirection,
   children,
   isOpen,
+  mobileBreakpoint,
   preserveVisible
 }) => {
-  const { isMobileView } = useMobileBreakpoint();
+  const { currentBreakpoint } = useMobileBreakpoint();
+  const isResponsiveView = currentBreakpoint < mobileBreakpoint;
   const controls = useAnimation();
 
   useEffect(() => {
@@ -20,12 +23,12 @@ const ResponsivePanel = ({
 
   useEffect(() => {
     if (preserveVisible && isOpen) controls.set('visible');
-  }, [controls, isOpen, preserveVisible, isMobileView]);
+  }, [controls, isOpen, preserveVisible, isResponsiveView]);
 
   return (
     <AnimatePresence>
       {isOpen &&
-        (isMobileView ? (
+        (isResponsiveView ? (
           <MobilePanel
             controls={controls}
             isOpen={isOpen}
@@ -42,6 +45,7 @@ const ResponsivePanel = ({
 
 ResponsivePanel.defaultProps = {
   isOpen: false,
+  mobileBreakpoint: BREAKPOINTS.md,
   preserveVisible: false,
   slideInDirection: 'right'
 };
@@ -49,6 +53,7 @@ ResponsivePanel.defaultProps = {
 ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
   isOpen: PropTypes.bool,
+  mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
   preserveVisible: PropTypes.bool,
   slideInDirection: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
 };

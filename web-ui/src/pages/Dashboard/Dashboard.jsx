@@ -27,7 +27,7 @@ const Dashboard = () => {
     refreshCurrentStreamSessionsWithLoading,
     streamSessions
   } = useStreams();
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView, mainRef } = useMobileBreakpoint();
   const { isSessionValid, userData, fetchUserData } = useUser();
   const { modal } = useModal();
   const outletContext = useMemo(
@@ -55,7 +55,10 @@ const Dashboard = () => {
     ]
   );
 
-  const { mainRef } = useScrollToTop(activeStreamSession?.streamId);
+  useScrollToTop({
+    dependency: activeStreamSession?.streamId,
+    isResponsiveView: isDefaultResponsiveView
+  });
   useThemeColor(DASHBOARD_THEME_COLOR);
 
   // Initial fetch of the user data
@@ -71,7 +74,9 @@ const Dashboard = () => {
     <>
       <Header />
       <main
-        id={`main-dashboard-container${isMobileView ? '' : '-scrollable'}`}
+        id={`main-dashboard-container${
+          isDefaultResponsiveView ? '-scrollable' : ''
+        }`}
         className="main-dashboard-container"
         ref={mainRef}
       >
@@ -79,7 +84,7 @@ const Dashboard = () => {
         <Notification top={79} />
         <Outlet context={outletContext} />
       </main>
-      {isMobileView ? <FloatingMenu /> : <FloatingPlayer />}
+      {isDefaultResponsiveView ? <FloatingMenu /> : <FloatingPlayer />}
     </>
   );
 };

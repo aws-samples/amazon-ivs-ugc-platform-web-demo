@@ -45,7 +45,7 @@
   margin: auto;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .stream-events {
     margin-bottom: 30px;
     width: 100%;

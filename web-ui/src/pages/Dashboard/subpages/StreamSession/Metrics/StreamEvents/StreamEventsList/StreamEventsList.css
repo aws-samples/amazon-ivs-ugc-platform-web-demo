@@ -99,7 +99,7 @@
   margin-right: 15px;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .stream-events-list {
     padding: 0;
   }

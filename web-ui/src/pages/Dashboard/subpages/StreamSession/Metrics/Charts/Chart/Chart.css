@@ -64,7 +64,7 @@
   }
 }
 
-@media (min-width: 875px) {
+@media (min-width: 767px) {
   .parent-size {
     max-width: 589px;
     max-height: 100px;

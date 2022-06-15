@@ -251,7 +251,7 @@ canvas {
     border: 10px solid var(--palette-color-light-gray);
   }
 
-  .spinner.light {
+  .video-container .spinner.light {
     color: var(--palette-color-white);
   }
 }

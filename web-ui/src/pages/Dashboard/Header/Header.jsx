@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import './Header.css';
+import { BREAKPOINTS } from '../../../constants';
 import { dashboard as $dashboardContent } from '../../../content';
-import { Settings } from '../../../assets/icons';
+import { Logout, Settings } from '../../../assets/icons';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
@@ -11,7 +13,6 @@ import ResponsivePanel from '../../../components/ResponsivePanel';
 import SessionNavigator from './SessionNavigator';
 import useClickAway from '../../../hooks/useClickAway';
 import useFocusTrap from '../../../hooks/useFocusTrap';
-import './Header.css';
 
 const $content = $dashboardContent.header;
 
@@ -22,8 +23,9 @@ const Header = () => {
   const headerRef = useRef();
   const navButtonRef = useRef();
   const navPopupRef = useRef();
-  const { isMobileView } = useMobileBreakpoint();
+  const { currentBreakpoint } = useMobileBreakpoint();
   const { logOut } = useUser();
+  const isIconLogoutBtn = currentBreakpoint < BREAKPOINTS.lg;
 
   const handleSettings = () => {
     navigate(pathname === '/settings' ? -1 : '/settings');
@@ -61,18 +63,22 @@ const Header = () => {
           isNavOpen={isNavOpen}
           toggleNavPopup={toggleNavPopup}
         />
-        {!isMobileView && (
+        {currentBreakpoint >= BREAKPOINTS.md && (
           <div className="header-buttons">
             <Button
               ariaLabel={$content.settings}
-              className="settings-button"
+              className="header-icon-button"
               onClick={handleSettings}
               variant="secondary"
             >
-              <Settings className="icon settings" />
+              <Settings className="icon" />
             </Button>
-            <Button onClick={logOut} variant="secondary">
-              {$content.log_out}
+            <Button
+              {...(isIconLogoutBtn ? { className: 'header-icon-button' } : {})}
+              onClick={logOut}
+              variant="secondary"
+            >
+              {isIconLogoutBtn ? <Logout className="icon" /> : $content.log_out}
             </Button>
           </div>
         )}

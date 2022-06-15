@@ -55,3 +55,10 @@ export const CONCURRENT_VIEWS = 'ConcurrentViews';
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
 export const KEYFRAME_INTERVAL = 'KeyframeInterval';
+
+export const BREAKPOINTS = {
+  xs: 0,
+  sm: 576,
+  md: 768,
+  lg: 990
+};

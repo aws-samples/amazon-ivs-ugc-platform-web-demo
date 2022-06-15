@@ -2,8 +2,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import './UserManagement.css';
 import { app as $content } from '../../content';
+import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
-import { USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import Grid from '../../components/Grid';
@@ -13,14 +13,15 @@ import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const UserManagement = () => {
-  const { isMobileView } = useMobileBreakpoint();
+  const { currentBreakpoint, mainRef } = useMobileBreakpoint();
+  const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
   const {
     hasErrorCreatingResources,
     initUserResources,
     isCreatingResources,
     isSessionValid
   } = useUser();
-  const { mainRef } = useScrollToTop();
+  useScrollToTop({ isResponsiveView });
   useThemeColor(USER_MANAGEMENT_THEME_COLOR);
 
   if (
@@ -40,20 +41,21 @@ const UserManagement = () => {
       </Grid.Col>
       <Grid.Col autoFit>
         <main
-          id={`main-user-container${isMobileView ? '' : '-scrollable'}`}
+          id={`main-user-container${isResponsiveView ? '' : '-scrollable'}`}
           className="main-user-container"
           ref={mainRef}
         >
           {isCreatingResources || hasErrorCreatingResources ? (
             <FullScreenLoader
               hasError={hasErrorCreatingResources}
+              mobileBreakpoint={BREAKPOINTS.lg}
               onClick={initUserResources}
             />
           ) : (
             <>
               <Notification
                 isPositionFixed={false}
-                top={isMobileView ? 15 : 89}
+                top={isResponsiveView ? 15 : 89}
               />
               <Outlet />
             </>
@@ -64,4 +66,4 @@ const UserManagement = () => {
   );
 };
 
-export default withSessionLoader(UserManagement);
+export default withSessionLoader(UserManagement, BREAKPOINTS.lg);

@@ -31,7 +31,7 @@
   margin-top: 20px;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 575px) {
   .modal-buttons {
     flex-direction: column-reverse;
     row-gap: 20px;

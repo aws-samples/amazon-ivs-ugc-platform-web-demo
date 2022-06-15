@@ -20,11 +20,11 @@ const defaultFormProps = (inputVariant) => ({
 
 const AccountSettings = () => {
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { userData, fetchUserData, logOut } = useUser();
-  const inputVariant = isMobileView ? 'vertical' : 'horizontal';
+  const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
 
   const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;

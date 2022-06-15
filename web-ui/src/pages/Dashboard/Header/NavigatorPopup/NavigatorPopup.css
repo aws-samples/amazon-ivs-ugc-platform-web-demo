@@ -128,7 +128,7 @@
   fill: var(--palette-color-green);
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .nav-popup-container {
     background: none;
     position: absolute;

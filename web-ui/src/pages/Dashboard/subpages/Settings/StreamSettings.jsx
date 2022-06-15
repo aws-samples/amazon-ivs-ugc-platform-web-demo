@@ -13,11 +13,11 @@ import './Settings.css';
 
 const StreamSettings = () => {
   const [isResetStreamKeyLoading, setIsResetStreamKeyLoading] = useState(false);
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { userData, fetchUserData } = useUser();
-  const inputVariant = isMobileView ? 'vertical' : 'horizontal';
+  const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
 
   const copyStreamKey = () => {
     copyToClipboard(userData.streamKeyValue);

@@ -22,7 +22,7 @@ const StreamEventsList = ({
   streamEvents,
   toggleLearnMore
 }) => {
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { activeStreamSession = {} } = useOutletContext();
   const wrapperRef = useRef();
   const selectedEventRef = useRef();
@@ -77,7 +77,7 @@ const StreamEventsList = ({
       style={isHidden ? { display: 'none' } : {}}
       title={$content.stream_events}
       header={
-        isMobileView &&
+        isDefaultResponsiveView &&
         !isPreview && (
           <Button
             className="close-events-list-btn"

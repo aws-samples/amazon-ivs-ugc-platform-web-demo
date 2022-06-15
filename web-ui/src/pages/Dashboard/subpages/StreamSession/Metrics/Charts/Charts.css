@@ -60,7 +60,7 @@
   width: 100%;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .charts {
     padding: 0 15px;
   }
@@ -82,7 +82,7 @@
   }
 }
 
-@media (min-width: 875px) {
+@media (min-width: 767px) {
   .chart-time-range-footer {
     margin-right: 9px;
   }

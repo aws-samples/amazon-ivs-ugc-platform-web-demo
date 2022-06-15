@@ -64,7 +64,7 @@
   width: 36px;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .metrics-section {
     flex-direction: column;
     height: auto;
@@ -76,7 +76,7 @@
   }
 }
 
-@media (max-width: 875px) and (prefers-color-scheme: light) {
+@media (max-width: 767px) and (prefers-color-scheme: light) {
   .metrics-panel {
     background: var(--palette-color-extra-light-gray);
   }

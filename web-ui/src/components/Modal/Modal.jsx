@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
 import { app as $content } from '../../content';
+import { BREAKPOINTS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import Button from '../Button';
@@ -13,7 +14,8 @@ import './Modal.css';
 const Modal = () => {
   const modalRef = useRef();
   const lastFocusedElement = useRef();
-  const { isMobileView } = useMobileBreakpoint();
+  const { currentBreakpoint } = useMobileBreakpoint();
+  const isResponsiveView = currentBreakpoint < BREAKPOINTS.sm;
   const { modal, closeModal } = useModal();
   const {
     cancellable = true,
@@ -74,7 +76,7 @@ const Modal = () => {
         <div className="modal-buttons">
           {cancellable && (
             <Button
-              customStyles={{ width: isMobileView ? '100%' : 'auto' }}
+              customStyles={{ width: isResponsiveView ? '100%' : 'auto' }}
               onClick={handleClose}
               variant="link"
             >
@@ -82,7 +84,7 @@ const Modal = () => {
             </Button>
           )}
           <Button
-            customStyles={{ width: isMobileView ? '100%' : 'auto' }}
+            customStyles={{ width: isResponsiveView ? '100%' : 'auto' }}
             onClick={handleConfirm}
             variant={isDestructive ? 'destructive' : 'primary'}
           >

@@ -63,7 +63,7 @@
   color: var(--palette-color-white);
 }
 
-@media (max-width: 875px) {
+@media (max-width: 989px) {
   .config-grid {
     flex-wrap: nowrap;
     height: auto;
@@ -72,7 +72,16 @@
   .config-value {
     column-gap: 10px;
     max-width: none;
-    width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .config-item {
+    align-items: flex-start;
+    flex-direction: column;
+    max-height: none;
+    row-gap: 10px;
   }
 }
 

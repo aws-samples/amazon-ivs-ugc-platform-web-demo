@@ -4,39 +4,54 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 
+import { BREAKPOINTS } from '../constants';
 import useContextHook from './useContextHook';
 
 const Context = createContext(null);
 Context.displayName = 'MobileBreakpoint';
 
-const MOBILE_BREAKPOINT = 875; // px
-
 export const Provider = ({ children }) => {
-  const [isMobileView, setIsMobileView] = useState();
+  const mainRef = useRef();
+  const [currentBreakpoint, setCurrentBreakpoint] = useState();
+  const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
   const [mobileOverlayCount, setMobileOverlayCount] = useState(0);
   const addMobileOverlay = useCallback(
-    () => setMobileOverlayCount((prev) => (isMobileView ? prev + 1 : prev)),
-    [isMobileView]
+    () =>
+      setMobileOverlayCount((prev) =>
+        isDefaultResponsiveView ? prev + 1 : prev
+      ),
+    [isDefaultResponsiveView]
   );
   const removeMobileOverlay = useCallback(
-    () => setMobileOverlayCount((prev) => (isMobileView ? prev - 1 : prev)),
-    [isMobileView]
+    () =>
+      setMobileOverlayCount((prev) =>
+        isDefaultResponsiveView ? prev - 1 : prev
+      ),
+    [isDefaultResponsiveView]
   );
 
   useEffect(() => {
-    if (isMobileView && mobileOverlayCount > 0) {
+    if (isDefaultResponsiveView && mobileOverlayCount > 0) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = null;
     }
-  }, [isMobileView, mobileOverlayCount]);
+  }, [isDefaultResponsiveView, mobileOverlayCount]);
 
   useEffect(() => {
     const handleWindowResize = () => {
-      setIsMobileView(window.innerWidth <= MOBILE_BREAKPOINT);
+      const innerWidth = window.innerWidth;
+
+      if (innerWidth >= BREAKPOINTS.lg) setCurrentBreakpoint(BREAKPOINTS.lg);
+      else if (innerWidth >= BREAKPOINTS.md)
+        setCurrentBreakpoint(BREAKPOINTS.md);
+      else if (innerWidth >= BREAKPOINTS.sm)
+        setCurrentBreakpoint(BREAKPOINTS.sm);
+      else setCurrentBreakpoint(BREAKPOINTS.xs);
     };
 
     handleWindowResize();
@@ -46,8 +61,19 @@ export const Provider = ({ children }) => {
   }, []);
 
   const value = useMemo(
-    () => ({ isMobileView, addMobileOverlay, removeMobileOverlay }),
-    [isMobileView, addMobileOverlay, removeMobileOverlay]
+    () => ({
+      currentBreakpoint,
+      isDefaultResponsiveView,
+      mainRef,
+      addMobileOverlay,
+      removeMobileOverlay
+    }),
+    [
+      currentBreakpoint,
+      isDefaultResponsiveView,
+      addMobileOverlay,
+      removeMobileOverlay
+    ]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -34,7 +34,7 @@
   flex: 1;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 989px) {
   .grid {
     flex-direction: column;
   }

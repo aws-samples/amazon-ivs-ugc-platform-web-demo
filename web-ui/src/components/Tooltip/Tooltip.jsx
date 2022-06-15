@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import { keepWithinViewport } from './utils';
-import TooltipPortal from './TooltipPortal';
 import './Tooltip.css';
+import { keepWithinViewport } from './utils';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import TooltipPortal from './TooltipPortal';
 
 const Tooltip = ({ children, hasFixedWidth, message, position }) => {
+  const { mainRef } = useMobileBreakpoint();
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
   const parentRef = useRef();
@@ -20,17 +22,18 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
       } = parentRef.current.getBoundingClientRect();
       const { height: tooltipHeight } =
         tooltipRef.current.getBoundingClientRect();
+      const parentYWithScrollOffset = parentY + window.scrollY;
 
       let unboundOffsets;
 
       if (position === 'above') {
         unboundOffsets = {
-          top: parentY - tooltipHeight - 2,
+          top: parentYWithScrollOffset - tooltipHeight - 2,
           left: parentLeft
         };
       } else if (position === 'below') {
         unboundOffsets = {
-          top: parentY + parentHeight + 2,
+          top: parentYWithScrollOffset + parentHeight + 2,
           left: parentLeft
         };
       }
@@ -42,6 +45,19 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
       setOffsets(boundOffsets);
     }
   }, [isOpen, position]);
+
+  useEffect(() => {
+    const hideTooltip = () => setIsOpen(false);
+    const mainRefCurrent = mainRef.current;
+
+    mainRef.current?.addEventListener('scroll', hideTooltip);
+    window.addEventListener('scroll', hideTooltip);
+
+    return () => {
+      mainRefCurrent?.removeEventListener('scroll', hideTooltip);
+      window.removeEventListener('scroll', hideTooltip);
+    };
+  }, [mainRef]);
 
   return (
     <div

@@ -28,13 +28,3 @@
   width: 48px;
   height: 48px;
 }
-
-@media (max-width: 875px) {
-  .loading-container {
-    height: 100%;
-  }
-
-  #root > .loading-container {
-    height: 100vh;
-  }
-}

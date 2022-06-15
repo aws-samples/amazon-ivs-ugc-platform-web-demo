@@ -16,7 +16,7 @@ const $content = $dashboardContent.stream_session_page.stream_events;
 const EVENT_PREVIEW_COUNT = 2;
 
 const StreamEvents = () => {
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { activeStreamSession = {} } = useOutletContext();
   const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
@@ -40,7 +40,7 @@ const StreamEvents = () => {
           next = forceSet;
         }
 
-        if (!isMobileView) {
+        if (!isDefaultResponsiveView) {
           if (next) setTimeout(() => setIsStreamEventsListVisible(false), 250);
           else setIsStreamEventsListVisible(true);
         }
@@ -48,19 +48,21 @@ const StreamEvents = () => {
         return next;
       });
     },
-    [isMobileView]
+    [isDefaultResponsiveView]
   );
 
   useEffect(() => {
-    setIsStreamEventsListVisible(!isMobileView);
+    setIsStreamEventsListVisible(!isDefaultResponsiveView);
     setIsLearnMoreVisible(false);
     setSelectedEventId(null);
     scrollToTop('.stream-events-list', 'auto');
-  }, [activeStreamSession.streamId, isMobileView]);
+  }, [activeStreamSession.streamId, isDefaultResponsiveView]);
 
   return (
     <div className="stream-events">
-      <ResponsivePanel isOpen={!isMobileView || isStreamEventsListVisible}>
+      <ResponsivePanel
+        isOpen={!isDefaultResponsiveView || isStreamEventsListVisible}
+      >
         <StreamEventsList
           isHidden={!isStreamEventsListVisible}
           selectedEventId={selectedEventId}
@@ -77,7 +79,7 @@ const StreamEvents = () => {
           toggleLearnMore={toggleLearnMore}
         />
       </ResponsivePanel>
-      {isMobileView && (
+      {isDefaultResponsiveView && (
         <>
           <StreamEventsList
             isPreview

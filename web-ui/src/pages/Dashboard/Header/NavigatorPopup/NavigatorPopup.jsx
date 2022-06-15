@@ -20,7 +20,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
     updateActiveStreamSession,
     refreshCurrentStreamSessions
   } = useStreams();
-  const { isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const loadMoreSessionsBtnRef = useRef();
 
   const handleSessionClick = (streamSession) => {
@@ -43,7 +43,12 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       initial="hidden"
       animate={isNavOpen ? 'visible' : 'hidden'}
       exit="hidden"
-      variants={!isMobileView && { hidden: { y: '-102%' }, visible: { y: 0 } }}
+      variants={
+        !isDefaultResponsiveView && {
+          hidden: { y: '-102%' },
+          visible: { y: 0 }
+        }
+      }
       transition={{
         damping: 25,
         duration: 0.25,
@@ -94,7 +99,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
     </m.div>
   );
 
-  return isMobileView ? (
+  return isDefaultResponsiveView ? (
     renderPopup()
   ) : (
     <m.div
@@ -102,7 +107,10 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       animate={isNavOpen ? 'visible' : 'hidden'}
       exit="hidden"
       variants={
-        !isMobileView && { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+        !isDefaultResponsiveView && {
+          hidden: { opacity: 0 },
+          visible: { opacity: 1 }
+        }
       }
       transition={{ duration: 0.25, type: 'tween' }}
       className="nav-popup-container"

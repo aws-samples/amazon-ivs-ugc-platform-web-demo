@@ -1,24 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { useMobileBreakpoint } from '../contexts/MobileBreakpoint';
 
-const useScrollToTop = (dependency) => {
+const useScrollToTop = ({ dependency, isResponsiveView }) => {
   const location = useLocation();
-  const mainRef = useRef();
-  const { isMobileView } = useMobileBreakpoint();
+  const { mainRef } = useMobileBreakpoint();
 
   useEffect(() => {
     if (mainRef.current) {
-      if (isMobileView) {
+      if (isResponsiveView) {
         setTimeout(() => window.scrollTo(0, 0), 100);
       } else {
         setTimeout(() => mainRef.current.scrollTo(0, 0), 100);
       }
     }
-  }, [isMobileView, location.pathname, dependency]);
-
-  return { mainRef };
+  }, [dependency, isResponsiveView, location.pathname, mainRef]);
 };
 
 export default useScrollToTop;

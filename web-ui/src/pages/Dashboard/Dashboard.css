@@ -10,7 +10,7 @@
   width: 100%;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .main-dashboard-container {
     height: 100%;
     overflow: hidden;

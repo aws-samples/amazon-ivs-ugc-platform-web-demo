@@ -39,7 +39,7 @@
   display: flex;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   .input-btn-group {
     align-items: flex-end;
   }

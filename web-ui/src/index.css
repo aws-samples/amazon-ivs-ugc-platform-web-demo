@@ -1,5 +1,4 @@
 :root {
-  --mobile-breakpoint: 875px;
   --default-border-radius: 24px;
 
   /* Dark palette colors */
@@ -227,7 +226,7 @@ a:hover {
   position: relative;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 767px) {
   h1 {
     font-size: 32px;
     font-weight: 900;

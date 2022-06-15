@@ -10,15 +10,16 @@ const useStringOverflow = (value) => {
     const updateOverflow = () => {
       if (strRef.current) {
         const { offsetWidth, scrollWidth } = strRef.current;
+
         setIsOverflowing(offsetWidth < scrollWidth);
       }
     };
 
     window.addEventListener('resize', updateOverflow);
-    updateOverflow(strRef.current?.textContent);
+    updateOverflow();
 
     return () => window.removeEventListener('resize', updateOverflow);
-  }, [strRef.current?.textContent]);
+  }, [value]);
 
   return [isOverflowing, strRef];
 };

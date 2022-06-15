@@ -18,12 +18,12 @@
   margin-right: 15px;
 }
 
-.settings-button {
+.header-icon-button {
   padding: 9px;
   min-width: auto;
 }
 
-.icon.settings {
+.header-buttons .icon {
   width: 24px;
 }
 

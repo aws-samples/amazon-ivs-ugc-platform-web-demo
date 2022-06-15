@@ -15,9 +15,9 @@ const valueRegex = /({.+})/;
 
 const ConfigRow = ({ label, value, error }) => {
   const { activeStreamSession, isLoadingStreamData } = useOutletContext();
-  const [isValueOverflowing, valueRef] = useStringOverflow(value);
   const { notifySuccess } = useNotif();
   const renderedValue = isLoadingStreamData ? '----' : value;
+  const [isValueOverflowing, valueRef] = useStringOverflow(renderedValue);
   let ErrorMessage;
 
   if (error && $content.errors[error]) {
