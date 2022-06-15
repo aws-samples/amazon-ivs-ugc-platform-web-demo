@@ -17,7 +17,7 @@ const $liveStreamEndedModalContent =
   $dashboardContent.modal.live_stream_ended_modal;
 
 const StreamSession = () => {
-  const { closeModal, openModal } = useModal();
+  const { openModal } = useModal();
   const {
     activeStreamSession,
     fetchActiveStreamSessionError,
@@ -31,10 +31,10 @@ const StreamSession = () => {
   const shouldShowFailedToLoadNotif =
     !!fetchStreamSessionsError || !!fetchActiveStreamSessionError;
   const shouldShowNewUserNotif = hasStreamSessions === false;
-  let message = $notificationWithCTAContent.stream_instructions;
+  let ctaMessage = $notificationWithCTAContent.stream_instructions;
 
   if (shouldShowFailedToLoadNotif) {
-    message = !!fetchStreamSessionsError
+    ctaMessage = !!fetchStreamSessionsError
       ? $notificationWithCTAContent.failed_to_load_sessions
       : $notificationWithCTAContent.failed_to_load_session;
   }
@@ -49,14 +49,19 @@ const StreamSession = () => {
       !activeStreamSession.isLive
     ) {
       openModal({
-        cancellable: false,
-        confirmText: $liveStreamEndedModalContent.okay,
+        confirmText: $liveStreamEndedModalContent.reload,
         message: $liveStreamEndedModalContent.live_stream_ended,
-        onConfirm: closeModal,
-        subMessage: $liveStreamEndedModalContent.live_stream_ended_message
+        subMessage: $liveStreamEndedModalContent.live_stream_ended_message,
+        onConfirm: () => refreshCurrentActiveStreamSession(),
+        onCancel: () => activeStreamSession.setStale(true)
       });
     }
-  }, [activeStreamSession, closeModal, openModal, prevActiveStreamSession]);
+  }, [
+    activeStreamSession,
+    openModal,
+    prevActiveStreamSession,
+    refreshCurrentActiveStreamSession
+  ]);
 
   return (
     <article className="stream-session">
@@ -80,7 +85,7 @@ const StreamSession = () => {
               <Link to="/settings">{$notificationWithCTAContent.settings}</Link>
             )
           }
-          message={message}
+          message={ctaMessage}
         />
       )}
       <StatsCard />

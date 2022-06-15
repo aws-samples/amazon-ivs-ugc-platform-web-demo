@@ -18,9 +18,10 @@ const ConfigRow = ({ label, value, error }) => {
   const { notifySuccess } = useNotif();
   const renderedValue = isLoadingStreamData ? '----' : value;
   const [isValueOverflowing, valueRef] = useStringOverflow(renderedValue);
+  const hasError = !!error && !isLoadingStreamData;
   let ErrorMessage;
 
-  if (error && $content.errors[error]) {
+  if (hasError && $content.errors[error]) {
     ErrorMessage = (
       <>
         {$content.errors[error].split(valueRegex).map((strPart) =>
@@ -42,10 +43,10 @@ const ConfigRow = ({ label, value, error }) => {
   };
 
   return (
-    <span className={`config-item ${error ? 'error' : ''}`}>
+    <span className={`config-item ${hasError ? 'error' : ''}`}>
       <h4 className="config-label">
         {label}
-        {error && <ErrorIcon />}
+        {hasError && <ErrorIcon />}
       </h4>
       <span className="config-value">
         <Button

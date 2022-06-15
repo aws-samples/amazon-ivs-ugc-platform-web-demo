@@ -40,10 +40,10 @@ export const activeStreamSessionFetcher = async (
 ) => {
   if (!channelResourceId || !streamSession) return;
 
-  const { isLive, isMetadataFetched, streamId } = streamSession;
+  const { isLive, isMetadataFetched, streamId, isStale } = streamSession;
 
   // Check if we have already fetched metadata for this stream
-  if (!isLive && isMetadataFetched) return streamSession;
+  if (!isLive && isMetadataFetched && !isStale) return streamSession;
 
   // Fetch the stream metadata for the next active (selected) session
   const { result: streamSessionMetadata, error } =
@@ -59,7 +59,11 @@ export const activeStreamSessionFetcher = async (
       }
     );
 
-    return { ...streamSessionMetadata, truncatedEvents: streamEvents };
+    return {
+      ...streamSessionMetadata,
+      truncatedEvents: streamEvents,
+      isStale: false
+    };
   }
 
   if (error) throw error;

@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import './UserManagement.css';
 import { app as $content } from '../../content';
@@ -13,14 +13,16 @@ import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const UserManagement = () => {
-  const { currentBreakpoint, mainRef } = useMobileBreakpoint();
-  const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
   const {
     hasErrorCreatingResources,
     initUserResources,
     isCreatingResources,
     isSessionValid
   } = useUser();
+  const { currentBreakpoint, mainRef } = useMobileBreakpoint();
+  const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
   useScrollToTop({ isResponsiveView });
   useThemeColor(USER_MANAGEMENT_THEME_COLOR);
 
@@ -29,7 +31,12 @@ const UserManagement = () => {
     !isCreatingResources &&
     !hasErrorCreatingResources
   ) {
-    return <Navigate to="/" replace />;
+    /**
+     * Send the user back to the page they tried to visit when they were
+     * redirected to the login page, setting replace to "true" so we don't
+     * create another entry in the history stack for the login page.
+     */
+    return <Navigate to={from} replace />;
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import './Dashboard.css';
 import { DASHBOARD_THEME_COLOR } from '../../constants';
@@ -21,24 +21,23 @@ const Dashboard = () => {
     activeStreamSession,
     fetchActiveStreamSessionError,
     fetchStreamSessionsError,
+    hasStreamSessions,
     isInitialFetchingStreamData,
     isLoadingStreamData,
     refreshCurrentActiveStreamSession,
-    refreshCurrentStreamSessionsWithLoading,
-    streamSessions
+    refreshCurrentStreamSessionsWithLoading
   } = useStreams();
   const { isDefaultResponsiveView, mainRef } = useMobileBreakpoint();
   const { isSessionValid, userData, fetchUserData } = useUser();
   const { modal } = useModal();
+  const location = useLocation();
   const outletContext = useMemo(
     () => ({
       activeStreamSession,
       fetchActiveStreamSessionError,
       fetchStreamSessionsError,
       isInitialFetchingStreamData,
-      hasStreamSessions: !streamSessions
-        ? undefined
-        : streamSessions.length > 0,
+      hasStreamSessions,
       isLoadingStreamData,
       refreshCurrentActiveStreamSession,
       refreshCurrentStreamSessionsWithLoading
@@ -47,11 +46,11 @@ const Dashboard = () => {
       activeStreamSession,
       fetchActiveStreamSessionError,
       fetchStreamSessionsError,
+      hasStreamSessions,
       isInitialFetchingStreamData,
       isLoadingStreamData,
       refreshCurrentActiveStreamSession,
-      refreshCurrentStreamSessionsWithLoading,
-      streamSessions
+      refreshCurrentStreamSessionsWithLoading
     ]
   );
 
@@ -68,7 +67,13 @@ const Dashboard = () => {
     }
   }, [fetchUserData, isSessionValid, userData]);
 
-  if (isSessionValid === false) return <Navigate to="/login" replace />;
+  if (isSessionValid === false)
+    /**
+     * Redirect the user to the /login page, but save the current location
+     * they were trying to go to when they were redirected. This allows us
+     * to send them along to that page after they login.
+     */
+    return <Navigate to="/login" state={{ from: location }} replace />;
 
   return (
     <>

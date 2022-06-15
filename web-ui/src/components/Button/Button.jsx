@@ -46,7 +46,7 @@ Button.defaultProps = {
   ariaLabel: '',
   className: '',
   customStyles: {},
-  id: '',
+  id: undefined,
   isDisabled: false,
   isLoading: false,
   onBlur: undefined,

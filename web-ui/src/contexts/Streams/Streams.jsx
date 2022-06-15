@@ -7,6 +7,12 @@ import {
   useRef,
   useState
 } from 'react';
+import {
+  generatePath,
+  useMatch,
+  useNavigate,
+  useParams
+} from 'react-router-dom';
 
 import { useUser } from '../../contexts/User';
 import useActiveStreamSession from './useActiveStreamSession';
@@ -21,7 +27,10 @@ Context.displayName = 'Streams';
 
 export const Provider = ({ children }) => {
   const { isSessionValid, userData } = useUser();
+  const { streamId: paramsStreamId } = useParams();
   const isInitialized = useRef(false);
+  const isDashboardPage = !!useMatch('dashboard/*');
+  const navigate = useNavigate();
 
   /**
    * STREAM SESSIONS LIST DATA
@@ -29,6 +38,7 @@ export const Provider = ({ children }) => {
   const {
     canLoadMoreStreamSessions,
     fetchStreamSessionsError,
+    hasStreamSessions,
     isLoadingNextStreamSessionsPage,
     isValidatingStreamSessions,
     refreshCurrentStreamSessions,
@@ -83,9 +93,14 @@ export const Provider = ({ children }) => {
   const eagerUpdateActiveStreamSession = useCallback(
     (session) => {
       setActiveStreamSessionId(session.streamId);
+      navigate(
+        generatePath('/dashboard/stream/:streamId', {
+          streamId: session.streamId
+        })
+      );
       debouncedUpdateActiveStreamSession(session);
     },
-    [debouncedUpdateActiveStreamSession, setActiveStreamSessionId]
+    [debouncedUpdateActiveStreamSession, navigate, setActiveStreamSessionId]
   );
 
   const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
@@ -97,12 +112,20 @@ export const Provider = ({ children }) => {
   // isLoadingStreamData logic
   const [isForceLoadingStreamData, setIsForceLoadingStreamData] =
     useState(false);
+  const forceSpinnerTimeoutId = useRef();
   const prevActiveStreamSession = usePrevious(activeStreamSession);
 
   const forceSpinner = useCallback(() => {
     setIsForceLoadingStreamData(true);
 
-    return setTimeout(() => setIsForceLoadingStreamData(false), 500);
+    if (forceSpinnerTimeoutId.current) {
+      clearTimeout(forceSpinnerTimeoutId.current);
+    }
+
+    forceSpinnerTimeoutId.current = setTimeout(
+      () => setIsForceLoadingStreamData(false),
+      500
+    );
   }, []);
 
   const refreshCurrentStreamSessionsWithLoading = useCallback(() => {
@@ -140,12 +163,60 @@ export const Provider = ({ children }) => {
 
   // Initial fetch of the first stream metadata
   useEffect(() => {
-    if (!isInitialized.current && streamSessions?.length) {
-      setActiveStreamSessionId(streamSessions[0].streamId);
-      updateActiveStreamSession(streamSessions[0]);
+    if (!isInitialized.current && hasStreamSessions) {
+      const initialActiveStreamSession =
+        streamSessions.find(({ streamId }) => streamId === paramsStreamId) ||
+        streamSessions[0];
+      setActiveStreamSessionId(initialActiveStreamSession.streamId);
+      updateActiveStreamSession(initialActiveStreamSession);
       isInitialized.current = true;
     }
-  }, [setActiveStreamSessionId, streamSessions, updateActiveStreamSession]);
+  }, [
+    hasStreamSessions,
+    paramsStreamId,
+    setActiveStreamSessionId,
+    streamSessions,
+    updateActiveStreamSession
+  ]);
+
+  // Update the active stream session based on a pathname change (i.e. hitting the back/forward button)
+  useEffect(() => {
+    if (
+      isDashboardPage &&
+      paramsStreamId &&
+      activeStreamSession?.streamId &&
+      paramsStreamId !== activeStreamSession.streamId
+    ) {
+      const paramsStream = streamSessions.find(
+        ({ streamId }) => streamId === paramsStreamId
+      );
+
+      if (paramsStream) updateActiveStreamSession(paramsStream);
+    }
+  }, [
+    activeStreamSession?.streamId,
+    isDashboardPage,
+    paramsStreamId,
+    streamSessions,
+    updateActiveStreamSession
+  ]);
+
+  // Update the pathname based on an active stream session change
+  useEffect(() => {
+    if (isDashboardPage && !paramsStreamId && activeStreamSession?.streamId) {
+      navigate(
+        generatePath('/dashboard/stream/:streamId', {
+          streamId: activeStreamSession.streamId
+        }),
+        { replace: true }
+      );
+    }
+  }, [
+    activeStreamSession?.streamId,
+    isDashboardPage,
+    navigate,
+    paramsStreamId
+  ]);
 
   // Force a brief spinner when switching between active stream sessions
   useEffect(() => {
@@ -161,13 +232,14 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       activeStreamSession,
-      fetchActiveStreamSessionError,
       canLoadMoreStreamSessions,
+      fetchActiveStreamSessionError,
+      fetchStreamSessionsError,
+      hasStreamSessions,
       isInitialFetchingStreamData,
+      isLive,
       isLoadingNextStreamSessionsPage,
       isLoadingStreamData,
-      isLive,
-      fetchStreamSessionsError,
       streamSessions,
       refreshCurrentActiveStreamSession:
         refreshCurrentActiveStreamSessionWithLoading,
@@ -181,6 +253,7 @@ export const Provider = ({ children }) => {
       eagerUpdateActiveStreamSession,
       fetchActiveStreamSessionError,
       fetchStreamSessionsError,
+      hasStreamSessions,
       isInitialFetchingStreamData,
       isLive,
       isLoadingNextStreamSessionsPage,

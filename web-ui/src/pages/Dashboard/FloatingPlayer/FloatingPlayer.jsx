@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -27,7 +27,6 @@ const FloatingPlayer = () => {
   });
   const [isExpanded, setIsExpanded] = useState(true);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const hasStreamSessions = !!streamSessions?.length;
   const canvasRef = useRef();
   const isBlurring = useRef(false);
@@ -58,8 +57,7 @@ const FloatingPlayer = () => {
 
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
-    navigate('/');
-  }, [navigate, streamSessions, updateActiveStreamSession]);
+  }, [streamSessions, updateActiveStreamSession]);
 
   const startBlur = useCallback(() => {
     if (canvasRef.current && !isBlurring.current) {

@@ -55,9 +55,9 @@ export const bound = (value, min = null, max = null) => {
  * Throttling a function prevents excessive or repeated calling of the function,
  * but does not get reset in the process
  *  - i.e. acts as a rate limiter for execution of handlers
- * @param {func} callback
- * @param {number} delay
- * @param {boolean} debounceMode
+ * @param {func} callback function to throttle
+ * @param {number} delay milliseconds to throttle invocations to
+ * @param {boolean} debounceMode set to true to enable debounce instead of throttle
  */
 export const throttle = (callback, delay, debounceMode) => {
   let timeoutID;
@@ -106,9 +106,9 @@ export const throttle = (callback, delay, debounceMode) => {
 /**
  * Stalls the execution of a callback function for a predetermined
  * amount of time, so long as it continues to be invoked
- * @param {*} callback function to debounce
- * @param {*} delay stall delay
- * @param {*} atBegin true if callback is to be executed before stalling
+ * @param {func} callback function to debounce
+ * @param {number} delay stall delay
+ * @param {boolean} atBegin true if callback is to be executed before stalling
  *                    initiates, false if after stalling period ends
  */
 export const debounce = (callback, delay, atBegin = false) => {

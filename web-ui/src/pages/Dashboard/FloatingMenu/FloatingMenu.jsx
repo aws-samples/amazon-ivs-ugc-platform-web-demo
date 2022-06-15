@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { Logout, Settings, Home } from '../../../assets/icons';
@@ -23,10 +23,11 @@ const FloatingMenu = () => {
   const [isReset, setIsReset] = useState(false);
   const { logOut } = useUser();
   const { pathname } = useLocation();
-  const floatingMenuRef = useRef();
   const navigate = useNavigate();
-  const hideSettings = pathname === '/settings';
+  const navigateType = useNavigationType();
+  const floatingMenuRef = useRef();
 
+  const hideSettings = pathname === '/settings';
   const toggleMenu = () => setIsExpanded(!isExpanded);
 
   const handleSettings = () => {
@@ -35,7 +36,12 @@ const FloatingMenu = () => {
   };
 
   const handleHome = () => {
-    navigate(-1);
+    if (navigateType === 'PUSH') {
+      navigate(-1); // Return to the previously monitored session on the dashboard
+    } else {
+      navigate('/dashboard'); // Navigate to the dashboard and start monitoring the latest session
+    }
+
     setIsReset(false);
   };
 

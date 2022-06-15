@@ -12,7 +12,7 @@ const useScrollToTop = ({ dependency, isResponsiveView }) => {
       if (isResponsiveView) {
         setTimeout(() => window.scrollTo(0, 0), 100);
       } else {
-        setTimeout(() => mainRef.current.scrollTo(0, 0), 100);
+        setTimeout(() => mainRef.current?.scrollTo(0, 0), 100);
       }
     }
   }, [dependency, isResponsiveView, location.pathname, mainRef]);

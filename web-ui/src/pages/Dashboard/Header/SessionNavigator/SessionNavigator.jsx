@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useMatch, useNavigate, useNavigationType } from 'react-router-dom';
 
 import { bound } from '../../../../utils';
 import { ChevronLeft, ChevronRight } from '../../../../assets/icons';
@@ -14,8 +14,6 @@ const $content = $dashboardContent.header;
 
 const SessionNavigator = forwardRef(
   ({ isNavOpen, toggleNavPopup }, navButtonRef) => {
-    const { pathname } = useLocation();
-    const navigate = useNavigate();
     const {
       activeStreamSession,
       fetchStreamSessionsError,
@@ -26,22 +24,29 @@ const SessionNavigator = forwardRef(
     } = useStreams();
     const { startTime, endTime, isLive } = activeStreamSession || {};
     const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
+    const navigate = useNavigate();
+    const navigateType = useNavigationType();
+    const isDashboardPage = !!useMatch('dashboard/*');
+
     const sessionsLength = streamSessions?.length;
-    const isNotOnDashboard = pathname !== '/';
     const isPrevDisabled =
-      isNotOnDashboard ||
+      !isDashboardPage ||
       !activeStreamSession ||
       !sessionsLength ||
       activeStreamSession.index === 0;
     const isNextDisabled =
-      isNotOnDashboard ||
+      !isDashboardPage ||
       !activeStreamSession ||
       !sessionsLength ||
       activeStreamSession.index === sessionsLength - 1;
 
     const handleSessionNavigator = () => {
-      if (isNotOnDashboard) {
-        navigate(-1);
+      if (!isDashboardPage) {
+        if (navigateType === 'PUSH') {
+          navigate(-1); // Return to the previously monitored session on the dashboard
+        } else {
+          navigate('/dashboard'); // Navigate to the dashboard and start monitoring the latest session
+        }
       } else {
         if (!isNavOpen) refreshCurrentStreamSessions();
         toggleNavPopup();
@@ -72,7 +77,7 @@ const SessionNavigator = forwardRef(
     };
 
     const renderSessionNavigatorContent = () => {
-      if (isNotOnDashboard) return <p>{$content.return_to_session}</p>;
+      if (!isDashboardPage) return <p>{$content.return_to_session}</p>;
 
       return (
         <span className="date-time-container">

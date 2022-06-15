@@ -23,6 +23,7 @@ const Modal = () => {
     isDestructive,
     message,
     onConfirm,
+    onCancel,
     subMessage
   } = modal || {};
 
@@ -33,8 +34,12 @@ const Modal = () => {
 
       closeModal();
       setTimeout(() => lastFocusedElement.current?.focus());
+
+      if (typeof onCancel === 'function') {
+        onCancel();
+      }
     },
-    [closeModal]
+    [closeModal, onCancel]
   );
 
   const handleConfirm = () => {
@@ -45,7 +50,7 @@ const Modal = () => {
     }
   };
 
-  useClickAway([modalRef], handleClose);
+  useClickAway([modalRef], handleClose, cancellable);
   useFocusTrap([modalRef], !!modal);
 
   useEffect(() => {

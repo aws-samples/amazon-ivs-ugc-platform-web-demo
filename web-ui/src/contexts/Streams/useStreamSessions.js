@@ -11,6 +11,9 @@ const useStreamSessions = ({ isSessionValid, userData }) => {
     useState(true);
   const [isLoadingNextStreamSessionsPage, setIsLoadingNextStreamSessionsPage] =
     useState(false);
+  const hasStreamSessions = !streamSessions
+    ? undefined
+    : streamSessions.length > 0;
 
   const latestStreamSessionPage = useRef();
   // By default, useSWRInfinite will revalidate the first page, which will trigger a downstream
@@ -143,6 +146,7 @@ const useStreamSessions = ({ isSessionValid, userData }) => {
   return {
     canLoadMoreStreamSessions,
     fetchStreamSessionsError,
+    hasStreamSessions,
     isLoadingNextStreamSessionsPage,
     isValidatingStreamSessions,
     refreshCurrentStreamSessions,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 import './Header.css';
 import { BREAKPOINTS } from '../../../constants';
@@ -17,18 +17,27 @@ import useFocusTrap from '../../../hooks/useFocusTrap';
 const $content = $dashboardContent.header;
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const { currentBreakpoint } = useMobileBreakpoint();
+  const { logOut } = useUser();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const navigateType = useNavigationType();
   const headerRef = useRef();
   const navButtonRef = useRef();
   const navPopupRef = useRef();
-  const { currentBreakpoint } = useMobileBreakpoint();
-  const { logOut } = useUser();
   const isIconLogoutBtn = currentBreakpoint < BREAKPOINTS.lg;
 
   const handleSettings = () => {
-    navigate(pathname === '/settings' ? -1 : '/settings');
+    if (pathname !== '/settings') {
+      navigate('/settings');
+    } else {
+      if (navigateType === 'PUSH') {
+        navigate(-1); // Return to the previously monitored session on the dashboard
+      } else {
+        navigate('/dashboard'); // Navigate to the dashboard and start monitoring the latest session
+      }
+    }
   };
 
   const toggleNavPopup = useCallback(() => {

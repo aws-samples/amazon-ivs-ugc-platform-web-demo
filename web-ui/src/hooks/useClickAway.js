@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-const defaultEvents = ['pointerdown'];
+const events = ['pointerdown'];
 
-const useClickAway = (targetRefs, onClickAway, events = defaultEvents) => {
+const useClickAway = (targetRefs, onClickAway, isEnabled = true) => {
   const savedCallback = useRef(onClickAway);
   const refs = useRef(targetRefs);
 
@@ -11,6 +11,8 @@ const useClickAway = (targetRefs, onClickAway, events = defaultEvents) => {
   }, [onClickAway]);
 
   useEffect(() => {
+    if (!isEnabled) return;
+
     const handler = (event) => {
       refs.current.every(
         ({ current: target }) => target && !target.contains(event.target)
@@ -26,7 +28,7 @@ const useClickAway = (targetRefs, onClickAway, events = defaultEvents) => {
         document.removeEventListener(eventName, handler);
       }
     };
-  }, [events]);
+  }, [isEnabled]);
 };
 
 export default useClickAway;

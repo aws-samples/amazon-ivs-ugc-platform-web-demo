@@ -126,7 +126,7 @@ const useForm = ({
         pathname === '/reset' ||
         pathname === '/settings'
       ) {
-        const autoValidationErrors = validateForm(formProps, pathname);
+        const autoValidationErrors = validateForm(formProps);
         const manualValidationErrors = validationCheck(formProps);
         const validationErrors =
           autoValidationErrors || manualValidationErrors

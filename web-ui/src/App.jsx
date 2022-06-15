@@ -46,7 +46,12 @@ const App = () => (
                       </StreamsProvider>
                     }
                   >
-                    <Route index element={<StreamSession />} />
+                    <Route path="dashboard">
+                      <Route path="stream">
+                        <Route index element={<StreamSession />} />
+                        <Route path=":streamId" element={<StreamSession />} />
+                      </Route>
+                    </Route>
                     <Route path="settings" element={<Settings />} />
                   </Route>
                   <Route element={<UserManagement />}>
@@ -54,7 +59,10 @@ const App = () => (
                     <Route path="register" element={<RegisterUser />} />
                     <Route path="reset" element={<ResetPassword />} />
                   </Route>
-                  <Route path="*" element={<Navigate replace to="/" />} />
+                  <Route
+                    path="*"
+                    element={<Navigate replace to="/dashboard/stream" />}
+                  />
                 </Routes>
               </ModalProvider>
             </UserProvider>
