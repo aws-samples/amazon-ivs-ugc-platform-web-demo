@@ -5,55 +5,56 @@ import SliderUnstyled from '@mui/base/SliderUnstyled';
 import { bound } from '../../../../../../utils';
 import { useEffect } from 'react';
 
-const minDistance = 5;
+const minDistance = 50;
+const maxValue = 1000;
 
-const ZoomSlider = ({ dataLength, setZoomBounds, zoomBounds }) => {
+const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
   const [lowerBound, upperBound] = zoomBounds;
-  const pointerDownClientX = useRef(null);
+  const pointerDownEventData = useRef(null);
   const sliderRootRef = useRef();
 
   const zoomBoundToPercentage = useCallback(
-    (val) => parseFloat(((val / dataLength) * 100).toFixed(1)),
+    (val) => Math.round((val / dataLength) * maxValue),
     [dataLength]
   );
   const percentageToZoomBound = useCallback(
-    (percentage) => Math.round((dataLength * percentage) / 100),
+    (percentage) => Math.round((dataLength * percentage) / maxValue),
     [dataLength]
   );
 
   const handleChange = useCallback(
     (event, newValues, activeThumb) => {
       if (activeThumb === 0) {
-        setZoomBounds((prevBounds) => {
+        setZoomBounds((prevZoomBounds) => {
           const [newLowerPercentage] = newValues;
           const newLowerBound = percentageToZoomBound(newLowerPercentage);
 
-          if (newLowerBound !== prevBounds[0])
+          if (newLowerBound !== prevZoomBounds[0])
             return [
               Math.min(
                 newLowerBound,
-                prevBounds[1] - percentageToZoomBound(minDistance)
+                prevZoomBounds[1] - percentageToZoomBound(minDistance)
               ),
-              prevBounds[1]
+              prevZoomBounds[1]
             ];
 
-          return prevBounds;
+          return prevZoomBounds;
         });
       } else {
-        setZoomBounds((prevBounds) => {
+        setZoomBounds((prevZoomBounds) => {
           const [, newUpperPercentage] = newValues;
           const newUpperBound = percentageToZoomBound(newUpperPercentage);
 
-          if (newUpperBound !== prevBounds[1])
+          if (newUpperBound !== prevZoomBounds[1])
             return [
-              prevBounds[0],
+              prevZoomBounds[0],
               Math.max(
                 newUpperBound,
-                prevBounds[0] + percentageToZoomBound(minDistance)
+                prevZoomBounds[0] + percentageToZoomBound(minDistance)
               )
             ];
 
-          return prevBounds;
+          return prevZoomBounds;
         });
       }
     },
@@ -64,81 +65,90 @@ const ZoomSlider = ({ dataLength, setZoomBounds, zoomBounds }) => {
     (event) => event.stopPropagation(),
     []
   );
-  const pointerDownTrackHandler = useCallback((event) => {
-    event.stopPropagation();
+  const pointerDownTrackHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
 
-    pointerDownClientX.current = event.clientX;
-  }, []);
+      pointerDownEventData.current = { clientX: event.clientX, zoomBounds };
+    },
+    [zoomBounds]
+  );
   const pointerUpTrackHandler = useCallback((event) => {
     event.stopPropagation();
 
-    pointerDownClientX.current = null;
+    pointerDownEventData.current = null;
   }, []);
   const pointerMoveTrackHandler = useCallback(
     (event) => {
       event.stopPropagation();
 
-      if (!pointerDownClientX.current) return;
+      if (!pointerDownEventData.current) return;
 
-      const percentageDiff = parseFloat(
-        ((event.clientX / pointerDownClientX.current) * 100 - 100).toFixed(1)
+      const { clientX: originClientX, zoomBounds: originZoomBounds } =
+        pointerDownEventData.current;
+      const zoomBoundsDiff = percentageToZoomBound(
+        ((event.clientX - originClientX) / originClientX) * maxValue
       );
 
-      setZoomBounds((prevBounds) => {
-        const [prevLowerBound, prevUpperBound] = prevBounds;
+      setZoomBounds((prevZoomBounds) => {
+        const [originLowerZoomBound, originUpperZoomBound] = originZoomBounds;
+        const originDiff = originUpperZoomBound - originLowerZoomBound;
+        const [prevLowerZoomBound, prevUpperZoomBound] = prevZoomBounds;
         const newLowerBound = bound(
-          percentageToZoomBound(
-            zoomBoundToPercentage(prevLowerBound) + percentageDiff
-          ),
-          0
+          originLowerZoomBound + zoomBoundsDiff,
+          0,
+          dataLength - 1 - originDiff
         );
         const newUpperBound = bound(
-          percentageToZoomBound(
-            zoomBoundToPercentage(prevUpperBound) + percentageDiff
-          ),
-          0,
+          originUpperZoomBound + zoomBoundsDiff,
+          newLowerBound + originDiff,
           dataLength - 1
         );
 
-        pointerDownClientX.current = event.clientX;
-
         if (
-          prevLowerBound !== newLowerBound &&
-          prevUpperBound !== newUpperBound
+          prevLowerZoomBound !== newLowerBound &&
+          prevUpperZoomBound !== newUpperBound
         ) {
           return [newLowerBound, newUpperBound];
         }
 
-        return prevBounds;
+        return prevZoomBounds;
       });
     },
-    [dataLength, percentageToZoomBound, setZoomBounds, zoomBoundToPercentage]
+    [dataLength, percentageToZoomBound, setZoomBounds]
   );
 
   useEffect(() => {
-    document.addEventListener('pointermove', pointerMoveTrackHandler);
-    document.addEventListener('pointerup', pointerUpTrackHandler);
+    const chartsElement = chartsRef.current;
 
-    return () => {
-      document.removeEventListener('pointermove', pointerMoveTrackHandler);
-      document.removeEventListener('pointerup', pointerUpTrackHandler);
-    };
-  }, [pointerMoveTrackHandler, pointerUpTrackHandler]);
+    if (chartsElement) {
+      chartsElement.addEventListener('pointermove', pointerMoveTrackHandler);
+      document.addEventListener('pointerup', pointerUpTrackHandler);
+
+      return () => {
+        chartsElement.removeEventListener(
+          'pointermove',
+          pointerMoveTrackHandler
+        );
+        document.removeEventListener('pointerup', pointerUpTrackHandler);
+      };
+    }
+  }, [chartsRef, pointerMoveTrackHandler, pointerUpTrackHandler]);
 
   return (
     <SliderUnstyled
       componentsProps={{
+        rail: { onMouseDown: mouseDownTrackHandler },
         track: {
           onMouseDown: mouseDownTrackHandler,
           onPointerDown: pointerDownTrackHandler
         }
       }}
       disableSwap
-      max={100}
+      max={maxValue}
       min={0}
       onChange={handleChange}
       ref={sliderRootRef}
-      step={0.1}
       value={[
         zoomBoundToPercentage(lowerBound),
         zoomBoundToPercentage(upperBound)
@@ -148,11 +158,13 @@ const ZoomSlider = ({ dataLength, setZoomBounds, zoomBounds }) => {
 };
 
 ZoomSlider.defaultProps = {
+  chartsRef: { current: null },
   dataLength: 0,
   zoomBounds: [0, 0]
 };
 
 ZoomSlider.propTypes = {
+  chartsRef: PropTypes.object,
   dataLength: PropTypes.number,
   setZoomBounds: PropTypes.func.isRequired,
   zoomBounds: PropTypes.arrayOf(PropTypes.number)

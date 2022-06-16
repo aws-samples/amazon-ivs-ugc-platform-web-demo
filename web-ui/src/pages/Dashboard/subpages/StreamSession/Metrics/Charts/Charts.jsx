@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 import {
@@ -30,6 +30,7 @@ const UNITS = {
 };
 
 const Charts = () => {
+  const chartsRef = useRef();
   const {
     activeStreamSession,
     fetchActiveStreamSessionError,
@@ -175,7 +176,7 @@ const Charts = () => {
   ]);
 
   return (
-    <div className="charts">
+    <div className="charts" ref={chartsRef}>
       <MetricPanel
         title={$content.video_bitrate}
         {...getChartMetricPanelProps(ingestVideoBitrateData)}
@@ -210,6 +211,7 @@ const Charts = () => {
       </MetricPanel>
       <div className="chart-controls">
         <ZoomSlider
+          chartsRef={chartsRef}
           dataLength={dataLength}
           setZoomBounds={setZoomBounds}
           zoomBounds={zoomBounds}

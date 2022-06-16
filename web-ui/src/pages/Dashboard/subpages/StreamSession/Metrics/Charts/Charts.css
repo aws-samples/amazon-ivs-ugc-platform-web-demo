@@ -64,9 +64,12 @@
 
 .MuiSlider-rail {
   background-color: var(--palette-color-gray);
+  background-clip: content-box;
+  border-bottom: solid 4px transparent;
+  border-top: solid 4px transparent;
   border-radius: 100px;
   display: block;
-  height: 4px;
+  height: 12px;
   position: absolute;
   width: 100%;
 }
