@@ -56,7 +56,9 @@ const Charts = () => {
     !fetchActiveStreamSessionError &&
     ingestVideoBitrateData.data?.length &&
     ingestFramerateData.data?.length;
-  const dataLength = ingestVideoBitrateData?.data?.length || 1;
+  const [dataLength, setDataLength] = useState(
+    ingestVideoBitrateData?.data?.length || 1
+  );
   const prevDataLength = usePrevious(dataLength);
   const dataPeriod = ingestVideoBitrateData?.period || 0;
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
@@ -139,20 +141,22 @@ const Charts = () => {
   // Update the initial zoom bounds when new metrics data is fetched
   useEffect(() => {
     if (isMetricDataAvailable) {
+      const newDataLength = ingestVideoBitrateData?.data?.length;
+      setDataLength(newDataLength);
       setZoomBounds((prevBounds) => {
         const [prevLowerBound, prevUpperBound] = prevBounds;
 
         if (prevUpperBound === 0) {
-          return [0, dataLength - 1];
+          return [0, newDataLength - 1];
         } else if (
-          prevDataLength < dataLength &&
+          prevDataLength < newDataLength &&
           prevUpperBound === prevDataLength - 1
         ) {
-          const newUpperBound = dataLength - 1;
+          const newUpperBound = newDataLength - 1;
           let newLowerBound = prevLowerBound;
 
           if (prevLowerBound > 0) {
-            const offset = dataLength - prevDataLength;
+            const offset = newDataLength - prevDataLength;
             newLowerBound += offset;
           }
 
@@ -162,7 +166,11 @@ const Charts = () => {
         return prevBounds;
       });
     }
-  }, [dataLength, isMetricDataAvailable, prevDataLength]);
+  }, [
+    ingestVideoBitrateData?.data?.length,
+    isMetricDataAvailable,
+    prevDataLength
+  ]);
 
   useEffect(() => {
     if (isMetricDataAvailable && isTooltipOpen) {

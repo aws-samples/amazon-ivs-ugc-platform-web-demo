@@ -14,11 +14,11 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
   const sliderRootRef = useRef();
 
   const zoomBoundToPercentage = useCallback(
-    (val) => Math.round((val / dataLength) * maxValue),
+    (val) => Math.round((val / (dataLength - 1)) * maxValue),
     [dataLength]
   );
   const percentageToZoomBound = useCallback(
-    (percentage) => Math.round((dataLength * percentage) / maxValue),
+    (percentage) => Math.round((percentage / maxValue) * (dataLength - 1)),
     [dataLength]
   );
 
@@ -48,9 +48,12 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
           if (newUpperBound !== prevZoomBounds[1])
             return [
               prevZoomBounds[0],
-              Math.max(
-                newUpperBound,
-                prevZoomBounds[0] + percentageToZoomBound(minDistance)
+              Math.min(
+                Math.max(
+                  newUpperBound,
+                  prevZoomBounds[0] + percentageToZoomBound(minDistance)
+                ),
+                dataLength - 1
               )
             ];
 
@@ -58,7 +61,7 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
         });
       }
     },
-    [percentageToZoomBound, setZoomBounds]
+    [dataLength, percentageToZoomBound, setZoomBounds]
   );
 
   const mouseDownTrackHandler = useCallback(
