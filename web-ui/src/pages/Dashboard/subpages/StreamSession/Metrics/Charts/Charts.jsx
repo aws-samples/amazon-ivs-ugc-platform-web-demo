@@ -11,6 +11,7 @@ import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE
 } from '../../../../../../constants';
+import './Charts.css';
 import { bound } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { SyncError } from '../../../../../../assets/icons';
@@ -19,7 +20,7 @@ import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
 import usePrevious from '../../../../../../hooks/usePrevious';
 import ZoomButtons from './ZoomButtons';
-import './Charts.css';
+import ZoomSlider from './ZoomSlider';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -134,7 +135,7 @@ const Charts = () => {
     [dataLength, dataPeriod]
   );
 
-  // Update the inital zoom bounds when new metrics data is fetched
+  // Update the initial zoom bounds when new metrics data is fetched
   useEffect(() => {
     if (isMetricDataAvailable) {
       setZoomBounds((prevBounds) => {
@@ -208,7 +209,11 @@ const Charts = () => {
         )}
       </MetricPanel>
       <div className="chart-controls">
-        <span className="zoom-slider" />
+        <ZoomSlider
+          dataLength={dataLength}
+          setZoomBounds={setZoomBounds}
+          zoomBounds={zoomBounds}
+        />
         <ZoomButtons updateZoomBounds={updateZoomBounds} />
       </div>
     </div>

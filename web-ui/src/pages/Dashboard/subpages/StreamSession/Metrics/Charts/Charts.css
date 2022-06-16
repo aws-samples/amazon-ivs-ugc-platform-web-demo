@@ -11,7 +11,7 @@
 }
 
 .charts .metrics-panel:nth-child(2) {
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 .chart {
@@ -22,7 +22,6 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  margin-right: 9px;
   row-gap: 30px;
 }
 
@@ -52,12 +51,48 @@
   font-weight: 700;
 }
 
-.zoom-slider {
-  background: var(--palette-color-gray);
+.MuiSlider-root {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  height: 12px;
+  justify-content: center;
+  position: relative;
+  touch-action: none;
+  width: calc(100% - 12px);
+}
+
+.MuiSlider-rail {
+  background-color: var(--palette-color-gray);
   border-radius: 100px;
+  display: block;
   height: 4px;
-  margin: 4px 0;
+  position: absolute;
   width: 100%;
+}
+
+.MuiSlider-track {
+  background-color: var(--palette-color-light-gray);
+  background-clip: content-box;
+  border-bottom: solid 3px transparent;
+  border-top: solid 3px transparent;
+  cursor: move;
+  display: block;
+  height: 12px;
+  position: absolute;
+}
+
+.MuiSlider-thumb {
+  background: var(--palette-color-extra-light-gray);
+  border-radius: 68px;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 12px;
+  margin-left: -6px;
+  outline: 0;
+  position: absolute;
+  pointer-events: all !important;
+  width: 12px;
 }
 
 @media (max-width: 767px) {
@@ -78,7 +113,7 @@
   }
 
   .charts .metrics-panel:nth-child(2) {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 }
 
@@ -89,6 +124,14 @@
 }
 
 @media (prefers-color-scheme: light) {
+  .MuiSlider-track {
+    background-color: var(--palette-color-gray);
+  }
+
+  .MuiSlider-thumb {
+    background: var(--palette-color-medium-gray);
+  }
+
   .preset-zoom-buttons button {
     color: var(--palette-color-medium-gray);
   }
