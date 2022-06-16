@@ -51,14 +51,11 @@ const Charts = () => {
 
       return dataSet;
     }, {}) || {};
-  const isMetricDataAvailable =
-    !isLoadingStreamData &&
-    !fetchActiveStreamSessionError &&
-    ingestVideoBitrateData.data?.length &&
-    ingestFramerateData.data?.length;
   const [dataLength, setDataLength] = useState(
     ingestVideoBitrateData?.data?.length || 1
   );
+  const isMetricDataAvailable =
+    !isLoadingStreamData && !fetchActiveStreamSessionError && dataLength > 5;
   const prevDataLength = usePrevious(dataLength);
   const dataPeriod = ingestVideoBitrateData?.period || 0;
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
@@ -114,7 +111,7 @@ const Charts = () => {
         return (
           <div className="metrics-error-container">
             <SyncError />
-            <p className="p3">{$content.cant_load_data}</p>
+            <p className="p3">{$content.data_not_available}</p>
           </div>
         );
 
@@ -140,9 +137,10 @@ const Charts = () => {
 
   // Update the initial zoom bounds when new metrics data is fetched
   useEffect(() => {
+    const newDataLength = ingestVideoBitrateData?.data?.length || 1;
+    setDataLength(newDataLength);
+
     if (isMetricDataAvailable) {
-      const newDataLength = ingestVideoBitrateData?.data?.length;
-      setDataLength(newDataLength);
       setZoomBounds((prevBounds) => {
         const [prevLowerBound, prevUpperBound] = prevBounds;
 

@@ -49,7 +49,7 @@
     },
 
     "charts": {
-      "cant_load_data": "Can’t load data",
+      "data_not_available": "Data not available",
       "video_bitrate": "Video bitrate",
       "frame_rate": "Frame rate",
       "all": "All",
