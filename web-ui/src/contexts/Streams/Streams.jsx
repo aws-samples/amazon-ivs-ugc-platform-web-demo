@@ -70,6 +70,9 @@ export const Provider = ({ children }) => {
     streamSessions,
     userData
   });
+  const prevActiveStreamSession = usePrevious(activeStreamSession);
+  const hasActiveStreamChanged =
+    prevActiveStreamSession?.streamId !== activeStreamSession?.streamId;
 
   const throttledUpdateStreamSessions = useThrottledCallback(
     (shouldFetchNextPage = false) => {
@@ -113,7 +116,6 @@ export const Provider = ({ children }) => {
   const [isForceLoadingStreamData, setIsForceLoadingStreamData] =
     useState(false);
   const forceSpinnerTimeoutId = useRef();
-  const prevActiveStreamSession = usePrevious(activeStreamSession);
 
   const forceSpinner = useCallback(() => {
     setIsForceLoadingStreamData(true);
@@ -152,7 +154,7 @@ export const Provider = ({ children }) => {
     (isValidatingActiveStreamSession && fetchActiveStreamSessionError) ||
     (isValidatingStreamSessions && fetchStreamSessionsError) ||
     isForceLoadingStreamData ||
-    prevActiveStreamSession?.streamId !== activeStreamSession?.streamId;
+    hasActiveStreamChanged;
 
   // Initial fetch of the stream sessions list
   useEffect(() => {
@@ -220,14 +222,10 @@ export const Provider = ({ children }) => {
 
   // Force a brief spinner when switching between active stream sessions
   useEffect(() => {
-    if (prevActiveStreamSession?.streamId !== activeStreamSession?.streamId) {
+    if (hasActiveStreamChanged) {
       forceSpinner();
     }
-  }, [
-    activeStreamSession?.streamId,
-    forceSpinner,
-    prevActiveStreamSession?.streamId
-  ]);
+  }, [forceSpinner, hasActiveStreamChanged]);
 
   const value = useMemo(
     () => ({
@@ -236,6 +234,7 @@ export const Provider = ({ children }) => {
       fetchActiveStreamSessionError,
       fetchStreamSessionsError,
       hasStreamSessions,
+      hasActiveStreamChanged,
       isInitialFetchingStreamData,
       isLive,
       isLoadingNextStreamSessionsPage,
@@ -253,6 +252,7 @@ export const Provider = ({ children }) => {
       eagerUpdateActiveStreamSession,
       fetchActiveStreamSessionError,
       fetchStreamSessionsError,
+      hasActiveStreamChanged,
       hasStreamSessions,
       isInitialFetchingStreamData,
       isLive,

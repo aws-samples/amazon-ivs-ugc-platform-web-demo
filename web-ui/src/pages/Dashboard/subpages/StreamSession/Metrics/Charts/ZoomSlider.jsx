@@ -5,13 +5,18 @@ import SliderUnstyled from '@mui/base/SliderUnstyled';
 import { bound } from '../../../../../../utils';
 import { useEffect } from 'react';
 
-const minDistance = 50;
+const minDistance = 6;
 const maxValue = 1000;
 
-const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
+const ZoomSlider = ({
+  chartsRef,
+  dataLength,
+  isEnabled,
+  setZoomBounds,
+  zoomBounds
+}) => {
   const [lowerBound, upperBound] = zoomBounds;
   const pointerDownEventData = useRef(null);
-  const sliderRootRef = useRef();
 
   const zoomBoundToPercentage = useCallback(
     (val) => Math.round((val / (dataLength - 1)) * maxValue),
@@ -31,10 +36,7 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
 
           if (newLowerBound !== prevZoomBounds[0])
             return [
-              Math.min(
-                newLowerBound,
-                prevZoomBounds[1] - percentageToZoomBound(minDistance)
-              ),
+              Math.min(newLowerBound, prevZoomBounds[1] - minDistance),
               prevZoomBounds[1]
             ];
 
@@ -49,10 +51,7 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
             return [
               prevZoomBounds[0],
               Math.min(
-                Math.max(
-                  newUpperBound,
-                  prevZoomBounds[0] + percentageToZoomBound(minDistance)
-                ),
+                Math.max(newUpperBound, prevZoomBounds[0] + minDistance),
                 dataLength - 1
               )
             ];
@@ -145,17 +144,27 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
         track: {
           onMouseDown: mouseDownTrackHandler,
           onPointerDown: pointerDownTrackHandler
+        },
+        thumb: {
+          onMouseEnter: ({ target }) =>
+            isEnabled && target.classList.add('hover'),
+          onMouseOut: ({ target }) =>
+            isEnabled && target.classList.remove('hover')
         }
       }}
       disableSwap
+      disabled={!isEnabled}
       max={maxValue}
       min={0}
       onChange={handleChange}
-      ref={sliderRootRef}
-      value={[
-        zoomBoundToPercentage(lowerBound),
-        zoomBoundToPercentage(upperBound)
-      ]}
+      value={
+        isEnabled
+          ? [
+              zoomBoundToPercentage(lowerBound),
+              zoomBoundToPercentage(upperBound)
+            ]
+          : [0, maxValue]
+      }
     />
   );
 };
@@ -163,12 +172,14 @@ const ZoomSlider = ({ chartsRef, dataLength, setZoomBounds, zoomBounds }) => {
 ZoomSlider.defaultProps = {
   chartsRef: { current: null },
   dataLength: 0,
+  isEnabled: false,
   zoomBounds: [0, 0]
 };
 
 ZoomSlider.propTypes = {
   chartsRef: PropTypes.object,
   dataLength: PropTypes.number,
+  isEnabled: PropTypes.bool,
   setZoomBounds: PropTypes.func.isRequired,
   zoomBounds: PropTypes.arrayOf(PropTypes.number)
 };

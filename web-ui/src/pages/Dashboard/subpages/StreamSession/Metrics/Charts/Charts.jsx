@@ -33,6 +33,7 @@ const Charts = () => {
   const chartsRef = useRef();
   const {
     activeStreamSession,
+    hasActiveStreamChanged,
     fetchActiveStreamSessionError,
     isLoadingStreamData
   } = useOutletContext();
@@ -135,6 +136,12 @@ const Charts = () => {
     [dataLength, dataPeriod]
   );
 
+  useEffect(() => {
+    if (hasActiveStreamChanged) {
+      setZoomBounds([0, Number.MAX_SAFE_INTEGER]);
+    }
+  }, [hasActiveStreamChanged]);
+
   // Update the initial zoom bounds when new metrics data is fetched
   useEffect(() => {
     const newDataLength = ingestVideoBitrateData?.data?.length || 1;
@@ -219,10 +226,14 @@ const Charts = () => {
         <ZoomSlider
           chartsRef={chartsRef}
           dataLength={dataLength}
+          isEnabled={isMetricDataAvailable}
           setZoomBounds={setZoomBounds}
           zoomBounds={zoomBounds}
         />
-        <ZoomButtons updateZoomBounds={updateZoomBounds} />
+        <ZoomButtons
+          isEnabled={isMetricDataAvailable}
+          updateZoomBounds={updateZoomBounds}
+        />
       </div>
     </div>
   );

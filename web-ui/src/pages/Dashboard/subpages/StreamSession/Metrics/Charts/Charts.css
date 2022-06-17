@@ -11,7 +11,7 @@
 }
 
 .charts .metrics-panel:nth-child(2) {
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 }
 
 .chart {
@@ -32,23 +32,41 @@
 .preset-zoom-buttons {
   column-gap: 30px;
   display: flex;
-  height: 16px;
 }
 
 .preset-zoom-buttons button {
+  align-items: center;
   background: none;
+  border-radius: var(--default-border-radius);
   border: none;
   color: var(--palette-color-light-gray);
   cursor: pointer;
+  display: flex;
   font-family: Inter;
   font-size: 13px;
   font-weight: 400;
+  justify-content: center;
   line-height: 15.73px;
+  padding: 4px 10px;
+}
+
+.preset-zoom-buttons button:hover {
+  background: var(--palette-color-dark-gray-hover);
+}
+
+.preset-zoom-buttons button:focus {
+  background: var(--palette-color-dark-gray);
+  box-shadow: inset 0 0 0 2px var(--palette-color-white);
+  outline: none;
 }
 
 .preset-zoom-buttons button.selected {
   color: var(--palette-color-white);
   font-weight: 700;
+}
+
+.preset-zoom-buttons button:disabled {
+  color: var(--palette-color-dark-gray);
 }
 
 .MuiSlider-root {
@@ -65,13 +83,12 @@
 .MuiSlider-rail {
   background-color: var(--palette-color-gray);
   background-clip: content-box;
-  border-bottom: solid 4px transparent;
-  border-top: solid 4px transparent;
+  border: solid 4px transparent;
   border-radius: 100px;
   display: block;
   height: 12px;
   position: absolute;
-  width: 100%;
+  width: calc(100% + 20px);
 }
 
 .MuiSlider-track {
@@ -96,6 +113,27 @@
   position: absolute;
   pointer-events: all !important;
   width: 12px;
+  transition: box-shadow 0.15s ease-in-out;
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.MuiSlider-thumb.hover:not(.Mui-active) {
+  box-shadow: 0 0 0 4px hsla(var(--base-color-extra-light-gray), 86%, 0.3);
+}
+
+.MuiSlider-thumb.Mui-active {
+  box-shadow: 0 0 0 8px hsla(var(--base-color-extra-light-gray), 86%, 0.5);
+}
+
+.MuiSlider-thumb.Mui-disabled {
+  cursor: auto;
+  box-shadow: 0 0 0 4px #1f1f1f;
+  background-color: var(--palette-color-gray);
+}
+
+.MuiSlider-root.Mui-disabled > .MuiSlider-track {
+  background-color: var(--palette-color-gray);
+  cursor: auto;
 }
 
 @media (max-width: 767px) {
@@ -116,7 +154,7 @@
   }
 
   .charts .metrics-panel:nth-child(2) {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 }
 
@@ -135,12 +173,35 @@
     background: var(--palette-color-medium-gray);
   }
 
+  .MuiSlider-thumb.hover:not(.Mui-active) {
+    box-shadow: 0 0 0 4px hsla(var(--base-color-medium-gray), 0.3);
+  }
+
+  .Mui-active {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-medium-gray), 0.5);
+  }
+
+  .MuiSlider-thumb.Mui-disabled {
+    cursor: auto;
+    box-shadow: 0 0 0 4px #f4f4f4;
+  }
+
   .preset-zoom-buttons button {
     color: var(--palette-color-medium-gray);
   }
 
   .preset-zoom-buttons button.selected {
     color: var(--palette-color-dark-gray);
-    font-weight: 700;
+  }
+
+  .preset-zoom-buttons button:hover {
+    background: var(--palette-color-extra-light-gray-hover);
+  }
+
+  .preset-zoom-buttons button:focus {
+    background: var(--palette-color-light-gray);
+  }
+  .preset-zoom-buttons button:disabled {
+    color: var(--palette-color-dark-gray);
   }
 }
