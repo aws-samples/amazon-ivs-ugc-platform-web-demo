@@ -148,7 +148,7 @@
     },
     "live_stream_ended_modal": {
       "live_stream_ended": "Live stream ended",
-      "live_stream_ended_message": "The live stream you were monitoring has ended. You are now viewing the offline version.",
+      "live_stream_ended_message": "The live stream you were monitoring has ended. Reload the page to view the stream summary.",
       "reload": "Reload"
     }
   },

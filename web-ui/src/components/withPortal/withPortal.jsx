@@ -15,6 +15,7 @@ const initContainer = (containerId, parentEl = document.body) => {
 
 const withPortal = (WrappedComponent, containerId, isAnimated = false) =>
   memo(
+    // eslint-disable-next-line react/prop-types
     forwardRef(({ isOpen, parentEl, position, ...props }, ref) => {
       const id = useRef(`${containerId}-container`);
       const container = isOpen ? initContainer(id.current, parentEl) : null;

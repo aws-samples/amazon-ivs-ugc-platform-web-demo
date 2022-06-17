@@ -45,14 +45,14 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       exit="hidden"
       variants={
         !isDefaultResponsiveView && {
-          hidden: { y: '-102%' },
+          hidden: { y: '-25%' },
           visible: { y: 0 }
         }
       }
       transition={{
         damping: 25,
         duration: 0.25,
-        stiffness: 250,
+        stiffness: 350,
         type: 'spring'
       }}
       className="nav-popup-wrapper"
