@@ -17,13 +17,14 @@ const ZoomSlider = ({
 }) => {
   const [lowerBound, upperBound] = zoomBounds;
   const pointerDownEventData = useRef(null);
+  const sliderRootRef = useRef();
 
-  const zoomBoundToPercentage = useCallback(
-    (val) => Math.round((val / (dataLength - 1)) * maxValue),
+  const zoomBoundToProportion = useCallback(
+    (val) => (val / (dataLength - 1)) * maxValue,
     [dataLength]
   );
-  const percentageToZoomBound = useCallback(
-    (percentage) => Math.round((percentage / maxValue) * (dataLength - 1)),
+  const proportionToZoomBound = useCallback(
+    (proportion) => (proportion / maxValue) * (dataLength - 1),
     [dataLength]
   );
 
@@ -31,8 +32,8 @@ const ZoomSlider = ({
     (event, newValues, activeThumb) => {
       if (activeThumb === 0) {
         setZoomBounds((prevZoomBounds) => {
-          const [newLowerPercentage] = newValues;
-          const newLowerBound = percentageToZoomBound(newLowerPercentage);
+          const [newLowerProportion] = newValues;
+          const newLowerBound = proportionToZoomBound(newLowerProportion);
 
           if (newLowerBound !== prevZoomBounds[0])
             return [
@@ -44,8 +45,8 @@ const ZoomSlider = ({
         });
       } else {
         setZoomBounds((prevZoomBounds) => {
-          const [, newUpperPercentage] = newValues;
-          const newUpperBound = percentageToZoomBound(newUpperPercentage);
+          const [, newUpperProportion] = newValues;
+          const newUpperBound = proportionToZoomBound(newUpperProportion);
 
           if (newUpperBound !== prevZoomBounds[1])
             return [
@@ -60,7 +61,7 @@ const ZoomSlider = ({
         });
       }
     },
-    [dataLength, percentageToZoomBound, setZoomBounds]
+    [dataLength, proportionToZoomBound, setZoomBounds]
   );
 
   const mouseDownTrackHandler = useCallback(
@@ -88,8 +89,10 @@ const ZoomSlider = ({
 
       const { clientX: originClientX, zoomBounds: originZoomBounds } =
         pointerDownEventData.current;
-      const zoomBoundsDiff = percentageToZoomBound(
-        ((event.clientX - originClientX) / originClientX) * maxValue
+      const zoomBoundsDiff = proportionToZoomBound(
+        ((event.clientX - originClientX) /
+          (sliderRootRef.current.clientWidth + 20)) *
+          maxValue
       );
 
       setZoomBounds((prevZoomBounds) => {
@@ -117,7 +120,7 @@ const ZoomSlider = ({
         return prevZoomBounds;
       });
     },
-    [dataLength, percentageToZoomBound, setZoomBounds]
+    [dataLength, proportionToZoomBound, setZoomBounds]
   );
 
   useEffect(() => {
@@ -140,7 +143,9 @@ const ZoomSlider = ({
   return (
     <SliderUnstyled
       componentsProps={{
-        rail: { onMouseDown: mouseDownTrackHandler },
+        rail: {
+          onMouseDown: mouseDownTrackHandler
+        },
         track: {
           onMouseDown: mouseDownTrackHandler,
           onPointerDown: pointerDownTrackHandler
@@ -157,11 +162,12 @@ const ZoomSlider = ({
       max={maxValue}
       min={0}
       onChange={handleChange}
+      ref={sliderRootRef}
       value={
         isEnabled
           ? [
-              zoomBoundToPercentage(lowerBound),
-              zoomBoundToPercentage(upperBound)
+              zoomBoundToProportion(lowerBound),
+              zoomBoundToProportion(upperBound)
             ]
           : [0, maxValue]
       }
