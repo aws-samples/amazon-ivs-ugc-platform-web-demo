@@ -41,12 +41,6 @@
   justify-content: center;
 }
 
-.hamburger.is-active .hamburger-inner,
-.hamburger.is-active .hamburger-inner::before,
-.hamburger.is-active .hamburger-inner::after {
-  background-color: var(--palette-color-white);
-}
-
 .hamburger-box {
   width: 24px;
   height: 16px;
@@ -121,9 +115,18 @@
 }
 
 @media (prefers-color-scheme: light) {
+  .hamburger-inner,
+  .hamburger-inner::before,
+  .hamburger-inner::after {
+    background-color: var(--palette-color-black);
+  }
+
+  .floating-menu .icon-button svg {
+    fill: var(--palette-color-black);
+  }
+
   .floating-menu .icon-button.secondary {
     background: var(--palette-color-gray);
-    color: var(--palette-color-black);
   }
 
   .floating-menu .icon-button.secondary:hover {
