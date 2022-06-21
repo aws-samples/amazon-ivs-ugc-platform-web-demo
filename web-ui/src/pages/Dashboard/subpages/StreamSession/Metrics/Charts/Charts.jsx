@@ -138,9 +138,9 @@ const Charts = () => {
 
   useEffect(() => {
     if (hasActiveStreamChanged) {
-      setZoomBounds([0, Number.MAX_SAFE_INTEGER]);
+      setZoomBounds([0, dataLength - 1]);
     }
-  }, [hasActiveStreamChanged]);
+  }, [dataLength, hasActiveStreamChanged]);
 
   // Update the initial zoom bounds when new metrics data is fetched
   useEffect(() => {

@@ -63,11 +63,10 @@ const ZoomSlider = ({
     },
     [dataLength, proportionToZoomBound, setZoomBounds]
   );
-
-  const mouseDownTrackHandler = useCallback(
-    (event) => event.stopPropagation(),
-    []
-  );
+  const mouseDownTrackHandler = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
   const pointerDownTrackHandler = useCallback(
     (event) => {
       event.stopPropagation();
@@ -140,12 +139,33 @@ const ZoomSlider = ({
     }
   }, [chartsRef, pointerMoveTrackHandler, pointerUpTrackHandler]);
 
+  useEffect(() => {
+    const sliderRootElement = sliderRootRef.current;
+
+    if (sliderRootRef.current) {
+      const railEl = sliderRootElement.querySelector('.MuiSlider-rail');
+      const trackEl = sliderRootElement.querySelector('.MuiSlider-track');
+
+      const disablePassiveTouchStart = (el) => {
+        el.addEventListener('touchstart', mouseDownTrackHandler, {
+          passive: false
+        });
+      };
+
+      disablePassiveTouchStart(railEl);
+      disablePassiveTouchStart(trackEl);
+
+      return () => {
+        railEl.removeEventListener('touchstart', mouseDownTrackHandler);
+        trackEl.removeEventListener('touchstart', mouseDownTrackHandler);
+      };
+    }
+  }, [sliderRootRef, mouseDownTrackHandler]);
+
   return (
     <SliderUnstyled
       componentsProps={{
-        rail: {
-          onMouseDown: mouseDownTrackHandler
-        },
+        rail: { onMouseDown: mouseDownTrackHandler },
         track: {
           onMouseDown: mouseDownTrackHandler,
           onPointerDown: pointerDownTrackHandler
