@@ -64,9 +64,9 @@ export const formatTime = (
   formatAsTimeAgo = true
 ) => {
   const formatAbsoluteTime = (date) =>
-    new Intl.DateTimeFormat('en-US', { timeStyle: 'short' })
-      .format(new Date(date))
-      .replace(/ /g, '');
+    new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(
+      new Date(date)
+    );
 
   const formatRelativeTime = (date) => {
     const timeInSec = new Date(date).getTime() / 1000;

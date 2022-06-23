@@ -1,21 +1,14 @@
 import PropTypes from 'prop-types';
 
 import { dashboard as $dashboardContent } from '../../../../../../content';
+import { ZOOM_LEVELS } from '../../../../../../contexts/SynchronizedCharts';
 
 const $content = $dashboardContent.stream_session_page.charts;
-
-export const zoomLevels = {
-  none: 0,
-  all: -1,
-  oneHour: 3600,
-  thirtyMin: 1800,
-  fiveMin: 300
-};
 
 const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
   <span className="preset-zoom-buttons">
     <button
-      {...(isEnabled && selectedZoomLevel === zoomLevels.all
+      {...(isEnabled && selectedZoomLevel === ZOOM_LEVELS.ALL
         ? { className: 'selected' }
         : {})}
       aria-label="Show all of the data"
@@ -23,12 +16,12 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
       onClick={handleSelectZoom}
       style={{ width: '36px' }}
       type="button"
-      value={zoomLevels.all}
+      value={ZOOM_LEVELS.ALL}
     >
       {$content.all}
     </button>
     <button
-      {...(isEnabled && selectedZoomLevel === zoomLevels.oneHour
+      {...(isEnabled && selectedZoomLevel === ZOOM_LEVELS.ONE_HOUR
         ? { className: 'selected' }
         : {})}
       aria-label="Show the latest 1 hour of data"
@@ -36,12 +29,12 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
       onClick={handleSelectZoom}
       style={{ width: '44px' }}
       type="button"
-      value={zoomLevels.oneHour}
+      value={ZOOM_LEVELS.ONE_HOUR}
     >
       {$content.one_hour}
     </button>
     <button
-      {...(isEnabled && selectedZoomLevel === zoomLevels.thirtyMin
+      {...(isEnabled && selectedZoomLevel === ZOOM_LEVELS.THIRTY_MIN
         ? { className: 'selected' }
         : {})}
       aria-label="Show the latest 30 minutes of data"
@@ -49,12 +42,12 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
       onClick={handleSelectZoom}
       style={{ width: '66px' }}
       type="button"
-      value={zoomLevels.thirtyMin}
+      value={ZOOM_LEVELS.THIRTY_MIN}
     >
       {$content.thirty_min}
     </button>
     <button
-      {...(isEnabled && selectedZoomLevel === zoomLevels.fiveMin
+      {...(isEnabled && selectedZoomLevel === ZOOM_LEVELS.FIVE_MIN
         ? { className: 'selected' }
         : {})}
       aria-label="Show the latest 5 minutes of data"
@@ -62,7 +55,7 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
       onClick={handleSelectZoom}
       style={{ width: '55px' }}
       type="button"
-      value={zoomLevels.fiveMin}
+      value={ZOOM_LEVELS.FIVE_MIN}
     >
       {$content.five_min}
     </button>
@@ -72,7 +65,7 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => (
 ZoomButtons.propTypes = {
   handleSelectZoom: PropTypes.func.isRequired,
   isEnabled: PropTypes.bool,
-  selectedZoomLevel: PropTypes.oneOf(Object.values(zoomLevels)).isRequired
+  selectedZoomLevel: PropTypes.oneOf(Object.values(ZOOM_LEVELS)).isRequired
 };
 
 ZoomButtons.defaultProps = {

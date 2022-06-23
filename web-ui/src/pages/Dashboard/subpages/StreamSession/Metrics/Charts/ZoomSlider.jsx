@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import SliderUnstyled from '@mui/base/SliderUnstyled';
 
 import { bound } from '../../../../../../utils';
-import { zoomLevels } from './ZoomButtons';
+import { ZOOM_LEVELS } from '../../../../../../contexts/SynchronizedCharts';
 
 const minDistance = 6;
 const maxValue = 1000;
@@ -37,7 +37,7 @@ const ZoomSlider = ({
           const newLowerBound = proportionToZoomBound(newLowerProportion);
 
           if (newLowerBound !== prevZoomBounds[0]) {
-            setSelectedZoomLevel(zoomLevels.none);
+            setSelectedZoomLevel(ZOOM_LEVELS.NONE);
 
             return [
               Math.min(newLowerBound, prevZoomBounds[1] - minDistance),
@@ -53,7 +53,7 @@ const ZoomSlider = ({
           const newUpperBound = proportionToZoomBound(newUpperProportion);
 
           if (newUpperBound !== prevZoomBounds[1]) {
-            setSelectedZoomLevel(zoomLevels.none);
+            setSelectedZoomLevel(ZOOM_LEVELS.NONE);
 
             return [
               prevZoomBounds[0],

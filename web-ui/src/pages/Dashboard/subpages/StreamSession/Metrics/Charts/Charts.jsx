@@ -11,16 +11,19 @@ import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE
 } from '../../../../../../constants';
-import './Charts.css';
 import { bound } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { SyncError } from '../../../../../../assets/icons';
-import { useSynchronizedChartTooltip } from '../../../../../../contexts/SynchronizedChartTooltip';
+import {
+  useSynchronizedCharts,
+  ZOOM_LEVELS
+} from '../../../../../../contexts/SynchronizedCharts';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
 import usePrevious from '../../../../../../hooks/usePrevious';
-import ZoomButtons, { zoomLevels } from './ZoomButtons';
+import ZoomButtons from './ZoomButtons';
 import ZoomSlider from './ZoomSlider';
+import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -37,8 +40,14 @@ const Charts = () => {
     fetchActiveStreamSessionError,
     isLoadingStreamData
   } = useOutletContext();
-  const { handleSynchronizedTooltips, isTooltipOpen } =
-    useSynchronizedChartTooltip();
+  const {
+    handleSynchronizedTooltips,
+    isTooltipOpen,
+    selectedZoomLevel,
+    setZoomBounds,
+    setSelectedZoomLevel,
+    zoomBounds
+  } = useSynchronizedCharts();
   const { isLive, metrics } = activeStreamSession || {};
   const {
     IngestVideoBitrate: ingestVideoBitrateData = {},
@@ -59,8 +68,6 @@ const Charts = () => {
     !isLoadingStreamData && !fetchActiveStreamSessionError && dataLength > 1;
   const prevDataLength = usePrevious(dataLength);
   const dataPeriod = ingestVideoBitrateData?.period || 0;
-  const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
-  const [selectedZoomLevel, setSelectedZoomLevel] = useState(zoomLevels.none);
 
   const getChartMetricPanelProps = useCallback(
     (metricData) => {
@@ -142,7 +149,12 @@ const Charts = () => {
       ]);
       setSelectedZoomLevel(parseInt(zoomAmountInSeconds, 10));
     },
-    [dataPeriod, ingestVideoBitrateData?.data?.length]
+    [
+      dataPeriod,
+      ingestVideoBitrateData?.data?.length,
+      setSelectedZoomLevel,
+      setZoomBounds
+    ]
   );
   const handleSelectZoom = useCallback(
     ({ target: { value: zoomAmountInSeconds } }) => {
@@ -154,7 +166,7 @@ const Charts = () => {
   // Update the zoom bounds and zoom level when the stream changes
   useEffect(() => {
     if (hasActiveStreamChanged) {
-      updateSelectedZoom(isLive ? zoomLevels.fiveMin : zoomLevels.all);
+      updateSelectedZoom(isLive ? ZOOM_LEVELS.FIVE_MIN : ZOOM_LEVELS.ALL);
     }
   }, [hasActiveStreamChanged, isLive, updateSelectedZoom]);
 
@@ -169,7 +181,7 @@ const Charts = () => {
 
         // When the stream is live default to the last 5 mins
         if (prevUpperBound === 0 && isLive) {
-          const numOfDatapoints = bound(zoomLevels.fiveMin / dataPeriod, 1);
+          const numOfDatapoints = bound(ZOOM_LEVELS.FIVE_MIN / dataPeriod, 1);
           const lowerBound = newDataLength - 1 - numOfDatapoints;
 
           return [bound(lowerBound, 0), newDataLength - 1];
@@ -199,7 +211,8 @@ const Charts = () => {
     ingestVideoBitrateData?.data?.length,
     isLive,
     isMetricDataAvailable,
-    prevDataLength
+    prevDataLength,
+    setZoomBounds
   ]);
 
   useEffect(() => {

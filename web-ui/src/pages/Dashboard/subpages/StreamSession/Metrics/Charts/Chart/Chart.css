@@ -44,6 +44,15 @@
   pointer-events: none;
 }
 
+.zoom-area {
+  background: var(--palette-color-blue);
+  height: 100%;
+  opacity: 0.2;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+}
+
 @media (prefers-color-scheme: light) {
   .chart-tooltip > div {
     background: var(--palette-color-light-gray);
@@ -61,6 +70,11 @@
   .tooltip-circle {
     fill: var(--palette-color-medium-gray);
     stroke: var(--palette-color-medium-gray);
+  }
+
+  .zoom-area {
+    background: var(--palette-color-blue);
+    opacity: 0.2;
   }
 }
 

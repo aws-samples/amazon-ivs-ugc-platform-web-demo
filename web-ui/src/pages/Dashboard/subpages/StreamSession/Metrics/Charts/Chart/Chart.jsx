@@ -8,7 +8,7 @@ import { useTooltip, Tooltip } from '@visx/tooltip';
 
 import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
-import { useSynchronizedChartTooltip } from '../../../../../../../contexts/SynchronizedChartTooltip';
+import { useSynchronizedCharts } from '../../../../../../../contexts/SynchronizedCharts';
 import usePrevious from '../../../../../../../hooks/usePrevious';
 import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
@@ -34,9 +34,14 @@ const Chart = ({
   const {
     handleSynchronizedTooltips,
     hideSynchronizedTooltips,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    originX,
     showSynchronizedTooltips,
-    xValue: x
-  } = useSynchronizedChartTooltip();
+    xValue: x,
+    zoomAreaDx
+  } = useSynchronizedCharts();
   const tooltipRef = useRef();
   const [hasTooltipRendered, setHasTooltipRendered] =
     useStateWithCallback(false);
@@ -52,6 +57,7 @@ const Chart = ({
     [transformedData, height, maximum]
   );
   const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const draggableChartRef = useRef();
 
   // Update the transformed data when the zoom bounds have been updated
   useEffect(() => {
@@ -142,10 +148,23 @@ const Chart = ({
     }
   }, [isDefaultResponsiveView, hasTooltipRendered]);
 
+  useEffect(() => {
+    const augmentedOnPointerUp = (_event) =>
+      onPointerUp(_event, draggableChartRef);
+    document.addEventListener('pointerup', augmentedOnPointerUp);
+
+    return () =>
+      document.removeEventListener('pointerup', augmentedOnPointerUp);
+  }, [onPointerUp]);
+
   if (width < 10) return null;
 
   return (
-    <div className="chart-container">
+    <div
+      aria-label="Click and drag an area to zoom in"
+      className="chart-container"
+      ref={draggableChartRef}
+    >
       <svg width="100%" height={height}>
         <LinearGradient
           id="area-gradient"
@@ -172,11 +191,19 @@ const Chart = ({
           fill="transparent"
           rx={14}
           onTouchStart={handleSynchronizedTooltips}
-          onTouchMove={handleSynchronizedTooltips}
+          onTouchMove={(e) => {
+            handleSynchronizedTooltips(e);
+            onPointerMove(e, draggableChartRef);
+          }}
           onTouchEnd={hideSynchronizedTooltips}
           onMouseEnter={showSynchronizedTooltips}
-          onMouseMove={handleSynchronizedTooltips}
+          onMouseMove={(e) => {
+            handleSynchronizedTooltips(e);
+            onPointerMove(e, draggableChartRef);
+          }}
           onMouseLeave={hideSynchronizedTooltips}
+          onPointerDown={(e) => onPointerDown(e, draggableChartRef)}
+          onPointerUp={(e) => onPointerUp(e, draggableChartRef)}
         />
         {hasTooltipRendered && (
           <g>
@@ -194,6 +221,13 @@ const Chart = ({
           </g>
         )}
       </svg>
+      <div
+        className="zoom-area"
+        style={{
+          left: zoomAreaDx > 0 ? originX : originX + zoomAreaDx,
+          width: Math.abs(zoomAreaDx)
+        }}
+      />
       <Tooltip
         className={`chart-tooltip ${
           hasTooltipRendered && isTooltipReady ? '' : 'hidden'

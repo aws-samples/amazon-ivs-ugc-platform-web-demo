@@ -1,13 +1,13 @@
-import { Provider as SynchronizedChartTooltipProvider } from '../../../../../contexts/SynchronizedChartTooltip';
+import { Provider as SynchronizedChartsProvider } from '../../../../../contexts/SynchronizedCharts';
 import Charts from './Charts';
 import StreamEvents from './StreamEvents';
 import './Metrics.css';
 
 const Metrics = () => (
   <section className="metrics-section">
-    <SynchronizedChartTooltipProvider>
+    <SynchronizedChartsProvider>
       <Charts />
-    </SynchronizedChartTooltipProvider>
+    </SynchronizedChartsProvider>
     <StreamEvents />
   </section>
 );
