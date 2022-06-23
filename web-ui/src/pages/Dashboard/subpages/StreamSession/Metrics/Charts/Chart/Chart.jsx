@@ -75,7 +75,7 @@ const Chart = ({
 
   // tooltip handler
   useEffect(() => {
-    if (x === null) {
+    if (typeof x !== 'number') {
       setHasTooltipRendered(false, hideTooltip);
       return;
     }

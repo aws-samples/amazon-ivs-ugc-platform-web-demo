@@ -1,9 +1,9 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import SliderUnstyled from '@mui/base/SliderUnstyled';
 
 import { bound } from '../../../../../../utils';
-import { useEffect } from 'react';
+import { zoomLevels } from './ZoomButtons';
 
 const minDistance = 6;
 const maxValue = 1000;
@@ -12,6 +12,7 @@ const ZoomSlider = ({
   chartsRef,
   dataLength,
   isEnabled,
+  setSelectedZoomLevel,
   setZoomBounds,
   zoomBounds
 }) => {
@@ -35,11 +36,14 @@ const ZoomSlider = ({
           const [newLowerProportion] = newValues;
           const newLowerBound = proportionToZoomBound(newLowerProportion);
 
-          if (newLowerBound !== prevZoomBounds[0])
+          if (newLowerBound !== prevZoomBounds[0]) {
+            setSelectedZoomLevel(zoomLevels.none);
+
             return [
               Math.min(newLowerBound, prevZoomBounds[1] - minDistance),
               prevZoomBounds[1]
             ];
+          }
 
           return prevZoomBounds;
         });
@@ -48,7 +52,9 @@ const ZoomSlider = ({
           const [, newUpperProportion] = newValues;
           const newUpperBound = proportionToZoomBound(newUpperProportion);
 
-          if (newUpperBound !== prevZoomBounds[1])
+          if (newUpperBound !== prevZoomBounds[1]) {
+            setSelectedZoomLevel(zoomLevels.none);
+
             return [
               prevZoomBounds[0],
               Math.min(
@@ -56,12 +62,13 @@ const ZoomSlider = ({
                 dataLength - 1
               )
             ];
+          }
 
           return prevZoomBounds;
         });
       }
     },
-    [dataLength, proportionToZoomBound, setZoomBounds]
+    [dataLength, proportionToZoomBound, setSelectedZoomLevel, setZoomBounds]
   );
   const mouseDownTrackHandler = useCallback((event) => {
     event.preventDefault();
@@ -121,6 +128,40 @@ const ZoomSlider = ({
     },
     [dataLength, proportionToZoomBound, setZoomBounds]
   );
+  const pointerDownRailHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
+
+      const railClientRect = event.target.getBoundingClientRect();
+      const eventRailX = bound(event.clientX - railClientRect.left - 4, 0);
+      const railWidth = event.target.clientWidth;
+      const eventXProportion = (eventRailX / railWidth) * maxValue;
+
+      setZoomBounds((prevZoomBounds) => {
+        const [prevLowerZoomBound, prevUpperZoomBound] = prevZoomBounds;
+        const prevDiff = prevUpperZoomBound - prevLowerZoomBound;
+        const newMidBound = proportionToZoomBound(eventXProportion);
+        const newLowerBound = newMidBound - prevDiff / 2;
+        const newUpperBound = newMidBound + prevDiff / 2;
+        const maxBound = dataLength - 1;
+        let newZoomBounds = [newLowerBound, newUpperBound];
+
+        if (newLowerBound < 0) {
+          newZoomBounds = [0, prevDiff];
+        } else if (newUpperBound > maxBound) {
+          newZoomBounds = [maxBound - prevDiff, maxBound];
+        }
+
+        pointerDownEventData.current = {
+          clientX: event.clientX,
+          zoomBounds: newZoomBounds
+        };
+
+        return newZoomBounds;
+      });
+    },
+    [dataLength, proportionToZoomBound, setZoomBounds]
+  );
 
   useEffect(() => {
     const chartsElement = chartsRef.current;
@@ -165,7 +206,10 @@ const ZoomSlider = ({
   return (
     <SliderUnstyled
       componentsProps={{
-        rail: { onMouseDown: mouseDownTrackHandler },
+        rail: {
+          onMouseDown: mouseDownTrackHandler,
+          onPointerDown: pointerDownRailHandler
+        },
         track: {
           onMouseDown: mouseDownTrackHandler,
           onPointerDown: pointerDownTrackHandler
@@ -206,6 +250,7 @@ ZoomSlider.propTypes = {
   chartsRef: PropTypes.object,
   dataLength: PropTypes.number,
   isEnabled: PropTypes.bool,
+  setSelectedZoomLevel: PropTypes.func.isRequired,
   setZoomBounds: PropTypes.func.isRequired,
   zoomBounds: PropTypes.arrayOf(PropTypes.number)
 };
