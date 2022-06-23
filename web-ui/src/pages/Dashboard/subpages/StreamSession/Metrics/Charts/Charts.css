@@ -173,19 +173,19 @@
 
 @media (prefers-color-scheme: light) {
   .MuiSlider-track {
-    background-color: var(--palette-color-gray);
+    background-color: var(--palette-color-medium-gray);
   }
 
   .MuiSlider-thumb {
-    background: var(--palette-color-medium-gray);
+    background: var(--palette-color-dark-gray);
   }
 
   .MuiSlider-thumb.hover:not(.Mui-active) {
-    box-shadow: 0 0 0 4px hsla(var(--base-color-medium-gray), 0.3);
+    box-shadow: 0 0 0 4px hsla(var(--base-color-dark-gray), 27%, 0.3);
   }
 
-  .Mui-active {
-    box-shadow: 0 0 0 8px hsla(var(--base-color-medium-gray), 0.5);
+  .MuiSlider-thumb.Mui-active {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-dark-gray), 27%, 0.5);
   }
 
   .MuiSlider-thumb.Mui-disabled {
