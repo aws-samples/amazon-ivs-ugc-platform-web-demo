@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import SliderUnstyled from '@mui/base/SliderUnstyled';
 
+import {
+  MIN_DISTANCE,
+  ZOOM_LEVELS
+} from '../../../../../../contexts/SynchronizedCharts';
 import { bound } from '../../../../../../utils';
-import { ZOOM_LEVELS } from '../../../../../../contexts/SynchronizedCharts';
 
-const minDistance = 6;
 const maxValue = 1000;
 
 const ZoomSlider = ({
@@ -40,7 +42,7 @@ const ZoomSlider = ({
             setSelectedZoomLevel(ZOOM_LEVELS.NONE);
 
             return [
-              Math.min(newLowerBound, prevZoomBounds[1] - minDistance),
+              Math.min(newLowerBound, prevZoomBounds[1] - MIN_DISTANCE),
               prevZoomBounds[1]
             ];
           }
@@ -58,7 +60,7 @@ const ZoomSlider = ({
             return [
               prevZoomBounds[0],
               Math.min(
-                Math.max(newUpperBound, prevZoomBounds[0] + minDistance),
+                Math.max(newUpperBound, prevZoomBounds[0] + MIN_DISTANCE),
                 dataLength - 1
               )
             ];

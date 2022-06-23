@@ -1,3 +1,4 @@
+import { ascending } from 'd3-array';
 import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 import { localPoint } from '@visx/event';
 import PropTypes from 'prop-types';
@@ -15,6 +16,7 @@ export const ZOOM_LEVELS = {
   THIRTY_MIN: 1800,
   FIVE_MIN: 300
 };
+export const MIN_DISTANCE = 6;
 
 export const Provider = ({ children }) => {
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
@@ -56,6 +58,7 @@ export const Provider = ({ children }) => {
     if (!draggableChartRef.current) return;
 
     const { left } = draggableChartRef.current.getBoundingClientRect();
+    document.body.style.userSelect = 'none';
 
     setOriginX(clientX - left);
   }, []);
@@ -70,23 +73,30 @@ export const Provider = ({ children }) => {
         const [lowerBoundPx, upperBoundPx] = [
           originX,
           originX + zoomAreaDx
-        ].sort();
+        ].sort(ascending);
 
-        setZoomBounds(([prevLowerBound, prevUpperBound]) => {
+        setZoomBounds((prevBounds) => {
+          const [prevLowerBound, prevUpperBound] = prevBounds;
           const visibleDataLength = prevUpperBound - prevLowerBound;
           const lowerBound = (lowerBoundPx / width) * (visibleDataLength - 1);
           const upperBound = (upperBoundPx / width) * (visibleDataLength - 1);
+
+          if (Math.abs(upperBound - lowerBound) < MIN_DISTANCE) {
+            return prevBounds;
+          }
 
           setSelectedZoomLevel(ZOOM_LEVELS.NONE);
 
           return [lowerBound, upperBound];
         });
       }
+
+      document.body.style.userSelect = '';
     },
     [originX, zoomAreaDx]
   );
 
-  const onPointerMove = useThrottledCallback(
+  const onPointerMove = useCallback(
     ({ clientX }, draggableChartRef) => {
       if (!draggableChartRef.current || originX === null) return;
 
@@ -95,8 +105,7 @@ export const Provider = ({ children }) => {
 
       setZoomAreaDx(dx);
     },
-    10,
-    []
+    [originX]
   );
 
   const value = useMemo(
