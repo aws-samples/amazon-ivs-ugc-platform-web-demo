@@ -92,8 +92,8 @@
 }
 
 .MuiSlider-track {
-  background-color: var(--palette-color-light-gray);
   background-clip: content-box;
+  background-color: var(--palette-color-light-gray);
   border-bottom: solid 3px transparent;
   border-top: solid 3px transparent;
   cursor: move;
@@ -105,16 +105,16 @@
 .MuiSlider-thumb {
   background: var(--palette-color-extra-light-gray);
   border-radius: 68px;
+  box-shadow: 0 0 0 0 transparent;
   box-sizing: border-box;
   cursor: pointer;
   height: 12px;
   margin-left: -6px;
   outline: 0;
-  position: absolute;
   pointer-events: all !important;
-  width: 12px;
+  position: absolute;
   transition: box-shadow 0.15s ease-in-out;
-  box-shadow: 0 0 0 0 transparent;
+  width: 12px;
 }
 
 .MuiSlider-thumb.hover:not(.Mui-active) {
@@ -161,6 +161,12 @@
 @media (min-width: 767px) {
   .chart-time-range-footer {
     margin-right: 9px;
+  }
+}
+
+@media (max-width: 330px) {
+  .preset-zoom-buttons {
+    column-gap: 15px;
   }
 }
 

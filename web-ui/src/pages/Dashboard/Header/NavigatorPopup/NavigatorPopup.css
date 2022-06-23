@@ -144,6 +144,24 @@
   }
 }
 
+@media (max-width: 330px) {
+  .nav-popup {
+    padding: 15px;
+  }
+
+  .session-date,
+  .session-time {
+    max-width: 151px;
+  }
+
+  .session-data h3,
+  .session-data p:first-of-type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 @supports (overflow: overlay) {
   .nav-popup {
     overflow-y: overlay;

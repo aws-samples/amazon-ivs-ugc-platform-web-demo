@@ -107,7 +107,7 @@ const SessionNavigator = forwardRef(
       <>
         <div className="session-navigator">
           <Button
-            className={`nav-button`}
+            className="nav-button"
             isDisabled={isNextDisabled}
             onClick={handleNextStream}
             variant="secondary"
@@ -124,7 +124,7 @@ const SessionNavigator = forwardRef(
             {renderSessionNavigatorContent()}
           </Button>
           <Button
-            className={`nav-button`}
+            className="nav-button"
             isDisabled={isPrevDisabled}
             onClick={handlePreviousStream}
             variant="secondary"

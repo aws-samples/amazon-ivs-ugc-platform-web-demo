@@ -66,6 +66,9 @@ const Input = ({
           placeholder={placeholder}
           readOnly={readOnly}
           required={isRequired}
+          style={
+            initialType === 'password' && value ? { paddingRight: '52px' } : {}
+          }
           type={inputType}
           value={isLoading ? '' : value}
         />

@@ -43,6 +43,12 @@
   }
 }
 
+@media (max-width: 330px) {
+  .nav-button {
+    display: none;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   .time {
     color: var(--palette-color-medium-gray);

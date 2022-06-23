@@ -50,6 +50,18 @@
   }
 }
 
+@media (max-width: 330px) {
+  .input-btn-group:first-of-type {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .input-btn-group:first-of-type button:first-of-type {
+    order: 1;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   .settings-container label {
     color: var(--palette-color-medium-gray);

@@ -67,14 +67,11 @@
   cursor: auto;
 }
 
-.inner-input-container input:not([type='password']) {
+.inner-input-container input:not([type='password']),
+.inner-input-container input:placeholder-shown {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
-
-.inner-input-container input[initial-type='password'] {
-  padding-right: 52px;
 }
 
 .inner-input-container input[type='button'] {

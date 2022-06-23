@@ -40,3 +40,9 @@
     margin: 0 auto;
   }
 }
+
+@media (max-width: 330px) {
+  .input-format-container.with-spacing {
+    margin: 0;
+  }
+}
