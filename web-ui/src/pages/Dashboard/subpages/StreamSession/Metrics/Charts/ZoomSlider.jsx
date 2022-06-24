@@ -21,6 +21,7 @@ const ZoomSlider = ({
   const [lowerBound, upperBound] = zoomBounds;
   const pointerDownEventData = useRef(null);
   const sliderRootRef = useRef();
+  const trackRef = useRef();
 
   const zoomBoundToProportion = useCallback(
     (val) => (val / (dataLength - 1)) * maxValue,
@@ -81,14 +82,21 @@ const ZoomSlider = ({
       event.stopPropagation();
 
       pointerDownEventData.current = { clientX: event.clientX, zoomBounds };
+      chartsRef.current.style.cursor = 'grabbing';
+      trackRef.current.style.cursor = 'grabbing';
     },
-    [zoomBounds]
+    [chartsRef, zoomBounds]
   );
-  const pointerUpTrackHandler = useCallback((event) => {
-    event.stopPropagation();
+  const pointerUpTrackHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
 
-    pointerDownEventData.current = null;
-  }, []);
+      pointerDownEventData.current = null;
+      chartsRef.current.style.cursor = '';
+      trackRef.current.style.cursor = 'grab';
+    },
+    [chartsRef]
+  );
   const pointerMoveTrackHandler = useCallback(
     (event) => {
       event.stopPropagation();
@@ -158,11 +166,13 @@ const ZoomSlider = ({
           clientX: event.clientX,
           zoomBounds: newZoomBounds
         };
+        chartsRef.current.style.cursor = 'grabbing';
+        trackRef.current.style.cursor = 'grabbing';
 
         return newZoomBounds;
       });
     },
-    [dataLength, proportionToZoomBound, setZoomBounds]
+    [chartsRef, dataLength, proportionToZoomBound, setZoomBounds]
   );
 
   useEffect(() => {
@@ -187,7 +197,8 @@ const ZoomSlider = ({
 
     if (sliderRootRef.current) {
       const railEl = sliderRootElement.querySelector('.MuiSlider-rail');
-      const trackEl = sliderRootElement.querySelector('.MuiSlider-track');
+      trackRef.current = sliderRootElement.querySelector('.MuiSlider-track');
+      const trackEl = trackRef.current;
 
       const disablePassiveTouchStart = (el) => {
         el.addEventListener('touchstart', mouseDownTrackHandler, {

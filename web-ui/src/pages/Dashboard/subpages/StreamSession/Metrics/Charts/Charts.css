@@ -97,7 +97,7 @@
   background-color: var(--palette-color-light-gray);
   border-bottom: solid 3px transparent;
   border-top: solid 3px transparent;
-  cursor: move;
+  cursor: grab;
   display: block;
   height: 12px;
   position: absolute;
