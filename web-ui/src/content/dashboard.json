@@ -47,7 +47,6 @@
         "encoderTargetAudioBitrateError": "The audio stream's target bitrate is higher than recommended. We recommend an audio stream bitrate of 320kbps or lower."
       }
     },
-
     "charts": {
       "data_not_available": "Data not available",
       "video_bitrate": "Video bitrate",
@@ -55,7 +54,8 @@
       "all": "All",
       "one_hour": "1 hr",
       "thirty_min": "30 min",
-      "five_min": "5 min"
+      "five_min": "5 min",
+      "now": "Now"
     },
     "stream_events": {
       "stream_events": "Stream events",

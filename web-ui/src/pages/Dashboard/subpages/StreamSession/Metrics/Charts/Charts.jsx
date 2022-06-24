@@ -13,6 +13,7 @@ import {
 } from '../../../../../../constants';
 import { bound } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
+import { formatTime } from '../../../../../../hooks/useDateTime';
 import { SyncError } from '../../../../../../assets/icons';
 import {
   useSynchronizedCharts,
@@ -74,9 +75,20 @@ const Charts = () => {
       let zoomStart, zoomEnd, currentValue;
 
       if (isMetricDataAvailable) {
-        // TODO: derive the zoomed time ranges from the charts themselves
-        zoomStart = '5 min ago';
-        zoomEnd = 'Now';
+        const [lowerBound, upperBound] = zoomBounds;
+        const alignedStartTime = new Date(
+          ingestVideoBitrateData.alignedStartTime
+        ).getTime();
+        const relativeStartTime =
+          alignedStartTime + Math.round(lowerBound) * dataPeriod * 1000;
+        const relativeEndTime =
+          alignedStartTime + Math.round(upperBound) * dataPeriod * 1000;
+
+        zoomStart = formatTime(relativeStartTime, null, false);
+        zoomEnd =
+          upperBound === dataLength - 1
+            ? $content.now
+            : formatTime(relativeEndTime, null, false);
 
         if (metricData?.data?.length && isLive) {
           currentValue = metricData.data[metricData.data.length - 1];
@@ -109,7 +121,14 @@ const Charts = () => {
         )
       };
     },
-    [isLive, isMetricDataAvailable]
+    [
+      dataLength,
+      dataPeriod,
+      ingestVideoBitrateData.alignedStartTime,
+      isLive,
+      isMetricDataAvailable,
+      zoomBounds
+    ]
   );
   const renderChart = useCallback(
     (Chart) => {
