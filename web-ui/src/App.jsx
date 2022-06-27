@@ -47,12 +47,20 @@ const App = () => (
                     }
                   >
                     <Route path="dashboard">
+                      <Route
+                        index
+                        element={<Navigate replace to="/stream" />}
+                      />
                       <Route path="stream">
                         <Route index element={<StreamSession />} />
                         <Route path=":streamId" element={<StreamSession />} />
                       </Route>
                     </Route>
                     <Route path="settings" element={<Settings />} />
+                    <Route
+                      path="*"
+                      element={<Navigate replace to="/dashboard/stream" />}
+                    />
                   </Route>
                   <Route element={<UserManagement />}>
                     <Route path="login" element={<SigninUser />} />
@@ -61,7 +69,7 @@ const App = () => (
                   </Route>
                   <Route
                     path="*"
-                    element={<Navigate replace to="/dashboard/stream" />}
+                    element={<Navigate replace to="/dashboard" />}
                   />
                 </Routes>
               </ModalProvider>
