@@ -67,7 +67,7 @@ const Chart = ({
     const [prevLowerBound, prevUpperBound] = prevZoomBounds;
 
     if (prevLowerBound !== lowerBound || prevUpperBound !== upperBound) {
-      setTransformedData(initialData.slice(lowerBound, upperBound));
+      setTransformedData(initialData.slice(lowerBound, upperBound + 1));
     }
   }, [initialData, prevZoomBounds, zoomBounds]);
 

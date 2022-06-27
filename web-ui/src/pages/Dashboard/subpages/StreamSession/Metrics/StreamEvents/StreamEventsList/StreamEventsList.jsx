@@ -23,7 +23,7 @@ const StreamEventsList = ({
   toggleLearnMore
 }) => {
   const { isDefaultResponsiveView } = useMobileBreakpoint();
-  const { activeStreamSession = {} } = useOutletContext();
+  const { activeStreamSession = {}, isLoadingStreamData } = useOutletContext();
   const wrapperRef = useRef();
   const selectedEventRef = useRef();
   const setSelectedEventRef = useCallback(
@@ -74,6 +74,7 @@ const StreamEventsList = ({
 
   return (
     <MetricPanel
+      isLoading={isLoadingStreamData}
       style={isHidden ? { display: 'none' } : {}}
       title={$content.stream_events}
       header={

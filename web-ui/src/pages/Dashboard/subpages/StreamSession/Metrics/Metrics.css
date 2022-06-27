@@ -58,12 +58,6 @@
   width: 100%;
 }
 
-.metrics-error-container svg {
-  fill: var(--palette-color-light-gray);
-  height: 36px;
-  width: 36px;
-}
-
 @media (max-width: 767px) {
   .metrics-section {
     flex-direction: column;
@@ -98,9 +92,5 @@
 
   .metrics-error-container {
     color: var(--palette-color-medium-gray);
-  }
-
-  .metrics-error-container svg {
-    fill: var(--palette-color-medium-gray);
   }
 }

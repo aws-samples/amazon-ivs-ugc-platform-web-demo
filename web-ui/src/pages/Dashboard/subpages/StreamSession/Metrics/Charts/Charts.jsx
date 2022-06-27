@@ -11,20 +11,19 @@ import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE
 } from '../../../../../../constants';
-import { bound } from '../../../../../../utils';
-import { dashboard as $dashboardContent } from '../../../../../../content';
-import { formatTime } from '../../../../../../hooks/useDateTime';
-import { SyncError } from '../../../../../../assets/icons';
 import {
   useSynchronizedCharts,
   ZOOM_LEVELS
 } from '../../../../../../contexts/SynchronizedCharts';
+import './Charts.css';
+import { bound } from '../../../../../../utils';
+import { dashboard as $dashboardContent } from '../../../../../../content';
+import { formatTime } from '../../../../../../hooks/useDateTime';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
 import usePrevious from '../../../../../../hooks/usePrevious';
 import ZoomButtons from './ZoomButtons';
 import ZoomSlider from './ZoomSlider';
-import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -109,7 +108,15 @@ const Charts = () => {
         zoomStart = zoomEnd = currentValue = '----';
       }
 
+      const isChartLoading =
+        isLoadingStreamData ||
+        (activeStreamSession &&
+          (!isMetricDataAvailable ||
+            // Ingest framerate data sometimes comes after video bitrate
+            metricData?.data?.length < 2));
+
       return {
+        isLoading: isChartLoading,
         wrapper: { classNames: ['chart'] },
         header: <h2 className="cursor-reading">{currentValue}</h2>,
         footerClassNames: ['chart-time-range-footer'],
@@ -122,10 +129,12 @@ const Charts = () => {
       };
     },
     [
+      activeStreamSession,
       dataLength,
       dataPeriod,
       ingestVideoBitrateData.alignedStartTime,
       isLive,
+      isLoadingStreamData,
       isMetricDataAvailable,
       zoomBounds
     ]
@@ -134,17 +143,9 @@ const Charts = () => {
     (Chart) => {
       if (!activeStreamSession) return null;
 
-      if (!isMetricDataAvailable)
-        return (
-          <div className="metrics-error-container">
-            <SyncError />
-            <p className="p3">{$content.data_not_available}</p>
-          </div>
-        );
-
       return Chart;
     },
-    [activeStreamSession, isMetricDataAvailable]
+    [activeStreamSession]
   );
 
   const updateSelectedZoom = useCallback(

@@ -17,14 +17,14 @@ const MetricPanel = forwardRef(
       footerClassNames,
       header,
       headerClassNames,
+      isLoading,
       style,
       title,
       wrapper
     },
     wrapperRef
   ) => {
-    const { fetchActiveStreamSessionError, isLoadingStreamData } =
-      useOutletContext();
+    const { fetchActiveStreamSessionError } = useOutletContext();
     const Wrapper = useMemo(() => wrapper.tag || 'div', [wrapper.tag]);
 
     const headerClasses = ['metrics-panel-header'];
@@ -33,7 +33,7 @@ const MetricPanel = forwardRef(
     footerClasses.push(...footerClassNames);
 
     const renderBody = () => {
-      if (isLoadingStreamData)
+      if (isLoading)
         return (
           <div className="metrics-spinner-container">
             <Spinner size="medium" variant="semi-dark" />
@@ -79,6 +79,7 @@ MetricPanel.defaultProps = {
   footerClassNames: [],
   header: null,
   headerClassNames: [],
+  isLoading: false,
   style: {},
   title: '',
   wrapper: { tag: 'div', classNames: [] }
@@ -90,6 +91,7 @@ MetricPanel.propTypes = {
   footerClassNames: PropTypes.arrayOf(PropTypes.string),
   header: PropTypes.node,
   headerClassNames: PropTypes.arrayOf(PropTypes.string),
+  isLoading: PropTypes.bool,
   style: PropTypes.object,
   title: PropTypes.string,
   wrapper: PropTypes.shape({

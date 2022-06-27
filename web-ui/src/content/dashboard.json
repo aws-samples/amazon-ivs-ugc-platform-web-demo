@@ -48,7 +48,6 @@
       }
     },
     "charts": {
-      "data_not_available": "Data not available",
       "video_bitrate": "Video bitrate",
       "frame_rate": "Frame rate",
       "all": "All",
