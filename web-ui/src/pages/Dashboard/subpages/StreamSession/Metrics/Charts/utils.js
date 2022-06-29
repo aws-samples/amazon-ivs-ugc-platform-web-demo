@@ -43,11 +43,11 @@ export const processMetricData = ({
 }) => {
   if (!data || !period || !alignedStartTime) return [];
 
-  let currentTime = new Date(alignedStartTime).getTime();
+  const currentTime = new Date(alignedStartTime).getTime();
   const intervalMs = period * 1000;
 
-  return data.map((value) => ({
-    timestamp: (currentTime += intervalMs),
+  return data.map((value, index) => ({
+    timestamp: currentTime + index * intervalMs,
     value: convertMetricValue(value, label)
   }));
 };
@@ -77,3 +77,51 @@ export const ingestFramerateTooltipFormatter = ({ timestamp, value }) => {
 
   return { timestamp: formattedTimestamp, value: formattedValue };
 };
+
+export const getBoundRelativeTimes = (zoomBounds, startTime, dataPeriod) => {
+  const [lowerBound, upperBound] = zoomBounds;
+  const timestamp = new Date(startTime).getTime();
+  const relativeStartTime = timestamp + lowerBound * dataPeriod * 1000;
+  const relativeEndTime = timestamp + upperBound * dataPeriod * 1000;
+
+  return [relativeStartTime, relativeEndTime];
+};
+
+export const generateEventMarkers = (eventsToDisplay) =>
+  eventsToDisplay.reduce((acc, { name, relativeEventTime }) => {
+    acc.push({
+      type: 'line',
+      timestamp: relativeEventTime
+    });
+
+    if (name === 'Starvation Start') {
+      return [
+        ...acc,
+        {
+          type: 'gradient',
+          startTimestamp: relativeEventTime
+        }
+      ];
+    } else if (name === 'Starvation End') {
+      // Look for the previous gradient if it exists
+      const existingGradient = [...acc]
+        .reverse()
+        .find(
+          ({ startTimestamp, type }) => type === 'gradient' && startTimestamp
+        );
+
+      if (existingGradient) {
+        existingGradient.endTimestamp = relativeEventTime;
+      } else {
+        return [
+          ...acc,
+          {
+            type: 'gradient',
+            endTimestamp: relativeEventTime
+          }
+        ];
+      }
+    }
+
+    return acc;
+  }, []);

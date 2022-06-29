@@ -39,6 +39,9 @@
   --palette-color-red: hsl(var(--base-color-red), 51%);
   --palette-color-red-hover: hsl(var(--base-color-red), 61%);
 
+  --palette-color-chart-red-gradient-start: hsla(var(--base-color-red), 51%, 0);
+  --palette-color-chart-red-gradient-end: hsla(var(--base-color-red), 51%, 0.4);
+
   --base-color-blue: 200, 100%;
   --palette-color-blue: hsl(var(--base-color-blue), 63%);
   --palette-color-blue-hover: hsl(var(--base-color-blue), 73%);
@@ -49,8 +52,12 @@
   --palette-color-black: hsl(var(--base-color-white), 0%);
   --palette-color-black-hover: hsl(var(--base-color-white), 10%);
 
-  --palette-color-chart-gradient-start: hsla(var(--base-color-blue), 63%, 0.25);
-  --palette-color-chart-gradient-end: hsla(240, 100, 63%, 0);
+  --palette-color-chart-blue-gradient-start: hsla(
+    var(--base-color-blue),
+    63%,
+    0.25
+  );
+  --palette-color-chart-blue-gradient-end: hsla(240, 100, 63%, 0);
 }
 
 @media (prefers-color-scheme: light) {

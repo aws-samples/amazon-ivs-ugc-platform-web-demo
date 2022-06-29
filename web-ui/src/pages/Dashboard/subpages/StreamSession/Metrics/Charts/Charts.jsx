@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 import {
   convertMetricValue,
+  generateEventMarkers,
+  getBoundRelativeTimes,
   ingestFramerateTooltipFormatter,
   ingestVideoBitrateTooltipFormatter,
   processMetricData
@@ -19,6 +21,7 @@ import './Charts.css';
 import { bound } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { formatTime } from '../../../../../../hooks/useDateTime';
+import { processEvents } from '../StreamEvents/utils';
 import MetricPanel from '../MetricPanel';
 import ResponsiveChart from './Chart';
 import usePrevious from '../../../../../../hooks/usePrevious';
@@ -48,7 +51,7 @@ const Charts = () => {
     setSelectedZoomLevel,
     zoomBounds
   } = useSynchronizedCharts();
-  const { isLive, metrics } = activeStreamSession || {};
+  const { isLive, metrics, truncatedEvents } = activeStreamSession || {};
   const {
     IngestVideoBitrate: ingestVideoBitrateData = {},
     IngestFramerate: ingestFramerateData = {}
@@ -68,24 +71,62 @@ const Charts = () => {
     !isLoadingStreamData && !fetchActiveStreamSessionError && dataLength > 1;
   const prevDataLength = usePrevious(dataLength);
   const dataPeriod = ingestVideoBitrateData?.period || 0;
+  const eventsToDisplay = useMemo(() => {
+    const [relativeStartTime, relativeEndTime] = getBoundRelativeTimes(
+      [0, dataLength - 1],
+      ingestVideoBitrateData.alignedStartTime,
+      dataPeriod
+    );
+
+    if (truncatedEvents?.length) {
+      return processEvents(truncatedEvents)
+        .reverse()
+        .reduce((acc, { error, eventTime, originalName: name }) => {
+          const relativeEventTime = new Date(eventTime).getTime();
+          const hasRequiredProps = relativeEventTime && name;
+          const zoomEventIndex =
+            ((relativeEventTime - relativeStartTime) /
+              (relativeEndTime - relativeStartTime)) *
+            (dataLength - 1);
+
+          /**
+           * We include any type of error event even if they're not visible.
+           * That includes starvation events so we can show gradients in between non-visible events
+           */
+          if (hasRequiredProps && (error || name === 'Starvation End')) {
+            return [...acc, { zoomEventIndex, relativeEventTime, name }];
+          }
+
+          return acc;
+        }, []);
+    }
+
+    return [];
+  }, [
+    dataLength,
+    dataPeriod,
+    ingestVideoBitrateData.alignedStartTime,
+    truncatedEvents
+  ]);
+  const eventMarkers = useMemo(
+    () => generateEventMarkers(eventsToDisplay),
+    [eventsToDisplay]
+  );
 
   const getChartMetricPanelProps = useCallback(
     (metricData) => {
       let zoomStart, zoomEnd, currentValue;
 
       if (isMetricDataAvailable) {
-        const [lowerBound, upperBound] = zoomBounds;
-        const alignedStartTime = new Date(
-          ingestVideoBitrateData.alignedStartTime
-        ).getTime();
-        const relativeStartTime =
-          alignedStartTime + Math.round(lowerBound) * dataPeriod * 1000;
-        const relativeEndTime =
-          alignedStartTime + Math.round(upperBound) * dataPeriod * 1000;
+        const [relativeStartTime, relativeEndTime] = getBoundRelativeTimes(
+          zoomBounds,
+          ingestVideoBitrateData.alignedStartTime,
+          dataPeriod
+        );
 
         zoomStart = formatTime(relativeStartTime, null, false);
         zoomEnd =
-          upperBound === dataLength - 1
+          zoomBounds[1] === dataLength - 1 && isLive
             ? $content.now
             : formatTime(relativeEndTime, null, false);
 
@@ -254,12 +295,9 @@ const Charts = () => {
       >
         {renderChart(
           <ResponsiveChart
+            eventMarkers={eventMarkers}
             initialData={processMetricData(ingestVideoBitrateData)}
             formatter={ingestVideoBitrateTooltipFormatter}
-            maximum={convertMetricValue(
-              ingestVideoBitrateData.statistics?.maximum,
-              INGEST_VIDEO_BITRATE
-            )}
             zoomBounds={zoomBounds}
           />
         )}
@@ -270,12 +308,9 @@ const Charts = () => {
       >
         {renderChart(
           <ResponsiveChart
+            eventMarkers={eventMarkers}
             initialData={processMetricData(ingestFramerateData)}
             formatter={ingestFramerateTooltipFormatter}
-            maximum={convertMetricValue(
-              ingestFramerateData.statistics?.maximum,
-              INGEST_FRAMERATE
-            )}
             zoomBounds={zoomBounds}
           />
         )}
@@ -284,6 +319,7 @@ const Charts = () => {
         <ZoomSlider
           chartsRef={chartsRef}
           dataLength={dataLength}
+          eventsToDisplay={eventsToDisplay}
           isEnabled={isMetricDataAvailable}
           setZoomBounds={setZoomBounds}
           setSelectedZoomLevel={setSelectedZoomLevel}

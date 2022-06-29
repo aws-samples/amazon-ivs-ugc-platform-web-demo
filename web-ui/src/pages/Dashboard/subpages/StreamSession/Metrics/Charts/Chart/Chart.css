@@ -37,6 +37,12 @@
   stroke-linecap: round;
 }
 
+.error-event-line {
+  stroke: var(--palette-color-red);
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
 .tooltip-circle {
   fill: var(--palette-color-white);
   stroke: var(--palette-color-white);

@@ -187,8 +187,11 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
                 /**
                  * For live streams, there is a ~30sec delay for the metrics to be populated.
                  * So we slice the last 30sec of the metrics array to avoid showing filled values.
+                 * For a recently ended stream, the offline stream summary may contain pre-filled data values at the end of the dataset,
+                 * until CloudWatch receives one last update
                  */
                 if (
+                  isLive &&
                   index >= upperValueCountBound &&
                   isChartMetric(cleanedLabel)
                 )

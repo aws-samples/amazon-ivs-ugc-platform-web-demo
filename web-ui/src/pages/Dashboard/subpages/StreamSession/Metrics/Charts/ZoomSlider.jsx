@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import SliderUnstyled from '@mui/base/SliderUnstyled';
 
@@ -13,6 +13,7 @@ const maxValue = 1000;
 const ZoomSlider = ({
   chartsRef,
   dataLength,
+  eventsToDisplay,
   isEnabled,
   setSelectedZoomLevel,
   setZoomBounds,
@@ -30,6 +31,17 @@ const ZoomSlider = ({
   const proportionToZoomBound = useCallback(
     (proportion) => (proportion / maxValue) * (dataLength - 1),
     [dataLength]
+  );
+
+  const marks = useMemo(
+    () =>
+      eventsToDisplay.map(
+        ({ zoomEventIndex }) => ({
+          value: zoomBoundToProportion(zoomEventIndex)
+        }),
+        []
+      ),
+    [eventsToDisplay, zoomBoundToProportion]
   );
 
   const handleChange = useCallback(
@@ -236,6 +248,7 @@ const ZoomSlider = ({
       }}
       disableSwap
       disabled={!isEnabled}
+      marks={marks}
       max={maxValue}
       min={0}
       onChange={handleChange}
@@ -255,6 +268,7 @@ const ZoomSlider = ({
 ZoomSlider.defaultProps = {
   chartsRef: { current: null },
   dataLength: 0,
+  eventsToDisplay: [],
   isEnabled: false,
   zoomBounds: [0, 0]
 };
@@ -262,6 +276,9 @@ ZoomSlider.defaultProps = {
 ZoomSlider.propTypes = {
   chartsRef: PropTypes.object,
   dataLength: PropTypes.number,
+  eventsToDisplay: PropTypes.arrayOf(
+    PropTypes.shape({ zoomEventIndex: PropTypes.number })
+  ),
   isEnabled: PropTypes.bool,
   setSelectedZoomLevel: PropTypes.func.isRequired,
   setZoomBounds: PropTypes.func.isRequired,

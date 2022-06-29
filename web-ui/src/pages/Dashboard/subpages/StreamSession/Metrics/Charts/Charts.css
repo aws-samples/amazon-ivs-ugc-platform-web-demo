@@ -137,6 +137,14 @@
   cursor: auto;
 }
 
+.MuiSlider-mark {
+  background: var(--palette-color-red);
+  border-radius: 50%;
+  height: 4px;
+  position: absolute;
+  width: 4px;
+}
+
 @media (max-width: 767px) {
   .charts {
     padding: 0 15px;

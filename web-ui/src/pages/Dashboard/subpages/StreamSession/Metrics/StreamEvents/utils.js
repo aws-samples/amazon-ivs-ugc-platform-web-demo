@@ -108,5 +108,5 @@ export const processEvents = (events = []) =>
     if (type === 'error') event.error = true;
     if (type === 'success') event.success = true;
 
-    return { ...event, name, shortMsg, longMsg };
+    return { ...event, originalName: event.name, name, shortMsg, longMsg };
   });

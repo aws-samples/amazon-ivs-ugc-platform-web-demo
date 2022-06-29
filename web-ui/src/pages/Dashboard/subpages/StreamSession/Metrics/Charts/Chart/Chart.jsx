@@ -1,10 +1,11 @@
-import PropTypes from 'prop-types';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { AreaClosed, Line, Bar } from '@visx/shape';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { LinearGradient } from '@visx/gradient';
 import { max, bisector, extent } from 'd3-array';
 import { scaleLinear } from '@visx/scale';
+import { useOutletContext } from 'react-router-dom';
 import { useTooltip, Tooltip } from '@visx/tooltip';
+import PropTypes from 'prop-types';
 
 import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
@@ -12,15 +13,14 @@ import { useSynchronizedCharts } from '../../../../../../../contexts/Synchronize
 import usePrevious from '../../../../../../../hooks/usePrevious';
 import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
-import { useOutletContext } from 'react-router-dom';
 
 const bisectDate = bisector(getDate).left;
 
 const Chart = ({
+  eventMarkers,
   formatter,
   height,
   initialData,
-  maximum,
   width,
   zoomBounds
 }) => {
@@ -60,8 +60,8 @@ const Chart = ({
     [width, transformedData]
   );
   const yScale = useMemo(
-    () => getYScale(height, maximum || max(transformedData, getDataValue)),
-    [transformedData, height, maximum]
+    () => getYScale(height, max(transformedData, getDataValue)),
+    [transformedData, height]
   );
   const lastPoint = transformedData[transformedData.length - 1];
   const lastPointCoords = {
@@ -178,8 +178,8 @@ const Chart = ({
       <svg width="100%" height={height}>
         <LinearGradient
           id="area-gradient"
-          from="var(--palette-color-chart-gradient-start)"
-          to="var(--palette-color-chart-gradient-end)"
+          from="var(--palette-color-chart-blue-gradient-start)"
+          to="var(--palette-color-chart-blue-gradient-end)"
           fromOpacity={1}
           toOpacity={0}
         />
@@ -193,6 +193,54 @@ const Chart = ({
           fill="url(#area-gradient)"
           clipPath="inset(0 1px 1px 1px)"
         />
+        {eventMarkers.map(
+          ({ timestamp, type, startTimestamp, endTimestamp }) => {
+            let key = `error-event-line-${timestamp}`;
+
+            if (type === 'line') {
+              const xPosLine = xScale(timestamp);
+
+              // Don't render if the line is outside of the visible window
+              if (xPosLine > 0 && xPosLine < width) {
+                return (
+                  <Line
+                    className="error-event-line"
+                    key={key}
+                    from={{ x: xPosLine, y: 0 }}
+                    to={{ x: xPosLine, y: height }}
+                  />
+                );
+              }
+            } else if (type === 'gradient') {
+              key = `starvation-gradient-${startTimestamp}${endTimestamp}`;
+              const gradientXPos = xScale(startTimestamp) || 0;
+              const gradientWidth =
+                (xScale(endTimestamp) || width) - gradientXPos;
+
+              // Don't render if no part of the gradient is in the visible window
+              if (gradientXPos + gradientWidth > 0 && gradientXPos < width) {
+                return (
+                  <Fragment key={key}>
+                    <LinearGradient
+                      id={key}
+                      from="var(--palette-color-chart-red-gradient-start)"
+                      to="var(--palette-color-chart-red-gradient-end)"
+                    />
+                    <Bar
+                      fill={`url(#${key})`}
+                      width={gradientWidth}
+                      height={height}
+                      x={gradientXPos}
+                      y={0}
+                    />
+                  </Fragment>
+                );
+              }
+            }
+
+            return null;
+          }
+        )}
         <Bar
           x={0}
           y={0}
@@ -276,18 +324,25 @@ const Chart = ({
 };
 
 Chart.propTypes = {
+  eventMarkers: PropTypes.arrayOf(
+    PropTypes.shape({
+      timestamp: PropTypes.number,
+      startTimestamp: PropTypes.number,
+      endTimestamp: PropTypes.number,
+      type: PropTypes.oneOf(['line', 'gradient']).isRequired
+    })
+  ),
   formatter: PropTypes.func,
   height: PropTypes.number.isRequired,
   initialData: PropTypes.arrayOf(PropTypes.object),
-  maximum: PropTypes.number,
   width: PropTypes.number.isRequired,
   zoomBounds: PropTypes.arrayOf(PropTypes.number).isRequired
 };
 
 Chart.defaultProps = {
+  eventMarkers: [],
   initialData: [],
-  formatter: (data) => data,
-  maximum: null
+  formatter: (data) => data
 };
 
 export default Chart;

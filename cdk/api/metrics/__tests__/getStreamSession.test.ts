@@ -105,7 +105,7 @@ describe('getStreamSession controller', () => {
     expect(__type).toBe(UNEXPECTED_EXCEPTION);
   });
 
-  it('should return the metrics for a live stream less than 3 hours long', async () => {
+  it('should return the correct metrics for a live stream less than 3 hours long', async () => {
     mockCloudwatchClient.callsFakeOnce(({ StartTime, EndTime }) => {
       if (
         // This condition helps us test the time alignment logic
@@ -119,12 +119,53 @@ describe('getStreamSession controller', () => {
     });
 
     const response = await injectAuthorizedRequest(server, { url: route });
-    const { metrics, ...rest } = JSON.parse(response.payload);
+    const { metrics, ...rest } = JSON.parse(
+      response.payload
+    ) as GetStreamSessionBody;
+    const ingestFramerateMetric = metrics.find(
+      ({ label }) => label === INGEST_FRAMERATE
+    );
 
     expect(rest).toMatchObject(streamSessionMock);
     expect(response.statusCode).toBe(200);
     expect(metrics.length).toBe(4);
     expect(metrics).toMatchSnapshot();
+    expect(ingestFramerateMetric!.data.length).toBe(56);
+  });
+
+  it('should return the correct metrics for an offline stream less than 3 hours long', async () => {
+    mockIvsClient.on(GetStreamSessionCommand).resolves({
+      streamSession: {
+        ...streamSessionMock,
+        startTime: mockDefaultStartTime,
+        endTime: mockNow
+      }
+    });
+    mockCloudwatchClient.callsFakeOnce(({ StartTime, EndTime }) => {
+      if (
+        // This condition helps us test the time alignment logic
+        StartTime.toISOString() === mockDefaultStartTime.toISOString() &&
+        EndTime.toISOString() === mockNow.toISOString()
+      ) {
+        return { MetricDataResults: metricDataResultsMock };
+      }
+
+      throw new Error('Wrong input');
+    });
+
+    const response = await injectAuthorizedRequest(server, { url: route });
+    const { metrics, ...rest } = JSON.parse(
+      response.payload
+    ) as GetStreamSessionBody;
+    const ingestFramerateMetric = metrics.find(
+      ({ label }) => label === INGEST_FRAMERATE
+    );
+
+    expect(rest).toMatchObject(streamSessionMock);
+    expect(response.statusCode).toBe(200);
+    expect(metrics.length).toBe(4);
+    expect(metrics).toMatchSnapshot();
+    expect(ingestFramerateMetric!.data.length).toBe(62);
   });
 
   it('should return the correct alignedStartTime for an offline stream started 62 days, 23 hours and 59 minutes ago', async () => {
