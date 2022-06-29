@@ -159,12 +159,6 @@
   }
 }
 
-@media (min-width: 767px) {
-  .chart-time-range-footer {
-    margin-right: 9px;
-  }
-}
-
 @media (max-width: 330px) {
   .preset-zoom-buttons {
     column-gap: 15px;

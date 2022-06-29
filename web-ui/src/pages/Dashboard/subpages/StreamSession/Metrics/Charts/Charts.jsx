@@ -183,9 +183,9 @@ const Charts = () => {
     [updateSelectedZoom]
   );
 
-  // Update the zoom bounds and zoom level when the stream changes
+  // Update the zoom bounds and zoom level when the stream changes or when the stream status changes (live to offline)
   useEffect(() => {
-    if (hasActiveStreamChanged) {
+    if (hasActiveStreamChanged || !isLive) {
       updateSelectedZoom(isLive ? ZOOM_LEVELS.FIVE_MIN : ZOOM_LEVELS.ALL);
     }
   }, [hasActiveStreamChanged, isLive, updateSelectedZoom]);

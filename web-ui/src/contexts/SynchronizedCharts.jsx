@@ -18,9 +18,11 @@ export const ZOOM_LEVELS = {
 };
 export const MIN_DISTANCE = 6;
 
-export const Provider = ({ children }) => {
+export const Provider = ({ children, isLive }) => {
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
-  const [selectedZoomLevel, setSelectedZoomLevel] = useState(ZOOM_LEVELS.NONE);
+  const [selectedZoomLevel, setSelectedZoomLevel] = useState(
+    isLive ? ZOOM_LEVELS.FIVE_MIN : ZOOM_LEVELS.ALL
+  );
 
   /**
    * SYNCHRONIZED TOOLTIPS
@@ -146,6 +148,11 @@ export const Provider = ({ children }) => {
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
-Provider.propTypes = { children: PropTypes.node.isRequired };
+Provider.propTypes = {
+  children: PropTypes.node.isRequired,
+  isLive: PropTypes.bool
+};
+
+Provider.defaultProps = { isLive: false };
 
 export const useSynchronizedCharts = () => useContextHook(Context);

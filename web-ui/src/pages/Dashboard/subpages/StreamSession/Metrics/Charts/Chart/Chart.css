@@ -53,6 +53,35 @@
   top: 0;
 }
 
+@keyframes live-pulse-dark {
+  0% {
+    box-shadow: 0 0 0 0px hsla(var(--base-color-white), 100%, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-white), 100%, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0px hsla(var(--base-color-white), 100%, 0);
+  }
+}
+
+.live-indicator {
+  animation-name: live-pulse-dark;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  background: var(--palette-color-white);
+  box-shadow: 0 0 0 0px hsla(var(--base-color-white), 100%, 1);
+  border-radius: 50%;
+  display: none;
+  height: 10px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 10px;
+}
+
 @media (prefers-color-scheme: light) {
   .chart-tooltip > div {
     background: var(--palette-color-light-gray);
@@ -75,6 +104,26 @@
   .zoom-area {
     background: var(--palette-color-blue);
     opacity: 0.2;
+  }
+
+  @keyframes live-pulse-light {
+    0% {
+      box-shadow: 0 0 0 0px hsla(var(--base-color-medium-gray), 0.5);
+    }
+
+    70% {
+      box-shadow: 0 0 0 8px hsla(var(--base-color-medium-gray), 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0px hsla(var(--base-color-medium-gray), 0);
+    }
+  }
+
+  .live-indicator {
+    animation-name: live-pulse-light;
+    background: var(--palette-color-medium-gray);
+    box-shadow: 0 0 0 0px hsla(var(--base-color-medium-gray), 1);
   }
 }
 

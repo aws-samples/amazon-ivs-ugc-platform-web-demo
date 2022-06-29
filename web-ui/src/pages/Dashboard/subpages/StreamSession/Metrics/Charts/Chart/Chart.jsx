@@ -12,6 +12,7 @@ import { useSynchronizedCharts } from '../../../../../../../contexts/Synchronize
 import usePrevious from '../../../../../../../hooks/usePrevious';
 import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
+import { useOutletContext } from 'react-router-dom';
 
 const bisectDate = bisector(getDate).left;
 
@@ -23,6 +24,9 @@ const Chart = ({
   width,
   zoomBounds
 }) => {
+  const { activeStreamSession, hasActiveStreamChanged } = useOutletContext();
+  const { isLive } = activeStreamSession || {};
+  const hasLiveIndicator = isLive && zoomBounds[1] === initialData.length - 1;
   const {
     hideTooltip,
     showTooltip,
@@ -47,7 +51,10 @@ const Chart = ({
     useStateWithCallback(false);
   const [isTooltipReady, setIsTooltipReady] = useState(false);
   const [transformedData, setTransformedData] = useState(initialData);
-  const prevZoomBounds = usePrevious(zoomBounds);
+  const prevZoomBounds = usePrevious(
+    // Reset the zoom bounds when we change the active stream
+    hasActiveStreamChanged ? undefined : zoomBounds
+  );
   const xScale = useMemo(
     () => getXScale(width, transformedData),
     [width, transformedData]
@@ -56,15 +63,18 @@ const Chart = ({
     () => getYScale(height, maximum || max(transformedData, getDataValue)),
     [transformedData, height, maximum]
   );
+  const lastPoint = transformedData[transformedData.length - 1];
+  const lastPointCoords = {
+    x: xScale(getDate(lastPoint)) - 6,
+    y: yScale(getDataValue(lastPoint)) - 5
+  };
   const { isDefaultResponsiveView } = useMobileBreakpoint();
   const draggableChartRef = useRef();
 
   // Update the transformed data when the zoom bounds have been updated
   useEffect(() => {
-    if (!prevZoomBounds) return;
-
     const [lowerBound, upperBound] = zoomBounds;
-    const [prevLowerBound, prevUpperBound] = prevZoomBounds;
+    const [prevLowerBound, prevUpperBound] = prevZoomBounds || [];
 
     if (prevLowerBound !== lowerBound || prevUpperBound !== upperBound) {
       setTransformedData(initialData.slice(lowerBound, upperBound + 1));
@@ -221,6 +231,20 @@ const Chart = ({
           </g>
         )}
       </svg>
+      {hasLiveIndicator && (
+        <div
+          className="live-indicator"
+          style={
+            Number.isFinite(lastPointCoords.x) &&
+            Number.isFinite(lastPointCoords.y)
+              ? {
+                  display: 'block',
+                  transform: `translate(${lastPointCoords.x}px, ${lastPointCoords.y}px)`
+                }
+              : {}
+          }
+        />
+      )}
       <div
         className="zoom-area"
         style={{
