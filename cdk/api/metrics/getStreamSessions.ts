@@ -1,11 +1,10 @@
 import {
-  IvsClient,
   ListStreamSessionsCommand,
   ListStreamSessionsCommandOutput
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { buildChannelArn } from './helpers';
+import { buildChannelArn, ivsClient } from './helpers';
 import { UNEXPECTED_EXCEPTION } from '../utils/constants';
 
 interface GetStreamSessionsBody
@@ -18,8 +17,6 @@ interface GetStreamSessionsQueryString {
 }
 
 const STREAMS_PER_PAGE = 50;
-
-export const ivsClient = new IvsClient({});
 
 const handler = async (
   request: FastifyRequest<{

@@ -80,8 +80,10 @@ export const Provider = ({ children, isLive }) => {
         setZoomBounds((prevBounds) => {
           const [prevLowerBound, prevUpperBound] = prevBounds;
           const visibleDataLength = prevUpperBound - prevLowerBound;
-          const lowerBound = (lowerBoundPx / width) * (visibleDataLength - 1);
-          const upperBound = (upperBoundPx / width) * (visibleDataLength - 1);
+          const lowerBound =
+            (lowerBoundPx / width) * visibleDataLength + prevLowerBound;
+          const upperBound =
+            (upperBoundPx / (width - 1)) * visibleDataLength + prevLowerBound;
 
           if (Math.abs(upperBound - lowerBound) < MIN_DISTANCE) {
             return prevBounds;

@@ -1,15 +1,10 @@
-import {
-  AdminUpdateUserAttributesCommand,
-  CognitoIdentityProviderClient
-} from '@aws-sdk/client-cognito-identity-provider';
+import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { CHANGE_USERNAME_EXCEPTION } from '../../utils/constants';
+import { cognitoClient, updateDynamoUserAttributes } from '../helpers';
 import { ResponseBody, isCognitoError } from '../../utils';
-import { updateDynamoUserAttributes } from '../../utils/userManagementHelpers';
 import { UserContext } from './authorizer';
-
-const cognitoClient = new CognitoIdentityProviderClient({});
 
 type ChangeUsernameRequestBody = { newUsername: string | undefined };
 

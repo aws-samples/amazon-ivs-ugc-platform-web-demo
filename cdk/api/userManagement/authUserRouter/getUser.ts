@@ -1,9 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  getChannelArnParams,
-  getUser
-} from '../../utils/userManagementHelpers';
+import { getChannelArnParams, getUser } from '../helpers';
 import { ResponseBody } from '../../utils';
 import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import { UserContext } from './authorizer';

@@ -2,20 +2,14 @@ import {
   ChannelNotBroadcasting,
   CreateStreamKeyCommand,
   DeleteStreamKeyCommand,
-  IvsClient,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  getUser,
-  updateDynamoUserAttributes
-} from '../../utils/userManagementHelpers';
+import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
 import { RESET_STREAM_KEY_EXCEPTION } from '../../utils/constants';
 import { ResponseBody } from '../../utils';
 import { UserContext } from './authorizer';
-
-const ivsClient = new IvsClient({});
 
 interface ResetStreamKeyResponseBody extends ResponseBody {
   streamKeyValue?: string;

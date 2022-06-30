@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import './RegisterUserRequestConfirmation.css';
 import { useNotif } from '../../../../contexts/Notification';
 import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';

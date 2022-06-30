@@ -5,7 +5,7 @@ import { Check, ErrorIcon } from '../../assets/icons';
 import { useNotif } from '../../contexts/Notification';
 import './Notification.css';
 
-const Notification = ({ isPositionFixed, top }) => {
+const Notification = ({ position, top }) => {
   const { NOTIF_TYPES, notif } = useNotif();
 
   let NotifIcon = null;
@@ -18,9 +18,7 @@ const Notification = ({ isPositionFixed, top }) => {
         <m.div
           animate="visible"
           aria-live="polite"
-          className={`notification ${notif.type} button-link ${
-            isPositionFixed ? 'fixed' : ''
-          }`}
+          className={`notification ${notif.type} ${position}`}
           exit="hidden"
           initial="hidden"
           key={`${notif.type}-notification`}
@@ -39,10 +37,10 @@ const Notification = ({ isPositionFixed, top }) => {
   );
 };
 
-Notification.defaultProps = { isPositionFixed: true, top: 15 };
+Notification.defaultProps = { position: 'fixed', top: 15 };
 
 Notification.propTypes = {
-  isPositionFixed: PropTypes.bool,
+  position: PropTypes.oneOf(['fixed', 'absolute']),
   top: PropTypes.number
 };
 

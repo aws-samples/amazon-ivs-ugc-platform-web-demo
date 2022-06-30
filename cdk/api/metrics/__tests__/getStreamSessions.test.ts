@@ -5,7 +5,7 @@ import {
   createRouteAuthenticationTests,
   injectAuthorizedRequest
 } from '../../testUtils';
-import { ivsClient } from '../getStreamSessions';
+import { ivsClient } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import buildServer from '../../buildServer';
 import streamSessionsJsonMock from '../../__mocks__/streamSessions.json';

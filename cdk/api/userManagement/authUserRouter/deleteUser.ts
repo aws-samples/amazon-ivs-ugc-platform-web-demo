@@ -1,22 +1,17 @@
 import {
   AdminDeleteUserCommand,
-  AdminDisableUserCommand,
-  CognitoIdentityProviderClient
+  AdminDisableUserCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
   ChannelNotBroadcasting,
   DeleteChannelCommand,
-  IvsClient,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { ACCOUNT_DELETION_EXCEPTION } from '../../utils/constants';
-import { deleteUser, getUser } from '../../utils/userManagementHelpers';
+import { cognitoClient, deleteUser, getUser, ivsClient } from '../helpers';
 import { UserContext } from './authorizer';
-
-const ivsClient = new IvsClient({});
-const cognitoClient = new CognitoIdentityProviderClient({});
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;

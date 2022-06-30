@@ -1,18 +1,14 @@
-import {
-  CognitoIdentityProviderClient,
-  SignUpCommand
-} from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
 
 import {
   ACCOUNT_REGISTRATION_EXCEPTION,
   EMAIL_EXISTS_EXCEPTION,
   UNEXPECTED_EXCEPTION
 } from '../../utils/constants';
-import { getUserByEmail } from '../../utils/userManagementHelpers';
+import { cognitoClient, dynamoDbClient, getUserByEmail } from '../helpers';
 import { isCognitoError } from '../../utils';
-
-const cognitoClient = new CognitoIdentityProviderClient({});
 
 type SignUpRequestBody = {
   email: string | undefined;
@@ -51,9 +47,25 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     });
 
     // Create Cognito user
-    const { UserConfirmed } = await cognitoClient.send(signUpCommand);
+    const { UserConfirmed, UserSub } = await cognitoClient.send(signUpCommand);
 
     userConfirmed = UserConfirmed;
+
+    if (UserSub) {
+      // Create entry in the user table
+      const putItemCommand = new PutItemCommand({
+        Item: {
+          email: { S: email },
+          id: { S: UserSub },
+          username: { S: username }
+        },
+        TableName: process.env.USER_TABLE_NAME
+      });
+
+      await dynamoDbClient.send(putItemCommand);
+    } else {
+      throw new Error(`Missing sub for user account: ${username}`);
+    }
   } catch (error) {
     console.error(error);
 

@@ -1,5 +1,12 @@
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { AreaClosed, Line, Bar } from '@visx/shape';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { LinearGradient } from '@visx/gradient';
 import { max, bisector, extent } from 'd3-array';
 import { scaleLinear } from '@visx/scale';
@@ -11,7 +18,6 @@ import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import { useSynchronizedCharts } from '../../../../../../../contexts/SynchronizedCharts';
 import usePrevious from '../../../../../../../hooks/usePrevious';
-import useStateWithCallback from '../../../../../../../hooks/useStateWithCallback';
 import './Chart.css';
 
 const bisectDate = bisector(getDate).left;
@@ -47,8 +53,7 @@ const Chart = ({
     zoomAreaDx
   } = useSynchronizedCharts();
   const tooltipRef = useRef();
-  const [hasTooltipRendered, setHasTooltipRendered] =
-    useStateWithCallback(false);
+  const [hasTooltipRendered, setHasTooltipRendered] = useState(false);
   const [isTooltipReady, setIsTooltipReady] = useState(false);
   const [transformedData, setTransformedData] = useState(initialData);
   const prevZoomBounds = usePrevious(
@@ -81,18 +86,21 @@ const Chart = ({
     }
   }, [initialData, prevZoomBounds, zoomBounds]);
 
-  useEffect(() => {
-    setHasTooltipRendered(tooltipOpen);
-  }, [setHasTooltipRendered, tooltipOpen]);
+  /**
+   * Tooltip logic START
+   */
 
-  useEffect(() => {
-    setIsTooltipReady(hasTooltipRendered);
-  }, [hasTooltipRendered]);
+  const clearTooltip = useCallback(() => {
+    setIsTooltipReady(false);
+    setHasTooltipRendered(false);
+    hideTooltip();
+  }, [hideTooltip]);
 
-  // tooltip handler
+  // This is triggered when the value of x changes, on hover
   useEffect(() => {
     if (typeof x !== 'number') {
-      setHasTooltipRendered(false, hideTooltip);
+      clearTooltip();
+
       return;
     }
 
@@ -106,7 +114,8 @@ const Chart = ({
     const d0 = transformedData[index - 1];
     const d1 = transformedData[index];
     if (!d0 || !d1) {
-      setHasTooltipRendered(false, hideTooltip);
+      clearTooltip();
+
       return;
     }
 
@@ -137,17 +146,28 @@ const Chart = ({
       tooltipTop: y
     });
   }, [
-    transformedData,
+    clearTooltip,
     formatter,
-    hideTooltip,
-    setHasTooltipRendered,
     showTooltip,
+    transformedData,
     width,
     x,
     xScale,
     yScale
   ]);
 
+  // When the tooltip should be open, render it but keep it hidden.
+  // We first need to get it's width and height to position it correctly.
+  useEffect(() => {
+    setHasTooltipRendered(tooltipOpen);
+  }, [tooltipOpen]);
+
+  // Once the tooltip has been rendered and positioned, it is ready to become visible
+  useEffect(() => {
+    setIsTooltipReady(hasTooltipRendered);
+  }, [hasTooltipRendered]);
+
+  // Prevent scrolling when the tooltip is open on mobile
   useEffect(() => {
     if (isDefaultResponsiveView) {
       if (hasTooltipRendered) {
@@ -157,6 +177,10 @@ const Chart = ({
       }
     }
   }, [isDefaultResponsiveView, hasTooltipRendered]);
+
+  /**
+   * Tooltip logic END
+   */
 
   useEffect(() => {
     const augmentedOnPointerUp = (_event) =>

@@ -32,6 +32,12 @@
   row-gap: 30px;
 }
 
+.resend-action-container {
+  align-items: center;
+  display: flex;
+  column-gap: 20px;
+}
+
 @media (max-width: 989px) {
   .welcome-section h1 {
     font-size: 32px;

@@ -1,17 +1,9 @@
-import {
-  ChannelType,
-  CreateChannelCommand,
-  IvsClient
-} from '@aws-sdk/client-ivs';
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser } from '../../utils/userManagementHelpers';
+import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
 import { UserContext } from './authorizer';
-
-const ivsClient = new IvsClient({});
-const dynamoDbClient = new DynamoDBClient({});
 
 type CreateResourcesRequestBody = { email: string | undefined };
 
@@ -26,8 +18,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
     const { Item } = await getUser(sub);
 
-    // User already exists, no need to create resources again
-    if (Item) {
+    // If the user resources already exists, no need to create them again
+    if (Item?.channelArn?.S) {
       return reply.send({});
     }
 
@@ -62,22 +54,15 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyArn: ${streamKeyArn}\nstreamKeyValue: ${streamKeyValue}\nplaybackUrl: ${playbackUrl}`
       );
     }
-    // Create entry in the user table
-    const putItemCommand = new PutItemCommand({
-      Item: {
-        channelArn: { S: channelArn },
-        email: { S: email },
-        id: { S: sub },
-        ingestEndpoint: { S: `rtmps://${ingestEndpoint}:443/app/` },
-        playbackUrl: { S: playbackUrl },
-        streamKeyArn: { S: streamKeyArn },
-        streamKeyValue: { S: streamKeyValue },
-        username: { S: username }
-      },
-      TableName: process.env.USER_TABLE_NAME
-    });
 
-    await dynamoDbClient.send(putItemCommand);
+    // Update the entry in the user table
+    await updateDynamoUserAttributes(sub, [
+      { key: 'channelArn', value: channelArn },
+      { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
+      { key: 'playbackUrl', value: playbackUrl },
+      { key: 'streamKeyArn', value: streamKeyArn },
+      { key: 'streamKeyValue', value: streamKeyValue }
+    ]);
   } catch (error) {
     console.error(error);
 

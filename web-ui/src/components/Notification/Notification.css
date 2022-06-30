@@ -1,10 +1,12 @@
-.notification.button-link {
+.notification {
   align-items: center;
   border-radius: var(--default-border-radius);
   color: var(--palette-color-black);
   column-gap: 11.5px;
   display: flex;
+  font-weight: 700;
   left: 0;
+  line-height: 18px;
   margin: 0 auto;
   max-width: 595px;
   padding: 10px 20px;
@@ -14,8 +16,12 @@
   z-index: 50;
 }
 
-.notification.button-link.fixed {
+.notification.fixed {
   position: fixed;
+}
+
+.notification.absolute {
+  position: absolute;
 }
 
 .notification.error {
@@ -31,7 +37,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .notification.button-link {
+  .notification {
     color: var(--palette-color-white);
   }
 

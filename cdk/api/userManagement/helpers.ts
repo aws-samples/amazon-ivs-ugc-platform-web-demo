@@ -6,8 +6,12 @@ import {
   QueryCommand,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { IvsClient } from '@aws-sdk/client-ivs';
 
-const dynamoDbClient = new DynamoDBClient({});
+export const dynamoDbClient = new DynamoDBClient({});
+export const cognitoClient = new CognitoIdentityProviderClient({});
+export const ivsClient = new IvsClient({});
 
 export const getUser = (sub: string) => {
   const getItemCommand = new GetItemCommand({

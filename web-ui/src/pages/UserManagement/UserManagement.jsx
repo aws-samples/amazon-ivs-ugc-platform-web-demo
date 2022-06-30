@@ -61,7 +61,7 @@ const UserManagement = () => {
           ) : (
             <>
               <Notification
-                isPositionFixed={false}
+                position="absolute"
                 top={isResponsiveView ? 15 : 89}
               />
               <Outlet />
