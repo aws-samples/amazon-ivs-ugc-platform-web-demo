@@ -188,7 +188,7 @@ const Chart = ({
           x={(d) => xScale(getDate(d)) ?? 0}
           y={(d) => yScale(getDataValue(d)) ?? 0}
           yScale={yScale}
-          strokeWidth={2}
+          strokeWidth={1}
           stroke="var(--palette-color-blue)"
           fill="url(#area-gradient)"
           clipPath="inset(0 1px 1px 1px)"
