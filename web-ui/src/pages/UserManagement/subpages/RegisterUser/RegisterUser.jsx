@@ -8,9 +8,8 @@ import Form from '../../../../components/Form';
 import RegisterUserRequestConfirmation from './RegisterUserRequestConfirmation';
 
 const RegisterUser = () => {
-  const [isRequestSent, setRequestSent] = useState(false);
+  const [wasRequestSent, setWasRequestSent] = useState(false);
   const [username, setUsername] = useState('');
-
   const { initUserResources, checkSessionStatus } = useUser();
 
   const onRequestSuccess = async (result, formValues) => {
@@ -23,11 +22,11 @@ const RegisterUser = () => {
       }
     } else {
       setUsername(formValues.username);
-      setRequestSent(true);
+      setWasRequestSent(true);
     }
   };
 
-  return isRequestSent ? (
+  return wasRequestSent ? (
     <RegisterUserRequestConfirmation username={username} />
   ) : (
     <Form

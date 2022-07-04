@@ -24,7 +24,7 @@ const validateEmail = (email) => {
 };
 
 const validateUsername = (username) => {
-  const regex = /^\S+$/;
+  const regex = /^[a-z0-9._]+$/i;
   return !!username && regex.test(username);
 };
 
