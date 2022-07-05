@@ -26,6 +26,7 @@
     "dev": {
       "resourceConfig": {
         "allowedOrigin": "*",
+        "deploySeparateContainers": false,
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
         "logRetention": 7,
@@ -39,6 +40,7 @@
     "prod": {
       "resourceConfig": {
         "allowedOrigin": "http://localhost:3000",
+        "deploySeparateContainers": true,
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "maxAzs": 3,

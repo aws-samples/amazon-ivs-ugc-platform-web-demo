@@ -78,10 +78,12 @@ jobs:
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true' # Check to validate the cache is still valid or if it should be rebuilt
-        run: npx playwright install --with-deps
+        run: npx playwright install
 
-      - name: Build App and Run Playwright Tests
-        run: npm run test:e2e:ci
+      - name: Install Playwright Dependencies, Build App and Run Playwright Tests
+        run: |
+          npx playwright install-deps
+          npm run test:e2e:ci
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0

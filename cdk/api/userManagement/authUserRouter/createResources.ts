@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
-import { UserContext } from './authorizer';
+import { UserContext } from '../authorizer';
 
 type CreateResourcesRequestBody = { email: string | undefined };
 

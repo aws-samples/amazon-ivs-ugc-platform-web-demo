@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "watch": "nodemon index.ts",
-    "test": "ALLOWED_ORIGIN=* jest"
+    "test": "ALLOWED_ORIGIN=* SERVICE_NAME=all jest"
   },
   "keywords": [],
   "author": "",

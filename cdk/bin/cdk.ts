@@ -3,14 +3,16 @@ import 'source-map-support/register';
 import { App } from 'aws-cdk-lib';
 
 import { StreamHealthDashboardStack } from '../lib/cdk-stream-health-dashboard-stack';
-import { UserManagementResourceConfig } from '../lib/UserManagementStack/constants';
+import { StreamHealthResourceWithUserManagementConfig } from '../lib/constants';
 
 const app = new App();
 
 // Get the value of the current stage "dev" or "prod"
 const stage = app.node.tryGetContext('stage');
 // Get the config for the current stage
-const { resourceConfig }: { resourceConfig: UserManagementResourceConfig } =
+const {
+  resourceConfig
+}: { resourceConfig: StreamHealthResourceWithUserManagementConfig } =
   app.node.tryGetContext(stage);
 
 new StreamHealthDashboardStack(new App(), `StreamHealthDashboard-${stage}`, {

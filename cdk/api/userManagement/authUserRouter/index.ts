@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from '@fastify/request-context';
 
-import authorizer, { UserContext } from './authorizer';
+import authorizer, { UserContext } from '../authorizer';
 import changeUsername from './changeUsername';
 import createResources from './createResources';
 import deleteUser from './deleteUser';

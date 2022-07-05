@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { getChannelArnParams, getUser } from '../helpers';
 import { ResponseBody } from '../../utils';
 import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
-import { UserContext } from './authorizer';
+import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   channelResourceId?: string;

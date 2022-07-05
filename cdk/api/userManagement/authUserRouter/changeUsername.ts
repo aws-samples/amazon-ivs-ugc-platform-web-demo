@@ -4,7 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { CHANGE_USERNAME_EXCEPTION } from '../../utils/constants';
 import { cognitoClient, updateDynamoUserAttributes } from '../helpers';
 import { ResponseBody, isCognitoError } from '../../utils';
-import { UserContext } from './authorizer';
+import { UserContext } from '../authorizer';
 
 type ChangeUsernameRequestBody = { newUsername: string | undefined };
 

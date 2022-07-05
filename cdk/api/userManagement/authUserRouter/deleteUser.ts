@@ -11,7 +11,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { ACCOUNT_DELETION_EXCEPTION } from '../../utils/constants';
 import { cognitoClient, deleteUser, getUser, ivsClient } from '../helpers';
-import { UserContext } from './authorizer';
+import { UserContext } from '../authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;

@@ -1,10 +1,6 @@
 import {
-  aws_cloudfront as cloudfront,
-  aws_cloudfront_origins as origins,
   aws_cognito as cognito,
   aws_dynamodb as dynamodb,
-  aws_ec2 as ec2,
-  aws_ecs as ecs,
   aws_iam as iam,
   NestedStack,
   NestedStackProps,
@@ -12,28 +8,23 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import { UserManagementResourceConfig } from './constants';
+import { UserManagementResourceConfig } from '../constants';
 import UserManagementCognitoTriggers from './Constructs/UserManagementCognitoTriggers';
-import UserManagementService from './Constructs/UserManagementService';
-import UserManagementServiceRole from './Constructs/UserManagementServiceRole';
 
 interface UserManagementStackProps extends NestedStackProps {
-  // The image should include the userManagement routers (authenticated and unauthenticated)
-  containerImage: ecs.AssetImage;
   resourceConfig: UserManagementResourceConfig;
-  vpc?: ec2.IVpc;
 }
 
 export class UserManagementStack extends NestedStack {
   public readonly containerEnv: { [key: string]: string };
-  public readonly ecsTaskExecutionRole: iam.Role;
   public readonly outputs: { [key: string]: string };
+  public readonly policies: iam.PolicyStatement[];
 
   constructor(scope: Construct, id: string, props: UserManagementStackProps) {
     super(scope, id, props);
 
     const stackNamePrefix = 'UserManagement';
-    const { containerImage, resourceConfig, vpc } = props;
+    const { resourceConfig } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const { allowedOrigin, enableUserAutoVerify, ivsChannelType } =
@@ -93,13 +84,52 @@ export class UserManagementStack extends NestedStack {
       }
     );
 
-    // Task Execution IAM Role
-    const { iamRole: ecsTaskExecutionRole } = new UserManagementServiceRole(
-      this,
-      `${stackNamePrefix}-UserManagementServiceRole`,
-      { prefix: stackNamePrefix, userPool, userTable }
+    // IAM Policies
+    const policies = [];
+    const userTablePolicyStatement = new iam.PolicyStatement({
+      actions: [
+        'dynamodb:Query',
+        'dynamodb:GetItem',
+        'dynamodb:PutItem',
+        'dynamodb:UpdateItem',
+        'dynamodb:DeleteItem'
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: [userTable.tableArn, `${userTable.tableArn}/index/emailIndex`]
+    });
+    const forgotPasswordPolicyStatement = new iam.PolicyStatement({
+      actions: ['cognito-idp:ForgotPassword'],
+      effect: iam.Effect.ALLOW,
+      resources: [userPool.userPoolArn]
+    });
+    const ivsPolicyStatement = new iam.PolicyStatement({
+      actions: [
+        'ivs:CreateChannel',
+        'ivs:CreateStreamKey',
+        'ivs:DeleteChannel',
+        'ivs:DeleteStreamKey',
+        'ivs:StopStream'
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    const deleteUserPolicyStatement = new iam.PolicyStatement({
+      actions: [
+        'cognito-idp:AdminDeleteUser',
+        'cognito-idp:AdminDisableUser',
+        'cognito-idp:AdminGetUser',
+        'cognito-idp:AdminUpdateUserAttributes'
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: [userPool.userPoolArn]
+    });
+    policies.push(
+      userTablePolicyStatement,
+      forgotPasswordPolicyStatement,
+      ivsPolicyStatement,
+      deleteUserPolicyStatement
     );
-    this.ecsTaskExecutionRole = ecsTaskExecutionRole;
+    this.policies = policies;
 
     const containerEnv = {
       ACCOUNT_ID: NestedStack.of(this).account,
@@ -112,39 +142,8 @@ export class UserManagementStack extends NestedStack {
     };
     this.containerEnv = containerEnv;
 
-    // Load Balancer -> Cluster -> Service + Autoscaling -> Tasks
-    const { loadBalancer } = new UserManagementService(
-      this,
-      `${stackNamePrefix}-UserManagementService`,
-      {
-        ...resourceConfig,
-        containerImage,
-        ecsTaskExecutionRole,
-        environment: containerEnv,
-        prefix: stackNamePrefix,
-        vpc
-      }
-    );
-
-    // Cloudfront Distribution
-    const distribution = new cloudfront.Distribution(
-      this,
-      `${stackNamePrefix}-CFDistribution`,
-      {
-        defaultBehavior: {
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
-          origin: new origins.LoadBalancerV2Origin(loadBalancer, {
-            protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY
-          })
-        }
-      }
-    );
-
     // Stack Outputs
     this.outputs = {
-      userManagementApiBaseUrl: `https://${distribution.domainName}`,
       userPoolId: userPool.userPoolId,
       userPoolClientId: userPoolClient.userPoolClientId
     };

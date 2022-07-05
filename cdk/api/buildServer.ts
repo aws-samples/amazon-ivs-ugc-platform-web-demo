@@ -10,11 +10,17 @@ const buildServer = () => {
   // CORS
   server.register(fastifyCors, { origin: process.env.ALLOWED_ORIGIN });
 
-  // Create /user authenticated and unauthenticated resources
-  server.register(userManagementRouters, { prefix: 'user' });
+  const { SERVICE_NAME: serviceName = '' } = process.env;
 
-  // Create /metrics authenticated resource
-  server.register(metricsRouter, { prefix: 'metrics' });
+  if (['all', 'userManagement'].includes(serviceName)) {
+    // Create /user authenticated and unauthenticated resources
+    server.register(userManagementRouters, { prefix: 'user' });
+  }
+
+  if (['all', 'metrics'].includes(serviceName)) {
+    // Create /metrics authenticated resource
+    server.register(metricsRouter, { prefix: 'metrics' });
+  }
 
   // Health check
   server.get('/status', async () => {

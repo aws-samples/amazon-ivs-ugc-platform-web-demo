@@ -2,7 +2,7 @@ import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { getLambdaEntryPath } from '../utils';
-import { UserManagementResourceConfig } from '../constants';
+import { UserManagementResourceConfig } from '../../constants';
 
 interface UserManagementCognitoTriggersProps
   extends UserManagementResourceConfig {}

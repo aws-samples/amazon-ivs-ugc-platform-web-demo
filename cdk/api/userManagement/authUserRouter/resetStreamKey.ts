@@ -9,7 +9,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
 import { RESET_STREAM_KEY_EXCEPTION } from '../../utils/constants';
 import { ResponseBody } from '../../utils';
-import { UserContext } from './authorizer';
+import { UserContext } from '../authorizer';
 
 interface ResetStreamKeyResponseBody extends ResponseBody {
   streamKeyValue?: string;
