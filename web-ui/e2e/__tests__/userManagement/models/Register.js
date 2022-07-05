@@ -93,20 +93,23 @@ class RegisterPageModel extends BasePageModel {
 
   /* MOCK API HELPERS */
   mockRegisterUser = async (userConfirmed = false) => {
-    await this.page.route(getCloudfrontURLRegex('/user/register'), (route) => {
-      if (route.request().method() === 'POST') {
-        return route.fulfill({
-          status: 200,
-          body: JSON.stringify({ userConfirmed })
-        });
-      } else route.continue();
-    });
+    await this.page.route(
+      getCloudfrontURLRegex('/user/register'),
+      (route, request) => {
+        if (request.method() === 'POST') {
+          route.fulfill({
+            status: 200,
+            body: JSON.stringify({ userConfirmed })
+          });
+        } else route.continue();
+      }
+    );
   };
 
   mockResendEmailVerification = async () => {
-    await this.page.route(COGNITO_IDP_URL_REGEX, (route) => {
-      if (route.request().method() === 'POST') {
-        return route.fulfill({
+    await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
+      if (request.method() === 'POST') {
+        route.fulfill({
           status: 200,
           body: JSON.stringify({
             CodeDeliveryDetails: {
@@ -121,9 +124,9 @@ class RegisterPageModel extends BasePageModel {
   };
 
   mockConfirmUser = async () => {
-    await this.page.route(COGNITO_IDP_URL_REGEX, (route) => {
-      if (route.request().method() === 'POST') {
-        return route.fulfill({
+    await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
+      if (request.method() === 'POST') {
+        route.fulfill({
           status: 200,
           body: JSON.stringify({})
         });

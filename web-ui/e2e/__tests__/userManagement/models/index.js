@@ -1,5 +1,5 @@
 module.exports = {
-  RegisterPageModel: require('./Register')
-  // LoginPageModel: require('./Login'),
-  // ResetPageModel: require('./Reset')
+  RegisterPageModel: require('./Register'),
+  LoginPageModel: require('./Login'),
+  ResetPageModel: require('./Reset')
 };
