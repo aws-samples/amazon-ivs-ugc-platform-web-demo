@@ -36,7 +36,8 @@ export class StreamHealthDashboardStack extends Stack {
     super(scope, id, props);
 
     const { resourceConfig } = props;
-    const { maxAzs, natGateways, deploySeparateContainers } = resourceConfig;
+    const { allowedOrigin, maxAzs, natGateways, deploySeparateContainers } =
+      resourceConfig;
     const stackNamePrefix = Stack.of(this).stackName;
 
     // VPC
@@ -57,7 +58,7 @@ export class StreamHealthDashboardStack extends Stack {
 
     // User Management Stack
     const {
-      containerEnv,
+      containerEnv: userManagementContainerEnv,
       outputs: { userPoolId, userPoolClientId },
       policies: userManagementPolicies
     } = new UserManagementStack(this, 'UserManagement', {
@@ -65,7 +66,20 @@ export class StreamHealthDashboardStack extends Stack {
     });
 
     // Metrics Stack
-    const { policies: metricsPolicies } = new MetricsStack(this, 'Metrics', {});
+    const { containerEnv: metricsContainerEnv, policies: metricsPolicies } =
+      new MetricsStack(this, 'Metrics', {});
+
+    // This environment is required for any container that exposes authenticated endpoints
+    const baseContainerEnv = {
+      ALLOWED_ORIGIN: allowedOrigin,
+      USER_POOL_CLIENT_ID: userPoolClientId,
+      USER_POOL_ID: userPoolId
+    };
+    const sharedContainerEnv = {
+      ...baseContainerEnv,
+      ...userManagementContainerEnv,
+      ...metricsContainerEnv
+    };
 
     // Load Balancers and Fargate Services
     const defaultServiceProps = {
@@ -94,7 +108,8 @@ export class StreamHealthDashboardStack extends Stack {
         {
           ...defaultServiceProps,
           environment: {
-            ...containerEnv,
+            ...baseContainerEnv,
+            ...userManagementContainerEnv,
             SERVICE_NAME: 'userManagement'
           },
           policies: userManagementPolicies,
@@ -120,7 +135,8 @@ export class StreamHealthDashboardStack extends Stack {
         {
           ...defaultServiceProps,
           environment: {
-            ...containerEnv,
+            ...baseContainerEnv,
+            ...metricsContainerEnv,
             SERVICE_NAME: 'metrics'
           },
           policies: metricsPolicies,
@@ -144,7 +160,7 @@ export class StreamHealthDashboardStack extends Stack {
         {
           ...defaultServiceProps,
           environment: {
-            ...containerEnv,
+            ...sharedContainerEnv,
             SERVICE_NAME: 'all'
           },
           policies: [...userManagementPolicies, ...metricsPolicies],
@@ -196,7 +212,10 @@ export class StreamHealthDashboardStack extends Stack {
     );
 
     new CfnOutput(this, 'containerEnvStr', {
-      value: `${Object.entries(containerEnv)
+      value: `${Object.entries({
+        ...sharedContainerEnv,
+        SERVICE_NAME: 'all'
+      })
         .map(([key, val]) => `${key}=${val}`)
         .join(' \\\n')}`
     });

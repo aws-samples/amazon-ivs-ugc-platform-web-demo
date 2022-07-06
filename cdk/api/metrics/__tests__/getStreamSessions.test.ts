@@ -6,7 +6,7 @@ import {
   injectAuthorizedRequest
 } from '../../testUtils';
 import { ivsClient } from '../helpers';
-import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import buildServer from '../../buildServer';
 import streamSessionsJsonMock from '../../__mocks__/streamSessions.json';
 

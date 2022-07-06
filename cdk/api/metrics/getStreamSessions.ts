@@ -5,7 +5,7 @@ import {
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { buildChannelArn, ivsClient } from './helpers';
-import { UNEXPECTED_EXCEPTION } from '../utils/constants';
+import { UNEXPECTED_EXCEPTION } from '../shared/constants';
 
 interface GetStreamSessionsBody
   extends Partial<ListStreamSessionsCommandOutput> {

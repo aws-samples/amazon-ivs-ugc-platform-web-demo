@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { getChannelArnParams, getUser } from '../helpers';
-import { ResponseBody } from '../../utils';
-import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
+import { ResponseBody } from '../../shared';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {

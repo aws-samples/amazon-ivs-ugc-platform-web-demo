@@ -6,9 +6,10 @@ import {
 } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
-import { RESET_STREAM_KEY_EXCEPTION } from '../../utils/constants';
-import { ResponseBody } from '../../utils';
+import { dynamoDbClient, getUser, ivsClient } from '../helpers';
+import { RESET_STREAM_KEY_EXCEPTION } from '../../shared/constants';
+import { ResponseBody } from '../../shared';
+import { updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
 interface ResetStreamKeyResponseBody extends ResponseBody {
@@ -62,10 +63,15 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     }
 
     // Update Dynamo user entry
-    await updateDynamoUserAttributes(sub, [
-      { key: 'streamKeyArn', value: newStreamKeyArn },
-      { key: 'streamKeyValue', value: newStreamKeyValue }
-    ]);
+    await updateDynamoItemAttributes({
+      attributes: [
+        { key: 'streamKeyArn', value: newStreamKeyArn },
+        { key: 'streamKeyValue', value: newStreamKeyValue }
+      ],
+      dynamoDbClient,
+      id: sub,
+      tableName: process.env.USER_TABLE_NAME as string
+    });
 
     responseBody.streamKeyValue = newStreamKeyValue;
   } catch (error) {

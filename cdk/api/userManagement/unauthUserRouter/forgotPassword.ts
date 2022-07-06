@@ -2,8 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ForgotPasswordCommand } from '@aws-sdk/client-cognito-identity-provider';
 
 import { cognitoClient, getUserByEmail } from '../helpers';
-import { FORGOT_PASSWORD_EXCEPTION } from '../../utils/constants';
-import { isCognitoError } from '../../utils';
+import { FORGOT_PASSWORD_EXCEPTION } from '../../shared/constants';
+import { isCognitoError } from '../../shared';
 
 type ForgotPasswordRequestBody = { email: string | undefined };
 

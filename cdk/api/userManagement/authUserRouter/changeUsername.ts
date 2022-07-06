@@ -1,9 +1,10 @@
 import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { CHANGE_USERNAME_EXCEPTION } from '../../utils/constants';
-import { cognitoClient, updateDynamoUserAttributes } from '../helpers';
-import { ResponseBody, isCognitoError } from '../../utils';
+import { CHANGE_USERNAME_EXCEPTION } from '../../shared/constants';
+import { cognitoClient, dynamoDbClient } from '../helpers';
+import { ResponseBody, isCognitoError } from '../../shared';
+import { updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
 type ChangeUsernameRequestBody = { newUsername: string | undefined };
@@ -30,9 +31,12 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     await cognitoClient.send(updateUserAttributesCommand);
 
     // Update Dynamo user entry
-    await updateDynamoUserAttributes(sub, [
-      { key: 'username', value: newUsername }
-    ]);
+    await updateDynamoItemAttributes({
+      attributes: [{ key: 'username', value: newUsername }],
+      dynamoDbClient,
+      id: sub,
+      tableName: process.env.USER_TABLE_NAME as string
+    });
   } catch (error) {
     console.error(error);
 

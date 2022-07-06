@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
 
@@ -6,9 +7,9 @@ import {
   ACCOUNT_REGISTRATION_EXCEPTION,
   EMAIL_EXISTS_EXCEPTION,
   UNEXPECTED_EXCEPTION
-} from '../../utils/constants';
+} from '../../shared/constants';
 import { cognitoClient, dynamoDbClient, getUserByEmail } from '../helpers';
-import { isCognitoError } from '../../utils';
+import { isCognitoError } from '../../shared';
 
 type SignUpRequestBody = {
   email: string | undefined;
@@ -54,11 +55,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     if (UserSub) {
       // Create entry in the user table
       const putItemCommand = new PutItemCommand({
-        Item: {
-          email: { S: email },
-          id: { S: UserSub },
-          username: { S: username }
-        },
+        Item: marshall({ email, id: UserSub, username }),
         TableName: process.env.USER_TABLE_NAME
       });
 

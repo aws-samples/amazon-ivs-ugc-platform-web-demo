@@ -1,16 +1,40 @@
-import { MetricDataQuery } from '@aws-sdk/client-cloudwatch';
+import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
+import { MetricDataQuery, MetricDataResult } from '@aws-sdk/client-cloudwatch';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import {
   INGEST_FRAMERATE,
   INGEST_VIDEO_BITRATE,
   SEC_PER_DAY,
-  SEC_PER_HOUR
-} from '../utils/constants';
+  SEC_PER_HOUR,
+  STREAM_HEALTH_METRICS_NAMES
+} from '../shared/constants';
 
 export const ivsClient = new IvsClient({});
+export const dynamoDbClient = new DynamoDBClient({});
 
 export type Period = 3600 | 300 | 60 | 5;
+
+export type FormattedMetricData = {
+  alignedStartTime: Date;
+  data: number[];
+  label: string;
+  period: Period;
+  statistics: {
+    average?: number;
+  };
+};
+
+export const getStreamRecord = async (streamId: string) => {
+  const getItemCommand = new GetItemCommand({
+    Key: { id: { S: streamId } },
+    TableName: process.env.STREAM_TABLE_NAME
+  });
+  const { Item = {} } = await dynamoDbClient.send(getItemCommand);
+
+  return unmarshall(Item);
+};
 
 export const buildChannelArn = (resourceId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:channel/${resourceId}`;
@@ -71,9 +95,13 @@ export const getStreamSession = (
   return ivsClient.send(getStreamSessionCommand);
 };
 
+export const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
+export const isChartMetric = (metricName: string) =>
+  [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(metricName);
+
 export const buildMetricStatisticQuery = (
   metricName: string,
-  statistic: 'Avg' | 'Max'
+  statistic: 'Avg'
 ): MetricDataQuery => {
   const averageMetricName = `${metricName}${statistic}`;
 
@@ -84,8 +112,7 @@ export const buildMetricStatisticQuery = (
     Expression: `TIME_SERIES(${statistic.toUpperCase()}(${metricName.toLowerCase()}))`
   };
 };
-
-export const buildFilledMetricQuery = (metricName: string) => {
+export const buildFilledMetricQuery = (metricName: string): MetricDataQuery => {
   const filledMetricName = `${metricName}Filled`;
 
   return {
@@ -94,8 +121,99 @@ export const buildFilledMetricQuery = (metricName: string) => {
     Expression: `FILL(${metricName.toLowerCase()}, REPEAT)`
   };
 };
+export const buildMetricDataQueries = (
+  channelResourceId: string,
+  period: Period
+) =>
+  STREAM_HEALTH_METRICS_NAMES.reduce((queries, streamHealthMetricsName) => {
+    const baseQuery: MetricDataQuery = {
+      Id: streamHealthMetricsName.toLowerCase(),
+      Label: streamHealthMetricsName,
+      MetricStat: {
+        Metric: {
+          Dimensions: [{ Name: 'Channel', Value: channelResourceId }],
+          MetricName: streamHealthMetricsName,
+          Namespace: 'AWS/IVS'
+        },
+        Period: period,
+        Stat: 'Average'
+      }
+    };
+    const avgQuery = buildMetricStatisticQuery(streamHealthMetricsName, 'Avg');
 
-export const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');
-export const isMaxMetric = (metricName: string) => metricName.endsWith('Max');
-export const isChartMetric = (metricName: string) =>
-  [INGEST_FRAMERATE, INGEST_VIDEO_BITRATE].includes(metricName);
+    let filledQuery: MetricDataQuery[] = [];
+    // We need to fill the missing data point for metrics that are used for the charts
+    if (isChartMetric(streamHealthMetricsName)) {
+      filledQuery = [buildFilledMetricQuery(streamHealthMetricsName)];
+    }
+
+    return [...queries, baseQuery, avgQuery, ...filledQuery];
+  }, [] as MetricDataQuery[]);
+
+export const formatMetricsData = ({
+  alignedStartTime,
+  averageMetricDataResults,
+  isLive,
+  metricDataResults,
+  period
+}: {
+  alignedStartTime: Date;
+  averageMetricDataResults: MetricDataResult[];
+  isLive: boolean;
+  metricDataResults: MetricDataResult[];
+  period: Period;
+}) =>
+  metricDataResults.reduce((acc, { Label, Timestamps, Values }) => {
+    if (
+      !Label ||
+      // We need the keyframe interval average, not the time series
+      // We need the filled time series for the charts metrics
+      isChartMetric(Label) ||
+      isAvgMetric(Label) ||
+      !Timestamps?.length ||
+      !Values?.length ||
+      Timestamps.length !== Values.length
+    ) {
+      return acc;
+    }
+
+    const deleteCount = Math.round(30 / period);
+    const upperValueCountBound = Timestamps.length - deleteCount;
+    const cleanedLabel = Label.replace('Filled', '');
+
+    return [
+      ...acc,
+      {
+        alignedStartTime,
+        // Zip the arrays
+        data: Timestamps.map((timestamp, i) => ({
+          timestamp,
+          value: Values[i]
+        }))
+          // Sort by timestamp in ascending order
+          .sort((a, b) => +a.timestamp - +b.timestamp)
+          .reduce((metricValues, { value }, index) => {
+            /**
+             * For live streams, there is a ~30sec delay for the metrics to be populated.
+             * So we slice the last 30sec of the metrics array to avoid showing filled values.
+             * For a recently ended stream, the offline stream summary may contain pre-filled data values at the end of the dataset,
+             * until CloudWatch receives one last update
+             */
+            if (
+              isLive &&
+              index >= upperValueCountBound &&
+              isChartMetric(cleanedLabel)
+            )
+              return metricValues;
+            return [...metricValues, value];
+          }, [] as number[]),
+        label: cleanedLabel,
+        period,
+        statistics: {
+          average: averageMetricDataResults.find((averageMetricDataResult) =>
+            averageMetricDataResult.Label!.includes(cleanedLabel)
+          )?.Values?.[0]
+        }
+      }
+    ];
+  }, [] as FormattedMetricData[]);

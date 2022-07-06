@@ -1,8 +1,9 @@
 import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser, ivsClient, updateDynamoUserAttributes } from '../helpers';
-import { UNEXPECTED_EXCEPTION } from '../../utils/constants';
+import { dynamoDbClient, getUser, ivsClient } from '../helpers';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
 type CreateResourcesRequestBody = { email: string | undefined };
@@ -56,13 +57,18 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     }
 
     // Update the entry in the user table
-    await updateDynamoUserAttributes(sub, [
-      { key: 'channelArn', value: channelArn },
-      { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
-      { key: 'playbackUrl', value: playbackUrl },
-      { key: 'streamKeyArn', value: streamKeyArn },
-      { key: 'streamKeyValue', value: streamKeyValue }
-    ]);
+    await updateDynamoItemAttributes({
+      attributes: [
+        { key: 'channelArn', value: channelArn },
+        { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
+        { key: 'playbackUrl', value: playbackUrl },
+        { key: 'streamKeyArn', value: streamKeyArn },
+        { key: 'streamKeyValue', value: streamKeyValue }
+      ],
+      dynamoDbClient,
+      id: sub,
+      tableName: process.env.USER_TABLE_NAME as string
+    });
   } catch (error) {
     console.error(error);
 

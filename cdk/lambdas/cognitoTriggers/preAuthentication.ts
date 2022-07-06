@@ -1,6 +1,6 @@
 import { PreAuthenticationTriggerHandler } from 'aws-lambda';
 
-import { USER_NOT_FOUND_EXCEPTION } from '../../api/utils/constants';
+import { USER_NOT_FOUND_EXCEPTION } from '../../api/shared/constants';
 
 export const handler: PreAuthenticationTriggerHandler = async (event) => {
   const { preferred_username } = event.request.userAttributes;

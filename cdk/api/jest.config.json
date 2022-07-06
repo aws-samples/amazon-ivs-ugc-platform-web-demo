@@ -10,11 +10,17 @@
   ],
   "coverageDirectory": "coverage",
   "coverageThreshold": {
-    "global": {
-      "statements": 63,
-      "branches": 43,
-      "functions": 65,
-      "lines": 61
+    "./buildServer.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "metrics/": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
     }
   },
   "globals": {

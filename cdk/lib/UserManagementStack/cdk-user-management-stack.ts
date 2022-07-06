@@ -27,8 +27,7 @@ export class UserManagementStack extends NestedStack {
     const { resourceConfig } = props;
 
     // Configuration variables based on the stage (dev or prod)
-    const { allowedOrigin, enableUserAutoVerify, ivsChannelType } =
-      resourceConfig;
+    const { enableUserAutoVerify, ivsChannelType } = resourceConfig;
 
     // Dynamo DB User Table
     const userTable = new dynamodb.Table(this, `${stackNamePrefix}-UserTable`, {
@@ -132,10 +131,7 @@ export class UserManagementStack extends NestedStack {
     this.policies = policies;
 
     const containerEnv = {
-      ACCOUNT_ID: NestedStack.of(this).account,
-      ALLOWED_ORIGIN: allowedOrigin,
       IVS_CHANNEL_TYPE: ivsChannelType,
-      REGION: NestedStack.of(this).region,
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,
       USER_TABLE_NAME: userTable.tableName

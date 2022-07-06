@@ -1,7 +1,6 @@
 import {
   CloudWatchClient,
-  GetMetricDataCommand,
-  MetricDataQuery
+  GetMetricDataCommand
 } from '@aws-sdk/client-cloudwatch';
 import { ChannelType, StreamSession } from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
@@ -9,41 +8,27 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   alignTimeWithPeriod,
   buildChannelArn,
-  buildFilledMetricQuery,
-  buildMetricStatisticQuery,
+  buildMetricDataQueries,
+  dynamoDbClient,
+  formatMetricsData,
+  FormattedMetricData,
   getPeriodValue,
+  getStreamRecord,
   getStreamSession,
-  isAvgMetric,
-  isChartMetric,
-  isMaxMetric,
-  Period
+  isAvgMetric
 } from './helpers';
-import {
-  INGEST_FRAMERATE,
-  INGEST_VIDEO_BITRATE,
-  SEC_PER_HOUR,
-  STREAM_HEALTH_METRICS_NAMES,
-  UNEXPECTED_EXCEPTION
-} from '../utils/constants';
-
-type FormattedMetricData = {
-  alignedStartTime: Date;
-  data: number[];
-  label: string;
-  period: Period;
-  statistics: {
-    average?: number;
-    maximum?: number;
-  };
-};
+import { SEC_PER_HOUR, UNEXPECTED_EXCEPTION } from '../shared/constants';
+import { updateDynamoItemAttributes } from '../shared/helpers';
 
 export interface GetStreamSessionBody
   extends Omit<StreamSession, 'recordingConfiguration'> {
-  channel: {
-    type?: ChannelType | string;
-  };
+  channel: { type?: ChannelType | string };
   metrics: FormattedMetricData[];
 }
+
+type MarshalledFormattedMetricData = FormattedMetricData & {
+  alignedStartTime: string;
+};
 
 export const cloudwatchClient = new CloudWatchClient({});
 
@@ -85,40 +70,13 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     }
 
     const period = getPeriodValue(startTime);
-
-    // Base queries to get the time series
-    const metricDataQueries = STREAM_HEALTH_METRICS_NAMES.reduce(
-      (queries, streamHealthMetricsName) => {
-        const baseQuery: MetricDataQuery = {
-          Id: streamHealthMetricsName.toLowerCase(),
-          Label: streamHealthMetricsName,
-          MetricStat: {
-            Metric: {
-              Dimensions: [{ Name: 'Channel', Value: channelResourceId }],
-              MetricName: streamHealthMetricsName,
-              Namespace: 'AWS/IVS'
-            },
-            Period: period,
-            Stat: 'Average'
-          }
-        };
-        const avgQuery = buildMetricStatisticQuery(
-          streamHealthMetricsName,
-          'Avg'
-        );
-        const maxQuery = buildMetricStatisticQuery(
-          streamHealthMetricsName,
-          'Max'
-        );
-
-        return [...queries, baseQuery, avgQuery, maxQuery];
-      },
-      [] as MetricDataQuery[]
-    );
-
-    // We need to fill the missing data point as these two are used for the charts
-    metricDataQueries.push(buildFilledMetricQuery(INGEST_FRAMERATE));
-    metricDataQueries.push(buildFilledMetricQuery(INGEST_VIDEO_BITRATE));
+    /**
+     * metricDataQueries includes:
+     * - base queries to get the time series
+     * - filled queries for the charts metrics
+     * - average queries
+     */
+    const metricDataQueries = buildMetricDataQueries(channelResourceId, period);
 
     const alignedStartTimeDown = new Date(
       alignTimeWithPeriod(startTime, period, 'down') * 1000
@@ -136,85 +94,66 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       getPeriodValue(alignedStartTimeDown) !== period
         ? alignedStartTimeUp
         : alignedStartTimeDown;
-    const getMetricDataCommand = new GetMetricDataCommand({
-      EndTime: alignedEndTime,
-      MetricDataQueries: metricDataQueries,
-      StartTime: alignedStartTime
-    });
-    const { MetricDataResults = [] } = await cloudwatchClient.send(
-      getMetricDataCommand
-    );
 
-    const averageMetricDataResults = MetricDataResults.filter(
-      ({ Label }) => Label && isAvgMetric(Label)
-    );
-    const maximumMetricDataResults = MetricDataResults.filter(
-      ({ Label }) => Label && isMaxMetric(Label)
-    );
+    const { metrics = {} } = await getStreamRecord(streamSessionId);
+    const metricsKey = `P${period}-S${alignedStartTime.getTime()}-E${alignedEndTime.getTime()}`;
+    let marshalledFormattedMetricsData:
+      | MarshalledFormattedMetricData[]
+      | undefined = metrics[metricsKey];
+    let formattedMetricsData: FormattedMetricData[];
 
-    const formattedMetricsData = MetricDataResults.reduce(
-      (acc, { Label, Timestamps, Values }) => {
-        if (
-          !Label ||
-          // We need the keyframe interval average, not the time series
-          // We need the filled time series for the charts metrics
-          isChartMetric(Label) ||
-          isAvgMetric(Label) ||
-          isMaxMetric(Label) ||
-          !Timestamps?.length ||
-          !Values?.length ||
-          Timestamps.length !== Values.length
-        ) {
-          return acc;
-        }
+    if (!isLive && marshalledFormattedMetricsData) {
+      formattedMetricsData = marshalledFormattedMetricsData.map(
+        (marshalledFormattedMetricData) => ({
+          ...marshalledFormattedMetricData,
+          alignedStartTime: new Date(
+            marshalledFormattedMetricData.alignedStartTime
+          )
+        })
+      );
+    } else {
+      const getMetricDataCommand = new GetMetricDataCommand({
+        EndTime: alignedEndTime,
+        MetricDataQueries: metricDataQueries,
+        StartTime: alignedStartTime
+      });
+      const { MetricDataResults = [] } = await cloudwatchClient.send(
+        getMetricDataCommand
+      );
+      const averageMetricDataResults = MetricDataResults.filter(
+        ({ Label }) => Label && isAvgMetric(Label)
+      );
 
-        const deleteCount = Math.round(30 / period);
-        const upperValueCountBound = Timestamps.length - deleteCount;
-        const cleanedLabel = Label.replace('Filled', '');
+      formattedMetricsData = formatMetricsData({
+        alignedStartTime,
+        averageMetricDataResults,
+        isLive,
+        metricDataResults: MetricDataResults,
+        period
+      });
 
-        return [
-          ...acc,
-          {
-            alignedStartTime,
-            // Zip the arrays
-            data: Timestamps.map((timestamp, i) => ({
-              timestamp,
-              value: Values[i]
-            }))
-              // Sort by timestamp in ascending order
-              .sort((a, b) => +a.timestamp - +b.timestamp)
-              .reduce((metricValues, { value }, index) => {
-                /**
-                 * For live streams, there is a ~30sec delay for the metrics to be populated.
-                 * So we slice the last 30sec of the metrics array to avoid showing filled values.
-                 * For a recently ended stream, the offline stream summary may contain pre-filled data values at the end of the dataset,
-                 * until CloudWatch receives one last update
-                 */
-                if (
-                  isLive &&
-                  index >= upperValueCountBound &&
-                  isChartMetric(cleanedLabel)
+      if (!isLive) {
+        await updateDynamoItemAttributes({
+          attributes: [
+            {
+              key: 'metrics',
+              value: {
+                [metricsKey]: formattedMetricsData.map(
+                  (formattedMetricData) => ({
+                    ...formattedMetricData,
+                    alignedStartTime:
+                      formattedMetricData.alignedStartTime.toISOString()
+                  })
                 )
-                  return metricValues;
-                return [...metricValues, value];
-              }, [] as number[]),
-            label: cleanedLabel,
-            period,
-            statistics: {
-              average: averageMetricDataResults.find(
-                (averageMetricDataResult) =>
-                  averageMetricDataResult.Label!.includes(cleanedLabel)
-              )?.Values?.[0],
-              maximum: maximumMetricDataResults.find(
-                (maximumMetricDataResult) =>
-                  maximumMetricDataResult.Label!.includes(cleanedLabel)
-              )?.Values?.[0]
+              }
             }
-          }
-        ];
-      },
-      [] as FormattedMetricData[]
-    );
+          ],
+          dynamoDbClient,
+          id: streamSessionId,
+          tableName: process.env.STREAM_TABLE_NAME as string
+        });
+      }
+    }
 
     responseBody = {
       ...streamSessionRest,

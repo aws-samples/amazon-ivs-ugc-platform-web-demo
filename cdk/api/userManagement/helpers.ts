@@ -1,10 +1,8 @@
 import {
-  AttributeValueUpdate,
   DeleteItemCommand,
   DynamoDBClient,
   GetItemCommand,
-  QueryCommand,
-  UpdateItemCommand
+  QueryCommand
 } from '@aws-sdk/client-dynamodb';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { IvsClient } from '@aws-sdk/client-ivs';
@@ -21,7 +19,6 @@ export const getUser = (sub: string) => {
 
   return dynamoDbClient.send(getItemCommand);
 };
-
 export const getUserByEmail = (userEmail: string) => {
   const queryCommand = new QueryCommand({
     IndexName: 'emailIndex',
@@ -33,7 +30,6 @@ export const getUserByEmail = (userEmail: string) => {
 
   return dynamoDbClient.send(queryCommand);
 };
-
 export const deleteUser = (sub: string) => {
   const deleteItemCommand = new DeleteItemCommand({
     Key: { id: { S: sub } },
@@ -41,29 +37,6 @@ export const deleteUser = (sub: string) => {
   });
 
   return dynamoDbClient.send(deleteItemCommand);
-};
-
-export const updateDynamoUserAttributes = (
-  sub: string,
-  attributes = [] as { key: string; value: string }[]
-) => {
-  if (!attributes.length) return;
-
-  const attributesToUpdate = attributes.reduce(
-    (acc, { key, value }) => ({
-      ...acc,
-      [key]: { Action: 'PUT', Value: { S: value } }
-    }),
-    {}
-  ) as { [key: string]: AttributeValueUpdate };
-
-  const putItemCommand = new UpdateItemCommand({
-    AttributeUpdates: attributesToUpdate,
-    Key: { id: { S: sub } },
-    TableName: process.env.USER_TABLE_NAME
-  });
-
-  return dynamoDbClient.send(putItemCommand);
 };
 
 export const getChannelArnParams = (
