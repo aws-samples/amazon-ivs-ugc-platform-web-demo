@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { scrollToTop } from '../../utils';
 import { useNotif } from '../../contexts/Notification';
@@ -36,34 +35,36 @@ const defaultInputProps = (inputLabel, isConfirm) => {
 
 const generateInputProps = (inputsData) =>
   Object.entries(inputsData).reduce((inputProps, [inputLabel, options]) => {
-    const { confirm, ...restOptions } = options;
+    const { confirmedBy, ...restOptions } = options;
     const camelizedInputLabel = camelize(inputLabel);
     inputProps[camelizedInputLabel] = {
       ...defaultInputProps(inputLabel),
       ...options
     };
 
-    if (confirm) {
+    if (confirmedBy) {
       // Add another input that will be used to confirm this input
       const confirmProps = {
         ...restOptions,
         ...defaultInputProps(inputLabel, true)
       };
-      inputProps[confirmProps.name] = confirmProps;
+      inputProps[confirmedBy] = confirmProps;
     }
 
     return inputProps;
   }, {});
 
+const noop = () => {};
+
 const useForm = ({
+  disableValidation,
+  errorHandler = noop,
   inputsData,
+  onFailure = noop,
+  onSuccess = noop,
   submitHandler,
-  onSuccess = () => {},
-  onFailure = () => {},
-  validationCheck = () => {},
-  errorHandler = () => {}
+  validationCheck = noop
 }) => {
-  const { pathname } = useLocation();
   const [formProps, setFormProps] = useState(generateInputProps(inputsData));
   const [isLoading, setIsLoading] = useState(false);
   const { notifyError } = useNotif();
@@ -79,18 +80,35 @@ const useForm = ({
   }, [formProps]);
 
   const updateErrors = useCallback(
-    (errors) =>
+    (errors = null) =>
       setFormProps((prevFormProps) => {
         const nextFormProps = {};
+        const shouldClearAllErrors = errors === null;
 
         for (const inputName in prevFormProps) {
           const inputProps = prevFormProps[inputName];
-          const error = errors ? errors[inputName] : null;
+          const { error: prevError } = inputProps;
+          let error;
+
+          if (shouldClearAllErrors) {
+            error = null;
+          } else {
+            if (inputName in errors) {
+              error = errors[inputName];
+            } else {
+              error = prevError;
+            }
+          }
 
           nextFormProps[inputName] = { ...inputProps, error };
         }
 
-        return nextFormProps;
+        const shouldUpdateFormProps = Object.entries(nextFormProps).some(
+          ([key, value]) =>
+            prevFormProps[key].error !== nextFormProps[key].error
+        );
+
+        return shouldUpdateFormProps ? nextFormProps : prevFormProps;
       }),
     []
   );
@@ -116,27 +134,36 @@ const useForm = ({
     [formProps]
   );
 
+  const presubmitValidation = useCallback(
+    (inputName) => {
+      let isFormValid = true;
+
+      const autoValidationErrors = validateForm(formProps, inputName);
+      const manualValidationErrors = validationCheck(formProps);
+      const errors = { ...autoValidationErrors, ...manualValidationErrors };
+      const validationErrors =
+        autoValidationErrors || manualValidationErrors ? errors : null;
+
+      if (validationErrors) {
+        updateErrors(validationErrors);
+        isFormValid = Object.entries(validationErrors).every(
+          ([_, value]) => value === null
+        );
+      } else updateErrors(null);
+
+      return isFormValid;
+    },
+    [formProps, updateErrors, validationCheck]
+  );
+
   const onSubmit = useCallback(
     async (event, clearFormOnSuccess = true) => {
       event.preventDefault();
       if (isLoading) return;
 
-      if (
-        pathname === '/register' ||
-        pathname === '/reset' ||
-        pathname === '/settings'
-      ) {
-        const autoValidationErrors = validateForm(formProps);
-        const manualValidationErrors = validationCheck(formProps);
-        const validationErrors =
-          autoValidationErrors || manualValidationErrors
-            ? { ...autoValidationErrors, ...manualValidationErrors }
-            : null;
-
-        if (validationErrors) {
-          updateErrors(validationErrors);
-          return;
-        } else updateErrors(null);
+      if (!disableValidation) {
+        const isFormValid = presubmitValidation();
+        if (!isFormValid) return;
       }
 
       setIsLoading(true);
@@ -164,22 +191,22 @@ const useForm = ({
       setIsLoading(false);
     },
     [
-      errorHandler,
-      clearForm,
-      formProps,
-      getValues,
       isLoading,
-      notifyError,
-      onFailure,
-      onSuccess,
-      pathname,
+      disableValidation,
+      getValues,
+      formProps,
       submitHandler,
-      updateErrors,
-      validationCheck
+      presubmitValidation,
+      onSuccess,
+      clearForm,
+      errorHandler,
+      onFailure,
+      notifyError,
+      updateErrors
     ]
   );
 
-  return [formProps, isLoading, onChange, onSubmit];
+  return [formProps, isLoading, onChange, onSubmit, presubmitValidation];
 };
 
 export default useForm;

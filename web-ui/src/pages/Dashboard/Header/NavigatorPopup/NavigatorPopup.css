@@ -1,7 +1,7 @@
 .nav-popup-container {
   background: hsla(var(--base-color-white), 0%, 0.5);
   display: flex;
-  height: 100%;
+  height: calc(100% - 64px);
   justify-content: center;
   position: fixed;
   top: 64px;
@@ -131,6 +131,7 @@
 @media (max-width: 767px) {
   .nav-popup-container {
     background: none;
+    height: 100%;
     position: absolute;
     top: auto;
   }

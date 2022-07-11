@@ -13,7 +13,24 @@
   align-items: center;
   display: flex;
   gap: 15px;
-  max-width: 478px;
+  max-width: 420px;
+}
+
+@media (max-width: 575px) {
+  .static-notification-container {
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+    width: 100%;
+  }
+
+  .static-notification-content {
+    max-width: 100%;
+  }
+
+  .static-notification-container .link-button {
+    width: 100%;
+  }
 }
 
 @media (prefers-color-scheme: light) {

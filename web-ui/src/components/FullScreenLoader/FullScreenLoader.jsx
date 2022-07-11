@@ -33,7 +33,8 @@ const FullScreenLoader = ({ hasError, mobileBreakpoint, onClick }) => {
       <Button
         customStyles={{ color: 'var(--palette-color-blue)' }}
         onClick={onClick}
-        variant="link"
+        variant="text"
+        subVariant="second"
       >
         {$content.full_screen_loader.try_again}
       </Button>

@@ -15,7 +15,6 @@ import { useTooltip, Tooltip } from '@visx/tooltip';
 import PropTypes from 'prop-types';
 
 import { getDate, getDataValue, getXScale, getYScale } from '../utils';
-import { useMobileBreakpoint } from '../../../../../../../contexts/MobileBreakpoint';
 import { useSynchronizedCharts } from '../../../../../../../contexts/SynchronizedCharts';
 import usePrevious from '../../../../../../../hooks/usePrevious';
 import './Chart.css';
@@ -68,12 +67,11 @@ const Chart = ({
     () => getYScale(height, max(transformedData, getDataValue)),
     [transformedData, height]
   );
-  const lastPoint = transformedData[transformedData.length - 1];
+  const lastPoint = transformedData[transformedData.length - 1] || 0;
   const lastPointCoords = {
     x: xScale(getDate(lastPoint)) - 6,
     y: yScale(getDataValue(lastPoint)) - 5
   };
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
   const draggableChartRef = useRef();
 
   // Update the transformed data when the zoom bounds have been updated
@@ -167,17 +165,6 @@ const Chart = ({
     setIsTooltipReady(hasTooltipRendered);
   }, [hasTooltipRendered]);
 
-  // Prevent scrolling when the tooltip is open on mobile
-  useEffect(() => {
-    if (isDefaultResponsiveView) {
-      if (hasTooltipRendered) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = null;
-      }
-    }
-  }, [isDefaultResponsiveView, hasTooltipRendered]);
-
   /**
    * Tooltip logic END
    */
@@ -191,7 +178,7 @@ const Chart = ({
       document.removeEventListener('pointerup', augmentedOnPointerUp);
   }, [onPointerUp]);
 
-  if (width < 10) return null;
+  if (width < 10 || !initialData?.length) return null;
 
   return (
     <div
@@ -215,7 +202,7 @@ const Chart = ({
           strokeWidth={1}
           stroke="var(--palette-color-blue)"
           fill="url(#area-gradient)"
-          clipPath="inset(0 1px 1px 1px)"
+          clipPath="inset(-1px 1px 1px 1px)"
         />
         {eventMarkers.map(
           ({ timestamp, type, startTimestamp, endTimestamp }) => {
@@ -272,19 +259,21 @@ const Chart = ({
           height={height}
           fill="transparent"
           rx={14}
-          onTouchStart={handleSynchronizedTooltips}
-          onTouchMove={(e) => {
-            handleSynchronizedTooltips(e);
-            onPointerMove(e, draggableChartRef);
-          }}
-          onTouchEnd={hideSynchronizedTooltips}
           onMouseEnter={showSynchronizedTooltips}
+          onMouseLeave={hideSynchronizedTooltips}
           onMouseMove={(e) => {
             handleSynchronizedTooltips(e);
             onPointerMove(e, draggableChartRef);
           }}
-          onMouseLeave={hideSynchronizedTooltips}
-          onPointerDown={(e) => onPointerDown(e, draggableChartRef)}
+          onTouchMove={(e) => {
+            handleSynchronizedTooltips(e);
+            onPointerMove(e, draggableChartRef);
+          }}
+          onTouchEnd={(e) => onPointerUp(e, draggableChartRef)}
+          onPointerDown={(e) => {
+            showSynchronizedTooltips();
+            onPointerDown(e, draggableChartRef);
+          }}
           onPointerUp={(e) => onPointerUp(e, draggableChartRef)}
         />
         {hasTooltipRendered && (

@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { BREAKPOINTS } from '../constants';
+import { isiOS } from '../utils';
 import useContextHook from './useContextHook';
 
 const Context = createContext(null);
@@ -18,29 +19,66 @@ export const Provider = ({ children }) => {
   const mainRef = useRef();
   const [currentBreakpoint, setCurrentBreakpoint] = useState();
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
-  const [mobileOverlayCount, setMobileOverlayCount] = useState(0);
+  const mobileOverlayIds = useRef([]);
+  const windowPageScrollY = useRef();
+  const lockBody = useCallback(() => {
+    if (isiOS()) {
+      windowPageScrollY.current = window.pageYOffset;
+      document.body.style.position = 'fixed';
+    }
+
+    document.body.style.overflow = 'hidden';
+  }, []);
+
+  const unlockBody = useCallback(() => {
+    if (isiOS()) {
+      document.querySelector('html').style.scrollBehavior = 'auto';
+      document.body.style.position = null;
+
+      window.scrollTo({
+        top: windowPageScrollY.current,
+        scrollBehavior: 'auto'
+      });
+      document.querySelector('html').style.scrollBehavior = 'smooth';
+
+      windowPageScrollY.current = null;
+    }
+
+    document.body.style.overflow = null;
+  }, []);
+
   const addMobileOverlay = useCallback(
-    () =>
-      setMobileOverlayCount((prev) =>
-        isDefaultResponsiveView ? prev + 1 : prev
-      ),
-    [isDefaultResponsiveView]
+    (panelId) => {
+      if (
+        mobileOverlayIds.current.includes(panelId) ||
+        !isDefaultResponsiveView
+      )
+        return;
+
+      if (mobileOverlayIds.current.length === 0) {
+        setTimeout(lockBody, 300);
+      }
+
+      mobileOverlayIds.current.push(panelId);
+    },
+    [isDefaultResponsiveView, lockBody]
   );
   const removeMobileOverlay = useCallback(
-    () =>
-      setMobileOverlayCount((prev) =>
-        isDefaultResponsiveView ? prev - 1 : prev
-      ),
-    [isDefaultResponsiveView]
-  );
+    (panelId) => {
+      if (
+        !mobileOverlayIds.current.includes(panelId) ||
+        !isDefaultResponsiveView
+      )
+        return;
 
-  useEffect(() => {
-    if (isDefaultResponsiveView && mobileOverlayCount > 0) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = null;
-    }
-  }, [isDefaultResponsiveView, mobileOverlayCount]);
+      if (mobileOverlayIds.current.length === 1) {
+        unlockBody();
+      }
+
+      mobileOverlayIds.current.pop();
+    },
+    [isDefaultResponsiveView, unlockBody]
+  );
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -62,10 +100,10 @@ export const Provider = ({ children }) => {
 
   const value = useMemo(
     () => ({
+      addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
       mainRef,
-      addMobileOverlay,
       removeMobileOverlay
     }),
     [

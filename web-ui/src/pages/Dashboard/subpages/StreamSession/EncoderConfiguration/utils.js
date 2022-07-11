@@ -1,5 +1,5 @@
+import { CHANNEL_TYPE, NO_DATA_VALUE } from '../../../../../constants';
 import { dashboard as $dashboardContent } from '../../../../../content';
-import { CHANNEL_TYPE } from '../../../../../constants';
 
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
@@ -125,7 +125,7 @@ const ENCODER_CONFIG_DATA = [
 export const processEncoderConfigData = (ingestConfiguration, channelType) => {
   if (!ingestConfiguration)
     return ENCODER_CONFIG_DATA.map(({ id, label }) => {
-      return { id, label, value: '----' };
+      return { id, label, value: NO_DATA_VALUE };
     });
 
   return ENCODER_CONFIG_DATA.map(
@@ -140,7 +140,7 @@ export const processEncoderConfigData = (ingestConfiguration, channelType) => {
       const values = path.map(([type, key]) => ingestConfiguration[type][key]);
       const error = validate(values, channelType);
 
-      let value = '----';
+      let value = NO_DATA_VALUE;
       if (values.length && !values.some((v) => !v)) {
         value = transform(values) + ` ${units}`;
         value = value.trim();

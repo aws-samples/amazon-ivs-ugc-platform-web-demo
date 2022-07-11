@@ -96,7 +96,7 @@ const FloatingMenu = () => {
               </Button>
               <Button
                 className="icon-button"
-                onClick={logOut}
+                onClick={() => logOut('logOut')}
                 variant="destructive"
               >
                 <Logout />

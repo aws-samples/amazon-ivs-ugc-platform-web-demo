@@ -94,8 +94,8 @@
   display: flex;
   flex-direction: column-reverse;
   position: fixed;
-  right: 15px;
-  row-gap: 10px;
+  right: 30px;
+  z-index: 200;
 }
 
 .floating-player .icon-button {
@@ -133,7 +133,8 @@
   border-radius: var(--default-border-radius);
   border: none;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  margin-bottom: 10px;
   row-gap: 10px;
   transform-origin: bottom right;
   visibility: hidden;
@@ -176,6 +177,7 @@
 }
 
 video {
+  border-radius: 15px;
   height: 100%;
   left: 0;
   position: absolute;
@@ -185,6 +187,7 @@ video {
 }
 
 canvas {
+  border-radius: 15px;
   bottom: 0;
   height: 100%;
   left: 0;
@@ -207,16 +210,18 @@ canvas {
 
 .offline-stream-container {
   background: var(--palette-color-medium-gray);
-  border: 10px solid var(--palette-color-gray);
   border-radius: var(--default-border-radius);
   display: flex;
   flex-direction: column;
   row-gap: 10px;
-  padding: 10px;
+  padding: 20px;
 }
 
-.offline-stream-container a {
-  align-self: flex-end;
+.offline-stream-container .settings-link {
+  margin-top: 10px;
+}
+.offline-stream-container .settings-link a {
+  width: 100%;
 }
 
 @media (prefers-color-scheme: light) {
@@ -247,8 +252,7 @@ canvas {
   }
 
   .offline-stream-container {
-    background: var(--palette-color-white);
-    border: 10px solid var(--palette-color-light-gray);
+    background: var(--palette-color-light-gray);
   }
 
   .video-container .spinner.light {

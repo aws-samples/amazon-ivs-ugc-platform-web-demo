@@ -4,16 +4,15 @@
   flex-direction: column-reverse;
   position: fixed;
   right: 15px;
-  row-gap: 10px;
   transform: translateY(0);
   z-index: 50;
 }
 
 .floating-menu .icon-button {
   height: auto;
-  width: auto;
   min-width: auto;
   padding: 8px;
+  width: auto;
 }
 
 .floating-menu .icon-button svg {
@@ -26,6 +25,10 @@
   display: flex;
   flex-direction: column;
   row-gap: 10px;
+}
+
+.floating-menu .action-buttons {
+  margin-bottom: 10px;
 }
 
 .hamburger {

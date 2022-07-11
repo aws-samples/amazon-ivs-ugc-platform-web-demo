@@ -29,6 +29,13 @@ const metricDataResultsMock = metricDataResultsJsonMock.map(
     )
   })
 );
+const streamSessionResultsMock = {
+  ...streamSessionMock,
+  truncatedEvents: streamSessionMock.truncatedEvents.map((event) => ({
+    ...event,
+    eventTime: new Date(event.eventTime)
+  }))
+};
 const mockIvsClient = mockClient(ivsClient);
 const mockCloudwatchClient = mockClient(cloudwatchClient);
 const mockDynamoDbClient = mockClient(dynamoDbClient);
@@ -72,7 +79,7 @@ describe('getStreamSession controller', () => {
     mockIvsClient.reset();
     mockIvsClient.on(GetStreamSessionCommand).resolves({
       streamSession: {
-        ...streamSessionMock,
+        ...streamSessionResultsMock,
         startTime: mockDefaultStartTime
       }
     });
@@ -114,7 +121,7 @@ describe('getStreamSession controller', () => {
     const setupOfflineStreamTest = () => {
       mockIvsClient.on(GetStreamSessionCommand).resolves({
         streamSession: {
-          ...streamSessionMock,
+          ...streamSessionResultsMock,
           startTime: mockDefaultStartTime,
           endTime: mockNow
         }
@@ -133,16 +140,15 @@ describe('getStreamSession controller', () => {
     };
     const assertMetricsResponse = (
       response: LightMyRequestResponse,
-      expectedIngestFramerateLength: number
+      expectedIngestFramerateLength: number,
+      parsedPayload: GetStreamSessionBody
     ) => {
-      const { metrics, ...rest } = JSON.parse(
-        response.payload
-      ) as GetStreamSessionBody;
+      const { metrics, ...rest } = parsedPayload;
       const ingestFramerateMetric = metrics.find(
         ({ label }) => label === INGEST_FRAMERATE
       );
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();
@@ -165,17 +171,26 @@ describe('getStreamSession controller', () => {
       });
 
       const response = await injectAuthorizedRequest(server, { url: route });
+      const parsedPayload = JSON.parse(
+        response.payload
+      ) as GetStreamSessionBody;
 
-      assertMetricsResponse(response, 56);
+      assertMetricsResponse(response, 56, parsedPayload);
       expect(mockDynamoDbClient).not.toHaveReceivedCommand(UpdateItemCommand);
+      expect(parsedPayload.truncatedEvents).toEqual(
+        streamSessionMock.truncatedEvents
+      );
     });
 
     it('should return the correct metrics for an offline stream less than 3 hours long', async () => {
       setupOfflineStreamTest();
 
       const response = await injectAuthorizedRequest(server, { url: route });
+      const parsedPayload = JSON.parse(
+        response.payload
+      ) as GetStreamSessionBody;
 
-      assertMetricsResponse(response, 62);
+      assertMetricsResponse(response, 62, parsedPayload);
       // Check that the key used to store the metrics in the Dynamo table is correct
       expect(
         mockDynamoDbClient.commandCalls(UpdateItemCommand)[0].args[0].input
@@ -183,6 +198,9 @@ describe('getStreamSession controller', () => {
           'P5-S1654888020000-E1654888325000'
         ]
       ).toBeTruthy();
+      expect(parsedPayload.truncatedEvents).toEqual(
+        [...streamSessionMock.truncatedEvents].reverse()
+      );
     });
 
     it('should return the metrics from DynamoDB when they are available for an offline stream', async () => {
@@ -196,9 +214,15 @@ describe('getStreamSession controller', () => {
       });
 
       const response = await injectAuthorizedRequest(server, { url: route });
+      const parsedPayload = JSON.parse(
+        response.payload
+      ) as GetStreamSessionBody;
 
-      assertMetricsResponse(response, 62);
+      assertMetricsResponse(response, 62, parsedPayload);
       expect(mockDynamoDbClient).not.toHaveReceivedCommand(UpdateItemCommand);
+      expect(parsedPayload.truncatedEvents).toEqual(
+        [...streamSessionMock.truncatedEvents].reverse()
+      );
     });
 
     it('should return the correct alignedStartTime for an offline stream started 62 days, 23 hours and 59 minutes ago', async () => {
@@ -212,7 +236,7 @@ describe('getStreamSession controller', () => {
       const mockEndTime = new Date('2022-04-08T19:18:05.000Z');
       mockIvsClient.on(GetStreamSessionCommand).resolves({
         streamSession: {
-          ...streamSessionMock,
+          ...streamSessionResultsMock,
           startTime: mockStartTime,
           endTime: mockEndTime
         }
@@ -232,9 +256,12 @@ describe('getStreamSession controller', () => {
       });
 
       const response = await injectAuthorizedRequest(server, { url: route });
-      const { metrics, ...rest } = JSON.parse(response.payload);
+      const parsedPayload = JSON.parse(
+        response.payload
+      ) as GetStreamSessionBody;
+      const { metrics, ...rest } = parsedPayload;
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(
@@ -243,6 +270,9 @@ describe('getStreamSession controller', () => {
           'P300-S1649445300000-E1649445600000'
         ]
       ).toBeTruthy();
+      expect(parsedPayload.truncatedEvents).toEqual(
+        [...streamSessionMock.truncatedEvents].reverse()
+      );
     });
   });
 
@@ -251,7 +281,7 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(0);
     });
@@ -273,7 +303,7 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(2);
       expect(metrics).toMatchSnapshot();
@@ -298,7 +328,7 @@ describe('getStreamSession controller', () => {
         response.payload
       ) as GetStreamSessionBody;
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();
@@ -329,7 +359,7 @@ describe('getStreamSession controller', () => {
         response.payload
       ) as GetStreamSessionBody;
 
-      expect(rest).toMatchObject(streamSessionMock);
+      expect(rest).toMatchObject(streamSessionResultsMock);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();

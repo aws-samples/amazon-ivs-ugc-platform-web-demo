@@ -233,7 +233,7 @@ a:hover {
   position: relative;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 989px) {
   h1 {
     font-size: 32px;
     font-weight: 900;

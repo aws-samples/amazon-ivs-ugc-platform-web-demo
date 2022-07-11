@@ -11,6 +11,7 @@ import useSWR from 'swr';
 import { getCurrentSession } from '../api/utils';
 import { userManagement } from '../api';
 import useContextHook from './useContextHook';
+import usePrevious from '../hooks/usePrevious';
 
 const Context = createContext(null);
 Context.displayName = 'User';
@@ -29,6 +30,8 @@ export const Provider = ({ children }) => {
     useState(false);
   const [userData, setUserData] = useState();
   const [isSessionValid, setIsSessionValid] = useState();
+  const prevIsSessionValid = usePrevious(isSessionValid);
+  const [logOutAction, setLogOutAction] = useState('');
 
   const {
     data: session,
@@ -65,9 +68,13 @@ export const Provider = ({ children }) => {
     setIsCreatingResources(false);
   }, [fetchUserData]);
 
-  const logOut = useCallback(() => {
-    userManagement.signOut() && checkSessionStatus() && setUserData(null);
-  }, [checkSessionStatus]);
+  const logOut = useCallback(
+    (action) => {
+      setLogOutAction(action);
+      userManagement.signOut() && checkSessionStatus() && setUserData(null);
+    },
+    [checkSessionStatus]
+  );
 
   // Initial session check on page load
   useEffect(() => {
@@ -87,6 +94,8 @@ export const Provider = ({ children }) => {
       isCreatingResources,
       isSessionValid,
       logOut,
+      logOutAction,
+      prevIsSessionValid,
       userData
     }),
     [
@@ -97,6 +106,8 @@ export const Provider = ({ children }) => {
       isCreatingResources,
       isSessionValid,
       logOut,
+      logOutAction,
+      prevIsSessionValid,
       userData
     ]
   );

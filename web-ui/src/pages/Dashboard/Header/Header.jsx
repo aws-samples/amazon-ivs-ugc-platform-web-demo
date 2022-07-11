@@ -84,7 +84,7 @@ const Header = () => {
             </Button>
             <Button
               {...(isIconLogoutBtn ? { className: 'header-icon-button' } : {})}
-              onClick={logOut}
+              onClick={() => logOut('logOut')}
               variant="secondary"
             >
               {isIconLogoutBtn ? <Logout className="icon" /> : $content.log_out}
@@ -94,6 +94,7 @@ const Header = () => {
       </header>
       <ResponsivePanel
         isOpen={isNavOpen}
+        panelId="nav-panel"
         preserveVisible
         slideInDirection="top"
       >

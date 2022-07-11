@@ -45,7 +45,7 @@ const RegisterUser = () => {
         email: {},
         password: {
           type: 'password',
-          confirm: true,
+          confirmedBy: 'confirmPassword',
           description: $content.register_page.password_description
         }
       }}

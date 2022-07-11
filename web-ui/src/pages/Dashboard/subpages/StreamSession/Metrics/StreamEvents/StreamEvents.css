@@ -51,6 +51,10 @@
     width: 100%;
   }
 
+  .stream-events-list.no-stream-events-wrapper {
+    margin: 45px 0 30px;
+  }
+
   .no-stream-events {
     padding-bottom: 0;
   }

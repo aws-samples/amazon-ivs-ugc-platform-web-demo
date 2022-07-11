@@ -20,7 +20,7 @@
 
 .modal-buttons {
   align-items: center;
-  column-gap: 30px;
+  column-gap: 10px;
   display: flex;
   justify-content: flex-end;
   margin-top: 30px;
@@ -34,13 +34,16 @@
 @media (max-width: 575px) {
   .modal-buttons {
     flex-direction: column-reverse;
-    row-gap: 20px;
+  }
+
+  .modal-buttons button + button {
+    margin-bottom: 20px;
   }
 }
 
 @media (prefers-color-scheme: light) {
   #modal-container {
-    background: hsla(var(--base-color-white), 0%, 0.2);
+    background: hsla(var(--base-color-white), 0%, 0.5);
   }
 
   .modal {

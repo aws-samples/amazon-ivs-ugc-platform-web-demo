@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useMatch } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -7,6 +7,7 @@ import { Sensors } from '../../../assets/icons';
 import { useStreams } from '../../../contexts/Streams';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
+import LinkButton from '../../../components/LinkButton';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
@@ -27,6 +28,7 @@ const FloatingPlayer = () => {
   });
   const [isExpanded, setIsExpanded] = useState(true);
   const { pathname } = useLocation();
+  const isSettingsPage = !!useMatch('settings');
   const hasStreamSessions = !!streamSessions?.length;
   const canvasRef = useRef();
   const isBlurring = useRef(false);
@@ -51,7 +53,7 @@ const FloatingPlayer = () => {
   const [isBlurReady, setIsBlurReady] = useState(false);
   const shouldShowSpinner =
     (isLoading && isLive !== false) || (shouldBlurPlayer && !isBlurReady);
-  const additionalStyles = shouldShowSpinner
+  const hidePlayerStyles = shouldShowSpinner
     ? { style: { display: 'none' } }
     : {};
 
@@ -143,21 +145,21 @@ const FloatingPlayer = () => {
         <Sensors isLive={isLive} />
       </Button>
       <div className={classNames.join(' ')}>
+        <div
+          className="video-container"
+          style={isLive ? {} : { display: 'none' }}
+        >
+          {shouldShowSpinner && <Spinner variant="light" />}
+          <video {...hidePlayerStyles} ref={videoRef} playsInline muted></video>
+          <canvas {...hidePlayerStyles} ref={canvasRef} />
+          <LivePill />
+        </div>
         {isLive &&
           (activeStreamSession?.index > 0 || pathname === '/settings') && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
               {$content.view_stream_session}
             </Button>
           )}
-        <div
-          className="video-container"
-          style={isLive ? {} : { display: 'none' }}
-        >
-          {shouldShowSpinner && <Spinner variant="light" />}
-          <video {...additionalStyles} ref={videoRef} playsInline muted></video>
-          <canvas {...additionalStyles} ref={canvasRef} />
-          <LivePill />
-        </div>
         {!isLive && (
           <div className="offline-stream-container">
             {hasStreamSessions ? (
@@ -172,7 +174,13 @@ const FloatingPlayer = () => {
                 <p className="mini-player-text offline-instructions p2">
                   {$content.offline_instructions}
                 </p>
-                <Link to="/settings">{$content.settings}</Link>
+                {!isSettingsPage && (
+                  <div className="settings-link">
+                    <LinkButton variant="secondary" to="/settings">
+                      {$content.settings}
+                    </LinkButton>
+                  </div>
+                )}
               </>
             )}
           </div>

@@ -58,7 +58,7 @@
   font-weight: 400;
   height: 42px;
   min-width: 90px;
-  padding: 14px;
+  padding: 14px 20px;
   transition: all 0.15s ease-in-out;
   width: 100%;
 }
@@ -111,7 +111,7 @@
   justify-content: center;
   padding: 10px 0;
   position: absolute;
-  right: 21px;
+  right: 20px;
   top: 2px;
 }
 

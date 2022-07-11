@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 
-import { dashboard as $dashboardContent } from '../../../../../../content';
-import { ZOOM_LEVELS } from '../../../../../../contexts/SynchronizedCharts';
+import { dashboard as $dashboardContent } from '../../../../../../../content';
+import { ZOOM_LEVELS } from '../../../../../../../contexts/SynchronizedCharts';
+import './ZoomButtons.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 

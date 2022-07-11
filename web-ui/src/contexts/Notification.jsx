@@ -15,33 +15,54 @@ const Context = createContext(null);
 Context.displayName = 'Notification';
 
 const NOTIF_TYPES = { SUCCESS: 'success', ERROR: 'error' };
-const NOTIF_TIMEOUT = 5000; // ms
+const NOTIF_TIMEOUT = 3000; // ms
+export const NOTIF_ANIMATION_DURATION_MS = 250; // ms
 
 export const Provider = ({ children }) => {
   const [notif, setNotif] = useState(null);
   const { pathname } = useLocation();
   const timeoutID = useRef();
 
-  const notifyError = useCallback((message) => {
-    setNotif({ message, type: NOTIF_TYPES.ERROR });
+  const dismissNotif = useCallback(() => {
+    setNotif(null);
+    clearTimeout(timeoutID.current);
   }, []);
 
-  const notifySuccess = useCallback((message) => {
-    setNotif({ message, type: NOTIF_TYPES.SUCCESS });
-  }, []);
+  const notify = useCallback(
+    (message, type) => {
+      const shouldDismissNotif = timeoutID.current;
+
+      if (shouldDismissNotif) dismissNotif();
+
+      setTimeout(
+        () => setNotif({ message, type: type }),
+        shouldDismissNotif ? NOTIF_ANIMATION_DURATION_MS : 0
+      );
+    },
+    [dismissNotif]
+  );
+
+  const notifyError = useCallback(
+    (message) => notify(message, NOTIF_TYPES.ERROR),
+    [notify]
+  );
+
+  const notifySuccess = useCallback(
+    (message) => notify(message, NOTIF_TYPES.SUCCESS),
+    [notify]
+  );
 
   useEffect(() => {
-    clearTimeout(timeoutID.current);
-    setNotif(null);
-  }, [pathname]);
+    dismissNotif();
+  }, [dismissNotif, pathname]);
 
   useEffect(() => {
     if (notif) {
-      timeoutID.current = setTimeout(() => setNotif(null), NOTIF_TIMEOUT);
+      timeoutID.current = setTimeout(dismissNotif, NOTIF_TIMEOUT);
     }
 
     return () => clearTimeout(timeoutID.current);
-  }, [notif]);
+  }, [dismissNotif, notif]);
 
   const value = useMemo(
     () => ({

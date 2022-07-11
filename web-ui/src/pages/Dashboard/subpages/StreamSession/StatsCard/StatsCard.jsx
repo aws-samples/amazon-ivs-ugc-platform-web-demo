@@ -1,7 +1,7 @@
 import { useOutletContext } from 'react-router-dom';
 
 import './StatsCard.css';
-import { CONCURRENT_VIEWS } from '../../../../../constants';
+import { CONCURRENT_VIEWS, NO_DATA_VALUE } from '../../../../../constants';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { Visibility } from '../../../../../assets/icons';
 import TimeElapsed from './TimeElapsed';
@@ -25,7 +25,7 @@ const StatsCard = (props) => {
   concurrentViewsValue =
     typeof concurrentViewsValue === 'number'
       ? Math.round(concurrentViewsValue)
-      : '----';
+      : NO_DATA_VALUE;
 
   return (
     <div className={`stats-card-container ${isLive ? '' : 'offline'}`}>

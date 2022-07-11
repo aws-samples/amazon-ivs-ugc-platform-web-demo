@@ -65,6 +65,7 @@ export class UserManagementStack extends NestedStack {
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
       signInAliases: { preferredUsername: true, username: true },
+      signInCaseSensitive: false,
       standardAttributes: {
         email: {
           required: true,

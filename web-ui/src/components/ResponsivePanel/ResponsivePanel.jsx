@@ -11,6 +11,7 @@ const ResponsivePanel = ({
   children,
   isOpen,
   mobileBreakpoint,
+  panelId,
   preserveVisible
 }) => {
   const { currentBreakpoint } = useMobileBreakpoint();
@@ -32,6 +33,7 @@ const ResponsivePanel = ({
           <MobilePanel
             controls={controls}
             isOpen={isOpen}
+            panelId={panelId}
             slideInDirection={slideInDirection}
           >
             {children}
@@ -54,6 +56,7 @@ ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
   isOpen: PropTypes.bool,
   mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
+  panelId: PropTypes.string.isRequired,
   preserveVisible: PropTypes.bool,
   slideInDirection: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
 };

@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import { useEffect, useMemo, useRef } from 'react';
-import { m } from 'framer-motion';
+import { m, usePresence } from 'framer-motion';
 
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import useFocusTrap from '../../../hooks/useFocusTrap';
 import withPortal from '../../withPortal';
 import './MobilePanel.css';
 
-const MobilePanel = ({ children, controls, slideInDirection }) => {
+const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   const { addMobileOverlay, removeMobileOverlay } = useMobileBreakpoint();
   const headerRef = useRef();
   const panelRef = useRef();
@@ -25,16 +25,22 @@ const MobilePanel = ({ children, controls, slideInDirection }) => {
         return;
     }
   }, [slideInDirection]);
+  const [isPresent, safeToRemove] = usePresence();
 
   useEffect(() => {
     headerRef.current = document.getElementsByClassName('header')[0];
   }, []);
 
   useEffect(() => {
-    addMobileOverlay();
+    addMobileOverlay(panelId);
+  }, [addMobileOverlay, panelId]);
 
-    return () => removeMobileOverlay();
-  }, [addMobileOverlay, removeMobileOverlay]);
+  useEffect(() => {
+    if (!isPresent) {
+      removeMobileOverlay(panelId);
+      safeToRemove();
+    }
+  }, [isPresent, panelId, removeMobileOverlay, safeToRemove]);
 
   useFocusTrap([headerRef, panelRef]);
 
@@ -56,6 +62,7 @@ const MobilePanel = ({ children, controls, slideInDirection }) => {
 MobilePanel.propTypes = {
   children: PropTypes.node.isRequired,
   controls: PropTypes.object.isRequired,
+  panelId: PropTypes.string.isRequired,
   slideInDirection: PropTypes.string.isRequired
 };
 

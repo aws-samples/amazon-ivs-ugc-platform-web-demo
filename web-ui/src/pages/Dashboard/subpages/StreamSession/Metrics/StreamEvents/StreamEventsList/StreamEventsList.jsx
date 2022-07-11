@@ -72,8 +72,13 @@ const StreamEventsList = ({
     return () => wrapper?.removeEventListener('keypress', removeSpacebarScroll);
   }, []);
 
+  const hasEvents = !!streamEvents.length;
+  const metricPanelWrapperClasses = ['stream-events-list'];
+  if (!hasEvents) metricPanelWrapperClasses.push('no-stream-events-wrapper');
+
   return (
     <MetricPanel
+      hasData={hasEvents && !isLoadingStreamData}
       isLoading={isLoadingStreamData}
       style={isHidden ? { display: 'none' } : {}}
       title={$content.stream_events}
@@ -91,9 +96,9 @@ const StreamEventsList = ({
       }
       headerClassNames={['stream-events-header']}
       ref={wrapperRef}
-      wrapper={{ classNames: ['stream-events-list'] }}
+      wrapper={{ classNames: metricPanelWrapperClasses }}
     >
-      {streamEvents.length ? (
+      {hasEvents ? (
         streamEvents.map((streamEvent) => (
           <StreamEventItem
             key={streamEvent.id}

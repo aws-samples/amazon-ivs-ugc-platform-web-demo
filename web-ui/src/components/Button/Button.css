@@ -71,16 +71,26 @@
   background: var(--palette-color-extra-light-gray);
 }
 
-.button.link {
-  background: none;
+.button.text {
+  background: transparent;
+  color: var(--palette-color-blue);
+}
+.button.text.first {
+  color: var(--palette-color-blue);
+}
+.button.text.second {
   color: var(--palette-color-white);
 }
 
-.button.link:hover {
+.button.text .spinner {
+  color: var(--palette-color-white);
+}
+
+.button.text:hover {
   background: var(--palette-color-gray-hover);
 }
 
-.button.link:focus {
+.button.text:focus {
   background: var(--palette-color-medium-gray);
 }
 
@@ -111,23 +121,6 @@
 
 .button.icon:focus {
   background: var(--palette-color-gray-hover);
-}
-
-.button.text {
-  background: transparent;
-  color: var(--palette-color-blue);
-}
-
-.button.text .spinner {
-  color: var(--palette-color-white);
-}
-
-.button.text:hover {
-  background: var(--palette-color-gray-hover);
-}
-
-.button.text:focus {
-  background: var(--palette-color-medium-gray);
 }
 
 @media (prefers-color-scheme: light) {
@@ -169,15 +162,19 @@
     background: var(--palette-color-gray);
   }
 
-  .button.link {
+  .button.text.second {
     color: var(--palette-color-black);
   }
 
-  .button.link:hover {
+  .button.text.first .spinner {
+    color: var(--palette-color-black);
+  }
+
+  .button.text.second:hover {
     background: var(--palette-color-light-gray-hover);
   }
 
-  .button.link:focus {
+  .button.text.second:focus {
     background: var(--palette-color-light-gray);
   }
 
@@ -185,7 +182,7 @@
     color: var(--palette-color-white);
   }
 
-  .button.button.secondary .spinner {
+  .button.secondary .spinner {
     color: var(--palette-color-black);
   }
 
@@ -213,19 +210,19 @@
     fill: var(--palette-color-black);
   }
 
-  .button.text {
+  .button.text.first {
     color: var(--palette-color-medium-blue);
   }
 
-  .button.text .spinner {
+  .button.text.first .spinner {
     color: var(--palette-color-black);
   }
 
-  .button.text:hover {
+  .button.text.first:hover {
     background: var(--palette-color-light-gray-hover);
   }
 
-  .button.text:focus {
+  .button.text.first:focus {
     background: var(--palette-color-light-gray-hover);
   }
 }

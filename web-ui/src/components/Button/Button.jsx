@@ -19,14 +19,15 @@ const Button = forwardRef(
       onFocus,
       onMouseDown,
       type,
-      variant
+      variant,
+      subVariant
     },
     ref
   ) => (
     <button
       {...(!!ariaLabel ? { 'aria-label': ariaLabel } : {})}
       aria-disabled={ariaDisabled}
-      className={`button ${variant} ${className}`}
+      className={`button ${className} ${variant} ${subVariant}`}
       disabled={isDisabled}
       id={id}
       onClick={onClick}
@@ -53,6 +54,7 @@ Button.defaultProps = {
   onClick: undefined,
   onFocus: undefined,
   onMouseDown: undefined,
+  subVariant: '',
   type: 'button',
   variant: 'primary',
   width: ''
@@ -70,13 +72,13 @@ Button.propTypes = {
   onClick: PropTypes.func,
   onFocus: PropTypes.func,
   onMouseDown: PropTypes.func,
+  subVariant: PropTypes.oneOf(['first', 'second', '']),
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   variant: PropTypes.oneOf([
     'primary',
-    'tertiary',
     'secondary',
+    'tertiary',
     'destructive',
-    'link',
     'icon',
     'text'
   ])

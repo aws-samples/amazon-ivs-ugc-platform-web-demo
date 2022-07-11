@@ -29,8 +29,8 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
       <h2>{$content.reset_password_page.title}</h2>
       <p className="p1">{$content.reset_password_page.email_link_sent}</p>
       <span className="resend-action-container">
-        <b>{$content.did_not_receive_email}</b>&nbsp;
-        <Button onClick={resend} type="button" variant="link">
+        <b>{$content.did_not_receive_email}</b>
+        <Button onClick={resend} type="button" variant="secondary">
           {$content.resend}
         </Button>
       </span>

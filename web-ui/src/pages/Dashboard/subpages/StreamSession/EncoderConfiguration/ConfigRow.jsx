@@ -5,6 +5,7 @@ import './EncoderConfiguration.css';
 import { Copy, ErrorIcon } from '../../../../../assets/icons';
 import { copyToClipboard, substitutePlaceholders } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
+import { NO_DATA_VALUE } from '../../../../../constants';
 import { useNotif } from '../../../../../contexts/Notification';
 import Button from '../../../../../components/Button';
 import Tooltip from '../../../../../components/Tooltip';
@@ -16,7 +17,7 @@ const valueRegex = /({.+})/;
 const ConfigRow = ({ label, value, error }) => {
   const { activeStreamSession, isLoadingStreamData } = useOutletContext();
   const { notifySuccess } = useNotif();
-  const renderedValue = isLoadingStreamData ? '----' : value;
+  const renderedValue = isLoadingStreamData ? NO_DATA_VALUE : value;
   const [isValueOverflowing, valueRef] = useStringOverflow(renderedValue);
   const hasError = !!error && !isLoadingStreamData;
   let ErrorMessage;
@@ -44,17 +45,22 @@ const ConfigRow = ({ label, value, error }) => {
 
   return (
     <span className={`config-item ${hasError ? 'error' : ''}`}>
-      <h4 className="config-label">
-        {label}
-        {hasError && <ErrorIcon />}
-      </h4>
+      <Tooltip
+        hasFixedWidth={!!ErrorMessage}
+        message={ErrorMessage || renderedValue}
+      >
+        <h4 className="config-label">
+          {label}
+          {hasError && <ErrorIcon />}
+        </h4>
+      </Tooltip>
       <span className="config-value">
         <Button
           ariaLabel={`${$content.copy_the_label.replace(
             '{label}',
             label.toLowerCase()
           )}`}
-          ariaDisabled={isLoadingStreamData}
+          isDisabled={renderedValue === NO_DATA_VALUE}
           {...(isLoadingStreamData
             ? {}
             : { onClick: () => handleCopy(label, value) })}

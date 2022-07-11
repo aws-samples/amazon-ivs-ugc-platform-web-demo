@@ -39,7 +39,7 @@
 
 .error-event-line {
   stroke: var(--palette-color-red);
-  stroke-width: 2px;
+  stroke-width: 1px;
   pointer-events: none;
 }
 

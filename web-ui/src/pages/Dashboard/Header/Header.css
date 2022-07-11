@@ -27,6 +27,19 @@
   width: 24px;
 }
 
+@media (max-width: 905px) {
+  .header {
+    /* Corresponds to a .session-list width 320px */
+    grid-template-columns: 1fr minmax(auto, 464px) 1fr;
+  }
+}
+
+@media (min-width: 990px) and (max-width: 1025px) {
+  .header {
+    grid-template-columns: 1fr minmax(auto, 464px) 1fr;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   .header {
     background-color: var(--palette-color-extra-light-gray);

@@ -2,7 +2,10 @@ import PropTypes from 'prop-types';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { Check, ErrorIcon } from '../../assets/icons';
-import { useNotif } from '../../contexts/Notification';
+import {
+  useNotif,
+  NOTIF_ANIMATION_DURATION_MS
+} from '../../contexts/Notification';
 import './Notification.css';
 
 const Notification = ({ position, top }) => {
@@ -23,7 +26,10 @@ const Notification = ({ position, top }) => {
           initial="hidden"
           key={`${notif.type}-notification`}
           style={{ top }}
-          transition={{ duration: 0.25, type: 'tween' }}
+          transition={{
+            duration: NOTIF_ANIMATION_DURATION_MS / 1000,
+            type: 'tween'
+          }}
           variants={{
             hidden: { opacity: 0, y: -25 },
             visible: { opacity: 1, y: 0 }

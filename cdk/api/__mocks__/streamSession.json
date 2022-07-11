@@ -21,5 +21,26 @@
     }
   },
   "streamId": "streamSessionId",
-  "truncatedEvents": []
+  "truncatedEvents": [
+    {
+      "eventTime": "2022-05-20T21:10:00.000Z",
+      "name": "Session Ended",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-20T21:05:00.000Z",
+      "name": "Stream End",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-20T20:05:00.000Z",
+      "name": "Stream Start",
+      "type": "IVS Stream State Change"
+    },
+    {
+      "eventTime": "2022-05-20T20:00:00.000Z",
+      "name": "Session Created",
+      "type": "IVS Stream State Change"
+    }
+  ]
 }

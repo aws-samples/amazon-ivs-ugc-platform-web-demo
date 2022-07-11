@@ -83,7 +83,8 @@ const Modal = () => {
             <Button
               customStyles={{ width: isResponsiveView ? '100%' : 'auto' }}
               onClick={handleClose}
-              variant="link"
+              variant="text"
+              subVariant="second"
             >
               {$content.modal.cancel}
             </Button>

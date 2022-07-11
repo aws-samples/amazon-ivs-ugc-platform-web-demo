@@ -18,9 +18,10 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
       const {
         x: parentLeft,
         y: parentY,
-        height: parentHeight
+        height: parentHeight,
+        width: parentWidth
       } = parentRef.current.getBoundingClientRect();
-      const { height: tooltipHeight } =
+      const { height: tooltipHeight, width: tooltipWidth } =
         tooltipRef.current.getBoundingClientRect();
       const parentYWithScrollOffset = parentY + window.scrollY;
 
@@ -29,12 +30,12 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
       if (position === 'above') {
         unboundOffsets = {
           top: parentYWithScrollOffset - tooltipHeight - 2,
-          left: parentLeft
+          left: parentLeft - tooltipWidth / 2 + parentWidth / 2
         };
       } else if (position === 'below') {
         unboundOffsets = {
           top: parentYWithScrollOffset + parentHeight + 2,
-          left: parentLeft
+          left: parentLeft - tooltipWidth / 2 + parentWidth / 2
         };
       }
 

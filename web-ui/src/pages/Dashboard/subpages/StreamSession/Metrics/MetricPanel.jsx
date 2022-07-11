@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import './Metrics.css';
 import { dashboard as $dashboardContent } from '../../../../../content';
-import { SyncError } from '../../../../../assets/icons';
+import { NoData, SyncError } from '../../../../../assets/icons';
 import Spinner from '../../../../../components/Spinner';
 
 const $content = $dashboardContent.stream_session_page;
@@ -15,6 +15,7 @@ const MetricPanel = forwardRef(
       children,
       footer,
       footerClassNames,
+      hasData,
       header,
       headerClassNames,
       isLoading,
@@ -48,6 +49,14 @@ const MetricPanel = forwardRef(
           </div>
         );
 
+      if (!hasData)
+        return (
+          <div className="metrics-error-container">
+            <NoData />
+            <p className="p3">{$content.no_data_available}</p>
+          </div>
+        );
+
       return children;
     };
 
@@ -77,6 +86,7 @@ MetricPanel.defaultProps = {
   children: null,
   footer: null,
   footerClassNames: [],
+  hasData: false,
   header: null,
   headerClassNames: [],
   isLoading: false,
@@ -89,6 +99,7 @@ MetricPanel.propTypes = {
   children: PropTypes.node,
   footer: PropTypes.node,
   footerClassNames: PropTypes.arrayOf(PropTypes.string),
+  hasData: PropTypes.bool,
   header: PropTypes.node,
   headerClassNames: PropTypes.arrayOf(PropTypes.string),
   isLoading: PropTypes.bool,

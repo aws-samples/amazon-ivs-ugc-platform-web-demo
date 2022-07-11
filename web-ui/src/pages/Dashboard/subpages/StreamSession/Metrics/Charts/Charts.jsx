@@ -11,7 +11,8 @@ import {
 } from './utils';
 import {
   INGEST_FRAMERATE,
-  INGEST_VIDEO_BITRATE
+  INGEST_VIDEO_BITRATE,
+  NO_DATA_VALUE
 } from '../../../../../../constants';
 import {
   useSynchronizedCharts,
@@ -79,9 +80,12 @@ const Charts = () => {
     );
 
     if (truncatedEvents?.length) {
-      return processEvents(truncatedEvents)
-        .reverse()
-        .reduce((acc, { error, eventTime, originalName: name }) => {
+      const streamEvents = isLive
+        ? processEvents(truncatedEvents).reverse()
+        : processEvents(truncatedEvents);
+
+      return streamEvents.reduce(
+        (acc, { error, eventTime, originalName: name }) => {
           const relativeEventTime = new Date(eventTime).getTime();
           const hasRequiredProps = relativeEventTime && name;
           const zoomEventIndex =
@@ -98,7 +102,9 @@ const Charts = () => {
           }
 
           return acc;
-        }, []);
+        },
+        []
+      );
     }
 
     return [];
@@ -106,6 +112,7 @@ const Charts = () => {
     dataLength,
     dataPeriod,
     ingestVideoBitrateData.alignedStartTime,
+    isLive,
     truncatedEvents
   ]);
   const eventMarkers = useMemo(
@@ -144,22 +151,26 @@ const Charts = () => {
                   ? currentValue.toFixed(1)
                   : currentValue.toFixed(0)
               } ${UNITS[metricData.label]}`
-            : '----';
+            : NO_DATA_VALUE;
       } else {
-        zoomStart = zoomEnd = currentValue = '----';
+        zoomStart = zoomEnd = currentValue = NO_DATA_VALUE;
       }
 
-      const isChartLoading =
-        isLoadingStreamData ||
-        (activeStreamSession &&
-          (!isMetricDataAvailable ||
-            // Ingest framerate data sometimes comes after video bitrate
-            metricData?.data?.length < 2));
+      const hasData = metricData?.data?.length >= 2;
+      const isWaitingForData =
+        activeStreamSession &&
+        !isLoadingStreamData &&
+        !fetchActiveStreamSessionError &&
+        isLive &&
+        // Ingest framerate data sometimes comes after video bitrate
+        !hasData;
+      const isChartLoading = isLoadingStreamData || isWaitingForData;
 
       return {
+        hasData,
         isLoading: isChartLoading,
         wrapper: { classNames: ['chart'] },
-        header: <h2 className="cursor-reading">{currentValue}</h2>,
+        header: <h2>{currentValue}</h2>,
         footerClassNames: ['chart-time-range-footer'],
         footer: (
           <>
@@ -173,6 +184,7 @@ const Charts = () => {
       activeStreamSession,
       dataLength,
       dataPeriod,
+      fetchActiveStreamSessionError,
       ingestVideoBitrateData.alignedStartTime,
       isLive,
       isLoadingStreamData,

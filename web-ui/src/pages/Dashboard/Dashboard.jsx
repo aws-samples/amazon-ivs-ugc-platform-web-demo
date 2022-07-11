@@ -29,7 +29,8 @@ const Dashboard = () => {
     refreshCurrentStreamSessionsWithLoading
   } = useStreams();
   const { isDefaultResponsiveView, mainRef } = useMobileBreakpoint();
-  const { isSessionValid, userData, fetchUserData } = useUser();
+  const { isSessionValid, userData, fetchUserData, prevIsSessionValid } =
+    useUser();
   const { modal } = useModal();
   const location = useLocation();
   const outletContext = useMemo(
@@ -76,7 +77,13 @@ const Dashboard = () => {
      * they were trying to go to when they were redirected. This allows us
      * to send them along to that page after they login.
      */
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return (
+      <Navigate
+        to={`/login${location?.search || ''}`}
+        {...(!prevIsSessionValid ? { state: { from: location } } : {})}
+        replace
+      />
+    );
 
   return (
     <>

@@ -3,8 +3,9 @@ import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 import { localPoint } from '@visx/event';
 import PropTypes from 'prop-types';
 
-import useThrottledCallback from '../hooks/useThrottledCallback';
+import { bound } from '../utils';
 import useContextHook from './useContextHook';
+import useThrottledCallback from '../hooks/useThrottledCallback';
 
 const Context = createContext(null);
 Context.displayName = 'SynchronizedCharts';
@@ -101,13 +102,17 @@ export const Provider = ({ children, isLive }) => {
   );
 
   const onPointerMove = useCallback(
-    ({ clientX }, draggableChartRef) => {
+    (event, draggableChartRef) => {
       if (!draggableChartRef.current || originX === null) return;
 
-      const { left } = draggableChartRef.current.getBoundingClientRect();
-      const dx = clientX - left - originX; // dx > 0 => RIGHT, dx < 0 => LEFT
+      let clientX = event.clientX;
+      if (event.type === 'touchmove') clientX = event.touches[0].clientX;
 
-      setZoomAreaDx(dx);
+      const { left, width } = draggableChartRef.current.getBoundingClientRect();
+      const dx = clientX - left - originX; // dx > 0 => RIGHT, dx < 0 => LEFT
+      const boundedDx = bound(dx, -originX, width - originX);
+
+      setZoomAreaDx(boundedDx);
     },
     [originX]
   );

@@ -7,3 +7,9 @@
   max-width: 960px;
   width: 100%;
 }
+
+@media (max-width: 989px) {
+  .stream-session {
+    width: calc(100% - 34px);
+  }
+}

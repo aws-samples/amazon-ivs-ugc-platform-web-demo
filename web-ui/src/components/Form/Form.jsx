@@ -1,12 +1,14 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
+import { throttle } from '../../utils';
 import './Form.css';
 
 const Form = ({
+  disableValidation,
   formVariant,
   inputVariant,
   submitBtnVariant,
@@ -22,14 +24,16 @@ const Form = ({
   validationCheck,
   errorHandler
 }) => {
-  const [formProps, isLoading, onChange, onSubmit] = useForm({
-    inputsData,
-    submitHandler,
-    onSuccess,
-    onFailure,
-    validationCheck,
-    errorHandler
-  });
+  const [formProps, isLoading, onChange, onSubmit, presubmitValidation] =
+    useForm({
+      disableValidation,
+      errorHandler,
+      inputsData,
+      onFailure,
+      onSuccess,
+      submitHandler,
+      validationCheck
+    });
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
 
   const SubmitButton = useCallback(
@@ -65,6 +69,29 @@ const Form = ({
     ]
   );
 
+  const throttledPresubmitValidation = useMemo(
+    () =>
+      throttle((name) => {
+        presubmitValidation(name);
+        initialFocusedInputValue.current = '';
+      }, 1000),
+    [presubmitValidation]
+  );
+
+  const initialFocusedInputValue = useRef('');
+
+  const onFocus = ({ target: { value } }) => {
+    initialFocusedInputValue.current = value;
+  };
+
+  const onBlur = ({ relatedTarget, target: { name, value } }) => {
+    if (relatedTarget?.type === 'submit') return;
+
+    if (value && initialFocusedInputValue.current !== value) {
+      throttledPresubmitValidation(name);
+    }
+  };
+
   return (
     <form
       className={`form ${formVariant}`}
@@ -77,6 +104,8 @@ const Form = ({
             <Input
               {...inputProps}
               key={inputProps.name}
+              onBlur={disableValidation ? undefined : onBlur}
+              onFocus={disableValidation ? undefined : onFocus}
               onChange={onChange}
               variant={inputVariant}
             />
@@ -92,7 +121,13 @@ const Form = ({
             }`}
             key={inputProps.name}
           >
-            <Input {...inputProps} onChange={onChange} variant={inputVariant} />
+            <Input
+              {...inputProps}
+              onBlur={disableValidation ? undefined : onBlur}
+              onFocus={disableValidation ? undefined : onFocus}
+              onChange={onChange}
+              variant={inputVariant}
+            />
             {hasSubmitButton && <SubmitButton />}
           </div>
         );
@@ -105,6 +140,7 @@ const Form = ({
 Form.defaultProps = {
   clearFormOnSuccess: true,
   disableSubmit: () => {},
+  disableValidation: false,
   footer: null,
   formVariant: 'vertical',
   inputsData: {},
@@ -121,6 +157,7 @@ Form.defaultProps = {
 Form.propTypes = {
   clearFormOnSuccess: PropTypes.bool,
   disableSubmit: PropTypes.func,
+  disableValidation: PropTypes.bool,
   errorHandler: PropTypes.func,
   footer: PropTypes.node,
   formVariant: PropTypes.oneOf(['vertical', 'horizontal']),

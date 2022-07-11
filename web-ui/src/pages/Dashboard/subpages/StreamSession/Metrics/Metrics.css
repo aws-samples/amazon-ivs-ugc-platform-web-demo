@@ -48,8 +48,9 @@
 
 .metrics-error-container {
   align-items: center;
-  color: var(--palette-color-light-gray);
+  color: var(--palette-color-gray);
   display: flex;
+  fill: var(--palette-color-gray);
   flex-direction: column;
   height: 100%;
   justify-content: center;
@@ -74,6 +75,10 @@
   .metrics-panel {
     background: var(--palette-color-extra-light-gray);
   }
+
+  .mobile-panel > .metrics-panel {
+    border-top: 2px solid var(--palette-color-gray);
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -92,5 +97,6 @@
 
   .metrics-error-container {
     color: var(--palette-color-medium-gray);
+    fill: var(--palette-color-medium-gray);
   }
 }

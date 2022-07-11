@@ -1,15 +1,16 @@
-import { Link, useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import './StreamSession.css';
 import { dashboard as $dashboardContent } from '../../../../content';
 import { useModal } from '../../../../contexts/Modal';
-import StaticNotification from '../../../../components/StaticNotification';
+import Button from '../../../../components/Button';
 import EncoderConfiguration from './EncoderConfiguration';
+import LinkButton from '../../../../components/LinkButton/LinkButton';
 import Metrics from './Metrics';
+import StaticNotification from '../../../../components/StaticNotification';
 import StatsCard from './StatsCard/StatsCard';
 import usePrevious from '../../../../hooks/usePrevious';
-import Button from '../../../../components/Button';
 
 const $notificationWithCTAContent =
   $dashboardContent.stream_session_page.notification_with_cta;
@@ -82,7 +83,9 @@ const StreamSession = () => {
                 {$notificationWithCTAContent.try_again}
               </Button>
             ) : (
-              <Link to="/settings">{$notificationWithCTAContent.settings}</Link>
+              <LinkButton to="/settings">
+                {$notificationWithCTAContent.settings}
+              </LinkButton>
             )
           }
           message={ctaMessage}

@@ -5,10 +5,14 @@ import SliderUnstyled from '@mui/base/SliderUnstyled';
 import {
   MIN_DISTANCE,
   ZOOM_LEVELS
-} from '../../../../../../contexts/SynchronizedCharts';
-import { bound } from '../../../../../../utils';
+} from '../../../../../../../contexts/SynchronizedCharts';
+import './ZoomSlider.css';
+import { bound } from '../../../../../../../utils';
+import ThumbSlider from './ThumbSlider';
 
 const maxValue = 1000;
+
+const noop = () => {};
 
 const ZoomSlider = ({
   chartsRef,
@@ -190,7 +194,7 @@ const ZoomSlider = ({
   useEffect(() => {
     const chartsElement = chartsRef.current;
 
-    if (chartsElement) {
+    if (chartsElement && isEnabled) {
       chartsElement.addEventListener('pointermove', pointerMoveTrackHandler);
       document.addEventListener('pointerup', pointerUpTrackHandler);
 
@@ -200,9 +204,10 @@ const ZoomSlider = ({
           pointerMoveTrackHandler
         );
         document.removeEventListener('pointerup', pointerUpTrackHandler);
+        trackRef.current.style.cursor = '';
       };
     }
-  }, [chartsRef, pointerMoveTrackHandler, pointerUpTrackHandler]);
+  }, [chartsRef, isEnabled, pointerMoveTrackHandler, pointerUpTrackHandler]);
 
   useEffect(() => {
     const sliderRootElement = sliderRootRef.current;
@@ -226,18 +231,18 @@ const ZoomSlider = ({
         trackEl.removeEventListener('touchstart', mouseDownTrackHandler);
       };
     }
-  }, [sliderRootRef, mouseDownTrackHandler]);
+  }, [sliderRootRef, mouseDownTrackHandler, isEnabled]);
 
   return (
     <SliderUnstyled
       componentsProps={{
         rail: {
-          onMouseDown: mouseDownTrackHandler,
-          onPointerDown: pointerDownRailHandler
+          onMouseDown: isEnabled ? mouseDownTrackHandler : noop,
+          onPointerDown: isEnabled ? pointerDownRailHandler : noop
         },
         track: {
-          onMouseDown: mouseDownTrackHandler,
-          onPointerDown: pointerDownTrackHandler
+          onMouseDown: isEnabled ? mouseDownTrackHandler : noop,
+          onPointerDown: isEnabled ? pointerDownTrackHandler : noop
         },
         thumb: {
           onMouseEnter: ({ target }) =>
@@ -245,6 +250,9 @@ const ZoomSlider = ({
           onMouseOut: ({ target }) =>
             isEnabled && target.classList.remove('hover')
         }
+      }}
+      components={{
+        Thumb: ThumbSlider
       }}
       disableSwap
       disabled={!isEnabled}

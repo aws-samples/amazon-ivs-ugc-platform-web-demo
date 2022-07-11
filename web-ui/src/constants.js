@@ -62,3 +62,5 @@ export const BREAKPOINTS = {
   md: 768,
   lg: 990
 };
+
+export const NO_DATA_VALUE = '----';

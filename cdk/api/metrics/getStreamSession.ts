@@ -50,10 +50,26 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const {
       channel = {},
       recordingConfiguration,
+      truncatedEvents,
       ...streamSessionRest
     } = streamSession;
-    const { type } = channel;
     const isLive = !endTime;
+    const { type } = channel;
+    // Sort the truncated events in descending order if the stream session is live,
+    // and in ascending order if the stream session is offline
+    const sortedTruncatedEvents =
+      truncatedEvents?.sort(
+        ({ eventTime: eventTime1 }, { eventTime: eventTime2 }) => {
+          /* istanbul ignore else */
+          if (eventTime1 && eventTime2) {
+            if (isLive) {
+              return eventTime1 < eventTime2 ? 1 : -1; // Descending
+            } else {
+              return eventTime1 > eventTime2 ? 1 : -1; // Ascending
+            }
+          } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+        }
+      ) || [];
 
     if (!startTime) {
       throw new Error(`Missing startTime for session: ${streamSessionId}`);
@@ -158,7 +174,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody = {
       ...streamSessionRest,
       channel: { type },
-      metrics: formattedMetricsData
+      metrics: formattedMetricsData,
+      truncatedEvents: sortedTruncatedEvents
     };
   } catch (error) {
     console.error(error);

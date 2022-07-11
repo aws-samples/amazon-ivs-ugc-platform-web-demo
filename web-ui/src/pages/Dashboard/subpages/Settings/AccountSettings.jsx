@@ -10,7 +10,6 @@ import { useUser } from '../../../../contexts/User';
 import Form from '../../../../components/Form';
 import Input from '../../../../components/Input';
 import './Settings.css';
-
 const defaultFormProps = (inputVariant) => ({
   formVariant: 'horizontal',
   inputVariant,
@@ -33,7 +32,9 @@ const AccountSettings = () => {
       setIsDeleteAccountLoading(true);
       const { result, error } = await userManagement.deleteAccount();
 
-      if (result) logOut();
+      if (result) {
+        logOut('accountDeletion');
+      }
       if (error)
         notifyError($content.notification.error.account_deletion_failed);
 
@@ -101,7 +102,7 @@ const AccountSettings = () => {
             'current password': { type: 'password', skipValidation: true },
             'new password': {
               type: 'password',
-              confirm: true,
+              confirmedBy: 'confirmPassword',
               placeholder: $content.settings_page.create_your_new_password
             }
           }}

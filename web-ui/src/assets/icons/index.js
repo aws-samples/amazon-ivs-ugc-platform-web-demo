@@ -7,6 +7,7 @@ export { ReactComponent as Copy } from './copy.svg';
 export { ReactComponent as ErrorIcon } from './error.svg';
 export { ReactComponent as Home } from './home.svg';
 export { ReactComponent as Logout } from './logout.svg';
+export { ReactComponent as NoData } from './no-data.svg';
 export { ReactComponent as Settings } from './settings.svg';
 export { ReactComponent as SyncError } from './sync-error.svg';
 export { ReactComponent as Visibility } from './visibility.svg';

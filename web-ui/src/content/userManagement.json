@@ -47,7 +47,8 @@
   "notification": {
     "success": {
       "resent_confirmation": "Verification email has been resent",
-      "registration_confirmed": "Your registration has been confirmed"
+      "registration_confirmed": "Your registration has been confirmed",
+      "account_deleted": "Your account has been successfully deleted."
     },
     "error": {
       "incorrect_username_or_password": "Incorrect username or password",

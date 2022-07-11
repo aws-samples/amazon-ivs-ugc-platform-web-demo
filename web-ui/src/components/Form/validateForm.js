@@ -28,17 +28,29 @@ const validateUsername = (username) => {
   return !!username && regex.test(username);
 };
 
-export const validateForm = (formProps) => {
+export const validateForm = (formProps, inputNameToValidate) => {
   const { input_error } = $content;
 
-  const validationErrors = Object.values(formProps).reduce(
-    (errors, { value, name, confirms, skipValidation }) => {
-      if (skipValidation) return errors;
+  let formPropsToValidate = formProps;
+  if (inputNameToValidate) {
+    formPropsToValidate = {
+      [inputNameToValidate]: formProps[inputNameToValidate]
+    };
+  }
 
-      if (confirms) {
-        if (!value || formProps[confirms].value !== value) {
-          errors[name] = input_error.passwords_mismatch;
+  const validationErrors = Object.values(formPropsToValidate).reduce(
+    (errors, { value, name, confirms, confirmedBy, skipValidation }) => {
+      if (skipValidation || value === '') return errors;
+      errors[name] = null;
+
+      const toConfirm = confirms || confirmedBy;
+      if (toConfirm && formProps[toConfirm].value) {
+        if (formProps[toConfirm].value !== value) {
+          errors[confirmedBy || name] = input_error.passwords_mismatch;
+        } else {
+          errors[toConfirm] = null;
         }
+
         return errors;
       }
 

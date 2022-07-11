@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin: 60px auto;
+  margin: 60px auto 90px;
   max-width: 960px;
   padding: 0 30px;
   row-gap: 30px;

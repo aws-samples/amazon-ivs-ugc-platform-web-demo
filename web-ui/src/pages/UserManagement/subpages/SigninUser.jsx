@@ -8,7 +8,7 @@ import Form from '../../../components/Form';
 import { useNotif } from '../../../contexts/Notification';
 
 const SigninUser = () => {
-  const { checkSessionStatus, initUserResources } = useUser();
+  const { checkSessionStatus, initUserResources, logOutAction } = useUser();
   const { notifySuccess, notifyError } = useNotif();
   const [searchParams] = useSearchParams();
   const { verificationCode, username } = useMemo(
@@ -38,6 +38,12 @@ const SigninUser = () => {
     }
   }, [notifyError, notifySuccess, username, verificationCode]);
 
+  useEffect(() => {
+    if (logOutAction === 'accountDeletion') {
+      notifySuccess($content.notification.success.account_deleted);
+    }
+  }, [logOutAction, notifySuccess]);
+
   const onSuccess = async () => {
     /**
      * If sign-in is successful, then we attempt to get this user's data and save it
@@ -57,6 +63,7 @@ const SigninUser = () => {
 
   return (
     <Form
+      disableValidation
       submitHandler={userManagement.signIn}
       submitText={$content.sign_in}
       title={$content.login_page.title}

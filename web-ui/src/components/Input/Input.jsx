@@ -17,8 +17,10 @@ const Input = ({
   isRequired,
   label,
   name,
+  onBlur,
   onChange,
   onClick,
+  onFocus,
   placeholder,
   readOnly,
   type: initialType,
@@ -59,6 +61,8 @@ const Input = ({
         <input
           {...(onChange ? { onChange } : {})}
           {...(onClick && !isLoading ? { onClick } : {})}
+          {...(onFocus ? { onFocus } : {})}
+          {...(onBlur ? { onBlur } : {})}
           className={inputClasses.join(' ')}
           id={name}
           initial-type={initialType}
@@ -120,8 +124,10 @@ Input.defaultProps = {
   isLoading: false,
   isRequired: true,
   label: '',
+  onBlur: null,
   onChange: null,
   onClick: null,
+  onFocus: null,
   placeholder: '',
   readOnly: false,
   type: 'text',
@@ -146,8 +152,10 @@ Input.propTypes = {
   isRequired: PropTypes.bool,
   label: PropTypes.string,
   name: PropTypes.string.isRequired,
+  onBlur: PropTypes.func,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
+  onFocus: PropTypes.func,
   placeholder: PropTypes.string,
   readOnly: PropTypes.bool,
   type: PropTypes.oneOf(['text', 'password', 'button']),

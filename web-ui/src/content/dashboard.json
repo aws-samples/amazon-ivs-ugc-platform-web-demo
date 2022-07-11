@@ -3,7 +3,7 @@
     "return_to_session": "Return to session",
     "log_out": "Log out",
     "stream_session": "Stream Session",
-    "select_stream_session": "Select a stream session to view",
+    "select_stream_session": "Select a session to view",
     "settings": "Settings",
     "session_navigator": {
       "started": "Started",
@@ -20,6 +20,7 @@
   },
   "stream_session_page": {
     "failed_to_load": "Failed to load",
+    "no_data_available": "No data available",
     "encoder_configuration": {
       "title": "Encoder configuration",
       "video_encoder": "Video encoder",
