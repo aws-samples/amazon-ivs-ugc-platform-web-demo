@@ -19,7 +19,7 @@ const ResetPasswordConfirmation = ({ username, verificationCode }) => {
   return (
     <Form
       inputsData={{
-        'new password': { type: 'password', confirmedBy: 'confirmPassword' }
+        'new password': { type: 'password', confirmedBy: 'confirmNewPassword' }
       }}
       onSuccess={() => navigate('/login')}
       submitHandler={submitHandler}
