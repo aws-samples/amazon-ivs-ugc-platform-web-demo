@@ -7,6 +7,7 @@ import './Button.css';
 const Button = forwardRef(
   (
     {
+      'data-test-id': dataTestId,
       ariaDisabled,
       ariaLabel,
       children,
@@ -26,6 +27,7 @@ const Button = forwardRef(
   ) => (
     <button
       {...(!!ariaLabel ? { 'aria-label': ariaLabel } : {})}
+      data-test-id={dataTestId}
       aria-disabled={ariaDisabled}
       className={`button ${className} ${variant} ${subVariant}`}
       disabled={isDisabled}
@@ -43,6 +45,7 @@ const Button = forwardRef(
 );
 
 Button.defaultProps = {
+  'data-test-id': undefined,
   ariaDisabled: false,
   ariaLabel: '',
   className: '',
@@ -61,6 +64,7 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
+  'data-test-id': PropTypes.string,
   ariaDisabled: PropTypes.bool,
   ariaLabel: PropTypes.string,
   children: PropTypes.node.isRequired,

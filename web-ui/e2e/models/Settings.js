@@ -38,7 +38,7 @@ class SettingsPageModel extends BasePageModel {
     const settingsPage = new SettingsPageModel(page, baseURL);
 
     await settingsPage.init();
-    await settingsPage.#mockResetStreakKey();
+    await settingsPage.#mockResetStreamKey();
 
     return settingsPage;
   };
@@ -136,7 +136,7 @@ class SettingsPageModel extends BasePageModel {
 
   /* MOCK API HELPERS (INTERNAL) */
 
-  #mockResetStreakKey = async () => {
+  #mockResetStreamKey = async () => {
     await this.page.route(
       getCloudfrontURLRegex('/user/streamKey/reset'),
       (route, request) => {

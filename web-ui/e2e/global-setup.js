@@ -5,7 +5,9 @@ const { LoginPageModel } = require('./models');
 
 const noop = () => {};
 const overridePageFixture = (page) => {
+  page.getLocalStorage = noop;
   page.takeScreenshot = noop;
+  page.readClipboard = noop;
   page.fetchResponses = [];
 
   return page;

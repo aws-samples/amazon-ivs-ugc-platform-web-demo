@@ -22,6 +22,14 @@ class LoginPageModel extends BasePageModel {
     this.createAnAccountLinkLoc = page.locator(
       'a:has-text("Create an account")'
     );
+
+    this.logoutButtonLoc = page.locator('button:has-text("Log out")');
+    this.floatingMenuToggleLoc = page.locator(
+      'data-test-id=floating-menu-toggle'
+    );
+    this.logoutFloatingMenuButtonLoc = page.locator(
+      'data-test-id=logout-action'
+    );
   }
 
   static create = async (page, baseURL) => {
@@ -57,6 +65,25 @@ class LoginPageModel extends BasePageModel {
     await expect(this.page).toHaveURL(
       new RegExp(`${this.baseURL}/dashboard/stream.*`)
     );
+  };
+
+  logout = async (isMobile) => {
+    // Login a new test user
+    await this.login('testUser', 'Passw0rd!');
+
+    let logoutLoc = this.logoutButtonLoc;
+    if (isMobile) {
+      await this.floatingMenuToggleLoc.click();
+      logoutLoc = this.logoutFloatingMenuButtonLoc;
+    }
+
+    // Click the "Log out" button and check that we have been logged out and redirected to the login page
+    // Note: Promise.all prevents a race condition between clicking and waiting for the main frame to navigate
+    await Promise.all([this.page.waitForNavigation(), logoutLoc.click()]);
+    await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/login`));
+
+    const localStorage = await this.page.getLocalStorage();
+    await expect(localStorage).toBeUndefined();
   };
 
   gotoForgotPassword = async () => {

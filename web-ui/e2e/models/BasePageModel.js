@@ -21,8 +21,7 @@ class BasePageModel {
     await this.#mockGetUser();
     await this.#mockCreateResources();
 
-    const storageState = await this.page.context().storageState();
-    const localStorage = storageState.origins[0]?.localStorage;
+    const localStorage = await this.page.getLocalStorage();
     const { value: resourcesCreated = 'false' } =
       localStorage?.find(({ name }) => name === 'resourcesCreated') || {};
     this.#resourcesCreated = resourcesCreated === 'true';
@@ -58,11 +57,11 @@ class BasePageModel {
           route.fulfill({
             status: 200,
             body: JSON.stringify({
-              channelResourceId: 'mock-channel-id',
+              channelResourceId: 'mockChannelId',
               ingestEndpoint:
-                'rtmps://mock-channel-id.global-contribute.live-video.net:443/app/',
+                'rtmps://mockChannelId.global-contribute.live-video.net:443/app/',
               playbackUrl:
-                'https://mock-channel-id.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mock-channel-id.m3u8',
+                'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
               streamKeyValue: this.#streamKeyValue,
               username: 'testUser'
             })

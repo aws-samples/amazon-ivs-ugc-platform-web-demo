@@ -62,6 +62,7 @@ const FloatingMenu = () => {
   return (
     <div ref={floatingMenuRef} className="floating-menu" onBlur={handleBlur}>
       <Button
+        data-test-id="floating-menu-toggle"
         onFocus={() => setIsExpanded(true)}
         className="icon-button"
         onMouseDown={toggleMenu}
@@ -88,6 +89,7 @@ const FloatingMenu = () => {
               transition={{ duration: 0.25, type: 'tween' }}
             >
               <Button
+                data-test-id="settings-action"
                 className="icon-button"
                 onClick={hideSettings ? handleHome : handleSettings}
                 variant="secondary"
@@ -95,6 +97,7 @@ const FloatingMenu = () => {
                 {hideSettings ? <Home /> : <Settings />}
               </Button>
               <Button
+                data-test-id="logout-action"
                 className="icon-button"
                 onClick={() => logOut('logOut')}
                 variant="destructive"

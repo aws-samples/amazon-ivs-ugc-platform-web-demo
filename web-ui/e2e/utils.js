@@ -21,6 +21,14 @@ const extendTestFixtures = (fixtures = {}, options = {}) => {
      * Page fixture override
      */
     page: async ({ page, screenshot }, use, testInfo) => {
+      // "getLocalStorage" will retrieve the contents of the local storage in the current browser context
+      page.getLocalStorage = async () => {
+        const storageState = await page.context().storageState();
+        const localStorage = storageState.origins[0]?.localStorage;
+
+        return localStorage;
+      };
+
       // "takeScreenshot" will save screenshots to the ./e2e/screenshots directory
       page.takeScreenshot = async (name) => {
         const testTitle = testInfo?.titlePath[1].replace(/\s/g, '') || '';

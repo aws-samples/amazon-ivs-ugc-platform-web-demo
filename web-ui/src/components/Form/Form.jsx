@@ -8,12 +8,12 @@ import { throttle } from '../../utils';
 import './Form.css';
 
 const Form = ({
+  'data-test-id': dataTestId,
   clearFormOnSuccess,
   disableSubmit,
   disableValidation,
   errorHandler,
   footer,
-  formId,
   formVariant,
   inputsData,
   inputVariant,
@@ -97,7 +97,7 @@ const Form = ({
 
   return (
     <form
-      data-test-id={formId || undefined}
+      data-test-id={dataTestId}
       className={`form ${formVariant}`}
       onSubmit={(e) => onSubmit(e, clearFormOnSuccess)}
     >
@@ -142,12 +142,12 @@ const Form = ({
 };
 
 Form.defaultProps = {
+  'data-test-id': undefined,
   clearFormOnSuccess: true,
   disableSubmit: () => {},
   disableValidation: false,
   errorHandler: () => {},
   footer: null,
-  formId: '',
   formVariant: 'vertical',
   inputsData: {},
   inputVariant: 'vertical',
@@ -160,12 +160,12 @@ Form.defaultProps = {
 };
 
 Form.propTypes = {
+  'data-test-id': PropTypes.string,
   clearFormOnSuccess: PropTypes.bool,
   disableSubmit: PropTypes.func,
   disableValidation: PropTypes.bool,
   errorHandler: PropTypes.func,
   footer: PropTypes.node,
-  formId: PropTypes.string,
   formVariant: PropTypes.oneOf(['vertical', 'horizontal']),
   inputsData: PropTypes.object,
   inputVariant: PropTypes.oneOf(['vertical', 'horizontal']),

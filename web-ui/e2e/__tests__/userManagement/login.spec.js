@@ -34,6 +34,15 @@ test.describe('Login Page', () => {
     await expect(page).not.toHaveURL('/login');
   });
 
+  test('should logout a user', async ({
+    loginPage: { logout },
+    page
+  }, testInfo) => {
+    const isMobile = testInfo.project.name.includes('Mobile');
+    await logout(isMobile);
+    await page.takeScreenshot('logout-success');
+  });
+
   test('should navigate a user to the password reset page', async ({
     loginPage: { gotoForgotPassword },
     page
