@@ -1,10 +1,7 @@
 const { expect } = require('@playwright/test');
 
 const BasePageModel = require('./BasePageModel');
-const {
-  getCloudfrontURLRegex,
-  COGNITO_IDP_URL_REGEX
-} = require('../../../utils');
+const { getCloudfrontURLRegex, COGNITO_IDP_URL_REGEX } = require('../utils');
 
 class ResetPageModel extends BasePageModel {
   /**
@@ -26,9 +23,14 @@ class ResetPageModel extends BasePageModel {
     this.resendPasswordRequestLoc = page.locator('button:has-text("Resend")');
   }
 
-  navigate = async (path = '/reset') => {
-    await this.page.goto(path);
-    await expect(this.page).toHaveURL(this.baseURL + path);
+  static create = async (page, baseURL) => {
+    const resetPage = new ResetPageModel(page, baseURL);
+
+    await resetPage.init();
+    await resetPage.#mockPasswordResetRequest();
+    await resetPage.#mockPasswordReset();
+
+    return resetPage;
   };
 
   /* USER FLOW OPERATIONS */
@@ -92,9 +94,9 @@ class ResetPageModel extends BasePageModel {
     await expect(this.page).toHaveURL(this.baseURL + '/login');
   };
 
-  /* MOCK API HELPERS */
+  /* MOCK API HELPERS (INTERNAL) */
 
-  mockPasswordResetRequest = async () => {
+  #mockPasswordResetRequest = async () => {
     await this.page.route(
       getCloudfrontURLRegex('/user/password/reset'),
       (route, request) => {
@@ -108,7 +110,7 @@ class ResetPageModel extends BasePageModel {
     );
   };
 
-  mockPasswordReset = async () => {
+  #mockPasswordReset = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
       if (request.method() === 'POST') {
         route.fulfill({

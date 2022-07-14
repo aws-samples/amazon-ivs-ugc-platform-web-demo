@@ -1,10 +1,7 @@
 const { expect } = require('@playwright/test');
 
 const BasePageModel = require('./BasePageModel');
-const {
-  COGNITO_IDP_URL_REGEX,
-  getCloudfrontURLRegex
-} = require('../../../utils');
+const { COGNITO_IDP_URL_REGEX, getCloudfrontURLRegex } = require('../utils');
 
 class RegisterPageModel extends BasePageModel {
   /**
@@ -27,6 +24,17 @@ class RegisterPageModel extends BasePageModel {
     );
     this.signInLinkLoc = page.locator('a:has-text("Sign in")');
   }
+
+  static create = async (page, baseURL) => {
+    const registerPage = new RegisterPageModel(page, baseURL);
+
+    await registerPage.init();
+    await registerPage.#mockRegisterUser();
+    await registerPage.#mockResendEmailVerification();
+    await registerPage.#mockConfirmUser();
+
+    return registerPage;
+  };
 
   /* USER FLOW OPERATIONS */
 
@@ -91,8 +99,8 @@ class RegisterPageModel extends BasePageModel {
     await expect(this.page).toHaveURL(this.baseURL + '/login');
   };
 
-  /* MOCK API HELPERS */
-  mockRegisterUser = async (userConfirmed = false) => {
+  /* MOCK API HELPERS (INTERNAL) */
+  #mockRegisterUser = async (userConfirmed = false) => {
     await this.page.route(
       getCloudfrontURLRegex('/user/register'),
       (route, request) => {
@@ -106,7 +114,7 @@ class RegisterPageModel extends BasePageModel {
     );
   };
 
-  mockResendEmailVerification = async () => {
+  #mockResendEmailVerification = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
       if (request.method() === 'POST') {
         route.fulfill({
@@ -123,7 +131,7 @@ class RegisterPageModel extends BasePageModel {
     });
   };
 
-  mockConfirmUser = async () => {
+  #mockConfirmUser = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
       if (request.method() === 'POST') {
         route.fulfill({

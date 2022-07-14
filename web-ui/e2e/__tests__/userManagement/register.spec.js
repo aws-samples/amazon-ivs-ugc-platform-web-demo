@@ -1,19 +1,18 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
-const { RegisterPageModel } = require('./models');
+const { RegisterPageModel } = require('../../models');
 const { extendTestFixtures } = require('../../utils');
 
-const test = extendTestFixtures({
-  registerPage: async ({ page, baseURL }, use) => {
-    const registerPage = new RegisterPageModel(page, baseURL);
-    await registerPage.mockRegisterUser();
-    await registerPage.mockResendEmailVerification();
-    await registerPage.mockConfirmUser();
-    await registerPage.navigate();
-    await use(registerPage);
-  }
-});
+const test = extendTestFixtures(
+  {
+    registerPage: async ({ page, baseURL }, use) => {
+      const registerPage = await RegisterPageModel.create(page, baseURL);
+      await use(registerPage);
+    }
+  },
+  { isAuthenticated: false }
+);
 
 test.describe('Register Page', () => {
   test.beforeEach(({ page }) => {

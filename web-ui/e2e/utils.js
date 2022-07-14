@@ -8,15 +8,23 @@ const {
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 
-const extendTestFixtures = (fixtures = {}) =>
-  baseTest.extend({
+const defaultExtentedTestFixtureOptions = { isAuthenticated: true };
+
+const extendTestFixtures = (fixtures = {}, options = {}) => {
+  const { isAuthenticated } = {
+    ...defaultExtentedTestFixtureOptions,
+    ...options
+  };
+
+  return baseTest.extend({
     /**
      * Page fixture override
      */
     page: async ({ page, screenshot }, use, testInfo) => {
       // "takeScreenshot" will save screenshots to the ./e2e/screenshots directory
       page.takeScreenshot = async (name) => {
-        const filename = `${testInfo.titlePath[1].replace(/\s/g, '')}-${name}`;
+        const testTitle = testInfo?.titlePath[1].replace(/\s/g, '') || '';
+        const filename = [testTitle, name].join('-');
         const path = `./e2e/screenshots/${filename}.png`;
         await page.screenshot({ path });
       };
@@ -47,10 +55,34 @@ const extendTestFixtures = (fixtures = {}) =>
         page.fetchResponses = [];
       };
 
+      // Read the current text value stored in the clipboard
+      page.readClipboard = async () =>
+        await page.evaluate((projectName) => {
+          if (projectName === 'Mobile Safari') return null;
+
+          try {
+            return window.navigator?.clipboard?.readText();
+          } catch (error) {
+            return null;
+          }
+        }, testInfo.project.name);
+
       await use(page);
     },
+    /**
+     * storageState fixture override (optional)
+     * - if options.isAuthenticated is set to false, this option is used to clear all cookies and origins data from the
+     *   local storage in the current browser context's storageState (originally registered in the global setup script)
+     */
+    ...(!isAuthenticated && {
+      storageState: async ({ storageState }, use) => {
+        storageState = { cookies: [], origins: [] };
+        await use(storageState);
+      }
+    }),
     ...fixtures
   });
+};
 
 const getMockCognitoSessionTokens = (
   username = 'testUser',
@@ -98,7 +130,7 @@ const getMockCognitoSessionTokens = (
   }).getJwtToken();
 
   const refreshToken = new CognitoRefreshToken({
-    IdToken: jwt.sign(
+    RefreshToken: jwt.sign(
       {
         token_use: 'refresh',
         exp: 8640000000000,
@@ -112,16 +144,26 @@ const getMockCognitoSessionTokens = (
 };
 
 const getCloudfrontURLRegex = (endpoint) =>
-  new RegExp(`https://([A-Za-z0-9-]+).cloudfront.net${endpoint}`, 'g');
+  new RegExp(`^https://([A-Za-z0-9-]+).cloudfront.net${endpoint}$`);
 
 const COGNITO_IDP_URL_REGEX = new RegExp(
-  'https://cognito-idp.([A-Za-z0-9-]+).amazonaws.com/',
-  'g'
+  '^https://cognito-idp.([A-Za-z0-9-]+).amazonaws.com/$'
 );
 
+const isValidUrl = (url) => {
+  try {
+    new URL(url);
+  } catch (e) {
+    return false;
+  }
+
+  return true;
+};
+
 module.exports = {
-  getCloudfrontURLRegex,
-  extendTestFixtures,
   COGNITO_IDP_URL_REGEX,
-  getMockCognitoSessionTokens
+  extendTestFixtures,
+  getCloudfrontURLRegex,
+  getMockCognitoSessionTokens,
+  isValidUrl
 };

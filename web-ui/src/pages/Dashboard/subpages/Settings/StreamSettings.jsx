@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import copyToClipboard from 'copy-to-clipboard';
 
-import { copyToClipboard } from '../../../../utils';
 import { dashboard as $content } from '../../../../content';
 import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
 import { useModal } from '../../../../contexts/Modal';
@@ -58,7 +58,7 @@ const StreamSettings = () => {
   return (
     <section>
       <h3>{$content.settings_page.stream_settings}</h3>
-      <span className="input-btn-group">
+      <span data-test-id="stream-key-settings" className="input-btn-group">
         <Input
           label={$content.settings_page.stream_key}
           name="streamKeyValue"
@@ -84,7 +84,7 @@ const StreamSettings = () => {
           {$content.settings_page.copy}
         </Button>
       </span>
-      <span className="input-btn-group">
+      <span data-test-id="ingest-endpoint-settings" className="input-btn-group">
         <Input
           label={$content.settings_page.ingest_server_url}
           name="ingestEndpoint"

@@ -22,8 +22,8 @@ const defaultInputProps = (inputLabel, isConfirm) => {
     placeholder: `${
       isConfirm ? $content.form.confirm_your : $content.form.enter_your
     } ${inputLabel.toLowerCase()}`,
+    error: null,
     ...(isConfirm && {
-      error: null,
       footer: null,
       description: '',
       confirms: camelize(inputLabel)
@@ -127,11 +127,18 @@ const useForm = ({
 
   const onChange = useCallback(
     ({ target: { name, value } }) =>
-      setFormProps((prevFormProps) => ({
-        ...prevFormProps,
-        [name]: { ...formProps[name], value }
-      })),
-    [formProps]
+      setFormProps((prevFormProps) => {
+        if (!(name in prevFormProps))
+          throw new Error(
+            `No input exists with the name ${name} in this form! This typically occurs when confirmedBy does not point to an existing input name in the form.`
+          );
+
+        return {
+          ...prevFormProps,
+          [name]: { ...prevFormProps[name], value }
+        };
+      }),
+    []
   );
 
   const presubmitValidation = useCallback(
@@ -143,8 +150,11 @@ const useForm = ({
       const errors = { ...autoValidationErrors, ...manualValidationErrors };
       const validationErrors =
         autoValidationErrors || manualValidationErrors ? errors : null;
+      const hasErrors = Object.values(validationErrors).some(
+        (errorValue) => !!errorValue
+      );
 
-      if (validationErrors) {
+      if (hasErrors) {
         updateErrors(validationErrors);
         isFormValid = Object.entries(validationErrors).every(
           ([_, value]) => value === null

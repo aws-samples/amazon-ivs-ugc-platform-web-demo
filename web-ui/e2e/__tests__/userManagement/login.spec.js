@@ -1,19 +1,18 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
-const { LoginPageModel } = require('./models');
+const { LoginPageModel } = require('../../models');
 const { extendTestFixtures } = require('../../utils');
 
-const test = extendTestFixtures({
-  loginPage: async ({ page, baseURL }, use) => {
-    const loginPage = new LoginPageModel(page, baseURL);
-    await loginPage.mockSignIn();
-    await loginPage.mockCreateResources();
-    await loginPage.mockGetUser();
-    await loginPage.navigate();
-    await use(loginPage);
-  }
-});
+const test = extendTestFixtures(
+  {
+    loginPage: async ({ page, baseURL }, use) => {
+      const loginPage = await LoginPageModel.create(page, baseURL);
+      await use(loginPage);
+    }
+  },
+  { isAuthenticated: false }
+);
 
 test.describe('Login Page', () => {
   test.beforeEach(({ page }) => {

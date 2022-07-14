@@ -3,13 +3,10 @@ const { expect } = require('@playwright/test');
 const BasePageModel = require('./BasePageModel');
 const {
   COGNITO_IDP_URL_REGEX,
-  getCloudfrontURLRegex,
   getMockCognitoSessionTokens
-} = require('../../../utils');
+} = require('../utils');
 
 class LoginPageModel extends BasePageModel {
-  resourcesCreated = false;
-
   /**
    * @param {import('@playwright/test').Page} page
    * @param {string} baseURL
@@ -26,6 +23,15 @@ class LoginPageModel extends BasePageModel {
       'a:has-text("Create an account")'
     );
   }
+
+  static create = async (page, baseURL) => {
+    const loginPage = new LoginPageModel(page, baseURL);
+
+    await loginPage.init();
+    await loginPage.#mockSignIn();
+
+    return loginPage;
+  };
 
   /* USER FLOW OPERATIONS */
 
@@ -65,9 +71,9 @@ class LoginPageModel extends BasePageModel {
     await expect(this.page).toHaveURL(this.baseURL + '/register');
   };
 
-  /* MOCK API HELPERS */
+  /* MOCK API HELPERS (INTERNAL) */
 
-  mockSignIn = async () => {
+  #mockSignIn = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
       if (request.method() === 'POST') {
         const { accessToken, idToken, refreshToken } =
@@ -88,47 +94,6 @@ class LoginPageModel extends BasePageModel {
         });
       }
     });
-  };
-
-  mockGetUser = async () => {
-    await this.page.route(getCloudfrontURLRegex('/user'), (route, request) => {
-      if (request.method() === 'GET') {
-        if (this.resourcesCreated) {
-          route.fulfill({
-            status: 200,
-            body: JSON.stringify({
-              channelResourceId: 'mock-channel-id',
-              ingestEndpoint:
-                'rtmps://mock-channel-id.global-contribute.live-video.net:443/app/',
-              playbackUrl:
-                'https://mock-channel-id.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mock-channel-id.m3u8',
-              streamKeyValue: 'sk_mock-region_mock-stream-key',
-              username: 'testUser'
-            })
-          });
-        } else {
-          route.fulfill({
-            status: 500,
-            body: JSON.stringify({ __type: 'UnexpectedException' })
-          });
-        }
-      } else route.continue();
-    });
-  };
-
-  mockCreateResources = async () => {
-    await this.page.route(
-      getCloudfrontURLRegex('/user/resources/create'),
-      (route, request) => {
-        if (request.method() === 'POST') {
-          this.resourcesCreated = true;
-          route.fulfill({
-            status: 200,
-            body: JSON.stringify({})
-          });
-        } else route.continue();
-      }
-    );
   };
 }
 

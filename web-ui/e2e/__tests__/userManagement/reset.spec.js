@@ -1,18 +1,18 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
-const { ResetPageModel } = require('./models');
+const { ResetPageModel } = require('../../models');
 const { extendTestFixtures } = require('../../utils');
 
-const test = extendTestFixtures({
-  resetPage: async ({ page, baseURL }, use) => {
-    const resetPage = new ResetPageModel(page, baseURL);
-    await resetPage.mockPasswordResetRequest();
-    await resetPage.mockPasswordReset();
-    await resetPage.navigate();
-    await use(resetPage);
-  }
-});
+const test = extendTestFixtures(
+  {
+    resetPage: async ({ page, baseURL }, use) => {
+      const resetPage = await ResetPageModel.create(page, baseURL);
+      await use(resetPage);
+    }
+  },
+  { isAuthenticated: false }
+);
 
 test.describe('Reset Page', () => {
   test.beforeEach(({ page }) => {
@@ -38,7 +38,6 @@ test.describe('Reset Page', () => {
     await page.takeScreenshot('reset-password-request-sent');
 
     // On the password reset confirmation page, attempt to resend the password reset email
-    await mockPasswordResetRequest();
     await resendPasswordRequest();
     // Wait for the success notification to render and stabilize before taking a screenshot
     await (

@@ -116,7 +116,7 @@ const SessionNavigator = forwardRef(
           </Button>
           <Button
             className="session-list"
-            isDisabled={!!fetchStreamSessionsError}
+            isDisabled={isDashboardPage && !!fetchStreamSessionsError}
             onClick={handleSessionNavigator}
             ref={navButtonRef}
             variant="secondary"

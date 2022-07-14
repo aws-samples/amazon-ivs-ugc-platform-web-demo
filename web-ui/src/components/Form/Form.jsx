@@ -8,21 +8,22 @@ import { throttle } from '../../utils';
 import './Form.css';
 
 const Form = ({
-  disableValidation,
-  formVariant,
-  inputVariant,
-  submitBtnVariant,
   clearFormOnSuccess,
   disableSubmit,
+  disableValidation,
+  errorHandler,
   footer,
+  formId,
+  formVariant,
   inputsData,
+  inputVariant,
   onFailure,
   onSuccess,
+  submitBtnVariant,
   submitHandler,
   submitText,
   title,
-  validationCheck,
-  errorHandler
+  validationCheck
 }) => {
   const [formProps, isLoading, onChange, onSubmit, presubmitValidation] =
     useForm({
@@ -88,12 +89,15 @@ const Form = ({
     if (relatedTarget?.type === 'submit') return;
 
     if (value && initialFocusedInputValue.current !== value) {
-      throttledPresubmitValidation(name);
+      // If onBlur causes a re-render, then onSubmit will not be called.
+      // So we wrap the presubmit validation inside a setTimeout to give onSubmit a chance to be called.
+      setTimeout(() => throttledPresubmitValidation(name));
     }
   };
 
   return (
     <form
+      data-test-id={formId || undefined}
       className={`form ${formVariant}`}
       onSubmit={(e) => onSubmit(e, clearFormOnSuccess)}
     >
@@ -141,7 +145,9 @@ Form.defaultProps = {
   clearFormOnSuccess: true,
   disableSubmit: () => {},
   disableValidation: false,
+  errorHandler: () => {},
   footer: null,
+  formId: '',
   formVariant: 'vertical',
   inputsData: {},
   inputVariant: 'vertical',
@@ -150,8 +156,7 @@ Form.defaultProps = {
   submitBtnVariant: 'primary',
   submitText: 'Submit',
   title: '',
-  validationCheck: () => {},
-  errorHandler: () => {}
+  validationCheck: () => {}
 };
 
 Form.propTypes = {
@@ -160,6 +165,7 @@ Form.propTypes = {
   disableValidation: PropTypes.bool,
   errorHandler: PropTypes.func,
   footer: PropTypes.node,
+  formId: PropTypes.string,
   formVariant: PropTypes.oneOf(['vertical', 'horizontal']),
   inputsData: PropTypes.object,
   inputVariant: PropTypes.oneOf(['vertical', 'horizontal']),

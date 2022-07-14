@@ -1,9 +1,10 @@
 import { useOutletContext } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import copyToClipboard from 'copy-to-clipboard';
 
 import './EncoderConfiguration.css';
 import { Copy, ErrorIcon } from '../../../../../assets/icons';
-import { copyToClipboard, substitutePlaceholders } from '../../../../../utils';
+import { substitutePlaceholders } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { NO_DATA_VALUE } from '../../../../../constants';
 import { useNotif } from '../../../../../contexts/Notification';

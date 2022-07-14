@@ -39,14 +39,26 @@ const config = {
     /* Capture a screenshot after each test */
     screenshot: 'on',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'retain-on-failure'
+    trace: 'retain-on-failure',
+    /* Tell all tests to load signed-in state from './e2e/storageState.json'. */
+    storageState: './e2e/storageState.json'
   },
+  globalSetup: require.resolve('./e2e/global-setup'),
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      use: {
+        ...devices['Desktop Chrome'],
+        contextOptions: {
+          permissions: [
+            'clipboard-read',
+            'clipboard-write',
+            'accessibility-events'
+          ]
+        }
+      }
     },
     {
       name: 'firefox',
@@ -54,16 +66,35 @@ const config = {
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] }
+      use: { ...devices['Desktop Safari'] },
+      contextOptions: {
+        permissions: [
+          'clipboard-read',
+          'clipboard-write',
+          'accessibility-events'
+        ]
+      }
     },
+
     /* Test against mobile viewports. */
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 13'] }
+      use: { ...devices['iPhone 13'] },
+      retries: 2
     },
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] }
+      use: {
+        ...devices['Pixel 5'],
+        contextOptions: {
+          permissions: [
+            'clipboard-read',
+            'clipboard-write',
+            'accessibility-events'
+          ]
+        }
+      },
+      retries: 2
     }
   ],
 

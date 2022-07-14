@@ -10,6 +10,7 @@ import { useUser } from '../../../../contexts/User';
 import Form from '../../../../components/Form';
 import Input from '../../../../components/Input';
 import './Settings.css';
+
 const defaultFormProps = (inputVariant) => ({
   formVariant: 'horizontal',
   inputVariant,
@@ -85,6 +86,7 @@ const AccountSettings = () => {
         <h3>{$content.settings_page.account_settings}</h3>
         <Form
           {...defaultFormProps(inputVariant)}
+          formId="change-username-form"
           clearFormOnSuccess={false}
           disableSubmit={({ username }) => username.value === userData.username}
           errorHandler={handleSaveUsernameError}
@@ -97,12 +99,13 @@ const AccountSettings = () => {
         />
         <Form
           {...defaultFormProps(inputVariant)}
+          formId="change-password-form"
           errorHandler={handleSavePasswordError}
           inputsData={{
             'current password': { type: 'password', skipValidation: true },
             'new password': {
               type: 'password',
-              confirmedBy: 'confirmPassword',
+              confirmedBy: 'confirmNewPassword',
               placeholder: $content.settings_page.create_your_new_password
             }
           }}
