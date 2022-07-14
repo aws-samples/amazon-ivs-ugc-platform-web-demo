@@ -2,7 +2,11 @@ import {
   CloudWatchClient,
   GetMetricDataCommand
 } from '@aws-sdk/client-cloudwatch';
-import { ChannelType, StreamSession } from '@aws-sdk/client-ivs';
+import {
+  ChannelType,
+  IngestConfiguration,
+  StreamEvent
+} from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
@@ -13,48 +17,90 @@ import {
   formatMetricsData,
   FormattedMetricData,
   getPeriodValue,
-  getStreamRecord,
   getStreamSession,
+  getStreamSessionDbRecord,
   isAvgMetric
 } from './helpers';
 import { SEC_PER_HOUR, UNEXPECTED_EXCEPTION } from '../shared/constants';
 import { updateDynamoItemAttributes } from '../shared/helpers';
-
-export interface GetStreamSessionBody
-  extends Omit<StreamSession, 'recordingConfiguration'> {
-  channel: { type?: ChannelType | string };
-  metrics: FormattedMetricData[];
-}
-
-type MarshalledFormattedMetricData = FormattedMetricData & {
-  alignedStartTime: string;
-};
+import { UserContext } from '../userManagement/authorizer';
 
 export const cloudwatchClient = new CloudWatchClient({});
 
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+export interface GetStreamSessionResponseBody {
+  channel: { type: ChannelType };
+  endTime?: Date;
+  streamId?: string;
+  ingestConfiguration?: IngestConfiguration;
+  metrics: FormattedMetricData[];
+  startTime?: Date;
+  truncatedEvents?: StreamEvent[];
+}
+
+const handler = async (
+  request: FastifyRequest<{
+    Params: {
+      channelResourceId: string;
+      streamSessionId: string;
+    };
+  }>,
+  reply: FastifyReply
+) => {
+  const { sub } = request.requestContext.get('user') as UserContext;
   const { params } = request;
-  const { channelResourceId, streamSessionId } = params as {
-    channelResourceId: string;
-    streamSessionId: string;
-  };
-  let responseBody: GetStreamSessionBody;
+  const { channelResourceId, streamSessionId } = params;
+  let responseBody: GetStreamSessionResponseBody;
+  const channelArn = buildChannelArn(channelResourceId);
 
   try {
-    const { streamSession = {} } = await getStreamSession(
-      buildChannelArn(channelResourceId),
+    const streamSession = await getStreamSessionDbRecord(
+      channelArn,
       streamSessionId
     );
-    let { startTime } = streamSession;
-    const { endTime } = streamSession;
+    let { ingestConfiguration, startTime } = streamSession;
     const {
-      channel = {},
-      recordingConfiguration,
-      truncatedEvents,
-      ...streamSessionRest
+      endTime,
+      id: streamId,
+      metrics = {},
+      userSub,
+      truncatedEvents
     } = streamSession;
     const isLive = !endTime;
-    const { type } = channel;
+
+    if (sub !== userSub)
+      throw new Error('User trying to access session from a different channel');
+
+    if (!startTime) {
+      throw new Error(`Missing startTime for session: ${streamSessionId}`);
+    }
+
+    if (!ingestConfiguration) {
+      try {
+        const { streamSession: ivsStreamSession = {} } = await getStreamSession(
+          channelArn,
+          streamSessionId
+        );
+        const { ingestConfiguration: ivsIngestConfiguration } =
+          ivsStreamSession;
+
+        if (ivsIngestConfiguration) {
+          ingestConfiguration = ivsIngestConfiguration;
+
+          await updateDynamoItemAttributes({
+            attributes: [
+              { key: 'ingestConfiguration', value: ivsIngestConfiguration }
+            ],
+            dynamoDbClient,
+            primaryKey: { key: 'channelArn', value: channelArn },
+            sortKey: { key: 'id', value: streamSessionId },
+            tableName: process.env.STREAM_TABLE_NAME as string
+          });
+        }
+      } catch (error) {
+        // Missing ingest configuration or failed attempts to retrieve this data shouldn't stop the flow
+      }
+    }
+
     // Sort the truncated events in descending order if the stream session is live,
     // and in ascending order if the stream session is offline
     const sortedTruncatedEvents =
@@ -70,10 +116,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
           } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
         }
       ) || [];
-
-    if (!startTime) {
-      throw new Error(`Missing startTime for session: ${streamSessionId}`);
-    }
 
     if (isLive) {
       const threeHoursAgoTimeInMs = Date.now() - SEC_PER_HOUR * 3 * 1000;
@@ -111,11 +153,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         ? alignedStartTimeUp
         : alignedStartTimeDown;
 
-    const { metrics = {} } = await getStreamRecord(streamSessionId);
     const metricsKey = `P${period}-S${alignedStartTime.getTime()}-E${alignedEndTime.getTime()}`;
-    let marshalledFormattedMetricsData:
-      | MarshalledFormattedMetricData[]
-      | undefined = metrics[metricsKey];
+    let marshalledFormattedMetricsData = metrics[metricsKey];
     let formattedMetricsData: FormattedMetricData[];
 
     if (!isLive && marshalledFormattedMetricsData) {
@@ -165,16 +204,20 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
             }
           ],
           dynamoDbClient,
-          id: streamSessionId,
+          primaryKey: { key: 'channelArn', value: channelArn },
+          sortKey: { key: 'id', value: streamSessionId },
           tableName: process.env.STREAM_TABLE_NAME as string
         });
       }
     }
 
     responseBody = {
-      ...streamSessionRest,
-      channel: { type },
+      channel: { type: process.env.IVS_CHANNEL_TYPE as ChannelType },
+      endTime,
+      ingestConfiguration,
       metrics: formattedMetricsData,
+      startTime,
+      streamId,
       truncatedEvents: sortedTruncatedEvents
     };
   } catch (error) {

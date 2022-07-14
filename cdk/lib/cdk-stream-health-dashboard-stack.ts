@@ -3,7 +3,6 @@ import {
   aws_cloudfront_origins as origins,
   aws_ec2 as ec2,
   aws_ecs as ecs,
-  aws_elasticloadbalancingv2 as elbv2,
   CfnOutput,
   Stack,
   StackProps
@@ -11,17 +10,14 @@ import {
 import { Construct } from 'constructs';
 import path from 'path';
 
+import {
+  defaultTargetProps,
+  StreamHealthResourceWithUserManagementConfig
+} from './constants';
 import { MetricsStack } from './MetricsStack/cdk-metrics-stack';
-import { StreamHealthResourceWithUserManagementConfig } from './constants';
 import { UserManagementStack } from './UserManagementStack/cdk-user-management-stack';
 import LoadBalancer from './Constructs/LoadBalancer';
 import Service from './Constructs/Service';
-
-const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
-  healthCheck: { path: '/status' },
-  port: 8080,
-  protocol: elbv2.ApplicationProtocol.HTTP
-};
 
 interface StreamHealthDashboardStackProps extends StackProps {
   resourceConfig: StreamHealthResourceWithUserManagementConfig;
@@ -36,8 +32,13 @@ export class StreamHealthDashboardStack extends Stack {
     super(scope, id, props);
 
     const { resourceConfig } = props;
-    const { allowedOrigin, maxAzs, natGateways, deploySeparateContainers } =
-      resourceConfig;
+    const {
+      allowedOrigin,
+      ivsChannelType,
+      maxAzs,
+      natGateways,
+      deploySeparateContainers
+    } = resourceConfig;
     const stackNamePrefix = Stack.of(this).stackName;
 
     // VPC
@@ -59,7 +60,7 @@ export class StreamHealthDashboardStack extends Stack {
     // User Management Stack
     const {
       containerEnv: userManagementContainerEnv,
-      outputs: { userPoolId, userPoolClientId },
+      outputs: { userPoolId, userPoolClientId, userTable },
       policies: userManagementPolicies
     } = new UserManagementStack(this, 'UserManagement', {
       resourceConfig
@@ -67,7 +68,12 @@ export class StreamHealthDashboardStack extends Stack {
 
     // Metrics Stack
     const { containerEnv: metricsContainerEnv, policies: metricsPolicies } =
-      new MetricsStack(this, 'Metrics', {});
+      new MetricsStack(this, 'Metrics', {
+        cluster,
+        ivsChannelType,
+        userTable,
+        vpc
+      });
 
     // This environment is required for any container that exposes authenticated endpoints
     const baseContainerEnv = {

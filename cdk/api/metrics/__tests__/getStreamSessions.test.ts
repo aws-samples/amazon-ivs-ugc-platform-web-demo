@@ -1,22 +1,26 @@
-import { ListStreamSessionsCommand } from '@aws-sdk/client-ivs';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
 
 import {
   createRouteAuthenticationTests,
   injectAuthorizedRequest
 } from '../../testUtils';
-import { ivsClient } from '../helpers';
+import { dynamoDbClient, encryptNextToken } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import buildServer from '../../buildServer';
-import streamSessionsJsonMock from '../../__mocks__/streamSessions.json';
+import streamSessionJsonMock from '../../__mocks__/streamSessions.json';
 
-const streamSessionsMock = streamSessionsJsonMock.map((streamSession) => ({
-  ...streamSession,
-  startTime: new Date(streamSession.startTime),
-  endTime: new Date(streamSession.endTime)
-}));
+const defaultExpectedSessions = [
+  {
+    startTime: streamSessionJsonMock[0].startTime,
+    endTime: streamSessionJsonMock[0].endTime,
+    hasErrorEvent: false,
+    streamId: 'streamId'
+  }
+];
 
-const mockIvsClient = mockClient(ivsClient);
+const mockDynamoDbClient = mockClient(dynamoDbClient);
 const route = '/metrics/channelResourceId/streamSessions';
 
 describe('getStreamSessions controller', () => {
@@ -27,14 +31,17 @@ describe('getStreamSessions controller', () => {
     console.error = mockConsoleError;
   });
 
-  afterEach(() => {
-    mockIvsClient.reset();
+  beforeEach(() => {
+    mockDynamoDbClient.reset();
+    mockDynamoDbClient.on(QueryCommand).resolves({
+      Items: [marshall({ ...streamSessionJsonMock[0], userSub: 'sub' })]
+    });
   });
 
   createRouteAuthenticationTests(server, route);
 
   it('should handle a request with an empty query string', async () => {
-    mockIvsClient.on(ListStreamSessionsCommand).resolves({});
+    mockDynamoDbClient.on(QueryCommand).resolves({});
 
     const response = await injectAuthorizedRequest(server, { url: route });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
@@ -45,7 +52,7 @@ describe('getStreamSessions controller', () => {
   });
 
   it('should handle a request with an empty nextToken query parameter', async () => {
-    mockIvsClient.on(ListStreamSessionsCommand).resolves({});
+    mockDynamoDbClient.on(QueryCommand).resolves({});
 
     const response = await injectAuthorizedRequest(server, {
       url: route,
@@ -58,8 +65,8 @@ describe('getStreamSessions controller', () => {
     expect(streamSessions.length).toBe(0);
   });
 
-  it('should return an unexpected exception when the IVS client fails', async () => {
-    mockIvsClient.on(ListStreamSessionsCommand).rejects({});
+  it('should return an unexpected exception when the DynamoDB client fails', async () => {
+    mockDynamoDbClient.on(QueryCommand).rejects({});
 
     const response = await injectAuthorizedRequest(server, { url: route });
     const { __type } = JSON.parse(response.payload);
@@ -75,27 +82,57 @@ describe('getStreamSessions controller', () => {
     process.env.REGION = 'region';
     process.env.ACCOUNT_ID = 'accountId';
 
-    mockIvsClient
-      .on(ListStreamSessionsCommand, {
-        channelArn: 'arn:aws:ivs:region:accountId:channel/channelResourceId'
-      })
-      .resolves({ streamSessions: streamSessionsMock });
+    const response = await injectAuthorizedRequest(server, { url: route });
+    const { maxResults, streamSessions } = JSON.parse(response.payload);
+
+    expect(
+      mockDynamoDbClient.commandCalls(QueryCommand)[0].args[0].input
+        .ExpressionAttributeValues?.[':userChannelArn'].S
+    ).toBe('arn:aws:ivs:region:accountId:channel/channelResourceId');
+    expect(response.statusCode).toBe(200);
+    expect(maxResults).toBe(50);
+    expect(streamSessions).toMatchObject(defaultExpectedSessions);
+
+    process.env.REGION = oldRegion;
+    process.env.ACCOUNT_ID = oldAccountId;
+  });
+
+  it('should not include sessions where the sub does not match', async () => {
+    mockDynamoDbClient.on(QueryCommand).resolves({
+      Items: [
+        marshall({ ...streamSessionJsonMock[0], userSub: 'differentSub' })
+      ]
+    });
 
     const response = await injectAuthorizedRequest(server, { url: route });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(200);
     expect(maxResults).toBe(50);
-    expect(streamSessions.length).toBe(1);
-
-    process.env.REGION = oldRegion;
-    process.env.ACCOUNT_ID = oldAccountId;
+    expect(streamSessions.length).toBe(0);
   });
 
-  it('should return the encoded nextToken value', async () => {
-    mockIvsClient
-      .on(ListStreamSessionsCommand)
-      .resolves({ nextToken: 'nextToken?' });
+  it('should handle missing startTime and endTime', async () => {
+    mockDynamoDbClient.on(QueryCommand).resolves({
+      Items: [
+        marshall({ id: 'streamId', hasErrorEvent: false, userSub: 'sub' })
+      ]
+    });
+
+    const response = await injectAuthorizedRequest(server, { url: route });
+    const { maxResults, streamSessions } = JSON.parse(response.payload);
+
+    expect(response.statusCode).toBe(200);
+    expect(maxResults).toBe(50);
+    expect(streamSessions).toMatchObject([
+      { hasErrorEvent: false, streamId: 'streamId' }
+    ]);
+  });
+
+  it('should return the nextToken value', async () => {
+    mockDynamoDbClient
+      .on(QueryCommand)
+      .resolves({ LastEvaluatedKey: { id: { S: 'streamId' } } });
 
     const response = await injectAuthorizedRequest(server, { url: route });
     const { maxResults, nextToken, streamSessions } = JSON.parse(
@@ -103,8 +140,24 @@ describe('getStreamSessions controller', () => {
     );
 
     expect(response.statusCode).toBe(200);
-    expect(nextToken).toBe('nextToken%3F');
+    expect(typeof nextToken).toBe('string');
     expect(maxResults).toBe(50);
     expect(streamSessions.length).toBe(0);
+  });
+
+  it('should decrypt the token value', async () => {
+    const response = await injectAuthorizedRequest(server, {
+      url: route,
+      query: { nextToken: encryptNextToken('{"id":"123"}') }
+    });
+    const { maxResults, streamSessions } = JSON.parse(response.payload);
+
+    expect(
+      mockDynamoDbClient.commandCalls(QueryCommand)[0].args[0].input
+        .ExclusiveStartKey?.id
+    ).toBe('123');
+    expect(response.statusCode).toBe(200);
+    expect(maxResults).toBe(50);
+    expect(streamSessions).toMatchObject(defaultExpectedSessions);
   });
 });

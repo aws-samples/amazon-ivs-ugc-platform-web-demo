@@ -5,15 +5,19 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
 
+type DynamoKey = { key: string; value: string };
+
 export const updateDynamoItemAttributes = ({
   attributes = [],
   dynamoDbClient,
-  id,
+  primaryKey,
+  sortKey,
   tableName
 }: {
   attributes: { key: string; value: any }[];
   dynamoDbClient: DynamoDBClient;
-  id: string;
+  primaryKey: DynamoKey;
+  sortKey?: DynamoKey;
   tableName: string;
 }) => {
   if (!attributes.length) return;
@@ -33,7 +37,10 @@ export const updateDynamoItemAttributes = ({
 
   const putItemCommand = new UpdateItemCommand({
     AttributeUpdates: attributesToUpdate,
-    Key: { id: { S: id } },
+    Key: {
+      [primaryKey.key]: convertToAttr(primaryKey.value),
+      ...(sortKey ? { [sortKey.key]: convertToAttr(sortKey.value) } : {})
+    },
     TableName: tableName
   });
 

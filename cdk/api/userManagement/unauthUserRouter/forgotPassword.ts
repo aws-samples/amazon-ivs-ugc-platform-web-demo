@@ -7,9 +7,11 @@ import { isCognitoError } from '../../shared';
 
 type ForgotPasswordRequestBody = { email: string | undefined };
 
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { email }: ForgotPasswordRequestBody =
-    request.body as ForgotPasswordRequestBody;
+const handler = async (
+  request: FastifyRequest<{ Body: ForgotPasswordRequestBody }>,
+  reply: FastifyReply
+) => {
+  const { email }: ForgotPasswordRequestBody = request.body;
 
   if (email) {
     try {

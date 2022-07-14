@@ -1,5 +1,6 @@
 import {
   aws_ecs as ecs,
+  aws_ec2 as ec2,
   aws_iam as iam,
   aws_logs as logs,
   Duration,
@@ -14,6 +15,7 @@ export interface ServiceProps {
   minScalingCapacity: number;
   policies: iam.PolicyStatement[];
   prefix: string;
+  securityGroups?: ec2.SecurityGroup[];
 }
 
 export default class Service extends Construct {
@@ -27,7 +29,8 @@ export default class Service extends Construct {
       environment,
       minScalingCapacity,
       policies,
-      prefix
+      prefix,
+      securityGroups
     } = props;
     let { cluster } = props;
 
@@ -86,7 +89,8 @@ export default class Service extends Construct {
     // Fargate Service
     const service = new ecs.FargateService(this, `${prefix}-Service`, {
       cluster,
-      taskDefinition: fargateTaskDefinition
+      taskDefinition: fargateTaskDefinition,
+      securityGroups
     });
     const scaling = service.autoScaleTaskCount({
       maxCapacity: 30,

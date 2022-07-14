@@ -5,7 +5,7 @@ import {
 import { GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { GetStreamSessionCommand } from '@aws-sdk/client-ivs';
 import { LightMyRequestResponse } from 'fastify';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, marshall } from '@aws-sdk/util-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 
 import {
@@ -13,13 +13,16 @@ import {
   INGEST_VIDEO_BITRATE,
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
-import { cloudwatchClient, GetStreamSessionBody } from '../getStreamSession';
+import {
+  cloudwatchClient,
+  GetStreamSessionResponseBody
+} from '../getStreamSession';
 import { dynamoDbClient, ivsClient } from '../helpers';
 import { injectAuthorizedRequest } from '../../testUtils';
 import buildServer from '../../buildServer';
 import metricDataResultsJsonMock from '../../__mocks__/metricDataResults.json';
-import streamSessionMock from '../../__mocks__/streamSession.json';
-import formattedMetricsDataMock from '../../__mocks__/formattedMetricsData.json';
+import streamSessionJsonMock from '../../__mocks__/streamSession.json';
+import formattedMetricsDataJsonMock from '../../__mocks__/formattedMetricsData.json';
 
 const metricDataResultsMock = metricDataResultsJsonMock.map(
   (metricDataResult) => ({
@@ -29,13 +32,6 @@ const metricDataResultsMock = metricDataResultsJsonMock.map(
     )
   })
 );
-const streamSessionResultsMock = {
-  ...streamSessionMock,
-  truncatedEvents: streamSessionMock.truncatedEvents.map((event) => ({
-    ...event,
-    eventTime: new Date(event.eventTime)
-  }))
-};
 const mockIvsClient = mockClient(ivsClient);
 const mockCloudwatchClient = mockClient(cloudwatchClient);
 const mockDynamoDbClient = mockClient(dynamoDbClient);
@@ -43,6 +39,32 @@ const route = '/metrics/channelResourceId/streamSessions/streamSessionId';
 const mockNow = new Date('2022-06-10T19:12:05.000Z');
 const mockNowTimestamp = mockNow.getTime();
 const mockDefaultStartTime = new Date('2022-06-10T19:07:00.000Z');
+const ivsStreamSessionMock = {
+  ...streamSessionJsonMock,
+  truncatedEvents: streamSessionJsonMock.truncatedEvents.map((event) => ({
+    ...event,
+    eventTime: new Date(event.eventTime)
+  })),
+  startTime: mockDefaultStartTime,
+  streamId: 'streamSessionId'
+};
+const [, ...rest] = streamSessionJsonMock.truncatedEvents;
+const shuffledStreamEvents = [
+  ...rest,
+  streamSessionJsonMock.truncatedEvents[0]
+];
+const dynamoDbStreamSessionMock = {
+  ...streamSessionJsonMock,
+  truncatedEvents: shuffledStreamEvents,
+  startTime: mockDefaultStartTime.toISOString(),
+  id: 'streamSessionId',
+  userSub: 'sub'
+};
+const defaultExpectedResponse = {
+  ...streamSessionJsonMock,
+  startTime: mockDefaultStartTime.toISOString(),
+  streamId: 'streamSessionId'
+};
 
 describe('getStreamSession controller', () => {
   const server = buildServer();
@@ -52,6 +74,7 @@ describe('getStreamSession controller', () => {
   const realDateNow = Date.now.bind(global.Date);
 
   beforeAll(() => {
+    process.env.IVS_CHANNEL_TYPE = 'BASIC';
     console.error = mockConsoleError;
 
     /**
@@ -73,27 +96,38 @@ describe('getStreamSession controller', () => {
   afterAll(() => {
     global.Date = RealDate;
     global.Date.now = realDateNow;
+    delete process.env.IVS_CHANNEL_TYPE;
   });
 
   beforeEach(() => {
     mockIvsClient.reset();
-    mockIvsClient.on(GetStreamSessionCommand).resolves({
-      streamSession: {
-        ...streamSessionResultsMock,
-        startTime: mockDefaultStartTime
-      }
-    });
+    mockIvsClient
+      .on(GetStreamSessionCommand)
+      .resolves({ streamSession: ivsStreamSessionMock });
 
     mockCloudwatchClient.reset();
     mockCloudwatchClient.on(GetMetricDataCommand).resolves({});
 
     mockDynamoDbClient.reset();
-    mockDynamoDbClient.on(GetItemCommand).resolves({});
+    mockDynamoDbClient
+      .on(GetItemCommand)
+      .resolves({ Item: marshall(dynamoDbStreamSessionMock) });
   });
 
   describe('error handling', () => {
-    it('should return an unexpected exception when the IVS client fails', async () => {
-      mockIvsClient.on(GetStreamSessionCommand).rejects({});
+    it('should return an unexpected exception when the DynamoDB client fails', async () => {
+      mockDynamoDbClient.on(GetItemCommand).rejects({});
+
+      const response = await injectAuthorizedRequest(server, { url: route });
+      const { __type } = JSON.parse(response.payload);
+
+      expect(mockConsoleError).toHaveBeenCalledTimes(1);
+      expect(response.statusCode).toBe(500);
+      expect(__type).toBe(UNEXPECTED_EXCEPTION);
+    });
+
+    it('should return an unexpected exception when the streamSession is missing', async () => {
+      mockDynamoDbClient.on(GetItemCommand).resolves({});
 
       const response = await injectAuthorizedRequest(server, { url: route });
       const { __type } = JSON.parse(response.payload);
@@ -104,7 +138,9 @@ describe('getStreamSession controller', () => {
     });
 
     it('should return an unexpected exception when the startTime is missing', async () => {
-      mockIvsClient.on(GetStreamSessionCommand).resolves({});
+      mockDynamoDbClient
+        .on(GetItemCommand)
+        .resolves({ Item: marshall({ userSub: 'sub' }) });
 
       const response = await injectAuthorizedRequest(server, { url: route });
       const { __type } = JSON.parse(response.payload);
@@ -115,16 +151,30 @@ describe('getStreamSession controller', () => {
       expect(response.statusCode).toBe(500);
       expect(__type).toBe(UNEXPECTED_EXCEPTION);
     });
+
+    it('should return an unexpected exception when the userSub is incorrect', async () => {
+      mockDynamoDbClient
+        .on(GetItemCommand)
+        .resolves({ Item: marshall({ userSub: 'differentSub' }) });
+
+      const response = await injectAuthorizedRequest(server, { url: route });
+      const { __type } = JSON.parse(response.payload);
+
+      expect(mockConsoleError.mock.lastCall[0].message).toBe(
+        'User trying to access session from a different channel'
+      );
+      expect(response.statusCode).toBe(500);
+      expect(__type).toBe(UNEXPECTED_EXCEPTION);
+    });
   });
 
   describe('general cases', () => {
     const setupOfflineStreamTest = () => {
-      mockIvsClient.on(GetStreamSessionCommand).resolves({
-        streamSession: {
-          ...streamSessionResultsMock,
-          startTime: mockDefaultStartTime,
-          endTime: mockNow
-        }
+      mockDynamoDbClient.on(GetItemCommand).resolves({
+        Item: marshall({
+          ...dynamoDbStreamSessionMock,
+          endTime: mockNow.toISOString()
+        })
       });
       mockCloudwatchClient.callsFakeOnce(({ StartTime, EndTime }) => {
         if (
@@ -138,17 +188,20 @@ describe('getStreamSession controller', () => {
         throw new Error('Wrong input');
       });
     };
-    const assertMetricsResponse = (
+    const assertOfflineStreamResponse = (
       response: LightMyRequestResponse,
       expectedIngestFramerateLength: number,
-      parsedPayload: GetStreamSessionBody
+      parsedPayload: GetStreamSessionResponseBody
     ) => {
       const { metrics, ...rest } = parsedPayload;
       const ingestFramerateMetric = metrics.find(
         ({ label }) => label === INGEST_FRAMERATE
       );
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject({
+        ...defaultExpectedResponse,
+        truncatedEvents: [...defaultExpectedResponse.truncatedEvents].reverse()
+      });
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();
@@ -173,12 +226,20 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const parsedPayload = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
+      const { metrics, ...rest } = parsedPayload;
+      const ingestFramerateMetric = metrics.find(
+        ({ label }) => label === INGEST_FRAMERATE
+      );
 
-      assertMetricsResponse(response, 56, parsedPayload);
+      expect(rest).toMatchObject(defaultExpectedResponse);
+      expect(response.statusCode).toBe(200);
+      expect(metrics.length).toBe(4);
+      expect(metrics).toMatchSnapshot();
+      expect(ingestFramerateMetric!.data.length).toBe(56);
       expect(mockDynamoDbClient).not.toHaveReceivedCommand(UpdateItemCommand);
       expect(parsedPayload.truncatedEvents).toEqual(
-        streamSessionMock.truncatedEvents
+        defaultExpectedResponse.truncatedEvents
       );
     });
 
@@ -188,9 +249,9 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const parsedPayload = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
 
-      assertMetricsResponse(response, 62, parsedPayload);
+      assertOfflineStreamResponse(response, 62, parsedPayload);
       // Check that the key used to store the metrics in the Dynamo table is correct
       expect(
         mockDynamoDbClient.commandCalls(UpdateItemCommand)[0].args[0].input
@@ -199,7 +260,7 @@ describe('getStreamSession controller', () => {
         ]
       ).toBeTruthy();
       expect(parsedPayload.truncatedEvents).toEqual(
-        [...streamSessionMock.truncatedEvents].reverse()
+        [...streamSessionJsonMock.truncatedEvents].reverse()
       );
     });
 
@@ -207,8 +268,10 @@ describe('getStreamSession controller', () => {
       setupOfflineStreamTest();
       mockDynamoDbClient.on(GetItemCommand).resolves({
         Item: marshall({
+          ...dynamoDbStreamSessionMock,
+          endTime: mockNow.toISOString(),
           metrics: {
-            'P5-S1654888020000-E1654888325000': formattedMetricsDataMock
+            'P5-S1654888020000-E1654888325000': formattedMetricsDataJsonMock
           }
         })
       });
@@ -216,12 +279,39 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const parsedPayload = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
 
-      assertMetricsResponse(response, 62, parsedPayload);
+      assertOfflineStreamResponse(response, 62, parsedPayload);
       expect(mockDynamoDbClient).not.toHaveReceivedCommand(UpdateItemCommand);
       expect(parsedPayload.truncatedEvents).toEqual(
-        [...streamSessionMock.truncatedEvents].reverse()
+        [...streamSessionJsonMock.truncatedEvents].reverse()
+      );
+    });
+
+    it('should return the ingestConfiguration from IVS when it is not yet in the DB for an offline stream', async () => {
+      setupOfflineStreamTest();
+      mockDynamoDbClient.on(GetItemCommand).resolves({
+        Item: marshall(
+          {
+            ...dynamoDbStreamSessionMock,
+            endTime: mockNow.toISOString(),
+            ingestConfiguration: undefined
+          },
+          { removeUndefinedValues: true }
+        )
+      });
+
+      const response = await injectAuthorizedRequest(server, { url: route });
+      const parsedPayload = JSON.parse(
+        response.payload
+      ) as GetStreamSessionResponseBody;
+
+      assertOfflineStreamResponse(response, 62, parsedPayload);
+      expect(
+        mockDynamoDbClient.commandCalls(UpdateItemCommand)[0].args[0].input
+          .AttributeUpdates?.ingestConfiguration.Value
+      ).toStrictEqual(
+        convertToAttr(dynamoDbStreamSessionMock.ingestConfiguration)
       );
     });
 
@@ -234,12 +324,12 @@ describe('getStreamSession controller', () => {
        */
       const mockStartTime = new Date('2022-04-08T19:13:00.000Z');
       const mockEndTime = new Date('2022-04-08T19:18:05.000Z');
-      mockIvsClient.on(GetStreamSessionCommand).resolves({
-        streamSession: {
-          ...streamSessionResultsMock,
-          startTime: mockStartTime,
-          endTime: mockEndTime
-        }
+      mockDynamoDbClient.on(GetItemCommand).resolves({
+        Item: marshall({
+          ...dynamoDbStreamSessionMock,
+          startTime: mockStartTime.toISOString(),
+          endTime: mockEndTime.toISOString()
+        })
       });
       const expectedStartTime = new Date('2022-04-08T19:15:00.000Z');
       const expectedEndTime = new Date('2022-04-08T19:20:00.000Z');
@@ -258,10 +348,14 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const parsedPayload = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
       const { metrics, ...rest } = parsedPayload;
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject({
+        ...defaultExpectedResponse,
+        startTime: mockStartTime,
+        truncatedEvents: [...defaultExpectedResponse.truncatedEvents].reverse()
+      });
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(
@@ -271,17 +365,51 @@ describe('getStreamSession controller', () => {
         ]
       ).toBeTruthy();
       expect(parsedPayload.truncatedEvents).toEqual(
-        [...streamSessionMock.truncatedEvents].reverse()
+        [...streamSessionJsonMock.truncatedEvents].reverse()
       );
     });
   });
 
-  describe('partial and empty metrics', () => {
+  describe('partial and empty data', () => {
+    it('should return a partial response if the ingestConfiguration is missing', async () => {
+      mockIvsClient.on(GetStreamSessionCommand).resolves({});
+      mockDynamoDbClient.on(GetItemCommand).resolves({
+        Item: marshall(
+          { ...dynamoDbStreamSessionMock, ingestConfiguration: undefined },
+          { removeUndefinedValues: true }
+        )
+      });
+
+      const response = await injectAuthorizedRequest(server, { url: route });
+      const { metrics, ...rest } = JSON.parse(response.payload);
+
+      expect(rest.ingestConfiguration).toBeUndefined();
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return a partial response if the truncatedEvents are missing', async () => {
+      mockDynamoDbClient.on(GetItemCommand).resolves({
+        Item: marshall(
+          { ...dynamoDbStreamSessionMock, truncatedEvents: undefined },
+          { removeUndefinedValues: true }
+        )
+      });
+
+      const response = await injectAuthorizedRequest(server, { url: route });
+      const { metrics, ...rest } = JSON.parse(response.payload);
+
+      expect(rest).toMatchObject({
+        ...defaultExpectedResponse,
+        truncatedEvents: []
+      });
+      expect(response.statusCode).toBe(200);
+    });
+
     it('should return empty metrics if CloudWatch returns empty metrics', async () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject(defaultExpectedResponse);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(0);
     });
@@ -303,7 +431,7 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject(defaultExpectedResponse);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(2);
       expect(metrics).toMatchSnapshot();
@@ -326,9 +454,9 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject(defaultExpectedResponse);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();
@@ -357,9 +485,9 @@ describe('getStreamSession controller', () => {
       const response = await injectAuthorizedRequest(server, { url: route });
       const { metrics, ...rest } = JSON.parse(
         response.payload
-      ) as GetStreamSessionBody;
+      ) as GetStreamSessionResponseBody;
 
-      expect(rest).toMatchObject(streamSessionResultsMock);
+      expect(rest).toMatchObject(defaultExpectedResponse);
       expect(response.statusCode).toBe(200);
       expect(metrics.length).toBe(4);
       expect(metrics).toMatchSnapshot();

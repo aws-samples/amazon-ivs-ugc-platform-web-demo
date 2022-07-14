@@ -20,7 +20,6 @@
       "videoWidth": 768
     }
   },
-  "streamId": "streamSessionId",
   "truncatedEvents": [
     {
       "eventTime": "2022-05-20T21:10:00.000Z",

@@ -12,9 +12,13 @@ type ChangeUsernameRequestBody = { newUsername: string | undefined };
 interface ChangeUsernameResponseBody extends ResponseBody {
   username: string;
 }
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+
+const handler = async (
+  request: FastifyRequest<{ Body: ChangeUsernameRequestBody }>,
+  reply: FastifyReply
+) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { newUsername } = request.body as ChangeUsernameRequestBody;
+  const { newUsername } = request.body;
 
   try {
     if (!newUsername) {
@@ -34,7 +38,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     await updateDynamoItemAttributes({
       attributes: [{ key: 'username', value: newUsername }],
       dynamoDbClient,
-      id: sub,
+      primaryKey: { key: 'id', value: sub },
       tableName: process.env.USER_TABLE_NAME as string
     });
   } catch (error) {

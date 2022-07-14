@@ -1,18 +1,19 @@
-import {
-  ListStreamSessionsCommand,
-  ListStreamSessionsCommandOutput
-} from '@aws-sdk/client-ivs';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { StreamSessionSummary } from '@aws-sdk/client-ivs';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-import { buildChannelArn, ivsClient } from './helpers';
+import {
+  buildChannelArn,
+  decryptNextToken,
+  encryptNextToken,
+  getStreamsByChannelArn
+} from './helpers';
 import { UNEXPECTED_EXCEPTION } from '../shared/constants';
+import { UserContext } from '../userManagement/authorizer';
 
-interface GetStreamSessionsBody
-  extends Partial<ListStreamSessionsCommandOutput> {
+interface GetStreamSessionsResponseBody {
+  streamSessions?: StreamSessionSummary[];
   maxResults: number;
-}
-
-interface GetStreamSessionsQueryString {
   nextToken?: string;
 }
 
@@ -20,36 +21,52 @@ const STREAMS_PER_PAGE = 50;
 
 const handler = async (
   request: FastifyRequest<{
-    Querystring: GetStreamSessionsQueryString;
+    Querystring: { nextToken?: string };
+    Params: { channelResourceId: string };
   }>,
   reply: FastifyReply
 ) => {
+  const { sub } = request.requestContext.get('user') as UserContext;
   const { params, query } = request;
-  const { channelResourceId } = params as {
-    channelResourceId: string;
-  };
-  let responseBody: GetStreamSessionsBody;
+  const { channelResourceId } = params;
+  let responseBody: GetStreamSessionsResponseBody;
   let nextTokenRequest;
 
-  if (query) {
-    nextTokenRequest = query.nextToken;
+  if (query.nextToken) {
+    nextTokenRequest = decryptNextToken(query.nextToken);
   }
 
   try {
     const maxResults = STREAMS_PER_PAGE;
-    const listStreamSessionsCommand = new ListStreamSessionsCommand({
-      channelArn: buildChannelArn(channelResourceId),
-      maxResults,
-      nextToken: nextTokenRequest
-    });
-    const { nextToken, streamSessions = [] } = await ivsClient.send(
-      listStreamSessionsCommand
-    );
+    const { LastEvaluatedKey: nextToken, Items: streamSessions = [] } =
+      await getStreamsByChannelArn(
+        buildChannelArn(channelResourceId),
+        maxResults,
+        nextTokenRequest
+      );
 
-    responseBody = { maxResults, streamSessions };
+    responseBody = {
+      maxResults,
+      streamSessions: streamSessions.reduce((acc, streamSession) => {
+        const { userSub, endTime, startTime, id, ...rest } =
+          unmarshall(streamSession);
+
+        if (userSub !== sub) return acc;
+
+        return [
+          ...acc,
+          {
+            ...rest,
+            streamId: id,
+            endTime: endTime ? new Date(endTime) : undefined,
+            startTime: startTime ? new Date(startTime) : undefined
+          }
+        ];
+      }, [] as StreamSessionSummary[])
+    };
 
     if (nextToken) {
-      responseBody.nextToken = encodeURIComponent(nextToken);
+      responseBody.nextToken = encryptNextToken(JSON.stringify(nextToken));
     }
   } catch (error) {
     console.error(error);

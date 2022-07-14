@@ -8,9 +8,12 @@ import { UserContext } from '../authorizer';
 
 type CreateResourcesRequestBody = { email: string | undefined };
 
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+const handler = async (
+  request: FastifyRequest<{ Body: CreateResourcesRequestBody }>,
+  reply: FastifyReply
+) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { email } = request.body as CreateResourcesRequestBody;
+  const { email } = request.body;
 
   try {
     if (!email) {
@@ -66,7 +69,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         { key: 'streamKeyValue', value: streamKeyValue }
       ],
       dynamoDbClient,
-      id: sub,
+      primaryKey: { key: 'id', value: sub },
       tableName: process.env.USER_TABLE_NAME as string
     });
   } catch (error) {

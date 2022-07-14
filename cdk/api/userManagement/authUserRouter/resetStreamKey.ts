@@ -69,7 +69,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         { key: 'streamKeyValue', value: newStreamKeyValue }
       ],
       dynamoDbClient,
-      id: sub,
+      primaryKey: { key: 'id', value: sub },
       tableName: process.env.USER_TABLE_NAME as string
     });
 

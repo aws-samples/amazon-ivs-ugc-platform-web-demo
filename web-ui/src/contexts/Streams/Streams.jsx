@@ -244,6 +244,7 @@ export const Provider = ({ children }) => {
         refreshCurrentActiveStreamSessionWithLoading,
       refreshCurrentStreamSessions,
       refreshCurrentStreamSessionsWithLoading,
+      throttledUpdateStreamSessions,
       updateActiveStreamSession: eagerUpdateActiveStreamSession
     }),
     [
@@ -261,7 +262,8 @@ export const Provider = ({ children }) => {
       refreshCurrentActiveStreamSessionWithLoading,
       refreshCurrentStreamSessions,
       refreshCurrentStreamSessionsWithLoading,
-      streamSessions
+      streamSessions,
+      throttledUpdateStreamSessions
     ]
   );
 

@@ -17,9 +17,11 @@ type SignUpRequestBody = {
   username: string | undefined;
 };
 
-const handler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { email, password, username }: SignUpRequestBody =
-    request.body as SignUpRequestBody;
+const handler = async (
+  request: FastifyRequest<{ Body: SignUpRequestBody }>,
+  reply: FastifyReply
+) => {
+  const { email, password, username }: SignUpRequestBody = request.body;
 
   // Check input
   if (!email || !password || !username) {

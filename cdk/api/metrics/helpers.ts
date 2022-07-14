@@ -1,7 +1,17 @@
-import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
-import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  QueryCommand
+} from '@aws-sdk/client-dynamodb';
+import {
+  GetStreamSessionCommand,
+  IngestConfiguration,
+  IvsClient,
+  StreamEvent
+} from '@aws-sdk/client-ivs';
 import { MetricDataQuery, MetricDataResult } from '@aws-sdk/client-cloudwatch';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import crypto from 'crypto';
 
 import {
   INGEST_FRAMERATE,
@@ -14,7 +24,7 @@ import {
 export const ivsClient = new IvsClient({});
 export const dynamoDbClient = new DynamoDBClient({});
 
-export type Period = 3600 | 300 | 60 | 5;
+type Period = 3600 | 300 | 60 | 5;
 
 export type FormattedMetricData = {
   alignedStartTime: Date;
@@ -26,14 +36,92 @@ export type FormattedMetricData = {
   };
 };
 
-export const getStreamRecord = async (streamId: string) => {
+type DbFormattedMetricData = FormattedMetricData & {
+  alignedStartTime: string;
+};
+type DbStreamEvent = StreamEvent & {
+  eventTime: string;
+};
+interface StreamSessionDbRecord {
+  endTime?: string;
+  id?: string;
+  ingestConfiguration?: IngestConfiguration;
+  metrics?: { [key: string]: DbFormattedMetricData[] };
+  startTime?: string;
+  truncatedEvents?: DbStreamEvent[];
+  userSub?: string;
+}
+
+export const getStreamSessionDbRecord = async (
+  channelArn: string,
+  streamId: string
+) => {
   const getItemCommand = new GetItemCommand({
-    Key: { id: { S: streamId } },
+    Key: { channelArn: { S: channelArn }, id: { S: streamId } },
     TableName: process.env.STREAM_TABLE_NAME
   });
   const { Item = {} } = await dynamoDbClient.send(getItemCommand);
+  const unmarshalledData: StreamSessionDbRecord = unmarshall(Item);
+  const { endTime, startTime, truncatedEvents } = unmarshalledData;
 
-  return unmarshall(Item);
+  return {
+    ...unmarshalledData,
+    endTime: endTime ? new Date(endTime) : undefined,
+    startTime: startTime ? new Date(startTime) : undefined,
+    truncatedEvents: truncatedEvents
+      ? truncatedEvents.map((truncatedEvent: DbStreamEvent) => ({
+          ...truncatedEvent,
+          eventTime: new Date(truncatedEvent.eventTime)
+        }))
+      : undefined
+  };
+};
+
+export const getStreamsByChannelArn = (
+  userChannelArn: string,
+  limit: number,
+  nextToken?: string
+) => {
+  const queryCommand = new QueryCommand({
+    ScanIndexForward: false,
+    ExclusiveStartKey: nextToken ? JSON.parse(nextToken) : undefined,
+    ExpressionAttributeValues: { ':userChannelArn': { S: userChannelArn } },
+    IndexName: 'startTimeIndex',
+    KeyConditionExpression: 'channelArn=:userChannelArn',
+    Limit: limit,
+    ProjectionExpression: 'endTime, hasErrorEvent, startTime, id, userSub',
+    TableName: process.env.STREAM_TABLE_NAME
+  });
+
+  return dynamoDbClient.send(queryCommand);
+};
+
+const algorithm = 'aes-256-cbc';
+const key = Buffer.from(
+  process.env.PAGINATION_TOKEN_KEY || 'mqGmnKzveqqSQLbdXspNgJFHpLdCsy78',
+  'utf8'
+);
+const iv = Buffer.from(
+  process.env.PAGINATION_TOKEN_IV || 'GhAnBByRBTJL9tgN',
+  'utf8'
+);
+
+export const encryptNextToken = (decryptedNextToken: string) => {
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encryptedNextToken = cipher.update(decryptedNextToken);
+  encryptedNextToken = Buffer.concat([encryptedNextToken, cipher.final()]);
+
+  return encryptedNextToken.toString('hex');
+};
+
+export const decryptNextToken = (encryptedNextToken: string) => {
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+  let decryptedNextToken = decipher.update(
+    Buffer.from(encryptedNextToken, 'hex')
+  );
+  decryptedNextToken = Buffer.concat([decryptedNextToken, decipher.final()]);
+
+  return decryptedNextToken.toString();
 };
 
 export const buildChannelArn = (resourceId: string) =>

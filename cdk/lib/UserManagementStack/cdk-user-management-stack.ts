@@ -17,7 +17,11 @@ interface UserManagementStackProps extends NestedStackProps {
 
 export class UserManagementStack extends NestedStack {
   public readonly containerEnv: { [key: string]: string };
-  public readonly outputs: { [key: string]: string };
+  public readonly outputs: {
+    userPoolClientId: string;
+    userPoolId: string;
+    userTable: dynamodb.Table;
+  };
   public readonly policies: iam.PolicyStatement[];
 
   constructor(scope: Construct, id: string, props: UserManagementStackProps) {
@@ -39,6 +43,10 @@ export class UserManagementStack extends NestedStack {
     userTable.addGlobalSecondaryIndex({
       indexName: 'emailIndex',
       partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING }
+    });
+    userTable.addGlobalSecondaryIndex({
+      indexName: 'channelArnIndex',
+      partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING }
     });
 
     // Cognito Lambda triggers
@@ -141,8 +149,9 @@ export class UserManagementStack extends NestedStack {
 
     // Stack Outputs
     this.outputs = {
+      userPoolClientId: userPoolClient.userPoolClientId,
       userPoolId: userPool.userPoolId,
-      userPoolClientId: userPoolClient.userPoolClientId
+      userTable
     };
   }
 }
