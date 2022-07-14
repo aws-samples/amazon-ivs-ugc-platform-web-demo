@@ -25,7 +25,9 @@ const Input = ({
   readOnly,
   type: initialType,
   value,
-  variant
+  variant,
+  autoCorrect,
+  autoCapitalize
 }) => {
   const [inputType, setInputType] = useState(initialType);
   const hideDescription = useRef(false);
@@ -75,6 +77,8 @@ const Input = ({
           }
           type={inputType}
           value={isLoading ? '' : value}
+          autoCorrect={autoCorrect}
+          autoCapitalize={autoCapitalize}
         />
         {error && (
           <span className="error-message">
@@ -115,6 +119,8 @@ const Input = ({
 };
 
 Input.defaultProps = {
+  autoCorrect: 'off',
+  autoCapitalize: 'none',
   btnVariant: 'primary',
   className: '',
   customStyles: {},
@@ -136,6 +142,8 @@ Input.defaultProps = {
 };
 
 Input.propTypes = {
+  autoCorrect: PropTypes.string,
+  autoCapitalize: PropTypes.string,
   btnVariant: PropTypes.oneOf([
     'destructive',
     'link',
