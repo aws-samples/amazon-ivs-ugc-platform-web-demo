@@ -63,7 +63,8 @@
   box-shadow: 0 0 0 8px hsla(var(--base-color-extra-light-gray), 86%, 0.5);
 }
 
-.MuiSlider-root.Mui-disabled {
+.MuiSlider-root.Mui-disabled,
+.MuiSlider-root.Mui-disabled .thumb-container {
   cursor: auto;
 }
 

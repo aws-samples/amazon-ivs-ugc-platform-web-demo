@@ -46,15 +46,22 @@ const ConfigRow = ({ label, value, error }) => {
 
   return (
     <span className={`config-item ${hasError ? 'error' : ''}`}>
-      <Tooltip
-        hasFixedWidth={!!ErrorMessage}
-        message={ErrorMessage || renderedValue}
-      >
+      {renderedValue !== NO_DATA_VALUE ? (
+        <Tooltip
+          hasFixedWidth={!!ErrorMessage}
+          message={ErrorMessage || renderedValue}
+        >
+          <h4 className="config-label">
+            {label}
+            {hasError && <ErrorIcon />}
+          </h4>
+        </Tooltip>
+      ) : (
         <h4 className="config-label">
           {label}
           {hasError && <ErrorIcon />}
         </h4>
-      </Tooltip>
+      )}
       <span className="config-value">
         <Button
           ariaLabel={`${$content.copy_the_label.replace(
