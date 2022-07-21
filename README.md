@@ -34,7 +34,7 @@ Deploying the CDK stack will:
 
 ### Configuration
 
-The `cdk/config.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage comes with sensible defaults but can be edited prior to deploying the stack:
+The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage comes with sensible defaults but can be edited prior to deploying the stack:
 
 - `allowedOrigin` is the origin (domain name) that the backend uses as the value for the `Access-Control-Allow-Origin` HTTP response header. You can use a custom domain, or specify `"*"` to allow all origins.
 - `deploySeparateContainers`, setting this to `true` will deploy the backend in two separate services, each one with the minimal required permissions. While being more costly, this option will scale better and is recommended for production.
