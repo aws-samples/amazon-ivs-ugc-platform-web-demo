@@ -12,9 +12,11 @@ import {
 /**
  * Register a new user
  * @param {object} userData registration information about the new user
- * @param {string} userData.username
+ * @param {string} userData.avatar
+ * @param {string} userData.color
  * @param {string} userData.email
  * @param {string} userData.password
+ * @param {string} userData.username
  */
 export const register = async (userData) =>
   await unauthFetch({
@@ -230,6 +232,20 @@ export const changeUsername = async ({ username: newUsername }) =>
     method: 'PUT',
     url: `${apiBaseUrl}/user/username/update`
   });
+
+/**
+ * Changes a user's preferences
+ * @param {object} userPreferences user preferences to change
+ * @param {string} [userPreferences.avatar]
+ * @param {string} [userPreferences.color]
+ */
+export const changeUserPreferences = async (userPreferences) => {
+  await authFetch({
+    body: userPreferences,
+    method: 'PUT',
+    url: `${apiBaseUrl}/user/preferences/update`
+  });
+};
 
 export const resetStreamKey = async () =>
   await authFetch({ url: `${apiBaseUrl}/user/streamKey/reset` });

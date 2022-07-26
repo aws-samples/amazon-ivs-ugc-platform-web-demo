@@ -6,7 +6,9 @@ import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
+  avatar?: string;
   channelResourceId?: string;
+  color?: string;
   ingestEndpoint?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
@@ -21,7 +23,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     // Get user from userTable
     const { Item = {} } = await getUser(sub);
     const {
+      avatar: { S: avatar },
       channelArn: { S: channelArn },
+      color: { S: color },
       ingestEndpoint: { S: ingestEndpoint },
       playbackUrl: { S: playbackUrl },
       streamKeyValue: { S: streamKeyValue },
@@ -32,6 +36,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       responseBody.channelResourceId =
         getChannelArnParams(channelArn).resourceId;
     }
+    responseBody.avatar = avatar;
+    responseBody.color = color;
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.playbackUrl = playbackUrl;
     responseBody.streamKeyValue = streamKeyValue;

@@ -3,7 +3,8 @@
 		"_postman_id": "ca06633a-eb53-40fa-868a-3587d6e53919",
 		"name": "Stream Health Dashboard",
 		"description": "# Stream Health Dashboard\n\nThe Stream Health Dashboard backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics (WIP)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9583492"
 	},
 	"item": [
 		{
@@ -129,6 +130,48 @@
 							]
 						},
 						"description": "This endpoint will update the username for a user."
+					},
+					"response": []
+				},
+				{
+					"name": "/user/preferences/update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { avatar, color } = JSON.parse(responseBody);",
+									"",
+									"if (avatar) {",
+									"    pm.environment.set('avatar', avatar);",
+									"}",
+									"",
+									"if (color) {",
+									"    pm.environment.set('color', color);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}"
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/preferences/update",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"preferences",
+								"update"
+							]
+						}
 					},
 					"response": []
 				},

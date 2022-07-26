@@ -12,19 +12,21 @@ import { cognitoClient, dynamoDbClient, getUserByEmail } from '../helpers';
 import { isCognitoError } from '../../shared';
 
 type SignUpRequestBody = {
-  email: string | undefined;
-  password: string | undefined;
-  username: string | undefined;
+  avatar: string;
+  color: string;
+  email: string;
+  password: string;
+  username: string;
 };
 
 const handler = async (
   request: FastifyRequest<{ Body: SignUpRequestBody }>,
   reply: FastifyReply
 ) => {
-  const { email, password, username }: SignUpRequestBody = request.body;
+  const { avatar, color, email, password, username } = request.body;
 
   // Check input
-  if (!email || !password || !username) {
+  if (!avatar || !color || !email || !password || !username) {
     reply.statusCode = 400;
 
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
@@ -57,7 +59,13 @@ const handler = async (
     if (UserSub) {
       // Create entry in the user table
       const putItemCommand = new PutItemCommand({
-        Item: marshall({ email, id: UserSub, username }),
+        Item: marshall({
+          avatar,
+          color,
+          email,
+          id: UserSub,
+          username
+        }),
         TableName: process.env.USER_TABLE_NAME
       });
 

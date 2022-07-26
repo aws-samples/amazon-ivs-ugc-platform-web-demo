@@ -3,6 +3,7 @@ import { fastifyRequestContextPlugin } from '@fastify/request-context';
 
 import authorizer, { UserContext } from '../authorizer';
 import changeUsername from './changeUsername';
+import changeUserPreferences from './changeUserPreferences';
 import createResources from './createResources';
 import deleteUser from './deleteUser';
 import getUser from './getUser';
@@ -24,6 +25,7 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.post('/resources/create', createResources);
 
   resource.put('/username/update', changeUsername);
+  resource.put('/preferences/update', changeUserPreferences);
 
   resource.delete('/', deleteUser);
 };

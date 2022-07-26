@@ -7,6 +7,7 @@ export const FORGOT_PASSWORD_EXCEPTION = 'ForgotPasswordException';
 export const ACCOUNT_DELETION_EXCEPTION = 'AccountDeletionException';
 export const RESET_STREAM_KEY_EXCEPTION = 'ResetStreamKeyException';
 export const CHANGE_USERNAME_EXCEPTION = 'ChangeUsernameException';
+export const CHANGE_USER_PREFERENCES_EXCEPTION = 'ChangeUserPreferencesException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
