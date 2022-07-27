@@ -19,7 +19,7 @@ test.describe('Settings Page', () => {
     page.removeAPIResponseEventListener();
   });
 
-  test('should reset a stream key', async ({
+  test.fixme('should reset a stream key', async ({
     settingsPage: { resetStreamKey },
     page
   }) => {
@@ -33,7 +33,7 @@ test.describe('Settings Page', () => {
       .toEqual(3);
   });
 
-  test('should copy the stream key and ingest server URL', async ({
+  test.fixme('should copy the stream key and ingest server URL', async ({
     settingsPage: { copyStreamConfiguration },
     page
   }) => {
@@ -44,7 +44,7 @@ test.describe('Settings Page', () => {
     await page.takeScreenshot('copy-stream-config-values-success');
   });
 
-  test('should navigate a user to the dashboard stream monitoring page', async ({
+  test.fixme('should navigate a user to the dashboard stream monitoring page', async ({
     settingsPage: { returnToSession },
     page
   }) => {

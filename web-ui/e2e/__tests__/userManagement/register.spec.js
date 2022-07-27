@@ -22,7 +22,7 @@ test.describe('Register Page', () => {
     page.removeAPIResponseEventListener();
   });
 
-  test('should register a new user', async ({
+  test.fixme('should register a new user', async ({
     registerPage: {
       navigate,
       createAccount,
@@ -61,7 +61,7 @@ test.describe('Register Page', () => {
     await page.takeScreenshot('new-user-account-confirmed');
   });
 
-  test('should navigate a user to the login page', async ({
+  test.fixme('should navigate a user to the login page', async ({
     registerPage: { gotoSignIn },
     page
   }) => {

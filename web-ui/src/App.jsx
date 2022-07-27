@@ -13,9 +13,12 @@ import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as StreamsProvider } from './contexts/Streams';
 
-// Layout Pages
+//  Pages
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import Channel from './pages/Channel';
+import SidebarNavigator from './pages/SidebarNavigator';
+import ChannelDirectory from './pages/ChannelDirectory/ChannelDirectory';
 
 // Dashboard Pages
 import { Settings, StreamSession } from './pages/Dashboard/subpages';
@@ -40,26 +43,35 @@ const App = () => (
               <ModalProvider>
                 <Routes>
                   <Route
-                    element={
+                    element={<SidebarNavigator />}
+                    path="/"
+                  >
+                    <Route index element={<ChannelDirectory />} />
+                    <Route path=":username" element={<Channel />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route element={
                       <StreamsProvider>
                         <Dashboard />
                       </StreamsProvider>
-                    }
-                  >
-                    <Route path="dashboard">
-                      <Route
-                        index
-                        element={<Navigate replace to="/stream" />}
-                      />
-                      <Route path="stream">
-                        <Route index element={<StreamSession />} />
-                        <Route path=":streamId" element={<StreamSession />} />
+                    }>
+                      <Route path="dashboard">
+                        <Route
+                          index
+                          element={<Navigate replace to="stream" />}
+                        />
+                        <Route path="stream">
+                          <Route index element={<StreamSession />} />
+                          <Route path=":streamId" element={<StreamSession />} />
+                        </Route>
                       </Route>
+                      <Route
+                        path="/dashboard/*"
+                        element={<Navigate replace to="/dashboard/stream" />}
+                      />
                     </Route>
-                    <Route path="settings" element={<Settings />} />
                     <Route
                       path="*"
-                      element={<Navigate replace to="/dashboard/stream" />}
+                      element={<Navigate replace to="/" />}
                     />
                   </Route>
                   <Route element={<UserManagement />}>
@@ -67,10 +79,6 @@ const App = () => (
                     <Route path="register" element={<RegisterUser />} />
                     <Route path="reset" element={<ResetPassword />} />
                   </Route>
-                  <Route
-                    path="*"
-                    element={<Navigate replace to="/dashboard" />}
-                  />
                 </Routes>
               </ModalProvider>
             </UserProvider>

@@ -34,7 +34,7 @@ test.describe('Login Page', () => {
     await expect(page).not.toHaveURL('/login');
   });
 
-  test('should logout a user', async ({
+  test.fixme('should logout a user', async ({
     loginPage: { logout },
     page
   }, testInfo) => {
@@ -43,7 +43,7 @@ test.describe('Login Page', () => {
     await page.takeScreenshot('logout-success');
   });
 
-  test('should navigate a user to the password reset page', async ({
+  test.fixme('should navigate a user to the password reset page', async ({
     loginPage: { gotoForgotPassword },
     page
   }) => {
@@ -51,7 +51,7 @@ test.describe('Login Page', () => {
     await page.takeScreenshot('goto-forgot-password');
   });
 
-  test('should navigate a user to the registration page', async ({
+  test.fixme('should navigate a user to the registration page', async ({
     loginPage: { gotoCreateAnAccount },
     page
   }) => {

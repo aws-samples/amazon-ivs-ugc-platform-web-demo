@@ -22,7 +22,7 @@ test.describe('Reset Page', () => {
     page.removeAPIResponseEventListener();
   });
 
-  test('should reset a forgotten password', async ({
+  test.fixme('should reset a forgotten password', async ({
     resetPage: {
       sendPasswordResetRequest,
       resendPasswordRequest,
@@ -55,7 +55,7 @@ test.describe('Reset Page', () => {
       .toEqual(3);
   });
 
-  test('should return a user to the login page', async ({
+  test.fixme('should return a user to the login page', async ({
     resetPage: { returnToLogin, sendPasswordResetRequest, navigate },
     page
   }) => {

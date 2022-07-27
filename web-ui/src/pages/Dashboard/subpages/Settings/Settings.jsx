@@ -6,7 +6,6 @@ import './Settings.css';
 
 const Settings = () => {
   const { userData } = useUser();
-
   return (
     userData && (
       <article className="settings-container">

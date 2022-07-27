@@ -63,7 +63,7 @@ class LoginPageModel extends BasePageModel {
       this.signInButtonLoc.click()
     ]);
     await expect(this.page).toHaveURL(
-      new RegExp(`${this.baseURL}/dashboard/stream.*`)
+      new RegExp(`${this.baseURL}/`)
     );
   };
 
