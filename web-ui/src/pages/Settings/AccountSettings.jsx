@@ -7,8 +7,12 @@ import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement } from '../../api';
 import { useUser } from '../../contexts/User';
+import useThrottledCallback from '../../hooks/useThrottledCallback';
+import * as userAvatars from '../../assets/avatars';
+import { PROFILE_COLORS } from '../../constants'
 import Form from '../../components/Form';
 import Input from '../../components/Input';
+import IconSelect from '../../components/IconSelect';
 import './Settings.css';
 
 const defaultFormProps = (inputVariant) => ({
@@ -25,6 +29,7 @@ const AccountSettings = () => {
   const { openModal } = useModal();
   const { userData, fetchUserData, logOut } = useUser();
   const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
+  const profileColors = PROFILE_COLORS.reduce((a, v) => ({ ...a, [v]: v}), {}) 
 
   const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;
@@ -80,6 +85,48 @@ const AccountSettings = () => {
     [notifyError]
   );
 
+  const handleChangeAvatar = useThrottledCallback(async (newAvatar, callback) => {
+      if (newAvatar === userData.avatar) return;
+
+      const userPreferences = {
+        avatar: newAvatar,
+        color: userData.color
+      };
+      const { result, error } = await userManagement.changeUserPreferences(userPreferences);
+      if (!error) {
+        notifyError($content.notification.error.avatar_failed_to_save);
+      }
+      if (result) {
+        notifySuccess($content.notification.success.avatar_saved);
+        callback(result.avatar);
+        await fetchUserData();
+      }
+    },
+    500,
+    [userData.color, userData.avatar, fetchUserData]
+  );
+
+  const handleChangeColor = useThrottledCallback(async (newColor, callback) => {  
+      if (newColor === userData.color) return;
+
+      const userPreferences = {
+        avatar: userData.avatar,
+        color: newColor
+      };
+      const { result, error } = await userManagement.changeUserPreferences(userPreferences);
+      if (error) {
+        notifyError($content.notification.error.color_failed_to_save);
+      }
+      if (result) {
+        notifySuccess($content.notification.success.color_saved);
+        callback(result.color);
+        await fetchUserData();
+      }
+    },
+    500,
+    [userData.avatar, userData.color, fetchUserData]
+  );
+
   return (
     <>
       <section>
@@ -128,6 +175,24 @@ const AccountSettings = () => {
               };
             }
           }}
+        />
+        <IconSelect
+          name="avatar"
+          label="Avatar"
+          type="image"
+          items={userAvatars}
+          selected={userData.avatar}
+          onClick={handleChangeAvatar}
+          variant={inputVariant}
+        />
+        <IconSelect
+          name="color"
+          label="Color"
+          type="color"
+          items={profileColors}
+          selected={userData.color}
+          onClick={handleChangeColor}
+          variant={inputVariant}
         />
       </section>
       <section>

@@ -158,13 +158,17 @@
       "stream_key_copied": "Stream key copied",
       "ingest_endpoint_copied": "Ingest server URL copied",
       "username_saved": "Username saved",
-      "password_saved": "Password saved"
+      "password_saved": "Password saved",
+      "avatar_saved": "Avatar saved",
+      "color_saved": "Color saved"
     },
     "error": {
       "reset_stream_key_failed": "Stream key failed to reset",
       "username_save_failed": "Username failed to save",
       "password_save_failed": "Password failed to save",
-      "account_deletion_failed": "Account failed to delete"
+      "account_deletion_failed": "Account failed to delete",
+      "avatar_failed_to_save": "Avatar failed to save",
+      "color_failed_to_save": "Color failed to save"
     }
   }
 }

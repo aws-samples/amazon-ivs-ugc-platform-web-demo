@@ -239,13 +239,12 @@ export const changeUsername = async ({ username: newUsername }) =>
  * @param {string} [userPreferences.avatar]
  * @param {string} [userPreferences.color]
  */
-export const changeUserPreferences = async (userPreferences) => {
+export const changeUserPreferences = async (userPreferences) => 
   await authFetch({
     body: userPreferences,
     method: 'PUT',
     url: `${apiBaseUrl}/user/preferences/update`
   });
-};
 
 export const resetStreamKey = async () =>
   await authFetch({ url: `${apiBaseUrl}/user/streamKey/reset` });
