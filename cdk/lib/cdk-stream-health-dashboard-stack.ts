@@ -230,5 +230,6 @@ export class StreamHealthDashboardStack extends Stack {
     });
     new CfnOutput(this, 'userPoolId', { value: userPoolId });
     new CfnOutput(this, 'userPoolClientId', { value: userPoolClientId });
+    new CfnOutput(this, 'region', { value: Stack.of(this).region });
   }
 }

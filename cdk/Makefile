@@ -2,10 +2,10 @@
 
 .PHONY: help app install bootstrap deploy destroy clean
 
-AWS_PROFILE_FLAG	= --profile $(AWS_PROFILE)
-STAGE				?= dev
+AWS_PROFILE_FLAG = --profile $(AWS_PROFILE)
+STAGE				    ?= dev
 CDK_OPTIONS 		:= $(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE)
-STACK 				?= StreamHealthDashboard-$(STAGE)
+STACK 				  ?= StreamHealthDashboard-$(STAGE)
 
 help: ## Shows this help message
 	@echo "\n$$(tput bold)Available Rules:$$(tput sgr0)\n"
@@ -44,4 +44,4 @@ destroy: clean ## Destroys the stack and cleans up
 
 clean: ## Deletes the cloud assembly directory (cdk.out)
 	@echo "Cleaning..."
-	rm -r cdk.out
+	rm -rf cdk.out

@@ -48,6 +48,10 @@ export class UserManagementStack extends NestedStack {
       indexName: 'channelArnIndex',
       partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING }
     });
+    userTable.addGlobalSecondaryIndex({
+      indexName: 'usernameIndex',
+      partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING }
+    });
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
@@ -103,7 +107,11 @@ export class UserManagementStack extends NestedStack {
         'dynamodb:DeleteItem'
       ],
       effect: iam.Effect.ALLOW,
-      resources: [userTable.tableArn, `${userTable.tableArn}/index/emailIndex`]
+      resources: [
+        userTable.tableArn,
+        `${userTable.tableArn}/index/emailIndex`,
+        `${userTable.tableArn}/index/usernameIndex`
+      ]
     });
     const forgotPasswordPolicyStatement = new iam.PolicyStatement({
       actions: ['cognito-idp:ForgotPassword'],
@@ -117,6 +125,18 @@ export class UserManagementStack extends NestedStack {
         'ivs:DeleteChannel',
         'ivs:DeleteStreamKey',
         'ivs:StopStream'
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    const ivsChatPolicyStatement = new iam.PolicyStatement({
+      actions: [
+        'ivschat:CreateChatToken',
+        'ivschat:CreateRoom',
+        'ivschat:DeleteMessage',
+        'ivschat:DisconnectUser',
+        'ivschat:SendEvent',
+        'ivschat:UpdateRoom'
       ],
       effect: iam.Effect.ALLOW,
       resources: ['*']
@@ -135,6 +155,7 @@ export class UserManagementStack extends NestedStack {
       userTablePolicyStatement,
       forgotPasswordPolicyStatement,
       ivsPolicyStatement,
+      ivsChatPolicyStatement,
       deleteUserPolicyStatement
     );
     this.policies = policies;

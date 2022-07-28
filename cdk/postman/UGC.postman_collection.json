@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "ca06633a-eb53-40fa-868a-3587d6e53919",
-		"name": "Stream Health Dashboard",
-		"description": "# Stream Health Dashboard\n\nThe Stream Health Dashboard backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics (WIP)",
+		"_postman_id": "652c855a-6734-4420-b438-d3ce3322fd21",
+		"name": "UGC",
+		"description": "# UGC\n\nThe Stream Health Dashboard backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "9583492"
 	},
@@ -159,7 +159,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}"
+							"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{userManagementApiBaseUrl}}/user/preferences/update",
@@ -375,6 +380,109 @@
 							""
 						]
 					}
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "/user/chatroom/token/public/create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { token: publicToken } = JSON.parse(responseBody);",
+									"",
+									"if (publicToken) {",
+									"    pm.environment.set('secureWebSocketProtocolToken', publicToken);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/public/create",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"chatroom",
+								"token",
+								"public",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/chatroom/token/private/create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { token: privateToken } = JSON.parse(responseBody);",
+									"",
+									"if (privateToken) {",
+									"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/private/create",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"chatroom",
+								"token",
+								"private",
+								"create"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

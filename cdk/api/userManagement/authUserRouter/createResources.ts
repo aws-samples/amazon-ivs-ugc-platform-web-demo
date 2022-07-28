@@ -1,7 +1,8 @@
 import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
+import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { dynamoDbClient, getUser, ivsClient } from '../helpers';
+import { dynamoDbClient, getUser, ivsChatClient, ivsClient } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
@@ -22,7 +23,7 @@ const handler = async (
 
     const { Item } = await getUser(sub);
 
-    // If the user resources already exists, no need to create them again
+    // If the user resources already exist, no need to create them again
     if (Item?.channelArn?.S) {
       return reply.send({});
     }
@@ -34,28 +35,38 @@ const handler = async (
       name: channelName,
       type: process.env.IVS_CHANNEL_TYPE as ChannelType
     });
-    let channelArn;
-    let ingestEndpoint;
-    let streamKeyArn;
-    let streamKeyValue;
-    let playbackUrl;
+
+    // Create IVS chat room
+    const createRoomCommand = new CreateRoomCommand({
+      name: `${cleanedUserName}s-room`
+    });
+
+    let channelArn,
+      ingestEndpoint,
+      streamKeyArn,
+      streamKeyValue,
+      playbackUrl,
+      chatRoomArn;
 
     const { channel, streamKey } = await ivsClient.send(createChannelCommand);
+    const chatRoom = await ivsChatClient.send(createRoomCommand);
     channelArn = channel?.arn;
     ingestEndpoint = channel?.ingestEndpoint;
     streamKeyValue = streamKey?.value;
     streamKeyArn = streamKey?.arn;
     playbackUrl = channel?.playbackUrl;
+    chatRoomArn = chatRoom.arn;
 
     if (
       !channelArn ||
       !ingestEndpoint ||
       !streamKeyArn ||
       !streamKeyValue ||
-      !playbackUrl
+      !playbackUrl ||
+      !chatRoomArn
     ) {
       throw new Error(
-        `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyArn: ${streamKeyArn}\nstreamKeyValue: ${streamKeyValue}\nplaybackUrl: ${playbackUrl}`
+        `Missing values in the IVS response:\nchannelArn: ${channelArn}\ningestEndpoint: ${ingestEndpoint}\nstreamKeyArn: ${streamKeyArn}\nstreamKeyValue: ${streamKeyValue}\nplaybackUrl: ${playbackUrl}\chatRoomArn: ${chatRoomArn}`
       );
     }
 
@@ -66,7 +77,8 @@ const handler = async (
         { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
         { key: 'playbackUrl', value: playbackUrl },
         { key: 'streamKeyArn', value: streamKeyArn },
-        { key: 'streamKeyValue', value: streamKeyValue }
+        { key: 'streamKeyValue', value: streamKeyValue },
+        { key: 'chatRoomArn', value: chatRoomArn }
       ],
       dynamoDbClient,
       primaryKey: { key: 'id', value: sub },

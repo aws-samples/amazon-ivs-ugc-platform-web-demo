@@ -16,10 +16,9 @@ const RegisterUser = () => {
 
   const submitRegistration = async (formValues) => {
     const avatarNames = Object.keys(avatars);
-    const avatar =
-      avatarNames[Math.floor(Math.random() * (avatarNames.length + 1))];
+    const avatar = avatarNames[Math.floor(Math.random() * avatarNames.length)];
     const color =
-      PROFILE_COLORS[Math.floor(Math.random() * (PROFILE_COLORS.length + 1))];
+      PROFILE_COLORS[Math.floor(Math.random() * PROFILE_COLORS.length)];
     const userData = { ...formValues, avatar, color };
 
     return await userManagement.register(userData);

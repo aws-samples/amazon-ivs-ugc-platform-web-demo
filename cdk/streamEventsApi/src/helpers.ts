@@ -13,7 +13,9 @@ export const getUserByChannelArn = (eventChannelArn: string) => {
     TableName: process.env.USER_TABLE_NAME,
     Limit: 1,
     KeyConditionExpression: 'channelArn=:eventChannelArn',
-    ExpressionAttributeValues: { ':eventChannelArn': { S: eventChannelArn } }
+    ExpressionAttributeValues: {
+      ':eventChannelArn': convertToAttr(eventChannelArn)
+    }
   });
 
   return dynamoDbClient.send(queryCommand);
