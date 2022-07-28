@@ -1,16 +1,15 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import './SidebarNavigator.css';
-import { useModal } from '../../contexts/Modal';
-import { useUser } from '../../contexts/User';
-import Modal from '../../components/Modal';
-import withSessionLoader from '../../components/withSessionLoader';
+import { DASHBOARD_THEME_COLOR } from '../constants';
+import { useUser } from '../contexts/User';
+import useThemeColor from '../hooks/useThemeColor';
+import withSessionLoader from '../components/withSessionLoader';
 
-const SidebarNavigator = () => {
-  const { isSessionValid, prevIsSessionValid } =
-    useUser();
-  const { modal } = useModal();
+const AuthenticatedPage = () => {
   const location = useLocation();
+  const { isSessionValid, prevIsSessionValid } = useUser();
+
+  useThemeColor(DASHBOARD_THEME_COLOR);
 
   if (isSessionValid === false)
     /**
@@ -25,13 +24,8 @@ const SidebarNavigator = () => {
         replace
       />
     );
-  
-  return (
-    <>
-      <Modal isOpen={!!modal} />
-      <Outlet />
-    </>
-  );
+
+  return <Outlet />;
 };
 
-export default withSessionLoader(SidebarNavigator);
+export default withSessionLoader(AuthenticatedPage);

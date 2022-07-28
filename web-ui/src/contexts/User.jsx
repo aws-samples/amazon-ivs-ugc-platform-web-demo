@@ -85,6 +85,13 @@ export const Provider = ({ children }) => {
     }
   }, [error, session]);
 
+  // Initial fetch of the user data
+  useEffect(() => {
+    if (!userData && isSessionValid) {
+      fetchUserData();
+    }
+  }, [fetchUserData, isSessionValid, userData]);
+
   const value = useMemo(
     () => ({
       checkSessionStatus,

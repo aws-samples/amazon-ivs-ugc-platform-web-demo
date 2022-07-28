@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import copyToClipboard from 'copy-to-clipboard';
 
-import { dashboard as $content } from '../../../../content';
-import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
-import { useModal } from '../../../../contexts/Modal';
-import { useNotif } from '../../../../contexts/Notification';
-import { userManagement } from '../../../../api';
-import { useUser } from '../../../../contexts/User';
-import Button from '../../../../components/Button';
-import Input from '../../../../components/Input';
+import { dashboard as $content } from '../../content';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useModal } from '../../contexts/Modal';
+import { useNotif } from '../../contexts/Notification';
+import { userManagement } from '../../api';
+import { useUser } from '../../contexts/User';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
 import './Settings.css';
 
 const StreamSettings = () => {

@@ -71,6 +71,104 @@
 					"response": []
 				},
 				{
+					"name": "/user/chatroom/token/public/create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { token: publicToken } = JSON.parse(responseBody);",
+									"",
+									"if (publicToken) {",
+									"    pm.environment.set('secureWebSocketProtocolToken', publicToken);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/public/create",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"chatroom",
+								"token",
+								"public",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/chatroom/token/private/create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { token: privateToken } = JSON.parse(responseBody);",
+									"",
+									"if (privateToken) {",
+									"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/private/create",
+							"host": [
+								"{{userManagementApiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"chatroom",
+								"token",
+								"private",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/user",
 					"event": [
 						{

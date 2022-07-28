@@ -171,10 +171,20 @@ export const Provider = ({ children }) => {
         streamSessions[0];
       setActiveStreamSessionId(initialActiveStreamSession.streamId);
       updateActiveStreamSession(initialActiveStreamSession);
+      navigate(
+        generatePath('/dashboard/stream/:streamId', {
+          streamId: initialActiveStreamSession.streamId
+        })
+      );
       isInitialized.current = true;
+    }
+
+    if (!isInitialized.current && hasStreamSessions === false) {
+      navigate('/dashboard/stream');
     }
   }, [
     hasStreamSessions,
+    navigate,
     paramsStreamId,
     setActiveStreamSessionId,
     streamSessions,

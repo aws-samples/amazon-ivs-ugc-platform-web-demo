@@ -1,8 +1,13 @@
+import { useParams } from 'react-router-dom';
 import './Channel.css';
 
 const Channel = () => {
+  const { username } = useParams();
+
   return (
-    <>Channel Page</>
+    <div className="main-channel-container">
+      <h1>{username}'s Channel Page</h1>
+    </div>
   );
 };
 

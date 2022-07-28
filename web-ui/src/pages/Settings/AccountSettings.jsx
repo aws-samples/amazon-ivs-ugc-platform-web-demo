@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
 
-import { dashboard as $content } from '../../../../content';
+import { dashboard as $content } from '../../content';
 import { getInputErrorData } from './utils';
-import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
-import { useModal } from '../../../../contexts/Modal';
-import { useNotif } from '../../../../contexts/Notification';
-import { userManagement } from '../../../../api';
-import { useUser } from '../../../../contexts/User';
-import Form from '../../../../components/Form';
-import Input from '../../../../components/Input';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useModal } from '../../contexts/Modal';
+import { useNotif } from '../../contexts/Notification';
+import { userManagement } from '../../api';
+import { useUser } from '../../contexts/User';
+import Form from '../../components/Form';
+import Input from '../../components/Input';
 import './Settings.css';
 
 const defaultFormProps = (inputVariant) => ({

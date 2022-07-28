@@ -7,7 +7,6 @@ import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import Grid from '../../components/Grid';
-import Notification from '../../components/Notification';
 import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
@@ -59,13 +58,7 @@ const UserManagement = () => {
               onClick={initUserResources}
             />
           ) : (
-            <>
-              <Notification
-                position="absolute"
-                top={isResponsiveView ? 15 : 89}
-              />
-              <Outlet />
-            </>
+            <Outlet />
           )}
         </main>
       </Grid.Col>

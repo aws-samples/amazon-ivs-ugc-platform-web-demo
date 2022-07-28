@@ -1,5 +1,5 @@
-import { ERROR_KEY_MAP, LIMIT_EXCEEDED_EXCEPTION } from '../../../../constants';
-import { dashboard as $content } from '../../../../content';
+import { ERROR_KEY_MAP, LIMIT_EXCEEDED_EXCEPTION } from '../../constants';
+import { dashboard as $content } from '../../content';
 
 export const getInputErrorData = (error) => {
   let errorName =
