@@ -9,6 +9,7 @@ import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 
 import useScrollToTop from '../../hooks/useScrollToTop';
+import withVerticalScroller from '../../components/withVerticalScroller/withVerticalScroller';
 
 const Dashboard = () => {
   const {
@@ -64,4 +65,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withVerticalScroller(Dashboard);

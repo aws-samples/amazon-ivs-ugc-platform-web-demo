@@ -2,6 +2,7 @@ import { dashboard as $content } from '../../content';
 import { useUser } from '../../contexts/User';
 import AccountSettings from './AccountSettings';
 import StreamSettings from './StreamSettings';
+import withVerticalScroller from '../../components/withVerticalScroller/withVerticalScroller';
 import './Settings.css';
 
 const Settings = () => {
@@ -18,4 +19,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default withVerticalScroller(Settings);

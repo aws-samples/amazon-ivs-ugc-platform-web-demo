@@ -1,24 +1,9 @@
-.main-dashboard-container {
+.dashboard-section-container {
   align-items: center;
   display: flex;
   flex-direction: column;
   flex: 1;
   height: calc(100vh - 64px);
-  overflow: auto;
   position: relative;
-  scroll-behavior: smooth;
   width: 100%;
-}
-
-@media (max-width: 767px) {
-  .main-dashboard-container {
-    height: 100%;
-    overflow: hidden;
-  }
-}
-
-@supports (overflow: overlay) {
-  .main-dashboard-container {
-    overflow: overlay;
-  }
 }

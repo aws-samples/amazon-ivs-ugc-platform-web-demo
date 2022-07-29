@@ -1,3 +1,4 @@
+import withVerticalScroller from '../../components/withVerticalScroller/withVerticalScroller';
 import './ChannelDirectory.css';
 
 const ChannelDirectory = () => {
@@ -8,4 +9,4 @@ const ChannelDirectory = () => {
   );
 };
 
-export default ChannelDirectory;
+export default withVerticalScroller(ChannelDirectory);
