@@ -3,6 +3,7 @@ import {
   aws_cloudfront_origins as origins,
   aws_ec2 as ec2,
   aws_ecs as ecs,
+  aws_iam as iam,
   CfnOutput,
   Stack,
   StackProps
@@ -67,13 +68,30 @@ export class StreamHealthDashboardStack extends Stack {
     });
 
     // Metrics Stack
-    const { containerEnv: metricsContainerEnv, policies: metricsPolicies } =
-      new MetricsStack(this, 'Metrics', {
-        cluster,
-        ivsChannelType,
-        userTable,
-        vpc
-      });
+    const {
+      containerEnv: metricsContainerEnv,
+      policies: metricsPolicies,
+      outputs: metricsOutputs
+    } = new MetricsStack(this, 'Metrics', {
+      cluster,
+      ivsChannelType,
+      userTable,
+      vpc
+    });
+
+    // Attach extra policies and env variables to the User Management stack
+    const { streamTable } = metricsOutputs;
+    userManagementPolicies.push(
+      new iam.PolicyStatement({
+        actions: ['dynamodb:Query', 'dynamodb:UpdateItem'],
+        effect: iam.Effect.ALLOW,
+        resources: [
+          streamTable.tableArn,
+          `${streamTable.tableArn}/index/startTimeIndex`
+        ]
+      })
+    );
+    userManagementContainerEnv.STREAM_TABLE_NAME = streamTable.tableName;
 
     // This environment is required for any container that exposes authenticated endpoints
     const baseContainerEnv = {

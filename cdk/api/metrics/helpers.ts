@@ -4,7 +4,6 @@ import {
   QueryCommand
 } from '@aws-sdk/client-dynamodb';
 import {
-  GetStreamSessionCommand,
   IngestConfiguration,
   IvsClient,
   StreamEvent
@@ -169,18 +168,6 @@ export const alignTimeWithPeriod = (
   } else {
     return period * Math.floor(timeInSec / period);
   }
-};
-
-export const getStreamSession = (
-  channelArn: string,
-  streamSessionId: string
-) => {
-  const getStreamSessionCommand = new GetStreamSessionCommand({
-    channelArn,
-    streamId: streamSessionId
-  });
-
-  return ivsClient.send(getStreamSessionCommand);
 };
 
 export const isAvgMetric = (metricName: string) => metricName.endsWith('Avg');

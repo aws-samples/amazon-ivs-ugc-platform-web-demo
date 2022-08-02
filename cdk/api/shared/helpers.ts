@@ -4,8 +4,12 @@ import {
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
 
 type DynamoKey = { key: string; value: string };
+
+export const ivsClient = new IvsClient({});
+export const dynamoDbClient = new DynamoDBClient({});
 
 export const updateDynamoItemAttributes = ({
   attributes = [],
@@ -45,4 +49,57 @@ export const updateDynamoItemAttributes = ({
   });
 
   return dynamoDbClient.send(putItemCommand);
+};
+
+export const getIvsStreamSession = ({
+  channelArn,
+  streamSessionId,
+  ivsClient
+}: {
+  channelArn: string;
+  streamSessionId: string;
+  ivsClient: IvsClient;
+}) => {
+  const getStreamSessionCommand = new GetStreamSessionCommand({
+    channelArn,
+    streamId: streamSessionId
+  });
+
+  return ivsClient.send(getStreamSessionCommand);
+};
+
+export const updateIngestConfiguration = async ({
+  channelArn,
+  streamSessionId,
+  ivsClient,
+  dynamoDbClient
+}: {
+  channelArn: string;
+  streamSessionId: string;
+  ivsClient: IvsClient;
+  dynamoDbClient: DynamoDBClient;
+}) => {
+  const { streamSession: { ingestConfiguration } = {} } =
+    await getIvsStreamSession({ channelArn, streamSessionId, ivsClient });
+
+  // Check that the ingest configuration has complete audio and video configs
+  const isIngestConfigurationComplete = [
+    ingestConfiguration?.audio,
+    ingestConfiguration?.video
+  ].every(
+    (config) =>
+      !!config && Object.values(config).some((val) => val !== '' && val !== 0)
+  );
+
+  if (isIngestConfigurationComplete) {
+    await updateDynamoItemAttributes({
+      attributes: [{ key: 'ingestConfiguration', value: ingestConfiguration }],
+      dynamoDbClient,
+      primaryKey: { key: 'channelArn', value: channelArn },
+      sortKey: { key: 'id', value: streamSessionId },
+      tableName: process.env.STREAM_TABLE_NAME as string
+    });
+  }
+
+  return isIngestConfigurationComplete ? ingestConfiguration : undefined;
 };

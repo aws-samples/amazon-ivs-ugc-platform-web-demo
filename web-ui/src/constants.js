@@ -65,12 +65,12 @@ export const BREAKPOINTS = {
 
 export const NO_DATA_VALUE = '----';
 
-export const PROFILE_COLORS = [
-  'hsla(144, 42%, 42%, 1)', // green
-  'hsla(50, 100%, 64%, 1)', // yellow
-  'hsla(241, 100%, 64%, 1)', // blue-ish
-  'hsla(14, 100%, 71%, 1)', // orange
-  'hsla(274, 40%, 54%, 1)', // purple
-  'hsla(169, 100%, 67%, 1)', // aqua
-  'hsla(243, 100%, 86%, 1)' // violet
-];
+export const PROFILE_COLORS = {
+  green: 'hsla(144, 42%, 42%, 1)', // green
+  yellow: 'hsla(50, 100%, 64%, 1)', // yellow
+  blue: 'hsla(241, 100%, 64%, 1)', // blue
+  orange: 'hsla(14, 100%, 71%, 1)', // orange
+  purple: 'hsla(274, 40%, 54%, 1)', // purple
+  aqua: 'hsla(169, 100%, 67%, 1)', // aqua
+  violet: 'hsla(243, 100%, 86%, 1)' // violet
+};

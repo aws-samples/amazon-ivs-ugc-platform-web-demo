@@ -2,17 +2,17 @@ import { useCallback, useState } from 'react';
 
 import { dashboard as $content } from '../../content';
 import { getInputErrorData } from './utils';
+import { PROFILE_COLORS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement } from '../../api';
 import { useUser } from '../../contexts/User';
-import useThrottledCallback from '../../hooks/useThrottledCallback';
 import * as userAvatars from '../../assets/avatars';
-import { PROFILE_COLORS } from '../../constants'
 import Form from '../../components/Form';
-import Input from '../../components/Input';
 import IconSelect from '../../components/IconSelect';
+import Input from '../../components/Input';
+import useThrottledCallback from '../../hooks/useThrottledCallback';
 import './Settings.css';
 
 const defaultFormProps = (inputVariant) => ({
@@ -29,7 +29,6 @@ const AccountSettings = () => {
   const { openModal } = useModal();
   const { userData, fetchUserData, logOut } = useUser();
   const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
-  const profileColors = PROFILE_COLORS.reduce((a, v) => ({ ...a, [v]: v}), {}) 
 
   const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;
@@ -85,15 +84,15 @@ const AccountSettings = () => {
     [notifyError]
   );
 
-  const handleChangeAvatar = useThrottledCallback(async (newAvatar, callback) => {
+  const handleChangeAvatar = useThrottledCallback(
+    async (newAvatar, callback) => {
       if (newAvatar === userData.avatar) return;
 
-      const userPreferences = {
-        avatar: newAvatar,
-        color: userData.color
-      };
-      const { result, error } = await userManagement.changeUserPreferences(userPreferences);
-      if (!error) {
+      const userPreferences = { avatar: newAvatar };
+      const { result, error } = await userManagement.changeUserPreferences(
+        userPreferences
+      );
+      if (error) {
         notifyError($content.notification.error.avatar_failed_to_save);
       }
       if (result) {
@@ -106,14 +105,14 @@ const AccountSettings = () => {
     [userData.color, userData.avatar, fetchUserData]
   );
 
-  const handleChangeColor = useThrottledCallback(async (newColor, callback) => {  
+  const handleChangeColor = useThrottledCallback(
+    async (newColor, callback) => {
       if (newColor === userData.color) return;
 
-      const userPreferences = {
-        avatar: userData.avatar,
-        color: newColor
-      };
-      const { result, error } = await userManagement.changeUserPreferences(userPreferences);
+      const userPreferences = { color: newColor };
+      const { result, error } = await userManagement.changeUserPreferences(
+        userPreferences
+      );
       if (error) {
         notifyError($content.notification.error.color_failed_to_save);
       }
@@ -189,7 +188,7 @@ const AccountSettings = () => {
           name="color"
           label="Color"
           type="color"
-          items={profileColors}
+          items={PROFILE_COLORS}
           selected={userData.color}
           onClick={handleChangeColor}
           variant={inputVariant}

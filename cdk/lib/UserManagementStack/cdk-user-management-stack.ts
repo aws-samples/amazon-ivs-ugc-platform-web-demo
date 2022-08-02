@@ -135,8 +135,7 @@ export class UserManagementStack extends NestedStack {
         'ivschat:CreateRoom',
         'ivschat:DeleteMessage',
         'ivschat:DisconnectUser',
-        'ivschat:SendEvent',
-        'ivschat:UpdateRoom'
+        'ivschat:SendEvent'
       ],
       effect: iam.Effect.ALLOW,
       resources: ['*']

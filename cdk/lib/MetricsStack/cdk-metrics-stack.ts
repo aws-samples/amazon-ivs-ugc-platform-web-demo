@@ -26,6 +26,7 @@ interface MetricsStackProps extends NestedStackProps {
 
 export class MetricsStack extends NestedStack {
   public readonly containerEnv: { [key: string]: string };
+  public readonly outputs: { streamTable: dynamodb.Table };
   public readonly policies: iam.PolicyStatement[];
 
   constructor(scope: Construct, id: string, props: MetricsStackProps) {
@@ -190,5 +191,7 @@ export class MetricsStack extends NestedStack {
       PAGINATION_TOKEN_IV: 'GhAnBByRBTJL9tgN',
       STREAM_TABLE_NAME: streamTable.tableName
     };
+
+    this.outputs = { streamTable };
   }
 }
