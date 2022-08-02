@@ -1,13 +1,9 @@
 import {
   DeleteItemCommand,
-  DynamoDBClient,
   GetItemCommand,
   QueryCommand
 } from '@aws-sdk/client-dynamodb';
-import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
-import { IvsClient } from '@aws-sdk/client-ivs';
 import {
-  IvschatClient,
   ChatTokenCapability,
   CreateChatTokenCommand
 } from '@aws-sdk/client-ivschat';
@@ -17,11 +13,7 @@ import {
   USER_NOT_FOUND_EXCEPTION
 } from '../shared/constants';
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
-
-export const dynamoDbClient = new DynamoDBClient({});
-export const cognitoClient = new CognitoIdentityProviderClient({});
-export const ivsClient = new IvsClient({});
-export const ivsChatClient = new IvschatClient({});
+import { dynamoDbClient, ivsChatClient } from '../shared/helpers';
 
 export const getUser = (sub: string) => {
   const getItemCommand = new GetItemCommand({

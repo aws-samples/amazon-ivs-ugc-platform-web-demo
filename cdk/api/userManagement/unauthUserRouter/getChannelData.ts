@@ -3,13 +3,16 @@ import { IngestConfiguration } from '@aws-sdk/client-ivs';
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall, convertToAttr } from '@aws-sdk/util-dynamodb';
 
-import { dynamoDbClient, getUserByUsername, ivsClient } from '../helpers';
-import { ResponseBody } from '../../shared';
+import { getUserByUsername } from '../helpers';
 import {
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
-import { updateIngestConfiguration } from '../../shared/helpers';
+import {
+  dynamoDbClient,
+  ResponseBody,
+  updateIngestConfiguration
+} from '../../shared/helpers';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
@@ -77,9 +80,7 @@ const handler = async (
         try {
           ingestConfiguration = await updateIngestConfiguration({
             channelArn,
-            streamSessionId,
-            ivsClient,
-            dynamoDbClient
+            streamSessionId
           });
         } catch (error) {
           // Missing ingest configuration or failed attempts to retrieve this data shouldn't stop the flow

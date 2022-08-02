@@ -1,7 +1,4 @@
-import {
-  CloudWatchClient,
-  GetMetricDataCommand
-} from '@aws-sdk/client-cloudwatch';
+import { GetMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import {
   ChannelType,
   IngestConfiguration,
@@ -13,22 +10,19 @@ import {
   alignTimeWithPeriod,
   buildChannelArn,
   buildMetricDataQueries,
-  dynamoDbClient,
   formatMetricsData,
   FormattedMetricData,
   getPeriodValue,
   getStreamSessionDbRecord,
-  isAvgMetric,
-  ivsClient
+  isAvgMetric
 } from './helpers';
 import { SEC_PER_HOUR, UNEXPECTED_EXCEPTION } from '../shared/constants';
 import {
+  cloudwatchClient,
   updateDynamoItemAttributes,
   updateIngestConfiguration
 } from '../shared/helpers';
 import { UserContext } from '../userManagement/authorizer';
-
-export const cloudwatchClient = new CloudWatchClient({});
 
 export interface GetStreamSessionResponseBody {
   channel: { type: ChannelType };
@@ -81,9 +75,7 @@ const handler = async (
       try {
         ingestConfiguration = await updateIngestConfiguration({
           channelArn,
-          streamSessionId,
-          ivsClient,
-          dynamoDbClient
+          streamSessionId
         });
       } catch (error) {
         // Missing ingest configuration or failed attempts to retrieve this data shouldn't stop the flow
@@ -192,7 +184,6 @@ const handler = async (
               }
             }
           ],
-          dynamoDbClient,
           primaryKey: { key: 'channelArn', value: channelArn },
           sortKey: { key: 'id', value: streamSessionId },
           tableName: process.env.STREAM_TABLE_NAME as string

@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { getChannelArnParams, getUser } from '../helpers';
-import { ResponseBody } from '../../shared';
+import { ResponseBody } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 

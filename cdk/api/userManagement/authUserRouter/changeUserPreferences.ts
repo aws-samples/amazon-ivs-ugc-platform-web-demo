@@ -1,9 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { CHANGE_USER_PREFERENCES_EXCEPTION } from '../../shared/constants';
-import { dynamoDbClient } from '../helpers';
-import { ResponseBody } from '../../shared';
-import { updateDynamoItemAttributes } from '../../shared/helpers';
+import { ResponseBody, updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
 interface ChangeUserPreferencesRequestBody {
@@ -35,7 +33,6 @@ const handler = async (
     // Update Dynamo user entry
     await updateDynamoItemAttributes({
       attributes: preferencesToUpdate,
-      dynamoDbClient,
       primaryKey: { key: 'id', value: sub },
       tableName: process.env.USER_TABLE_NAME as string
     });

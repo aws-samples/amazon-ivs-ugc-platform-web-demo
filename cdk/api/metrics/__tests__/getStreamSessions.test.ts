@@ -6,7 +6,8 @@ import {
   createRouteAuthenticationTests,
   injectAuthorizedRequest
 } from '../../testUtils';
-import { dynamoDbClient, encryptNextToken } from '../helpers';
+import { dynamoDbClient } from '../../shared/helpers';
+import { encryptNextToken } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import buildServer from '../../buildServer';
 import streamSessionJsonMock from '../../__mocks__/streamSessions.json';

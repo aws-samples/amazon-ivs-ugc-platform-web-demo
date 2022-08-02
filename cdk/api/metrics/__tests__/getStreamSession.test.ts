@@ -13,16 +13,17 @@ import {
   INGEST_VIDEO_BITRATE,
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
-import {
-  cloudwatchClient,
-  GetStreamSessionResponseBody
-} from '../getStreamSession';
-import { dynamoDbClient, ivsClient } from '../helpers';
+import { GetStreamSessionResponseBody } from '../getStreamSession';
 import { injectAuthorizedRequest } from '../../testUtils';
 import buildServer from '../../buildServer';
 import metricDataResultsJsonMock from '../../__mocks__/metricDataResults.json';
 import streamSessionJsonMock from '../../__mocks__/streamSession.json';
 import formattedMetricsDataJsonMock from '../../__mocks__/formattedMetricsData.json';
+import {
+  cloudwatchClient,
+  dynamoDbClient,
+  ivsClient
+} from '../../shared/helpers';
 
 const metricDataResultsMock = metricDataResultsJsonMock.map(
   (metricDataResult) => ({

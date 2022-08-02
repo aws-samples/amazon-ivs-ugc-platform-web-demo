@@ -1,13 +1,5 @@
-import {
-  DynamoDBClient,
-  GetItemCommand,
-  QueryCommand
-} from '@aws-sdk/client-dynamodb';
-import {
-  IngestConfiguration,
-  IvsClient,
-  StreamEvent
-} from '@aws-sdk/client-ivs';
+import { GetItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { IngestConfiguration, StreamEvent } from '@aws-sdk/client-ivs';
 import { MetricDataQuery, MetricDataResult } from '@aws-sdk/client-cloudwatch';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import crypto from 'crypto';
@@ -19,9 +11,7 @@ import {
   SEC_PER_HOUR,
   STREAM_HEALTH_METRICS_NAMES
 } from '../shared/constants';
-
-export const ivsClient = new IvsClient({});
-export const dynamoDbClient = new DynamoDBClient({});
+import { dynamoDbClient } from '../shared/helpers';
 
 type Period = 3600 | 300 | 60 | 5;
 

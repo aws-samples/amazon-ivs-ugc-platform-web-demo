@@ -10,7 +10,8 @@ import {
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { ACCOUNT_DELETION_EXCEPTION } from '../../shared/constants';
-import { cognitoClient, deleteUser, getUser, ivsClient } from '../helpers';
+import { cognitoClient, ivsClient } from '../../shared/helpers';
+import { deleteUser, getUser } from '../helpers';
 import { UserContext } from '../authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {

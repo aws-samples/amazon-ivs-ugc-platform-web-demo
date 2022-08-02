@@ -3,23 +3,40 @@ import {
   DynamoDBClient,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
+import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
+import {
+  CognitoIdentityProviderClient,
+  CognitoIdentityProviderServiceException
+} from '@aws-sdk/client-cognito-identity-provider';
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
 import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
+import { IvschatClient } from '@aws-sdk/client-ivschat';
 
 type DynamoKey = { key: string; value: string };
 
-export const ivsClient = new IvsClient({});
+export const cloudwatchClient = new CloudWatchClient({});
+export const cognitoClient = new CognitoIdentityProviderClient({});
 export const dynamoDbClient = new DynamoDBClient({});
+export const ivsChatClient = new IvschatClient({});
+export const ivsClient = new IvsClient({});
+
+export interface ResponseBody {
+  [key: string]: any;
+}
+
+export const isCognitoError = (
+  error: any
+): error is CognitoIdentityProviderServiceException => {
+  return error && error.message;
+};
 
 export const updateDynamoItemAttributes = ({
   attributes = [],
-  dynamoDbClient,
   primaryKey,
   sortKey,
   tableName
 }: {
   attributes: { key: string; value: any }[];
-  dynamoDbClient: DynamoDBClient;
   primaryKey: DynamoKey;
   sortKey?: DynamoKey;
   tableName: string;
@@ -51,14 +68,12 @@ export const updateDynamoItemAttributes = ({
   return dynamoDbClient.send(putItemCommand);
 };
 
-export const getIvsStreamSession = ({
+const getIvsStreamSession = ({
   channelArn,
-  streamSessionId,
-  ivsClient
+  streamSessionId
 }: {
   channelArn: string;
   streamSessionId: string;
-  ivsClient: IvsClient;
 }) => {
   const getStreamSessionCommand = new GetStreamSessionCommand({
     channelArn,
@@ -70,17 +85,13 @@ export const getIvsStreamSession = ({
 
 export const updateIngestConfiguration = async ({
   channelArn,
-  streamSessionId,
-  ivsClient,
-  dynamoDbClient
+  streamSessionId
 }: {
   channelArn: string;
   streamSessionId: string;
-  ivsClient: IvsClient;
-  dynamoDbClient: DynamoDBClient;
 }) => {
   const { streamSession: { ingestConfiguration } = {} } =
-    await getIvsStreamSession({ channelArn, streamSessionId, ivsClient });
+    await getIvsStreamSession({ channelArn, streamSessionId });
 
   // Check that the ingest configuration has complete audio and video configs
   const isIngestConfigurationComplete = [
@@ -94,7 +105,6 @@ export const updateIngestConfiguration = async ({
   if (isIngestConfigurationComplete) {
     await updateDynamoItemAttributes({
       attributes: [{ key: 'ingestConfiguration', value: ingestConfiguration }],
-      dynamoDbClient,
       primaryKey: { key: 'channelArn', value: channelArn },
       sortKey: { key: 'id', value: streamSessionId },
       tableName: process.env.STREAM_TABLE_NAME as string

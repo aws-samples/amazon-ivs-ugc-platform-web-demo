@@ -8,8 +8,12 @@ import {
   EMAIL_EXISTS_EXCEPTION,
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
-import { cognitoClient, dynamoDbClient, getUserByEmail } from '../helpers';
-import { isCognitoError } from '../../shared';
+import { getUserByEmail } from '../helpers';
+import {
+  cognitoClient,
+  dynamoDbClient,
+  isCognitoError
+} from '../../shared/helpers';
 
 type SignUpRequestBody = {
   avatar: string;

@@ -2,9 +2,13 @@ import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
 import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { dynamoDbClient, getUser, ivsChatClient, ivsClient } from '../helpers';
+import { getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { updateDynamoItemAttributes } from '../../shared/helpers';
+import {
+  ivsChatClient,
+  ivsClient,
+  updateDynamoItemAttributes
+} from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
 type CreateResourcesRequestBody = { email: string | undefined };
@@ -80,7 +84,6 @@ const handler = async (
         { key: 'streamKeyValue', value: streamKeyValue },
         { key: 'chatRoomArn', value: chatRoomArn }
       ],
-      dynamoDbClient,
       primaryKey: { key: 'id', value: sub },
       tableName: process.env.USER_TABLE_NAME as string
     });

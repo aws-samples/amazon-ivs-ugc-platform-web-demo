@@ -11,7 +11,7 @@ export const handler: CustomMessageTriggerHandler = (
     event.triggerSource === 'CustomMessage_SignUp' ||
     event.triggerSource === 'CustomMessage_ResendCode'
   ) {
-    event.response.emailMessage = `Use the link below to confirm your email for your UGC account.<a href=${process.env.CLIENT_BASE_URL}/login?code=${event.request.codeParameter}&username=${event.userName}>Confirm Email</a>`;
+    event.response.emailMessage = `Use the link below to confirm your email for your UGC account.\n<a href=${process.env.CLIENT_BASE_URL}/login?code=${event.request.codeParameter}&username=${event.userName}>Confirm Email</a>`;
   }
 
   callback(null, event);
