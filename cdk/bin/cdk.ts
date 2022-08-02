@@ -2,8 +2,8 @@
 import 'source-map-support/register';
 import { App } from 'aws-cdk-lib';
 
-import { StreamHealthDashboardStack } from '../lib/cdk-stream-health-dashboard-stack';
-import { StreamHealthResourceWithUserManagementConfig } from '../lib/constants';
+import { UGCStack } from '../lib/cdk-ugc-stack';
+import { UGCResourceWithUserManagementConfig } from '../lib/constants';
 
 const app = new App();
 
@@ -12,10 +12,10 @@ const stage = app.node.tryGetContext('stage');
 // Get the config for the current stage
 const {
   resourceConfig
-}: { resourceConfig: StreamHealthResourceWithUserManagementConfig } =
+}: { resourceConfig: UGCResourceWithUserManagementConfig } =
   app.node.tryGetContext(stage);
 
-new StreamHealthDashboardStack(new App(), `StreamHealthDashboard-${stage}`, {
+new UGCStack(new App(), `UGC-${stage}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION

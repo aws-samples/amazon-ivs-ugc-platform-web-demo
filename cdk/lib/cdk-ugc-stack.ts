@@ -13,23 +13,19 @@ import path from 'path';
 
 import {
   defaultTargetProps,
-  StreamHealthResourceWithUserManagementConfig
+  UGCResourceWithUserManagementConfig
 } from './constants';
 import { MetricsStack } from './MetricsStack/cdk-metrics-stack';
 import { UserManagementStack } from './UserManagementStack/cdk-user-management-stack';
 import LoadBalancer from './Constructs/LoadBalancer';
 import Service from './Constructs/Service';
 
-interface StreamHealthDashboardStackProps extends StackProps {
-  resourceConfig: StreamHealthResourceWithUserManagementConfig;
+interface UGCDashboardStackProps extends StackProps {
+  resourceConfig: UGCResourceWithUserManagementConfig;
 }
 
-export class StreamHealthDashboardStack extends Stack {
-  constructor(
-    scope: Construct,
-    id: string,
-    props: StreamHealthDashboardStackProps
-  ) {
+export class UGCStack extends Stack {
+  constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
     const { resourceConfig } = props;
@@ -243,7 +239,7 @@ export class StreamHealthDashboardStack extends Stack {
         .map(([key, val]) => `${key}=${val}`)
         .join(' \\\n')}`
     });
-    new CfnOutput(this, 'userManagementApiBaseUrl', {
+    new CfnOutput(this, 'apiBaseUrl', {
       value: `https://${distribution.domainName}`
     });
     new CfnOutput(this, 'userPoolId', { value: userPoolId });

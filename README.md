@@ -1,6 +1,6 @@
-# Amazon IVS Stream Health Dashboard web demo
+# Amazon IVS UGC web demo
 
-A demo web application intended as an educational tool for demonstrating how you can implement a stream monitoring dashboard using [Amazon IVS](https://aws.amazon.com/ivs) and [CloudWatch](https://aws.amazon.com/cloudwatch) Metrics.
+A demo web application intended as an educational tool for demonstrating how you can implement a ... [TODO]
 
 This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
@@ -16,7 +16,7 @@ This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AW
 
 ## To use and deploy this project
 
-***IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.*
+**\*IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.\*
 
 Deploying the CDK stack will:
 
@@ -44,11 +44,11 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 - `maxAzs` is the maximum number of availability zones for the VPC that will hold the backend. Setting this value to the maximum number of availability zones in your region will reduce the risk of the backend going offline but also increase the running cost.
 - `minScalingCapacity` sets the minimum number of tasks to run for each of the backend services. You can increase this value if you're expecting high traffic on production.
 - `natGateways`, at least one NAT Gateway is required for the tasks to fetch the Docker image from the ECR Repository. This value can be increased up to the `maxAzs` value in production.
-- `userManagementClientBaseUrl` should be set to the base URL of the frontend application.
+- `clientBaseUrl` should be set to the base URL of the frontend application.
 
 ### Deployment
 
-***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
+**\*IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.\*
 
 1. To set up the backend, navigate to the `cdk` directory and run:
 
@@ -58,7 +58,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
    This command will install dependencies, bootstrap the CDK assets (if needed), and finally deploy the stack.
 
-   ***NOTE:** the deployment might take up to 15 minutes.*
+   **\*NOTE:** the deployment might take up to 15 minutes.\*
 
 2. Go to the `web-ui` directory and run the following commands to start the React frontend host:
 
@@ -131,7 +131,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev, and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
 
   ```typescript
-  new StreamHealthDashboardStack(new App(), `StreamHealthDashboard-${stage}`, {
+  new UGCStack(new App(), `UGC-${stage}`, {
   env: {
      account: process.env.CDK_DEFAULT_ACCOUNT,
      region: <your-region-here>

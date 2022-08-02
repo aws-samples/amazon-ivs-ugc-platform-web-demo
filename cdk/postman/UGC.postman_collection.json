@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "652c855a-6734-4420-b438-d3ce3322fd21",
 		"name": "UGC",
-		"description": "# UGC\n\nThe Stream Health Dashboard backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
+		"description": "# UGC\n\nThe UGC backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "9583492"
 	},
@@ -28,9 +28,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/register",
+							"raw": "{{apiBaseUrl}}/user/register",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -56,9 +56,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/resources/create",
+							"raw": "{{apiBaseUrl}}/user/resources/create",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -67,104 +67,6 @@
 							]
 						},
 						"description": "This endpoint creates the following resources for the corresponding user account:\n\n*   an IVS channel\n*   a DynamoDB record with the user's account information and channel details\n    \n\nIt should only be called once, particularly when the user first signs in."
-					},
-					"response": []
-				},
-				{
-					"name": "/user/chatroom/token/public/create",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { token: publicToken } = JSON.parse(responseBody);",
-									"",
-									"if (publicToken) {",
-									"    pm.environment.set('secureWebSocketProtocolToken', publicToken);",
-									"}",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/public/create",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"chatroom",
-								"token",
-								"public",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/chatroom/token/private/create",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { token: privateToken } = JSON.parse(responseBody);",
-									"",
-									"if (privateToken) {",
-									"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/private/create",
-							"host": [
-								"{{userManagementApiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"chatroom",
-								"token",
-								"private",
-								"create"
-							]
-						}
 					},
 					"response": []
 				},
@@ -190,9 +92,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user",
+							"raw": "{{apiBaseUrl}}/user",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user"
@@ -217,9 +119,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/username/update",
+							"raw": "{{apiBaseUrl}}/user/username/update",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -265,9 +167,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/preferences/update",
+							"raw": "{{apiBaseUrl}}/user/preferences/update",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -279,14 +181,39 @@
 					"response": []
 				},
 				{
+					"name": "/user/channel/:channelOwnerUsername",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								":channelOwnerUsername"
+							],
+							"variable": [
+								{
+									"key": "channelOwnerUsername",
+									"value": "{{username}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/user/streamKey/reset",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/streamKey/reset",
+							"raw": "{{apiBaseUrl}}/user/streamKey/reset",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -316,9 +243,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/password/reset",
+							"raw": "{{apiBaseUrl}}/user/password/reset",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -336,9 +263,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user",
+							"raw": "{{apiBaseUrl}}/user",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user"
@@ -401,9 +328,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions?nextToken={{nextToken}}",
+							"raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions?nextToken={{nextToken}}",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"metrics",
@@ -433,9 +360,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId",
+							"raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"metrics",
@@ -515,9 +442,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/public/create",
+							"raw": "{{apiBaseUrl}}/user/chatroom/token/public/create",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",
@@ -567,9 +494,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{userManagementApiBaseUrl}}/user/chatroom/token/private/create",
+							"raw": "{{apiBaseUrl}}/user/chatroom/token/private/create",
 							"host": [
-								"{{userManagementApiBaseUrl}}"
+								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"user",

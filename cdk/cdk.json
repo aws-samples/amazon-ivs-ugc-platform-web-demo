@@ -34,7 +34,7 @@
         "minScalingCapacity": 1,
         "natGateways": 1,
         "stageName": "dev",
-        "userManagementClientBaseUrl": "http://localhost:3000"
+        "clientBaseUrl": "http://localhost:3000"
       }
     },
     "prod": {
@@ -47,7 +47,7 @@
         "minScalingCapacity": 1,
         "natGateways": 2,
         "stageName": "prod",
-        "userManagementClientBaseUrl": "http://localhost:3000"
+        "clientBaseUrl": "http://localhost:3000"
       }
     }
   }

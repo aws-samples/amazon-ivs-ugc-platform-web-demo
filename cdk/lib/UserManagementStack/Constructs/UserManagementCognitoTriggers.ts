@@ -19,8 +19,7 @@ export default class UserManagementCognitoTriggers extends Construct {
   ) {
     super(scope, id);
 
-    const { logRetention, enableUserAutoVerify, userManagementClientBaseUrl } =
-      props;
+    const { logRetention, enableUserAutoVerify, clientBaseUrl } = props;
 
     // Default lambda parameters
     const defaultLambdaParams = {
@@ -48,7 +47,7 @@ export default class UserManagementCognitoTriggers extends Construct {
         ...defaultLambdaParams,
         entry: getLambdaEntryPath('cognitoTriggers/customMessage'),
         environment: {
-          USER_MANAGEMENT_CLIENT_BASE_URL: userManagementClientBaseUrl
+          CLIENT_BASE_URL: clientBaseUrl
         }
       }
     );

@@ -94,7 +94,7 @@ const extendTestFixtures = (fixtures = {}, options = {}) => {
 
 const getMockCognitoSessionTokens = (
   username = 'testUser',
-  email = 'testuser@streamhealth.com'
+  email = 'testuser@ugc.com'
 ) => {
   const accessToken = new CognitoAccessToken({
     AccessToken: jwt.sign(

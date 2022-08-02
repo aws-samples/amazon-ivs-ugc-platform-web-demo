@@ -4,7 +4,7 @@ import {
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 
-export interface StreamHealthResourceWithUserManagementConfig
+export interface UGCResourceWithUserManagementConfig
   extends UserManagementResourceConfig {
   deploySeparateContainers: boolean;
   maxAzs: number;
@@ -18,7 +18,7 @@ export interface UserManagementResourceConfig {
   ivsChannelType: ChannelType;
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
-  userManagementClientBaseUrl: string;
+  clientBaseUrl: string;
 }
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
