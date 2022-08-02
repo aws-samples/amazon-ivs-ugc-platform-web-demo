@@ -7,3 +7,10 @@
   position: relative;
   width: 100%;
 }
+
+@media (max-width: 767px) {
+  .dashboard-section-container {
+    height: 100%;
+    overflow: hidden;
+  }
+}
