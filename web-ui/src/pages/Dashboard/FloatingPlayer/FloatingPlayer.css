@@ -176,7 +176,7 @@
   z-index: 20;
 }
 
-video {
+.video-container video {
   border-radius: 15px;
   height: 100%;
   left: 0;

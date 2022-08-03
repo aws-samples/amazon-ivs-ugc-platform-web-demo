@@ -14,3 +14,9 @@
     overflow: hidden;
   }
 }
+
+@media (prefers-color-scheme: light) {
+  .dashboard-section-container {
+    @apply bg-white;
+  }
+}

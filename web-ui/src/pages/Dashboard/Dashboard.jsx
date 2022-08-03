@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import '../../components/withVerticalScroller/withVerticalScroller.css';
 import './Dashboard.css';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useStreams } from '../../contexts/Streams';
 import FloatingMenu from './FloatingMenu';
 import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
-
 import useScrollToTop from '../../hooks/useScrollToTop';
-import withVerticalScroller from '../../components/withVerticalScroller/withVerticalScroller';
 
 const Dashboard = () => {
   const {
@@ -57,7 +56,7 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      <section className="dashboard-section-container">
+      <section className="dashboard-section-container vertical-scroller-container">
         <Outlet context={outletContext} />
       </section>
       {isDefaultResponsiveView ? <FloatingMenu /> : <FloatingPlayer />}
@@ -65,4 +64,4 @@ const Dashboard = () => {
   );
 };
 
-export default withVerticalScroller(Dashboard);
+export default Dashboard;

@@ -38,3 +38,9 @@
     grid-template-columns: 1fr minmax(auto, 464px) 1fr;
   }
 }
+
+@media (prefers-color-scheme: light) {
+  .header {
+    @apply bg-lightMode-gray-extraLight;
+  }
+}
