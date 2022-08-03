@@ -171,6 +171,7 @@ export const Provider = ({ children }) => {
         streamSessions[0];
       setActiveStreamSessionId(initialActiveStreamSession.streamId);
       updateActiveStreamSession(initialActiveStreamSession);
+
       navigate(
         generatePath('/dashboard/stream/:streamId', {
           streamId: initialActiveStreamSession.streamId

@@ -226,6 +226,9 @@ export const createResources = async () =>
 export const getUserData = async () =>
   await authFetch({ url: `${apiBaseUrl}/user` });
 
+export const getUserChannelData = async (username) =>
+  await unauthFetch({ url: `${apiBaseUrl}/user/channel/${username}` });
+
 export const changeUsername = async ({ username: newUsername }) =>
   await authFetch({
     body: { newUsername },
@@ -239,7 +242,7 @@ export const changeUsername = async ({ username: newUsername }) =>
  * @param {string} [userPreferences.avatar]
  * @param {string} [userPreferences.color]
  */
-export const changeUserPreferences = async (userPreferences) => 
+export const changeUserPreferences = async (userPreferences) =>
   await authFetch({
     body: userPreferences,
     method: 'PUT',

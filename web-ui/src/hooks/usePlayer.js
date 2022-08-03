@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import usePlayerBlur from './usePlayerBlur';
+import usePrevious from './usePrevious';
 
 const { IVSPlayer } = window;
 const {
@@ -10,12 +12,21 @@ const {
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
 const { ERROR } = PlayerEventType;
 
-const usePlayer = ({ isLive, playbackUrl }) => {
+const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const timeoutId = useRef();
+  const prevIsChannelLive = usePrevious(isLive);
+  const [error, setError] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isPaused, setIsPaused] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [hasEnded, setHasEnded] = useState(false);
+  const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
+  const hasError = !!error;
   const intervalId = useRef(null);
+
   const resetIntervalId = useCallback(() => {
     clearInterval(intervalId.current);
     intervalId.current = null;
@@ -23,18 +34,28 @@ const usePlayer = ({ isLive, playbackUrl }) => {
 
   // Generic PlayerState event listener
   const onStateChange = useCallback(() => {
+    if (!playerRef.current) return;
+
     const newState = playerRef.current.getState();
 
-    console.log(`Player State - ${newState}`);
-
+    if (newState === PLAYING) setIsInitialLoading(false);
     if (newState !== ENDED) resetIntervalId();
 
-    setIsLoading(newState !== PLAYING);
+    setError(null);
+    setHasEnded(newState === ENDED);
+    setIsLoading(newState === READY || newState === BUFFERING);
+    setIsPaused(playerRef.current?.isPaused() || false);
+
+    console.log(`Player State - ${newState}`);
   }, [resetIntervalId]);
 
   // Generic PlayerEventType event listener
   const onError = useCallback((err) => {
     console.warn(`Player Event - ERROR:`, err, playerRef.current);
+
+    setError(err);
+    setIsLoading(false);
+    setIsPaused(true);
   }, []);
 
   const destroy = useCallback(() => {
@@ -76,31 +97,124 @@ const usePlayer = ({ isLive, playbackUrl }) => {
     playerRef.current.addEventListener(ERROR, onError);
   }, [destroy, onError, onStateChange]);
 
+  const play = useCallback(() => {
+    if (!playerRef.current) return;
+
+    if (hasError) {
+      setIsLoading(true);
+      playerRef.current.load(playbackUrl);
+    }
+
+    if (playerRef.current.isPaused()) {
+      playerRef.current.play();
+      setIsPaused(false);
+    }
+  }, [hasError, playbackUrl]);
+
+  const pause = useCallback(() => {
+    if (!playerRef.current) return;
+
+    if (!playerRef.current.isPaused()) {
+      playerRef.current.pause();
+      setIsPaused(true);
+    }
+  }, []);
+  const mute = useCallback(() => {
+    if (!playerRef.current) return;
+
+    if (!playerRef.current.isMuted()) {
+      playerRef.current.setMuted(true);
+      setIsMuted(true);
+    }
+  }, []);
+  const unmute = useCallback(() => {
+    if (!playerRef.current) return;
+
+    if (playerRef.current.isMuted()) {
+      playerRef.current.setMuted(false);
+      setIsMuted(false);
+    }
+  }, []);
+
   const load = useCallback(
     (playbackUrl) => {
+      if (!playbackUrl) return;
+
       if (!playerRef.current) create();
 
-      playerRef.current.setAutoplay(true);
       playerRef.current.load(playbackUrl);
+      play();
     },
-    [create]
+    [create, play]
   );
+  const reset = useCallback(() => {
+    setIsInitialLoading(true);
+    setIsLoading(true);
+    setIsPaused(true);
+    setIsMuted(true);
+    setHasEnded(false);
+    setHasPlayedFinalBuffer(false);
+    resetIntervalId();
+    destroy();
+  }, [destroy, resetIntervalId]);
+
+  const { shouldBlurPlayer, isBlurReady, canvasRef } = usePlayerBlur({
+    ingestConfiguration,
+    isLive,
+    isLoading,
+    videoRef
+  });
 
   useEffect(() => {
-    const retryPlayer = () => load(playbackUrl);
+    if (prevIsChannelLive && !isLive && playerRef.current) {
+      let bufferDuration = playerRef.current.getBufferDuration();
+
+      if (bufferDuration < 0) bufferDuration = 0;
+
+      timeoutId.current = setTimeout(
+        () => setHasPlayedFinalBuffer(true),
+        bufferDuration * 1000
+      );
+    }
+
+    return () => clearTimeout(timeoutId.current);
+  }, [isLive, prevIsChannelLive]);
+
+  useEffect(() => {
+    if (hasError) reset();
+  }, [hasError, reset]);
+
+  useEffect(() => {
+    const loadPlayer = () => load(playbackUrl);
 
     if (playbackUrl && isLive) {
-      intervalId.current = setInterval(retryPlayer, 1000);
+      intervalId.current = setInterval(loadPlayer, 3000);
+    } else if ((!playbackUrl || !isLive) && hasPlayedFinalBuffer) reset();
 
-      return () => {
-        destroy();
-        resetIntervalId();
-        setIsLoading(true);
-      };
-    }
-  }, [destroy, isLive, load, playbackUrl, resetIntervalId]);
+    return reset;
+  }, [hasPlayedFinalBuffer, isLive, load, reset, playbackUrl]);
 
-  return { isLoading, playerRef, videoRef };
+  return {
+    canvasRef,
+    error,
+    hasEnded,
+    hasFinalBuffer: prevIsChannelLive && !hasPlayedFinalBuffer,
+    instance: playerRef.current,
+    isBlurReady,
+    isInitialLoading,
+    isLoading,
+    isMuted,
+    isPaused,
+    mute,
+    pause,
+    play,
+    playerRef,
+    reset,
+    setError,
+    shouldBlurPlayer,
+    unmute,
+    videoRef
+  };
 };
 
 export default usePlayer;

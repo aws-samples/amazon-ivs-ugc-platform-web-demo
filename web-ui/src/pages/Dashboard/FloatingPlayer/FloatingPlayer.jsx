@@ -1,5 +1,5 @@
 import { useLocation, useMatch } from 'react-router-dom';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
 import { app as $appContent } from '../../../content';
@@ -22,7 +22,18 @@ const FloatingPlayer = () => {
     updateActiveStreamSession
   } = useStreams();
   const { userData } = useUser();
-  const { isLoading, playerRef, videoRef } = usePlayer({
+  const liveSession = streamSessions?.find(
+    (streamSession) => streamSession.isLive
+  );
+  const {
+    canvasRef,
+    isBlurReady,
+    isLoading,
+    playerRef,
+    shouldBlurPlayer,
+    videoRef
+  } = usePlayer({
+    ingestConfiguration: liveSession?.ingestConfiguration,
     isLive,
     playbackUrl: userData?.playbackUrl
   });
@@ -30,93 +41,21 @@ const FloatingPlayer = () => {
   const { pathname } = useLocation();
   const isSettingsPage = !!useMatch('settings');
   const hasStreamSessions = !!streamSessions?.length;
-  const canvasRef = useRef();
-  const isBlurring = useRef(false);
-  const shouldBlurPlayer = useMemo(() => {
-    const liveSession = streamSessions?.find(
-      (streamSession) => streamSession.isLive
-    );
-
-    if (liveSession) {
-      const videoWidth = liveSession?.ingestConfiguration?.video?.videoWidth;
-      const videoHeight = liveSession?.ingestConfiguration?.video?.videoHeight;
-
-      if (videoWidth && videoHeight) {
-        // If the video ratio isn't 16:9, blur the sides
-        return !!(videoHeight / videoWidth !== 0.5625);
-      }
-    }
-
-    return true;
-  }, [streamSessions]);
   const prevIsLiveValue = useRef(isLive);
-  const [isBlurReady, setIsBlurReady] = useState(false);
   const shouldShowSpinner =
     (isLoading && isLive !== false) || (shouldBlurPlayer && !isBlurReady);
   const hidePlayerStyles = shouldShowSpinner
     ? { style: { display: 'none' } }
     : {};
-
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
   }, [streamSessions, updateActiveStreamSession]);
-
-  const startBlur = useCallback(() => {
-    if (canvasRef.current && !isBlurring.current) {
-      clearCanvas();
-      isBlurring.current = true;
-
-      const context = canvasRef.current.getContext('2d');
-      context.filter = 'blur(5px)';
-
-      const draw = () => {
-        if (canvasRef.current) {
-          context.drawImage(
-            videoRef.current,
-            0,
-            0,
-            canvasRef.current.width,
-            canvasRef.current.height
-          );
-          setIsBlurReady(true);
-
-          requestAnimationFrame(draw);
-        }
-      };
-
-      requestAnimationFrame(draw);
-    }
-  }, [videoRef]);
-
-  const clearCanvas = () => {
-    if (canvasRef.current) {
-      const context = canvasRef.current.getContext('2d');
-
-      context.clearRect(
-        0,
-        0,
-        canvasRef.current.width,
-        canvasRef.current.height
-      );
-    }
-  };
 
   useEffect(() => {
     if (isLive) {
       prevIsLiveValue.current = true;
     }
   }, [isLive]);
-
-  useEffect(() => {
-    if (isLive && !isLoading && shouldBlurPlayer) {
-      startBlur();
-
-      return () => {
-        setIsBlurReady(true);
-        clearCanvas();
-      };
-    }
-  }, [isLive, isLoading, shouldBlurPlayer, startBlur]);
 
   // Lower the rendition of the player to the lowest available resolution
   useEffect(() => {
@@ -150,7 +89,13 @@ const FloatingPlayer = () => {
           style={isLive ? {} : { display: 'none' }}
         >
           {shouldShowSpinner && <Spinner variant="light" />}
-          <video {...hidePlayerStyles} ref={videoRef} playsInline muted></video>
+          <video
+            {...hidePlayerStyles}
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+          ></video>
           <canvas {...hidePlayerStyles} ref={canvasRef} />
           <LivePill />
         </div>

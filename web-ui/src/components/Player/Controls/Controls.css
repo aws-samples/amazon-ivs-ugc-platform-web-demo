@@ -1,0 +1,77 @@
+.player-controls-container.fade-exited {
+  pointer-events: none;
+}
+
+.player-controls-container {
+  align-items: flex-end;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.00796593) 11.79%,
+    rgba(0, 0, 0, 0.0307941) 21.38%,
+    rgba(0, 0, 0, 0.06688) 29.12%,
+    rgba(0, 0, 0, 0.114619) 35.34%,
+    rgba(0, 0, 0, 0.172407) 40.37%,
+    rgba(0, 0, 0, 0.23864) 44.56%,
+    rgba(0, 0, 0, 0.311713) 48.24%,
+    rgba(0, 0, 0, 0.390021) 51.76%,
+    rgba(0, 0, 0, 0.47196) 55.44%,
+    rgba(0, 0, 0, 0.555926) 59.63%,
+    rgba(0, 0, 0, 0.640314) 64.66%,
+    rgba(0, 0, 0, 0.72352) 70.88%,
+    rgba(0, 0, 0, 0.803939) 78.62%,
+    rgba(0, 0, 0, 0.879967) 88.21%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  bottom: -50px;
+  display: flex;
+  height: 35%;
+  left: 0;
+  padding: 0 32px 32px;
+  position: relative;
+  width: 100%;
+  z-index: 15;
+}
+
+.player-controls-btn-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.player-controls-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.play-pause-btn {
+  padding-right: 20px;
+}
+
+.player-controls-btn[aria-disabled='true'],
+#player-controls-seek-bar-wrapper[aria-disabled='true'],
+.player-controls-scrub[aria-disabled='true'] {
+  cursor: auto;
+}
+
+.player-controls-scrub[aria-disabled='true'] {
+  display: none;
+}
+
+.player-controls-btn[aria-disabled='true'] svg {
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .player-controls-container {
+    border-radius: 0;
+    padding: 0 48px 32px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .player-controls-container {
+    padding: 0 32px 66px;
+  }
+}
