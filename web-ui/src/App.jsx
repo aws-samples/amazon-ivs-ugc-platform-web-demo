@@ -19,8 +19,7 @@ import {
   ChannelDirectory,
   Dashboard,
   Settings,
-  UserManagement,
-  AuthenticatedPage
+  UserManagement
 } from './pages';
 
 // Dashboard Subpages
@@ -33,8 +32,8 @@ import {
   SigninUser
 } from './pages/UserManagement/subpages';
 
-import Sidebar from './components/Sidebar';
-import SharedComponents from './pages/SharedComponents';
+// Page Layouts
+import { AppLayoutWithNavbar, RequireAuth, SharedComponents } from './layouts';
 
 const loadMotionFeatures = () =>
   import('./motion-features').then((res) => res.default);
@@ -49,10 +48,10 @@ const App = () => (
               <ModalProvider>
                 <Routes>
                   <Route element={<SharedComponents />}>
-                    <Route element={<Sidebar />}>
+                    <Route element={<AppLayoutWithNavbar />}>
                       <Route index element={<ChannelDirectory />} />
                       <Route path=":username" element={<Channel />} />
-                      <Route element={<AuthenticatedPage />}>
+                      <Route element={<RequireAuth />}>
                         <Route path="settings" element={<Settings />} />
                         <Route
                           element={

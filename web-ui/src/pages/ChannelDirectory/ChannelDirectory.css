@@ -1,6 +1,8 @@
-.main-channel-directory-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
+.channel-directory {
   align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
 }

@@ -5,7 +5,7 @@ const Channel = () => {
   const { username } = useParams();
 
   return (
-    <div className="main-channel-container">
+    <div className="channel">
       <h1>{username}'s Channel Page</h1>
     </div>
   );

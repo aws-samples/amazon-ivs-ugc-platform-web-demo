@@ -1,7 +1,8 @@
-.main-channel-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
+.channel {
   align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
 }

@@ -1,5 +1,4 @@
 .header {
-  background-color: var(--palette-color-medium-gray);
   display: grid;
   grid-column-gap: 15px;
   grid-template-columns: 1fr minmax(auto, 654px) 1fr;
@@ -37,11 +36,5 @@
 @media (min-width: 990px) and (max-width: 1025px) {
   .header {
     grid-template-columns: 1fr minmax(auto, 464px) 1fr;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .header {
-    background-color: var(--palette-color-extra-light-gray);
   }
 }

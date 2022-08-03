@@ -5,7 +5,7 @@ import { useUser } from '../contexts/User';
 import useThemeColor from '../hooks/useThemeColor';
 import withSessionLoader from '../components/withSessionLoader';
 
-const AuthenticatedPage = () => {
+const RequireAuth = () => {
   const location = useLocation();
   const { isSessionValid, prevIsSessionValid } = useUser();
 
@@ -28,4 +28,4 @@ const AuthenticatedPage = () => {
   return <Outlet />;
 };
 
-export default withSessionLoader(AuthenticatedPage);
+export default withSessionLoader(RequireAuth);

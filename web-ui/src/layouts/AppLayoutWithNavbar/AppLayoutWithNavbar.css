@@ -1,0 +1,31 @@
+.app-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.main-app-container {
+  flex: 1;
+  overflow: auto;
+  scroll-behavior: smooth;
+  background-color: var(--palette-color-black);
+}
+
+@media (prefers-color-scheme: light) {
+  .main-app-container {
+    background-color: var(--palette-color-gray);
+  }
+}
+
+@media (max-width: 767px) {
+  .main-app-container {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+@supports (overflow: overlay) {
+  .main-app-container {
+    overflow: overlay;
+  }
+}

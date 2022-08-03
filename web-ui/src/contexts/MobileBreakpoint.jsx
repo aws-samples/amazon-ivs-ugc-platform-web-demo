@@ -11,16 +11,22 @@ import {
 import { BREAKPOINTS } from '../constants';
 import { isiOS } from '../utils';
 import useContextHook from './useContextHook';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 const Context = createContext(null);
 Context.displayName = 'MobileBreakpoint';
 
 export const Provider = ({ children }) => {
-  const mainRef = useRef();
   const [currentBreakpoint, setCurrentBreakpoint] = useState();
-  const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
+  const mainRef = useRef();
   const mobileOverlayIds = useRef([]);
   const windowPageScrollY = useRef();
+
+  const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
+  const isMobileLandscape =
+    useMediaQuery('(orientation: landscape)') &&
+    currentBreakpoint < BREAKPOINTS.lg;
+
   const lockBody = useCallback(() => {
     if (isiOS()) {
       windowPageScrollY.current = window.pageYOffset;
@@ -63,6 +69,7 @@ export const Provider = ({ children }) => {
     },
     [isDefaultResponsiveView, lockBody]
   );
+
   const removeMobileOverlay = useCallback(
     (panelId) => {
       if (
@@ -103,13 +110,15 @@ export const Provider = ({ children }) => {
       addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
+      isMobileLandscape,
       mainRef,
       removeMobileOverlay
     }),
     [
+      addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
-      addMobileOverlay,
+      isMobileLandscape,
       removeMobileOverlay
     ]
   );

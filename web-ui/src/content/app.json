@@ -1,6 +1,10 @@
 {
   "title": "UGC",
   "live": "live",
+  "navbar": {
+    "log_in": "Log in",
+    "sign_up": "Sign up"
+  },
   "modal": {
     "cancel": "Cancel"
   },
