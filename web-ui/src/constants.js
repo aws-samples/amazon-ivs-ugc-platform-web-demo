@@ -6,6 +6,7 @@ export const STREAM_SESSION_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
 export const CHANNEL_TYPE = { BASIC: 'BASIC', STANDARD: 'STANDARD' };
 
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
+export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 export const NOT_AUTHORIZED_EXCEPTION = 'NotAuthorizedException';
@@ -17,11 +18,15 @@ export const USER_LAMBDA_VALIDATION_EXCEPTION = 'UserLambdaValidationException';
 export const ERROR_KEY_MAP = {
   [USERNAME_EXISTS_EXCEPTION]: {
     type: 'input_error--username',
+    contentKey: 'username_taken'
+  },
+  [RESERVED_USERNAME_EXCEPTION]: {
+    type: 'input_error--username',
     contentKey: 'unavailable_username'
   },
   [ALIAS_EXISTS_EXCEPTION]: {
     type: 'input_error--username',
-    contentKey: 'unavailable_username'
+    contentKey: 'username_taken'
   },
   [EMAIL_EXISTS_EXCEPTION]: {
     type: 'input_error--email',

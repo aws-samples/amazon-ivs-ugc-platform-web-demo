@@ -4,7 +4,7 @@
 		"name": "UGC",
 		"description": "# UGC\n\nThe UGC backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "9583492"
+		"_exporter_id": "20287494"
 	},
 	"item": [
 		{
@@ -20,7 +20,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{password}}\",\n    \"username\": \"{{username}}\"\n}",
+							"raw": "{\n    \"avatar\": \"{{avatar}}\",\n    \"color\": \"{{color}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{password}}\",\n    \"username\": \"{{username}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

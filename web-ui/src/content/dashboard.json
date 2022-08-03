@@ -128,6 +128,7 @@
       "passwords_mismatch": "Passwords didn’t match. Try again.",
       "same_as_old_password": "Your new password cannot be the same as your old password",
       "unavailable_username": "This username is unavailable",
+      "username_taken": "This username has been taken.",
       "unexpected_error_occurred": "An unexpected error occurred, please try again later"
     }
   },

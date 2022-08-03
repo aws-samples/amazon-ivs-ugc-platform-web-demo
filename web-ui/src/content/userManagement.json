@@ -42,6 +42,7 @@
     "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
     "passwords_mismatch": "Passwords didn’t match. Try again.",
     "unavailable_username": "This username is unavailable",
+    "username_taken": "This username has been taken.",
     "unavailable_email": "This email has already been used"
   },
   "notification": {

@@ -70,6 +70,7 @@ const defaultExpectedResponse = {
 describe('getStreamSession controller', () => {
   const server = buildServer();
   const mockConsoleError = jest.fn();
+  const realConsoleError = console.error;
 
   const RealDate = Date;
   const realDateNow = Date.now.bind(global.Date);
@@ -95,9 +96,11 @@ describe('getStreamSession controller', () => {
   });
 
   afterAll(() => {
+    delete process.env.IVS_CHANNEL_TYPE;
+    console.error = realConsoleError;
+
     global.Date = RealDate;
     global.Date.now = realDateNow;
-    delete process.env.IVS_CHANNEL_TYPE;
   });
 
   beforeEach(() => {

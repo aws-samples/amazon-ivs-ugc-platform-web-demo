@@ -16,6 +16,18 @@
       "functions": 100,
       "lines": 100
     },
+    "userManagement/unauthUserRouter/signUp.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "userManagement/authUserRouter/changeUsername.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
     "metrics/": {
       "statements": 100,
       "branches": 100,

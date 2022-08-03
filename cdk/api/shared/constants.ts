@@ -1,4 +1,5 @@
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
+export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 
@@ -7,8 +8,9 @@ export const FORGOT_PASSWORD_EXCEPTION = 'ForgotPasswordException';
 export const ACCOUNT_DELETION_EXCEPTION = 'AccountDeletionException';
 export const RESET_STREAM_KEY_EXCEPTION = 'ResetStreamKeyException';
 export const CHANGE_USERNAME_EXCEPTION = 'ChangeUsernameException';
-export const CHANGE_USER_PREFERENCES_EXCEPTION = 'ChangeUserPreferencesException';
-export const CHATROOM_ARN_NOT_FOUND_EXCEPTION = 'ChatRoomArnNotFoundException'
+export const CHANGE_USER_PREFERENCES_EXCEPTION =
+  'ChangeUserPreferencesException';
+export const CHATROOM_ARN_NOT_FOUND_EXCEPTION = 'ChatRoomArnNotFoundException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
@@ -23,3 +25,12 @@ export const STREAM_HEALTH_METRICS_NAMES = [
 
 export const SEC_PER_HOUR = 3600;
 export const SEC_PER_DAY = SEC_PER_HOUR * 24;
+
+export const BANNED_USERNAMES = [
+  'settings',
+  'dashboard',
+  'stream',
+  'login',
+  'register',
+  'reset'
+];

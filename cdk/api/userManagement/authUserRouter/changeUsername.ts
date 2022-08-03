@@ -1,7 +1,12 @@
 import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { CHANGE_USERNAME_EXCEPTION } from '../../shared/constants';
+import {
+  BANNED_USERNAMES,
+  CHANGE_USERNAME_EXCEPTION,
+  RESERVED_USERNAME_EXCEPTION,
+  UNEXPECTED_EXCEPTION
+} from '../../shared/constants';
 import {
   cognitoClient,
   isCognitoError,
@@ -23,11 +28,25 @@ const handler = async (
   const { sub, username } = request.requestContext.get('user') as UserContext;
   const { newUsername } = request.body;
 
-  try {
-    if (!newUsername) {
-      throw new Error(`Missing newUsername for user: ${username}`);
-    }
+  // Check input
+  if (!newUsername) {
+    console.error(`Missing newUsername for user: ${username}`);
 
+    reply.statusCode = 400;
+
+    return reply.send({ __type: UNEXPECTED_EXCEPTION });
+  }
+
+  // Check for banned usernames
+  if (BANNED_USERNAMES.includes(newUsername)) {
+    console.error(`Attempt to register a reserved username: ${newUsername}`);
+
+    reply.statusCode = 400;
+
+    return reply.send({ __type: RESERVED_USERNAME_EXCEPTION });
+  }
+
+  try {
     const updateUserAttributesCommand = new AdminUpdateUserAttributesCommand({
       UserAttributes: [{ Name: 'preferred_username', Value: newUsername }],
       Username: username,
@@ -51,8 +70,10 @@ const handler = async (
     if (isCognitoError(error)) {
       return reply.send({ __type: error.name });
     }
+
     return reply.send({ __type: CHANGE_USERNAME_EXCEPTION });
   }
+
   const responseBody: ChangeUsernameResponseBody = { username: newUsername };
 
   return reply.send(responseBody);

@@ -27,6 +27,7 @@ const route = '/metrics/channelResourceId/streamSessions';
 describe('getStreamSessions controller', () => {
   const server = buildServer();
   const mockConsoleError = jest.fn();
+  const realConsoleError = console.error;
 
   beforeAll(() => {
     console.error = mockConsoleError;
@@ -37,6 +38,10 @@ describe('getStreamSessions controller', () => {
     mockDynamoDbClient.on(QueryCommand).resolves({
       Items: [marshall({ ...streamSessionJsonMock[0], userSub: 'sub' })]
     });
+  });
+
+  afterAll(() => {
+    console.error = realConsoleError;
   });
 
   createRouteAuthenticationTests(server, route);
