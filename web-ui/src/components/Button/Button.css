@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .button {
   align-items: center;
   border-radius: var(--default-border-radius);
@@ -14,7 +18,7 @@
 }
 
 .button svg {
-  fill: var(--palette-color-white);
+  @apply fill-white;
 }
 
 .button:disabled {
@@ -24,87 +28,83 @@
 }
 
 .button:focus {
-  box-shadow: inset 0 0 0 2px var(--palette-color-white);
+  @apply shadow shadow-white;
   outline: none;
 }
 
 .button.primary {
-  background: var(--palette-color-blue);
-  color: var(--palette-color-black);
+  @apply bg-darkMode-blue text-black;
 }
 
 .button.primary:hover {
-  background: var(--palette-color-blue-hover);
+  @apply bg-darkMode-blue-hover;
 }
 
 .button.primary:focus {
-  background: var(--palette-color-blue);
+  @apply bg-darkMode-blue;
 }
 
 .button.secondary {
-  background: var(--palette-color-gray);
-  color: var(--palette-color-white);
+  @apply bg-darkMode-gray text-white;
 }
 
 .button.secondary:hover {
-  background: var(--palette-color-gray-hover);
+  @apply bg-darkMode-gray-hover;
 }
 
 .button.secondary:focus {
-  background: var(--palette-color-gray);
+  @apply bg-darkMode-gray;
 }
 
 .button.secondary .spinner {
-  color: var(--palette-color-white);
+  @apply text-white;
 }
 
 .button.tertiary {
-  background: var(--palette-color-extra-light-gray);
-  color: var(--palette-color-black);
+  @apply bg-darkMode-gray-extraLight text-black;
 }
 
 .button.tertiary:hover {
-  background: var(--palette-color-extra-light-gray-hover);
+  @apply bg-darkMode-gray-extraLight-hover;
 }
 
 .button.tertiary:focus {
-  background: var(--palette-color-extra-light-gray);
+  @apply bg-darkMode-gray-extraLight;
 }
 
 .button.text {
   background: transparent;
-  color: var(--palette-color-blue);
+  @apply text-darkMode-blue;
 }
 .button.text.first {
-  color: var(--palette-color-blue);
+  @apply text-darkMode-blue;
 }
 .button.text.second {
-  color: var(--palette-color-white);
+  @apply text-white;
 }
 
 .button.text .spinner {
-  color: var(--palette-color-white);
+  @apply text-white;
 }
 
 .button.text:hover {
-  background: var(--palette-color-gray-hover);
+  @apply bg-darkMode-gray-hover;
 }
 
 .button.text:focus {
-  background: var(--palette-color-medium-gray);
+  @apply bg-darkMode-gray-medium;
 }
 
 .button.destructive {
-  background: var(--palette-color-red);
-  color: var(--palette-color-black);
+  @apply bg-darkMode-red text-black;
 }
 
 .button.destructive:hover {
-  background: var(--palette-color-red-hover);
+  @apply bg-darkMode-red-hover;
 }
 
 .button.destructive:focus {
-  background: var(--palette-color-red);
+  @apply bg-darkMode-red;
 }
 
 .button.icon {
@@ -116,113 +116,111 @@
 }
 
 .button.icon:hover {
-  background: var(--palette-color-gray-hover);
+  @apply bg-darkMode-gray-hover;
 }
 
 .button.icon:focus {
-  background: var(--palette-color-gray-hover);
+  @apply bg-darkMode-gray-hover;
 }
 
 @media (prefers-color-scheme: light) {
   .button svg {
-    fill: var(--palette-color-black);
+    @apply fill-black;
   }
 
   .button:disabled svg {
-    fill: var(--palette-color-dark-gray);
+    @apply fill-lightMode-gray-dark;
   }
 
   .button:focus {
-    box-shadow: inset 0 0 0 2px var(--palette-color-black);
+    @apply shadow shadow-black;
   }
 
   .button.secondary {
-    background: var(--palette-color-white);
-    color: var(--palette-color-black);
+    @apply bg-white text-black;
   }
 
   .button.secondary:hover {
-    background: var(--palette-color-white-hover);
+    @apply bg-white-hover;
   }
 
   .button.secondary:focus {
-    background: var(--palette-color-white);
+    @apply bg-white;
   }
 
   .button.tertiary {
-    background: var(--palette-color-gray);
-    color: var(--palette-color-black);
+    @apply bg-lightMode-gray text-black;
   }
 
   .button.tertiary:hover {
-    background: var(--palette-color-gray-hover);
+    @apply bg-lightMode-gray-hover;
   }
 
   .button.tertiary:focus {
-    background: var(--palette-color-gray);
+    @apply bg-lightMode-gray;
   }
 
   .button.text.second {
-    color: var(--palette-color-black);
+    @apply text-black;
   }
 
   .button.text.first .spinner {
-    color: var(--palette-color-black);
+    @apply text-black;
   }
 
   .button.text.second:hover {
-    background: var(--palette-color-light-gray-hover);
+    @apply bg-lightMode-gray-light-hover;
   }
 
   .button.text.second:focus {
-    background: var(--palette-color-light-gray);
+    @apply bg-lightMode-gray-light;
   }
 
   .button.destructive {
-    color: var(--palette-color-white);
+    @apply text-white;
   }
 
   .button.secondary .spinner {
-    color: var(--palette-color-black);
+    @apply text-black;
   }
 
   .button.destructive .spinner {
-    color: var(--palette-color-white);
+    @apply text-white;
   }
 
   .button.icon svg {
-    fill: var(--palette-color-dark-gray);
+    @apply fill-lightMode-gray-dark;
   }
 
   .button.icon:hover {
-    background: var(--palette-color-light-gray-hover);
+    @apply bg-lightMode-gray-light-hover;
   }
 
   .button.icon:hover svg {
-    fill: var(--palette-color-black);
+    @apply fill-black;
   }
 
   .button.icon:focus {
-    background: var(--palette-color-light-gray-hover);
+    @apply bg-lightMode-gray-light-hover;
   }
 
   .button.icon:focus svg {
-    fill: var(--palette-color-black);
+    @apply fill-black;
   }
 
   .button.text.first {
-    color: var(--palette-color-medium-blue);
+    @apply text-lightMode-blue-medium;
   }
 
   .button.text.first .spinner {
-    color: var(--palette-color-black);
+    @apply text-black;
   }
 
   .button.text.first:hover {
-    background: var(--palette-color-light-gray-hover);
+    @apply bg-lightMode-gray-light-hover;
   }
 
   .button.text.first:focus {
-    background: var(--palette-color-light-gray-hover);
+    @apply bg-lightMode-gray-light-hover;
   }
 }
