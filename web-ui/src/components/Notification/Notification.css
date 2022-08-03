@@ -1,19 +1,24 @@
 .notification {
+  left: 0;
+  margin: 0 auto;
+  max-width: 595px;
+  padding: 0 16px;
+  position: sticky;
+  right: 0;
+  top: 79px;
+  width: fit-content;
+  z-index: 50;
+}
+
+.notification > div {
   align-items: center;
   border-radius: var(--default-border-radius);
   color: var(--palette-color-black);
   column-gap: 11.5px;
   display: flex;
   font-weight: 700;
-  left: 0;
   line-height: 18px;
-  margin: 0 auto;
-  max-width: 595px;
   padding: 10px 20px;
-  position: sticky;
-  right: 0;
-  width: fit-content;
-  z-index: 50;
 }
 
 .notification.fixed {
@@ -24,20 +29,21 @@
   position: absolute;
 }
 
-.notification.error {
+.notification.error > div {
   background-color: var(--palette-color-red);
 }
 
-.notification.success {
+.notification.success > div {
   background-color: var(--palette-color-green);
 }
 
 .notification-icon {
   fill: var(--palette-color-black);
+  flex-shrink: 0;
 }
 
 @media (prefers-color-scheme: light) {
-  .notification {
+  .notification > div {
     color: var(--palette-color-white);
   }
 

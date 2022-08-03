@@ -8,7 +8,7 @@ import {
 } from '../../contexts/Notification';
 import './Notification.css';
 
-const Notification = ({ position, top }) => {
+const Notification = ({ position }) => {
   const { NOTIF_TYPES, notif } = useNotif();
 
   let NotifIcon = null;
@@ -25,7 +25,6 @@ const Notification = ({ position, top }) => {
           exit="hidden"
           initial="hidden"
           key={`${notif.type}-notification`}
-          style={{ top }}
           transition={{
             duration: NOTIF_ANIMATION_DURATION_MS / 1000,
             type: 'tween'
@@ -35,19 +34,20 @@ const Notification = ({ position, top }) => {
             visible: { opacity: 1, y: 0 }
           }}
         >
-          <NotifIcon className="notification-icon" />
-          {notif.message}
+          <div>
+            <NotifIcon className="notification-icon" />
+            {notif.message}
+          </div>
         </m.div>
       )}
     </AnimatePresence>
   );
 };
 
-Notification.defaultProps = { position: 'fixed', top: 15 };
+Notification.defaultProps = { position: 'fixed' };
 
 Notification.propTypes = {
-  position: PropTypes.oneOf(['fixed', 'absolute']),
-  top: PropTypes.number
+  position: PropTypes.oneOf(['fixed', 'absolute'])
 };
 
 export default Notification;

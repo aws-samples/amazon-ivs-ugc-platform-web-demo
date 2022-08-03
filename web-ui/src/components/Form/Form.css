@@ -5,6 +5,10 @@
   position: relative;
 }
 
+.form > h1 {
+  text-align: center;
+}
+
 .form.vertical {
   margin: auto;
   max-width: 450px;
@@ -22,7 +26,8 @@
 .submit-container {
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
+  row-gap: 32px;
+  text-align: center;
 }
 
 .input-format-container {

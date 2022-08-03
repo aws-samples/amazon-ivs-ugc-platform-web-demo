@@ -1,4 +1,5 @@
 export { default as Sensors } from './sensors';
+export { ReactComponent as AcmeLrg } from './acme-lrg.svg';
 export { ReactComponent as Check } from './check.svg';
 export { ReactComponent as Checkmark } from './checkmark-round.svg';
 export { ReactComponent as ChevronLeft } from './chevron-left.svg';

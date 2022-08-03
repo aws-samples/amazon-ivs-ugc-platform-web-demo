@@ -13,9 +13,9 @@ const SharedComponents = () => {
 
   return (
     <>
-      <Modal isOpen={!!modal} />
-      <Notification top={79} />
       <Outlet />
+      <Modal isOpen={!!modal} />
+      <Notification />
     </>
   );
 };

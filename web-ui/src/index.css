@@ -161,7 +161,8 @@ h1 {
   line-height: 38.73px;
 }
 
-h2 {
+h2,
+.h2 {
   font-size: 24px;
   font-weight: 700;
   line-height: 29.05px;

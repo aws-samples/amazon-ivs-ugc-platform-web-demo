@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useRef } from 'react';
 
+import './Form.css';
+import { BREAKPOINTS } from '../../constants';
+import { throttle } from '../../utils';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
-import { throttle } from '../../utils';
-import './Form.css';
 
 const Form = ({
   'data-test-id': dataTestId,
@@ -36,6 +38,8 @@ const Form = ({
       validationCheck
     });
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
+  const { currentBreakpoint } = useMobileBreakpoint();
+  const isMobileView = currentBreakpoint < BREAKPOINTS.sm;
 
   const SubmitButton = useCallback(
     () => (
@@ -101,7 +105,7 @@ const Form = ({
       className={`form ${formVariant}`}
       onSubmit={(e) => onSubmit(e, clearFormOnSuccess)}
     >
-      {title && <h2>{title}</h2>}
+      {title && <h1 className={isMobileView ? 'h2' : ''}>{title}</h1>}
       {Object.values(formProps).map((inputProps, i, arr) => {
         if (formVariant === 'vertical') {
           return (
