@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
-import { AcmeLrg } from '../../../assets/icons';
+import { AcmeLarger } from '../../../assets/icons';
 import { useNotif } from '../../../contexts/Notification';
 import { userManagement } from '../../../api';
 import { userManagement as $content } from '../../../content';
@@ -64,7 +64,7 @@ const SigninUser = () => {
 
   return (
     <>
-      <AcmeLrg />
+      <AcmeLarger />
       <Form
         disableValidation
         submitHandler={userManagement.signIn}

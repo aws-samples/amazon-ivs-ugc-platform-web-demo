@@ -2,7 +2,8 @@ import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import './Player.css';
-import { Offline as OfflineSvg } from '../../assets/icons';
+import { NoSignal as NoSignalSvg } from '../../assets/icons';
+import { player as $content } from '../../content';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import FullScreenLoader from '../FullScreenLoader';
 import useControls from '../../hooks/useControls';
@@ -66,8 +67,10 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
           ) : (
             <div className="cover channel-offline-container">
               <div>
-                <OfflineSvg />
-                <p>Stream offline</p>
+                <NoSignalSvg className="fill-lightMode-gray-medium dark:fill-darkMode-gray" />
+                <h2 className="text-lightMode-gray-medium dark:text-darkMode-gray">
+                  {$content.stream_offline}
+                </h2>
               </div>
             </div>
           )}
