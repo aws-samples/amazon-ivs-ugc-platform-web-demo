@@ -8,10 +8,12 @@ import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import FullScreenLoader from '../FullScreenLoader';
 import useControls from '../../hooks/useControls';
 import usePlayer from '../../hooks/usePlayer';
+import Controls from './Controls';
+import FadeInOut from './FadeInOut'
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const { isDefaultResponsiveView } = useMobileBreakpoint();
-  const { setIsHovered } = useControls();
+  const { setIsHovered, isControlsOpen, stopPropagAndResetTimeout } = useControls();
   const livePlayer = usePlayer({ playbackUrl, isLive });
   const {
     hasFinalBuffer,
@@ -53,6 +55,18 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
             <>
               {isLoading && !hasError && <FullScreenLoader />}
               {hasError && <div className="cover black-cover" />}
+              <FadeInOut
+                className="player-controls-container"
+                inProp={
+                  hasError || (isControlsOpen && (!isLoading || !isInitialLoading))
+                }
+                mountOnEnter
+              >
+                <Controls
+                  player={livePlayer}
+                  stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                />
+              </FadeInOut>
               <video
                 id="player"
                 {...(!isInitialLoading || hasError
@@ -76,19 +90,6 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
           )}
         </div>
       </section>
-      {/* TEMP: the controls will be part of a subsequent PR */}
-      {/* <FadeInOut
-        className="player-controls-container"
-        inProp={
-          hasError || (isControlsOpen && (!isLoading || !isInitialLoading))
-        }
-        mountOnEnter
-      >
-        <Controls
-          player={livePlayer}
-          stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-        />
-      </FadeInOut> */}
     </>
   );
 };

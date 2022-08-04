@@ -4,13 +4,9 @@ import { useCallback } from 'react';
 import './Controls.css';
 import { Pause as PauseSvg } from '../../../assets/icons';
 import { Play as PlaySvg } from '../../../assets/icons';
-import { Mute as MuteSvg } from '../../../assets/icons';
-import { Unmute as UnmuteSvg } from '../../../assets/icons';
-import { SettingsGear as SettingsGearSvg } from '../../../assets/icons'
-import { FullScreen as FullScreenSvg } from '../../../assets/icons'
 
 const Controls = ({ player, stopPropagAndResetTimeout }) => {
-  const { error, isMuted, isPaused, mute, pause, play, unmute } = player;
+  const { error, isPaused, pause, play } = player;
   const hasError = !!error;
 
   const onPointerDownPlayPauseHandler = useCallback(
@@ -27,20 +23,6 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
     },
     [hasError, isPaused, pause, play, stopPropagAndResetTimeout]
   );
-  const onPointerDownMuteUnmuteHandler = useCallback(
-    (event) => {
-      if (hasError) return;
-
-      stopPropagAndResetTimeout(event);
-
-      if (isMuted) {
-        unmute();
-      } else {
-        mute();
-      }
-    },
-    [hasError, isMuted, mute, stopPropagAndResetTimeout, unmute]
-  );
 
   return (
     <div className="player-controls-btn-container">
@@ -52,15 +34,9 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
           >
             {isPaused ? <PlaySvg /> : <PauseSvg />}
           </button>
-          <button
-            aria-disabled={hasError}
-            className="player-controls-btn"
-            onPointerDown={onPointerDownMuteUnmuteHandler}
-          >
-            {isMuted ? <MuteSvg /> : <UnmuteSvg />}
-          </button>
       </div>
-      <div>
+      {/* Settings Gear and full screen willl done in the next iteration */}
+      {/* <div>
       <button
             aria-disabled={hasError}
             className="player-controls-btn play-pause-btn"
@@ -75,7 +51,7 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
           >
             {<FullScreenSvg />}
           </button>
-      </div>
+      </div> */}
     </div>
   );
 };
