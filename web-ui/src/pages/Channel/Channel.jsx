@@ -1,26 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import './Channel.css';
-import { userManagement } from '../../api';
 import Player from '../../components/Player';
 import withSessionLoader from '../../components/withSessionLoader';
+import useChannelData from '../../hooks/useChannelData';
 
 const Channel = () => {
   const { username } = useParams();
   const [isLive, setIsLive] = useState();
-  const [channelData, setChannelData] = useState();
-  const fetchChannelData = useCallback(async () => {
-    const { result } = await userManagement.getUserChannelData(username);
-
-    if (result) setChannelData(result);
-  }, [username]);
-
-  useEffect(() => {
-    if (username) {
-      fetchChannelData();
-    }
-  }, [fetchChannelData, username]);
+  const { data: channelData } = useChannelData(username);
 
   useEffect(() => {
     if (channelData?.isLive !== undefined) {
