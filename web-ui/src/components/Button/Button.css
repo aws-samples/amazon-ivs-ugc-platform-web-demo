@@ -15,10 +15,15 @@
   transition: all 0.15s ease-in-out;
   user-select: none;
   white-space: nowrap;
+  width: auto;
 }
 
-.button svg {
-  @apply fill-white;
+a.button-as-link:focus,
+a.button-as-link:hover {
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 12px 24px;
 }
 
 .button:disabled {
@@ -36,6 +41,10 @@
   @apply bg-darkMode-blue text-black;
 }
 
+.button.primary svg {
+  @apply fill-black;
+}
+
 .button.primary:hover {
   @apply bg-darkMode-blue-hover;
 }
@@ -46,6 +55,10 @@
 
 .button.secondary {
   @apply bg-darkMode-gray text-white;
+}
+
+.button.secondary svg {
+  @apply fill-white;
 }
 
 .button.secondary:hover {
@@ -64,6 +77,10 @@
   @apply bg-darkMode-gray-extraLight text-black;
 }
 
+.button.tertiary svg {
+  @apply fill-black;
+}
+
 .button.tertiary:hover {
   @apply bg-darkMode-gray-extraLight-hover;
 }
@@ -74,13 +91,6 @@
 
 .button.text {
   background: transparent;
-  @apply text-darkMode-blue;
-}
-.button.text.first {
-  @apply text-darkMode-blue;
-}
-.button.text.second {
-  @apply text-white;
 }
 
 .button.text .spinner {
@@ -95,8 +105,40 @@
   @apply bg-darkMode-gray-medium;
 }
 
+.button.text.first {
+  @apply text-darkMode-blue;
+}
+
+.button.text.first svg {
+  @apply fill-darkMode-blue;
+}
+
+.button.text.second {
+  @apply text-white;
+}
+
+.button.text.second svg {
+  @apply fill-white;
+}
+
+.button.text.third {
+  @apply text-white;
+  column-gap: 12px;
+  border-radius: 8px;
+  justify-content: flex-start;
+  padding: 6px 12px;
+}
+
+.button.text.third svg {
+  @apply fill-white;
+}
+
 .button.destructive {
   @apply bg-darkMode-red text-black;
+}
+
+.button.destructive svg {
+  @apply fill-white;
 }
 
 .button.destructive:hover {
@@ -124,10 +166,6 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .button svg {
-    @apply fill-black;
-  }
-
   .button:disabled svg {
     @apply fill-lightMode-gray-dark;
   }
@@ -138,6 +176,14 @@
 
   .button.secondary {
     @apply bg-white text-black;
+  }
+
+  .button.secondary svg {
+    @apply fill-black;
+  }
+
+  .button.secondary .spinner {
+    @apply text-black;
   }
 
   .button.secondary:hover {
@@ -152,6 +198,14 @@
     @apply bg-lightMode-gray text-black;
   }
 
+  .button.tertiary svg {
+    @apply fill-black;
+  }
+
+  .button.tertiary svg {
+    @apply fill-black;
+  }
+
   .button.tertiary:hover {
     @apply bg-lightMode-gray-hover;
   }
@@ -160,12 +214,32 @@
     @apply bg-lightMode-gray;
   }
 
-  .button.text.second {
-    @apply text-black;
+  .button.text.first {
+    @apply text-lightMode-blue-medium;
+  }
+
+  .button.text.first svg {
+    @apply fill-lightMode-blue-medium;
   }
 
   .button.text.first .spinner {
     @apply text-black;
+  }
+
+  .button.text.first:hover {
+    @apply bg-lightMode-gray-light-hover;
+  }
+
+  .button.text.first:focus {
+    @apply bg-lightMode-gray-light-hover;
+  }
+
+  .button.text.second {
+    @apply text-black;
+  }
+
+  .button.text.second svg {
+    @apply fill-black;
   }
 
   .button.text.second:hover {
@@ -176,12 +250,28 @@
     @apply bg-lightMode-gray-light;
   }
 
+  .button.text.third {
+    @apply text-black;
+  }
+
+  .button.text.third svg {
+    @apply fill-black;
+  }
+
+  .button.text.third:hover {
+    @apply bg-lightMode-gray-light-hover;
+  }
+
+  .button.text.third:focus {
+    @apply bg-lightMode-gray-light;
+  }
+
   .button.destructive {
     @apply text-white;
   }
 
-  .button.secondary .spinner {
-    @apply text-black;
+  .button.destructive svg {
+    @apply fill-white;
   }
 
   .button.destructive .spinner {
@@ -206,21 +296,5 @@
 
   .button.icon:focus svg {
     @apply fill-black;
-  }
-
-  .button.text.first {
-    @apply text-lightMode-blue-medium;
-  }
-
-  .button.text.first .spinner {
-    @apply text-black;
-  }
-
-  .button.text.first:hover {
-    @apply bg-lightMode-gray-light-hover;
-  }
-
-  .button.text.first:focus {
-    @apply bg-lightMode-gray-light-hover;
   }
 }

@@ -6,7 +6,6 @@ import { dashboard as $dashboardContent } from '../../../../content';
 import { useModal } from '../../../../contexts/Modal';
 import Button from '../../../../components/Button';
 import EncoderConfiguration from './EncoderConfiguration';
-import LinkButton from '../../../../components/LinkButton/LinkButton';
 import Metrics from './Metrics';
 import StaticNotification from '../../../../components/StaticNotification';
 import StatsCard from './StatsCard/StatsCard';
@@ -83,9 +82,9 @@ const StreamSession = () => {
                 {$notificationWithCTAContent.try_again}
               </Button>
             ) : (
-              <LinkButton to="/settings">
+              <Button type="nav" to="/settings">
                 {$notificationWithCTAContent.settings}
-              </LinkButton>
+              </Button>
             )
           }
           message={ctaMessage}

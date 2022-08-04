@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import './Channel.css';
 import Player from '../../components/Player';
-import withSessionLoader from '../../components/withSessionLoader';
 import useChannelData from '../../hooks/useChannelData';
 
 const Channel = () => {
@@ -28,4 +27,4 @@ const Channel = () => {
   );
 };
 
-export default withSessionLoader(Channel);
+export default Channel;

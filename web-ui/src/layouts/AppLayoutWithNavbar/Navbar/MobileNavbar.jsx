@@ -1,6 +1,6 @@
 import { app as $appContent } from '../../../content';
 import { useUser } from '../../../contexts/User';
-import LinkButton from '../../../components/LinkButton';
+import Button from '../../../components/Button';
 import './Navbar.css';
 
 const $content = $appContent.navbar;
@@ -11,13 +11,13 @@ const MobileNavbar = () => {
   return (
     <nav className="mobile-navbar">
       {!isSessionValid && (
-        <div className="user-mgmt-link-buttons">
-          <LinkButton to="/login" variant="secondary">
+        <div className="sidebar-user-buttons">
+          <Button type="nav" variant="secondary" to="/login">
             {$content.log_in}
-          </LinkButton>
-          <LinkButton to="/register" variant="primary">
+          </Button>
+          <Button type="nav" variant="primary" to="/register">
             {$content.sign_up}
-          </LinkButton>
+          </Button>
         </div>
       )}
     </nav>

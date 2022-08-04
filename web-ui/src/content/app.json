@@ -3,7 +3,9 @@
   "live": "live",
   "navbar": {
     "log_in": "Log in",
-    "sign_up": "Sign up"
+    "sign_up": "Sign up",
+    "home": "Home",
+    "feed": "Feed"
   },
   "modal": {
     "cancel": "Cancel"

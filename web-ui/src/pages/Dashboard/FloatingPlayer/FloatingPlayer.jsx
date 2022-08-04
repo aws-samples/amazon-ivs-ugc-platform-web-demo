@@ -7,7 +7,6 @@ import { Sensors } from '../../../assets/icons';
 import { useStreams } from '../../../contexts/Streams';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
-import LinkButton from '../../../components/LinkButton';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
 import usePlayer from '../../../hooks/usePlayer';
@@ -121,9 +120,9 @@ const FloatingPlayer = () => {
                 </p>
                 {!isSettingsPage && (
                   <div className="settings-link">
-                    <LinkButton variant="secondary" to="/settings">
+                    <Button type="nav" variant="secondary" to="/settings">
                       {$content.settings}
-                    </LinkButton>
+                    </Button>
                   </div>
                 )}
               </>

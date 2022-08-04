@@ -18,6 +18,7 @@ import {
   Channel,
   ChannelDirectory,
   Dashboard,
+  Feed,
   Settings,
   UserManagement
 } from './pages';
@@ -50,6 +51,7 @@ const App = () => (
                   <Route element={<SharedComponents />}>
                     <Route element={<AppLayoutWithNavbar />}>
                       <Route index element={<ChannelDirectory />} />
+                      <Route path="feed" element={<Feed />} />
                       <Route path=":username" element={<Channel />} />
                       <Route element={<RequireAuth />}>
                         <Route path="settings" element={<Settings />} />

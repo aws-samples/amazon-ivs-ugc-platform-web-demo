@@ -1,7 +1,6 @@
 export { default as Sensors } from './sensors';
-export { ReactComponent as AcmeLarge } from './acme-large.svg';
-export { ReactComponent as AcmeLarger } from './acme-larger.svg';
-export { ReactComponent as AcmeSmall } from './acme-small.svg';
+export { ReactComponent as AcmeLrg } from './acme-lrg.svg';
+export { ReactComponent as AcmeSml } from './acme-sml.svg';
 export { ReactComponent as Check } from './check.svg';
 export { ReactComponent as Checkmark } from './checkmark-round.svg';
 export { ReactComponent as ChevronLeft } from './chevron-left.svg';
@@ -9,6 +8,7 @@ export { ReactComponent as ChevronRight } from './chevron-right.svg';
 export { ReactComponent as Close } from './close.svg';
 export { ReactComponent as Copy } from './copy.svg';
 export { ReactComponent as ErrorIcon } from './error.svg';
+export { ReactComponent as Feed } from './feed.svg';
 export { ReactComponent as FullScreen } from './full-screen.svg';
 export { ReactComponent as Home } from './home.svg';
 export { ReactComponent as Logout } from './logout.svg';

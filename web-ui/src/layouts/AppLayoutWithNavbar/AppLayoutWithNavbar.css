@@ -1,26 +1,47 @@
 .app-layout {
-  height: 100vh;
   display: flex;
   flex-direction: row;
+  height: 100vh;
+  position: relative;
 }
 
 .main-app-container {
-  flex: 1;
-  overflow: auto;
-  scroll-behavior: smooth;
   background-color: var(--palette-color-black);
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  scroll-behavior: smooth;
+}
+
+.main-app-container.auth {
+  width: calc(100vw - 64px);
+}
+
+.main-app-container.unauth {
+  width: calc(100vw - 240px);
 }
 
 @media (prefers-color-scheme: light) {
   .main-app-container {
-    background-color: var(--palette-color-gray);
+    background-color: var(--palette-color-white);
   }
 }
 
-@media (max-width: 767px) {
-  .main-app-container {
+@media (max-width: 767px), (max-width: 989px) and (orientation: landscape) {
+  .main-app-container,
+  .main-app-container.auth,
+  .main-app-container.unauth {
     height: 100%;
     overflow: hidden;
+    position: static;
+  }
+}
+
+@media (max-width: 989px) and (orientation: portrait) {
+  .main-app-container.unauth {
+    width: calc(100vw - 160px);
   }
 }
 

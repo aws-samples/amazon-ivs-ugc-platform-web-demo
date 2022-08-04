@@ -1,33 +1,62 @@
 .sidebar {
-  height: 100vh;
-  width: 64px;
+  align-items: center;
   background: var(--palette-color-medium-gray);
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  height: auto;
   justify-content: space-between;
+  left: 0;
+  overflow: auto;
   padding: 28px 0 16px;
+  position: fixed;
+  top: 0;
+  width: 64px;
 }
 
-.sidebar.unauthenticated {
+.sidebar.auth {
+  width: 64px;
+  padding: 28px 10px 16px;
+}
+
+.sidebar.unauth {
   width: 240px;
   padding: 40px 16px 24px;
+}
+
+.sidebar-page-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sidebar.auth .sidebar-page-buttons {
+  row-gap: 24px;
+  padding: 24px 0;
+  align-items: center;
+}
+
+.sidebar.unauth .sidebar-page-buttons {
+  row-gap: 36px;
+  padding: 36px 0;
 }
 
 .profile-avatar-menu {
   width: 32px;
   height: 32px;
   border-radius: 100%;
+  background: var(--palette-color-medium-gray);
 }
 
-.user-mgmt-link-buttons {
-  width: 100%;
-  row-gap: 16px;
+.sidebar-user-buttons {
+  background: var(--palette-color-medium-gray);
   display: flex;
   flex-direction: column;
+  row-gap: 16px;
+  width: 100%;
 }
 
-.user-mgmt-link-buttons a {
+.sidebar-user-buttons a {
   width: 100%;
   flex: 1;
 }
@@ -48,26 +77,36 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .sidebar {
+  .sidebar,
+  .sidebar-user-buttons,
+  .profile-avatar-menu {
     background: var(--palette-color-extra-light-gray);
   }
 }
 
-@media (max-width: 767px), (max-width: 989px) and (orientation: landscape) {
-  .user-mgmt-link-buttons {
-    background: var(--palette-color-medium-gray);
-    padding: 14px 16px;
-    border-radius: 40px;
+@media (max-width: 989px) and (orientation: portrait) {
+  .sidebar.unauth {
+    width: 160px;
   }
+}
 
-  .user-mgmt-link-buttons {
+@media (max-width: 767px), (max-width: 989px) and (orientation: landscape) {
+  .sidebar-user-buttons {
+    border-radius: 40px;
     column-gap: 16px;
     flex-direction: row;
+    padding: 14px 16px;
   }
 }
 
 @media (max-width: 989px) and (orientation: landscape) {
   .mobile-navbar {
-    max-width: calc(288px + 32px);
+    max-width: calc(100vw - (288px + 32px));
+  }
+}
+
+@supports (overflow: overlay) {
+  .sidebar {
+    overflow: overlay;
   }
 }

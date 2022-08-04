@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { AcmeLarger } from '../../../../assets/icons';
+import { AcmeLrg } from '../../../../assets/icons';
 import { PROFILE_COLORS } from '../../../../constants';
 import { userManagement } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
@@ -48,7 +48,7 @@ const RegisterUser = () => {
     <RegisterUserRequestConfirmation username={username} />
   ) : (
     <>
-      <AcmeLarger />
+      <AcmeLrg className="fill-lightMode-gray-dark dark:fill-darkMode-gray" />
       <Form
         onSuccess={onRequestSuccess}
         submitHandler={submitRegistration}
