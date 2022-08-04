@@ -150,16 +150,11 @@ const useForm = ({
       const errors = { ...autoValidationErrors, ...manualValidationErrors };
       const validationErrors =
         autoValidationErrors || manualValidationErrors ? errors : null;
-      const hasErrors =
-        validationErrors &&
-        Object.values(validationErrors).some((errorValue) => !!errorValue);
 
-      if (hasErrors) {
-        updateErrors(validationErrors);
-        isFormValid = Object.entries(validationErrors).every(
-          ([_, value]) => value === null
-        );
-      } else updateErrors(null);
+      updateErrors(validationErrors);
+      isFormValid = Object.entries(validationErrors).every(
+        ([_, value]) => value === null
+      );
 
       return isFormValid;
     },

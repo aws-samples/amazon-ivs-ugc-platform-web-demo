@@ -19,7 +19,7 @@
 
 .outer-input-container .label {
   width: fit-content;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .outer-input-container.horizontal .label {
@@ -32,7 +32,7 @@
 .outer-input-container .description {
   color: var(--palette-color-light-gray);
   font-size: 13px;
-  padding-top: 5px;
+  padding-top: 4px;
 }
 
 .outer-input-container .footer {
@@ -100,6 +100,10 @@
   display: flex;
   font-size: 13px;
   padding-top: 5px;
+}
+
+.inner-input-container .error-message > svg {
+  margin-top: -1px;
 }
 
 .password-peek {

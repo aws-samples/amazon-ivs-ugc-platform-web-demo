@@ -12,11 +12,11 @@
 .form.vertical {
   margin: auto;
   max-width: 450px;
-  row-gap: 30px;
+  row-gap: 32px;
 }
 
 .form.vertical > :last-child {
-  padding-top: 30px;
+  padding-top: 32px;
 }
 
 .form.horizontal {

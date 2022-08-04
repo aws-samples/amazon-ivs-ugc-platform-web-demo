@@ -43,15 +43,11 @@ export const validateForm = (formProps, inputNameToValidate) => {
       if (skipValidation || value === '') return errors;
       errors[name] = null;
 
-      const toConfirm = confirms || confirmedBy;
-      if (toConfirm && formProps[toConfirm].value) {
-        if (formProps[toConfirm].value !== value) {
-          errors[confirmedBy || name] = input_error.passwords_mismatch;
-        } else {
-          errors[toConfirm] = null;
-        }
-
-        return errors;
+      const confirmWith = confirms || confirmedBy;
+      const confirmWithValue = formProps[confirmWith]?.value;
+      if (confirmWith && confirmWithValue) {
+        errors[confirmedBy || name] =
+          confirmWithValue !== value ? input_error.passwords_mismatch : null;
       }
 
       switch (true) {
@@ -64,7 +60,7 @@ export const validateForm = (formProps, inputNameToValidate) => {
           if (!validateEmail(value)) errors[name] = input_error.invalid_email;
           break;
         }
-        case name.toLowerCase().includes('password'): {
+        case name.toLowerCase().includes('password') && !confirms: {
           const isValidLength = validatePasswordLength(value);
           const isValidStrength = validatePasswordStrength(value);
 

@@ -40,7 +40,7 @@ const UserManagement = () => {
   return (
     <main
       id={`main-user-container${isResponsiveView ? '' : '-scrollable'}`}
-      className="main-user-container"
+      className="main-user-container bg-lightMode-gray-extraLight dark:bg-black"
       ref={mainRef}
     >
       {isCreatingResources || hasErrorCreatingResources ? (
