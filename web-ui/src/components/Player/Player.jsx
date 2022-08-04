@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import './Player.css';
 import { Offline as OfflineSvg } from '../../assets/icons';
-import Spinner from '../Spinner';
-import useControls from '../../hooks/useControls';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import FullScreenLoader from '../FullScreenLoader';
+import useControls from '../../hooks/useControls';
 import usePlayer from '../../hooks/usePlayer';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
@@ -50,7 +50,7 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
         >
           {isLive || isLive === undefined || hasFinalBuffer ? (
             <>
-              {isLoading && !hasError && <Spinner />}
+              {isLoading && !hasError && <FullScreenLoader />}
               {hasError && <div className="cover black-cover" />}
               <video
                 id="player"
