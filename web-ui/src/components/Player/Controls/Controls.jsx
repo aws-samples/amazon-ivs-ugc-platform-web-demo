@@ -28,12 +28,12 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
     <div className="player-controls-btn-container">
       <div>
         <button
-            aria-disabled={hasError}
-            className="player-controls-btn play-pause-btn"
-            onPointerDown={onPointerDownPlayPauseHandler}
-          >
-            {isPaused ? <PlaySvg /> : <PauseSvg />}
-          </button>
+          aria-disabled={hasError}
+          className="player-controls-btn play-pause-btn"
+          onPointerDown={onPointerDownPlayPauseHandler}
+        >
+          {isPaused ? <PlaySvg /> : <PauseSvg />}
+        </button>
       </div>
       {/* Settings Gear and full screen willl done in the next iteration */}
       {/* <div>

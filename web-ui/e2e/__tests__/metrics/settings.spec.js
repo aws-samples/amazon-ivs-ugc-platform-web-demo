@@ -19,36 +19,36 @@ test.describe('Settings Page', () => {
     page.removeAPIResponseEventListener();
   });
 
-  test.fixme('should reset a stream key', async ({
-    settingsPage: { resetStreamKey },
-    page
-  }) => {
-    await resetStreamKey();
-    await (
-      await page.waitForSelector('.notification')
-    ).waitForElementState('stable');
-    await page.takeScreenshot('reset-stream-key-success');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(3);
-  });
+  test.fixme(
+    'should reset a stream key',
+    async ({ settingsPage: { resetStreamKey }, page }) => {
+      await resetStreamKey();
+      await (
+        await page.waitForSelector('.notification')
+      ).waitForElementState('stable');
+      await page.takeScreenshot('reset-stream-key-success');
+      await expect
+        .poll(() => page.fetchResponses?.length, { timeout: 2000 })
+        .toEqual(3);
+    }
+  );
 
-  test.fixme('should copy the stream key and ingest server URL', async ({
-    settingsPage: { copyStreamConfiguration },
-    page
-  }) => {
-    await copyStreamConfiguration();
-    await (
-      await page.waitForSelector('.notification')
-    ).waitForElementState('stable');
-    await page.takeScreenshot('copy-stream-config-values-success');
-  });
+  test.fixme(
+    'should copy the stream key and ingest server URL',
+    async ({ settingsPage: { copyStreamConfiguration }, page }) => {
+      await copyStreamConfiguration();
+      await (
+        await page.waitForSelector('.notification')
+      ).waitForElementState('stable');
+      await page.takeScreenshot('copy-stream-config-values-success');
+    }
+  );
 
-  test.fixme('should navigate a user to the dashboard stream monitoring page', async ({
-    settingsPage: { returnToSession },
-    page
-  }) => {
-    await returnToSession();
-    await page.takeScreenshot('return-to-session');
-  });
+  test.fixme(
+    'should navigate a user to the dashboard stream monitoring page',
+    async ({ settingsPage: { returnToSession }, page }) => {
+      await returnToSession();
+      await page.takeScreenshot('return-to-session');
+    }
+  );
 });

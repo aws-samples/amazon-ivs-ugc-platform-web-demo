@@ -62,9 +62,7 @@ class LoginPageModel extends BasePageModel {
       this.page.waitForNavigation(),
       this.signInButtonLoc.click()
     ]);
-    await expect(this.page).toHaveURL(
-      new RegExp(`${this.baseURL}/`)
-    );
+    await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/`));
   };
 
   logout = async (isMobile) => {

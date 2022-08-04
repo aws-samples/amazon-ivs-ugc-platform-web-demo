@@ -50,7 +50,7 @@ button.icon {
 .icon.selected,
 .icon.hoverable:hover {
   outline: 2px solid var(--palette-color-white);
-  border-radius: 50%
+  border-radius: 50%;
 }
 
 .icon.selected:after {

@@ -4,7 +4,11 @@
 
 .player-controls-container {
   align-items: flex-end;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.75) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
   bottom: 0;
   display: flex;
   height: 125px;

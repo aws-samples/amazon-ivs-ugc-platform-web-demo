@@ -139,7 +139,7 @@
   *::after {
     @apply m-0 p-0 box-border;
   }
-  
+
   html {
     @apply scroll-smooth;
     text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
@@ -149,7 +149,7 @@
     scrollbar-width: auto;
     scrollbar-color: theme('colors.darkMode.gray.DEFAULT') transparent;
   }
-  
+
   body {
     @apply bg-black text-white;
     @apply font-body;
@@ -161,19 +161,19 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
   }
-  
+
   /* WebKit scrollbar */
   ::-webkit-scrollbar {
     width: 17px;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 100px;
     box-shadow: inset 0 0 10px 10px var(--palette-color-gray);
     border: solid 5px transparent;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     box-shadow: inset 0 0 10px 10px var(--palette-color-gray-hover);
   }
@@ -184,25 +184,25 @@
     font-weight: 900;
     line-height: 52px;
   }
-  
+
   h1 {
     font-size: 32px;
     font-weight: 900;
     line-height: 38.73px;
   }
-  
+
   h2 {
     font-size: 24px;
     font-weight: 700;
     line-height: 29.05px;
   }
-  
+
   h3 {
     font-size: 18px;
     font-weight: 700;
     line-height: 21.78px;
   }
-  
+
   h4,
   .h4 {
     @apply text-white;
@@ -210,25 +210,25 @@
     font-weight: 500;
     line-height: 18.15px;
   }
-  
+
   .p1 {
     font-size: 15px;
     font-weight: 400;
     line-height: 22.5px;
   }
-  
+
   .p2 {
     font-size: 13px;
     font-weight: 400;
     line-height: 19.5px;
   }
-  
+
   .p3 {
     font-size: 12px;
     font-weight: 500;
     line-height: 15px;
   }
-  
+
   a,
   button,
   .button-link {
@@ -238,22 +238,22 @@
     font-weight: 700;
     line-height: 18px;
   }
-  
+
   button,
   .button-link {
     @apply text-white;
   }
-  
+
   a {
     @apply text-darkMode-blue;
     text-decoration: none;
     width: fit-content;
   }
-  
+
   a:not([class]) {
     text-decoration-skip-ink: auto;
   }
-  
+
   a:focus,
   a:hover {
     @apply border-b-2 border-solid border-darkMode-blue;
@@ -262,35 +262,35 @@
     padding-bottom: 3px;
     position: relative;
   }
-  
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
+
   @media (max-width: 989px) {
     h1 {
       font-size: 32px;
       font-weight: 900;
     }
-  
+
     h2 {
       font-size: 24px;
       font-weight: 700;
     }
-  
+
     body {
       overflow-y: auto;
     }
-  
+
     @supports (overflow: overlay) {
       body {
         overflow-y: overlay;
       }
     }
   }
-  
+
   @media (prefers-reduced-motion: reduce) {
     * {
       animation-duration: 0.01ms !important;
@@ -299,26 +299,26 @@
       scroll-behavior: auto !important;
     }
   }
-  
+
   @media (prefers-color-scheme: light) {
     body {
       @apply bg-white text-black;
     }
-  
+
     h4,
     .h4 {
       @apply text-lightMode-gray-dark;
     }
-  
+
     button,
     .button-link {
       @apply text-lightMode-gray-dark;
     }
-  
+
     a {
       @apply text-lightMode-blue-medium;
     }
-  
+
     a:focus,
     a:hover {
       @apply border-b-2 border-solid border-lightMode-blue-medium;

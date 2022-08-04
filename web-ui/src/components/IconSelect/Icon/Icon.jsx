@@ -26,32 +26,20 @@ const Icon = ({
     >
       {selected && <Checkmark />}
       {type === 'image' && (
-        <img
-          src={iconValue}
-          alt={`${name} Icon`}
-          draggable={false}
-        />
+        <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
-      {
-        type === 'color' && (
-          <div className="color" style={{ backgroundColor: iconValue }} />
-        )
-      }
+      {type === 'color' && (
+        <div className="color" style={{ backgroundColor: iconValue }} />
+      )}
     </button>
   ) : (
     <div className={classes.join(' ')}>
       {type === 'image' && (
-        <img
-          src={iconValue}
-          alt={`${name} Icon`}
-          draggable={false}
-        />
+        <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
-      {
-        type === 'color' && (
-          <div className="color" style={{ backgroundColor: iconValue}} />
-        )
-      }
+      {type === 'color' && (
+        <div className="color" style={{ backgroundColor: iconValue }} />
+      )}
     </div>
   );
 };

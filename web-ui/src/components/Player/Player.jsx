@@ -9,11 +9,12 @@ import FullScreenLoader from '../FullScreenLoader';
 import useControls from '../../hooks/useControls';
 import usePlayer from '../../hooks/usePlayer';
 import Controls from './Controls';
-import FadeInOut from './FadeInOut'
+import FadeInOut from './FadeInOut';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const { isDefaultResponsiveView } = useMobileBreakpoint();
-  const { setIsHovered, isControlsOpen, stopPropagAndResetTimeout } = useControls();
+  const { setIsHovered, isControlsOpen, stopPropagAndResetTimeout } =
+    useControls();
   const livePlayer = usePlayer({ playbackUrl, isLive });
   const {
     hasFinalBuffer,
@@ -58,7 +59,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
               <FadeInOut
                 className="player-controls-container"
                 inProp={
-                  hasError || (isControlsOpen && (!isLoading || !isInitialLoading))
+                  hasError ||
+                  (isControlsOpen && (!isLoading || !isInitialLoading))
                 }
                 mountOnEnter
               >

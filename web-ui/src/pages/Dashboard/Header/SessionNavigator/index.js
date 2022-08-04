@@ -1,1 +1,1 @@
-export { default } from './SessionNavigator'
+export { default } from './SessionNavigator';

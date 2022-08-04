@@ -1,1 +1,1 @@
-export { default } from './ResponsiveChart'
+export { default } from './ResponsiveChart';

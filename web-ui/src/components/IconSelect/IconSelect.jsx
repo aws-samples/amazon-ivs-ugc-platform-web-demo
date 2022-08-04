@@ -13,14 +13,16 @@ const IconSelect = ({
   onClick,
   variant
 }) => {
-  const [selectedIcon, setSelectedIcon] = useState(selected); 
+  const [selectedIcon, setSelectedIcon] = useState(selected);
   const handleOnClickEvent = (iconSrcName) => {
-    onClick(iconSrcName, (savedIconSrcName) => setSelectedIcon(savedIconSrcName));
-  }
+    onClick(iconSrcName, (savedIconSrcName) =>
+      setSelectedIcon(savedIconSrcName)
+    );
+  };
   return (
     <div className={`outer-select-container ${variant}`}>
       {label && (
-        <label className="label h4" htmlFor={name}>   
+        <label className="label h4" htmlFor={name}>
           {label}
         </label>
       )}
@@ -45,7 +47,7 @@ const IconSelect = ({
         </div>
       </div>
     </div>
-  )
+  );
 };
 
 IconSelect.defaultProps = {
@@ -55,7 +57,7 @@ IconSelect.defaultProps = {
   selected: '',
   onClick: () => {},
   variant: 'vertical'
-}
+};
 
 IconSelect.propTypes = {
   name: PropTypes.string,
@@ -65,6 +67,6 @@ IconSelect.propTypes = {
   selected: PropTypes.string,
   onClick: PropTypes.func,
   variant: PropTypes.oneOf(['vertical', 'horizontal'])
-}
+};
 
 export default IconSelect;
