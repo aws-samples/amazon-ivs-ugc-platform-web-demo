@@ -74,6 +74,7 @@
   padding: 20px 16px;
   transform: translateX(-50%);
   width: 100%;
+  z-index: 10;
 }
 
 @media (prefers-color-scheme: light) {
