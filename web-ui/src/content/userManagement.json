@@ -35,15 +35,15 @@
   "did_not_receive_email": "Didn't receive the email?",
   "return_to_login": "Return to login",
   "input_error": {
-    "invalid_email": "Enter a valid email",
+    "invalid_email": "Enter a valid email.",
     "invalid_username": "Only letters, numbers & symbols are allowed.",
     "invalid_password_length": "Use 8 characters or more.",
-    "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol",
+    "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
     "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
     "passwords_mismatch": "Passwords didn’t match. Try again.",
-    "unavailable_username": "This username is unavailable",
+    "unavailable_username": "This username is unavailable.",
     "username_taken": "This username has been taken.",
-    "unavailable_email": "This email has already been used"
+    "unavailable_email": "This email has already been used."
   },
   "notification": {
     "success": {

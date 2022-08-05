@@ -119,17 +119,17 @@
     "account_deletion": "Account deletion",
     "delete_my_account": "Delete my account",
     "input_error": {
-      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later",
-      "incorrect_password": "Incorrect password",
-      "invalid_password_length": "Use 8 characters or more",
-      "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol",
-      "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols",
-      "invalid_username": "Only letters, numbers & symbols are allowed",
+      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later.",
+      "unexpected_error_occurred": "An unexpected error occurred, please try again later.",
+      "incorrect_password": "Incorrect password.",
+      "invalid_password_length": "Use 8 characters or more.",
+      "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
+      "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
+      "invalid_username": "Only letters, numbers & symbols are allowed.",
       "passwords_mismatch": "Passwords didn’t match. Try again.",
-      "same_as_old_password": "Your new password cannot be the same as your old password",
-      "unavailable_username": "This username is unavailable",
-      "username_taken": "This username has been taken.",
-      "unexpected_error_occurred": "An unexpected error occurred, please try again later"
+      "same_as_old_password": "Your new password cannot be the same as your old password.",
+      "unavailable_username": "This username is unavailable.",
+      "username_taken": "This username has been taken."
     }
   },
   "modal": {
