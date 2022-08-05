@@ -1,20 +1,22 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import './Player.css';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
-import FullScreenLoader from '../FullScreenLoader';
-import useControls from '../../hooks/useControls';
-import usePlayer from '../../hooks/usePlayer';
 import Controls from './Controls';
 import FadeInOut from './FadeInOut';
+import FullScreenLoader from '../FullScreenLoader';
+import useControls from './Controls/useControls';
+import usePlayer from '../../hooks/usePlayer';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
-  const { setIsHovered, isControlsOpen, stopPropagAndResetTimeout } =
-    useControls();
+  const {
+    controlsContainerRef,
+    isControlsOpen,
+    onMouseEnterHandler,
+    onMouseLeaveHandler,
+    stopPropagAndResetTimeout
+  } = useControls();
   const livePlayer = usePlayer({ playbackUrl, isLive });
   const {
     hasFinalBuffer,
@@ -32,57 +34,50 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
     }
   }, [hasEnded, setIsLive]);
 
-  const onMouseEnterHandler = useCallback(() => {
-    setIsHovered(true);
-  }, [setIsHovered]);
-
-  const onMouseLeaveHandler = useCallback(() => {
-    setIsHovered(false);
-  }, [setIsHovered]);
+  const shouldShowLoader = isLoading && !hasError;
 
   return (
     <>
-      <section className="video-player-section">
+      <section className="flex justify-center items-center flex-col w-full h-screen">
         <div
-          className="video-player-container"
-          {...(!isDefaultResponsiveView
-            ? {
-                onMouseEnter: onMouseEnterHandler,
-                onMouseLeave: onMouseLeaveHandler
-              }
-            : {})}
+          className="w-full h-full relative z-10"
+          onMouseEnter={onMouseEnterHandler}
+          onMouseLeave={onMouseLeaveHandler}
         >
           {isLive || isLive === undefined || hasFinalBuffer ? (
             <>
-              {isLoading && !hasError && <FullScreenLoader />}
-              {hasError && <div className="cover black-cover" />}
-              <FadeInOut
-                className="player-controls-container"
-                inProp={
-                  hasError ||
-                  (isControlsOpen && (!isLoading || !isInitialLoading))
-                }
-                mountOnEnter
+              {shouldShowLoader && <FullScreenLoader />}
+              <div
+                className="w-full absolute h-full max-h-[calc(100vh_-_112px)] md:max-h-screen"
+                ref={controlsContainerRef}
               >
-                <Controls
-                  player={livePlayer}
-                  stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                <video
+                  autoPlay
+                  className={`w-full h-full ${
+                    shouldShowLoader ? 'hidden' : 'block'
+                  }`}
+                  muted
+                  playsInline
+                  ref={videoRef}
                 />
-              </FadeInOut>
-              <video
-                id="player"
-                {...(!isInitialLoading || hasError
-                  ? { style: { background: 'var(--color-black)' } }
-                  : {})}
-                autoPlay
-                muted
-                playsInline
-                ref={videoRef}
-              />
+                <FadeInOut
+                  className="player-controls-container flex items-end h-32 px-8 pt-0 pb-8 absolute bottom-0 left-0 w-full z-20"
+                  inProp={
+                    hasError ||
+                    (isControlsOpen && (!isLoading || !isInitialLoading))
+                  }
+                  mountOnEnter
+                >
+                  <Controls
+                    player={livePlayer}
+                    stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                  />
+                </FadeInOut>
+              </div>
             </>
           ) : (
-            <div className="cover channel-offline-container">
-              <div>
+            <div className="flex justify-center items-center absolute w-full h-full z-10 bottom-0 left-0">
+              <div className="flex items-center flex-col gap-y-2">
                 <NoSignalSvg className="fill-lightMode-gray-medium dark:fill-darkMode-gray" />
                 <h2 className="text-lightMode-gray-medium dark:text-darkMode-gray">
                   {$content.stream_offline}

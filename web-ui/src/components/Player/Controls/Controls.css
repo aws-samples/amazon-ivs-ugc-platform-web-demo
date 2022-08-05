@@ -3,20 +3,11 @@
 }
 
 .player-controls-container {
-  align-items: flex-end;
   background: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0) 0%,
     rgba(0, 0, 0, 0.75) 100%
   );
-  bottom: 0;
-  display: flex;
-  height: 125px;
-  left: 0;
-  padding: 0 32px 32px;
-  position: absolute;
-  width: 100%;
-  z-index: 20;
 }
 
 .player-controls-btn-container {
@@ -43,12 +34,6 @@
 
 .player-controls-btn[aria-disabled='true'] svg {
   opacity: 0.5;
-}
-
-@media (prefers-color-scheme: light) {
-  .player-controls-container {
-    background: none;
-  }
 }
 
 @media (max-width: 768px) {
