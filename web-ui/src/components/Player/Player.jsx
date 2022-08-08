@@ -48,14 +48,14 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
             <>
               {shouldShowLoader && <FullScreenLoader />}
               <div
-                className="w-full absolute h-full max-h-[calc(100vh_-_112px)] md:max-h-screen"
+                className={`w-full absolute h-full max-h-[calc(100vh_-_112px)] md:max-h-screen ${
+                  shouldShowLoader ? 'hidden' : 'block'
+                }`}
                 ref={controlsContainerRef}
               >
                 <video
                   autoPlay
-                  className={`w-full h-full ${
-                    shouldShowLoader ? 'hidden' : 'block'
-                  }`}
+                  className="w-full h-full"
                   muted
                   playsInline
                   ref={videoRef}

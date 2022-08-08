@@ -9,7 +9,7 @@
   left: 0;
   overflow: auto;
   padding: 28px 0 16px;
-  position: fixed;
+  position: absolute;
   top: 0;
   width: 64px;
 }

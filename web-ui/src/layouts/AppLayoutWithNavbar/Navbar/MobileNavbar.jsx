@@ -9,8 +9,8 @@ const MobileNavbar = () => {
   const { isSessionValid } = useUser();
 
   return (
-    <nav className="mobile-navbar">
-      {!isSessionValid && (
+    !isSessionValid && (
+      <nav className="mobile-navbar">
         <div className="sidebar-user-buttons">
           <Button type="nav" variant="secondary" to="/login">
             {$content.log_in}
@@ -19,8 +19,8 @@ const MobileNavbar = () => {
             {$content.sign_up}
           </Button>
         </div>
-      )}
-    </nav>
+      </nav>
+    )
   );
 };
 

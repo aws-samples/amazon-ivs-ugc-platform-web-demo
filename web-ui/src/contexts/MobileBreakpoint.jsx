@@ -61,9 +61,12 @@ export const Provider = ({ children }) => {
       )
         return;
 
-      if (mobileOverlayIds.current.length === 0) {
-        setTimeout(lockBody, 300);
-      }
+      // Wait 300ms before locking the body to allow time for the panel slide transition to complete
+      setTimeout(() => {
+        if (mobileOverlayIds.current.length > 0) {
+          lockBody();
+        }
+      }, 300);
 
       mobileOverlayIds.current.push(panelId);
     },
@@ -72,11 +75,7 @@ export const Provider = ({ children }) => {
 
   const removeMobileOverlay = useCallback(
     (panelId) => {
-      if (
-        !mobileOverlayIds.current.includes(panelId) ||
-        !isDefaultResponsiveView
-      )
-        return;
+      if (!mobileOverlayIds.current.includes(panelId)) return;
 
       if (mobileOverlayIds.current.length === 1) {
         unlockBody();
@@ -84,7 +83,7 @@ export const Provider = ({ children }) => {
 
       mobileOverlayIds.current.pop();
     },
-    [isDefaultResponsiveView, unlockBody]
+    [unlockBody]
   );
 
   useEffect(() => {

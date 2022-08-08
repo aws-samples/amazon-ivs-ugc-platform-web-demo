@@ -33,17 +33,21 @@
 }
 
 .config-label {
+  align-items: center;
   color: var(--palette-color-light-gray);
-  min-width: 145px;
+  display: flex;
+}
+
+.config-label,
+.config-item > .with-tooltip {
+  min-width: 166px;
   position: relative;
 }
 
 .config-label > svg {
   fill: var(--palette-color-red);
+  flex-shrink: 0;
   margin-left: 6.5px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .config-value {

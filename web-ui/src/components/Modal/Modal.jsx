@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
+import { useCallback, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
+import './Modal.css';
 import { app as $content } from '../../content';
 import { BREAKPOINTS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
@@ -8,8 +10,8 @@ import { useModal } from '../../contexts/Modal';
 import Button from '../Button';
 import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';
+import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
-import './Modal.css';
 
 const Modal = () => {
   const modalRef = useRef();
@@ -26,6 +28,8 @@ const Modal = () => {
     onCancel,
     subMessage
   } = modal || {};
+  const { pathname } = useLocation();
+  const prevPathname = usePrevious(pathname);
 
   const handleClose = useCallback(
     (event) => {
@@ -62,6 +66,11 @@ const Modal = () => {
 
     return () => document.removeEventListener('keydown', handleClose);
   }, [handleClose, modal]);
+
+  // Close the modal on page change
+  useEffect(() => {
+    if (prevPathname && prevPathname !== pathname) closeModal();
+  }, [closeModal, pathname, prevPathname]);
 
   return (
     modal && (

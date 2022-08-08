@@ -46,11 +46,8 @@ const ConfigRow = ({ label, value, error }) => {
 
   return (
     <span className={`config-item ${hasError ? 'error' : ''}`}>
-      {renderedValue !== NO_DATA_VALUE ? (
-        <Tooltip
-          hasFixedWidth={!!ErrorMessage}
-          message={ErrorMessage || renderedValue}
-        >
+      {renderedValue !== NO_DATA_VALUE && !!ErrorMessage ? (
+        <Tooltip hasFixedWidth message={ErrorMessage}>
           <h4 className="config-label">
             {label}
             {hasError && <ErrorIcon />}

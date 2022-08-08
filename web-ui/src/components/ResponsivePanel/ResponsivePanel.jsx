@@ -32,7 +32,7 @@ const ResponsivePanel = ({
         (isResponsiveView ? (
           <MobilePanel
             controls={controls}
-            isOpen={isOpen}
+            isOpen
             panelId={panelId}
             slideInDirection={slideInDirection}
           >

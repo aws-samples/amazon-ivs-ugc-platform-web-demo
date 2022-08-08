@@ -3,9 +3,9 @@
   grid-column-gap: 15px;
   grid-template-columns: 1fr minmax(auto, 654px) 1fr;
   height: 64px;
-  position: sticky;
+  position: fixed;
   top: 0;
-  width: 100%;
+  width: calc(100vw - 64px);
   z-index: 300;
 }
 
@@ -36,6 +36,12 @@
 @media (min-width: 990px) and (max-width: 1025px) {
   .header {
     grid-template-columns: 1fr minmax(auto, 464px) 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    width: 100vw;
   }
 }
 

@@ -3,7 +3,7 @@
   display: flex;
   height: calc(100% - 64px);
   justify-content: center;
-  position: fixed;
+  position: absolute;
   top: 64px;
   width: 100%;
   z-index: 250;
@@ -120,11 +120,11 @@
   width: 24px;
 }
 
-.session-icon.error {
+svg.session-icon.error {
   fill: var(--palette-color-red);
 }
 
-.session-icon.success {
+svg.session-icon.success {
   fill: var(--palette-color-green);
 }
 

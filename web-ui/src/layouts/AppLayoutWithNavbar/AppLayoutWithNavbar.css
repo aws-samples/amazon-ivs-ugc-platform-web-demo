@@ -1,14 +1,11 @@
 .app-layout {
   display: flex;
-  flex-direction: row;
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
 }
 
 .main-app-container {
   background-color: var(--palette-color-black);
-  flex: 1;
-  height: 100%;
   overflow: auto;
   position: absolute;
   right: 0;
@@ -34,8 +31,8 @@
   .main-app-container.auth,
   .main-app-container.unauth {
     height: 100%;
-    overflow: hidden;
     position: static;
+    width: 100%;
   }
 }
 

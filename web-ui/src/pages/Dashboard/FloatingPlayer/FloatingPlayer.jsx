@@ -98,13 +98,14 @@ const FloatingPlayer = () => {
           <canvas {...hidePlayerStyles} ref={canvasRef} />
           <LivePill />
         </div>
-        {isLive &&
+        {isExpanded &&
+          isLive &&
           (activeStreamSession?.index > 0 || pathname === '/settings') && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
               {$content.view_stream_session}
             </Button>
           )}
-        {!isLive && (
+        {isExpanded && !isLive && (
           <div className="offline-stream-container">
             {hasStreamSessions ? (
               <p className="mini-player-text p2">
