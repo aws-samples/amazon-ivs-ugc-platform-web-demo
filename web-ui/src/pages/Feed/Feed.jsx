@@ -1,9 +1,19 @@
+import clsx from 'clsx';
+
 import withVerticalScroller from '../../components/withVerticalScroller';
-import './Feed.css';
 
 const Feed = () => {
   return (
-    <div className="feed">
+    <div
+      className={clsx(
+        'flex',
+        'items-center',
+        'justify-center',
+        'text-center',
+        'h-full',
+        'w-full'
+      )}
+    >
       <h1>Feed</h1>
     </div>
   );

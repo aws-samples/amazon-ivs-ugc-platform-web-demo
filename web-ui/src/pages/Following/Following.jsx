@@ -2,7 +2,7 @@ import clsx from 'clsx';
 
 import withVerticalScroller from '../../components/withVerticalScroller';
 
-const ChannelDirectory = () => {
+const Following = () => {
   return (
     <div
       className={clsx(
@@ -14,9 +14,9 @@ const ChannelDirectory = () => {
         'w-full'
       )}
     >
-      <h1>Channel Directory</h1>
+      <h1>Following</h1>
     </div>
   );
 };
 
-export default withVerticalScroller(ChannelDirectory);
+export default withVerticalScroller(Following);

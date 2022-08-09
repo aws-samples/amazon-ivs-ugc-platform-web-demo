@@ -10,21 +10,20 @@ import {
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
-import { Provider as UserProvider } from './contexts/User';
 import { Provider as StreamsProvider } from './contexts/Streams';
+import { Provider as UserProvider } from './contexts/User';
 
 // Pages
 import {
   Channel,
   ChannelDirectory,
-  Dashboard,
   Feed,
+  Following,
   Settings,
+  StreamHealth,
+  StreamManager,
   UserManagement
 } from './pages';
-
-// Dashboard Subpages
-import { StreamSession } from './pages/Dashboard/subpages';
 
 // UserManagement Subpages
 import {
@@ -50,35 +49,26 @@ const App = () => (
                 <Routes>
                   <Route element={<SharedComponents />}>
                     <Route element={<AppLayoutWithNavbar />}>
+                      {/* PUBLIC PAGES */}
                       <Route index element={<ChannelDirectory />} />
-                      <Route path="feed" element={<Feed />} />
                       <Route path=":username" element={<Channel />} />
+                      <Route path="feed" element={<Feed />} />
+
+                      {/* PRIVATE PAGES */}
                       <Route element={<RequireAuth />}>
                         <Route path="settings" element={<Settings />} />
-                        <Route
-                          element={
-                            <StreamsProvider>
-                              <Dashboard />
-                            </StreamsProvider>
-                          }
-                        >
-                          <Route path="dashboard">
+                        <Route path="following" element={<Following />} />
+                        <Route element={<StreamsProvider />}>
+                          <Route path="manager" element={<StreamManager />} />
+                          <Route path="health">
+                            <Route index element={<StreamHealth />} />
                             <Route
-                              index
-                              element={<Navigate replace to="stream" />}
+                              path=":streamId"
+                              element={<StreamHealth />}
                             />
-                            <Route path="stream">
-                              <Route index element={<StreamSession />} />
-                              <Route
-                                path=":streamId"
-                                element={<StreamSession />}
-                              />
-                            </Route>
                             <Route
                               path="*"
-                              element={
-                                <Navigate replace to="/dashboard/stream" />
-                              }
+                              element={<Navigate replace to="/health" />}
                             />
                           </Route>
                         </Route>

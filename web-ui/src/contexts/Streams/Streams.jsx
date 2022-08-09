@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   createContext,
   useCallback,
@@ -9,6 +8,7 @@ import {
 } from 'react';
 import {
   generatePath,
+  Outlet,
   useMatch,
   useNavigate,
   useParams
@@ -25,11 +25,11 @@ import useThrottledCallback from '../../hooks/useThrottledCallback';
 const Context = createContext(null);
 Context.displayName = 'Streams';
 
-export const Provider = ({ children }) => {
+export const Provider = () => {
   const { isSessionValid, userData } = useUser();
   const { streamId: paramsStreamId } = useParams();
   const isInitialized = useRef(false);
-  const isDashboardPage = !!useMatch('dashboard/*');
+  const isStreamHealthPage = !!useMatch('health/*');
   const navigate = useNavigate();
 
   /**
@@ -96,14 +96,21 @@ export const Provider = ({ children }) => {
   const eagerUpdateActiveStreamSession = useCallback(
     (session) => {
       setActiveStreamSessionId(session.streamId);
-      navigate(
-        generatePath('/dashboard/stream/:streamId', {
-          streamId: session.streamId
-        })
-      );
+
+      if (isStreamHealthPage) {
+        navigate(
+          generatePath('/health/:streamId', { streamId: session.streamId })
+        );
+      }
+
       debouncedUpdateActiveStreamSession(session);
     },
-    [debouncedUpdateActiveStreamSession, navigate, setActiveStreamSessionId]
+    [
+      debouncedUpdateActiveStreamSession,
+      isStreamHealthPage,
+      navigate,
+      setActiveStreamSessionId
+    ]
   );
 
   const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
@@ -172,19 +179,27 @@ export const Provider = ({ children }) => {
       setActiveStreamSessionId(initialActiveStreamSession.streamId);
       updateActiveStreamSession(initialActiveStreamSession);
 
-      navigate(
-        generatePath('/dashboard/stream/:streamId', {
-          streamId: initialActiveStreamSession.streamId
-        })
-      );
+      if (isStreamHealthPage) {
+        navigate(
+          generatePath('/health/:streamId', {
+            streamId: initialActiveStreamSession.streamId
+          })
+        );
+      }
+
       isInitialized.current = true;
     }
 
-    if (!isInitialized.current && hasStreamSessions === false) {
-      navigate('/dashboard/stream');
+    if (
+      isStreamHealthPage &&
+      !isInitialized.current &&
+      hasStreamSessions === false
+    ) {
+      navigate('/health');
     }
   }, [
     hasStreamSessions,
+    isStreamHealthPage,
     navigate,
     paramsStreamId,
     setActiveStreamSessionId,
@@ -195,7 +210,7 @@ export const Provider = ({ children }) => {
   // Update the active stream session based on a pathname change (i.e. hitting the back/forward button)
   useEffect(() => {
     if (
-      isDashboardPage &&
+      isStreamHealthPage &&
       paramsStreamId &&
       activeStreamSession?.streamId &&
       paramsStreamId !== activeStreamSession.streamId
@@ -208,7 +223,7 @@ export const Provider = ({ children }) => {
     }
   }, [
     activeStreamSession?.streamId,
-    isDashboardPage,
+    isStreamHealthPage,
     paramsStreamId,
     streamSessions,
     updateActiveStreamSession
@@ -216,9 +231,13 @@ export const Provider = ({ children }) => {
 
   // Update the pathname based on an active stream session change
   useEffect(() => {
-    if (isDashboardPage && !paramsStreamId && activeStreamSession?.streamId) {
+    if (
+      isStreamHealthPage &&
+      !paramsStreamId &&
+      activeStreamSession?.streamId
+    ) {
       navigate(
-        generatePath('/dashboard/stream/:streamId', {
+        generatePath('/health/:streamId', {
           streamId: activeStreamSession.streamId
         }),
         { replace: true }
@@ -226,7 +245,7 @@ export const Provider = ({ children }) => {
     }
   }, [
     activeStreamSession?.streamId,
-    isDashboardPage,
+    isStreamHealthPage,
     navigate,
     paramsStreamId
   ]);
@@ -278,9 +297,11 @@ export const Provider = ({ children }) => {
     ]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>
+      <Outlet />
+    </Context.Provider>
+  );
 };
-
-Provider.propTypes = { children: PropTypes.node.isRequired };
 
 export const useStreams = () => useContextHook(Context);

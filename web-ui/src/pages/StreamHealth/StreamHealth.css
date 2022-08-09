@@ -1,0 +1,21 @@
+.stream-health-section {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  margin-top: 64px;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .stream-health-section {
+    height: 100%;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .stream-health-section {
+    @apply bg-white;
+  }
+}
