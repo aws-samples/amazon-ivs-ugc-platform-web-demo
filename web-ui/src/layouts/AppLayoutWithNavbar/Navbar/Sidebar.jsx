@@ -10,8 +10,7 @@ const $content = $appContent.navbar;
 const defaultNavButtonProps = (pageName) => ({
   ariaLabel: `Go to the ${pageName} page`,
   type: 'nav',
-  variant: 'text',
-  subVariant: 'third',
+  variant: 'tertiaryText',
   customStyles: { minWidth: 'auto' }
 });
 

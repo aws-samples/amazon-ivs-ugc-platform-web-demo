@@ -5,6 +5,10 @@ import './Input.css';
 import { app as $content } from '../../content';
 import { ErrorIcon, Visibility, VisibilityOff } from '../../assets/icons';
 import Spinner from '../Spinner';
+import {
+  BUTTON_BASE_CLASSES as btnBaseClasses,
+  BUTTON_VARIANT_CLASSES as btnVariantClasses
+} from '../Button/ButtonTheme';
 
 const Input = ({
   btnVariant,
@@ -33,7 +37,12 @@ const Input = ({
   const hideDescription = useRef(false);
   const inputClasses = [inputType];
   if (className) inputClasses.push(className);
-  if (initialType === 'button') inputClasses.push(btnVariant);
+  if (initialType === 'button')
+    inputClasses.push(
+      btnVariant,
+      ...btnBaseClasses,
+      ...btnVariantClasses[btnVariant]
+    );
 
   const passwordPeek = (event) => {
     event.preventDefault();

@@ -1,9 +1,14 @@
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import Spinner from '../Spinner';
-import './Button.css';
+import {
+  BUTTON_BASE_CLASSES as baseClasses,
+  BUTTON_VARIANT_CLASSES as variantClasses,
+  BUTTON_LINK_CLASSES as linkClasses
+} from './ButtonTheme';
 
 const Button = forwardRef(
   (
@@ -22,7 +27,6 @@ const Button = forwardRef(
       onMouseDown,
       type,
       variant,
-      subVariant,
       to
     },
     ref
@@ -36,19 +40,24 @@ const Button = forwardRef(
       style: customStyles
     };
 
-    const classes = ['button', variant];
-    if (className) classes.push(className);
-    if (subVariant) classes.push(subVariant);
+    const classes = clsx([
+      'button',
+      variant,
+      ...baseClasses,
+      ...variantClasses[variant],
+      {
+        [className]: !!className,
+        [linkClasses]: type === 'nav'
+      }
+    ]);
 
     if (type === 'nav') {
       if (!to) {
         throw new Error("Button with type 'nav' requires a valid 'to' prop.");
       }
 
-      classes.push('button-as-link');
-
       return (
-        <Link {...commonProps} className={classes.join(' ')} to={to}>
+        <Link {...commonProps} className={classes} to={to}>
           {children}
         </Link>
       );
@@ -57,7 +66,7 @@ const Button = forwardRef(
     return (
       <button
         {...commonProps}
-        className={classes.join(' ')}
+        className={classes}
         disabled={isDisabled}
         onClick={onClick}
         onFocus={onFocus}
@@ -83,7 +92,6 @@ Button.defaultProps = {
   onClick: undefined,
   onFocus: undefined,
   onMouseDown: undefined,
-  subVariant: '',
   to: '',
   type: 'button',
   variant: 'primary',
@@ -103,7 +111,6 @@ Button.propTypes = {
   onClick: PropTypes.func,
   onFocus: PropTypes.func,
   onMouseDown: PropTypes.func,
-  subVariant: PropTypes.oneOf(['first', 'second', 'third', '']),
   to: PropTypes.string,
   type: PropTypes.oneOf(['button', 'submit', 'reset', 'nav']),
   variant: PropTypes.oneOf([
@@ -112,7 +119,9 @@ Button.propTypes = {
     'tertiary',
     'destructive',
     'icon',
-    'text'
+    'primaryText',
+    'secondaryText',
+    'tertiaryText'
   ])
 };
 

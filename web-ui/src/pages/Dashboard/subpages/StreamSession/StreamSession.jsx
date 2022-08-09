@@ -77,7 +77,7 @@ const StreamSession = () => {
                     ? () => refreshCurrentStreamSessionsWithLoading()
                     : () => refreshCurrentActiveStreamSession()
                 }
-                variant="text"
+                variant="primaryText"
               >
                 {$notificationWithCTAContent.try_again}
               </Button>

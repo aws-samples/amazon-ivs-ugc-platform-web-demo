@@ -44,23 +44,19 @@
 }
 
 .button.secondary.session-button {
-  background: var(--palette-color-medium-gray);
-  height: 90px;
-  justify-content: space-between;
-  padding: 20px 30px;
-  width: 100%;
+  @apply justify-between h-[90px] py-5 px-[30px] w-full bg-darkMode-gray-medium;
 }
 
 .button.secondary.session-button:hover {
-  background: var(--palette-color-medium-gray-hover);
+  @apply bg-darkMode-gray-medium-hover;
 }
 
 .button.secondary.session-button:focus {
-  background: var(--palette-color-medium-gray);
+  @apply bg-darkMode-gray-medium;
 }
 
 .button.secondary.load-more-button {
-  width: 194px;
+  @apply w-[194px];
 }
 
 .session-data {
@@ -179,15 +175,15 @@ svg.session-icon.success {
   }
 
   .button.secondary.session-button {
-    background: var(--palette-color-white);
+    @apply bg-white;
   }
 
   .button.secondary.session-button:hover {
-    background: var(--palette-color-white-hover);
+    @apply bg-white-hover;
   }
 
   .button.secondary.session-button:focus {
-    background: var(--palette-color-white);
+    @apply bg-white;
   }
 
   .session-time p {

@@ -49,10 +49,8 @@
 
 .inner-input-container input {
   -webkit-appearance: none;
-  background: var(--palette-color-medium-gray);
   border-radius: var(--default-border-radius);
   border: none;
-  color: var(--palette-color-white);
   font-family: 'Inter';
   font-size: 15px;
   font-weight: 400;
@@ -61,6 +59,11 @@
   padding: 14px 20px;
   transition: all 0.15s ease-in-out;
   width: 100%;
+}
+
+.inner-input-container input:not(.button) {
+  background: var(--palette-color-medium-gray);
+  color: var(--palette-color-white);
 }
 
 .inner-input-container input:read-only {
@@ -86,7 +89,7 @@
   outline: none;
 }
 
-.inner-input-container input:hover {
+.inner-input-container input:not(.button.destructive):hover {
   background: var(--palette-color-medium-gray-hover);
 }
 
@@ -155,7 +158,7 @@
     color: var(--palette-color-medium-gray);
   }
 
-  .inner-input-container input {
+  .inner-input-container input:not(.button.destructive) {
     background: var(--palette-color-light-gray);
     color: var(--palette-color-dark-gray);
   }
@@ -164,7 +167,7 @@
     box-shadow: inset 0 0 0 2px var(--palette-color-dark-gray);
   }
 
-  .inner-input-container input:hover {
+  .inner-input-container input:not(.button.destructive):hover {
     background: var(--palette-color-light-gray-hover);
   }
 
