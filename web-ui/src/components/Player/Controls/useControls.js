@@ -2,16 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import useMediaQuery from '../../../hooks/useMediaQuery';
 
-const useControls = () => {
+const useControls = (isPaused) => {
   const controlsContainerRef = useRef();
   const [isControlsOpen, setIsControlsOpen] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
   const timeoutId = useRef(null);
   const supportsHover = useMediaQuery('(hover: hover)');
+
   const clearControlsTimeout = useCallback(() => {
     clearTimeout(timeoutId.current);
     timeoutId.current = null;
   }, []);
+
   const resetControlsTimeout = useCallback(() => {
     clearControlsTimeout();
     timeoutId.current = setTimeout(() => {
@@ -19,6 +21,7 @@ const useControls = () => {
       timeoutId.current = null;
     }, 3000);
   }, [clearControlsTimeout]);
+
   const stopPropagAndResetTimeout = useCallback(
     (event) => {
       if (supportsHover) return;
@@ -28,34 +31,57 @@ const useControls = () => {
     },
     [supportsHover, resetControlsTimeout]
   );
-  const onMouseEnterHandler = useCallback(() => {
-    if (!supportsHover) return;
 
-    setIsHovered(true);
-  }, [supportsHover]);
+  const onMouseMoveHandler = useCallback(
+    (e) => {
+      if (!supportsHover || isPaused) return;
 
-  const onMouseLeaveHandler = useCallback(() => {
-    if (!supportsHover) return;
+      isCoveringControlButton ? clearControlsTimeout() : resetControlsTimeout();
+      setIsControlsOpen(true);
+    },
+    [
+      supportsHover,
+      resetControlsTimeout,
+      clearControlsTimeout,
+      isPaused,
+      isCoveringControlButton
+    ]
+  );
 
-    setIsHovered(false);
-  }, [supportsHover]);
+  const onHoverOverHandler = useCallback(
+    (e) => {
+      if (!supportsHover || isPaused) return;
+
+      if (e.target.id === 'control-button') {
+        setIsCoveringControlButton(false);
+        clearControlsTimeout();
+        setIsControlsOpen(true);
+      } else {
+        setIsCoveringControlButton(true);
+      }
+    },
+    [supportsHover, clearControlsTimeout, isPaused, setIsCoveringControlButton]
+  );
 
   // Desktop controls toggling logic
   useEffect(() => {
     if (supportsHover) {
-      if (isHovered) {
+      if (isPaused) {
         clearControlsTimeout();
         setIsControlsOpen(true);
       } else {
         resetControlsTimeout();
       }
     }
-  }, [clearControlsTimeout, isHovered, supportsHover, resetControlsTimeout]);
+  }, [clearControlsTimeout, isPaused, supportsHover, resetControlsTimeout]);
 
   // Mobile controls toggling logic
   useEffect(() => {
     const mobileClickHandler = () => {
-      if (!timeoutId.current) {
+      if (isPaused) {
+        setIsControlsOpen(true);
+        clearControlsTimeout();
+      } else if (!timeoutId.current) {
         setIsControlsOpen(true);
         resetControlsTimeout();
       } else {
@@ -79,13 +105,13 @@ const useControls = () => {
           mobileClickHandler
         );
     }
-  }, [clearControlsTimeout, supportsHover, resetControlsTimeout]);
+  }, [clearControlsTimeout, supportsHover, resetControlsTimeout, isPaused]);
 
   return {
     controlsContainerRef,
     isControlsOpen,
-    onMouseEnterHandler,
-    onMouseLeaveHandler,
+    onMouseMoveHandler,
+    onHoverOverHandler,
     stopPropagAndResetTimeout
   };
 };

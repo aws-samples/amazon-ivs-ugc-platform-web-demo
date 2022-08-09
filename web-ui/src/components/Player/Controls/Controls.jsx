@@ -5,7 +5,11 @@ import './Controls.css';
 import { Pause as PauseSvg } from '../../../assets/icons';
 import { Play as PlaySvg } from '../../../assets/icons';
 
-const Controls = ({ player, stopPropagAndResetTimeout }) => {
+const Controls = ({
+  player,
+  stopPropagAndResetTimeout,
+  onHoverOverHandler
+}) => {
   const { error, isPaused, pause, play } = player;
   const hasError = !!error;
 
@@ -28,11 +32,18 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
     <div className="player-controls-btn-container">
       <div>
         <button
+          aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           aria-disabled={hasError}
           className="player-controls-btn play-pause-btn"
-          onPointerDown={onPointerDownPlayPauseHandler}
+          onClick={onPointerDownPlayPauseHandler}
+          onMouseOver={onHoverOverHandler}
+          onFocus={onHoverOverHandler}
         >
-          {isPaused ? <PlaySvg /> : <PauseSvg />}
+          {isPaused ? (
+            <PlaySvg id="control-button" />
+          ) : (
+            <PauseSvg id="control-button" />
+          )}
         </button>
       </div>
       {/* Settings Gear and full screen willl done in the next iteration */}
@@ -58,7 +69,8 @@ const Controls = ({ player, stopPropagAndResetTimeout }) => {
 
 Controls.propTypes = {
   player: PropTypes.object.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired
+  stopPropagAndResetTimeout: PropTypes.func.isRequired,
+  onHoverOverHandler: PropTypes.func.isRequired
 };
 
 export default Controls;
