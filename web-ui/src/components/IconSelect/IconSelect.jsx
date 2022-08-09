@@ -5,6 +5,7 @@ import Icon from './Icon';
 import './IconSelect.css';
 
 const IconSelect = ({
+  isLoading,
   name,
   label,
   type,
@@ -15,10 +16,12 @@ const IconSelect = ({
 }) => {
   const [selectedIcon, setSelectedIcon] = useState(selected);
   const handleOnClickEvent = (iconSrcName) => {
-    onClick(iconSrcName, (savedIconSrcName) =>
-      setSelectedIcon(savedIconSrcName)
-    );
+    // Eagerly set the selected icon
+    setSelectedIcon(iconSrcName);
+
+    onClick(iconSrcName, (nextIconSrcName) => setSelectedIcon(nextIconSrcName));
   };
+
   return (
     <div className={`outer-select-container ${variant}`}>
       {label && (
@@ -32,17 +35,22 @@ const IconSelect = ({
       >
         <div className="select-item-container">
           <div className="select-items">
-            {Object.keys(items).map((iconName) => (
-              <Icon
-                iconValue={items[iconName]}
-                type={type}
-                name={iconName}
-                hoverable
-                selected={selectedIcon === iconName}
-                key={iconName}
-                onClick={() => handleOnClickEvent(iconName)}
-              />
-            ))}
+            {Object.keys(items).map((iconName) => {
+              const isSelected = selectedIcon === iconName;
+
+              return (
+                <Icon
+                  iconValue={items[iconName]}
+                  isHoverable
+                  isLoading={isSelected && isLoading}
+                  isSelected={isSelected}
+                  type={type}
+                  name={iconName}
+                  key={iconName}
+                  onClick={() => handleOnClickEvent(iconName)}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -51,6 +59,7 @@ const IconSelect = ({
 };
 
 IconSelect.defaultProps = {
+  isLoading: false,
   name: '',
   label: '',
   type: 'image',
@@ -60,6 +69,7 @@ IconSelect.defaultProps = {
 };
 
 IconSelect.propTypes = {
+  isLoading: PropTypes.bool,
   name: PropTypes.string,
   label: PropTypes.string,
   type: PropTypes.oneOf(['image', 'color']),

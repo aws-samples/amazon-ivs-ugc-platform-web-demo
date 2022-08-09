@@ -4,6 +4,7 @@ module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     colors: {
+      current: 'currentColor',
       white: {
         DEFAULT: 'hsl(var(--base-color-white), 100%)',
         hover: 'hsl(var(--base-color-white), 90%)'

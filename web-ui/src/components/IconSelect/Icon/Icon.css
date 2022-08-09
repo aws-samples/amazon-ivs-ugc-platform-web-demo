@@ -64,7 +64,8 @@ button.icon {
   z-index: 1;
 }
 
-.icon > svg {
+.icon > svg,
+.icon > .spinner {
   position: absolute;
   z-index: 2;
 }

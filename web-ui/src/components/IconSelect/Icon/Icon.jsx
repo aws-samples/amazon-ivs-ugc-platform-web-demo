@@ -1,30 +1,35 @@
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 
 import { Checkmark } from '../../../assets/icons';
+import Spinner from '../../Spinner';
 import './Icon.css';
 
 const Icon = ({
   iconValue,
+  isHoverable,
+  isLoading,
+  isSelected,
   name,
   type,
   size,
-  onClick,
-  selected,
-  hoverable
+  onClick
 }) => {
-  const classes = ['icon'];
-  classes.push(size);
-  if (selected) classes.push('selected');
-  if (hoverable) classes.push('hoverable');
+  const classes = clsx(['icon', size], {
+    selected: isSelected,
+    hoverable: isHoverable
+  });
+
   return onClick ? (
     <button
       type="button"
       onClick={onClick}
-      className={classes.join(' ')}
+      className={classes}
       aria-label={`Selectable ${name} ${type} icon`}
-      aria-pressed={selected}
+      aria-pressed={isSelected}
     >
-      {selected && <Checkmark />}
+      {!isLoading && isSelected && <Checkmark />}
+      {isLoading && <Spinner variant="white" />}
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
@@ -46,22 +51,24 @@ const Icon = ({
 
 Icon.propTypes = {
   iconValue: PropTypes.string.isRequired,
+  isHoverable: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  isSelected: PropTypes.bool,
   type: PropTypes.oneOf(['image', 'color']),
   name: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg', 'auto']),
-  onClick: PropTypes.func,
-  selected: PropTypes.bool,
-  hoverable: PropTypes.bool
+  onClick: PropTypes.func
 };
 
 Icon.defaultProps = {
+  isHoverable: false,
+  isLoading: false,
+  isSelected: false,
   name: '',
   type: 'image',
   iconValue: '',
   size: 'auto',
-  onClick: null,
-  selected: false,
-  hoverable: false
+  onClick: null
 };
 
 export default Icon;

@@ -24,6 +24,8 @@ const defaultFormProps = (inputVariant) => ({
 
 const AccountSettings = () => {
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
+  const [isChangeAvatarLoading, setIsChangeAvatarLoading] = useState(false);
+  const [isChangeColorLoading, setIsChangeColorLoading] = useState(false);
   const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
@@ -88,42 +90,54 @@ const AccountSettings = () => {
     async (newAvatar, callback) => {
       if (newAvatar === userData.avatar) return;
 
+      setIsChangeAvatarLoading(true);
+
       const userPreferences = { avatar: newAvatar };
       const { result, error } = await userManagement.changeUserPreferences(
         userPreferences
       );
+
+      setIsChangeAvatarLoading(false);
+
       if (error) {
+        callback(userData.avatar);
         notifyError($content.notification.error.avatar_failed_to_save);
       }
       if (result) {
-        notifySuccess($content.notification.success.avatar_saved);
         callback(result.avatar);
+        notifySuccess($content.notification.success.avatar_saved);
         await fetchUserData();
       }
     },
     500,
-    [userData.color, userData.avatar, fetchUserData]
+    [fetchUserData, notifyError, notifySuccess, userData.avatar]
   );
 
   const handleChangeColor = useThrottledCallback(
     async (newColor, callback) => {
       if (newColor === userData.color) return;
 
+      setIsChangeColorLoading(true);
+
       const userPreferences = { color: newColor };
       const { result, error } = await userManagement.changeUserPreferences(
         userPreferences
       );
+
+      setIsChangeColorLoading(false);
+
       if (error) {
+        callback(userData.color);
         notifyError($content.notification.error.color_failed_to_save);
       }
       if (result) {
-        notifySuccess($content.notification.success.color_saved);
         callback(result.color);
+        notifySuccess($content.notification.success.color_saved);
         await fetchUserData();
       }
     },
     500,
-    [userData.avatar, userData.color, fetchUserData]
+    [fetchUserData, notifyError, notifySuccess, userData.color]
   );
 
   return (
@@ -176,6 +190,7 @@ const AccountSettings = () => {
           }}
         />
         <IconSelect
+          isLoading={isChangeAvatarLoading}
           name="avatar"
           label="Avatar"
           type="image"
@@ -185,6 +200,7 @@ const AccountSettings = () => {
           variant={inputVariant}
         />
         <IconSelect
+          isLoading={isChangeColorLoading}
           name="color"
           label="Color"
           type="color"
