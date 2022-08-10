@@ -10,7 +10,7 @@ const Following = () => {
         'items-center',
         'justify-center',
         'text-center',
-        'h-full',
+        'h-screen',
         'w-full'
       )}
     >

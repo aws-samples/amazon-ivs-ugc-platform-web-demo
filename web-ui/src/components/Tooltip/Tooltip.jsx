@@ -6,7 +6,7 @@ import { keepWithinViewport } from './utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import TooltipPortal from './TooltipPortal';
 
-const Tooltip = ({ children, hasFixedWidth, message, position }) => {
+const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   const { mainRef } = useMobileBreakpoint();
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
@@ -27,25 +27,54 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
 
       let unboundOffsets;
 
-      if (position === 'above') {
-        unboundOffsets = {
-          top: parentYWithScrollOffset - tooltipHeight - 2,
-          left: parentLeft - tooltipWidth / 2 + parentWidth / 2
-        };
-      } else if (position === 'below') {
-        unboundOffsets = {
-          top: parentYWithScrollOffset + parentHeight + 2,
-          left: parentLeft - tooltipWidth / 2 + parentWidth / 2
-        };
+      switch (position) {
+        case 'above': {
+          unboundOffsets = {
+            top: parentYWithScrollOffset - tooltipHeight - 2,
+            left: parentLeft - tooltipWidth / 2 + parentWidth / 2
+          };
+          break;
+        }
+        case 'below': {
+          unboundOffsets = {
+            top: parentYWithScrollOffset + parentHeight + 2,
+            left: parentLeft - tooltipWidth / 2 + parentWidth / 2
+          };
+          break;
+        }
+        case 'right': {
+          unboundOffsets = {
+            top:
+              parentYWithScrollOffset +
+              Math.abs((parentHeight - tooltipHeight) / 2),
+            left: parentLeft + parentWidth + 2
+          };
+          break;
+        }
+        case 'left': {
+          unboundOffsets = {
+            top:
+              parentYWithScrollOffset +
+              Math.abs((parentHeight - tooltipHeight) / 2)
+          };
+          break;
+        }
+        default:
+          break; // exhaustive
       }
 
+      const translatedUnboundOffsets = {
+        top: unboundOffsets.top - (translate.y || 0),
+        left: unboundOffsets.left + (translate.x || 0)
+      };
+
       const boundOffsets = keepWithinViewport(
-        unboundOffsets,
+        translatedUnboundOffsets,
         tooltipRef.current
       );
       setOffsets(boundOffsets);
     }
-  }, [isOpen, position]);
+  }, [isOpen, position, translate.x, translate.y]);
 
   useEffect(() => {
     const hideTooltip = () => setIsOpen(false);
@@ -79,13 +108,18 @@ const Tooltip = ({ children, hasFixedWidth, message, position }) => {
   );
 };
 
-Tooltip.defaultProps = { position: 'below', hasFixedWidth: false };
+Tooltip.defaultProps = {
+  position: 'below',
+  hasFixedWidth: false,
+  translate: { x: 0, y: 0 }
+};
 
 Tooltip.propTypes = {
   children: PropTypes.node.isRequired,
   hasFixedWidth: PropTypes.bool,
   message: PropTypes.node.isRequired,
-  position: PropTypes.oneOf(['above', 'below'])
+  position: PropTypes.oneOf(['above', 'below', 'right', 'left']),
+  translate: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number })
 };
 
 export default Tooltip;
