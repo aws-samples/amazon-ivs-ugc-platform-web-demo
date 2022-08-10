@@ -1,11 +1,11 @@
-import clsx from 'clsx';
+import { clsm } from '../../utils';
 
 import withVerticalScroller from '../../components/withVerticalScroller';
 
 const Following = () => {
   return (
     <div
-      className={clsx(
+      className={clsm(
         'flex',
         'items-center',
         'justify-center',

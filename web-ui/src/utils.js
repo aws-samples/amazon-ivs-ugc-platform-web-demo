@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+import { twMerge } from 'tailwind-merge';
 import { CHANNEL_TYPE } from './constants';
 
 export const isiOS = () =>
@@ -158,4 +160,17 @@ export const substitutePlaceholders = (str = '', activeStreamSession) => {
   );
 
   return str;
+};
+
+/**
+ * Construct a className string using a list of classes and then merge classes without style conflicts. The last conflicting class will win.
+ * This utility function will replace clsx or txMerge everywhere in the application.
+ * A combination of the clsx (https://github.com/lukeed/clsx#readme)
+ * and tailwind-merge (https://github.com/dcastil/tailwind-merge) packages.
+ * @param {Array|String|Object|Boolean} classes
+ */
+
+export const clsm = (classes) => {
+  if (!classes) return;
+  return twMerge(clsx(classes));
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import clsx from 'clsx';
+import { clsm } from '../../utils';
 
 import Player from '../../components/Player';
 import useChannelData from '../../hooks/useChannelData';
@@ -18,7 +18,7 @@ const Channel = () => {
 
   return (
     <div
-      className={clsx(
+      className={clsm(
         'flex',
         'flex-col',
         'items-center',

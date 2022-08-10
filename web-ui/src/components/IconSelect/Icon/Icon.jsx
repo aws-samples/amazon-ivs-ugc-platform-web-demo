@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
+import { clsm } from '../../../utils';
 
 import { Checkmark } from '../../../assets/icons';
 import Spinner from '../../Spinner';
@@ -15,7 +15,7 @@ const Icon = ({
   size,
   onClick
 }) => {
-  const classes = clsx(['icon', size], {
+  const classes = clsm(['icon', size], {
     selected: isSelected,
     hoverable: isHoverable
   });

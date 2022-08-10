@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
+import { clsm } from '../../utils';
 
 import Spinner from '../Spinner';
 import {
@@ -40,7 +40,7 @@ const Button = forwardRef(
       style: customStyles
     };
 
-    const classes = clsx([
+    const classes = clsm([
       'button',
       variant,
       ...baseClasses,

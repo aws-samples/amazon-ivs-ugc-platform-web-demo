@@ -1,12 +1,12 @@
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import { clsm } from '../../utils';
 
 import './Spinner.css';
 
 const DIAMETER = { small: '24px', medium: '30px', large: '36px' };
 
 const Spinner = ({ variant, size }) => {
-  const classes = clsx(
+  const classes = clsm(
     [
       'spinner',
       variant,
@@ -31,7 +31,7 @@ const Spinner = ({ variant, size }) => {
     >
       <svg viewBox="22 22 44 44">
         <circle
-          className={clsx([
+          className={clsm([
             'stroke-current',
             'animate-[stroke-anim_1.4s_ease-in-out_infinite]'
           ])}
