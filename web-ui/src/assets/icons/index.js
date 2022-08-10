@@ -19,7 +19,6 @@ export { ReactComponent as NoSignal } from './no-signal.svg';
 export { ReactComponent as Pause } from './pause.svg';
 export { ReactComponent as Play } from './play.svg';
 export { ReactComponent as Settings } from './settings.svg';
-export { ReactComponent as SettingsGear } from './settings-gear.svg';
 export { ReactComponent as StreamHealth } from './stream-health.svg';
 export { ReactComponent as StreamManager } from './stream-manager.svg';
 export { ReactComponent as SyncError } from './sync-error.svg';

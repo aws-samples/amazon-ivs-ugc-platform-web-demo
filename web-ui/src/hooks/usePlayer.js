@@ -24,6 +24,7 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const [isMuted, setIsMuted] = useState(true);
   const [hasEnded, setHasEnded] = useState(false);
   const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
+  const [qualities, setQualities] = useState([{ name: 'Auto' }]);
   const hasError = !!error;
   const intervalId = useRef(null);
 
@@ -38,6 +39,21 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
 
     const newState = playerRef.current.getState();
 
+    if (newState === READY) {
+      // Getting the qualities does not work on iOS, hence the fallback
+      const qualities = playerRef.current.getQualities() || [];
+
+      setQualities((prevQualities) =>
+        qualities.some(
+          (quality) =>
+            !prevQualities.find(
+              (prevQuality) => prevQuality.name === quality.name
+            )
+        )
+          ? [{ name: 'Auto' }, ...qualities]
+          : prevQualities
+      );
+    }
     if (newState === PLAYING) setIsInitialLoading(false);
     if (newState !== ENDED) resetIntervalId();
 
@@ -154,9 +170,27 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     setIsMuted(true);
     setHasEnded(false);
     setHasPlayedFinalBuffer(false);
+    setQualities([{ name: 'Auto' }]);
     resetIntervalId();
     destroy();
   }, [destroy, resetIntervalId]);
+
+  const updateQuality = useCallback(
+    (name) => {
+      if (!playerRef.current) return;
+
+      if (name === 'Auto') {
+        playerRef.current.setAutoQualityMode();
+
+        return;
+      }
+
+      const quality = qualities.find((quality) => quality.name === name);
+
+      if (quality) playerRef.current.setQuality(quality, true);
+    },
+    [qualities]
+  );
 
   const { shouldBlurPlayer, isBlurReady, canvasRef } = usePlayerBlur({
     ingestConfiguration,
@@ -209,10 +243,12 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     pause,
     play,
     playerRef,
+    qualities,
     reset,
     setError,
     shouldBlurPlayer,
     unmute,
+    updateQuality,
     videoRef
   };
 };

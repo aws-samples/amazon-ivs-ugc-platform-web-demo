@@ -10,32 +10,6 @@
   );
 }
 
-.player-controls-btn-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.player-controls-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.player-controls-btn[aria-disabled='true'],
-#player-controls-seek-bar-wrapper[aria-disabled='true'],
-.player-controls-scrub[aria-disabled='true'] {
-  cursor: auto;
-}
-
-.player-controls-scrub[aria-disabled='true'] {
-  display: none;
-}
-
-.player-controls-btn[aria-disabled='true'] svg {
-  opacity: 0.5;
-}
-
 @media (max-width: 768px) {
   .player-controls-container {
     border-radius: 0;

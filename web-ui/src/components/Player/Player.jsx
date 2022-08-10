@@ -1,17 +1,17 @@
+import { AnimatePresence, m } from 'framer-motion';
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import Controls from './Controls';
-import FadeInOut from './FadeInOut';
 import FullScreenLoader from '../FullScreenLoader';
 import useControls from './Controls/useControls';
 import usePlayer from '../../hooks/usePlayer';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const livePlayer = usePlayer({ playbackUrl, isLive });
-
   const {
     hasFinalBuffer,
     hasEnded,
@@ -21,24 +21,23 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
     videoRef,
     isPaused
   } = livePlayer;
-
   const {
-    controlsContainerRef,
     isControlsOpen,
+    mobileClickHandler,
     onMouseMoveHandler,
-    onHoverOverHandler,
+    onControlHoverHandler,
     stopPropagAndResetTimeout
   } = useControls(isPaused);
-
   const hasError = !!error;
+  const shouldShowLoader = isLoading && !hasError;
+  const shouldShowControls =
+    hasError || (isControlsOpen && (!isLoading || !isInitialLoading));
 
   useEffect(() => {
     if (hasEnded) {
       setIsLive(false);
     }
   }, [hasEnded, setIsLive]);
-
-  const shouldShowLoader = isLoading && !hasError;
 
   return (
     <section className="flex justify-center items-center flex-col w-full h-screen">
@@ -50,8 +49,16 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
           <>
             {shouldShowLoader && <FullScreenLoader />}
             <div
-              className="w-full absolute h-full max-h-[calc(100vh_-_112px)] md:max-h-screen"
-              ref={controlsContainerRef}
+              className={clsm([
+                'absolute',
+                'h-full',
+                'max-h-[calc(100vh_-_112px)]',
+                'md:max-h-screen',
+                'top-0',
+                'w-full'
+              ])}
+              id="player-controls-container"
+              onPointerDown={mobileClickHandler}
             >
               <video
                 autoPlay
@@ -62,20 +69,40 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                 playsInline
                 ref={videoRef}
               />
-              <FadeInOut
-                className="player-controls-container flex items-end h-32 px-8 pt-0 pb-8 absolute bottom-0 left-0 w-full z-20"
-                inProp={
-                  hasError ||
-                  (isControlsOpen && (!isLoading || !isInitialLoading))
-                }
-                mountOnEnter
-              >
-                <Controls
-                  player={livePlayer}
-                  stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-                  onHoverOverHandler={onHoverOverHandler}
-                />
-              </FadeInOut>
+              <AnimatePresence>
+                {shouldShowControls && (
+                  <m.div
+                    animate="visible"
+                    initial="hidden"
+                    exit="hidden"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: { opacity: 1 }
+                    }}
+                    className={clsm([
+                      'player-controls-container',
+                      'flex',
+                      'items-end',
+                      'h-32',
+                      'px-8',
+                      'pt-0',
+                      'pb-8',
+                      'absolute',
+                      'bottom-0',
+                      'left-0',
+                      'w-full',
+                      'z-20'
+                    ])}
+                    transition={{ duration: 0.25, type: 'tween' }}
+                  >
+                    <Controls
+                      onControlHoverHandler={onControlHoverHandler}
+                      player={livePlayer}
+                      stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                    />
+                  </m.div>
+                )}
+              </AnimatePresence>
             </div>
           </>
         ) : (
