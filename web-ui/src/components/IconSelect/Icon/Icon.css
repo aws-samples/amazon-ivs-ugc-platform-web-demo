@@ -1,4 +1,4 @@
-.icon {
+.selectable-icon {
   z-index: 10;
   height: auto;
   padding: 0;
@@ -9,7 +9,7 @@
   border-radius: 50%;
 }
 
-button.icon {
+button.selectable-icon {
   border: none;
   cursor: pointer;
   user-select: none;
@@ -20,40 +20,40 @@ button.icon {
   border-radius: var(--default-border-radius);
 }
 
-.icon img,
-.icon .color {
+.selectable-icon img,
+.selectable-icon .color {
   z-index: 1;
   border-radius: 50%;
 }
 
-.icon .color {
+.selectable-icon .color {
   width: 100%;
   height: 48px;
 }
 
-.icon.sm {
+.selectable-icon.sm {
   width: 25px;
 }
 
-.icon.md {
+.selectable-icon.md {
   width: 42px;
 }
 
-.icon.lg {
+.selectable-icon.lg {
   width: 60px;
 }
 
-.icon.auto {
+.selectable-icon.auto {
   width: auto;
 }
 
-.icon.selected,
-.icon.hoverable:hover {
+.selectable-icon.selected,
+.selectable-icon.hoverable:hover {
   outline: 2px solid var(--palette-color-white);
   border-radius: 50%;
 }
 
-.icon.selected:after {
+.selectable-icon.selected.type-image:after {
   content: '';
   position: absolute;
   width: 100%;
@@ -64,8 +64,8 @@ button.icon {
   z-index: 1;
 }
 
-.icon > svg,
-.icon > .spinner {
+.selectable-icon > svg,
+.selectable-icon > .spinner {
   position: absolute;
   z-index: 2;
 }

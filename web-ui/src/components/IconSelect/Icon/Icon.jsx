@@ -15,7 +15,7 @@ const Icon = ({
   size,
   onClick
 }) => {
-  const classes = clsm(['icon', size], {
+  const classes = clsm(['selectable-icon', `type-${type}`, size], {
     selected: isSelected,
     hoverable: isHoverable
   });
@@ -36,7 +36,7 @@ const Icon = ({
       {type === 'color' && <div className={clsm(['color', iconValue])} />}
     </button>
   ) : (
-    <div className={classes.join(' ')}>
+    <div className={classes}>
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
