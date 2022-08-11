@@ -6,6 +6,8 @@
   :root {
     --default-border-radius: 24px;
 
+    --mobile-x-spacing: 16px;
+
     /* Dark base colors */
     --base-color-dark-gray: 228, 10%;
 
