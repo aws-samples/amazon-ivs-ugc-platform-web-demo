@@ -9,7 +9,6 @@ import Button from '../../../components/Button';
 import ProfileNav from './ProfileNav';
 import Tooltip from '../../../components/Tooltip';
 import useCurrentPage from '../../../hooks/useCurrentPage';
-import './Navbar.css';
 
 const $content = $appContent.navbar;
 
@@ -45,15 +44,11 @@ const Sidebar = () => {
           'overflow-auto',
           'dark:bg-darkMode-gray-medium',
           'bg-lightMode-gray-extraLight',
-          'supports-overlay:overflow-overlay',
-
-          // Temporary classes for responsiveness
-          'sidebar',
-          isSessionValid ? 'auth' : 'unauth'
+          'supports-overlay:overflow-overlay'
         ], // Default styles
         isSessionValid
           ? ['w-16', 'pt-7', 'pb-4', 'px-2.5'] // Authenticated
-          : ['w-60', 'pt-10', 'pb-6', 'px-4'] // Unauthenticated
+          : ['w-60', 'pt-10', 'pb-6', 'px-4', 'lg:portrait:w-40'] // Unauthenticated
       )}
     >
       {isSessionValid ? (

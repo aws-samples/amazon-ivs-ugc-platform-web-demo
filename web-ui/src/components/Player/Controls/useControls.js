@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import useMediaQuery from '../../../hooks/useMediaQuery';
+import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 
 const useControls = (isPaused) => {
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
+  const { isTouchscreenDevice } = useMobileBreakpoint();
   const timeoutId = useRef(null);
-  const supportsHover = useMediaQuery('(hover: hover)');
 
   const clearControlsTimeout = useCallback(() => {
     clearTimeout(timeoutId.current);
@@ -26,16 +26,16 @@ const useControls = (isPaused) => {
    */
   const stopPropagAndResetTimeout = useCallback(
     (event) => {
-      if (supportsHover) return;
+      if (!isTouchscreenDevice) return;
 
       event.stopPropagation();
       resetControlsTimeout();
     },
-    [supportsHover, resetControlsTimeout]
+    [isTouchscreenDevice, resetControlsTimeout]
   );
 
   const onMouseMoveHandler = useCallback(() => {
-    if (!supportsHover || isPaused) return;
+    if (isTouchscreenDevice || isPaused) return;
 
     isCoveringControlButton ? clearControlsTimeout() : resetControlsTimeout();
     setIsControlsOpen(true);
@@ -44,12 +44,12 @@ const useControls = (isPaused) => {
     isCoveringControlButton,
     isPaused,
     resetControlsTimeout,
-    supportsHover
+    isTouchscreenDevice
   ]);
 
   const onControlHoverHandler = useCallback(
     (event) => {
-      if (!supportsHover || isPaused) return;
+      if (isTouchscreenDevice || isPaused) return;
 
       if (['mouseenter', 'focus'].includes(event.type)) {
         setIsCoveringControlButton(true);
@@ -58,12 +58,12 @@ const useControls = (isPaused) => {
       } else if (['mouseleave', 'blur'].includes(event.type))
         setIsCoveringControlButton(false);
     },
-    [clearControlsTimeout, isPaused, supportsHover]
+    [clearControlsTimeout, isPaused, isTouchscreenDevice]
   );
 
   // Mobile controls toggling logic
   const mobileClickHandler = useCallback(() => {
-    if (supportsHover) return;
+    if (!isTouchscreenDevice) return;
 
     if (isPaused) {
       setIsControlsOpen(true);
@@ -75,11 +75,16 @@ const useControls = (isPaused) => {
       setIsControlsOpen(false);
       clearControlsTimeout();
     }
-  }, [clearControlsTimeout, isPaused, resetControlsTimeout, supportsHover]);
+  }, [
+    clearControlsTimeout,
+    isPaused,
+    resetControlsTimeout,
+    isTouchscreenDevice
+  ]);
 
   // Desktop controls toggling logic
   useEffect(() => {
-    if (supportsHover) {
+    if (!isTouchscreenDevice) {
       if (isPaused) {
         clearControlsTimeout();
         setIsControlsOpen(true);
@@ -87,13 +92,18 @@ const useControls = (isPaused) => {
         resetControlsTimeout();
       }
     }
-  }, [clearControlsTimeout, isPaused, supportsHover, resetControlsTimeout]);
+  }, [
+    clearControlsTimeout,
+    isPaused,
+    isTouchscreenDevice,
+    resetControlsTimeout
+  ]);
 
   useEffect(() => {
-    if (!supportsHover) {
+    if (isTouchscreenDevice) {
       mobileClickHandler();
     }
-  }, [mobileClickHandler, supportsHover]);
+  }, [mobileClickHandler, isTouchscreenDevice]);
 
   return {
     isControlsOpen,

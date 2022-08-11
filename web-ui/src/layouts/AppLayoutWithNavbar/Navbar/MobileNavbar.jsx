@@ -2,7 +2,6 @@ import { app as $appContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
-import './Navbar.css';
 
 const $content = $appContent.navbar;
 
@@ -26,21 +25,22 @@ const MobileNavbar = () => {
           'max-w-[calc(440px_+_32px)]',
           'min-w-[calc(228px_+_32px)]',
           '-translate-x-1/2',
-
-          'mobile-navbar' // TEMPORARY class for responsiveness
+          'lg:landscape:max-w-[calc(100vw_-_(288px_+_32px))]'
         ])}
       >
         <div
           className={clsm([
             'flex',
-            'gap-y-[16px]',
+            'flex-row',
+            'gap-4',
+            'px-4',
+            'py-3.5',
             'w-full',
             'bg-lightMode-gray-extraLight',
             'dark:bg-darkMode-gray-medium',
-            '[&>a]:w-full',
+            'rounded-[40px]',
             '[&>a]:flex-1',
-
-            'sidebar-user-buttons' // TEMPORARY class for responsiveness
+            '[&>a]:w-full'
           ])}
         >
           <Button type="nav" variant="secondary" to="/login">

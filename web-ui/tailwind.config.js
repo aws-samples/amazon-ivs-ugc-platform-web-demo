@@ -152,10 +152,7 @@ module.exports = {
     }),
     // @media (pointer:none), (pointer:coarse)
     plugin(({ addVariant, addUtilities, matchUtilities }) => {
-      addVariant(
-        'touch-screen-device',
-        '@media (pointer:none), (pointer:coarse)'
-      );
+      addVariant('touch-screen-device', '@media (hover:none)');
     })
   ]
 };

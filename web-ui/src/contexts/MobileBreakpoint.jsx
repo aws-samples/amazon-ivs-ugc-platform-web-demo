@@ -23,9 +23,8 @@ export const Provider = ({ children }) => {
   const windowPageScrollY = useRef();
 
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
-  const isMobileLandscape =
-    useMediaQuery('(orientation: landscape)') &&
-    currentBreakpoint < BREAKPOINTS.lg;
+  const isLandscape = useMediaQuery('(orientation: landscape)');
+  const isTouchscreenDevice = useMediaQuery('(hover:none)');
 
   const lockBody = useCallback(() => {
     if (isiOS()) {
@@ -109,7 +108,8 @@ export const Provider = ({ children }) => {
       addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
-      isMobileLandscape,
+      isLandscape,
+      isTouchscreenDevice,
       mainRef,
       removeMobileOverlay
     }),
@@ -117,7 +117,8 @@ export const Provider = ({ children }) => {
       addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
-      isMobileLandscape,
+      isLandscape,
+      isTouchscreenDevice,
       removeMobileOverlay
     ]
   );

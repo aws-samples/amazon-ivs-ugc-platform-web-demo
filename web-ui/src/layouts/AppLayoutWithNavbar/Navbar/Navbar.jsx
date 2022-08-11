@@ -1,12 +1,12 @@
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import MobileNavbar from './MobileNavbar';
 import Sidebar from './Sidebar';
-import './Navbar.css';
 
 const Navbar = () => {
-  const { isDefaultResponsiveView, isMobileLandscape } = useMobileBreakpoint();
+  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice } =
+    useMobileBreakpoint();
 
-  return isDefaultResponsiveView || isMobileLandscape ? (
+  return isDefaultResponsiveView || (isLandscape && isTouchscreenDevice) ? (
     <MobileNavbar />
   ) : (
     <Sidebar />
