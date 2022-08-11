@@ -1,18 +1,19 @@
 import { createPortal } from 'react-dom';
 import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
+
 import { clsm } from '../../utils';
 
 const initContainer = (
   containerId,
   parentEl = document.body,
-  classesString
+  containerClassname = ''
 ) => {
   let container = document.getElementById(containerId);
 
   if (!container) {
     container = document.createElement('div');
     container.setAttribute('id', containerId);
-    !!classesString && container.setAttribute('class', classesString);
+    if (containerClassname) container.setAttribute('class', containerClassname);
     parentEl.appendChild(container);
   }
 
@@ -23,14 +24,14 @@ const withPortal = (
   WrappedComponent,
   containerId,
   isAnimated = false,
-  classes = ''
+  containerClasses = []
 ) =>
   memo(
     // eslint-disable-next-line react/prop-types
     forwardRef(({ isOpen, parentEl, position, ...props }, ref) => {
       const id = useRef(`${containerId}-container`);
       const container = isOpen
-        ? initContainer(id.current, parentEl, clsm(classes))
+        ? initContainer(id.current, parentEl, clsm(containerClasses))
         : null;
 
       useLayoutEffect(() => {

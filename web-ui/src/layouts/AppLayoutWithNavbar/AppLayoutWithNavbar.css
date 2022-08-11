@@ -36,7 +36,7 @@
   }
 }
 
-@media (max-width: 989px) and (orientation: portrait) {
+@media (max-width: 989px) and (min-width: 767px) and (orientation: portrait) {
   .main-app-container.unauth {
     width: calc(100vw - 160px);
   }

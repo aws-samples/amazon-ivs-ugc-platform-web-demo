@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {
   createContext,
   useCallback,
@@ -5,7 +6,7 @@ import {
   useMemo,
   useState
 } from 'react';
-import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { getCurrentSession } from '../api/utils';
@@ -32,6 +33,7 @@ export const Provider = ({ children }) => {
   const [isSessionValid, setIsSessionValid] = useState();
   const prevIsSessionValid = usePrevious(isSessionValid);
   const [logOutAction, setLogOutAction] = useState('');
+  const navigate = useNavigate();
 
   const {
     data: session,
@@ -71,9 +73,14 @@ export const Provider = ({ children }) => {
   const logOut = useCallback(
     (action) => {
       setLogOutAction(action);
-      userManagement.signOut() && checkSessionStatus() && setUserData(null);
+      userManagement.signOut();
+
+      if (action === 'logOut') navigate('/');
+
+      checkSessionStatus();
+      setUserData(null);
     },
-    [checkSessionStatus]
+    [checkSessionStatus, navigate]
   );
 
   // Initial session check on page load

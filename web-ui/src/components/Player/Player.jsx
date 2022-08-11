@@ -52,8 +52,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
               className={clsm([
                 'absolute',
                 'h-full',
-                'max-h-[calc(100vh_-_112px)]',
-                'md:max-h-screen',
+                'md:max-h-[calc(100vh_-_112px)]',
+                'max-h-screen',
                 'top-0',
                 'w-full'
               ])}

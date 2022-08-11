@@ -21,9 +21,8 @@ const RegisterUser = () => {
     const avatar = avatarNames[Math.floor(Math.random() * avatarNames.length)];
 
     // Choose a random profile color
-    const profileColorNames = Object.keys(PROFILE_COLORS);
     const color =
-      profileColorNames[Math.floor(Math.random() * profileColorNames.length)];
+      PROFILE_COLORS[Math.floor(Math.random() * PROFILE_COLORS.length)];
 
     const userData = { ...formValues, avatar, color };
 

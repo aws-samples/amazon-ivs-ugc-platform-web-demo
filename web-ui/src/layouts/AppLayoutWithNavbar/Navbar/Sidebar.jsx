@@ -1,12 +1,12 @@
 import { Fragment } from 'react';
-import clsx from 'clsx';
 
 import { AcmeSml, AcmeLrg } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
+import { clsm } from '../../../utils';
 import { navPageData } from './utils';
 import { useUser } from '../../../contexts/User';
-import * as avatars from '../../../assets/avatars';
 import Button from '../../../components/Button';
+import ProfileNav from './ProfileNav';
 import Tooltip from '../../../components/Tooltip';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 import './Navbar.css';
@@ -14,7 +14,7 @@ import './Navbar.css';
 const $content = $appContent.navbar;
 
 const Sidebar = () => {
-  const { isSessionValid, userData: { avatar: avatarName } = {} } = useUser();
+  const { isSessionValid } = useUser();
   const currentPage = useCurrentPage();
 
   const renderWithTooltip = (component, message) =>
@@ -28,7 +28,7 @@ const Sidebar = () => {
 
   return (
     <nav
-      className={clsx(
+      className={clsm(
         [
           'absolute',
           'flex',
@@ -58,11 +58,11 @@ const Sidebar = () => {
     >
       {isSessionValid ? (
         <AcmeSml
-          className={clsx(['fill-darkMode-gray-light', 'flex-shrink-0'])}
+          className={clsm(['fill-darkMode-gray-light', 'flex-shrink-0'])}
         />
       ) : (
         <AcmeLrg
-          className={clsx([
+          className={clsm([
             'fill-darkMode-gray-light',
             'h-6',
             'w-24',
@@ -72,7 +72,7 @@ const Sidebar = () => {
         />
       )}
       <div
-        className={clsx([
+        className={clsm([
           'flex',
           'flex-col',
           'items-center',
@@ -95,17 +95,25 @@ const Sidebar = () => {
                       type="nav"
                       to={route}
                       variant="tertiaryText"
-                      className={clsx(
+                      className={clsm(
                         ['w-auto', 'min-w-full', 'py-1.5'], // Default styles
                         isSessionValid ? 'px-1.5' : 'px-3'
                       )}
                     >
                       <span
-                        className={clsx(
+                        className={clsm(
                           ['flex', 'items-center', 'gap-x-3'],
                           isActive
-                            ? 'text-darkMode-blue [&>svg]:fill-darkMode-blue'
-                            : 'dark:[&>svg]:!fill-white [&>svg]:fill-black'
+                            ? [
+                                'text-darkMode-blue',
+                                '[&>svg]:fill-darkMode-blue'
+                              ]
+                            : [
+                                'text-black',
+                                'dark:text-white',
+                                'dark:[&>svg]:fill-white',
+                                '[&>svg]:fill-black'
+                              ]
                         )}
                       >
                         {icon} {!isSessionValid && displayName}
@@ -115,11 +123,12 @@ const Sidebar = () => {
                   )}
                   {i === 2 && (
                     <span
-                      className={clsx([
+                      className={clsm([
                         'w-8',
                         'h-0.5',
                         'rounded',
-                        'bg-darkMode-gray-medium-hover'
+                        'bg-lightMode-gray-extraLight-hover',
+                        'dark:bg-darkMode-gray-medium-hover'
                       ])}
                     />
                   )}
@@ -130,31 +139,10 @@ const Sidebar = () => {
         )}
       </div>
       {isSessionValid ? (
-        avatars[avatarName] ? (
-          <img
-            className={clsx([
-              'w-8',
-              'h-8',
-              'rounded-full',
-              'bg-lightMode-gray-extraLight',
-              'dark:bg-darkMode-gray-medium'
-            ])}
-            src={avatars[avatarName]}
-            alt={`${avatarName} avatar`}
-            draggable={false}
-          />
-        ) : (
-          <span
-            className={clsx([
-              'h-8',
-              'bg-lightMode-gray-extraLight',
-              'dark:bg-darkMode-gray-medium'
-            ])}
-          />
-        )
+        <ProfileNav />
       ) : (
         <div
-          className={clsx([
+          className={clsm([
             'flex',
             'flex-col',
             'gap-y-4',
@@ -164,7 +152,17 @@ const Sidebar = () => {
             '[&>a]:w-full',
             '[&>a]:flex-1',
 
-            'sidebar-user-buttons' // TEMPORARY class for responsiveness
+            // Unauthenticated MobileNavbar Styles
+            'md:rounded-[40px]',
+            'md:flex-row',
+            'md:gap-x-4',
+            'md:py-3.5',
+            'md:px-4',
+            'touch-screen-device:lg:landscape:rounded-[40px]',
+            'touch-screen-device:lg:landscape:flex-row',
+            'touch-screen-device:lg:landscape:gap-x-4',
+            'touch-screen-device:lg:landscape:py-3.5',
+            'touch-screen-device:lg:landscape:px-4'
           ])}
         >
           <Button type="nav" variant="secondary" to="/login">

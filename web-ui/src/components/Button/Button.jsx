@@ -37,6 +37,7 @@ const Button = forwardRef(
       'data-test-id': dataTestId,
       id,
       ref,
+      onClick,
       style: customStyles
     };
 
@@ -45,10 +46,8 @@ const Button = forwardRef(
       variant,
       ...baseClasses,
       ...variantClasses[variant],
-      {
-        [className]: !!className,
-        [linkClasses]: type === 'nav'
-      }
+      type === 'nav' && linkClasses,
+      className
     ]);
 
     if (type === 'nav') {
@@ -68,7 +67,6 @@ const Button = forwardRef(
         {...commonProps}
         className={classes}
         disabled={isDisabled}
-        onClick={onClick}
         onFocus={onFocus}
         onMouseDown={onMouseDown}
         type={type}

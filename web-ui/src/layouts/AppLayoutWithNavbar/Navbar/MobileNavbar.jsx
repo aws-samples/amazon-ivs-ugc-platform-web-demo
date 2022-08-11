@@ -1,6 +1,5 @@
-import clsx from 'clsx';
-
 import { app as $appContent } from '../../../content';
+import { clsm } from '../../../utils';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import './Navbar.css';
@@ -13,7 +12,7 @@ const MobileNavbar = () => {
   return (
     !isSessionValid && (
       <nav
-        className={clsx([
+        className={clsm([
           'fixed',
           'flex',
           'items-center',
@@ -22,8 +21,8 @@ const MobileNavbar = () => {
           'left-1/2',
           'w-full',
           'z-10',
-          'py-[20px]',
-          'px-[16px]',
+          'py-5',
+          'px-4',
           'max-w-[calc(440px_+_32px)]',
           'min-w-[calc(228px_+_32px)]',
           '-translate-x-1/2',
@@ -32,7 +31,7 @@ const MobileNavbar = () => {
         ])}
       >
         <div
-          className={clsx([
+          className={clsm([
             'flex',
             'gap-y-[16px]',
             'w-full',

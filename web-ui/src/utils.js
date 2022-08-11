@@ -170,7 +170,7 @@ export const substitutePlaceholders = (str = '', activeStreamSession) => {
  * @param {Array|String|Object|Boolean} classes
  */
 
-export const clsm = (classes) => {
+export const clsm = (...classes) => {
   if (!classes) return;
   return twMerge(clsx(classes));
 };

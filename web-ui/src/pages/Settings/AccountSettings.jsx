@@ -31,6 +31,10 @@ const AccountSettings = () => {
   const { openModal } = useModal();
   const { userData, fetchUserData, logOut } = useUser();
   const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
+  const profileColorItems = PROFILE_COLORS.reduce(
+    (acc, color) => ({ ...acc, [color]: `bg-profile-${color}` }),
+    {}
+  );
 
   const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;
@@ -204,7 +208,7 @@ const AccountSettings = () => {
           name="color"
           label="Color"
           type="color"
-          items={PROFILE_COLORS}
+          items={profileColorItems}
           selected={userData.color}
           onClick={handleChangeColor}
           variant={inputVariant}

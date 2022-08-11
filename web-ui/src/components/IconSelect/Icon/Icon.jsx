@@ -33,18 +33,14 @@ const Icon = ({
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
-      {type === 'color' && (
-        <div className="color" style={{ backgroundColor: iconValue }} />
-      )}
+      {type === 'color' && <div className={clsm(['color', iconValue])} />}
     </button>
   ) : (
     <div className={classes.join(' ')}>
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />
       )}
-      {type === 'color' && (
-        <div className="color" style={{ backgroundColor: iconValue }} />
-      )}
+      {type === 'color' && <div className={clsm(['color', iconValue])} />}
     </div>
   );
 };

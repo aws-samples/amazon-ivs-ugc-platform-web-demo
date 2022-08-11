@@ -7,5 +7,8 @@ export const CONTROLS_BUTTON_BASE_CLASSES = [
   'focus:border-white',
   'outline-none',
   'p-1',
-  'rounded-full'
+  'rounded-full',
+  `[&>svg]:w-8`,
+  `[&>svg]:h-8`,
+  `[&>svg]:fill-white`
 ];
