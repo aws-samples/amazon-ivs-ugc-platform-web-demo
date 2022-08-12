@@ -4,7 +4,7 @@ A demo web application intended as an educational tool for demonstrating how you
 
 This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
-![Amazon Stream Health Dashboard Demo](amazon-ivs-stream-health-web-demo.png)
+![Amazon UGC Demo](amazon-ivs-ugc-web-demo.png)
 
 **This project is intended for education purposes only and not for production usage.**
 
@@ -16,7 +16,7 @@ This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AW
 
 ## To use and deploy this project
 
-**\*IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.\*
+***IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.*
 
 Deploying the CDK stack will:
 
@@ -48,7 +48,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 ### Deployment
 
-**\*IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.\*
+***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
 
 1. To set up the backend, navigate to the `cdk` directory and run:
 
@@ -58,7 +58,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
    This command will install dependencies, bootstrap the CDK assets (if needed), and finally deploy the stack.
 
-   **\*NOTE:** the deployment might take up to 15 minutes.\*
+   ***NOTE:** the deployment might take up to 15 minutes.*
 
 2. Go to the `web-ui` directory and run the following commands to start the React frontend host:
 
