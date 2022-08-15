@@ -146,12 +146,14 @@ module.exports = {
   safelist: [{ pattern: /(border|bg)-profile(-.)?/ }],
   plugins: [
     // @supports (overflow: overlay)
-    plugin(({ addVariant, addUtilities, matchUtilities }) => {
+    plugin(({ addVariant, addUtilities }) => {
       addVariant('supports-overlay', '@supports (overflow: overlay)');
       addUtilities({ '.overflow-overlay': { overflow: 'overlay' } });
+      addUtilities({ '.overflow-x-overlay': { overflowX: 'overlay' } });
+      addUtilities({ '.overflow-y-overlay': { overflowY: 'overlay' } });
     }),
-    // @media (pointer:none), (pointer:coarse)
-    plugin(({ addVariant, addUtilities, matchUtilities }) => {
+    // @media (hover:none)
+    plugin(({ addVariant }) => {
       addVariant('touch-screen-device', '@media (hover:none)');
     })
   ]

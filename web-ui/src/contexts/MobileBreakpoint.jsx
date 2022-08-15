@@ -12,6 +12,7 @@ import { BREAKPOINTS } from '../constants';
 import { isiOS } from '../utils';
 import useContextHook from './useContextHook';
 import useMediaQuery from '../hooks/useMediaQuery';
+import useDebouncedCallback from '../hooks/useDebouncedCallback';
 
 const Context = createContext(null);
 Context.displayName = 'MobileBreakpoint';
@@ -85,6 +86,7 @@ export const Provider = ({ children }) => {
     [unlockBody]
   );
 
+  // Set current breakpoint
   useEffect(() => {
     const handleWindowResize = () => {
       const innerWidth = window.innerWidth;
@@ -102,6 +104,27 @@ export const Provider = ({ children }) => {
 
     return () => window.removeEventListener('resize', handleWindowResize);
   }, []);
+
+  // Set --mobile-vh CSS variable
+  const updateMobileVh = useDebouncedCallback(
+    () => {
+      if (!isDefaultResponsiveView && !isTouchscreenDevice) {
+        document.documentElement.style.removeProperty('--mobile-vh'); // Remove --mobile-vh on desktop devices
+        return;
+      }
+
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
+    },
+    100,
+    [isDefaultResponsiveView, isTouchscreenDevice]
+  );
+  useEffect(() => {
+    updateMobileVh();
+    window.addEventListener('resize', updateMobileVh);
+
+    return () => window.removeEventListener('resize', updateMobileVh);
+  }, [updateMobileVh]);
 
   const value = useMemo(
     () => ({

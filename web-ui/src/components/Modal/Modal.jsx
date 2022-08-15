@@ -131,15 +131,17 @@ const Modal = () => {
   );
 };
 
-export default withPortal(Modal, 'modal', false, [
-  'flex',
-  'items-center',
-  'justify-center',
-  'h-full',
-  'fixed',
-  'top-0',
-  'left-0',
-  'w-full',
-  'z-[1000]',
-  'bg-modalOverlay'
-]);
+export default withPortal(Modal, 'modal', {
+  containerClasses: [
+    'flex',
+    'items-center',
+    'justify-center',
+    'h-full',
+    'fixed',
+    'top-0',
+    'left-0',
+    'w-full',
+    'z-[1000]',
+    'bg-modalOverlay'
+  ]
+});

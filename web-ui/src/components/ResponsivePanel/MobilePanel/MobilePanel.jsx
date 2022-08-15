@@ -66,4 +66,4 @@ MobilePanel.propTypes = {
   slideInDirection: PropTypes.string.isRequired
 };
 
-export default withPortal(MobilePanel, 'mobile-panel', true);
+export default withPortal(MobilePanel, 'mobile-panel', { isAnimated: true });

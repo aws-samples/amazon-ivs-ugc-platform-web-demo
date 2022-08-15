@@ -3,16 +3,23 @@ import { Outlet } from 'react-router-dom';
 import { clsm } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
+import FloatingNav from './FloatingNav';
 import Navbar from './Navbar';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, mainRef } = useMobileBreakpoint();
+  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice, mainRef } =
+    useMobileBreakpoint();
   const { isSessionValid } = useUser();
 
   return (
     <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
-      <Navbar />
+      {isSessionValid &&
+      (isDefaultResponsiveView || (isLandscape && isTouchscreenDevice)) ? (
+        <FloatingNav />
+      ) : (
+        <Navbar />
+      )}
       <main
         ref={mainRef}
         id={`main-app-container${isDefaultResponsiveView ? '' : '-scrollable'}`}

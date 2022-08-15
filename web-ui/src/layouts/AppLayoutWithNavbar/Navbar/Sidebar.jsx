@@ -1,19 +1,21 @@
 import { Fragment } from 'react';
 
-import { AcmeSml, AcmeLrg } from '../../../assets/icons';
+import { AcmeSml, AcmeLrg, Settings } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { navPageData } from './utils';
 import { useUser } from '../../../contexts/User';
+import * as avatars from '../../../assets/avatars';
 import Button from '../../../components/Button';
-import ProfileNav from './ProfileNav';
 import Tooltip from '../../../components/Tooltip';
 import useCurrentPage from '../../../hooks/useCurrentPage';
+import ProfileMenu from '../ProfileMenu';
 
 const $content = $appContent.navbar;
 
 const Sidebar = () => {
-  const { isSessionValid } = useUser();
+  const { userData, isSessionValid } = useUser();
+  const { avatar: avatarName } = userData || {};
   const currentPage = useCurrentPage();
 
   const renderWithTooltip = (component, message) =>
@@ -41,10 +43,11 @@ const Sidebar = () => {
           'w-16',
           'pt-7',
           'pb-4',
-          'overflow-auto',
+          'overflow-y-auto',
+          'overflow-x-hidden',
           'dark:bg-darkMode-gray-medium',
           'bg-lightMode-gray-extraLight',
-          'supports-overlay:overflow-overlay'
+          'supports-overlay:overflow-y-overlay'
         ], // Default styles
         isSessionValid
           ? ['w-16', 'pt-7', 'pb-4', 'px-2.5'] // Authenticated
@@ -134,7 +137,48 @@ const Sidebar = () => {
         )}
       </div>
       {isSessionValid ? (
-        <ProfileNav />
+        <ProfileMenu
+          menuClassName={clsm([
+            'fixed',
+            'bottom-6',
+            'left-6',
+            'w-[236px]',
+            'origin-bottom-left'
+          ])}
+          navData={[
+            { label: $content.settings, icon: <Settings />, to: '/settings' }
+          ]}
+        >
+          {({ isOpen, toggle, toggleRef }) => (
+            <Button
+              ariaLabel={`${isOpen ? 'Close' : 'Open'} navigation menu`}
+              className={clsm(
+                [
+                  'p-0',
+                  'h-8',
+                  'w-8',
+                  'shadow-black',
+                  'dark:shadow-white',
+                  'focus:shadow-focusOuter',
+                  'hover:shadow-hoverOuter',
+                  '[&>img]:rounded-full'
+                ],
+                isOpen && 'shadow-focusOuter'
+              )}
+              onClick={() => toggle()}
+              variant="icon"
+              ref={toggleRef}
+            >
+              {!!avatars[avatarName] && (
+                <img
+                  src={avatars[avatarName]}
+                  alt={`${avatarName || 'Profile'} avatar`}
+                  draggable={false}
+                />
+              )}
+            </Button>
+          )}
+        </ProfileMenu>
       ) : (
         <div
           className={clsm([
@@ -145,19 +189,7 @@ const Sidebar = () => {
             'bg-lightMode-gray-extraLight',
             'dark:bg-darkMode-gray-medium',
             '[&>a]:w-full',
-            '[&>a]:flex-1',
-
-            // Unauthenticated MobileNavbar Styles
-            'md:rounded-[40px]',
-            'md:flex-row',
-            'md:gap-x-4',
-            'md:py-3.5',
-            'md:px-4',
-            'touch-screen-device:lg:landscape:rounded-[40px]',
-            'touch-screen-device:lg:landscape:flex-row',
-            'touch-screen-device:lg:landscape:gap-x-4',
-            'touch-screen-device:lg:landscape:py-3.5',
-            'touch-screen-device:lg:landscape:px-4'
+            '[&>a]:flex-1'
           ])}
         >
           <Button type="nav" variant="secondary" to="/login">

@@ -1,6 +1,5 @@
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useStreams } from '../../contexts/Streams';
-import FloatingMenu from './FloatingMenu';
 import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import StreamSession from './StreamSession';
@@ -10,7 +9,8 @@ import './StreamHealth.css';
 
 const StreamHealth = () => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice } =
+    useMobileBreakpoint();
 
   useScrollToTop({
     dependency: activeStreamSession?.streamId,
@@ -23,7 +23,9 @@ const StreamHealth = () => {
       <section className="stream-health-section vertical-scroller-container">
         <StreamSession />
       </section>
-      {isDefaultResponsiveView ? <FloatingMenu /> : <FloatingPlayer />}
+      {!isDefaultResponsiveView && (!isLandscape || !isTouchscreenDevice) && (
+        <FloatingPlayer />
+      )}
     </>
   );
 };

@@ -3,6 +3,11 @@ import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
 
 import { clsm } from '../../utils';
 
+const DEFAULT_PORTAL_OPTIONS = {
+  isAnimated: false,
+  containerClasses: []
+};
+
 const initContainer = (
   containerId,
   parentEl = document.body,
@@ -23,8 +28,10 @@ const initContainer = (
 const withPortal = (
   WrappedComponent,
   containerId,
-  isAnimated = false,
-  containerClasses = []
+  {
+    isAnimated = DEFAULT_PORTAL_OPTIONS.isAnimated,
+    containerClasses = DEFAULT_PORTAL_OPTIONS.containerClasses
+  } = DEFAULT_PORTAL_OPTIONS
 ) =>
   memo(
     // eslint-disable-next-line react/prop-types
