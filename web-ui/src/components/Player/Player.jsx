@@ -1,5 +1,5 @@
 import { AnimatePresence, m } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
@@ -30,6 +30,7 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
     setIsPopupOpen,
     stopPropagAndResetTimeout
   } = useControls(isPaused);
+  const playerElementRef = useRef();
   const hasError = !!error;
   const shouldShowLoader = isLoading && !hasError;
   const shouldShowControls =
@@ -43,7 +44,11 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
 
   return (
     <section className="flex justify-center items-center flex-col w-full h-screen">
-      <div className="w-full h-full relative" onMouseMove={onMouseMoveHandler}>
+      <div
+        className="w-full h-full relative"
+        onMouseMove={onMouseMoveHandler}
+        ref={playerElementRef}
+      >
         {isLive || isLive === undefined || hasFinalBuffer ? (
           <>
             {shouldShowLoader && <FullScreenLoader />}
@@ -89,13 +94,13 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                       'absolute',
                       'bottom-0',
                       'left-0',
-                      'w-full',
-                      'z-20'
+                      'w-full'
                     ])}
                     transition={{ duration: 0.25, type: 'tween' }}
                   >
                     <Controls
                       onControlHoverHandler={onControlHoverHandler}
+                      playerElementRef={playerElementRef}
                       player={livePlayer}
                       selectedQualityName={selectedQualityName}
                       setIsPopupOpen={setIsPopupOpen}
