@@ -8,18 +8,13 @@ import Navbar from './Navbar';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice, mainRef } =
+  const { isDefaultResponsiveView, isMobileView, mainRef } =
     useMobileBreakpoint();
   const { isSessionValid } = useUser();
 
   return (
     <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
-      {isSessionValid &&
-      (isDefaultResponsiveView || (isLandscape && isTouchscreenDevice)) ? (
-        <FloatingNav />
-      ) : (
-        <Navbar />
-      )}
+      {isSessionValid && isMobileView ? <FloatingNav /> : <Navbar />}
       <main
         ref={mainRef}
         id={`main-app-container${isDefaultResponsiveView ? '' : '-scrollable'}`}

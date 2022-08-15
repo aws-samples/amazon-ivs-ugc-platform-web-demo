@@ -14,6 +14,8 @@ import RenditionSetting from './RenditionSetting';
 const Controls = ({
   onControlHoverHandler,
   player,
+  selectedQualityName,
+  setIsPopupOpen,
   stopPropagAndResetTimeout
 }) => {
   const { error, isPaused, pause, play, qualities, updateQuality } = player;
@@ -53,6 +55,8 @@ const Controls = ({
         <RenditionSetting
           onControlHoverHandler={onControlHoverHandler}
           qualities={qualities}
+          selectedQualityName={selectedQualityName}
+          setIsPopupOpen={setIsPopupOpen}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateQuality={updateQuality}
         />
@@ -69,9 +73,11 @@ const Controls = ({
 };
 
 Controls.propTypes = {
+  onControlHoverHandler: PropTypes.func.isRequired,
   player: PropTypes.object.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired,
-  onControlHoverHandler: PropTypes.func.isRequired
+  selectedQualityName: PropTypes.string.isRequired,
+  setIsPopupOpen: PropTypes.func.isRequired,
+  stopPropagAndResetTimeout: PropTypes.func.isRequired
 };
 
 export default Controls;

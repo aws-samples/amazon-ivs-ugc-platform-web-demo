@@ -29,7 +29,7 @@ export const BUTTON_BASE_CLASSES = [
 const TEXT_BASE_CLASSES = [
   'bg-transparent',
   'dark:[&>.spinner]:text-white',
-  'dark:hover:bg-darkMode-gray-medium-hover',
+  'dark:hover:bg-darkMode-gray-hover',
   'dark:text-darkMode-blue',
   'hover:bg-lightMode-gray-light-hover',
   'text-lightMode-blue-medium'
@@ -111,8 +111,7 @@ export const BUTTON_VARIANT_CLASSES = {
     '[&]:text-black',
     '[&>.spinner]:text-white',
     '[&>svg]:fill-white',
-    'dark:text-white',
-    'focus:bg-lightMode-gray-light'
+    'dark:text-white'
   ],
   tertiaryText: [
     ...TEXT_BASE_CLASSES,

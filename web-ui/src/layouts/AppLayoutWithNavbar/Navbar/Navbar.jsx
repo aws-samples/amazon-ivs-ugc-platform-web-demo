@@ -3,14 +3,9 @@ import MobileNavbar from './MobileNavbar';
 import Sidebar from './Sidebar';
 
 const Navbar = () => {
-  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice } =
-    useMobileBreakpoint();
+  const { isMobileView } = useMobileBreakpoint();
 
-  return isDefaultResponsiveView || (isLandscape && isTouchscreenDevice) ? (
-    <MobileNavbar />
-  ) : (
-    <Sidebar />
-  );
+  return isMobileView ? <MobileNavbar /> : <Sidebar />;
 };
 
 export default Navbar;

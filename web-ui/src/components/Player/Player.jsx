@@ -13,19 +13,21 @@ import usePlayer from '../../hooks/usePlayer';
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const livePlayer = usePlayer({ playbackUrl, isLive });
   const {
-    hasFinalBuffer,
+    error,
     hasEnded,
+    hasFinalBuffer,
     isInitialLoading,
     isLoading,
-    error,
-    videoRef,
-    isPaused
+    isPaused,
+    selectedQualityName,
+    videoRef
   } = livePlayer;
   const {
     isControlsOpen,
     mobileClickHandler,
     onMouseMoveHandler,
     onControlHoverHandler,
+    setIsPopupOpen,
     stopPropagAndResetTimeout
   } = useControls(isPaused);
   const hasError = !!error;
@@ -41,10 +43,7 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
 
   return (
     <section className="flex justify-center items-center flex-col w-full h-screen">
-      <div
-        className="w-full h-full relative z-10"
-        onMouseMove={onMouseMoveHandler}
-      >
+      <div className="w-full h-full relative" onMouseMove={onMouseMoveHandler}>
         {isLive || isLive === undefined || hasFinalBuffer ? (
           <>
             {shouldShowLoader && <FullScreenLoader />}
@@ -52,7 +51,7 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
               className={clsm([
                 'absolute',
                 'h-full',
-                'md:max-h-[calc(100vh_-_112px)]',
+                'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]',
                 'max-h-screen',
                 'top-0',
                 'w-full'
@@ -98,6 +97,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                     <Controls
                       onControlHoverHandler={onControlHoverHandler}
                       player={livePlayer}
+                      selectedQualityName={selectedQualityName}
+                      setIsPopupOpen={setIsPopupOpen}
                       stopPropagAndResetTimeout={stopPropagAndResetTimeout}
                     />
                   </m.div>

@@ -6,20 +6,26 @@ const useControls = (isPaused) => {
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
   const { isTouchscreenDevice } = useMobileBreakpoint();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const timeoutId = useRef(null);
 
   const clearControlsTimeout = useCallback(() => {
     clearTimeout(timeoutId.current);
     timeoutId.current = null;
   }, []);
+  const closeControls = useCallback(() => {
+    if (isPopupOpen) return;
+
+    setIsControlsOpen(false);
+  }, [isPopupOpen]);
 
   const resetControlsTimeout = useCallback(() => {
     clearControlsTimeout();
     timeoutId.current = setTimeout(() => {
-      setIsControlsOpen(false);
+      closeControls();
       timeoutId.current = null;
     }, 3000);
-  }, [clearControlsTimeout]);
+  }, [clearControlsTimeout, closeControls]);
 
   /**
    * This function should be called in the individual controls handlers to prevent closing the controls overlay when tapping one of the individual controls.
@@ -72,14 +78,15 @@ const useControls = (isPaused) => {
       setIsControlsOpen(true);
       resetControlsTimeout();
     } else {
-      setIsControlsOpen(false);
+      closeControls();
       clearControlsTimeout();
     }
   }, [
     clearControlsTimeout,
+    closeControls,
     isPaused,
-    resetControlsTimeout,
-    isTouchscreenDevice
+    isTouchscreenDevice,
+    resetControlsTimeout
   ]);
 
   // Desktop controls toggling logic
@@ -110,6 +117,7 @@ const useControls = (isPaused) => {
     mobileClickHandler,
     onMouseMoveHandler,
     onControlHoverHandler,
+    setIsPopupOpen,
     stopPropagAndResetTimeout
   };
 };

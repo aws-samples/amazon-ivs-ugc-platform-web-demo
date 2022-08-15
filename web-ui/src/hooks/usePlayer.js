@@ -25,6 +25,9 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const [hasEnded, setHasEnded] = useState(false);
   const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
   const [qualities, setQualities] = useState([{ name: 'Auto' }]);
+  const [selectedQualityName, setSelectedQualityName] = useState(
+    qualities[0].name
+  );
   const hasError = !!error;
   const intervalId = useRef(null);
 
@@ -179,15 +182,14 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     (name) => {
       if (!playerRef.current) return;
 
-      if (name === 'Auto') {
-        playerRef.current.setAutoQualityMode();
-
-        return;
-      }
-
       const quality = qualities.find((quality) => quality.name === name);
 
-      if (quality) playerRef.current.setQuality(quality, true);
+      if (quality) {
+        if (name === 'Auto') playerRef.current.setAutoQualityMode();
+        else playerRef.current.setQuality(quality);
+
+        setSelectedQualityName(name);
+      }
     },
     [qualities]
   );
@@ -245,6 +247,7 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     playerRef,
     qualities,
     reset,
+    selectedQualityName,
     setError,
     shouldBlurPlayer,
     unmute,
