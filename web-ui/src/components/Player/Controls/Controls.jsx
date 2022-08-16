@@ -11,6 +11,7 @@ import './Controls.css';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import RenditionSetting from './RenditionSetting';
+import VolumeSetting from './VolumeSetting';
 
 const Controls = ({
   onControlHoverHandler,
@@ -21,7 +22,16 @@ const Controls = ({
   stopPropagAndResetTimeout
 }) => {
   const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
-  const { error, isPaused, pause, play, qualities, updateQuality } = player;
+  const {
+    error,
+    isPaused,
+    pause,
+    play,
+    qualities,
+    updateQuality,
+    volumeLevel,
+    updateVolume
+  } = player;
   const hasError = !!error;
 
   const onPointerDownPlayPauseHandler = useCallback(
@@ -109,17 +119,25 @@ const Controls = ({
     <div
       className={clsm(['flex', 'justify-between', 'w-full', 'items-center'])}
     >
-      <button
-        aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
-        className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-        onBlur={onControlHoverHandler}
-        onFocus={onControlHoverHandler}
-        onMouseEnter={onControlHoverHandler}
-        onMouseLeave={onControlHoverHandler}
-        onPointerDown={onPointerDownPlayPauseHandler}
-      >
-        {isPaused ? <PlaySvg /> : <PauseSvg />}
-      </button>
+      <div className="flex gap-x-4">
+        <button
+          aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
+          className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+          onBlur={onControlHoverHandler}
+          onFocus={onControlHoverHandler}
+          onMouseEnter={onControlHoverHandler}
+          onMouseLeave={onControlHoverHandler}
+          onPointerDown={onPointerDownPlayPauseHandler}
+        >
+          {isPaused ? <PlaySvg /> : <PauseSvg />}
+        </button>
+        <VolumeSetting
+          volumeLevel={volumeLevel}
+          stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+          updateVolume={updateVolume}
+          onControlHoverHandler={onControlHoverHandler}
+        />
+      </div>
       <div className="flex gap-x-4">
         <RenditionSetting
           onControlHoverHandler={onControlHoverHandler}

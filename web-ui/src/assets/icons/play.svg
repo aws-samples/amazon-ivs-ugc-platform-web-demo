@@ -1,4 +1,9 @@
 <!-- https://fonts.google.com/icons?selected=Material%20Symbols%20Rounded%3Aplay_arrow%3AFILL%401%3Bwght%40400%3BGRAD%400%3Bopsz%4040 -->
-<svg xmlns="http://www.w3.org/2000/svg" height="40" width="40">
-  <path d="M15.458 30.25q-.708.458-1.416.042-.709-.417-.709-1.25v-18.25q0-.834.709-1.25.708-.417 1.416.041l14.375 9.167q.625.417.625 1.167t-.625 1.166Z" fill="white" />
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_1060_2549" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+<rect width="40" height="40" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_1060_2549)">
+<path d="M15.542 31.625C14.736 32.097 13.958 32.1247 13.208 31.708C12.458 31.2913 12.083 30.6527 12.083 29.792V10.042C12.083 9.18068 12.458 8.54168 13.208 8.12501C13.958 7.70835 14.736 7.73601 15.542 8.20801L30.958 18.083C31.6807 18.5277 32.042 19.146 32.042 19.938C32.042 20.7293 31.6807 21.3333 30.958 21.75L15.542 31.625Z" fill="white"/>
+</g>
 </svg>

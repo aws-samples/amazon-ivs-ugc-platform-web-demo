@@ -26,3 +26,6 @@ export { ReactComponent as SyncError } from './sync-error.svg';
 export { ReactComponent as Unmute } from './unmute.svg';
 export { ReactComponent as Visibility } from './visibility.svg';
 export { ReactComponent as VisibilityOff } from './visibility-off.svg';
+export { ReactComponent as VolumeHigh } from './volume-high.svg';
+export { ReactComponent as VolumeMedium } from './volume-medium.svg';
+export { ReactComponent as VolumeLow } from './volume-low.svg';

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';
+import { VOLUME_MAX } from '../constants';
 
 const { IVSPlayer } = window;
+
 const {
   create: createMediaPlayer,
   isPlayerSupported,
@@ -21,7 +23,7 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const [volumeLevel, setVolumeLevel] = useState(VOLUME_MAX);
   const [hasEnded, setHasEnded] = useState(false);
   const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
   const [qualities, setQualities] = useState([{ name: 'Auto' }]);
@@ -138,21 +140,16 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
       setIsPaused(true);
     }
   }, []);
-  const mute = useCallback(() => {
+
+  const updateVolume = useCallback((newVolume) => {
     if (!playerRef.current) return;
 
-    if (!playerRef.current.isMuted()) {
-      playerRef.current.setMuted(true);
-      setIsMuted(true);
-    }
-  }, []);
-  const unmute = useCallback(() => {
-    if (!playerRef.current) return;
+    playerRef.current.setMuted(false);
+    setVolumeLevel(newVolume);
 
-    if (playerRef.current.isMuted()) {
-      playerRef.current.setMuted(false);
-      setIsMuted(false);
-    }
+    const ivsVolume = Number((newVolume / 100).toFixed(1));
+
+    playerRef.current.setVolume(ivsVolume);
   }, []);
 
   const load = useCallback(
@@ -163,15 +160,16 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
 
       playerRef.current.load(playbackUrl);
       play();
+      updateVolume(VOLUME_MAX);
     },
-    [create, play]
+    [create, play, updateVolume]
   );
   const reset = useCallback(() => {
     setIsInitialLoading(true);
     setIsLoading(true);
     setIsPaused(true);
-    setIsMuted(true);
     setHasEnded(false);
+    setVolumeLevel(VOLUME_MAX);
     setHasPlayedFinalBuffer(false);
     setQualities([{ name: 'Auto' }]);
     resetIntervalId();
@@ -239,9 +237,9 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     isBlurReady,
     isInitialLoading,
     isLoading,
-    isMuted,
     isPaused,
-    mute,
+    volumeLevel,
+    updateVolume,
     pause,
     play,
     playerRef,
@@ -250,7 +248,6 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     selectedQualityName,
     setError,
     shouldBlurPlayer,
-    unmute,
     updateQuality,
     videoRef
   };
