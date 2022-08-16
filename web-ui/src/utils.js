@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import { CHANNEL_TYPE } from './constants';
 
 export const isiOS = () =>
@@ -165,12 +165,40 @@ export const substitutePlaceholders = (str = '', activeStreamSession) => {
 /**
  * Construct a className string using a list of classes and then merge classes without style conflicts. The last conflicting class will win.
  * This utility function will replace clsx or txMerge everywhere in the application.
+ * extendTailwindMerge is a function provided by tailwind-merge that will extend the tailwind config.
  * A combination of the clsx (https://github.com/lukeed/clsx#readme)
  * and tailwind-merge (https://github.com/dcastil/tailwind-merge) packages.
  * @param {Array|String|Object|Boolean} classes
  */
+const customTwMerge = extendTailwindMerge({
+  classGroups: {
+    shadow: [
+      {
+        shadow: [
+          fromTheme('shadow'),
+          'focus',
+          'focusOuter',
+          'hover',
+          'hoverOuter'
+        ],
+        'shadow-color': [
+          {
+            shadow: [
+              (value) => {
+                const colorModeRegex = /(darkMode|lightMode)/i;
+                colorModeRegex.test(value);
+                return value;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+});
 
 export const clsm = (...classes) => {
   if (!classes) return;
-  return twMerge(clsx(classes));
+
+  return customTwMerge(clsx(classes));
 };

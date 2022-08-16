@@ -1,23 +1,25 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import './Input.css';
-import { app as $content } from '../../content';
-import { ErrorIcon, Visibility, VisibilityOff } from '../../assets/icons';
-import Spinner from '../Spinner';
+import ErrorMessage from './InputErrorMessage';
+import PasswordPeekButton from './PasswordPeekButton';
+import Description from './InputDescription';
+import Label from './InputLabel';
+import { clsm } from '../../utils';
 import {
-  BUTTON_BASE_CLASSES as btnBaseClasses,
-  BUTTON_VARIANT_CLASSES as btnVariantClasses
-} from '../Button/ButtonTheme';
+  OUTER_INPUT_VARIANT_CLASSES as outerInputVariantClasses,
+  INNER_INPUT_VARIANT_CLASSES as innerInputVariantClasses,
+  INPUT_TYPE_CLASSES as inputTypeClasses,
+  INPUT_ERROR_CLASSES as inputErrorClasses
+} from './InputTheme';
+import './Input.css';
 
 const Input = ({
-  btnVariant,
   className,
   customStyles,
   description,
   error,
   footer,
-  isLoading,
   isRequired,
   label,
   name,
@@ -35,46 +37,34 @@ const Input = ({
 }) => {
   const [inputType, setInputType] = useState(initialType);
   const hideDescription = useRef(false);
-  const inputClasses = [inputType];
-  if (className) inputClasses.push(className);
-  if (initialType === 'button')
-    inputClasses.push(
-      btnVariant,
-      ...btnBaseClasses,
-      ...btnVariantClasses[btnVariant]
-    );
+  const outerInputClasses = clsm(variant, outerInputVariantClasses[variant]);
 
-  const passwordPeek = (event) => {
-    event.preventDefault();
-    setInputType((prev) => (prev === 'password' ? 'text' : 'password'));
-  };
+  const innerInputClasses = clsm(innerInputVariantClasses);
+
+  const inputClasses = clsm(
+    inputTypeClasses[initialType],
+    error !== undefined && error !== null && inputErrorClasses,
+    className
+  );
 
   useEffect(() => {
     hideDescription.current = hideDescription.current || !!error;
   }, [error]);
 
-  const isPasswordHidden = inputType === 'password';
-
   return (
-    <div className={`outer-input-container ${variant}`}>
-      {label && (
-        <label className="label h4" htmlFor={name}>
-          {label}
-        </label>
-      )}
+    <div className={outerInputClasses}>
+      <Label label={label} htmlFor={name} variant={variant} />
       <div
         id={`${name}-input-container`}
         style={customStyles}
-        className={`inner-input-container ${
-          error !== undefined && error !== null ? 'error' : ''
-        }`}
+        className={innerInputClasses}
       >
         <input
           {...(onChange ? { onChange } : {})}
-          {...(onClick && !isLoading ? { onClick } : {})}
+          {...(onClick ? { onClick } : {})}
           {...(onFocus ? { onFocus } : {})}
           {...(onBlur ? { onBlur } : {})}
-          className={inputClasses.join(' ')}
+          className={inputClasses}
           id={name}
           initial-type={initialType}
           name={name}
@@ -85,44 +75,23 @@ const Input = ({
             initialType === 'password' && value ? { paddingRight: '52px' } : {}
           }
           type={inputType}
-          value={isLoading ? '' : value}
+          value={value}
           autoCorrect={autoCorrect}
           autoCapitalize={autoCapitalize}
         />
-        {error && (
-          <span className="error-message">
-            <ErrorIcon className="error-icon" />
-            <p className="p3">{error}</p>
-          </span>
-        )}
-        {initialType === 'password' && value && (
-          <button
-            aria-label={`${
-              isPasswordHidden ? $content.show : $content.hide
-            } ${label.toLowerCase()}`}
-            className="password-peek"
-            onClick={passwordPeek}
-            type="button"
-          >
-            {isPasswordHidden ? (
-              <Visibility className="visibility-icon" />
-            ) : (
-              <VisibilityOff className="visibility-icon" />
-            )}
-          </button>
-        )}
-        {isLoading && (
-          <div className="spinner-container">
-            <Spinner />
-          </div>
-        )}
+        <ErrorMessage error={error} />
+        <PasswordPeekButton
+          isVisible={initialType === 'password' && !!value}
+          label={label}
+          inputType={inputType}
+          setInputType={setInputType}
+        />
       </div>
-      {!error && description && !hideDescription.current && (
-        <span className="description">
-          <p className="p3">{description}</p>
-        </span>
-      )}
-      {footer && <span className="footer">{footer}</span>}
+      <Description
+        isVisible={!error && !!description && !hideDescription.current}
+        description={description}
+      />
+      {footer && <span className="mt-[15px]">{footer}</span>}
     </div>
   );
 };
@@ -130,13 +99,11 @@ const Input = ({
 Input.defaultProps = {
   autoCorrect: 'off',
   autoCapitalize: 'none',
-  btnVariant: 'primary',
   className: '',
   customStyles: {},
   description: '',
   error: null,
   footer: undefined,
-  isLoading: false,
   isRequired: true,
   label: '',
   onBlur: null,
@@ -153,19 +120,11 @@ Input.defaultProps = {
 Input.propTypes = {
   autoCorrect: PropTypes.string,
   autoCapitalize: PropTypes.string,
-  btnVariant: PropTypes.oneOf([
-    'destructive',
-    'link',
-    'primary',
-    'tertiary',
-    'secondary'
-  ]),
   className: PropTypes.string,
   customStyles: PropTypes.object,
   description: PropTypes.string,
   error: PropTypes.string,
   footer: PropTypes.node,
-  isLoading: PropTypes.bool,
   isRequired: PropTypes.bool,
   label: PropTypes.string,
   name: PropTypes.string.isRequired,
@@ -175,7 +134,7 @@ Input.propTypes = {
   onFocus: PropTypes.func,
   placeholder: PropTypes.string,
   readOnly: PropTypes.bool,
-  type: PropTypes.oneOf(['text', 'password', 'button']),
+  type: PropTypes.oneOf(['text', 'password']),
   value: PropTypes.string,
   variant: PropTypes.oneOf(['vertical', 'horizontal'])
 };

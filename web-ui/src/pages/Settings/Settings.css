@@ -35,10 +35,6 @@
   column-gap: 10px;
 }
 
-.input-container {
-  display: flex;
-}
-
 @media (max-width: 767px) {
   .input-btn-group {
     align-items: flex-end;

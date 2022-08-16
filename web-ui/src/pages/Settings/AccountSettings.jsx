@@ -11,8 +11,11 @@ import { useUser } from '../../contexts/User';
 import * as userAvatars from '../../assets/avatars';
 import Form from '../../components/Form';
 import IconSelect from '../../components/IconSelect';
-import Input from '../../components/Input';
+import Button from '../../components/Button';
+import InputLabel from '../../components/Input/InputLabel';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
+import { OUTER_INPUT_VARIANT_CLASSES as outerInputClasses } from '../../components/Input/InputTheme';
+import { clsm } from '../../utils';
 import './Settings.css';
 
 const defaultFormProps = (inputVariant) => ({
@@ -35,6 +38,7 @@ const AccountSettings = () => {
     (acc, color) => ({ ...acc, [color]: `bg-profile-${color}` }),
     {}
   );
+  const inputContainerClasses = clsm(outerInputClasses[inputVariant]);
 
   const handleDeleteAccount = () => {
     if (isDeleteAccountLoading) return;
@@ -215,18 +219,21 @@ const AccountSettings = () => {
         />
       </section>
       <section>
-        <span className="input-container">
-          <Input
-            btnVariant="destructive"
-            isLoading={isDeleteAccountLoading}
+        <span className={inputContainerClasses}>
+          <InputLabel
             label={$content.settings_page.account_deletion}
-            name="deleteAccount"
-            onClick={handleDeleteAccount}
-            type="button"
-            value={$content.settings_page.delete_my_account}
+            htmlFor="deleteAccount"
             variant={inputVariant}
-            customStyles={{ width: '190px' }}
           />
+          <Button
+            variant="destructive"
+            type="button"
+            onClick={handleDeleteAccount}
+            isLoading={isDeleteAccountLoading}
+            className="min-w-[190px]"
+          >
+            {$content.settings_page.delete_my_account}
+          </Button>
         </span>
       </section>
     </>

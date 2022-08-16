@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import InputLabel from '../Input/InputLabel';
 
 import Icon from './Icon';
 import './IconSelect.css';
@@ -24,11 +25,7 @@ const IconSelect = ({
 
   return (
     <div className={`outer-select-container ${variant}`}>
-      {label && (
-        <label className="label h4" htmlFor={name}>
-          {label}
-        </label>
-      )}
+      <InputLabel label={label} htmlFor={name} />
       <div
         id={`${name}-icon-select-container`}
         className={'inner-select-container'}
