@@ -23,7 +23,6 @@ const Controls = ({
 }) => {
   const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const {
-    error,
     isPaused,
     pause,
     play,
@@ -32,12 +31,9 @@ const Controls = ({
     volumeLevel,
     updateVolume
   } = player;
-  const hasError = !!error;
 
   const onPointerDownPlayPauseHandler = useCallback(
     (event) => {
-      if (hasError) return;
-
       stopPropagAndResetTimeout(event);
 
       if (isPaused) {
@@ -46,7 +42,7 @@ const Controls = ({
         pause();
       }
     },
-    [hasError, isPaused, pause, play, stopPropagAndResetTimeout]
+    [isPaused, pause, play, stopPropagAndResetTimeout]
   );
 
   const onPointerDownFullscreenHandler = useCallback(

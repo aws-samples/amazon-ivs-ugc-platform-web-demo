@@ -1,4 +1,9 @@
 {
   "stream_offline": "Stream offline",
-  "video_quality": "Video Quality"
+  "video_quality": "Video Quality",
+  "notification": {
+    "error": {
+      "error_loading_stream": "Error loading stream"
+    }
+  }
 }

@@ -20,7 +20,6 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const timeoutId = useRef();
   const prevIsChannelLive = usePrevious(isLive);
   const [error, setError] = useState(null);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(true);
   const [volumeLevel, setVolumeLevel] = useState(VOLUME_MAX);
@@ -30,6 +29,7 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const [selectedQualityName, setSelectedQualityName] = useState(
     qualities[0].name
   );
+  const [hasLoaded, setHasLoaded] = useState(false);
   const hasError = !!error;
   const intervalId = useRef(null);
 
@@ -58,14 +58,14 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
           ? [{ name: 'Auto' }, ...qualities]
           : prevQualities
       );
-    }
-    if (newState === PLAYING) setIsInitialLoading(false);
-    if (newState !== ENDED) resetIntervalId();
 
+      setHasLoaded(true);
+    }
+    if (newState === BUFFERING) setIsLoading(true);
+    if (newState === PLAYING) setIsLoading(false);
+    if (newState !== ENDED) resetIntervalId();
     setError(null);
     setHasEnded(newState === ENDED);
-    setIsLoading(newState === READY || newState === BUFFERING);
-    setIsPaused(playerRef.current?.isPaused() || false);
 
     console.log(`Player State - ${newState}`);
   }, [resetIntervalId]);
@@ -119,37 +119,18 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   }, [destroy, onError, onStateChange]);
 
   const play = useCallback(() => {
-    if (!playerRef.current) return;
-
-    if (hasError) {
-      setIsLoading(true);
-      playerRef.current.load(playbackUrl);
-    }
-
-    if (playerRef.current.isPaused()) {
-      playerRef.current.play();
-      setIsPaused(false);
-    }
-  }, [hasError, playbackUrl]);
-
-  const pause = useCallback(() => {
-    if (!playerRef.current) return;
-
-    if (!playerRef.current.isPaused()) {
-      playerRef.current.pause();
-      setIsPaused(true);
-    }
+    setIsPaused(false);
   }, []);
-
+  const pause = useCallback(() => {
+    resetIntervalId();
+    setIsPaused(true);
+    setIsLoading(false);
+  }, [resetIntervalId]);
+  const updateQuality = useCallback((name) => {
+    setSelectedQualityName(name);
+  }, []);
   const updateVolume = useCallback((newVolume) => {
-    if (!playerRef.current) return;
-
-    playerRef.current.setMuted(false);
     setVolumeLevel(newVolume);
-
-    const ivsVolume = Number((newVolume / 100).toFixed(1));
-
-    playerRef.current.setVolume(ivsVolume);
   }, []);
 
   const load = useCallback(
@@ -159,38 +140,22 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
       if (!playerRef.current) create();
 
       playerRef.current.load(playbackUrl);
-      play();
       updateVolume(VOLUME_MAX);
     },
-    [create, play, updateVolume]
+    [create, updateVolume]
   );
   const reset = useCallback(() => {
-    setIsInitialLoading(true);
+    setError(null);
     setIsLoading(true);
-    setIsPaused(true);
+    setIsPaused(false);
     setHasEnded(false);
     setVolumeLevel(VOLUME_MAX);
     setHasPlayedFinalBuffer(false);
     setQualities([{ name: 'Auto' }]);
+    setHasLoaded(false);
     resetIntervalId();
     destroy();
   }, [destroy, resetIntervalId]);
-
-  const updateQuality = useCallback(
-    (name) => {
-      if (!playerRef.current) return;
-
-      const quality = qualities.find((quality) => quality.name === name);
-
-      if (quality) {
-        if (name === 'Auto') playerRef.current.setAutoQualityMode();
-        else playerRef.current.setQuality(quality);
-
-        setSelectedQualityName(name);
-      }
-    },
-    [qualities]
-  );
 
   const { shouldBlurPlayer, isBlurReady, canvasRef } = usePlayerBlur({
     ingestConfiguration,
@@ -199,6 +164,63 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     videoRef
   });
 
+  /**
+   * Users can use the controls while the player is loading.
+   * We're always updating the player based on the local state.
+   */
+  // UPDATE PLAYER START
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    // Resume or pause playback
+    if (!isPaused && (!hasLoaded || hasError)) {
+      setIsLoading(true);
+      setError(null);
+      playerRef.current.load(playbackUrl);
+    } else if (!isPaused && playerRef.current.isPaused()) {
+      playerRef.current.play();
+    } else if (isPaused && !playerRef.current.isPaused()) {
+      playerRef.current.pause();
+    }
+
+    // Update current quality
+    const quality = qualities.find(
+      (quality) => quality.name === selectedQualityName
+    );
+
+    if (quality) {
+      if (
+        selectedQualityName === 'Auto' &&
+        !playerRef.current.isAutoQualityMode()
+      )
+        playerRef.current.setAutoQualityMode(true);
+      else if (
+        selectedQualityName !== 'Auto' &&
+        playerRef.current.getQuality()?.name !== quality.name
+      )
+        playerRef.current.setQuality(quality);
+    }
+
+    // Update volume
+    const ivsVolume = Number((volumeLevel / 100).toFixed(1));
+
+    if (playerRef.current.isMuted()) playerRef.current.setMuted(false);
+    if (playerRef.current.getVolume() !== ivsVolume)
+      playerRef.current.setVolume(ivsVolume);
+  }, [
+    hasError,
+    hasLoaded,
+    isPaused,
+    playbackUrl,
+    qualities,
+    selectedQualityName,
+    volumeLevel
+  ]);
+  // UPDATE PLAYER END
+
+  /**
+   * Play the last buffer segment before closing the player
+   */
   useEffect(() => {
     if (prevIsChannelLive && !isLive && playerRef.current) {
       let bufferDuration = playerRef.current.getBufferDuration();
@@ -215,13 +237,10 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   }, [isLive, prevIsChannelLive]);
 
   useEffect(() => {
-    if (hasError) reset();
-  }, [hasError, reset]);
-
-  useEffect(() => {
     const loadPlayer = () => load(playbackUrl);
 
     if (playbackUrl && isLive) {
+      loadPlayer();
       intervalId.current = setInterval(loadPlayer, 3000);
     } else if ((!playbackUrl || !isLive) && hasPlayedFinalBuffer) reset();
 
@@ -235,11 +254,8 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     hasFinalBuffer: prevIsChannelLive && !hasPlayedFinalBuffer,
     instance: playerRef.current,
     isBlurReady,
-    isInitialLoading,
     isLoading,
     isPaused,
-    volumeLevel,
-    updateVolume,
     pause,
     play,
     playerRef,
@@ -249,7 +265,9 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     setError,
     shouldBlurPlayer,
     updateQuality,
-    videoRef
+    updateVolume,
+    videoRef,
+    volumeLevel
   };
 };
 

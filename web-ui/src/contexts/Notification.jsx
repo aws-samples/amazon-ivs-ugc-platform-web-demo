@@ -24,7 +24,7 @@ export const Provider = ({ children }) => {
   }, [setNotif]);
 
   const notify = useCallback(
-    (message, type) => {
+    (message, type, withTimeout = true) => {
       let shouldDismissNotif = false;
 
       setNotif(
@@ -32,17 +32,20 @@ export const Provider = ({ children }) => {
           if (prevNotif && prevNotif.message !== message) {
             shouldDismissNotif = true;
             clearTimeout(timeoutID.current);
+
             return null;
           } else {
-            return { message, type };
+            return { message, type, withTimeout };
           }
         },
         () => {
           if (shouldDismissNotif) {
-            setTimeout(
-              () => setNotif({ message, type }),
-              NOTIF_ANIMATION_DURATION_MS
-            );
+            if (withTimeout)
+              setTimeout(
+                () => setNotif({ message, type, withTimeout }),
+                NOTIF_ANIMATION_DURATION_MS
+              );
+            else setNotif({ message, type, withTimeout });
           }
         }
       );
@@ -51,12 +54,14 @@ export const Provider = ({ children }) => {
   );
 
   const notifyError = useCallback(
-    (message) => notify(message, NOTIF_TYPES.ERROR),
+    (message, withTimeout = true) =>
+      notify(message, NOTIF_TYPES.ERROR, withTimeout),
     [notify]
   );
 
   const notifySuccess = useCallback(
-    (message) => notify(message, NOTIF_TYPES.SUCCESS),
+    (message, withTimeout = true) =>
+      notify(message, NOTIF_TYPES.SUCCESS, withTimeout),
     [notify]
   );
 
@@ -65,7 +70,7 @@ export const Provider = ({ children }) => {
   }, [dismissNotif, pathname]);
 
   useEffect(() => {
-    if (notif) {
+    if (notif && notif.withTimeout) {
       timeoutID.current = setTimeout(dismissNotif, NOTIF_TIMEOUT);
     }
 
@@ -74,12 +79,13 @@ export const Provider = ({ children }) => {
 
   const value = useMemo(
     () => ({
+      dismissNotif,
       NOTIF_TYPES,
       notif,
       notifyError,
       notifySuccess
     }),
-    [notif, notifyError, notifySuccess]
+    [dismissNotif, notif, notifyError, notifySuccess]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

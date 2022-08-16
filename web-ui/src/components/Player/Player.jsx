@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
+import { useNotif } from '../../contexts/Notification';
 import Controls from './Controls';
 import FullScreenLoader from '../FullScreenLoader';
 import useControls from './Controls/useControls';
@@ -16,7 +17,6 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
     error,
     hasEnded,
     hasFinalBuffer,
-    isInitialLoading,
     isLoading,
     isPaused,
     selectedQualityName,
@@ -33,8 +33,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const playerElementRef = useRef();
   const hasError = !!error;
   const shouldShowLoader = isLoading && !hasError;
-  const shouldShowControls =
-    hasError || (isControlsOpen && (!isLoading || !isInitialLoading));
+  const shouldShowControls = hasError || isControlsOpen;
+  const { dismissNotif, notifyError } = useNotif();
 
   useEffect(() => {
     if (hasEnded) {
@@ -42,13 +42,29 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
     }
   }, [hasEnded, setIsLive]);
 
+  useEffect(() => {
+    if (hasError) {
+      notifyError($content.notification.error.error_loading_stream, false);
+    } else {
+      dismissNotif();
+    }
+  }, [dismissNotif, hasError, notifyError]);
+
   return (
-    <section className="flex justify-center items-center flex-col w-full h-screen">
-      <div
-        className="w-full h-full relative"
-        onMouseMove={onMouseMoveHandler}
-        ref={playerElementRef}
-      >
+    <section
+      className={clsm([
+        'bg-lightMode-gray',
+        'dark:bg-black',
+        'flex-col',
+        'flex',
+        'h-screen',
+        'items-center',
+        'justify-center',
+        'w-full'
+      ])}
+      ref={playerElementRef}
+    >
+      <div className="w-full h-full relative" onMouseMove={onMouseMoveHandler}>
         {isLive || isLive === undefined || hasFinalBuffer ? (
           <>
             {shouldShowLoader && <FullScreenLoader />}
@@ -65,7 +81,6 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
               onPointerDown={mobileClickHandler}
             >
               <video
-                autoPlay
                 className={`w-full h-full ${
                   shouldShowLoader ? 'hidden' : 'block'
                 }`}

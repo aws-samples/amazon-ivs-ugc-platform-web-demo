@@ -8,10 +8,10 @@ import {
 import { m, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { Close, Settings as SettingsSvg } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { player as $content } from '../../../content';
-import { Close, Settings as SettingsSvg } from '../../../assets/icons';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import Button from '../../Button';
 import useClickAway from '../../../hooks/useClickAway';
@@ -39,13 +39,9 @@ const RenditionSetting = ({
   const onPointerDownRenditionSettingHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
-      setIsExpanded((prev) => {
-        setIsPopupOpen(!prev);
-
-        return !prev;
-      });
+      setIsExpanded((prev) => !prev);
     },
-    [setIsPopupOpen, stopPropagAndResetTimeout]
+    [stopPropagAndResetTimeout]
   );
   const onSelectQualityHandler = useCallback(
     (event) => {
@@ -78,11 +74,15 @@ const RenditionSetting = ({
     } else {
       setQualitiesContainerPos(null);
     }
-  }, [isExpanded]);
+  }, [isExpanded, qualities]);
 
   useEffect(() => {
     closeQualitiesContainer();
-  }, [closeQualitiesContainer, isMobileView, qualities]);
+  }, [closeQualitiesContainer, isMobileView]);
+
+  useEffect(() => {
+    setIsPopupOpen(isExpanded);
+  }, [isExpanded, setIsPopupOpen]);
 
   return (
     <div className={clsm(['flex', 'relative'])}>

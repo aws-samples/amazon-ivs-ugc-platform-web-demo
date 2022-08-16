@@ -43,8 +43,8 @@ const App = () => (
     <LazyMotion features={loadMotionFeatures} strict>
       <MotionConfig reducedMotion="user">
         <MobileBreakpointProvider>
-          <NotificationProvider>
-            <UserProvider>
+          <UserProvider>
+            <NotificationProvider>
               <ModalProvider>
                 <Routes>
                   <Route element={<SharedComponents />}>
@@ -83,8 +83,8 @@ const App = () => (
                   </Route>
                 </Routes>
               </ModalProvider>
-            </UserProvider>
-          </NotificationProvider>
+            </NotificationProvider>
+          </UserProvider>
         </MobileBreakpointProvider>
       </MotionConfig>
     </LazyMotion>

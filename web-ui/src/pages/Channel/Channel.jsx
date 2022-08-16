@@ -25,9 +25,7 @@ const Channel = () => {
         'justify-center',
         'text-center',
         'h-full',
-        'w-full',
-        'bg-lightMode-gray',
-        'dark:bg-black'
+        'w-full'
       )}
     >
       <Player

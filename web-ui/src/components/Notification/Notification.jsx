@@ -6,9 +6,13 @@ import {
   useNotif,
   NOTIF_ANIMATION_DURATION_MS
 } from '../../contexts/Notification';
-import './Notification.css';
+import { clsm } from '../../utils';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useUser } from '../../contexts/User';
 
 const Notification = ({ position }) => {
+  const { isMobileView } = useMobileBreakpoint();
+  const { isSessionValid } = useUser();
   const { NOTIF_TYPES, notif } = useNotif();
 
   let NotifIcon = null;
@@ -21,7 +25,24 @@ const Notification = ({ position }) => {
         <m.div
           animate="visible"
           aria-live="polite"
-          className={`notification ${notif.type} ${position}`}
+          className={clsm([
+            'notification',
+            'left-0',
+            'my-0',
+            'mx-auto',
+            'max-w-[595px]',
+            'py-0',
+            'px-4',
+            'sticky',
+            'right-0',
+            'top-[79px]',
+            'w-fit',
+            'z-50',
+            position,
+            !isMobileView && isSessionValid && ['left-16'], // Account for the authenticated sidebar
+            !isMobileView &&
+              !isSessionValid && ['left-60', 'lg:portrait:left-40'] // Account for the unauthenticated sidebar
+          ])}
           exit="hidden"
           initial="hidden"
           key={`${notif.type}-notification`}
@@ -34,8 +55,31 @@ const Notification = ({ position }) => {
             visible: { opacity: 1, y: 0 }
           }}
         >
-          <div>
-            <NotifIcon className="notification-icon" />
+          <div
+            className={clsm([
+              'dark:text-black',
+              'flex',
+              'font-bold',
+              'gap-x-[11.5px]',
+              'items-center',
+              'leading-[18px]',
+              'px-[20px]',
+              'py-[10px]',
+              'rounded-3xl',
+              'text-white',
+              notif.type === 'error' && [
+                'bg-lightMode-red',
+                'dark:bg-darkMode-red'
+              ],
+              notif.type === 'success' && [
+                'bg-lightMode-green',
+                'dark:bg-darkMode-green'
+              ]
+            ])}
+          >
+            <NotifIcon
+              className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
+            />
             {notif.message}
           </div>
         </m.div>
