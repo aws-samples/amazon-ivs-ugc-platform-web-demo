@@ -49,7 +49,7 @@ button.selectable-icon {
 
 .selectable-icon.selected,
 .selectable-icon.hoverable:hover {
-  outline: 2px solid var(--palette-color-white);
+  box-shadow: 0 0 0 2px var(--palette-color-white);
   border-radius: 50%;
 }
 

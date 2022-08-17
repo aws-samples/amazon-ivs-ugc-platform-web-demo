@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 
 const useControls = (isPaused) => {
+  const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
   const { isTouchscreenDevice } = useMobileBreakpoint();
@@ -114,9 +115,11 @@ const useControls = (isPaused) => {
 
   return {
     isControlsOpen,
+    isFullscreenEnabled,
     mobileClickHandler,
-    onMouseMoveHandler,
     onControlHoverHandler,
+    onMouseMoveHandler,
+    setIsFullscreenEnabled,
     setIsPopupOpen,
     stopPropagAndResetTimeout
   };

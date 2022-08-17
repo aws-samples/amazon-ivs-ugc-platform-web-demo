@@ -24,9 +24,11 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
   } = livePlayer;
   const {
     isControlsOpen,
+    isFullscreenEnabled,
     mobileClickHandler,
-    onMouseMoveHandler,
     onControlHoverHandler,
+    onMouseMoveHandler,
+    setIsFullscreenEnabled,
     setIsPopupOpen,
     stopPropagAndResetTimeout
   } = useControls(isPaused);
@@ -68,6 +70,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
         {isLive || isLive === undefined || hasFinalBuffer ? (
           <>
             {shouldShowLoader && <FullScreenLoader />}
+            {/* The onClick is only used on touchscreen, where the keyboard isn't available */}
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
             <div
               className={clsm([
                 'absolute',
@@ -78,7 +82,8 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                 'w-full'
               ])}
               id="player-controls-container"
-              onPointerDown={mobileClickHandler}
+              onClick={mobileClickHandler}
+              role="toolbar"
             >
               <video
                 className={`w-full h-full ${
@@ -114,10 +119,12 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                     transition={{ duration: 0.25, type: 'tween' }}
                   >
                     <Controls
+                      isFullscreenEnabled={isFullscreenEnabled}
                       onControlHoverHandler={onControlHoverHandler}
-                      playerElementRef={playerElementRef}
                       player={livePlayer}
+                      playerElementRef={playerElementRef}
                       selectedQualityName={selectedQualityName}
+                      setIsFullscreenEnabled={setIsFullscreenEnabled}
                       setIsPopupOpen={setIsPopupOpen}
                       stopPropagAndResetTimeout={stopPropagAndResetTimeout}
                     />

@@ -36,7 +36,7 @@ const RenditionSetting = ({
     setIsExpanded(false);
     setIsPopupOpen(false);
   }, [setIsPopupOpen]);
-  const onPointerDownRenditionSettingHandler = useCallback(
+  const onClickRenditionSettingHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
       setIsExpanded((prev) => !prev);
@@ -99,7 +99,7 @@ const RenditionSetting = ({
         onFocus={onControlHoverHandler}
         onMouseEnter={onControlHoverHandler}
         onMouseLeave={onControlHoverHandler}
-        onPointerDown={onPointerDownRenditionSettingHandler}
+        onClick={onClickRenditionSettingHandler}
         ref={settingsButtonRef}
       >
         {<SettingsSvg />}

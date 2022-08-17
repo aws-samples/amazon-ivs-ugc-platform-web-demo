@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -14,14 +14,15 @@ import RenditionSetting from './RenditionSetting';
 import VolumeSetting from './VolumeSetting';
 
 const Controls = ({
+  isFullscreenEnabled,
   onControlHoverHandler,
   player,
   playerElementRef,
   selectedQualityName,
+  setIsFullscreenEnabled,
   setIsPopupOpen,
   stopPropagAndResetTimeout
 }) => {
-  const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const {
     isPaused,
     pause,
@@ -32,7 +33,7 @@ const Controls = ({
     updateVolume
   } = player;
 
-  const onPointerDownPlayPauseHandler = useCallback(
+  const onClickPlayPauseHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
 
@@ -45,7 +46,7 @@ const Controls = ({
     [isPaused, pause, play, stopPropagAndResetTimeout]
   );
 
-  const onPointerDownFullscreenHandler = useCallback(
+  const onClickFullscreenHandler = useCallback(
     async (event) => {
       stopPropagAndResetTimeout(event);
 
@@ -109,7 +110,7 @@ const Controls = ({
         );
       };
     }
-  }, [playerElementRef]);
+  }, [playerElementRef, setIsFullscreenEnabled]);
 
   return (
     <div
@@ -123,7 +124,7 @@ const Controls = ({
           onFocus={onControlHoverHandler}
           onMouseEnter={onControlHoverHandler}
           onMouseLeave={onControlHoverHandler}
-          onPointerDown={onPointerDownPlayPauseHandler}
+          onClick={onClickPlayPauseHandler}
         >
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
@@ -148,7 +149,7 @@ const Controls = ({
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-          onPointerDown={onPointerDownFullscreenHandler}
+          onClick={onClickFullscreenHandler}
         >
           {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
         </button>
@@ -158,14 +159,17 @@ const Controls = ({
 };
 
 Controls.defaultProps = {
+  isFullscreenEnabled: false,
   playerElementRef: null
 };
 
 Controls.propTypes = {
+  isFullscreenEnabled: PropTypes.bool,
   onControlHoverHandler: PropTypes.func.isRequired,
   player: PropTypes.object.isRequired,
   playerElementRef: PropTypes.object,
   selectedQualityName: PropTypes.string.isRequired,
+  setIsFullscreenEnabled: PropTypes.func.isRequired,
   setIsPopupOpen: PropTypes.func.isRequired,
   stopPropagAndResetTimeout: PropTypes.func.isRequired
 };
