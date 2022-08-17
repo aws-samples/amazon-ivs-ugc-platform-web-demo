@@ -46,7 +46,7 @@ const VolumeSetting = ({
 
       setVolumeContainerPos({
         top: -volumeContainerHeight + 45,
-        left: -volumeContainerWidth / 2 - 25 // (container width / 2) + (icon width / 2)
+        left: -volumeContainerWidth / 2 - 28 // (container width / 2) + (icon width / 2)
       });
     } else {
       setVolumeContainerPos(null);

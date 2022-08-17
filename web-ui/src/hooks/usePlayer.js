@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';
-import { VOLUME_MAX } from '../constants';
+import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 
 const { IVSPlayer } = window;
 
@@ -12,7 +12,7 @@ const {
   PlayerState
 } = IVSPlayer;
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
-const { ERROR } = PlayerEventType;
+const { ERROR, AUDIO_BLOCKED } = PlayerEventType;
 
 const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const videoRef = useRef(null);
@@ -36,6 +36,11 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const resetIntervalId = useCallback(() => {
     clearInterval(intervalId.current);
     intervalId.current = null;
+  }, []);
+
+  // Sets Volume to muted state if audio is blocked
+  const onAudioBlocked = useCallback(() => {
+    setVolumeLevel(VOLUME_MIN);
   }, []);
 
   // Generic PlayerState event listener
@@ -88,13 +93,14 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     playerRef.current.removeEventListener(BUFFERING, onStateChange);
     playerRef.current.removeEventListener(ENDED, onStateChange);
     playerRef.current.removeEventListener(ERROR, onError);
+    playerRef.current.removeEventListener(AUDIO_BLOCKED, onAudioBlocked);
 
     // delete and nullify player
     playerRef.current.pause();
     playerRef.current.delete();
     playerRef.current = null;
     videoRef.current?.removeAttribute('src'); // remove possible stale src
-  }, [onError, onStateChange]);
+  }, [onError, onStateChange, onAudioBlocked]);
 
   const create = useCallback(() => {
     if (!isPlayerSupported) {
@@ -116,7 +122,9 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
     playerRef.current.addEventListener(BUFFERING, onStateChange);
     playerRef.current.addEventListener(ENDED, onStateChange);
     playerRef.current.addEventListener(ERROR, onError);
-  }, [destroy, onError, onStateChange]);
+
+    playerRef.current.addEventListener(AUDIO_BLOCKED, onAudioBlocked);
+  }, [destroy, onError, onStateChange, onAudioBlocked]);
 
   const play = useCallback(() => {
     setIsPaused(false);
