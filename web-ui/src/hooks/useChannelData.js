@@ -15,8 +15,9 @@ const useChannelData = (username) => {
   const { data, error } = useSWR(username, channelDataFetcher, {
     refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL
   });
+  const isLoading = !data && !error;
 
-  return { data, error };
+  return { data, error, isLoading };
 };
 
 export default useChannelData;

@@ -32,5 +32,7 @@
     "just_now": "just now"
   },
   "hide": "Hide",
-  "show": "Show"
+  "show": "Show",
+  "page_unavailable": "This page is unavailable",
+  "back_to_directory": "Back to directory"
 }
