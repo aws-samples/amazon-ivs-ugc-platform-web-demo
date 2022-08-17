@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { getCurrentSession } from '../api/utils';
-import { userManagement } from '../api';
+import { userManagementAPI } from '../api';
 import useContextHook from './useContextHook';
 import usePrevious from '../hooks/usePrevious';
 
@@ -42,7 +42,7 @@ export const Provider = ({ children }) => {
   } = useSWR('getCurrentSession', getCurrentSessionFetcher);
 
   const fetchUserData = useCallback(async () => {
-    const { result } = await userManagement.getUserData();
+    const { result } = await userManagementAPI.getUserData();
 
     if (result) {
       setUserData(
@@ -62,7 +62,7 @@ export const Provider = ({ children }) => {
 
     setIsCreatingResources(true);
     setHasErrorCreatingResources(false);
-    const { result, error } = await userManagement.createResources();
+    const { result, error } = await userManagementAPI.createResources();
 
     if (result) await fetchUserData();
     if (error) setHasErrorCreatingResources(true);
@@ -73,7 +73,7 @@ export const Provider = ({ children }) => {
   const logOut = useCallback(
     (action) => {
       setLogOutAction(action);
-      userManagement.signOut();
+      userManagementAPI.signOut();
 
       if (action === 'logOut') navigate('/');
 

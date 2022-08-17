@@ -226,9 +226,6 @@ export const createResources = async () =>
 export const getUserData = async () =>
   await authFetch({ url: `${apiBaseUrl}/user` });
 
-export const getUserChannelData = async (username) =>
-  await unauthFetch({ url: `${apiBaseUrl}/user/channel/${username}` });
-
 export const changeUsername = async ({ username: newUsername }) =>
   await authFetch({
     body: { newUsername },
@@ -254,16 +251,3 @@ export const resetStreamKey = async () =>
 
 export const deleteAccount = async () =>
   await authFetch({ url: `${apiBaseUrl}/user`, method: 'DELETE' });
-
-export const getStreamSessions = async (channelResourceId, nextToken = '') =>
-  await authFetch({
-    url: `${apiBaseUrl}/metrics/${channelResourceId}/streamSessions?nextToken=${nextToken}`
-  });
-
-export const getStreamSessionData = async (
-  channelResourceId,
-  streamSessionId
-) =>
-  await authFetch({
-    url: `${apiBaseUrl}/metrics/${channelResourceId}/streamSessions/${streamSessionId}`
-  });

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import { useNotif } from '../../../../contexts/Notification';
-import { userManagement } from '../../../../api';
+import { userManagementAPI } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 import Button from '../../../../components/Button';
 import { LIMIT_EXCEEDED_EXCEPTION } from '../../../../constants';
@@ -11,7 +11,7 @@ const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
 
   const resend = async () => {
-    const { result, error } = await userManagement.resendVerificationRequest(
+    const { result, error } = await userManagementAPI.resendVerificationRequest(
       username
     );
 

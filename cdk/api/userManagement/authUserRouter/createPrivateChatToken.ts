@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { createChatRoomToken } from '../helpers';
+import { createChatRoomToken, getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
@@ -11,7 +11,7 @@ const handler = async (
   reply: FastifyReply
 ) => {
   const { chatRoomOwnerUsername } = request.body;
-  const { username: viewerUsername } = request.requestContext.get(
+  const { username: viewerUsername, sub } = request.requestContext.get(
     'user'
   ) as UserContext;
   let token, sessionExpirationTime, tokenExpirationTime;
@@ -24,11 +24,18 @@ const handler = async (
   }
 
   try {
+    const { Item = {} } = await getUser(sub);
+    const {
+      avatar: { S: avatar },
+      color: { S: color }
+    } = Item;
+    const viewerAttributes = { displayName: viewerUsername, avatar, color };
     const capabilities = ['SEND_MESSAGE'];
+
     ({ token, sessionExpirationTime, tokenExpirationTime } =
       await createChatRoomToken(
         chatRoomOwnerUsername,
-        viewerUsername,
+        viewerAttributes,
         capabilities
       ));
   } catch (error) {

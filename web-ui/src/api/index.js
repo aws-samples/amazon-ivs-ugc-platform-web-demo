@@ -1,5 +1,5 @@
 import * as userManagementAPI from './userManagement';
+import * as metricsAPI from './metrics';
+import * as channelAPI from './channel';
 
-const userManagement = { ...userManagementAPI };
-
-export { userManagement };
+export { userManagementAPI, metricsAPI, channelAPI };

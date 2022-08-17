@@ -1,11 +1,11 @@
 import { reindexSessions } from '../../mocks/utils';
 import { USE_MOCKS } from '../../constants';
-import { userManagement } from '../../api';
+import { metricsAPI } from '../../api';
 import STREAM_SESSION_MOCK_DATA from '../../mocks';
 
 export const streamSessionsFetcher = async (channelResourceId, nextToken) => {
   // Fetch up to 50 streams for this channel, ordered by start time
-  const { result: data, error } = await userManagement.getStreamSessions(
+  const { result: data, error } = await metricsAPI.getStreamSessions(
     channelResourceId,
     nextToken
   );
@@ -47,7 +47,7 @@ export const activeStreamSessionFetcher = async (
 
   // Fetch the stream metadata for the next active (selected) session
   const { result: streamSessionMetadata, error } =
-    await userManagement.getStreamSessionData(channelResourceId, streamId);
+    await metricsAPI.getStreamSessionData(channelResourceId, streamId);
 
   if (streamSessionMetadata) {
     const streamEvents = streamSessionMetadata.truncatedEvents.map(

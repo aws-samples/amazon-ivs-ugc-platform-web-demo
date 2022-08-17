@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { clsm } from '../../utils';
 
+import Chat from './Chat';
 import Player from '../../components/Player';
 import useChannelData from '../../hooks/useChannelData';
 
@@ -33,6 +34,7 @@ const Channel = () => {
         setIsLive={setIsLive}
         playbackUrl={channelData?.playbackUrl}
       />
+      <Chat chatRoomOwnerUsername={username} />
     </div>
   );
 };

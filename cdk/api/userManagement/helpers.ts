@@ -74,11 +74,11 @@ export const getChannelArnParams = (
 /**
  * Creates an IVS chat room token with an optional set of capabilities.
  *
- * This token is only used to establish a connection with the Amazon IVS Chat Messaging API. If a token is
- * not used to establish a connection before this time lapses, the token becomes invalid. Tokens are valid
- * for one minute from the time of creation and can only be used once to establish a connection.
+ * This token is only used to establish a connection with the Amazon IVS Chat Messaging API. If a token is not
+ * used to establish a connection before the expiration time lapses, the token becomes invalid. Tokens are
+ * valid for one minute from the time of creation and can only be used one time to establish a connection.
  *
- * Session duration refers to how long an established session can remain active before it is automatically
+ * Session duration refers to how long an established connection can remain active before it is automatically
  * terminated by the Amazon IVS Chat Messaging API (maximum 180 minutes). Once the session expires, a new
  * token must be generated and a new connection must be established. Session duration defaults to 60 minutes.
  *
@@ -100,12 +100,11 @@ export const getChannelArnParams = (
  */
 export const createChatRoomToken = async (
   chatRoomOwnerUsername: string,
-  viewerUsername?: string,
+  viewerAttributes?: { displayName?: string; avatar?: string; color?: string },
   capabilities?: (ChatTokenCapability | string)[]
 ) => {
   let chatRoomArn;
   const { Items } = await getUserByUsername(chatRoomOwnerUsername);
-
   if (Items?.length) {
     ({
       chatRoomArn: { S: chatRoomArn }
@@ -119,10 +118,12 @@ export const createChatRoomToken = async (
   return await ivsChatClient.send(
     new CreateChatTokenCommand({
       capabilities, // The permission to view messages is implicit
-      userId: viewerUsername || `unknown-user-${Date.now().toString()}`,
+      userId:
+        viewerAttributes?.displayName ||
+        `unknown-user-${Date.now().toString()}`,
       roomIdentifier: chatRoomArn,
       sessionDurationInMinutes: 60,
-      ...(viewerUsername ? { attributes: { displayName: viewerUsername } } : {})
+      ...(viewerAttributes ? { attributes: viewerAttributes } : {})
     })
   );
 };

@@ -6,7 +6,7 @@ import { PROFILE_COLORS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
-import { userManagement } from '../../api';
+import { userManagementAPI } from '../../api';
 import { useUser } from '../../contexts/User';
 import * as userAvatars from '../../assets/avatars';
 import Form from '../../components/Form';
@@ -45,7 +45,7 @@ const AccountSettings = () => {
 
     const deleteAccount = async () => {
       setIsDeleteAccountLoading(true);
-      const { result, error } = await userManagement.deleteAccount();
+      const { result, error } = await userManagementAPI.deleteAccount();
 
       if (result) {
         logOut('accountDeletion');
@@ -101,7 +101,7 @@ const AccountSettings = () => {
       setIsChangeAvatarLoading(true);
 
       const userPreferences = { avatar: newAvatar };
-      const { result, error } = await userManagement.changeUserPreferences(
+      const { result, error } = await userManagementAPI.changeUserPreferences(
         userPreferences
       );
 
@@ -128,7 +128,7 @@ const AccountSettings = () => {
       setIsChangeColorLoading(true);
 
       const userPreferences = { color: newColor };
-      const { result, error } = await userManagement.changeUserPreferences(
+      const { result, error } = await userManagementAPI.changeUserPreferences(
         userPreferences
       );
 
@@ -163,7 +163,7 @@ const AccountSettings = () => {
             await fetchUserData();
             notifySuccess($content.notification.success.username_saved);
           }}
-          submitHandler={userManagement.changeUsername}
+          submitHandler={userManagementAPI.changeUsername}
         />
         <Form
           {...defaultFormProps(inputVariant)}
@@ -187,7 +187,7 @@ const AccountSettings = () => {
                 $content.modal.password_updated_modal.confirmation_message
             });
           }}
-          submitHandler={userManagement.changePassword}
+          submitHandler={userManagementAPI.changePassword}
           validationCheck={({ currentPassword, newPassword }) => {
             if (currentPassword.value === newPassword.value) {
               return {
