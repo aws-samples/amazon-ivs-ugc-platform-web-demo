@@ -1,23 +1,44 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { clsm } from '../../utils';
 import PropTypes from 'prop-types';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
-const InputRange = ({ value, name, handleChange, max, min }) => {
+export const volumeDark = {
+  tracked: 'var(--palette-color-white)',
+  offset: 'var(--palette-color-light-gray)'
+};
+export const volumeLight = {
+  tracked: 'var(--palette-color-black)',
+  offset: 'var(--palette-color-gray)'
+};
+
+const InputRange = ({ value, handleChange, max, min }) => {
   const inputRef = useRef(null);
+  const preferedColorSchemeDark = useMediaQuery('(prefers-color-scheme: dark)');
+
+  const convertInputValue = (value) => {
+    return ((Number(value) - min) / (max - min)) * 100;
+  };
+
+  const updateVolumeGradient = useCallback(
+    (value) => {
+      if (preferedColorSchemeDark) {
+        return `linear-gradient(to right, ${volumeDark.tracked} 0%, ${volumeDark.tracked} ${value}%, ${volumeDark.offset} ${value}%, ${volumeDark.offset} 100%)`;
+      } else {
+        return `linear-gradient(to right, ${volumeLight.tracked} 0%, ${volumeLight.tracked} ${value}%, ${volumeLight.offset} ${value}%, ${volumeLight.offset} 100%)`;
+      }
+    },
+    [preferedColorSchemeDark]
+  );
 
   const handleInputChange = (event) => {
-    var value = ((Number(event.target.value) - min) / (max - min)) * 100;
-    let bg;
-    if (
-      window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    ) {
-      bg = `linear-gradient(to right, #fff 0%, #fff ${value}%, #ABAFBD ${value}%, #ABAFBD 100%)`;
-    } else {
-      bg = `linear-gradient(to right, #000000 0%, #000000 ${value}%, #fff ${value}%, #fff 100%)`;
-    }
-    inputRef.current.style.background = bg;
+    const value = convertInputValue(event.target.value);
+    inputRef.current.style.background = updateVolumeGradient(value);
   };
+
+  useEffect(() => {
+    inputRef.current.style.background = updateVolumeGradient(value);
+  }, [value, updateVolumeGradient]);
 
   return (
     <input
@@ -45,7 +66,6 @@ const InputRange = ({ value, name, handleChange, max, min }) => {
 
 InputRange.propTypes = {
   value: PropTypes.number,
-  name: PropTypes.string,
   handleChange: PropTypes.func,
   max: PropTypes.number,
   min: PropTypes.number
@@ -53,7 +73,6 @@ InputRange.propTypes = {
 
 InputRange.defaultProps = {
   value: 100,
-  name: '',
   handleChange: () => {},
   max: 100,
   min: 0
