@@ -1,4 +1,3 @@
-import { app as $appContent } from '../../../content';
 import {
   Favorite,
   Feed,
@@ -7,6 +6,8 @@ import {
   StreamHealth,
   StreamManager
 } from '../../../assets/icons';
+import { app as $appContent } from '../../../content';
+import { SHOW_WIP_PAGES } from '../../../constants';
 
 const $content = $appContent.navbar;
 
@@ -21,21 +22,25 @@ export const navMenuButtonData = [
     icon: <Feed />,
     to: '/feed'
   },
-  {
-    label: $content.following,
-    icon: <Favorite />,
-    to: '/following',
-    hasDivider: true
-  },
+  ...(SHOW_WIP_PAGES
+    ? [
+        {
+          label: $content.following,
+          icon: <Favorite />,
+          to: '/following',
+          hasDivider: true
+        },
+        {
+          label: $content.stream_manager,
+          icon: <StreamManager />,
+          to: '/manager'
+        }
+      ]
+    : []),
   {
     label: $content.stream_health,
     icon: <StreamHealth />,
     to: '/health'
-  },
-  {
-    label: $content.stream_manager,
-    icon: <StreamManager />,
-    to: '/manager'
   },
   {
     label: $content.settings,

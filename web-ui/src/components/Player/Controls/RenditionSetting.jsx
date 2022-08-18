@@ -193,7 +193,8 @@ const RenditionSetting = ({
                   'border-lightMode-gray-light-hover',
                   'border-t',
                   'dark:border-darkMode-gray-hover',
-                  'pt-4'
+                  'pt-4',
+                  'dark:scrollbar-color-darkMode-gray-medium'
                 ]
               ])}
             >

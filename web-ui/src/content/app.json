@@ -9,8 +9,8 @@
     "home": "Home",
     "feed": "Feed",
     "following": "Following",
-    "stream_health": "Stream Health",
-    "stream_manager": "Stream Manager"
+    "stream_health": "Stream health",
+    "stream_manager": "Stream manager"
   },
   "modal": {
     "cancel": "Cancel"

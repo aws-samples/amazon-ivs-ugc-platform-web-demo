@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 const plugin = require('tailwindcss/plugin');
 const colors = require('tailwindcss/colors');
+const {
+  default: flattenColorPalette
+} = require('tailwindcss/lib/util/flattenColorPalette');
+
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
@@ -155,6 +159,20 @@ module.exports = {
     // @media (hover:none)
     plugin(({ addVariant }) => {
       addVariant('touch-screen-device', '@media (hover:none)');
+    }),
+    // scrollbar thumb color
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          'scrollbar-color': (color) => ({
+            'scrollbar-color': `${color} transparent`,
+            '&::-webkit-scrollbar-thumb': {
+              boxShadow: `inset 0 0 10px 10px ${color}`
+            }
+          })
+        },
+        { values: flattenColorPalette(theme('colors')) }
+      );
     })
   ]
 };
