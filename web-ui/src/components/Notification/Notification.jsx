@@ -31,7 +31,7 @@ const Notification = ({ position }) => {
             'px-4',
             'sticky',
             'right-0',
-            'top-[79px]',
+            'top-[32px]',
             'w-fit',
             'z-50',
             position

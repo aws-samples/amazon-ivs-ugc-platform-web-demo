@@ -9,8 +9,7 @@ import './StreamHealth.css';
 
 const StreamHealth = () => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView, isLandscape, isTouchscreenDevice } =
-    useMobileBreakpoint();
+  const { isDefaultResponsiveView, isMobileView } = useMobileBreakpoint();
 
   useScrollToTop({
     dependency: activeStreamSession?.streamId,
@@ -23,9 +22,7 @@ const StreamHealth = () => {
       <section className="stream-health-section vertical-scroller-container">
         <StreamSession />
       </section>
-      {!isDefaultResponsiveView && (!isLandscape || !isTouchscreenDevice) && (
-        <FloatingPlayer />
-      )}
+      {!isMobileView && <FloatingPlayer />}
     </>
   );
 };

@@ -56,9 +56,9 @@ const App = () => (
 
                       {/* PRIVATE PAGES */}
                       <Route element={<RequireAuth />}>
-                        <Route path="settings" element={<Settings />} />
                         <Route path="following" element={<Following />} />
                         <Route element={<StreamsProvider />}>
+                          <Route path="settings" element={<Settings />} />
                           <Route path="manager" element={<StreamManager />} />
                           <Route path="health">
                             <Route index element={<StreamHealth />} />

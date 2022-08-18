@@ -35,6 +35,10 @@
   column-gap: 10px;
 }
 
+.form.horizontal .input-format-container {
+  align-items: flex-end;
+}
+
 .input-format-container.with-spacing {
   margin-right: 108px;
 }

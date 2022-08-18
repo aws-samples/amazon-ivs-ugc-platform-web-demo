@@ -24,7 +24,7 @@
 
 .outer-select-container .label {
   width: fit-content;
-  margin-bottom: 15px;
+  margin-bottom: 0.5rem;
 }
 
 .outer-select-container.horizontal .label {

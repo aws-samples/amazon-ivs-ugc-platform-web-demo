@@ -1,4 +1,4 @@
-import { useLocation, useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -37,8 +37,8 @@ const FloatingPlayer = () => {
     playbackUrl: userData?.playbackUrl
   });
   const [isExpanded, setIsExpanded] = useState(true);
-  const { pathname } = useLocation();
   const isSettingsPage = !!useMatch('settings');
+  const navigate = useNavigate();
   const hasStreamSessions = !!streamSessions?.length;
   const prevIsLiveValue = useRef(isLive);
   const shouldShowSpinner =
@@ -48,7 +48,9 @@ const FloatingPlayer = () => {
     : {};
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
-  }, [streamSessions, updateActiveStreamSession]);
+
+    if (isSettingsPage) navigate('/health');
+  }, [isSettingsPage, navigate, streamSessions, updateActiveStreamSession]);
 
   useEffect(() => {
     if (isLive) {
@@ -100,7 +102,7 @@ const FloatingPlayer = () => {
         </div>
         {isExpanded &&
           isLive &&
-          (activeStreamSession?.index > 0 || pathname === '/settings') && (
+          (activeStreamSession?.index > 0 || isSettingsPage) && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
               {$content.view_stream_session}
             </Button>

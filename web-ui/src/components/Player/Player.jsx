@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
@@ -9,6 +9,7 @@ import { useNotif } from '../../contexts/Notification';
 import Controls from './Controls';
 import FullScreenLoader from '../FullScreenLoader';
 import useControls from './Controls/useControls';
+import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
@@ -37,6 +38,21 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const shouldShowLoader = isLoading && !hasError;
   const shouldShowControls = hasError || isControlsOpen;
   const { dismissNotif, notifyError } = useNotif();
+  const { onClickFullscreenHandler } = useFullscreen({
+    isFullscreenEnabled,
+    player: livePlayer,
+    playerElementRef,
+    setIsFullscreenEnabled,
+    stopPropagAndResetTimeout
+  });
+
+  const onClickPlayerHandler = useCallback(
+    (event) => {
+      if (event.detail === 1) mobileClickHandler(event);
+      else if (event.detail === 2) onClickFullscreenHandler(event);
+    },
+    [mobileClickHandler, onClickFullscreenHandler]
+  );
 
   useEffect(() => {
     if (hasEnded) {
@@ -82,7 +98,7 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                 'w-full'
               ])}
               id="player-controls-container"
-              onClick={mobileClickHandler}
+              onClick={onClickPlayerHandler}
               role="toolbar"
             >
               <video
@@ -93,40 +109,43 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                 playsInline
                 ref={videoRef}
               />
-              <m.div
-                animate={shouldShowControls ? 'visible' : 'hidden'}
-                initial="hidden"
-                exit="hidden"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1 }
-                }}
-                className={clsm([
-                  'player-controls-container',
-                  'flex',
-                  'items-end',
-                  'h-32',
-                  'px-8',
-                  'pt-0',
-                  'pb-8',
-                  'absolute',
-                  'bottom-0',
-                  'left-0',
-                  'w-full'
-                ])}
-                transition={{ duration: 0.25, type: 'tween' }}
-              >
-                <Controls
-                  isFullscreenEnabled={isFullscreenEnabled}
-                  onControlHoverHandler={onControlHoverHandler}
-                  player={livePlayer}
-                  playerElementRef={playerElementRef}
-                  selectedQualityName={selectedQualityName}
-                  setIsFullscreenEnabled={setIsFullscreenEnabled}
-                  setIsPopupOpen={setIsPopupOpen}
-                  stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-                />
-              </m.div>
+              {shouldShowControls && (
+                <m.div
+                  animate="visible"
+                  initial="hidden"
+                  exit="hidden"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1 }
+                  }}
+                  className={clsm([
+                    'player-controls-container',
+                    'flex',
+                    'items-end',
+                    'h-32',
+                    'px-8',
+                    'pt-0',
+                    'pb-8',
+                    'absolute',
+                    'bottom-0',
+                    'left-0',
+                    'w-full'
+                  ])}
+                  transition={{ duration: 0.25, type: 'tween' }}
+                >
+                  <Controls
+                    isFullscreenEnabled={isFullscreenEnabled}
+                    onClickFullscreenHandler={onClickFullscreenHandler}
+                    onControlHoverHandler={onControlHoverHandler}
+                    player={livePlayer}
+                    playerElementRef={playerElementRef}
+                    selectedQualityName={selectedQualityName}
+                    setIsFullscreenEnabled={setIsFullscreenEnabled}
+                    setIsPopupOpen={setIsPopupOpen}
+                    stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                  />
+                </m.div>
+              )}
             </div>
           </>
         ) : (
