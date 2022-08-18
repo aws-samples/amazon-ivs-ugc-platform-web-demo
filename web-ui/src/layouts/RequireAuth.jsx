@@ -7,7 +7,7 @@ import withSessionLoader from '../components/withSessionLoader';
 
 const RequireAuth = () => {
   const location = useLocation();
-  const { isSessionValid, prevIsSessionValid } = useUser();
+  const { isSessionValid, prevIsSessionValid, logOutAction } = useUser();
 
   useThemeColor(DASHBOARD_THEME_COLOR);
 
@@ -19,7 +19,7 @@ const RequireAuth = () => {
      */
     return (
       <Navigate
-        to={`/login${location?.search || ''}`}
+        to={logOutAction === 'logOut' ? '/' : `/login${location?.search || ''}`}
         {...(!prevIsSessionValid ? { state: { from: location } } : {})}
         replace
       />

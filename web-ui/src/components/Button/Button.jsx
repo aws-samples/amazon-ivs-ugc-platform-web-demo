@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { clsm } from '../../utils';
 
 import Spinner from '../Spinner';
@@ -26,12 +26,14 @@ const Button = forwardRef(
       onClick,
       onFocus,
       onMouseDown,
+      saveLocationFromState,
+      to,
       type,
-      variant,
-      to
+      variant
     },
     ref
   ) => {
+    const location = useLocation();
     const commonProps = {
       ...(!!ariaLabel ? { 'aria-label': ariaLabel } : {}),
       'aria-disabled': ariaDisabled,
@@ -42,7 +44,6 @@ const Button = forwardRef(
       onClick,
       style: customStyles
     };
-
     const classes = clsm([
       'button',
       variant,
@@ -58,7 +59,12 @@ const Button = forwardRef(
       }
 
       return (
-        <Link {...commonProps} className={classes} to={to}>
+        <Link
+          {...commonProps}
+          className={classes}
+          to={to}
+          {...(saveLocationFromState ? { state: { from: location } } : {})}
+        >
           {children}
         </Link>
       );
@@ -93,6 +99,7 @@ Button.defaultProps = {
   onClick: undefined,
   onFocus: undefined,
   onMouseDown: undefined,
+  saveLocationFromState: false,
   to: '',
   type: 'button',
   variant: 'primary',
@@ -113,6 +120,7 @@ Button.propTypes = {
   onClick: PropTypes.func,
   onFocus: PropTypes.func,
   onMouseDown: PropTypes.func,
+  saveLocationFromState: PropTypes.bool,
   to: PropTypes.string,
   type: PropTypes.oneOf(['button', 'submit', 'reset', 'nav']),
   variant: PropTypes.oneOf([

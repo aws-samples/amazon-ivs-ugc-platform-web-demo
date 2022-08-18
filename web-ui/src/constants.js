@@ -84,3 +84,5 @@ export const PROFILE_COLORS = [
   'aqua',
   'violet'
 ];
+
+export const CHAT_TOKEN_REFRESH_DELAY_OFFSET = 30000; // The time in ms before the chat session expires that the token should be refreshed

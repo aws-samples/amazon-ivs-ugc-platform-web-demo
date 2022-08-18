@@ -117,6 +117,45 @@ export const debounce = (callback, delay, atBegin = false) => {
   return throttle(callback, delay, atBegin);
 };
 
+export const retryWithBackoff = ({
+  promiseFn,
+  maxRetries,
+  onRetry = () => {},
+  onSuccess = () => {},
+  onFailure = () => {}
+}) => {
+  const waitFor = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
+  const retry = async (retries) => {
+    try {
+      if (retries > 0) {
+        const timeToWait = 2 ** retries * 100;
+        await waitFor(timeToWait);
+      }
+
+      const result = await promiseFn();
+      onSuccess();
+
+      return result;
+    } catch (error) {
+      if (retries < maxRetries) {
+        const nextRetries = retries + 1;
+        onRetry(nextRetries);
+
+        return retry(nextRetries);
+      } else {
+        console.warn('Max retries reached. Bubbling the error up.');
+        onFailure();
+        throw error;
+      }
+    }
+  };
+
+  return retry(0);
+};
+
 const BASIC_BITRATE_LIMIT = 1.5; // Mbps
 const STANDARD_BITRATE_LIMIT = 8.5; // Mbps
 const BASIC_RESOLUTION_LIMIT = '480p (852 x 480)';

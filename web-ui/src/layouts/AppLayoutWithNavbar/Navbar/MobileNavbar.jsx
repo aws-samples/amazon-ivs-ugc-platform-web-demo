@@ -43,10 +43,20 @@ const MobileNavbar = () => {
             '[&>a]:w-full'
           ])}
         >
-          <Button type="nav" variant="secondary" to="/login">
+          <Button
+            type="nav"
+            variant="secondary"
+            to="/login"
+            saveLocationFromState
+          >
             {$content.log_in}
           </Button>
-          <Button type="nav" variant="primary" to="/register">
+          <Button
+            type="nav"
+            variant="primary"
+            to="/register"
+            saveLocationFromState
+          >
             {$content.sign_up}
           </Button>
         </div>

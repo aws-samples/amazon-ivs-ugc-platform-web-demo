@@ -12,12 +12,15 @@ const Channel = () => {
   const [isLive, setIsLive] = useState();
   const { data: channelData, isLoading } = useChannelData(username);
   const isChannelAvailable = !!channelData;
+  const {
+    isLive: isChannelLive,
+    playbackUrl,
+    username: channelUsername
+  } = channelData || {};
 
   useEffect(() => {
-    if (channelData?.isLive !== undefined) {
-      setIsLive(channelData.isLive);
-    }
-  }, [channelData?.isLive]);
+    if (isChannelAvailable) setIsLive(isChannelLive);
+  }, [isChannelAvailable, isChannelLive]);
 
   if (!isLoading && !isChannelAvailable) {
     return <PageUnavailable />;
@@ -27,7 +30,7 @@ const Channel = () => {
     <div
       className={clsm(
         'flex',
-        'flex-col',
+        'flex-row',
         'items-center',
         'justify-center',
         'text-center',
@@ -35,12 +38,11 @@ const Channel = () => {
         'w-full'
       )}
     >
-      <Player
-        isLive={isLive}
-        setIsLive={setIsLive}
-        playbackUrl={channelData?.playbackUrl}
+      <Player isLive={isLive} setIsLive={setIsLive} playbackUrl={playbackUrl} />
+      <Chat
+        chatRoomOwnerUsername={channelUsername}
+        isChannelLoading={isLoading}
       />
-      <Chat chatRoomOwnerUsername={username} />
     </div>
   );
 };

@@ -128,8 +128,6 @@ export const authFetch = async ({
     error = err;
   }
 
-  if (error) console.error(error);
-
   return { result, error };
 };
 

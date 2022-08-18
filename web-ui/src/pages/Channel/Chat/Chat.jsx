@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
-import { memo } from 'react';
+import Spinner from '../../../components/Spinner';
 
 import { clsm } from '../../../utils';
+import { memo } from 'react';
 import useChat from './useChat';
 
-const Chat = ({ chatRoomOwnerUsername }) => {
+const Chat = ({ chatRoomOwnerUsername, isChannelLoading }) => {
   const { isConnectionOpen } = useChat(chatRoomOwnerUsername);
 
   console.info('isConnectionOpen:', isConnectionOpen);
@@ -25,11 +26,23 @@ const Chat = ({ chatRoomOwnerUsername }) => {
         'hidden' // TEMPORARY - Remove when implementing Chat UI
       ])}
     >
-      <h2>Chat Section</h2>
+      {isChannelLoading ? (
+        <Spinner variant="light" size="medium" />
+      ) : (
+        <h2>Chat Section</h2>
+      )}
     </section>
   );
 };
 
-Chat.propTypes = { chatRoomOwnerUsername: PropTypes.string.isRequired };
+Chat.defaultProps = {
+  chatRoomOwnerUsername: '',
+  isChannelLoading: false
+};
+
+Chat.propTypes = {
+  chatRoomOwnerUsername: PropTypes.string.isRequired,
+  isChannelLoading: PropTypes.bool
+};
 
 export default memo(Chat);

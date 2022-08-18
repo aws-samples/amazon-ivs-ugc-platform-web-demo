@@ -8,6 +8,10 @@ export const getUserChannelData = async (username) =>
  * @property {string} token
  * @property {string} tokenExpirationTime
  * @property {string} sessionExpirationTime
+ *
+ * @typedef {Object} ChatTokenResponse
+ * @property {ChatTokenData} result
+ * @property {Error} error
  */
 
 /**
@@ -18,7 +22,7 @@ export const getUserChannelData = async (username) =>
  * containing only the VIEW capability.
  *
  * @param {string} chatRoomOwnerUsername username of the owner for the chat room to which access is being requested
- * @returns {ChatTokenData}
+ * @returns {ChatTokenResponse}
  */
 export const getChatToken = async (chatRoomOwnerUsername) => {
   const { result: session } = await getCurrentSession();
