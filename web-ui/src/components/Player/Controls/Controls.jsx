@@ -112,6 +112,30 @@ const Controls = ({
     }
   }, [playerElementRef, setIsFullscreenEnabled]);
 
+  useEffect(() => {
+    /**
+     * This function implements the space bar shortcut to pause or resume playback
+     */
+    const onKeyDownHandler = (event) => {
+      if (event.code !== 'Space' && event.key !== ' ') return;
+
+      if (
+        !document.activeElement ||
+        ['BODY', 'VIDEO'].includes(document.activeElement.tagName)
+      ) {
+        if (isPaused) {
+          play();
+        } else {
+          pause();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDownHandler);
+
+    return () => window.removeEventListener('keydown', onKeyDownHandler);
+  }, [isPaused, pause, play]);
+
   return (
     <div
       className={clsm(['flex', 'justify-between', 'w-full', 'items-center'])}
