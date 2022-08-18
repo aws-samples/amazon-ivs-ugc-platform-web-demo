@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -8,8 +8,9 @@ import {
   Play as PlaySvg
 } from '../../../assets/icons';
 import './Controls.css';
-import { clsm } from '../../../utils';
+import { clsm, isiOS } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 import RenditionSetting from './RenditionSetting';
 import VolumeSetting from './VolumeSetting';
 
@@ -23,14 +24,17 @@ const Controls = ({
   setIsPopupOpen,
   stopPropagAndResetTimeout
 }) => {
+  const iOsFullscreenIntervalId = useRef(null);
   const {
     isPaused,
     pause,
     play,
+    playerRef,
     qualities,
     updateQuality,
-    volumeLevel,
-    updateVolume
+    updateVolume,
+    videoRef,
+    volumeLevel
   } = player;
 
   const onClickPlayPauseHandler = useCallback(
@@ -51,6 +55,37 @@ const Controls = ({
       stopPropagAndResetTimeout(event);
 
       if (!playerElementRef?.current) return;
+
+      /**
+       * On iOS devices, the Fullscreen API isn't available.
+       * We can only go fullscreen on the video element and use the default iOS controls.
+       */
+      if (isiOS() && videoRef?.current) {
+        videoRef.current.webkitEnterFullscreen();
+        setIsFullscreenEnabled(true);
+
+        iOsFullscreenIntervalId.current = setInterval(() => {
+          if (!videoRef?.current?.webkitDisplayingFullscreen) {
+            clearInterval(iOsFullscreenIntervalId.current);
+            iOsFullscreenIntervalId.current = null;
+
+            setIsFullscreenEnabled(false);
+
+            /**
+             * Because we can't use the custom controls while in fullscreen mode,
+             * we have to update the React state when exiting fullscreen mode.
+             */
+            if (playerRef.current.isPaused()) pause();
+            else play();
+
+            // iOS only supports mute/unmute so the volume is always 100 or 0 after exiting fullscreen mode
+            if (playerRef.current.isMuted()) updateVolume(VOLUME_MIN);
+            else updateVolume(VOLUME_MAX);
+          }
+        }, 100);
+
+        return;
+      }
 
       try {
         if (!isFullscreenEnabled) {
@@ -74,7 +109,17 @@ const Controls = ({
         // Unlikely, user has manually disabled fullscreen API
       }
     },
-    [isFullscreenEnabled, playerElementRef, stopPropagAndResetTimeout]
+    [
+      isFullscreenEnabled,
+      pause,
+      play,
+      playerElementRef,
+      playerRef,
+      setIsFullscreenEnabled,
+      stopPropagAndResetTimeout,
+      updateVolume,
+      videoRef
+    ]
   );
 
   useEffect(() => {
