@@ -11,7 +11,6 @@ import {
   buildChannelArn,
   buildMetricDataQueries,
   formatMetricsData,
-  FormattedMetricData,
   getPeriodValue,
   getStreamSessionDbRecord,
   isAvgMetric
@@ -19,6 +18,7 @@ import {
 import { SEC_PER_HOUR, UNEXPECTED_EXCEPTION } from '../shared/constants';
 import {
   cloudwatchClient,
+  FormattedMetricData,
   updateDynamoItemAttributes,
   updateIngestConfiguration
 } from '../shared/helpers';

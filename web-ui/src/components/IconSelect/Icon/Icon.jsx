@@ -28,7 +28,9 @@ const Icon = ({
       aria-label={`Selectable ${name} ${type} icon`}
       aria-pressed={isSelected}
     >
-      {!isLoading && isSelected && <Checkmark />}
+      {!isLoading && isSelected && (
+        <Checkmark className={clsm(['w-6', 'h-6'])} />
+      )}
       {isLoading && <Spinner variant="white" />}
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />

@@ -43,13 +43,13 @@ const App = () => (
     <LazyMotion features={loadMotionFeatures} strict>
       <MotionConfig reducedMotion="user">
         <MobileBreakpointProvider>
-          <UserProvider>
-            <NotificationProvider>
+          <NotificationProvider>
+            <UserProvider>
               <ModalProvider>
                 <Routes>
                   <Route element={<SharedComponents />}>
                     <Route element={<AppLayoutWithNavbar />}>
-                      {/* PUBLIC PAGES */}
+                      {/* PUBLIC PAGES - UGC */}
                       <Route index element={<ChannelDirectory />} />
                       <Route path=":username" element={<Channel />} />
                       <Route path="feed" element={<Feed />} />
@@ -75,6 +75,8 @@ const App = () => (
                       </Route>
                       <Route path="*" element={<Navigate replace to="/" />} />
                     </Route>
+
+                    {/* PUBLIC PAGES - User Management */}
                     <Route element={<UserManagement />}>
                       <Route path="login" element={<SigninUser />} />
                       <Route path="register" element={<RegisterUser />} />
@@ -83,8 +85,8 @@ const App = () => (
                   </Route>
                 </Routes>
               </ModalProvider>
-            </NotificationProvider>
-          </UserProvider>
+            </UserProvider>
+          </NotificationProvider>
         </MobileBreakpointProvider>
       </MotionConfig>
     </LazyMotion>

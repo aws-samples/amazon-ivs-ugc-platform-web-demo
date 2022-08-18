@@ -2,11 +2,10 @@ import { Outlet } from 'react-router-dom';
 
 import { useModal } from '../contexts/Modal';
 import Modal from '../components/Modal';
-import Notification from '../components/Notification';
 
 /**
  * SharedComponents is a wrapper that renders the shared components/overlays that
- * are shared across the different pages of the app, such as the Modal and Notification.
+ * are shared across the different pages of the app, such as the Modal.
  */
 const SharedComponents = () => {
   const { modal } = useModal();
@@ -15,7 +14,6 @@ const SharedComponents = () => {
     <>
       <Outlet />
       <Modal isOpen={!!modal} />
-      <Notification />
     </>
   );
 };

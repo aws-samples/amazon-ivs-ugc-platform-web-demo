@@ -56,9 +56,15 @@ export const INPUT_ERROR_CLASSES = ['shadow-darkMode-red', 'shadow-focus'];
 export const INPUT_TYPE_CLASSES = {
   text: [
     ...INPUT_BASE_CLASSES,
+    'dark:text-white',
     'placeholder-shown:overflow-hidden',
     'placeholder-shown:text-ellipsis',
-    'placeholder-shown:whitespace-nowrap'
+    'placeholder-shown:whitespace-nowrap',
+    'text-lightMode-gray-dark'
   ],
-  password: [...INPUT_BASE_CLASSES]
+  password: [
+    ...INPUT_BASE_CLASSES,
+    'dark:text-white',
+    'text-lightMode-gray-dark'
+  ]
 };

@@ -9,7 +9,12 @@ import {
   CognitoIdentityProviderServiceException
 } from '@aws-sdk/client-cognito-identity-provider';
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
-import { GetStreamSessionCommand, IvsClient } from '@aws-sdk/client-ivs';
+import {
+  GetStreamSessionCommand,
+  IngestConfiguration,
+  IvsClient,
+  StreamEvent
+} from '@aws-sdk/client-ivs';
 import { IvschatClient } from '@aws-sdk/client-ivschat';
 
 type DynamoKey = { key: string; value: string };
@@ -22,6 +27,34 @@ export const ivsClient = new IvsClient({});
 
 export interface ResponseBody {
   [key: string]: any;
+}
+
+export type Period = 3600 | 300 | 60 | 5;
+
+export type FormattedMetricData = {
+  alignedStartTime: Date;
+  data: number[];
+  label: string;
+  period: Period;
+  statistics: {
+    average?: number;
+  };
+};
+
+export type DbFormattedMetricData = FormattedMetricData & {
+  alignedStartTime: string;
+};
+export type DbStreamEvent = StreamEvent & {
+  eventTime: string;
+};
+export interface StreamSessionDbRecord {
+  endTime?: string;
+  id?: string;
+  ingestConfiguration?: IngestConfiguration;
+  metrics?: { [key: string]: DbFormattedMetricData[] };
+  startTime?: string;
+  truncatedEvents?: DbStreamEvent[];
+  userSub?: string;
 }
 
 export const isCognitoError = (

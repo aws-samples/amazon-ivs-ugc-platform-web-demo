@@ -7,12 +7,8 @@ import {
   NOTIF_ANIMATION_DURATION_MS
 } from '../../contexts/Notification';
 import { clsm } from '../../utils';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
-import { useUser } from '../../contexts/User';
 
 const Notification = ({ position }) => {
-  const { isMobileView } = useMobileBreakpoint();
-  const { isSessionValid } = useUser();
   const { NOTIF_TYPES, notif } = useNotif();
 
   let NotifIcon = null;
@@ -38,10 +34,7 @@ const Notification = ({ position }) => {
             'top-[79px]',
             'w-fit',
             'z-50',
-            position,
-            !isMobileView && isSessionValid && ['left-16'], // Account for the authenticated sidebar
-            !isMobileView &&
-              !isSessionValid && ['left-60', 'lg:portrait:left-40'] // Account for the unauthenticated sidebar
+            position
           ])}
           exit="hidden"
           initial="hidden"

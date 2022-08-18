@@ -5,6 +5,7 @@ import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import FloatingNav from './FloatingNav';
 import Navbar from './Navbar';
+import Notification from '../../components/Notification';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
@@ -48,6 +49,7 @@ const AppLayoutWithNavbar = () => {
         )}
       >
         <Outlet />
+        <Notification position="absolute" />
       </main>
     </div>
   );

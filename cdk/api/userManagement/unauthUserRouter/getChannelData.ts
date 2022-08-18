@@ -13,6 +13,7 @@ import {
   ResponseBody,
   updateIngestConfiguration
 } from '../../shared/helpers';
+import { StreamSessionDbRecord } from '../../shared/helpers';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
@@ -26,6 +27,8 @@ interface GetChannelDataResponseBody extends ResponseBody {
 interface GetChannelDataParams {
   channelOwnerUsername: string;
 }
+
+const STREAM_START = 'Stream Start';
 
 const handler = async (
   request: FastifyRequest<{ Params: GetChannelDataParams }>,
@@ -62,38 +65,55 @@ const handler = async (
         ExpressionAttributeValues: {
           ':userChannelArn': convertToAttr(channelArn)
         },
-        ProjectionExpression: 'id, endTime, ingestConfiguration',
+        ProjectionExpression:
+          'id, endTime, ingestConfiguration, truncatedEvents',
         ScanIndexForward: false,
         Limit: 1
       })
     );
+    let isLive = false;
 
-    const isLive = !!StreamItems?.length && !unmarshall(StreamItems[0]).endTime;
-    responseBody.isLive = isLive;
-
-    if (isLive) {
-      let { id: streamSessionId, ingestConfiguration } = unmarshall(
+    if (!!StreamItems?.length) {
+      const unmarshalledItem: Partial<StreamSessionDbRecord> = unmarshall(
         StreamItems[0]
       );
 
-      if (!ingestConfiguration) {
-        try {
-          ingestConfiguration = await updateIngestConfiguration({
-            channelArn,
-            streamSessionId
-          });
-        } catch (error) {
-          // Missing ingest configuration or failed attempts to retrieve this data shouldn't stop the flow
+      const {
+        endTime,
+        id: streamSessionId,
+        truncatedEvents
+      } = unmarshalledItem;
+      let { ingestConfiguration } = unmarshalledItem;
+
+      // isLive is true only when playback is available, i.e. after the 'Stream Start' event is dispatched
+      isLive =
+        !endTime &&
+        !!truncatedEvents?.find(
+          (truncatedEvent) => truncatedEvent.name === STREAM_START
+        );
+
+      if (isLive) {
+        if (!ingestConfiguration && streamSessionId) {
+          try {
+            ingestConfiguration = await updateIngestConfiguration({
+              channelArn,
+              streamSessionId
+            });
+          } catch (error) {
+            // Missing ingest configuration or failed attempts to retrieve this data shouldn't stop the flow
+          }
+        }
+
+        if (ingestConfiguration?.video) {
+          const { videoWidth, videoHeight } = ingestConfiguration.video;
+          responseBody.ingestConfiguration = {
+            video: { videoWidth, videoHeight }
+          };
         }
       }
-
-      if (ingestConfiguration) {
-        const { videoWidth, videoHeight } = ingestConfiguration.video;
-        responseBody.ingestConfiguration = {
-          video: { videoWidth, videoHeight }
-        };
-      }
     }
+
+    responseBody.isLive = isLive;
   } catch (error) {
     console.error(error);
 

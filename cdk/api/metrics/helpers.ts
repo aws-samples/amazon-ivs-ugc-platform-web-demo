@@ -1,5 +1,4 @@
 import { GetItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { IngestConfiguration, StreamEvent } from '@aws-sdk/client-ivs';
 import { MetricDataQuery, MetricDataResult } from '@aws-sdk/client-cloudwatch';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import crypto from 'crypto';
@@ -11,35 +10,13 @@ import {
   SEC_PER_HOUR,
   STREAM_HEALTH_METRICS_NAMES
 } from '../shared/constants';
-import { dynamoDbClient } from '../shared/helpers';
-
-type Period = 3600 | 300 | 60 | 5;
-
-export type FormattedMetricData = {
-  alignedStartTime: Date;
-  data: number[];
-  label: string;
-  period: Period;
-  statistics: {
-    average?: number;
-  };
-};
-
-type DbFormattedMetricData = FormattedMetricData & {
-  alignedStartTime: string;
-};
-type DbStreamEvent = StreamEvent & {
-  eventTime: string;
-};
-interface StreamSessionDbRecord {
-  endTime?: string;
-  id?: string;
-  ingestConfiguration?: IngestConfiguration;
-  metrics?: { [key: string]: DbFormattedMetricData[] };
-  startTime?: string;
-  truncatedEvents?: DbStreamEvent[];
-  userSub?: string;
-}
+import {
+  DbStreamEvent,
+  dynamoDbClient,
+  FormattedMetricData,
+  Period,
+  StreamSessionDbRecord
+} from '../shared/helpers';
 
 export const getStreamSessionDbRecord = async (
   channelArn: string,

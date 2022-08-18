@@ -5,6 +5,7 @@ import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
+import Notification from '../../components/Notification';
 import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
@@ -54,6 +55,7 @@ const UserManagement = () => {
           <Outlet />
         </div>
       )}
+      <Notification />
     </main>
   );
 };
