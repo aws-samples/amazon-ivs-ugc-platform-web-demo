@@ -198,10 +198,11 @@ const Controls = ({
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
-          volumeLevel={volumeLevel}
+          onControlHoverHandler={onControlHoverHandler}
+          setIsPopupOpen={setIsPopupOpen}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateVolume={updateVolume}
-          onControlHoverHandler={onControlHoverHandler}
+          volumeLevel={volumeLevel}
         />
       </div>
       <div className="flex gap-x-4">

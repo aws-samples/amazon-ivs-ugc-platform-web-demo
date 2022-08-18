@@ -1,4 +1,10 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useEffect
+} from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -13,13 +19,14 @@ import {
 
 import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 
-import InputRange from '../../Input/InputRange';
+import InputRange from './InputRange';
 
 const VolumeSetting = ({
   onControlHoverHandler,
   volumeLevel,
   stopPropagAndResetTimeout,
-  updateVolume
+  updateVolume,
+  setIsPopupOpen
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [volumeContainerPos, setVolumeContainerPos] = useState(null);
@@ -28,7 +35,9 @@ const VolumeSetting = ({
 
   const closeVolumeContainer = useCallback(() => {
     setIsExpanded(false);
-  }, []);
+    setIsPopupOpen(false);
+  }, [setIsPopupOpen]);
+
   const onClickRenditionSettingHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
@@ -38,6 +47,10 @@ const VolumeSetting = ({
   );
 
   useClickAway([volumeContainerRef, settingsButtonRef], closeVolumeContainer);
+
+  useEffect(() => {
+    setIsPopupOpen(isExpanded);
+  }, [isExpanded, setIsPopupOpen]);
 
   useLayoutEffect(() => {
     if (isExpanded && volumeContainerRef?.current) {
@@ -71,8 +84,7 @@ const VolumeSetting = ({
         } the video volume selector`}
         className={clsm([
           ...CONTROLS_BUTTON_BASE_CLASSES,
-          'transition-transform',
-          isExpanded && ['border-white']
+          'transition-transform'
         ])}
         onBlur={onControlHoverHandler}
         onFocus={onControlHoverHandler}
@@ -105,6 +117,7 @@ const VolumeSetting = ({
           }
         >
           <InputRange
+            onFocus={onControlHoverHandler}
             value={volumeLevel}
             handleChange={updateVolume}
             max={VOLUME_MAX}
@@ -125,7 +138,8 @@ VolumeSetting.propTypes = {
   onControlHoverHandler: PropTypes.func.isRequired,
   volumeLevel: PropTypes.number,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,
-  updateVolume: PropTypes.func.isRequired
+  updateVolume: PropTypes.func.isRequired,
+  setIsPopupOpen: PropTypes.func.isRequired
 };
 
 export default VolumeSetting;

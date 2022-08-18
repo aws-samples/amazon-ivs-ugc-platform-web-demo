@@ -58,14 +58,17 @@ const useControls = (isPaused) => {
     (event) => {
       if (isTouchscreenDevice || isPaused) return;
 
-      if (['mouseenter', 'focus'].includes(event.type)) {
+      if (event.type === 'focus') {
+        resetControlsTimeout();
+        setIsControlsOpen(true);
+      } else if (event.type === 'mouseenter') {
         setIsCoveringControlButton(true);
         setIsControlsOpen(true);
         clearControlsTimeout();
       } else if (['mouseleave', 'blur'].includes(event.type))
         setIsCoveringControlButton(false);
     },
-    [clearControlsTimeout, isPaused, isTouchscreenDevice]
+    [clearControlsTimeout, resetControlsTimeout, isPaused, isTouchscreenDevice]
   );
 
   // Mobile controls toggling logic

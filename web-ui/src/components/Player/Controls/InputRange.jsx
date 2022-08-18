@@ -1,18 +1,21 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { clsm } from '../../utils';
 import PropTypes from 'prop-types';
-import useMediaQuery from '../../hooks/useMediaQuery';
+import { useRef, useEffect, useCallback } from 'react';
 
-export const volumeDark = {
-  tracked: 'var(--palette-color-white)',
+import { clsm } from '../../../utils';
+import useMediaQuery from '../../../hooks/useMediaQuery';
+
+const noop = () => {};
+
+const volumeDark = {
+  track: 'var(--palette-color-white)',
   offset: 'var(--palette-color-light-gray)'
 };
-export const volumeLight = {
-  tracked: 'var(--palette-color-black)',
+const volumeLight = {
+  track: 'var(--palette-color-black)',
   offset: 'var(--palette-color-gray)'
 };
 
-const InputRange = ({ value, handleChange, max, min }) => {
+const InputRange = ({ value, handleChange, max, min, onFocus }) => {
   const inputRef = useRef(null);
   const preferedColorSchemeDark = useMediaQuery('(prefers-color-scheme: dark)');
 
@@ -23,9 +26,9 @@ const InputRange = ({ value, handleChange, max, min }) => {
   const updateVolumeGradient = useCallback(
     (value) => {
       if (preferedColorSchemeDark) {
-        return `linear-gradient(to right, ${volumeDark.tracked} 0%, ${volumeDark.tracked} ${value}%, ${volumeDark.offset} ${value}%, ${volumeDark.offset} 100%)`;
+        return `linear-gradient(to right, ${volumeDark.track} 0%, ${volumeDark.track} ${value}%, ${volumeDark.offset} ${value}%, ${volumeDark.offset} 100%)`;
       } else {
-        return `linear-gradient(to right, ${volumeLight.tracked} 0%, ${volumeLight.tracked} ${value}%, ${volumeLight.offset} ${value}%, ${volumeLight.offset} 100%)`;
+        return `linear-gradient(to right, ${volumeLight.track} 0%, ${volumeLight.track} ${value}%, ${volumeLight.offset} ${value}%, ${volumeLight.offset} 100%)`;
       }
     },
     [preferedColorSchemeDark]
@@ -48,7 +51,7 @@ const InputRange = ({ value, handleChange, max, min }) => {
       min={min.toString()}
       max={max.toString()}
       value={value}
-      steps="1"
+      onFocus={onFocus}
       className={clsm([
         'w-[110px]',
         'h-[8px]',
@@ -68,14 +71,16 @@ InputRange.propTypes = {
   value: PropTypes.number,
   handleChange: PropTypes.func,
   max: PropTypes.number,
-  min: PropTypes.number
+  min: PropTypes.number,
+  onFocus: PropTypes.func
 };
 
 InputRange.defaultProps = {
   value: 100,
-  handleChange: () => {},
+  handleChange: noop,
   max: 100,
-  min: 0
+  min: 0,
+  onFocus: noop
 };
 
 export default InputRange;

@@ -1,4 +1,4 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
@@ -93,44 +93,40 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
                 playsInline
                 ref={videoRef}
               />
-              <AnimatePresence>
-                {shouldShowControls && (
-                  <m.div
-                    animate="visible"
-                    initial="hidden"
-                    exit="hidden"
-                    variants={{
-                      hidden: { opacity: 0 },
-                      visible: { opacity: 1 }
-                    }}
-                    className={clsm([
-                      'player-controls-container',
-                      'flex',
-                      'items-end',
-                      'h-32',
-                      'px-8',
-                      'pt-0',
-                      'pb-8',
-                      'absolute',
-                      'bottom-0',
-                      'left-0',
-                      'w-full'
-                    ])}
-                    transition={{ duration: 0.25, type: 'tween' }}
-                  >
-                    <Controls
-                      isFullscreenEnabled={isFullscreenEnabled}
-                      onControlHoverHandler={onControlHoverHandler}
-                      player={livePlayer}
-                      playerElementRef={playerElementRef}
-                      selectedQualityName={selectedQualityName}
-                      setIsFullscreenEnabled={setIsFullscreenEnabled}
-                      setIsPopupOpen={setIsPopupOpen}
-                      stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-                    />
-                  </m.div>
-                )}
-              </AnimatePresence>
+              <m.div
+                animate={shouldShowControls ? 'visible' : 'hidden'}
+                initial="hidden"
+                exit="hidden"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1 }
+                }}
+                className={clsm([
+                  'player-controls-container',
+                  'flex',
+                  'items-end',
+                  'h-32',
+                  'px-8',
+                  'pt-0',
+                  'pb-8',
+                  'absolute',
+                  'bottom-0',
+                  'left-0',
+                  'w-full'
+                ])}
+                transition={{ duration: 0.25, type: 'tween' }}
+              >
+                <Controls
+                  isFullscreenEnabled={isFullscreenEnabled}
+                  onControlHoverHandler={onControlHoverHandler}
+                  player={livePlayer}
+                  playerElementRef={playerElementRef}
+                  selectedQualityName={selectedQualityName}
+                  setIsFullscreenEnabled={setIsFullscreenEnabled}
+                  setIsPopupOpen={setIsPopupOpen}
+                  stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                />
+              </m.div>
             </div>
           </>
         ) : (
