@@ -22,3 +22,13 @@
     padding: 0 32px 66px;
   }
 }
+
+@media (prefers-color-scheme: light) {
+  .player-controls-container {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+  }
+}

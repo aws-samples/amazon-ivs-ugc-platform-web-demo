@@ -44,7 +44,8 @@ module.exports = {
         modalOverlay: 'hsl(0 0% 0% / 0.5)',
         white: {
           DEFAULT: 'hsl(var(--base-color-white), 100%)',
-          hover: 'hsl(var(--base-color-white), 90%)'
+          hover: 'hsl(var(--base-color-white), 90%)',
+          player: 'hsl(var(--base-color-white), 85%)'
         },
         black: {
           DEFAULT: 'hsl(var(--base-color-white), 0%)',
