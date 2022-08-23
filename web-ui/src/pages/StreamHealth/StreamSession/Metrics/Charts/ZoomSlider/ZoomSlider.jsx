@@ -7,12 +7,10 @@ import {
   ZOOM_LEVELS
 } from '../../../../../../contexts/SynchronizedCharts';
 import './ZoomSlider.css';
-import { bound } from '../../../../../../utils';
+import { bound, noop } from '../../../../../../utils';
 import ThumbSlider from './ThumbSlider';
 
 const maxValue = 1000;
-
-const noop = () => {};
 
 const ZoomSlider = ({
   chartsRef,

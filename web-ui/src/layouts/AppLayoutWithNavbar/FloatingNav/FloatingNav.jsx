@@ -11,31 +11,24 @@ const FloatingNav = () => (
       'fixed',
       'flex',
       'flex-col-reverse',
-      'right-0',
-      'bottom-0',
-      'z-[500]',
-      'm-4',
-      'md:landscape:top-0',
-      'md:landscape:bottom-auto',
-      'touch-screen-device:lg:landscape:top-0',
-      'touch-screen-device:lg:landscape:bottom-auto'
+      'right-4',
+      'bottom-4',
+      'z-[300]'
     ])}
   >
     <ProfileMenu
       navData={navMenuButtonData}
+      fadeBackground
       containerClassName={clsm([
         'flex',
         'flex-col-reverse',
         'items-end',
         'gap-x-4',
         'gap-y-4',
-        'max-w-[336px]',
         'w-[calc(100vw_-_32px)]',
         'h-[calc(100vh_-_32px)]',
-        'md:landscape:flex-row-reverse',
-        'md:landscape:items-start',
-        'touch-screen-device:lg:landscape:flex-row-reverse',
-        'touch-screen-device:lg:landscape:items-start',
+        'md:landscape:max-w-[400px]',
+        'touch-screen-device:landscape:max-w-[400px]',
 
         /**
          * The container's max-height is calculated by considering the viewport height of mobile webkit browsers,
@@ -58,13 +51,7 @@ const FloatingNav = () => (
               'touch-screen-device:lg:landscape:max-h-[min(432px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px))]'
             ]
       ])}
-      menuClassName={clsm([
-        'w-full',
-        'h-full',
-        'origin-bottom-right',
-        'md:landscape:origin-top-right',
-        'touch-screen-device:lg:landscape:origin-top-right'
-      ])}
+      menuClassName={clsm(['w-full', 'h-full', 'origin-bottom-right'])}
     >
       {({ isOpen, toggle, toggleRef }) => (
         <Button

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { Close } from '../../../../../../assets/icons';
 import { dashboard as $dashboardContent } from '../../../../../../content';
+import { noop } from '../../../../../../utils';
 import { useMobileBreakpoint } from '../../../../../../contexts/MobileBreakpoint';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
@@ -126,7 +127,7 @@ StreamEventsList.defaultProps = {
   isLearnMoreVisible: false,
   isPreview: false,
   selectedEventId: null,
-  setIsStreamEventsListVisible: () => {},
+  setIsStreamEventsListVisible: noop,
   streamEvents: []
 };
 

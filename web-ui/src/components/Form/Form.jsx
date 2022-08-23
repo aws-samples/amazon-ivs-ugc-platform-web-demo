@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef } from 'react';
 
 import './Form.css';
 import { BREAKPOINTS } from '../../constants';
-import { throttle } from '../../utils';
+import { noop, throttle } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -148,19 +148,19 @@ const Form = ({
 Form.defaultProps = {
   'data-test-id': undefined,
   clearFormOnSuccess: true,
-  disableSubmit: () => {},
+  disableSubmit: noop,
   disableValidation: false,
-  errorHandler: () => {},
+  errorHandler: noop,
   footer: null,
   formVariant: 'vertical',
   inputsData: {},
   inputVariant: 'vertical',
-  onFailure: () => {},
-  onSuccess: () => {},
+  onFailure: noop,
+  onSuccess: noop,
   submitBtnVariant: 'primary',
   submitText: 'Submit',
   title: '',
-  validationCheck: () => {}
+  validationCheck: noop
 };
 
 Form.propTypes = {

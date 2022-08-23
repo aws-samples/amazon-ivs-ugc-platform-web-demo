@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import { useRef, useEffect, useCallback } from 'react';
 
-import { clsm } from '../../../utils';
+import { clsm, noop } from '../../../utils';
 import useMediaQuery from '../../../hooks/useMediaQuery';
-
-const noop = () => {};
 
 const volumeDark = {
   track: 'var(--palette-color-white)',

@@ -33,7 +33,7 @@ import {
 } from './pages/UserManagement/subpages';
 
 // Page Layouts
-import { AppLayoutWithNavbar, RequireAuth, SharedComponents } from './layouts';
+import { AppLayoutWithNavbar, RequireAuth } from './layouts';
 
 const loadMotionFeatures = () =>
   import('./motion-features').then((res) => res.default);
@@ -47,41 +47,36 @@ const App = () => (
             <UserProvider>
               <ModalProvider>
                 <Routes>
-                  <Route element={<SharedComponents />}>
-                    <Route element={<AppLayoutWithNavbar />}>
-                      {/* PUBLIC PAGES - UGC */}
-                      <Route index element={<ChannelDirectory />} />
-                      <Route path=":username" element={<Channel />} />
-                      <Route path="feed" element={<Feed />} />
+                  <Route element={<AppLayoutWithNavbar />}>
+                    {/* PUBLIC PAGES - UGC */}
+                    <Route index element={<ChannelDirectory />} />
+                    <Route path=":username" element={<Channel />} />
+                    <Route path="feed" element={<Feed />} />
 
-                      {/* PRIVATE PAGES */}
-                      <Route element={<RequireAuth />}>
-                        <Route path="following" element={<Following />} />
-                        <Route element={<StreamsProvider />}>
-                          <Route path="settings" element={<Settings />} />
-                          <Route path="manager" element={<StreamManager />} />
-                          <Route path="health">
-                            <Route index element={<StreamHealth />} />
-                            <Route
-                              path=":streamId"
-                              element={<StreamHealth />}
-                            />
-                            <Route
-                              path="*"
-                              element={<Navigate replace to="/health" />}
-                            />
-                          </Route>
+                    {/* PRIVATE PAGES */}
+                    <Route element={<RequireAuth />}>
+                      <Route path="following" element={<Following />} />
+                      <Route element={<StreamsProvider />}>
+                        <Route path="settings" element={<Settings />} />
+                        <Route path="manager" element={<StreamManager />} />
+                        <Route path="health">
+                          <Route index element={<StreamHealth />} />
+                          <Route path=":streamId" element={<StreamHealth />} />
+                          <Route
+                            path="*"
+                            element={<Navigate replace to="/health" />}
+                          />
                         </Route>
                       </Route>
-                      <Route path="*" element={<Navigate replace to="/" />} />
                     </Route>
+                    <Route path="*" element={<Navigate replace to="/" />} />
+                  </Route>
 
-                    {/* PUBLIC PAGES - User Management */}
-                    <Route element={<UserManagement />}>
-                      <Route path="login" element={<SigninUser />} />
-                      <Route path="register" element={<RegisterUser />} />
-                      <Route path="reset" element={<ResetPassword />} />
-                    </Route>
+                  {/* PUBLIC PAGES - User Management */}
+                  <Route element={<UserManagement />}>
+                    <Route path="login" element={<SigninUser />} />
+                    <Route path="register" element={<RegisterUser />} />
+                    <Route path="reset" element={<ResetPassword />} />
                   </Route>
                 </Routes>
               </ModalProvider>

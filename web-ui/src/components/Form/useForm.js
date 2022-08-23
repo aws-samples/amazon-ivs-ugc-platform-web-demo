@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { scrollToTop } from '../../utils';
+import { noop, scrollToTop } from '../../utils';
 import { useNotif } from '../../contexts/Notification';
 import { userManagement as $content } from '../../content';
 import { validateForm, defaultErrorHandler } from './validateForm';
@@ -53,8 +53,6 @@ const generateInputProps = (inputsData) =>
 
     return inputProps;
   }, {});
-
-const noop = () => {};
 
 const useForm = ({
   disableValidation,

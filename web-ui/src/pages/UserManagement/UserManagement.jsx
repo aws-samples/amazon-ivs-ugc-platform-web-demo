@@ -44,6 +44,7 @@ const UserManagement = () => {
       className="main-user-container bg-lightMode-gray-extraLight dark:bg-black"
       ref={mainRef}
     >
+      <Notification />
       {isCreatingResources || hasErrorCreatingResources ? (
         <FullScreenLoader
           hasError={hasErrorCreatingResources}

@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import InputLabel from '../Input/InputLabel';
 
-import Icon from './Icon';
 import './IconSelect.css';
+import { noop } from '../../utils';
+import Icon from './Icon';
+import InputLabel from '../Input/InputLabel';
 
 const IconSelect = ({
   isLoading,
@@ -61,7 +62,7 @@ IconSelect.defaultProps = {
   label: '',
   type: 'image',
   selected: '',
-  onClick: () => {},
+  onClick: noop,
   variant: 'vertical'
 };
 

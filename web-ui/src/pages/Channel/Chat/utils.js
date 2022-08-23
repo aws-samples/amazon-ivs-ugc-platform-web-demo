@@ -1,6 +1,5 @@
 import { ENABLE_CHAT_DEBUG_MESSAGES } from '../../../constants';
-
-const noop = () => {};
+import { noop } from '../../../utils';
 
 export const createSocket = (endpoint, token, handlers) => {
   const {

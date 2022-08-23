@@ -34,8 +34,15 @@ const Channel = () => {
         'items-center',
         'justify-center',
         'text-center',
-        'h-full',
-        'w-full'
+        'h-screen',
+        'w-full',
+        'lg:flex-col',
+        'lg:h-full',
+        'lg:min-h-screen',
+        'md:landscape:flex-row',
+        'md:landscape:h-screen',
+        'touch-screen-device:lg:landscape:flex-row',
+        'touch-screen-device:lg:landscape:h-screen'
       )}
     >
       <Player isLive={isLive} setIsLive={setIsLive} playbackUrl={playbackUrl} />

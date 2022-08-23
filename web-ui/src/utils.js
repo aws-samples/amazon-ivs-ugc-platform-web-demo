@@ -2,6 +2,8 @@ import clsx from 'clsx';
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import { CHANNEL_TYPE } from './constants';
 
+export const noop = () => {};
+
 export const isiOS = () =>
   [
     'iPad Simulator',
@@ -120,9 +122,9 @@ export const debounce = (callback, delay, atBegin = false) => {
 export const retryWithBackoff = ({
   promiseFn,
   maxRetries,
-  onRetry = () => {},
-  onSuccess = () => {},
-  onFailure = () => {}
+  onRetry = noop,
+  onSuccess = noop,
+  onFailure = noop
 }) => {
   const waitFor = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));

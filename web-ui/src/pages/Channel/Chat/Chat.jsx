@@ -1,14 +1,21 @@
 import PropTypes from 'prop-types';
-import Spinner from '../../../components/Spinner';
+import { memo } from 'react';
 
 import { clsm } from '../../../utils';
-import { memo } from 'react';
+import Button from '../../../components/Button';
+import Spinner from '../../../components/Spinner';
 import useChat from './useChat';
 
 const Chat = ({ chatRoomOwnerUsername, isChannelLoading }) => {
-  const { isConnectionOpen } = useChat(chatRoomOwnerUsername);
+  const { isConnectionOpen, messages, sendMessage } = useChat(
+    chatRoomOwnerUsername
+  );
 
-  console.info('isConnectionOpen:', isConnectionOpen);
+  console.log('messages:', messages);
+
+  const handleSendMessage = () => {
+    sendMessage('Hello World!');
+  };
 
   return (
     <section
@@ -21,15 +28,29 @@ const Chat = ({ chatRoomOwnerUsername, isChannelLoading }) => {
         'gap-y-4',
         'w-[360px]',
         'h-screen',
-        'bg-lightMode-gray-extraLight',
+        'bg-lightMode-gray-light',
         'dark:bg-darkMode-gray-dark',
-        'hidden' // TEMPORARY - Remove when implementing Chat UI
+        'lg:w-full',
+        'lg:h-full',
+        'lg:flex-grow',
+        'lg:min-h-[360px]',
+        'md:landscape:w-[308px]',
+        'md:landscape:h-screen',
+        'md:landscape:min-h-[auto]',
+        'touch-screen-device:lg:landscape:w-[308px]',
+        'touch-screen-device:lg:landscape:h-screen',
+        'touch-screen-device:lg:landscape:min-h-[auto]'
       ])}
     >
       {isChannelLoading ? (
         <Spinner variant="light" size="medium" />
       ) : (
-        <h2>Chat Section</h2>
+        <>
+          <h2>Chat Section</h2>
+          <Button onClick={handleSendMessage} isLoading={!isConnectionOpen}>
+            Send Message
+          </Button>
+        </>
       )}
     </section>
   );

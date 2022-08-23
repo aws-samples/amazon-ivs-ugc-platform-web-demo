@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
+
 import { app as $content } from '../../content';
+import { clsm, noop } from '../../utils';
 import { Visibility, VisibilityOff } from '../../assets/icons';
 
 const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
   if (!isVisible) return;
 
   const isPasswordHidden = inputType === 'password';
-  const buttonClasses = clsx([
+  const buttonClasses = clsm([
     'absolute',
     'bg-none',
     'cursor-pointer',
@@ -27,7 +28,7 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
     'right-5',
     'top-0'
   ]);
-  const visibilityIconClasses = clsx([
+  const visibilityIconClasses = clsm([
     'dark:fill-white',
     'fill-lightMode-gray-dark'
   ]);
@@ -57,7 +58,7 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
 PasswordPeekButton.defaultProps = {
   label: '',
   inputType: 'password',
-  setInputType: () => {},
+  setInputType: noop,
   isVisible: false
 };
 

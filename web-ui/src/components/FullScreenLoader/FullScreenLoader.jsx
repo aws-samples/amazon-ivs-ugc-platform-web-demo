@@ -1,15 +1,14 @@
 import PropTypes from 'prop-types';
+import { useRef } from 'react';
 
 import './FullScreenLoader.css';
 import { app as $content } from '../../content';
 import { BREAKPOINTS } from '../../constants';
+import { noop } from '../../utils';
 import { SyncError } from '../../assets/icons';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import Button from '../Button';
 import Spinner from '../Spinner';
-import { useRef } from 'react';
-
-const noop = () => {};
 
 const FullScreenLoader = ({ hasError, mobileBreakpoint, onClick }) => {
   const { currentBreakpoint } = useMobileBreakpoint();

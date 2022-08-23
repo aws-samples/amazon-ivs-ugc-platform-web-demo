@@ -2,16 +2,21 @@ import { Outlet } from 'react-router-dom';
 
 import { clsm } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useModal } from '../../contexts/Modal';
 import { useUser } from '../../contexts/User';
 import FloatingNav from './FloatingNav';
+import Modal from '../../components/Modal';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
+import useCurrentPage from '../../hooks/useCurrentPage';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
   const { isDefaultResponsiveView, isMobileView, mainRef } =
     useMobileBreakpoint();
   const { isSessionValid } = useUser();
+  const { modal } = useModal();
+  const currentPage = useCurrentPage();
 
   return (
     <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
@@ -35,7 +40,7 @@ const AppLayoutWithNavbar = () => {
                 'w-[calc(100vw_-_64px)]',
                 // Autenticated Sidebar is not visible
                 'md:w-screen',
-                'touch-screen-device:lg:landscape:w-screen'
+                'touch-screen-device:landscape:w-screen'
               ]
             : [
                 // Unautenticated Sidebar is visible
@@ -48,8 +53,9 @@ const AppLayoutWithNavbar = () => {
               ]
         )}
       >
+        {currentPage !== 'channel' && <Notification />}
+        <Modal isOpen={!!modal} />
         <Outlet />
-        <Notification position="absolute" />
       </main>
     </div>
   );

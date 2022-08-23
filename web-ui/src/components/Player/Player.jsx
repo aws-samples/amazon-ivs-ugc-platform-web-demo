@@ -7,10 +7,11 @@ import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { useNotif } from '../../contexts/Notification';
 import Controls from './Controls';
-import FullScreenLoader from '../FullScreenLoader';
+import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
+import Notification from '../Notification';
 
 const Player = ({ isLive, setIsLive, playbackUrl }) => {
   const livePlayer = usePlayer({ playbackUrl, isLive });
@@ -71,94 +72,122 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
   return (
     <section
       className={clsm([
-        'bg-lightMode-gray',
-        'dark:bg-black',
-        'flex-col',
+        'relative',
         'flex',
-        'h-screen',
+        'flex-col',
         'items-center',
         'justify-center',
-        'w-full'
+        'w-full',
+        'h-full',
+        'max-h-screen',
+        'bg-lightMode-gray',
+        'dark:bg-black',
+        'lg:aspect-video',
+        'md:landscape:aspect-auto',
+        'touch-screen-device:lg:landscape:aspect-auto'
       ])}
       ref={playerElementRef}
+      onMouseMove={onMouseMoveHandler}
     >
-      <div className="w-full h-full relative" onMouseMove={onMouseMoveHandler}>
-        {isLive || isLive === undefined || hasFinalBuffer ? (
-          <>
-            {shouldShowLoader && <FullScreenLoader />}
-            {/* The onClick is only used on touchscreen, where the keyboard isn't available */}
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-            <div
+      <Notification />
+      {isLive || isLive === undefined || hasFinalBuffer ? (
+        <>
+          {shouldShowLoader && (
+            <Spinner className="z-10" size="large" variant="light" />
+          )}
+          {/* The onClick is only used on touchscreen, where the keyboard isn't available */}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
+          <div
+            className={clsm([
+              'absolute',
+              'top-0',
+              'w-full',
+              'h-full',
+              'max-h-screen',
+              'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]'
+            ])}
+            id="player-controls-container"
+            onClick={onClickPlayerHandler}
+            role="toolbar"
+          >
+            <video
+              className={clsm(
+                ['w-full', 'h-full'],
+                shouldShowLoader ? 'hidden' : 'block'
+              )}
+              muted
+              playsInline
+              ref={videoRef}
+            />
+            <m.div
+              animate={shouldShowControls ? 'visible' : 'hidden'}
+              initial="hidden"
+              exit="hidden"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1 }
+              }}
               className={clsm([
+                'player-controls-container',
+                'flex',
+                'items-end',
+                'h-32',
+                'px-8',
+                'pt-0',
+                'pb-8',
                 'absolute',
-                'h-full',
-                'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]',
-                'max-h-screen',
-                'top-0',
+                'bottom-0',
+                'left-0',
                 'w-full'
               ])}
-              id="player-controls-container"
-              onClick={onClickPlayerHandler}
-              role="toolbar"
+              transition={{ duration: 0.25, type: 'tween' }}
             >
-              <video
-                className={`w-full h-full ${
-                  shouldShowLoader ? 'hidden' : 'block'
-                }`}
-                muted
-                playsInline
-                ref={videoRef}
+              <Controls
+                isFullscreenEnabled={isFullscreenEnabled}
+                onClickFullscreenHandler={onClickFullscreenHandler}
+                onControlHoverHandler={onControlHoverHandler}
+                player={livePlayer}
+                playerElementRef={playerElementRef}
+                selectedQualityName={selectedQualityName}
+                setIsFullscreenEnabled={setIsFullscreenEnabled}
+                setIsPopupOpen={setIsPopupOpen}
+                stopPropagAndResetTimeout={stopPropagAndResetTimeout}
               />
-              {shouldShowControls && (
-                <m.div
-                  animate="visible"
-                  initial="hidden"
-                  exit="hidden"
-                  variants={{
-                    hidden: { opacity: 0 },
-                    visible: { opacity: 1 }
-                  }}
-                  className={clsm([
-                    'player-controls-container',
-                    'flex',
-                    'items-end',
-                    'h-32',
-                    'px-8',
-                    'pt-0',
-                    'pb-8',
-                    'absolute',
-                    'bottom-0',
-                    'left-0',
-                    'w-full'
-                  ])}
-                  transition={{ duration: 0.25, type: 'tween' }}
-                >
-                  <Controls
-                    isFullscreenEnabled={isFullscreenEnabled}
-                    onClickFullscreenHandler={onClickFullscreenHandler}
-                    onControlHoverHandler={onControlHoverHandler}
-                    player={livePlayer}
-                    playerElementRef={playerElementRef}
-                    selectedQualityName={selectedQualityName}
-                    setIsFullscreenEnabled={setIsFullscreenEnabled}
-                    setIsPopupOpen={setIsPopupOpen}
-                    stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-                  />
-                </m.div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="flex justify-center items-center absolute w-full h-full z-10 bottom-0 left-0">
-            <div className="flex items-center flex-col gap-y-2">
-              <NoSignalSvg className="fill-lightMode-gray-medium dark:fill-darkMode-gray" />
-              <h2 className="text-lightMode-gray-medium dark:text-darkMode-gray">
-                {$content.stream_offline}
-              </h2>
-            </div>
+            </m.div>
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div
+          className={clsm([
+            'flex',
+            'flex-col',
+            'justify-center',
+            'items-center',
+            'gap-y-2',
+            'absolute',
+            'w-full',
+            'h-full',
+            'left-0',
+            'bottom-0',
+            'z-10'
+          ])}
+        >
+          <NoSignalSvg
+            className={clsm([
+              'fill-lightMode-gray-medium',
+              'dark:fill-darkMode-gray'
+            ])}
+          />
+          <h2
+            className={clsm([
+              'text-lightMode-gray-medium',
+              'dark:text-darkMode-gray'
+            ])}
+          >
+            {$content.stream_offline}
+          </h2>
+        </div>
+      )}
     </section>
   );
 };

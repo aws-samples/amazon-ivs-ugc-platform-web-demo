@@ -2,8 +2,8 @@
 const { chromium } = require('@playwright/test');
 
 const { LoginPageModel } = require('./models');
+const { noop } = require('../src/utils');
 
-const noop = () => {};
 const overridePageFixture = (page) => {
   page.getLocalStorage = noop;
   page.takeScreenshot = noop;

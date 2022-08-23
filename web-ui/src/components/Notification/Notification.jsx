@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { Check, ErrorIcon } from '../../assets/icons';
@@ -7,36 +7,52 @@ import {
   NOTIF_ANIMATION_DURATION_MS
 } from '../../contexts/Notification';
 import { clsm } from '../../utils';
+import useCurrentPage from '../../hooks/useCurrentPage';
+import usePrevious from '../../hooks/usePrevious';
+import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const Notification = ({ position }) => {
-  const { NOTIF_TYPES, notif } = useNotif();
+const Notification = () => {
+  const { NOTIF_TYPES, notif, dismissNotif } = useNotif();
+  const [shouldSkipExitAnimation, setShouldSkipExitAnimation] =
+    useStateWithCallback(false);
+  const currPage = useCurrentPage();
+  const prevPage = usePrevious(currPage);
+
+  // Skip the exit animation if the dismissal is triggered by a page change
+  useEffect(() => {
+    if (notif && currPage && prevPage && currPage !== prevPage) {
+      setShouldSkipExitAnimation(true, dismissNotif);
+    }
+  }, [dismissNotif, currPage, prevPage, setShouldSkipExitAnimation, notif]);
 
   let NotifIcon = null;
   if (notif?.type === NOTIF_TYPES.ERROR) NotifIcon = ErrorIcon;
   if (notif?.type === NOTIF_TYPES.SUCCESS) NotifIcon = Check;
 
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence
+      exitBeforeEnter
+      onExitComplete={() => setShouldSkipExitAnimation(false)}
+    >
       {notif && (
         <m.div
           animate="visible"
           aria-live="polite"
           className={clsm([
             'notification',
+            'absolute',
             'left-0',
+            'right-0',
+            'top-[32px]',
             'my-0',
             'mx-auto',
             'max-w-[595px]',
             'py-0',
             'px-4',
-            'sticky',
-            'right-0',
-            'top-[32px]',
             'w-fit',
-            'z-50',
-            position
+            'z-500'
           ])}
-          exit="hidden"
+          exit={shouldSkipExitAnimation ? '' : 'hidden'}
           initial="hidden"
           key={`${notif.type}-notification`}
           transition={{
@@ -79,12 +95,6 @@ const Notification = ({ position }) => {
       )}
     </AnimatePresence>
   );
-};
-
-Notification.defaultProps = { position: 'fixed' };
-
-Notification.propTypes = {
-  position: PropTypes.oneOf(['fixed', 'absolute'])
 };
 
 export default Notification;

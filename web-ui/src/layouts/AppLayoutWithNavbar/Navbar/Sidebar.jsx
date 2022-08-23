@@ -31,7 +31,7 @@ const Sidebar = () => {
     <nav
       className={clsm(
         [
-          'absolute',
+          'fixed',
           'flex',
           'flex-col',
           'items-center',
@@ -119,7 +119,7 @@ const Sidebar = () => {
                     </Button>,
                     displayName
                   )}
-                  {i === 2 && (
+                  {isSessionValid && i === 1 && (
                     <span
                       className={clsm([
                         'w-8',
@@ -138,6 +138,7 @@ const Sidebar = () => {
       </div>
       {isSessionValid ? (
         <ProfileMenu
+          asPortal
           menuClassName={clsm([
             'fixed',
             'bottom-6',

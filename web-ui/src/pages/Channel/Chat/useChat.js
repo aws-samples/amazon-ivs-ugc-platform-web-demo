@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
 import { createSocket, closeSocket } from './utils';
@@ -21,6 +22,7 @@ const requestChatToken = async (chatRoomOwnerUsername) => {
 
 const useChat = (chatRoomOwnerUsername) => {
   const { isSessionValid } = useUser();
+  const [messages, setMessages] = useState([]);
   const [connectionReadyState, setConnectionReadyState] = useState();
   const [didConnectionCloseCleanly, setDidConnectionCloseCleanly] = useState();
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
@@ -28,6 +30,18 @@ const useChat = (chatRoomOwnerUsername) => {
   const isRetryingConnection = useRef(false);
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
+
+  const sendMessage = (msg) => {
+    if (!isConnectionOpen) return;
+
+    connection.current.send(
+      JSON.stringify({
+        Action: 'SEND_MESSAGE',
+        RequestId: uuidv4(),
+        Content: msg.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+      })
+    );
+  };
 
   // Handlers
   const onOpen = useCallback(() => {
@@ -48,7 +62,7 @@ const useChat = (chatRoomOwnerUsername) => {
     switch (eventType) {
       case 'MESSAGE': {
         // Handle received message
-        console.log('Received Message:', data);
+        setMessages((prevMessages) => [...prevMessages, data]);
         break;
       }
       case 'EVENT':
@@ -168,7 +182,7 @@ const useChat = (chatRoomOwnerUsername) => {
     return () => clearTimeout(reconnectTimeoutId);
   }, [connect, didConnectionCloseCleanly]);
 
-  return { isConnectionOpen };
+  return { isConnectionOpen, messages, sendMessage };
 };
 
 export default useChat;

@@ -140,7 +140,7 @@ const RenditionSetting = ({
                 'left-0',
                 'max-h-[65%]',
                 'rounded-b-none',
-                'z-40',
+                'z-[350]',
                 'w-screen'
               ]
             ])}
