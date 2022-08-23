@@ -22,6 +22,7 @@ import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 import InputRange from './InputRange';
 
 const VolumeSetting = ({
+  isDisabled,
   onControlHoverHandler,
   volumeLevel,
   stopPropagAndResetTimeout,
@@ -86,6 +87,7 @@ const VolumeSetting = ({
           ...CONTROLS_BUTTON_BASE_CLASSES,
           'transition-transform'
         ])}
+        disabled={isDisabled}
         onBlur={onControlHoverHandler}
         onFocus={onControlHoverHandler}
         onMouseEnter={onControlHoverHandler}
@@ -131,10 +133,12 @@ const VolumeSetting = ({
 };
 
 VolumeSetting.defaultProps = {
+  isDisabled: false,
   volumeLevel: VOLUME_MAX
 };
 
 VolumeSetting.propTypes = {
+  isDisabled: PropTypes.bool,
   onControlHoverHandler: PropTypes.func.isRequired,
   volumeLevel: PropTypes.number,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,

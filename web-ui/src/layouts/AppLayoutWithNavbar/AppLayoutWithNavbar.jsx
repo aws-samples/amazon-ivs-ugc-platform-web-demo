@@ -12,15 +12,26 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, isMobileView, mainRef } =
+  const { isDefaultResponsiveView, isMobileView, isLandscape, mainRef } =
     useMobileBreakpoint();
   const { isSessionValid } = useUser();
   const { modal } = useModal();
   const currentPage = useCurrentPage();
 
+  const renderNav = () => {
+    const isChannelPage = currentPage === 'channel';
+    const isSplitView = isMobileView && isLandscape && isChannelPage;
+
+    if (isSplitView) {
+      return null;
+    } else if (isSessionValid && isMobileView) {
+      return <FloatingNav />;
+    } else return <Navbar />;
+  };
+
   return (
     <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
-      {isSessionValid && isMobileView ? <FloatingNav /> : <Navbar />}
+      {renderNav()}
       <main
         ref={mainRef}
         id={`main-app-container${isDefaultResponsiveView ? '' : '-scrollable'}`}

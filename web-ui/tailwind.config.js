@@ -40,6 +40,9 @@ module.exports = {
         hover: `inset 0 0 0 3px var(--tw-shadow-color)`,
         hoverOuter: ` 0 0 0 3px var(--tw-shadow-color)`
       },
+      height: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
+      minHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
+      maxHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       colors: {
         modalOverlay: 'hsl(0 0% 0% / 0.5)',
         white: {

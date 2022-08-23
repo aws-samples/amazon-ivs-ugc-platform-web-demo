@@ -7,39 +7,21 @@ import Spinner from '../../../components/Spinner';
 import useChat from './useChat';
 
 const Chat = ({ chatRoomOwnerUsername, isChannelLoading }) => {
-  const { isConnectionOpen, messages, sendMessage } = useChat(
-    chatRoomOwnerUsername
-  );
-
-  console.log('messages:', messages);
+  const { isConnectionOpen, sendMessage } = useChat(chatRoomOwnerUsername);
 
   const handleSendMessage = () => {
     sendMessage('Hello World!');
   };
 
   return (
-    <section
+    <div
       className={clsm([
         'flex',
+        'flex-1',
         'flex-col',
-        'flex-shrink-0',
         'items-center',
         'justify-center',
-        'gap-y-4',
-        'w-[360px]',
-        'h-screen',
-        'bg-lightMode-gray-light',
-        'dark:bg-darkMode-gray-dark',
-        'lg:w-full',
-        'lg:h-full',
-        'lg:flex-grow',
-        'lg:min-h-[360px]',
-        'md:landscape:w-[308px]',
-        'md:landscape:h-screen',
-        'md:landscape:min-h-[auto]',
-        'touch-screen-device:lg:landscape:w-[308px]',
-        'touch-screen-device:lg:landscape:h-screen',
-        'touch-screen-device:lg:landscape:min-h-[auto]'
+        'gap-y-4'
       ])}
     >
       {isChannelLoading ? (
@@ -52,7 +34,7 @@ const Chat = ({ chatRoomOwnerUsername, isChannelLoading }) => {
           </Button>
         </>
       )}
-    </section>
+    </div>
   );
 };
 

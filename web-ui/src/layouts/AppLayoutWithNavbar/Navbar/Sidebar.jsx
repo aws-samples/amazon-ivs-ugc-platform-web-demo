@@ -47,7 +47,8 @@ const Sidebar = () => {
           'overflow-x-hidden',
           'dark:bg-darkMode-gray-medium',
           'bg-lightMode-gray-extraLight',
-          'supports-overlay:overflow-y-overlay'
+          'supports-overlay:overflow-y-overlay',
+          'z-30'
         ], // Default styles
         isSessionValid
           ? ['w-16', 'pt-7', 'pb-4', 'px-2.5'] // Authenticated

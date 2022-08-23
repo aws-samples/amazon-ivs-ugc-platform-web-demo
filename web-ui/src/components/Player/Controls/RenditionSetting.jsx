@@ -19,6 +19,7 @@ import useClickAway from '../../../hooks/useClickAway';
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const RenditionSetting = ({
+  isDisabled,
   onControlHoverHandler,
   qualities,
   selectedQualityName,
@@ -95,6 +96,7 @@ const RenditionSetting = ({
           'transition-transform',
           isExpanded && ['rotate-[30deg]', 'border-white']
         ])}
+        disabled={isDisabled}
         onBlur={onControlHoverHandler}
         onFocus={onControlHoverHandler}
         onMouseEnter={onControlHoverHandler}
@@ -242,10 +244,12 @@ const RenditionSetting = ({
 };
 
 RenditionSetting.defaultProps = {
+  isDisabled: false,
   qualities: [{ name: 'Auto' }]
 };
 
 RenditionSetting.propTypes = {
+  isDisabled: PropTypes.bool,
   onControlHoverHandler: PropTypes.func.isRequired,
   qualities: PropTypes.arrayOf(PropTypes.object),
   selectedQualityName: PropTypes.string.isRequired,

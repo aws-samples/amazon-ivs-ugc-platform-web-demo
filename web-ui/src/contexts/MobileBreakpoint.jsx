@@ -27,7 +27,8 @@ export const Provider = ({ children }) => {
   const isLandscape = useMediaQuery('(orientation: landscape)');
   const isTouchscreenDevice = useMediaQuery('(hover:none)');
   const isMobileView =
-    isDefaultResponsiveView || (isLandscape && isTouchscreenDevice);
+    isDefaultResponsiveView ||
+    (isLandscape && isTouchscreenDevice && currentBreakpoint < BREAKPOINTS.lg);
 
   const lockBody = useCallback(() => {
     if (isiOS()) {
@@ -118,7 +119,7 @@ export const Provider = ({ children }) => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
     },
-    100,
+    50,
     [isDefaultResponsiveView, isTouchscreenDevice]
   );
   useEffect(() => {

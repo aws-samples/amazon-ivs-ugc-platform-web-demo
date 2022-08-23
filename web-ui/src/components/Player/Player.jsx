@@ -13,7 +13,13 @@ import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
 import Notification from '../Notification';
 
-const Player = ({ isLive, setIsLive, playbackUrl }) => {
+const Player = ({
+  isLive,
+  setIsLive,
+  playbackUrl,
+  isChatVisible,
+  toggleChat
+}) => {
   const livePlayer = usePlayer({ playbackUrl, isLive });
   const {
     error,
@@ -143,15 +149,16 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
               transition={{ duration: 0.25, type: 'tween' }}
             >
               <Controls
+                isChatVisible={isChatVisible}
+                isControlsOpen={isControlsOpen}
                 isFullscreenEnabled={isFullscreenEnabled}
                 onClickFullscreenHandler={onClickFullscreenHandler}
                 onControlHoverHandler={onControlHoverHandler}
                 player={livePlayer}
-                playerElementRef={playerElementRef}
                 selectedQualityName={selectedQualityName}
-                setIsFullscreenEnabled={setIsFullscreenEnabled}
                 setIsPopupOpen={setIsPopupOpen}
                 stopPropagAndResetTimeout={stopPropagAndResetTimeout}
+                toggleChat={toggleChat}
               />
             </m.div>
           </div>
@@ -195,11 +202,14 @@ const Player = ({ isLive, setIsLive, playbackUrl }) => {
 Player.propTypes = {
   playbackUrl: PropTypes.string,
   isLive: PropTypes.bool,
-  setIsLive: PropTypes.func.isRequired
+  setIsLive: PropTypes.func.isRequired,
+  isChatVisible: PropTypes.bool,
+  toggleChat: PropTypes.func.isRequired
 };
 
 Player.defaultProps = {
   isLive: undefined,
+  isChatVisible: true,
   playbackUrl: ''
 };
 

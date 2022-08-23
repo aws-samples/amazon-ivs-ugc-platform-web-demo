@@ -1,26 +1,32 @@
 import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+import './Controls.css';
 import {
+  ChatClosed as ChatClosedSVG,
+  ChatOpen as ChatOpenSVG,
   FullScreen as FullScreenSvg,
   FullScreenExit as FullScreenExitSvg,
   Pause as PauseSvg,
   Play as PlaySvg
 } from '../../../assets/icons';
-import './Controls.css';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import RenditionSetting from './RenditionSetting';
 import VolumeSetting from './VolumeSetting';
 
 const Controls = ({
+  isChatVisible,
+  isControlsOpen,
   isFullscreenEnabled,
   onClickFullscreenHandler,
   onControlHoverHandler,
   player,
   selectedQualityName,
   setIsPopupOpen,
-  stopPropagAndResetTimeout
+  stopPropagAndResetTimeout,
+  toggleChat
 }) => {
   const {
     isPaused,
@@ -31,6 +37,8 @@ const Controls = ({
     updateVolume,
     volumeLevel
   } = player;
+  const { isMobileView, isLandscape } = useMobileBreakpoint();
+  const isSplitView = isMobileView && isLandscape;
 
   const onClickPlayPauseHandler = useCallback(
     (event) => {
@@ -43,6 +51,14 @@ const Controls = ({
       }
     },
     [isPaused, pause, play, stopPropagAndResetTimeout]
+  );
+
+  const onClickToggleChat = useCallback(
+    (event) => {
+      stopPropagAndResetTimeout(event);
+      toggleChat();
+    },
+    [stopPropagAndResetTimeout, toggleChat]
   );
 
   useEffect(() => {
@@ -71,12 +87,19 @@ const Controls = ({
 
   return (
     <div
-      className={clsm(['flex', 'justify-between', 'w-full', 'items-center'])}
+      className={clsm([
+        'flex',
+        'justify-between',
+        'w-full',
+        'items-center',
+        'gap-x-4'
+      ])}
     >
       <div className="flex gap-x-4">
         <button
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+          disabled={!isControlsOpen}
           onBlur={onControlHoverHandler}
           onFocus={onControlHoverHandler}
           onMouseEnter={onControlHoverHandler}
@@ -86,6 +109,7 @@ const Controls = ({
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
+          isDisabled={!isControlsOpen}
           onControlHoverHandler={onControlHoverHandler}
           setIsPopupOpen={setIsPopupOpen}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
@@ -94,7 +118,18 @@ const Controls = ({
         />
       </div>
       <div className="flex gap-x-4">
+        {isSplitView && (
+          <button
+            aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}
+            className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+            disabled={!isControlsOpen}
+            onClick={onClickToggleChat}
+          >
+            {isChatVisible ? <ChatOpenSVG /> : <ChatClosedSVG />}
+          </button>
+        )}
         <RenditionSetting
+          isDisabled={!isControlsOpen}
           onControlHoverHandler={onControlHoverHandler}
           qualities={qualities}
           selectedQualityName={selectedQualityName}
@@ -107,6 +142,7 @@ const Controls = ({
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+          disabled={!isControlsOpen}
           onClick={onClickFullscreenHandler}
         >
           {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
@@ -117,17 +153,22 @@ const Controls = ({
 };
 
 Controls.defaultProps = {
+  isChatVisible: true,
+  isControlsOpen: true,
   isFullscreenEnabled: false
 };
 
 Controls.propTypes = {
+  isChatVisible: PropTypes.bool,
+  isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   onControlHoverHandler: PropTypes.func.isRequired,
   player: PropTypes.object.isRequired,
   selectedQualityName: PropTypes.string.isRequired,
   setIsPopupOpen: PropTypes.func.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired
+  stopPropagAndResetTimeout: PropTypes.func.isRequired,
+  toggleChat: PropTypes.func.isRequired
 };
 
 export default Controls;
