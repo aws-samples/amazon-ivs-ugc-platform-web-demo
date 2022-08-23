@@ -1,5 +1,30 @@
+import { getChatToken } from '../../../api/channel';
 import { ENABLE_CHAT_DEBUG_MESSAGES } from '../../../constants';
 import { noop } from '../../../utils';
+
+export const CHAT_CAPABILITY = {
+  VIEW_MESSAGE: 'VIEW_MESSAGE',
+  SEND_MESSAGE: 'SEND_MESSAGE',
+  DISCONNECT_USER: 'DISCONNECT_USER',
+  DELETE_MESSAGE: 'DELETE_MESSAGE'
+};
+export const CHAT_USER_ROLE = {
+  VIEWER: 'VIEWER',
+  SENDER: 'SENDER',
+  MODERATOR: 'MODERATOR'
+};
+
+export const requestChatToken = async (chatRoomOwnerUsername) => {
+  const { result: { token, sessionExpirationTime, capabilities } = {}, error } =
+    await getChatToken(chatRoomOwnerUsername);
+
+  if (error) {
+    console.error('Error requesting chat token:', error);
+    return { error };
+  }
+
+  return { token, sessionExpirationTime, capabilities };
+};
 
 export const createSocket = (endpoint, token, handlers) => {
   const {

@@ -2,27 +2,30 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
-import { createSocket, closeSocket } from './utils';
-import { getChatToken } from '../../../api/channel';
+import {
+  CHAT_CAPABILITY,
+  CHAT_USER_ROLE,
+  closeSocket,
+  createSocket,
+  requestChatToken
+} from './utils';
 import { ivsChatWebSocketEndpoint } from '../../../api/utils';
 import { retryWithBackoff } from '../../../utils';
 import { useUser } from '../../../contexts/User';
 
-const requestChatToken = async (chatRoomOwnerUsername) => {
-  const { result: { token, sessionExpirationTime } = {}, error } =
-    await getChatToken(chatRoomOwnerUsername);
-
-  if (error) {
-    console.error('Error requesting chat token:', error);
-    return { error };
-  }
-
-  return { token, sessionExpirationTime };
-};
+/**
+ * @typedef {('VIEWER'|'SENDER'|'MODERATOR'|undefined)} ChatUserRole
+ */
 
 const useChat = (chatRoomOwnerUsername) => {
   const { isSessionValid } = useUser();
   const [messages, setMessages] = useState([]);
+  const chatCapabilities = useRef([]);
+
+  /** @type {[ChatUserRole, Function]} */
+  const [chatUserRole, setChatUserRole] = useState();
+
+  // Connection State
   const [connectionReadyState, setConnectionReadyState] = useState();
   const [didConnectionCloseCleanly, setDidConnectionCloseCleanly] = useState();
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
@@ -31,29 +34,89 @@ const useChat = (chatRoomOwnerUsername) => {
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
 
-  const sendMessage = (msg) => {
-    if (!isConnectionOpen) return;
+  const updateUserRole = useCallback(() => {
+    let type;
 
-    connection.current.send(
-      JSON.stringify({
-        Action: 'SEND_MESSAGE',
-        RequestId: uuidv4(),
-        Content: msg.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      })
-    );
+    // Returns true if the user's chat capabilities contain all of the given required capabilities
+    const hasPermission = (requiredCapabilities) =>
+      requiredCapabilities.every((reqCap) =>
+        chatCapabilities.current.includes(reqCap)
+      );
+
+    switch (true) {
+      case hasPermission([
+        CHAT_CAPABILITY.DISCONNECT_USER,
+        CHAT_CAPABILITY.DELETE_MESSAGE
+      ]): {
+        type = CHAT_USER_ROLE.MODERATOR;
+        break;
+      }
+      case hasPermission([CHAT_CAPABILITY.SEND_MESSAGE]): {
+        type = CHAT_USER_ROLE.SENDER;
+        break;
+      }
+      case hasPermission([CHAT_CAPABILITY.VIEW_MESSAGE]): {
+        type = CHAT_USER_ROLE.VIEWER;
+        break;
+      }
+      default: // exhaustive
+    }
+
+    setChatUserRole(type);
+  }, []);
+
+  // Actions
+  const send = (action, data) => {
+    try {
+      if (!isConnectionOpen)
+        throw new Error(
+          'Message or event failed to send because there is no open socket connection!'
+        );
+
+      connection.current.send(
+        JSON.stringify({
+          Action: action,
+          RequestId: uuidv4(),
+          ...data
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const sendMessage = (msg) => {
+    if (
+      ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole)
+    ) {
+      console.error(
+        'You do not have permission to send messages to this channel!'
+      );
+      return;
+    }
+
+    send('SEND_MESSAGE', {
+      Content: msg.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+    });
   };
 
   // Handlers
   const onOpen = useCallback(() => {
     setConnectionReadyState(WebSocket.OPEN);
-  }, []);
+    updateUserRole();
+  }, [updateUserRole]);
 
-  const onClose = useCallback((event) => {
-    connection.current = null;
-    clearTimeout(refreshTokenTimeoutId.current);
-    setConnectionReadyState(WebSocket.CLOSED);
-    setDidConnectionCloseCleanly(event.wasClean);
-  }, []);
+  const onClose = useCallback(
+    (event) => {
+      connection.current = null;
+      chatCapabilities.current = [];
+      clearTimeout(refreshTokenTimeoutId.current);
+      setConnectionReadyState(WebSocket.CLOSED);
+      setDidConnectionCloseCleanly(event.wasClean);
+      updateUserRole();
+    },
+    [updateUserRole]
+  );
 
   const onMessage = useCallback((event) => {
     const data = JSON.parse(event.data);
@@ -78,11 +141,7 @@ const useChat = (chatRoomOwnerUsername) => {
     }
   }, []);
 
-  const disconnect = useCallback(() => {
-    closeSocket(connection.current);
-    clearTimeout(refreshTokenTimeoutId.current);
-    connection.current = null;
-  }, []);
+  // Connection helpers
 
   const retryConnectionWithBackoff = useCallback(
     async (connectFn, error, reasonId, maxRetries = 7) => {
@@ -115,6 +174,12 @@ const useChat = (chatRoomOwnerUsername) => {
     []
   );
 
+  const disconnect = useCallback(() => {
+    closeSocket(connection.current);
+    clearTimeout(refreshTokenTimeoutId.current);
+    connection.current = null;
+  }, []);
+
   const connect = useCallback(async () => {
     if (isInitializingConnection.current && !isRetryingConnection.current)
       return;
@@ -125,9 +190,8 @@ const useChat = (chatRoomOwnerUsername) => {
     isInitializingConnection.current = true;
 
     // Request a new chat token
-    const { token, sessionExpirationTime, error } = await requestChatToken(
-      chatRoomOwnerUsername
-    );
+    const { token, sessionExpirationTime, error, capabilities } =
+      await requestChatToken(chatRoomOwnerUsername);
     if (error)
       return retryConnectionWithBackoff(connect, error, 'token request');
 
@@ -150,6 +214,7 @@ const useChat = (chatRoomOwnerUsername) => {
 
     // Update the state with the new socket connection and readyState
     connection.current = socket;
+    chatCapabilities.current = capabilities;
     setConnectionReadyState(socket.readyState);
 
     isInitializingConnection.current = false;
@@ -182,7 +247,7 @@ const useChat = (chatRoomOwnerUsername) => {
     return () => clearTimeout(reconnectTimeoutId);
   }, [connect, didConnectionCloseCleanly]);
 
-  return { isConnectionOpen, messages, sendMessage };
+  return { chatUserRole, messages, sendMessage };
 };
 
 export default useChat;

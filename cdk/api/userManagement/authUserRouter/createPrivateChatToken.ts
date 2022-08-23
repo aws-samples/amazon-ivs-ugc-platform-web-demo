@@ -1,20 +1,36 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { ChatTokenCapability } from '@aws-sdk/client-ivschat';
 
-import { createChatRoomToken, getUser } from '../helpers';
+import {
+  createChatRoomToken,
+  getUser,
+  ChatTokenCapabilityType
+} from '../helpers';
+import { ResponseBody } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
-type CreateChatTokenRequestBody = { chatRoomOwnerUsername: string };
+type CreatePrivateChatTokenRequestBody = { chatRoomOwnerUsername: string };
+
+interface CreatePrivateChatTokenResponseBody extends ResponseBody {
+  token?: string;
+  sessionExpirationTime?: Date;
+  tokenExpirationTime?: Date;
+  capabilities: ChatTokenCapabilityType[];
+}
 
 const handler = async (
-  request: FastifyRequest<{ Body: CreateChatTokenRequestBody }>,
+  request: FastifyRequest<{ Body: CreatePrivateChatTokenRequestBody }>,
   reply: FastifyReply
 ) => {
   const { chatRoomOwnerUsername } = request.body;
   const { username: viewerUsername, sub } = request.requestContext.get(
     'user'
   ) as UserContext;
-  let token, sessionExpirationTime, tokenExpirationTime;
+  const capabilities = [ChatTokenCapability.SEND_MESSAGE];
+  const responseBody: CreatePrivateChatTokenResponseBody = {
+    capabilities: [...capabilities, 'VIEW_MESSAGE']
+  };
 
   // Check input
   if (!chatRoomOwnerUsername) {
@@ -30,14 +46,16 @@ const handler = async (
       color: { S: color }
     } = Item;
     const viewerAttributes = { displayName: viewerUsername, avatar, color };
-    const capabilities = ['SEND_MESSAGE'];
 
-    ({ token, sessionExpirationTime, tokenExpirationTime } =
-      await createChatRoomToken(
-        chatRoomOwnerUsername,
-        viewerAttributes,
-        capabilities
-      ));
+    const result = await createChatRoomToken(
+      chatRoomOwnerUsername,
+      viewerAttributes,
+      capabilities
+    );
+    const { token, sessionExpirationTime, tokenExpirationTime } = result;
+    responseBody.token = token;
+    responseBody.sessionExpirationTime = sessionExpirationTime;
+    responseBody.tokenExpirationTime = tokenExpirationTime;
   } catch (error) {
     console.error(error);
 
@@ -48,7 +66,7 @@ const handler = async (
 
   reply.statusCode = 200;
 
-  return reply.send({ token, sessionExpirationTime, tokenExpirationTime });
+  return reply.send(responseBody);
 };
 
 export default handler;

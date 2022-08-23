@@ -1,16 +1,26 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+import { ChatTokenCapabilityType, createChatRoomToken } from '../helpers';
+import { ResponseBody } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { createChatRoomToken } from '../helpers';
 
-type CreateChatTokenRequestBody = { chatRoomOwnerUsername: string };
+type CreatePublicChatTokenRequestBody = { chatRoomOwnerUsername: string };
+
+interface CreatePublicChatTokenResponseBody extends ResponseBody {
+  token?: string;
+  sessionExpirationTime?: Date;
+  tokenExpirationTime?: Date;
+  capabilities: ChatTokenCapabilityType[];
+}
 
 const handler = async (
-  request: FastifyRequest<{ Body: CreateChatTokenRequestBody }>,
+  request: FastifyRequest<{ Body: CreatePublicChatTokenRequestBody }>,
   reply: FastifyReply
 ) => {
   const { chatRoomOwnerUsername } = request.body;
-  let token, sessionExpirationTime, tokenExpirationTime;
+  const responseBody: CreatePublicChatTokenResponseBody = {
+    capabilities: ['VIEW_MESSAGE']
+  };
 
   // Check input
   if (!chatRoomOwnerUsername) {
@@ -20,8 +30,11 @@ const handler = async (
   }
 
   try {
-    ({ token, sessionExpirationTime, tokenExpirationTime } =
-      await createChatRoomToken(chatRoomOwnerUsername));
+    const result = await createChatRoomToken(chatRoomOwnerUsername);
+    const { token, sessionExpirationTime, tokenExpirationTime } = result;
+    responseBody.token = token;
+    responseBody.sessionExpirationTime = sessionExpirationTime;
+    responseBody.tokenExpirationTime = tokenExpirationTime;
   } catch (error) {
     console.error(error);
 
@@ -32,7 +45,7 @@ const handler = async (
 
   reply.statusCode = 200;
 
-  return reply.send({ token, sessionExpirationTime, tokenExpirationTime });
+  return reply.send(responseBody);
 };
 
 export default handler;
