@@ -13,13 +13,6 @@
 @media (max-width: 768px) {
   .player-controls-container {
     border-radius: 0;
-    padding: 0 48px 32px;
-  }
-}
-
-@media (max-width: 768px) and (orientation: portrait) {
-  .player-controls-container {
-    padding: 0 32px 66px;
   }
 }
 
