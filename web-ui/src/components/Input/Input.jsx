@@ -12,7 +12,6 @@ import {
   INPUT_TYPE_CLASSES as inputTypeClasses,
   INPUT_ERROR_CLASSES as inputErrorClasses
 } from './InputTheme';
-import './Input.css';
 
 const Input = ({
   className,

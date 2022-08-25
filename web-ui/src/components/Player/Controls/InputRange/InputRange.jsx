@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import { useRef, useEffect, useCallback } from 'react';
 
-import { clsm, noop } from '../../../utils';
-import useMediaQuery from '../../../hooks/useMediaQuery';
+import { clsm, noop } from '../../../../utils';
+import useMediaQuery from '../../../../hooks/useMediaQuery';
+import './InputRange.css';
 
 const volumeDark = {
   track: 'var(--palette-color-white)',
@@ -57,8 +58,7 @@ const InputRange = ({ value, handleChange, max, min, onFocus }) => {
         'bg-grey',
         'form-range',
         'appearance-none',
-        'dark:bg-white',
-        'slider'
+        'dark:bg-white'
       ])}
       onChange={(e) => handleChange(Number(e.target.value))}
     />
