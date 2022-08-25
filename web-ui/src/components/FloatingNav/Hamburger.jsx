@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
-import { clsm } from '../../../utils';
+import { clsm } from '../../utils';
 
 const Hamburger = ({ isOpen }) => {
   const width = 24;
@@ -21,13 +21,13 @@ const Hamburger = ({ isOpen }) => {
   );
 
   return (
-    <motion.svg
+    <m.svg
       viewBox={`0 0 ${unitWidth} ${unitHeight}`}
       className={clsm(['overflow-visible', 'w-6', 'h-4'])}
       preserveAspectRatio="none"
     >
       {/* TOP */}
-      <motion.line
+      <m.line
         x1="0"
         x2={unitWidth}
         y1="0"
@@ -39,7 +39,7 @@ const Hamburger = ({ isOpen }) => {
         {...lineProps}
       />
       {/* CENTER */}
-      <motion.line
+      <m.line
         x1="0"
         x2={unitWidth}
         y1="2"
@@ -51,7 +51,7 @@ const Hamburger = ({ isOpen }) => {
         {...lineProps}
       />
       {/* BOTTOM */}
-      <motion.line
+      <m.line
         x1="0"
         x2={unitWidth}
         y1="4"
@@ -62,7 +62,7 @@ const Hamburger = ({ isOpen }) => {
         }}
         {...lineProps}
       />
-    </motion.svg>
+    </m.svg>
   );
 };
 

@@ -50,7 +50,7 @@ const Notification = () => {
             'py-0',
             'px-4',
             'w-fit',
-            'z-500'
+            'z-[500]'
           ])}
           exit={shouldSkipExitAnimation ? '' : 'hidden'}
           initial="hidden"

@@ -1,0 +1,10 @@
+{
+  "chat": {
+    "say_something": "Say something",
+    "notifications": {
+      "error": {
+        "error_loading_chat": "Error loading chat"
+      }
+    }
+  }
+}

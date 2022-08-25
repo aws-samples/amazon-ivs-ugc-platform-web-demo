@@ -1,27 +1,26 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { AnimatePresence, m, useAnimation } from 'framer-motion';
+import { useAnimation } from 'framer-motion';
 
 import { BREAKPOINTS } from '../../constants';
 import { clsm } from '../../utils';
+import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import Chat from './Chat';
-import FloatingNav from '../../layouts/AppLayoutWithNavbar/FloatingNav';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
 import useChannelData from '../../hooks/useChannelData';
 
-const defaultTransition = { duration: 0.25, type: 'tween' };
-
 const Channel = () => {
   const { username } = useParams();
+  const { channelData, channelError, isChannelLoading } =
+    useChannelData(username);
   const { isSessionValid } = useUser();
-  const { data: channelData, isLoading } = useChannelData(username);
   const { isLandscape, isMobileView, currentBreakpoint } =
     useMobileBreakpoint();
-  const [isChatVisible, setIsChatVisible] = useState();
+  const [isChatVisible, setIsChatVisible] = useState(true);
   const [isLive, setIsLive] = useState();
   const chatAnimationControls = useAnimation();
   const isChannelAvailable = !!channelData;
@@ -41,30 +40,32 @@ const Channel = () => {
 
       setIsChatVisible((prev) => {
         const next = value || !prev;
+
         transitionFn(next ? 'visible' : 'hidden');
 
         return next;
       });
     },
-    [chatAnimationControls.set, chatAnimationControls.start]
+    [chatAnimationControls]
   );
-
-  useEffect(() => {
-    if (isSplitView && !isLive) {
-      toggleChat({ value: true }); // Show chat when stream goes offline in split view
-      return;
-    }
-
-    toggleChat({ value: true, skipAnimation: true }); // Show chat and skip animation when the layout changes
-  }, [isLive, isSplitView, isStackedView, toggleChat]);
 
   useEffect(() => {
     if (isChannelAvailable) setIsLive(isChannelLive);
   }, [isChannelAvailable, isChannelLive]);
 
-  if (!isLoading && !isChannelAvailable) {
-    return <PageUnavailable />;
-  }
+  // Show chat when stream goes offline in split view
+  useEffect(() => {
+    if (isSplitView && !isLive) {
+      toggleChat({ value: true, skipAnimation: true });
+    }
+  }, [isLive, isSplitView, toggleChat]);
+
+  // Show chat and skip animation when the layout changes
+  useEffect(() => {
+    toggleChat({ value: true, skipAnimation: true });
+  }, [isSplitView, isStackedView, toggleChat]);
+
+  if (channelError) return <PageUnavailable />;
 
   return (
     <div
@@ -96,66 +97,16 @@ const Channel = () => {
         isChatVisible={isChatVisible}
         toggleChat={toggleChat}
       />
-      <m.section
-        animate={chatAnimationControls}
-        initial="hidden"
-        exit="hidden"
-        variants={{
-          visible: {
-            x: 0,
-            width: isSplitView ? 308 : isStackedView ? '100%' : 360
-          },
-          hidden: { x: '100%', width: 0 }
-        }}
-        transition={defaultTransition}
-        className={clsm([
-          'relative',
-          'flex',
-          'flex-shrink-0',
-          'bg-lightMode-gray-light',
-          'dark:bg-darkMode-gray-dark',
-          'overflow-x-hidden',
-          /* Default View */
-          'w-[360px]',
-          'h-screen',
-          /* Stacked View */
-          'lg:w-full',
-          'lg:h-full',
-          'lg:flex-grow',
-          'lg:min-h-[360px]',
-          /* Split View */
-          'md:landscape:w-[308px]',
-          'md:landscape:h-screen',
-          'md:landscape:min-h-[auto]',
-          'touch-screen-device:lg:landscape:w-[308px]',
-          'touch-screen-device:lg:landscape:h-screen',
-          'touch-screen-device:lg:landscape:min-h-[auto]'
-        ])}
-      >
+      <NotificationProvider>
         <Chat
           chatRoomOwnerUsername={channelUsername}
-          isChannelLoading={isLoading}
+          chatAnimationControls={chatAnimationControls}
+          isChannelLoading={isChannelLoading}
         />
-        {isSplitView && !isSessionValid && (
-          <MobileNavbar className={clsm(['px-5', 'pt-5', 'pb-6'])} />
-        )}
-      </m.section>
-      {isSplitView && isSessionValid && (
-        <m.div
-          animate={chatAnimationControls}
-          initial="hidden"
-          exit="hidden"
-          variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
-          transition={defaultTransition}
-        >
-          <FloatingNav />
-        </m.div>
+      </NotificationProvider>
+      {isSplitView && !isSessionValid && !isChatVisible && (
+        <MobileNavbar className="lg:landscape:max-w-[calc(100vw_-_(352px_+_32px))]" />
       )}
-      <AnimatePresence>
-        {isSplitView && !isSessionValid && !isChatVisible && (
-          <MobileNavbar className="lg:landscape:max-w-[calc(100vw_-_(352px_+_32px))]" />
-        )}
-      </AnimatePresence>
     </div>
   );
 };

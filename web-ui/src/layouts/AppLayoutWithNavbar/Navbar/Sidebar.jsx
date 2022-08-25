@@ -9,7 +9,7 @@ import * as avatars from '../../../assets/avatars';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
 import useCurrentPage from '../../../hooks/useCurrentPage';
-import ProfileMenu from '../ProfileMenu';
+import ProfileMenu from '../../../components/ProfileMenu';
 
 const $content = $appContent.navbar;
 

@@ -119,7 +119,7 @@ export const Provider = ({ children }) => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
     },
-    50,
+    10,
     [isDefaultResponsiveView, isTouchscreenDevice]
   );
   useEffect(() => {

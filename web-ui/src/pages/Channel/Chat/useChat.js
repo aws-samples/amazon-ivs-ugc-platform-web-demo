@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import { channel as $content } from '../../../content';
 import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
 import {
   CHAT_CAPABILITY,
@@ -11,6 +12,8 @@ import {
 } from './utils';
 import { ivsChatWebSocketEndpoint } from '../../../api/utils';
 import { retryWithBackoff } from '../../../utils';
+import { useChatMessages } from '../../../contexts/ChatMessages';
+import { useNotif } from '../../../contexts/Notification';
 import { useUser } from '../../../contexts/User';
 
 /**
@@ -18,8 +21,9 @@ import { useUser } from '../../../contexts/User';
  */
 
 const useChat = (chatRoomOwnerUsername) => {
+  const { addMessage } = useChatMessages();
   const { isSessionValid } = useUser();
-  const [messages, setMessages] = useState([]);
+  const { notifyError, dismissNotif } = useNotif();
   const chatCapabilities = useRef([]);
 
   /** @type {[ChatUserRole, Function]} */
@@ -33,6 +37,9 @@ const useChat = (chatRoomOwnerUsername) => {
   const isRetryingConnection = useRef(false);
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
+  const [hasConnectionError, setHasConnectionError] = useState();
+  const isConnecting =
+    isInitializingConnection.current || connectionReadyState === 0;
 
   const updateUserRole = useCallback(() => {
     let type;
@@ -65,7 +72,6 @@ const useChat = (chatRoomOwnerUsername) => {
     setChatUserRole(type);
   }, []);
 
-  // Actions
   const send = (action, data) => {
     try {
       if (!isConnectionOpen)
@@ -85,6 +91,7 @@ const useChat = (chatRoomOwnerUsername) => {
     }
   };
 
+  // Actions
   const sendMessage = (msg) => {
     if (
       ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole)
@@ -104,7 +111,8 @@ const useChat = (chatRoomOwnerUsername) => {
   const onOpen = useCallback(() => {
     setConnectionReadyState(WebSocket.OPEN);
     updateUserRole();
-  }, [updateUserRole]);
+    dismissNotif();
+  }, [dismissNotif, updateUserRole]);
 
   const onClose = useCallback(
     (event) => {
@@ -118,31 +126,33 @@ const useChat = (chatRoomOwnerUsername) => {
     [updateUserRole]
   );
 
-  const onMessage = useCallback((event) => {
-    const data = JSON.parse(event.data);
-    const { Type: eventType } = data;
+  const onMessage = useCallback(
+    (event) => {
+      const data = JSON.parse(event.data);
+      const { Type: eventType } = data;
 
-    switch (eventType) {
-      case 'MESSAGE': {
-        // Handle received message
-        setMessages((prevMessages) => [...prevMessages, data]);
-        break;
+      switch (eventType) {
+        case 'MESSAGE': {
+          // Handle received message
+          addMessage(data);
+          break;
+        }
+        case 'EVENT':
+          // Handle received event
+          console.log('Received Event:', data);
+          break;
+        case 'ERROR':
+          // Handle received error
+          console.log('Received Error:', data);
+          break;
+        default:
+          console.error('Unknown event received:', data);
       }
-      case 'EVENT':
-        // Handle received event
-        console.log('Received Event:', data);
-        break;
-      case 'ERROR':
-        // Handle received error
-        console.log('Received Error:', data);
-        break;
-      default:
-        console.error('Unknown event received:', data);
-    }
-  }, []);
+    },
+    [addMessage]
+  );
 
   // Connection helpers
-
   const retryConnectionWithBackoff = useCallback(
     async (connectFn, error, reasonId, maxRetries = 7) => {
       if (isRetryingConnection.current) throw error;
@@ -162,6 +172,11 @@ const useChat = (chatRoomOwnerUsername) => {
           onFailure: () => {
             isRetryingConnection.current = false;
             isInitializingConnection.current = false;
+            notifyError(
+              $content.chat.notifications.error.error_loading_chat,
+              false
+            );
+            setHasConnectionError(true);
           }
         });
       } catch (error) {
@@ -171,7 +186,7 @@ const useChat = (chatRoomOwnerUsername) => {
         );
       }
     },
-    []
+    [notifyError]
   );
 
   const disconnect = useCallback(() => {
@@ -186,8 +201,9 @@ const useChat = (chatRoomOwnerUsername) => {
 
     // Clean up previous connection resources
     disconnect();
-    setDidConnectionCloseCleanly(undefined);
     isInitializingConnection.current = true;
+    setDidConnectionCloseCleanly(undefined);
+    setHasConnectionError(false);
 
     // Request a new chat token
     const { token, sessionExpirationTime, error, capabilities } =
@@ -247,7 +263,7 @@ const useChat = (chatRoomOwnerUsername) => {
     return () => clearTimeout(reconnectTimeoutId);
   }, [connect, didConnectionCloseCleanly]);
 
-  return { chatUserRole, messages, sendMessage };
+  return { chatUserRole, sendMessage, isConnecting, hasConnectionError };
 };
 
 export default useChat;

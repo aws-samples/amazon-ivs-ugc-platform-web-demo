@@ -5,9 +5,9 @@ import {
   Settings,
   StreamHealth,
   StreamManager
-} from '../../../assets/icons';
-import { app as $appContent } from '../../../content';
-import { SHOW_WIP_PAGES } from '../../../constants';
+} from '../../assets/icons';
+import { app as $appContent } from '../../content';
+import { SHOW_WIP_PAGES } from '../../constants';
 
 const $content = $appContent.navbar;
 

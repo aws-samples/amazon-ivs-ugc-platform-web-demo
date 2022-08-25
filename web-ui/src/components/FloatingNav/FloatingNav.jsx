@@ -1,7 +1,7 @@
-import { clsm } from '../../../utils';
+import { clsm } from '../../utils';
 import { navMenuButtonData } from './utils';
-import { SHOW_WIP_PAGES } from '../../../constants';
-import Button from '../../../components/Button';
+import { SHOW_WIP_PAGES } from '../../constants';
+import Button from '../Button';
 import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
 
@@ -11,8 +11,8 @@ const FloatingNav = () => (
       'fixed',
       'flex',
       'flex-col-reverse',
-      'right-4',
-      'bottom-4',
+      'right-5',
+      'bottom-6',
       'z-[300]'
     ])}
   >
@@ -25,8 +25,8 @@ const FloatingNav = () => (
         'items-end',
         'gap-x-4',
         'gap-y-4',
-        'w-[calc(100vw_-_32px)]',
-        'h-[calc(100vh_-_32px)]',
+        'w-[calc(100vw_-_40px)]',
+        'h-[calc(100vh_-_40px)]',
         'md:landscape:max-w-[400px]',
         'touch-screen-device:landscape:max-w-[400px]',
 

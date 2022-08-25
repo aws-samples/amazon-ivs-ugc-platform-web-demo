@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
-import { channelAPI } from '../api';
 import { CHANNEL_DATA_REFRESH_INTERVAL } from '../constants';
+import { channelAPI } from '../api';
 
 const channelDataFetcher = async (username) => {
   const { result: data, error } = await channelAPI.getUserChannelData(username);
@@ -12,12 +12,14 @@ const channelDataFetcher = async (username) => {
 };
 
 const useChannelData = (username) => {
-  const { data, error } = useSWR(username, channelDataFetcher, {
-    refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL
-  });
-  const isLoading = !data && !error;
+  const { data: channelData, error: channelError } = useSWR(
+    username,
+    channelDataFetcher,
+    { refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL }
+  );
+  const isChannelLoading = !channelData && !channelError;
 
-  return { data, error, isLoading };
+  return { channelData, channelError, isChannelLoading };
 };
 
 export default useChannelData;

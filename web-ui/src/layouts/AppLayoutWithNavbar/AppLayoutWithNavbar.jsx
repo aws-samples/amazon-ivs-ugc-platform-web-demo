@@ -4,7 +4,7 @@ import { clsm } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useUser } from '../../contexts/User';
-import FloatingNav from './FloatingNav';
+import FloatingNav from '../../components/FloatingNav';
 import Modal from '../../components/Modal';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
@@ -12,21 +12,21 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, isMobileView, isLandscape, mainRef } =
+  const { isDefaultResponsiveView, isMobileView, mainRef } =
     useMobileBreakpoint();
   const { isSessionValid } = useUser();
   const { modal } = useModal();
   const currentPage = useCurrentPage();
 
   const renderNav = () => {
-    const isChannelPage = currentPage === 'channel';
-    const isSplitView = isMobileView && isLandscape && isChannelPage;
-
-    if (isSplitView) {
-      return null;
-    } else if (isSessionValid && isMobileView) {
-      return <FloatingNav />;
-    } else return <Navbar />;
+    switch (true) {
+      case isMobileView && currentPage === 'channel':
+        return null; // The mobile channel page has its own FloatingNav and MobileNavbar
+      case isMobileView && isSessionValid:
+        return <FloatingNav />;
+      default:
+        return <Navbar />;
+    }
   };
 
   return (

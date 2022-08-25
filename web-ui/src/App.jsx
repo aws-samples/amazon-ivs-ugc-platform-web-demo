@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 // Context Providers
+import { Provider as ChatMessagesProvider } from './contexts/ChatMessages';
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
@@ -48,28 +49,33 @@ const App = () => (
               <ModalProvider>
                 <Routes>
                   <Route element={<AppLayoutWithNavbar />}>
-                    {/* PUBLIC PAGES - UGC */}
-                    <Route index element={<ChannelDirectory />} />
-                    <Route path=":username" element={<Channel />} />
-                    <Route path="feed" element={<Feed />} />
+                    <Route element={<ChatMessagesProvider />}>
+                      {/* PUBLIC PAGES - UGC */}
+                      <Route index element={<ChannelDirectory />} />
+                      <Route path=":username" element={<Channel />} />
+                      <Route path="feed" element={<Feed />} />
 
-                    {/* PRIVATE PAGES */}
-                    <Route element={<RequireAuth />}>
-                      <Route path="following" element={<Following />} />
-                      <Route element={<StreamsProvider />}>
-                        <Route path="settings" element={<Settings />} />
-                        <Route path="manager" element={<StreamManager />} />
-                        <Route path="health">
-                          <Route index element={<StreamHealth />} />
-                          <Route path=":streamId" element={<StreamHealth />} />
-                          <Route
-                            path="*"
-                            element={<Navigate replace to="/health" />}
-                          />
+                      {/* PRIVATE PAGES */}
+                      <Route element={<RequireAuth />}>
+                        <Route path="following" element={<Following />} />
+                        <Route element={<StreamsProvider />}>
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="manager" element={<StreamManager />} />
+                          <Route path="health">
+                            <Route index element={<StreamHealth />} />
+                            <Route
+                              path=":streamId"
+                              element={<StreamHealth />}
+                            />
+                            <Route
+                              path="*"
+                              element={<Navigate replace to="/health" />}
+                            />
+                          </Route>
                         </Route>
                       </Route>
+                      <Route path="*" element={<Navigate replace to="/" />} />
                     </Route>
-                    <Route path="*" element={<Navigate replace to="/" />} />
                   </Route>
 
                   {/* PUBLIC PAGES - User Management */}

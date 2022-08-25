@@ -3,9 +3,9 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, m } from 'framer-motion';
 
-import { clsm } from '../../../utils';
+import { clsm } from '../../utils';
 import MenuPopup from './MenuPopup';
-import useClickAway from '../../../hooks/useClickAway';
+import useClickAway from '../../hooks/useClickAway';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
 

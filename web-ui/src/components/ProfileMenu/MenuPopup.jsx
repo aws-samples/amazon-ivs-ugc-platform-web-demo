@@ -2,18 +2,18 @@ import PropTypes from 'prop-types';
 import { Fragment, useMemo } from 'react';
 import { m } from 'framer-motion';
 
-import { app as $appContent } from '../../../content';
+import { app as $appContent } from '../../content';
 import {
   HAIRLINE_DIVIDER_CLASSES,
   MENU_BUTTON_CLASSES,
   MENU_BUTTON_TEXT_CLASSES
 } from './ProfileMenuTheme';
-import { clsm } from '../../../utils';
-import { Logout } from '../../../assets/icons';
-import { useUser } from '../../../contexts/User';
-import * as avatars from '../../../assets/avatars';
-import Button from '../../../components/Button';
-import withPortal from '../../../components/withPortal';
+import { clsm } from '../../utils';
+import { Logout } from '../../assets/icons';
+import { useUser } from '../../contexts/User';
+import * as avatars from '../../assets/avatars';
+import Button from '../Button';
+import withPortal from '../withPortal';
 import { forwardRef } from 'react';
 
 const $content = $appContent.navbar;

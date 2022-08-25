@@ -1,5 +1,4 @@
 import PropTyps from 'prop-types';
-import { m } from 'framer-motion';
 
 import { app as $appContent } from '../../../content';
 import { clsm } from '../../../utils';
@@ -7,19 +6,13 @@ import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 
 const $content = $appContent.navbar;
-const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const MobileNavbar = ({ className }) => {
   const { isSessionValid } = useUser();
 
   return (
     !isSessionValid && (
-      <m.nav
-        animate="visible"
-        initial="hidden"
-        exit="hidden"
-        variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
-        transition={defaultTransition}
+      <nav
         className={clsm(
           [
             'fixed',
@@ -29,7 +22,7 @@ const MobileNavbar = ({ className }) => {
             'bottom-0',
             'left-1/2',
             'w-full',
-            'z-30',
+            'z-[100]',
             'py-5',
             'px-4',
             'max-w-[calc(440px_+_32px)]',
@@ -72,7 +65,7 @@ const MobileNavbar = ({ className }) => {
             {$content.sign_up}
           </Button>
         </div>
-      </m.nav>
+      </nav>
     )
   );
 };
