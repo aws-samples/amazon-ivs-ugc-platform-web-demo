@@ -23,7 +23,12 @@ class LoginPageModel extends BasePageModel {
       'a:has-text("Create an account")'
     );
 
-    this.logoutButtonLoc = page.locator('button:has-text("Log out")');
+    this.sidebarAvatarButtonLoc = page.locator(
+      'button[data-test-id="sidebar-avatar"]'
+    );
+    this.logoutButtonLoc = page.locator(
+      'button[data-test-id="profileMenu-logout"]'
+    );
     this.floatingMenuToggleLoc = page.locator(
       'data-test-id=floating-menu-toggle'
     );
@@ -65,20 +70,20 @@ class LoginPageModel extends BasePageModel {
     await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/`));
   };
 
-  logout = async (isMobile) => {
+  logout = async (hasHamburgerBtn) => {
     // Login a new test user
     await this.login('testUser', 'Passw0rd!');
-
-    let logoutLoc = this.logoutButtonLoc;
-    if (isMobile) {
-      await this.floatingMenuToggleLoc.click();
-      logoutLoc = this.logoutFloatingMenuButtonLoc;
+    let profileMenuBtn;
+    if (hasHamburgerBtn) {
+      profileMenuBtn = this.floatingMenuToggleLoc;
+    } else {
+      profileMenuBtn = this.sidebarAvatarButtonLoc;
     }
-
     // Click the "Log out" button and check that we have been logged out and redirected to the login page
     // Note: Promise.all prevents a race condition between clicking and waiting for the main frame to navigate
-    await Promise.all([this.page.waitForNavigation(), logoutLoc.click()]);
-    await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/login`));
+    await Promise.all([profileMenuBtn.click(), this.logoutButtonLoc.click()]);
+
+    await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/`));
 
     const localStorage = await this.page.getLocalStorage();
     await expect(localStorage).toBeUndefined();

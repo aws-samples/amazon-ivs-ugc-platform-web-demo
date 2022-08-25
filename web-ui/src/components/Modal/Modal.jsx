@@ -105,6 +105,7 @@ const Modal = () => {
           hidden: { opacity: 0, y: -50 },
           visible: { opacity: 1, y: 0 }
         }}
+        data-test-id="modal"
       >
         <h3>{message}</h3>
         {subMessage && <p className="p1">{subMessage}</p>}

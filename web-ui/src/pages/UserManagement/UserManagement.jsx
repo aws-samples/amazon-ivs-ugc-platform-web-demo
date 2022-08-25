@@ -56,7 +56,6 @@ const UserManagement = () => {
           <Outlet />
         </div>
       )}
-      <Notification />
     </main>
   );
 };

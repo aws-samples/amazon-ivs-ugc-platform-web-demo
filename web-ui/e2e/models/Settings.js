@@ -27,11 +27,14 @@ class SettingsPageModel extends BasePageModel {
       .locator('button:has-text("Copy")');
 
     /* Other Locators */
-    this.currentModalLoc = this.page.locator('div.modal');
-    this.returnToSessionButtonLoc = page.locator(
-      'button:has-text("Return to session")'
+    this.currentModalLoc = this.page.locator('div[data-test-id="modal"]');
+    this.returnToStreamHealthButtonLoc = page.locator(
+      'a[data-test-id="stream_health-button"]'
     );
     this.notifLoc = this.page.locator('.notification');
+    this.hamburgerButtonLoc = page.locator(
+      'button[data-test-id="floating-menu-toggle"]'
+    );
   }
 
   static create = async (page, baseURL) => {
@@ -54,7 +57,7 @@ class SettingsPageModel extends BasePageModel {
     // Click the 'Reset' button in the Reset Stream Key form
     await this.resetStreamKeyButtonLoc.click();
     await (
-      await this.page.waitForSelector('div.modal')
+      await this.page.waitForSelector('div[data-test-id="modal"]')
     ).waitForElementState('stable');
     await this.page.takeScreenshot('reset-stream-key-confirmation');
 
@@ -126,12 +129,19 @@ class SettingsPageModel extends BasePageModel {
     }
   };
 
-  returnToSession = async () => {
-    // Click the "Return to session" header button
-    await this.returnToSessionButtonLoc.click();
-    await expect(this.page).toHaveURL(
-      new RegExp(`${this.baseURL}/dashboard/stream.*`)
+  returnToStreamHealth = async () => {
+    /**
+     * Click the stream health link button
+     * When hamburger button is visible (Mobile), click it and wait for profile menu to click stream health button.
+     */
+    const hasHamburgerBtn = await this.page.$(
+      'button[data-test-id="floating-menu-toggle"]'
     );
+    if (!!hasHamburgerBtn) {
+      await this.hamburgerButtonLoc.click();
+    }
+    await this.returnToStreamHealthButtonLoc.click();
+    await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/health`));
   };
 
   /* MOCK API HELPERS (INTERNAL) */

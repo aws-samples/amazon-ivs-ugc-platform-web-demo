@@ -53,7 +53,7 @@ class ResetPageModel extends BasePageModel {
   resetPassword = async (code, username, newPassword) => {
     await this.navigate(`/reset?code=${code}&username=${username}`);
 
-    const headerLoc = this.page.locator('.form.vertical h2');
+    const headerLoc = this.page.locator('.form.vertical h1');
     await expect(headerLoc).toHaveText('Reset your password');
 
     // Click and fill the new password input field
@@ -83,8 +83,8 @@ class ResetPageModel extends BasePageModel {
     await this.resendPasswordRequestLoc.click();
 
     const notifLoc = this.page.locator('.notification');
-    const notifClasses = await notifLoc.getAttribute('class');
-    await expect(notifClasses.split(' ')).toContain('success');
+    const notifTestId = await notifLoc.getAttribute('data-test-id');
+    await expect(notifTestId).toBe('success-notification');
     await expect(notifLoc).toHaveText('Verification email has been resent');
   };
 

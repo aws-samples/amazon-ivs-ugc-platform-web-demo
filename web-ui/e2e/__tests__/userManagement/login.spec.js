@@ -34,28 +34,29 @@ test.describe('Login Page', () => {
     await expect(page).not.toHaveURL('/login');
   });
 
-  test.fixme(
-    'should logout a user',
-    async ({ loginPage: { logout }, page }, testInfo) => {
-      const isMobile = testInfo.project.name.includes('Mobile');
-      await logout(isMobile);
-      await page.takeScreenshot('logout-success');
-    }
-  );
+  test('should logout a user', async ({
+    loginPage: { logout },
+    page,
+    isMobile,
+    browserName
+  }) => {
+    await logout(isMobile);
+    await page.takeScreenshot('logout-success');
+  });
 
-  test.fixme(
-    'should navigate a user to the password reset page',
-    async ({ loginPage: { gotoForgotPassword }, page }) => {
-      await gotoForgotPassword();
-      await page.takeScreenshot('goto-forgot-password');
-    }
-  );
+  test('should navigate a user to the password reset page', async ({
+    loginPage: { gotoForgotPassword },
+    page
+  }) => {
+    await gotoForgotPassword();
+    await page.takeScreenshot('goto-forgot-password');
+  });
 
-  test.fixme(
-    'should navigate a user to the registration page',
-    async ({ loginPage: { gotoCreateAnAccount }, page }) => {
-      await gotoCreateAnAccount();
-      await page.takeScreenshot('goto-create-an-account');
-    }
-  );
+  test('should navigate a user to the registration page', async ({
+    loginPage: { gotoCreateAnAccount },
+    page
+  }) => {
+    await gotoCreateAnAccount();
+    await page.takeScreenshot('goto-create-an-account');
+  });
 });

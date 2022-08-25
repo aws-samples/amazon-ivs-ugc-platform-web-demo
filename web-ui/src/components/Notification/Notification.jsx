@@ -55,6 +55,7 @@ const Notification = () => {
           exit={shouldSkipExitAnimation ? '' : 'hidden'}
           initial="hidden"
           key={`${notif.type}-notification`}
+          data-test-id={`${notif.type}-notification`}
           transition={{
             duration: NOTIF_ANIMATION_DURATION_MS / 1000,
             type: 'tween'

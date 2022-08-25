@@ -78,8 +78,8 @@ class RegisterPageModel extends BasePageModel {
     await this.resendVerificationButtonLoc.click();
 
     const notifLoc = this.page.locator('.notification');
-    const notifClasses = await notifLoc.getAttribute('class');
-    await expect(notifClasses.split(' ')).toContain('success');
+    const notifTestId = await notifLoc.getAttribute('data-test-id');
+    await expect(notifTestId).toBe('success-notification');
     await expect(notifLoc).toHaveText('Verification email has been resent');
   };
 
@@ -88,14 +88,18 @@ class RegisterPageModel extends BasePageModel {
     await this.navigate(`/login?code=${code}&username=${username}`);
 
     const notifLoc = this.page.locator('.notification');
-    const notifClasses = await notifLoc.getAttribute('class');
-    await expect(notifClasses.split(' ')).toContain('success');
+    const notifTestId = await notifLoc.getAttribute('data-test-id');
+    await expect(notifTestId).toBe('success-notification');
     await expect(notifLoc).toHaveText('Your registration has been confirmed');
   };
 
   gotoSignIn = async () => {
     // Click the "Sign in" link
-    await this.signInLinkLoc.click();
+    // Note: Promise.all prevents a race condition between clicking and waiting for the main frame to navigate
+    await Promise.all([
+      this.signInLinkLoc.click(),
+      this.page.waitForNavigation()
+    ]);
     await expect(this.page).toHaveURL(this.baseURL + '/login');
   };
 

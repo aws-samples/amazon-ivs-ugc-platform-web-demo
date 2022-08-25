@@ -98,6 +98,7 @@ const Sidebar = () => {
                         ['w-auto', 'min-w-full', 'py-1.5'], // Default styles
                         isSessionValid ? 'px-1.5' : 'px-3'
                       )}
+                      data-test-id={`${pageName}-button`}
                     >
                       <span
                         className={clsm(
@@ -170,6 +171,7 @@ const Sidebar = () => {
               onClick={() => toggle()}
               variant="icon"
               ref={toggleRef}
+              data-test-id="sidebar-avatar"
             >
               {!!avatars[avatarName] && (
                 <img
@@ -199,6 +201,7 @@ const Sidebar = () => {
             variant="secondary"
             to="/login"
             saveLocationFromState
+            data-test-id="sidebar-login"
           >
             {$content.log_in}
           </Button>

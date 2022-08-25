@@ -85,6 +85,7 @@ const Popup = forwardRef(
             ])}
             to={`/${username}`}
             type="nav"
+            data-test-id="profileMenu-avatar"
           >
             <img
               className={clsm(
@@ -112,9 +113,14 @@ const Popup = forwardRef(
           <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />
 
           {/* CUSTOM NAVIGATION BUTTONS */}
-          {navData.map(({ icon, label, to, hasDivider }) => (
+          {navData.map(({ icon, label, to, hasDivider, pageName }) => (
             <Fragment key={label}>
-              <Button {...commonMenuButtonProps} type="nav" to={to}>
+              <Button
+                {...commonMenuButtonProps}
+                type="nav"
+                to={to}
+                data-test-id={`${pageName}-button`}
+              >
                 {icon}
                 <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{label}</p>
               </Button>
@@ -125,7 +131,11 @@ const Popup = forwardRef(
           ))}
 
           {/* LOGOUT BUTTON */}
-          <Button {...commonMenuButtonProps} onClick={() => logOut('logOut')}>
+          <Button
+            {...commonMenuButtonProps}
+            onClick={() => logOut('logOut')}
+            data-test-id="profileMenu-logout"
+          >
             <Logout />
             <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{$content.log_out}</p>
           </Button>

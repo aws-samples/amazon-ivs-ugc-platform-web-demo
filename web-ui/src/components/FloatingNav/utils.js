@@ -15,12 +15,14 @@ export const navMenuButtonData = [
   {
     label: $content.home,
     icon: <Home />,
-    to: '/'
+    to: '/',
+    pageName: 'channel_directory'
   },
   {
     label: $content.feed,
     icon: <Feed />,
-    to: '/feed'
+    to: '/feed',
+    pageName: 'feed'
   },
   ...(SHOW_WIP_PAGES
     ? [
@@ -40,12 +42,14 @@ export const navMenuButtonData = [
   {
     label: $content.stream_health,
     icon: <StreamHealth />,
-    to: '/health'
+    to: '/health',
+    pageName: 'stream_health'
   },
   {
     label: $content.settings,
     icon: <Settings />,
     to: '/settings',
-    hasDivider: true
+    hasDivider: true,
+    pageName: 'settings'
   }
 ];
