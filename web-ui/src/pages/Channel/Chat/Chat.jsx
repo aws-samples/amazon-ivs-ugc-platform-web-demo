@@ -70,16 +70,18 @@ const Chat = ({
     >
       <Notification />
       <div
-        className={clsm([
-          'relative',
-          'flex',
-          'flex-1',
-          'flex-col',
-          'items-center',
-          'justify-between',
-          'px-0.5',
-          'z-40'
-        ])}
+        className={clsm(
+          [
+            'relative',
+            'flex',
+            'flex-1',
+            'flex-col',
+            'items-center',
+            'justify-between',
+            'px-0.5'
+          ],
+          isSplitView && ['absolute', 'w-[308px]', 'h-screen']
+        )}
       >
         <ConnectingOverlay isLoading={isLoading} />
         <Messages chatRoomOwnerUsername={chatRoomOwnerUsername} />

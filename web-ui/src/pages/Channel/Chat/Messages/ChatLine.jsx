@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { decode } from 'html-entities';
 
 import { clsm } from '../../../../utils';
 import * as avatars from '../../../../assets/avatars';
@@ -13,6 +14,7 @@ const ChatLine = ({ message, avatar, color, displayName }) => (
       'rounded-3xl',
       'py-2.5',
       'px-3.5',
+      'w-full',
       'bg-lightMode-gray-extraLight',
       'dark:bg-darkMode-gray-medium'
     ])}
@@ -29,14 +31,17 @@ const ChatLine = ({ message, avatar, color, displayName }) => (
     <p
       className={clsm([
         'p1',
+        'break-words',
         'text-left',
-        'text-darkMode-gray-light',
-        'my-0.5'
+        'text-black',
+        'dark:text-darkMode-gray-light',
+        'my-0.5',
+        'min-w-0'
       ])}
     >
       <b>{displayName.charAt(0).toUpperCase() + displayName.slice(1)}</b>
       &nbsp;
-      {message}
+      {decode(message).replace(/\\/g, '\\\\')}
     </p>
   </div>
 );

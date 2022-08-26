@@ -99,7 +99,16 @@ const Player = ({
       {isLive || isLive === undefined || hasFinalBuffer ? (
         <>
           {shouldShowLoader && (
-            <Spinner className="z-10" size="large" variant="light" />
+            <div
+              className={clsm([
+                'absolute',
+                'top-1/2',
+                '-translate-y-1/2',
+                'z-10'
+              ])}
+            >
+              <Spinner size="large" variant="light" />
+            </div>
           )}
           {/* The onClick is only used on touchscreen, where the keyboard isn't available */}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}

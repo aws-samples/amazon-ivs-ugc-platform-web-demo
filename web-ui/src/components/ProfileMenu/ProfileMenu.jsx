@@ -37,7 +37,6 @@ const ProfileMenu = ({
   return (
     <>
       <div className={clsm(['z-[300]', isOpen && containerClassName])}>
-        {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
         <MenuPopup
           isOpen={isOpen}
           ref={profileMenuRef}
@@ -46,6 +45,7 @@ const ProfileMenu = ({
           menuClassName={menuClassName}
           toggleProfileMenu={toggleProfileMenu}
         />
+        {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
       </div>
       <AnimatePresence>
         {fadeBackground && isOpen && (

@@ -5,7 +5,7 @@ import './Spinner.css';
 
 const DIAMETER = { small: '24px', medium: '30px', large: '36px' };
 
-const Spinner = ({ variant, size, className }) => {
+const Spinner = ({ variant, size }) => {
   const classes = clsm(
     [
       'spinner',
@@ -20,8 +20,7 @@ const Spinner = ({ variant, size, className }) => {
       'text-lightMode-gray-medium',
       'dark:text-darkMode-gray'
     ],
-    variant === 'dark' && ['text-black'],
-    className
+    variant === 'dark' && ['text-black']
   );
 
   return (
@@ -49,10 +48,9 @@ const Spinner = ({ variant, size, className }) => {
   );
 };
 
-Spinner.defaultProps = { className: '', variant: 'dark', size: 'small' };
+Spinner.defaultProps = { variant: 'dark', size: 'small' };
 
 Spinner.propTypes = {
-  className: PropTypes.string,
   variant: PropTypes.oneOf(['white', 'light', 'semi-dark', 'dark']),
   size: PropTypes.oneOf(['small', 'medium', 'large'])
 };

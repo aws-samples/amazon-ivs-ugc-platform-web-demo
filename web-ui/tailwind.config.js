@@ -152,13 +152,40 @@ module.exports = {
     }
   },
   safelist: [{ pattern: /(border|bg)-profile(-.)?/ }],
+  corePlugins: { aspectRatio: false },
   plugins: [
+    // aspect-ratio (modern and legacy support)
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        '.aspect-video': {
+          aspectRatio: '16 / 9',
+          '@supports not (aspect-ratio: 16 / 9)': {
+            position: 'relative',
+            width: '100%',
+            height: 0,
+            paddingBottom: '56.25%' /* 16:9 */
+          }
+        },
+        '.aspect-auto': {
+          aspectRatio: 'auto',
+          '@supports not (aspect-ratio: auto)': {
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            paddingBottom: 0
+          }
+        }
+      });
+    }),
+
     // @supports (overflow: overlay)
     plugin(({ addVariant, addUtilities }) => {
       addVariant('supports-overlay', '@supports (overflow: overlay)');
-      addUtilities({ '.overflow-overlay': { overflow: 'overlay' } });
-      addUtilities({ '.overflow-x-overlay': { overflowX: 'overlay' } });
-      addUtilities({ '.overflow-y-overlay': { overflowY: 'overlay' } });
+      addUtilities({
+        '.overflow-overlay': { overflow: 'overlay' },
+        '.overflow-x-overlay': { overflowX: 'overlay' },
+        '.overflow-y-overlay': { overflowY: 'overlay' }
+      });
     }),
     // @media (hover:none)
     plugin(({ addVariant }) => {
@@ -176,6 +203,19 @@ module.exports = {
           })
         },
         { values: flattenColorPalette(theme('colors')) }
+      );
+    }),
+    // Lobotomized Owl Selector (https://www.markhuot.com/2019/01/01/tailwindcss-owl)
+    plugin(({ e, matchUtilities, config, theme }) => {
+      const lobotomizedOwlSelector = '& > * + *';
+
+      matchUtilities(
+        {
+          o: (value) => ({
+            [lobotomizedOwlSelector]: { marginTop: value }
+          })
+        },
+        { values: theme('margin') }
       );
     })
   ]

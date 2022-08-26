@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { encode } from 'html-entities';
 
 import { channel as $content } from '../../../content';
 import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
@@ -102,9 +103,7 @@ const useChat = (chatRoomOwnerUsername) => {
       return;
     }
 
-    send('SEND_MESSAGE', {
-      Content: msg.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-    });
+    send('SEND_MESSAGE', { Content: encode(msg) });
   };
 
   // Handlers

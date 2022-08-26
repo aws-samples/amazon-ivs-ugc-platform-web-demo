@@ -14,6 +14,9 @@ import {
 } from './InputTheme';
 
 const Input = ({
+  autoCapitalize,
+  autoComplete,
+  autoCorrect,
   className,
   customStyles,
   description,
@@ -30,9 +33,7 @@ const Input = ({
   readOnly,
   type: initialType,
   value,
-  variant,
-  autoCorrect,
-  autoCapitalize
+  variant
 }) => {
   const [inputType, setInputType] = useState(initialType);
   const hideDescription = useRef(false);
@@ -77,6 +78,7 @@ const Input = ({
           value={value}
           autoCorrect={autoCorrect}
           autoCapitalize={autoCapitalize}
+          autoComplete={autoComplete}
         />
         <ErrorMessage error={error} />
         <PasswordPeekButton
@@ -96,8 +98,9 @@ const Input = ({
 };
 
 Input.defaultProps = {
-  autoCorrect: 'off',
   autoCapitalize: 'none',
+  autoComplete: 'on',
+  autoCorrect: 'off',
   className: '',
   customStyles: {},
   description: '',
@@ -117,8 +120,9 @@ Input.defaultProps = {
 };
 
 Input.propTypes = {
-  autoCorrect: PropTypes.string,
   autoCapitalize: PropTypes.string,
+  autoComplete: PropTypes.string,
+  autoCorrect: PropTypes.string,
   className: PropTypes.string,
   customStyles: PropTypes.object,
   description: PropTypes.string,

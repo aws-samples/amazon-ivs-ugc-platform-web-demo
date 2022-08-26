@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Fragment, useMemo } from 'react';
+import { Fragment, forwardRef, useMemo } from 'react';
 import { m } from 'framer-motion';
 
 import { app as $appContent } from '../../content';
@@ -14,7 +14,6 @@ import { useUser } from '../../contexts/User';
 import * as avatars from '../../assets/avatars';
 import Button from '../Button';
 import withPortal from '../withPortal';
-import { forwardRef } from 'react';
 
 const $content = $appContent.navbar;
 const defaultTransition = { duration: 0.25, type: 'tween' };

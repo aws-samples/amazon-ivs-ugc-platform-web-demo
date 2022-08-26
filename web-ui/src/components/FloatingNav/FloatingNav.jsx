@@ -13,18 +13,17 @@ const FloatingNav = () => (
       'flex-col-reverse',
       'right-5',
       'bottom-6',
-      'z-[300]'
+      'z-40'
     ])}
   >
     <ProfileMenu
       navData={navMenuButtonData}
       fadeBackground
       containerClassName={clsm([
+        'o-4',
         'flex',
-        'flex-col-reverse',
+        'flex-col',
         'items-end',
-        'gap-x-4',
-        'gap-y-4',
         'w-[calc(100vw_-_40px)]',
         'h-[calc(100vh_-_40px)]',
         'md:landscape:max-w-[400px]',
@@ -61,7 +60,7 @@ const FloatingNav = () => (
             'h-12',
             'min-w-[48px]',
             'min-h-[48px]',
-            'bg-lightMode-gray-light',
+            'bg-white',
             'hover:bg-lightMode-gray-hover',
             'focus:bg-lightMode-gray-light'
           ])}

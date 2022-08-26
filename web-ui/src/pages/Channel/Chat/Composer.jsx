@@ -32,9 +32,19 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
   };
 
   return (
-    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]', 'z-50'])}>
-      <form onSubmit={handleSendMessage}>
+    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
+      <form
+        className={clsm(
+          ['relative', 'z-50'],
+          isSessionValid && [
+            'md:w-[calc(100%_-_60px)]',
+            'touch-screen-device:lg:landscape:w-[calc(100%_-_60px)]'
+          ]
+        )}
+        onSubmit={handleSendMessage}
+      >
         <Input
+          autoComplete="off"
           name="chatComposer"
           className={clsm([
             'bg-lightMode-gray',
@@ -46,11 +56,7 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
             'dark:placeholder-darkMode-gray-light',
             'focus:bg-darkMode-gray-medium',
             'h-12',
-            'placeholder-lightMode-gray-dark',
-            isSessionValid && [
-              'md:w-[calc(100%_-_60px)]',
-              'touch-screen-device:lg:landscape:w-[calc(100%_-_60px)]'
-            ]
+            'placeholder-lightMode-gray-dark'
           ])}
           placeholder={$content.say_something}
           onChange={(event) => setMessage(event.target.value)}
