@@ -21,34 +21,34 @@ export const INNER_INPUT_VARIANT_CLASSES = [
   'w-full'
 ];
 
-const INPUT_BASE_CLASSES = [
+export const INPUT_BASE_CLASSES = [
   'appearance-none',
+  'bg-lightMode-gray-light',
   'border-none',
+  'dark:bg-darkMode-gray-medium',
   'dark:focus:shadow-white',
+  'dark:hover:bg-darkMode-gray-medium-hover',
+  'dark:hover:text-darkMode-gray-extraLight',
+  'dark:text-darkMode-gray-light',
+  'duration-[0.5ms]',
+  'ease-in-out',
   'focus:outline-none',
   'focus:shadow-darkMode-gray-dark',
   'focus:shadow-focus',
   'font-body',
   'font-normal',
   'h-[44px]',
+  'hover:bg-lightMode-gray-light-hover',
+  'hover:text-lightMode-gray-dark',
   'min-w-[90px]',
   'px-5',
   'py-[14px]',
   'read-only:cursor-auto',
   'rounded-3xl',
   'text-[15px]',
-  'transition-all',
-  'duration-[0.5ms]',
-  'ease-in-out',
-  'w-full',
-  'dark:text-darkMode-gray-light',
   'text-lightMode-gray-medium',
-  'dark:bg-darkMode-gray-medium',
-  'bg-lightMode-gray-light',
-  'dark:hover:bg-darkMode-gray-medium-hover',
-  'hover:bg-lightMode-gray-light-hover',
-  'dark:hover:text-darkMode-gray-extraLight',
-  'hover:text-lightMode-gray-dark'
+  'transition-all',
+  'w-full'
 ];
 
 export const INPUT_ERROR_CLASSES = ['shadow-darkMode-red', 'shadow-focus'];
