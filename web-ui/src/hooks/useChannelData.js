@@ -19,7 +19,11 @@ const useChannelData = (username) => {
   );
   const isChannelLoading = !channelData && !channelError;
 
-  return { channelData, channelError, isChannelLoading };
+  return {
+    channelData,
+    channelError,
+    isChannelLoading
+  };
 };
 
 export default useChannelData;

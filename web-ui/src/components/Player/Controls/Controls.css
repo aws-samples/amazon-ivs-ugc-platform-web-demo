@@ -5,8 +5,16 @@
 .player-controls-container {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.75) 100%
+    hsla(var(--base-color-white), 0%, 0) 0%,
+    hsla(var(--base-color-white), 0%, 0.75) 100%
+  );
+}
+
+.player-header-container {
+  background: linear-gradient(
+    180deg,
+    hsla(var(--base-color-white), 0%, 0.75) 0%,
+    hsla(var(--base-color-white), 0%, 0) 100%
   );
 }
 
@@ -20,8 +28,15 @@
   .player-controls-container {
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.4) 100%
+      hsla(var(--base-color-white), 0%, 0) 0%,
+      hsla(var(--base-color-white), 0%, 0.4) 100%
+    );
+  }
+  .player-header-container {
+    background: linear-gradient(
+      180deg,
+      hsla(var(--base-color-white), 0%, 0.4) 0%,
+      hsla(var(--base-color-white), 0%, 0) 100%
     );
   }
 }

@@ -1,26 +1,35 @@
 import { m } from 'framer-motion';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
+import './Controls/Controls.css';
 import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
+import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
 import { useNotif } from '../../contexts/Notification';
 import Controls from './Controls';
+import Notification from '../Notification';
+import PlayerHeader from './PlayerHeader';
 import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
-import Notification from '../Notification';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 
-const Player = ({
-  isLive,
-  setIsLive,
-  playbackUrl,
-  isChatVisible,
-  toggleChat
-}) => {
+const Player = ({ isChatVisible, toggleChat, channelData }) => {
+  const {
+    isLive: isChannelLive,
+    playbackUrl,
+    username,
+    color,
+    avatar
+  } = channelData || {};
+
+  const playerElementRef = useRef();
+  const [isLive, setIsLive] = useState();
   const livePlayer = usePlayer({ playbackUrl, isLive });
+  const { isLandscape, isMobileView } = useMobileBreakpoint();
   const {
     error,
     hasEnded,
@@ -40,10 +49,6 @@ const Player = ({
     setIsPopupOpen,
     stopPropagAndResetTimeout
   } = useControls(isPaused);
-  const playerElementRef = useRef();
-  const hasError = !!error;
-  const shouldShowLoader = isLoading && !hasError;
-  const shouldShowControls = hasError || isControlsOpen;
   const { dismissNotif, notifyError } = useNotif();
   const { onClickFullscreenHandler } = useFullscreen({
     isFullscreenEnabled,
@@ -53,6 +58,12 @@ const Player = ({
     stopPropagAndResetTimeout
   });
 
+  const hasError = !!error;
+  const isChannelAvailable = !!channelData;
+  const isSplitView = isMobileView && isLandscape;
+  const shouldShowLoader = isLoading && !hasError;
+  const shouldShowPlayerOverlay = hasError || isControlsOpen;
+
   const onClickPlayerHandler = useCallback(
     (event) => {
       if (event.detail === 1) mobileClickHandler(event);
@@ -60,6 +71,17 @@ const Player = ({
     },
     [mobileClickHandler, onClickFullscreenHandler]
   );
+
+  useEffect(() => {
+    if (isChannelAvailable) setIsLive(isChannelLive);
+  }, [isChannelAvailable, isChannelLive]);
+
+  // Show chat when stream goes offline in split view
+  useEffect(() => {
+    if (isSplitView && !isLive) {
+      toggleChat({ value: true, skipAnimation: true });
+    }
+  }, [isLive, isSplitView, toggleChat]);
 
   useEffect(() => {
     if (hasEnded) {
@@ -121,10 +143,17 @@ const Player = ({
               'max-h-screen',
               'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]'
             ])}
-            id="player-controls-container"
             onClick={onClickPlayerHandler}
             role="toolbar"
           >
+            {isChannelAvailable && (
+              <PlayerHeader
+                username={username}
+                color={color}
+                avatar={avatar}
+                shouldShowPlayerOverlay={shouldShowPlayerOverlay}
+              />
+            )}
             <video
               className={clsm(
                 ['w-full', 'h-full'],
@@ -135,7 +164,7 @@ const Player = ({
               ref={videoRef}
             />
             <m.div
-              animate={shouldShowControls ? 'visible' : 'hidden'}
+              animate={shouldShowPlayerOverlay ? 'visible' : 'hidden'}
               initial="hidden"
               exit="hidden"
               variants={{
@@ -143,19 +172,13 @@ const Player = ({
                 visible: { opacity: 1 }
               }}
               className={clsm([
+                PLAYER_OVERLAY_CLASSES,
                 'player-controls-container',
-                'flex',
-                'items-end',
-                'h-32',
                 'px-10',
-                'pt-0',
                 'lg:px-6',
                 'lg:pb-6',
                 'pb-10',
-                'absolute',
-                'bottom-0',
-                'left-0',
-                'w-full'
+                'bottom-0'
               ])}
               transition={{ duration: 0.25, type: 'tween' }}
             >
@@ -211,17 +234,14 @@ const Player = ({
 };
 
 Player.propTypes = {
-  playbackUrl: PropTypes.string,
-  isLive: PropTypes.bool,
-  setIsLive: PropTypes.func.isRequired,
   isChatVisible: PropTypes.bool,
-  toggleChat: PropTypes.func.isRequired
+  toggleChat: PropTypes.func.isRequired,
+  channelData: PropTypes.object
 };
 
 Player.defaultProps = {
-  isLive: undefined,
   isChatVisible: true,
-  playbackUrl: ''
+  channelData: null
 };
 
 export default Player;

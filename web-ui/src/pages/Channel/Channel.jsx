@@ -20,17 +20,11 @@ const Channel = () => {
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
     useMobileBreakpoint();
+  const { username: channelUsername } = channelData || {};
   const [isChatVisible, setIsChatVisible] = useState(true);
-  const [isLive, setIsLive] = useState();
   const chatAnimationControls = useAnimation();
-  const isChannelAvailable = !!channelData;
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-  const {
-    isLive: isChannelLive,
-    playbackUrl,
-    username: channelUsername
-  } = channelData || {};
 
   const toggleChat = useCallback(
     ({ value, skipAnimation } = {}) => {
@@ -48,17 +42,6 @@ const Channel = () => {
     },
     [chatAnimationControls]
   );
-
-  useEffect(() => {
-    if (isChannelAvailable) setIsLive(isChannelLive);
-  }, [isChannelAvailable, isChannelLive]);
-
-  // Show chat when stream goes offline in split view
-  useEffect(() => {
-    if (isSplitView && !isLive) {
-      toggleChat({ value: true, skipAnimation: true });
-    }
-  }, [isLive, isSplitView, toggleChat]);
 
   // Show chat and skip animation when the layout changes
   useEffect(() => {
@@ -91,11 +74,9 @@ const Channel = () => {
       ])}
     >
       <Player
-        isLive={isLive}
-        setIsLive={setIsLive}
-        playbackUrl={playbackUrl}
         isChatVisible={isChatVisible}
         toggleChat={toggleChat}
+        channelData={channelData}
       />
       <NotificationProvider>
         <Chat

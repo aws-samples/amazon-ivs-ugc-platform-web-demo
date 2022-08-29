@@ -52,7 +52,8 @@ module.exports = {
         },
         black: {
           DEFAULT: 'hsl(var(--base-color-white), 0%)',
-          hover: 'hsl(var(--base-color-white), 10%)'
+          hover: 'hsl(var(--base-color-white), 10%)',
+          gradient: 'hsl(var(--base-color-white), 0%, 0.75)'
         },
         darkMode: {
           gray: {

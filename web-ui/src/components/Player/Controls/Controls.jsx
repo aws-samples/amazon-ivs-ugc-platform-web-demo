@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import './Controls.css';
 import {
   ChatClosed as ChatClosedSVG,
   ChatOpen as ChatOpenSVG,
