@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './utils';
@@ -14,20 +14,40 @@ const $content = $channelContent.chat;
 
 const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const composerFieldRef = useRef();
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid } = useUser();
   const [message, setMessage] = useState('');
   const canSendMessages =
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);
+  const focus = location.state?.focus;
+
+  useEffect(() => {
+    if (focus && focus === 'COMPOSER') {
+      composerFieldRef.current.focus();
+    }
+  }, [focus]);
+
+  const navigateToLogin = () =>
+    navigate('/login', { state: { from: location, focus: 'COMPOSER' } });
+
+  const handleOnChange = (event) => {
+    if (canSendMessages) {
+      setMessage(event.target.value);
+    } else {
+      navigateToLogin();
+    }
+  };
 
   const handleSendMessage = (event) => {
     event.preventDefault();
-    if (!canSendMessages) {
-      navigate('/login');
-    } else {
+    if (canSendMessages) {
       !!message && sendMessage(message);
       setMessage('');
+    } else {
+      navigateToLogin();
     }
   };
 
@@ -44,6 +64,7 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
         onSubmit={handleSendMessage}
       >
         <Input
+          ref={composerFieldRef}
           autoComplete="off"
           name="chatComposer"
           className={clsm([
@@ -59,9 +80,10 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
             'placeholder-lightMode-gray-dark'
           ])}
           placeholder={$content.say_something}
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={handleOnChange}
           value={message}
           isDisabled={isDisabled}
+          isRequired={false}
         />
       </form>
       {isMobileView && <FloatingNav />}

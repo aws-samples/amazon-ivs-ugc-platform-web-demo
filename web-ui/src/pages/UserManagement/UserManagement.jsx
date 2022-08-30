@@ -21,6 +21,7 @@ const UserManagement = () => {
   const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  const focus = location.state?.focus;
 
   useScrollToTop({ isResponsiveView });
   useThemeColor(USER_MANAGEMENT_THEME_COLOR);
@@ -35,7 +36,7 @@ const UserManagement = () => {
      * redirected to the login page, setting replace to "true" so we don't
      * create another entry in the history stack for the login page.
      */
-    return <Navigate to={from} replace />;
+    return <Navigate to={from} state={focus ? { focus } : {}} replace />;
   }
 
   return (

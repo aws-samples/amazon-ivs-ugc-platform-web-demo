@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, forwardRef } from 'react';
 
 import ErrorMessage from './InputErrorMessage';
 import PasswordPeekButton from './PasswordPeekButton';
@@ -13,89 +13,97 @@ import {
   INPUT_ERROR_CLASSES as inputErrorClasses
 } from './InputTheme';
 
-const Input = ({
-  autoCapitalize,
-  autoComplete,
-  autoCorrect,
-  className,
-  customStyles,
-  description,
-  error,
-  footer,
-  isRequired,
-  label,
-  name,
-  onBlur,
-  onChange,
-  onClick,
-  onFocus,
-  placeholder,
-  readOnly,
-  type: initialType,
-  value,
-  variant
-}) => {
-  const [inputType, setInputType] = useState(initialType);
-  const hideDescription = useRef(false);
-  const outerInputClasses = clsm(variant, outerInputVariantClasses[variant]);
+const Input = forwardRef(
+  (
+    {
+      autoCapitalize,
+      autoComplete,
+      autoCorrect,
+      className,
+      customStyles,
+      description,
+      error,
+      footer,
+      isRequired,
+      label,
+      name,
+      onBlur,
+      onChange,
+      onClick,
+      onFocus,
+      placeholder,
+      readOnly,
+      type: initialType,
+      value,
+      variant
+    },
+    ref
+  ) => {
+    const [inputType, setInputType] = useState(initialType);
+    const hideDescription = useRef(false);
+    const outerInputClasses = clsm(variant, outerInputVariantClasses[variant]);
 
-  const innerInputClasses = clsm(innerInputVariantClasses);
+    const innerInputClasses = clsm(innerInputVariantClasses);
 
-  const inputClasses = clsm(
-    inputTypeClasses[initialType],
-    error !== undefined && error !== null && inputErrorClasses,
-    className
-  );
+    const inputClasses = clsm(
+      inputTypeClasses[initialType],
+      error !== undefined && error !== null && inputErrorClasses,
+      className
+    );
 
-  useEffect(() => {
-    hideDescription.current = hideDescription.current || !!error;
-  }, [error]);
+    useEffect(() => {
+      hideDescription.current = hideDescription.current || !!error;
+    }, [error]);
 
-  return (
-    <div className={outerInputClasses}>
-      <Label label={label} htmlFor={name} variant={variant} />
-      <div
-        id={`${name}-input-container`}
-        style={customStyles}
-        className={innerInputClasses}
-      >
-        <input
-          {...(onChange ? { onChange } : {})}
-          {...(onClick ? { onClick } : {})}
-          {...(onFocus ? { onFocus } : {})}
-          {...(onBlur ? { onBlur } : {})}
-          className={inputClasses}
-          id={name}
-          initial-type={initialType}
-          name={name}
-          placeholder={placeholder}
-          readOnly={readOnly}
-          required={isRequired}
-          style={
-            initialType === 'password' && value ? { paddingRight: '52px' } : {}
-          }
-          type={inputType}
-          value={value}
-          autoCorrect={autoCorrect}
-          autoCapitalize={autoCapitalize}
-          autoComplete={autoComplete}
+    return (
+      <div className={outerInputClasses}>
+        <Label label={label} htmlFor={name} variant={variant} />
+        <div
+          id={`${name}-input-container`}
+          style={customStyles}
+          className={innerInputClasses}
+        >
+          <input
+            ref={ref}
+            {...(onChange ? { onChange } : {})}
+            {...(onClick ? { onClick } : {})}
+            {...(onFocus ? { onFocus } : {})}
+            {...(onBlur ? { onBlur } : {})}
+            className={inputClasses}
+            id={name}
+            initial-type={initialType}
+            name={name}
+            placeholder={placeholder}
+            readOnly={readOnly}
+            required={isRequired}
+            style={
+              initialType === 'password' && value
+                ? { paddingRight: '52px' }
+                : {}
+            }
+            type={inputType}
+            value={value}
+            autoCorrect={autoCorrect}
+            autoCapitalize={autoCapitalize}
+            autoComplete={autoComplete}
+          />
+          <ErrorMessage error={error} />
+          <PasswordPeekButton
+            isVisible={initialType === 'password' && !!value}
+            label={label}
+            inputType={inputType}
+            setInputType={setInputType}
+          />
+        </div>
+        <Description
+          isVisible={!error && !!description && !hideDescription.current}
+          description={description}
         />
-        <ErrorMessage error={error} />
-        <PasswordPeekButton
-          isVisible={initialType === 'password' && !!value}
-          label={label}
-          inputType={inputType}
-          setInputType={setInputType}
-        />
+        {footer && <span className="mt-[15px]">{footer}</span>}
       </div>
-      <Description
-        isVisible={!error && !!description && !hideDescription.current}
-        description={description}
-      />
-      {footer && <span className="mt-[15px]">{footer}</span>}
-    </div>
-  );
-};
+    );
+  }
+);
 
 Input.defaultProps = {
   autoCapitalize: 'none',
