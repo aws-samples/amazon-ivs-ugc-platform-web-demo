@@ -13,6 +13,7 @@ import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as UserProvider } from './contexts/User';
+import { Provider as TooltipsProvider } from './contexts/Tooltips';
 
 // Pages
 import {
@@ -47,44 +48,46 @@ const App = () => (
           <NotificationProvider>
             <UserProvider>
               <ModalProvider>
-                <Routes>
-                  <Route element={<AppLayoutWithNavbar />}>
-                    <Route element={<ChatMessagesProvider />}>
-                      {/* PUBLIC PAGES - UGC */}
-                      <Route index element={<ChannelDirectory />} />
-                      <Route path=":username" element={<Channel />} />
-                      <Route path="feed" element={<Feed />} />
+                <TooltipsProvider>
+                  <Routes>
+                    <Route element={<AppLayoutWithNavbar />}>
+                      <Route element={<ChatMessagesProvider />}>
+                        {/* PUBLIC PAGES - UGC */}
+                        <Route index element={<ChannelDirectory />} />
+                        <Route path=":username" element={<Channel />} />
+                        <Route path="feed" element={<Feed />} />
 
-                      {/* PRIVATE PAGES */}
-                      <Route element={<RequireAuth />}>
-                        <Route path="following" element={<Following />} />
-                        <Route element={<StreamsProvider />}>
-                          <Route path="settings" element={<Settings />} />
-                          <Route path="manager" element={<StreamManager />} />
-                          <Route path="health">
-                            <Route index element={<StreamHealth />} />
-                            <Route
-                              path=":streamId"
-                              element={<StreamHealth />}
-                            />
-                            <Route
-                              path="*"
-                              element={<Navigate replace to="/health" />}
-                            />
+                        {/* PRIVATE PAGES */}
+                        <Route element={<RequireAuth />}>
+                          <Route path="following" element={<Following />} />
+                          <Route element={<StreamsProvider />}>
+                            <Route path="settings" element={<Settings />} />
+                            <Route path="manager" element={<StreamManager />} />
+                            <Route path="health">
+                              <Route index element={<StreamHealth />} />
+                              <Route
+                                path=":streamId"
+                                element={<StreamHealth />}
+                              />
+                              <Route
+                                path="*"
+                                element={<Navigate replace to="/health" />}
+                              />
+                            </Route>
                           </Route>
                         </Route>
+                        <Route path="*" element={<Navigate replace to="/" />} />
                       </Route>
-                      <Route path="*" element={<Navigate replace to="/" />} />
                     </Route>
-                  </Route>
 
-                  {/* PUBLIC PAGES - User Management */}
-                  <Route element={<UserManagement />}>
-                    <Route path="login" element={<SigninUser />} />
-                    <Route path="register" element={<RegisterUser />} />
-                    <Route path="reset" element={<ResetPassword />} />
-                  </Route>
-                </Routes>
+                    {/* PUBLIC PAGES - User Management */}
+                    <Route element={<UserManagement />}>
+                      <Route path="login" element={<SigninUser />} />
+                      <Route path="register" element={<RegisterUser />} />
+                      <Route path="reset" element={<ResetPassword />} />
+                    </Route>
+                  </Routes>
+                </TooltipsProvider>
               </ModalProvider>
             </UserProvider>
           </NotificationProvider>

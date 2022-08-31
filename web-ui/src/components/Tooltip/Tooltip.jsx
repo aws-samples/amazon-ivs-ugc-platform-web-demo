@@ -1,19 +1,35 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import './Tooltip.css';
 import { keepWithinViewport } from './utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useTooltips } from '../../contexts/Tooltips';
 import TooltipPortal from './TooltipPortal';
+import useClickAway from '../../hooks/useClickAway';
 
 const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
-  const { mainRef } = useMobileBreakpoint();
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
+  const { addTooltip, removeTooltip } = useTooltips();
+  const { mainRef, isTouchscreenDevice } = useMobileBreakpoint();
   const parentRef = useRef();
   const tooltipRef = useRef();
+  const tooltipId = useRef(uuidv4());
 
-  useEffect(() => {
+  const showTooltip = useCallback(() => setIsOpen(true), []);
+  const hideTooltip = useCallback(() => setIsOpen(false), []);
+
+  useClickAway([parentRef], hideTooltip, isTouchscreenDevice);
+
+  useLayoutEffect(() => {
     if (isOpen && parentRef.current && tooltipRef.current) {
       const {
         x: parentLeft,
@@ -72,6 +88,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
         translatedUnboundOffsets,
         tooltipRef.current
       );
+
       setOffsets(boundOffsets);
     }
   }, [isOpen, position, translate.x, translate.y]);
@@ -89,11 +106,18 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
     };
   }, [mainRef]);
 
+  useEffect(() => {
+    if (isOpen) {
+      addTooltip({ id: tooltipId.current, hideTooltip });
+    } else removeTooltip(tooltipId.current);
+  }, [addTooltip, hideTooltip, isOpen, removeTooltip, showTooltip]);
+
   return (
     <div
+      {...(isTouchscreenDevice
+        ? { onClick: showTooltip }
+        : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
       className="with-tooltip"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
       ref={parentRef}
     >
       {children}
