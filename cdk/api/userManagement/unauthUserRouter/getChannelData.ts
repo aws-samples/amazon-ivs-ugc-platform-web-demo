@@ -5,6 +5,7 @@ import { unmarshall, convertToAttr } from '@aws-sdk/util-dynamodb';
 
 import { getUserByUsername } from '../helpers';
 import {
+  UNAUTHORIZED_EXCEPTION,
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
@@ -14,6 +15,7 @@ import {
   updateIngestConfiguration
 } from '../../shared/helpers';
 import { StreamSessionDbRecord } from '../../shared/helpers';
+import authorizer from '../authorizer';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
@@ -22,6 +24,7 @@ interface GetChannelDataResponseBody extends ResponseBody {
   playbackUrl?: string;
   username?: string;
   ingestConfiguration?: IngestConfiguration;
+  isViewerBanned?: boolean;
 }
 
 interface GetChannelDataParams {
@@ -36,6 +39,22 @@ const handler = async (
 ) => {
   const { channelOwnerUsername } = request.params;
   const responseBody: GetChannelDataResponseBody = {};
+  let viewerUsername;
+
+  try {
+    const { authorization: authorizationToken } = request.headers;
+    const isAuthRequest = !!authorizationToken;
+
+    if (isAuthRequest) {
+      ({ username: viewerUsername } = await authorizer(request));
+    }
+  } catch (error) {
+    console.error(error);
+
+    reply.statusCode = 401;
+
+    return reply.send({ __type: UNAUTHORIZED_EXCEPTION });
+  }
 
   try {
     if (!channelOwnerUsername) {
@@ -47,14 +66,20 @@ const handler = async (
 
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
 
-    const { avatar, channelArn, color, playbackUrl, username } = unmarshall(
-      UserItems[0]
-    );
+    const { avatar, bannedUsers, channelArn, color, playbackUrl, username } =
+      unmarshall(UserItems[0]);
 
     responseBody.avatar = avatar;
     responseBody.color = color;
-    responseBody.playbackUrl = playbackUrl;
     responseBody.username = username;
+    responseBody.isViewerBanned = false;
+
+    if (viewerUsername && bannedUsers?.has(viewerUsername)) {
+      // The viewer is banned, so we will only return a subset of the channel data
+      responseBody.isViewerBanned = true;
+
+      return reply.send(responseBody);
+    }
 
     // Get the latest stream for this channel, if one exists
     const { Items: StreamItems } = await dynamoDbClient.send(
@@ -114,6 +139,7 @@ const handler = async (
     }
 
     responseBody.isLive = isLive;
+    responseBody.playbackUrl = playbackUrl;
   } catch (error) {
     console.error(error);
 

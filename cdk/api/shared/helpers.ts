@@ -15,7 +15,10 @@ import {
   IvsClient,
   StreamEvent
 } from '@aws-sdk/client-ivs';
-import { IvschatClient } from '@aws-sdk/client-ivschat';
+import {
+  IvschatClient,
+  IvschatServiceException
+} from '@aws-sdk/client-ivschat';
 
 type DynamoKey = { key: string; value: string };
 
@@ -60,6 +63,12 @@ export interface StreamSessionDbRecord {
 export const isCognitoError = (
   error: any
 ): error is CognitoIdentityProviderServiceException => {
+  return error && error.message;
+};
+
+export const isIvsChatError = (
+  error: any
+): error is IvschatServiceException => {
   return error && error.message;
 };
 

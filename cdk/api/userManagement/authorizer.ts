@@ -1,6 +1,8 @@
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { FastifyRequest } from 'fastify';
 
+import { UNAUTHORIZED_EXCEPTION } from '../shared/constants';
+
 export type UserContext = {
   sub: string;
   username: string;
@@ -16,7 +18,7 @@ const authorizer = async (request: FastifyRequest) => {
   const { authorization: authorizationToken } = request.headers;
 
   if (!authorizationToken || typeof authorizationToken !== 'string')
-    throw new Error('Unauthorized');
+    throw new Error(UNAUTHORIZED_EXCEPTION);
 
   let userContext: UserContext;
 
@@ -28,10 +30,12 @@ const authorizer = async (request: FastifyRequest) => {
       username
     };
   } catch {
-    throw new Error('Unauthorized');
+    throw new Error(UNAUTHORIZED_EXCEPTION);
   }
 
-  request.requestContext.set('user', userContext);
+  request.requestContext?.set('user', userContext);
+
+  return userContext;
 };
 
 export default authorizer;

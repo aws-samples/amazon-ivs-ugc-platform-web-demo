@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { getChannelArnParams, getUser } from '../helpers';
 import { ResponseBody } from '../../shared/helpers';
@@ -7,6 +8,7 @@ import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   avatar?: string;
+  bannedUsers?: string[];
   channelResourceId?: string;
   color?: string;
   ingestEndpoint?: string;
@@ -23,20 +25,26 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     // Get user from userTable
     const { Item = {} } = await getUser(sub);
     const {
-      avatar: { S: avatar },
-      channelArn: { S: channelArn },
-      color: { S: color },
-      ingestEndpoint: { S: ingestEndpoint },
-      playbackUrl: { S: playbackUrl },
-      streamKeyValue: { S: streamKeyValue },
-      username: { S: username }
-    } = Item;
+      avatar,
+      bannedUsers,
+      channelArn,
+      color,
+      ingestEndpoint,
+      playbackUrl,
+      streamKeyValue,
+      username
+    } = unmarshall(Item);
+
+    if (!channelArn) {
+      throw new Error('No IVS resources have been created for this user.');
+    }
 
     if (channelArn) {
       responseBody.channelResourceId =
         getChannelArnParams(channelArn).resourceId;
     }
     responseBody.avatar = avatar;
+    responseBody.bannedUsers = Array.from(bannedUsers || []);
     responseBody.color = color;
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.playbackUrl = playbackUrl;

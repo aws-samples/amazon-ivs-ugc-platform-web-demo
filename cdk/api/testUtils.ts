@@ -17,7 +17,7 @@ export const createRouteAuthenticationTests = (
     const { message } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(500);
-    expect(message).toBe('Unauthorized');
+    expect(message).toBe('UnauthorizedException');
   });
 
   it('should return an unauthorized response when the auth token is invalid', async () => {
@@ -29,7 +29,7 @@ export const createRouteAuthenticationTests = (
     const { message } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(500);
-    expect(message).toBe('Unauthorized');
+    expect(message).toBe('UnauthorizedException');
   });
 };
 

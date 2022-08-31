@@ -2,9 +2,10 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ChatTokenCapability } from '@aws-sdk/client-ivschat';
 
 import {
+  ChatTokenCapabilityType,
+  ChatTokenError,
   createChatRoomToken,
-  getUser,
-  ChatTokenCapabilityType
+  getUser
 } from '../helpers';
 import { ResponseBody } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
@@ -27,7 +28,16 @@ const handler = async (
   const { username: viewerUsername, sub } = request.requestContext.get(
     'user'
   ) as UserContext;
-  const capabilities = [ChatTokenCapability.SEND_MESSAGE];
+  const isModerator = viewerUsername === chatRoomOwnerUsername;
+
+  let capabilities = [ChatTokenCapability.SEND_MESSAGE];
+  if (isModerator) {
+    capabilities.push(
+      ChatTokenCapability.DELETE_MESSAGE,
+      ChatTokenCapability.DISCONNECT_USER
+    );
+  }
+
   const responseBody: CreatePrivateChatTokenResponseBody = {
     capabilities: [...capabilities, 'VIEW_MESSAGE']
   };
@@ -58,6 +68,12 @@ const handler = async (
     responseBody.tokenExpirationTime = tokenExpirationTime;
   } catch (error) {
     console.error(error);
+
+    if (error instanceof ChatTokenError) {
+      reply.statusCode = error.code;
+
+      return reply.send({ __type: error.name });
+    }
 
     reply.statusCode = 500;
 

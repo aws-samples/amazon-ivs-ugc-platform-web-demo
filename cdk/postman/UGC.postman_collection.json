@@ -4,7 +4,7 @@
 		"name": "UGC",
 		"description": "# UGC\n\nThe UGC backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20287494"
+		"_exporter_id": "9583492"
 	},
 	"item": [
 		{
@@ -200,6 +200,62 @@
 									"key": "channelOwnerUsername",
 									"value": "{{username}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/channel/ban",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bannedUserId\": \"{{bannedUsername}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/ban",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/channel/unban",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bannedUserId\": \"{{bannedUsername}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/unban",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								"unban"
 							]
 						}
 					},
@@ -430,6 +486,9 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {

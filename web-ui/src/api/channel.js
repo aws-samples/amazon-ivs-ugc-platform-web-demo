@@ -1,7 +1,12 @@
 import { apiBaseUrl, authFetch, getCurrentSession, unauthFetch } from './utils';
 
-export const getUserChannelData = async (username) =>
-  await unauthFetch({ url: `${apiBaseUrl}/user/channel/${username}` });
+export const getUserChannelData = async (username) => {
+  const { result: session } = await getCurrentSession();
+  const isSessionValid = !!session;
+  const _fetch = isSessionValid ? authFetch : unauthFetch;
+
+  return await _fetch({ url: `${apiBaseUrl}/user/channel/${username}` });
+};
 
 /**
  * @typedef {Object} ChatTokenData

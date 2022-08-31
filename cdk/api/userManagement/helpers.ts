@@ -10,9 +10,10 @@ import {
 
 import {
   CHATROOM_ARN_NOT_FOUND_EXCEPTION,
+  FORBIDDEN_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../shared/constants';
-import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDbClient, ivsChatClient } from '../shared/helpers';
 
 export const getUser = (sub: string) => {
@@ -71,6 +72,23 @@ export const getChannelArnParams = (
   return {};
 };
 
+export class ChatTokenError extends Error {
+  public readonly code;
+
+  constructor(
+    message: string,
+    code: number = 500,
+    name: string = 'ChatTokenError'
+  ) {
+    super(message);
+
+    this.code = code;
+    this.name = name;
+
+    Object.setPrototypeOf(this, ChatTokenError.prototype);
+  }
+}
+
 const EnhancedChatTokenCapability = {
   ...ChatTokenCapability,
   VIEW_MESSAGE: 'VIEW_MESSAGE'
@@ -110,24 +128,39 @@ export const createChatRoomToken = async (
   viewerAttributes?: { displayName?: string; avatar?: string; color?: string },
   capabilities?: (ChatTokenCapability | string)[]
 ) => {
-  let chatRoomArn;
+  let chatRoomArn, bannedUsers;
   const { Items } = await getUserByUsername(chatRoomOwnerUsername);
   if (Items?.length) {
-    ({
-      chatRoomArn: { S: chatRoomArn }
-    } = Items[0]);
+    ({ chatRoomArn, bannedUsers } = unmarshall(Items[0]));
   } else {
-    throw new Error(USER_NOT_FOUND_EXCEPTION);
+    throw new ChatTokenError(
+      `No chat room owner exists with the username ${chatRoomOwnerUsername}`,
+      404,
+      USER_NOT_FOUND_EXCEPTION
+    );
   }
 
-  if (!chatRoomArn) throw new Error(CHATROOM_ARN_NOT_FOUND_EXCEPTION);
+  if (!chatRoomArn) {
+    throw new ChatTokenError(
+      `Missing chatRoomArn for user ${chatRoomOwnerUsername}`,
+      403,
+      CHATROOM_ARN_NOT_FOUND_EXCEPTION
+    );
+  }
+
+  const viewerUserId = viewerAttributes?.displayName;
+  if (viewerUserId && bannedUsers?.has(viewerUserId)) {
+    throw new ChatTokenError(
+      `The user ${viewerUserId} is banned from this chat room`,
+      403,
+      FORBIDDEN_EXCEPTION
+    );
+  }
 
   return await ivsChatClient.send(
     new CreateChatTokenCommand({
       capabilities, // The permission to view messages is implicit
-      userId:
-        viewerAttributes?.displayName ||
-        `unknown-user-${Date.now().toString()}`,
+      userId: viewerUserId || `unknown-user-${Date.now().toString()}`,
       roomIdentifier: chatRoomArn,
       sessionDurationInMinutes: 60,
       ...(viewerAttributes ? { attributes: viewerAttributes } : {})

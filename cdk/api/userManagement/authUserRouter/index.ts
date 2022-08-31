@@ -7,6 +7,8 @@ import changeUserPreferences from './changeUserPreferences';
 import createResources from './createResources';
 import deleteUser from './deleteUser';
 import getUser from './getUser';
+import banUser from './banUser';
+import unbanUser from './unbanUser';
 import resetStreamKey from './resetStreamKey';
 import createPrivateChatToken from './createPrivateChatToken';
 
@@ -25,6 +27,8 @@ const router: FastifyPluginAsync = async (resource) => {
 
   resource.post('/resources/create', createResources);
   resource.post('/chatroom/token/private/create', createPrivateChatToken);
+  resource.post('/channel/ban', banUser);
+  resource.post('/channel/unban', unbanUser);
 
   resource.put('/username/update', changeUsername);
   resource.put('/preferences/update', changeUserPreferences);
