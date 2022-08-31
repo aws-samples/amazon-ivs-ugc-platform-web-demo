@@ -1,11 +1,22 @@
 import PropTypes from 'prop-types';
 import { decode } from 'html-entities';
+import { m } from 'framer-motion';
 
 import { clsm } from '../../../../utils';
 import * as avatars from '../../../../assets/avatars';
 
+const defaultTransition = { duration: 0.25, type: 'tween' };
+
 const ChatLine = ({ message, avatar, color, displayName }) => (
-  <div
+  <m.div
+    animate="visible"
+    initial="hidden"
+    exit="hidden"
+    variants={{
+      visible: { opacity: 1, scale: 1 },
+      hidden: { opacity: 0, scale: 0.9 }
+    }}
+    transition={defaultTransition}
     className={clsm([
       'flex',
       'flex-row',
@@ -16,7 +27,10 @@ const ChatLine = ({ message, avatar, color, displayName }) => (
       'px-3.5',
       'w-full',
       'bg-lightMode-gray-extraLight',
-      'dark:bg-darkMode-gray-medium'
+      'dark:bg-darkMode-gray-medium',
+      'w-auto',
+      'max-w-full',
+      'origin-top-left'
     ])}
   >
     <img
@@ -43,7 +57,7 @@ const ChatLine = ({ message, avatar, color, displayName }) => (
       &nbsp;
       {decode(message).replace(/\\/g, '\\\\')}
     </p>
-  </div>
+  </m.div>
 );
 
 ChatLine.propTypes = {

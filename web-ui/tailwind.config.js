@@ -44,6 +44,7 @@ module.exports = {
       minHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       maxHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       colors: {
+        loadingOverlay: 'hsl(0 0% 0% / 0.3)',
         modalOverlay: 'hsl(0 0% 0% / 0.5)',
         white: {
           DEFAULT: 'hsl(var(--base-color-white), 100%)',

@@ -19,7 +19,7 @@ export const BUTTON_BASE_CLASSES = [
   'min-w-[98px]',
   'px-6',
   'py-3',
-  'rounded-3xl ',
+  'rounded-3xl',
   'select-none',
   'transition-all',
   'w-auto',

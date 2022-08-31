@@ -1,18 +1,36 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { clsm } from '../../../../utils';
+import { useChatMessages } from '../../../../contexts/ChatMessages';
+import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
 import ChatLine from './ChatLine';
+import useStickyScroll from '../../../../hooks/useStickyScroll';
+import StickScrollButton from './StickScrollButton';
 
 const Messages = ({ chatRoomOwnerUsername }) => {
+  const chatRef = useRef();
+  const bottomRef = useRef();
   const { messages, initMessages } = useChatMessages();
+  const { isSticky, scrollToBottom } = useStickyScroll(
+    chatRef,
+    bottomRef,
+    messages
+  );
+  const { isMobileView, isLandscape } = useMobileBreakpoint();
+  const isSplitView = isMobileView && isLandscape;
 
   useEffect(() => {
     if (chatRoomOwnerUsername) {
       initMessages(chatRoomOwnerUsername);
     }
   }, [chatRoomOwnerUsername, initMessages]);
+
+  useEffect(() => {
+    // Reset the sticky scroll when entering/exiting split view
+    // as the scroll position will change between layouts
+    setTimeout(scrollToBottom, 10);
+  }, [isSplitView, scrollToBottom]);
 
   return (
     <div className={clsm(['relative', 'w-full', 'h-full'])}>
@@ -27,10 +45,12 @@ const Messages = ({ chatRoomOwnerUsername }) => {
           'gap-y-3',
           'px-[18px]',
           'pt-5',
-          'overflow-auto',
-          'scroll-smooth',
-          'supports-overlay:overflow-overlay'
+          'overflow-x-hidden',
+          'overflow-y-auto',
+          'supports-overlay:overflow-y-overlay'
         ])}
+        role="log"
+        ref={chatRef}
       >
         {messages.map(
           ({
@@ -41,7 +61,9 @@ const Messages = ({ chatRoomOwnerUsername }) => {
             <ChatLine key={messageId} message={message} {...senderAttributes} />
           )
         )}
+        <div ref={bottomRef} />
       </div>
+      <StickScrollButton isSticky={isSticky} scrollToBottom={scrollToBottom} />
     </div>
   );
 };

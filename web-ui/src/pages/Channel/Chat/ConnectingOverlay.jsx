@@ -62,7 +62,7 @@ const ConnectingOverlay = ({ isLoading }) => {
               'left-0',
               'w-full',
               'h-full',
-              'bg-modalOverlay',
+              'bg-loadingOverlay',
               'z-40'
             ])}
           ></m.div>

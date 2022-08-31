@@ -1,6 +1,7 @@
 {
   "chat": {
     "say_something": "Say something",
+    "new_messages": "New messages",
     "notifications": {
       "error": {
         "error_loading_chat": "Error loading chat"

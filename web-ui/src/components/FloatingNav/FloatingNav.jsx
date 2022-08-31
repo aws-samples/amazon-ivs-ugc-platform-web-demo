@@ -13,7 +13,7 @@ const FloatingNav = () => (
       'flex-col-reverse',
       'right-5',
       'bottom-6',
-      'z-40'
+      'z-[500]'
     ])}
   >
     <ProfileMenu

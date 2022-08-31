@@ -55,7 +55,7 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage }) => {
     <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
       <form
         className={clsm(
-          ['relative', 'z-50'],
+          ['relative', 'z-[510]'],
           isSessionValid && [
             'md:w-[calc(100%_-_60px)]',
             'touch-screen-device:lg:landscape:w-[calc(100%_-_60px)]'
