@@ -69,7 +69,7 @@ class RegisterPageModel extends BasePageModel {
     // Click the "Create account" button
     await this.createAccountButtonLoc.click();
 
-    const headerLoc = this.page.locator('.sub-page-container h2');
+    const headerLoc = this.page.locator('h2');
     await expect(headerLoc).toHaveText('Verify your account');
   };
 

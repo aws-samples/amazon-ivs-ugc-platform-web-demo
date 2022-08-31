@@ -14,42 +14,15 @@
   top: 32px;
 }
 
-.user-page-content {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  row-gap: 32px;
-  padding-bottom: 86px;
-  padding-top: 32px;
-  width: 100%;
-}
-
 .user-page-content > svg {
   height: 32px;
   width: 130px;
-}
-
-.sub-page-container {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  max-width: 450px;
-  row-gap: 32px;
-  text-align: center;
 }
 
 .resend-action-container {
   align-items: center;
   display: flex;
   column-gap: 20px;
-}
-
-@media (max-width: 989px) {
-  .sub-page-container {
-    margin: 0 auto;
-  }
 }
 
 @media (max-width: 575px) {

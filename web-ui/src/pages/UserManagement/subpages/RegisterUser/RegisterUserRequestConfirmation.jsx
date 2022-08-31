@@ -1,11 +1,12 @@
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-import { useNotif } from '../../../../contexts/Notification';
-import { userManagementAPI } from '../../../../api';
-import { userManagement as $content } from '../../../../content';
-import Button from '../../../../components/Button';
+import { clsm } from '../../../../utils';
 import { LIMIT_EXCEEDED_EXCEPTION } from '../../../../constants';
+import { useNotif } from '../../../../contexts/Notification';
+import { userManagement as $content } from '../../../../content';
+import { userManagementAPI } from '../../../../api';
+import Button from '../../../../components/Button';
 
 const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
@@ -29,9 +30,21 @@ const RegisterUserRequestConfirmation = ({ username }) => {
   };
 
   return (
-    <div className="sub-page-container">
+    <div
+      className={clsm([
+        'items-center',
+        'flex',
+        'flex-col',
+        'm-auto',
+        'text-center',
+        'max-w-[450px]',
+        'gap-y-[45px]'
+      ])}
+    >
       <h2>{$content.register_page.verify_your_account}</h2>
-      <p className="p1">{$content.register_page.email_link_sent}</p>
+      <p className={clsm(['pt-[3px]', 'p1'])}>
+        {$content.register_page.email_link_sent}
+      </p>
       <span className="resend-action-container">
         <b>{$content.did_not_receive_email}</b>
         <Button onClick={resend} type="button" variant="secondary">

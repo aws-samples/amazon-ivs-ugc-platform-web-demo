@@ -57,14 +57,11 @@ export const INPUT_TYPE_CLASSES = {
   text: [
     ...INPUT_BASE_CLASSES,
     'dark:text-white',
+    'dark:focus:text-darkMode-gray-light',
     'placeholder-shown:overflow-hidden',
     'placeholder-shown:text-ellipsis',
     'placeholder-shown:whitespace-nowrap',
-    'text-lightMode-gray-dark'
+    'focus:text-lightMode-gray-dark'
   ],
-  password: [
-    ...INPUT_BASE_CLASSES,
-    'dark:text-white',
-    'text-lightMode-gray-dark'
-  ]
+  password: [...INPUT_BASE_CLASSES, 'dark:text-white']
 };

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import './UserManagement.css';
+import { clsm } from '../../utils';
 import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
@@ -42,7 +43,13 @@ const UserManagement = () => {
   return (
     <main
       id={`main-user-container${isResponsiveView ? '' : '-scrollable'}`}
-      className="main-user-container bg-lightMode-gray-extraLight dark:bg-black"
+      className={clsm(
+        'main-user-container',
+        'bg-lightMode-gray-extraLight',
+        'dark:bg-black',
+        'flex',
+        'justify-center'
+      )}
       ref={mainRef}
     >
       <Notification />
@@ -53,7 +60,17 @@ const UserManagement = () => {
           onClick={initUserResources}
         />
       ) : (
-        <div className="user-page-content">
+        <div
+          className={clsm(
+            'user-page-content',
+            'flex',
+            'items-center',
+            'flex-col',
+            'w-full',
+            'gap-y-8',
+            'py-8'
+          )}
+        >
           <Outlet />
         </div>
       )}
