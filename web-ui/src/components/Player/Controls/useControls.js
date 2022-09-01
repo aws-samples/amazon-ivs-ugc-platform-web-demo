@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 
-const useControls = (isPaused) => {
+const useControls = (isPaused, isViewerBanned) => {
   const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
@@ -42,21 +42,22 @@ const useControls = (isPaused) => {
   );
 
   const onMouseMoveHandler = useCallback(() => {
-    if (isTouchscreenDevice || isPaused) return;
+    if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
     isCoveringControlButton ? clearControlsTimeout() : resetControlsTimeout();
     setIsControlsOpen(true);
   }, [
-    clearControlsTimeout,
-    isCoveringControlButton,
+    isTouchscreenDevice,
     isPaused,
-    resetControlsTimeout,
-    isTouchscreenDevice
+    isViewerBanned,
+    isCoveringControlButton,
+    clearControlsTimeout,
+    resetControlsTimeout
   ]);
 
   const onControlHoverHandler = useCallback(
     (event) => {
-      if (isTouchscreenDevice || isPaused) return;
+      if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
       if (event.type === 'focus') {
         resetControlsTimeout();
@@ -68,14 +69,20 @@ const useControls = (isPaused) => {
       } else if (['mouseleave', 'blur'].includes(event.type))
         setIsCoveringControlButton(false);
     },
-    [clearControlsTimeout, resetControlsTimeout, isPaused, isTouchscreenDevice]
+    [
+      isTouchscreenDevice,
+      isPaused,
+      isViewerBanned,
+      resetControlsTimeout,
+      clearControlsTimeout
+    ]
   );
 
   // Mobile controls toggling logic
   const mobileClickHandler = useCallback(() => {
     if (!isTouchscreenDevice) return;
 
-    if (isPaused) {
+    if (isPaused || isViewerBanned) {
       setIsControlsOpen(true);
       clearControlsTimeout();
     } else if (!timeoutId.current) {
@@ -90,23 +97,25 @@ const useControls = (isPaused) => {
     closeControls,
     isPaused,
     isTouchscreenDevice,
+    isViewerBanned,
     resetControlsTimeout
   ]);
 
   // Desktop controls toggling logic
   useEffect(() => {
-    if (!isTouchscreenDevice) {
-      if (isPaused) {
-        clearControlsTimeout();
-        setIsControlsOpen(true);
-      } else {
-        resetControlsTimeout();
-      }
+    if (isTouchscreenDevice) return;
+
+    if (isPaused || isViewerBanned) {
+      clearControlsTimeout();
+      setIsControlsOpen(true);
+    } else {
+      resetControlsTimeout();
     }
   }, [
     clearControlsTimeout,
     isPaused,
     isTouchscreenDevice,
+    isViewerBanned,
     resetControlsTimeout
   ]);
 

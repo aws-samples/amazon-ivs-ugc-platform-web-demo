@@ -72,7 +72,6 @@ const handler = async (
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.username = username;
-    responseBody.isViewerBanned = false;
 
     if (viewerUsername && bannedUsers?.has(viewerUsername)) {
       // The viewer is banned, so we will only return a subset of the channel data

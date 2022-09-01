@@ -98,7 +98,7 @@ const handler = async (
     // Broadcast an event to delete all messages sent by the banned user to the chat room
     await ivsChatClient.send(
       new SendEventCommand({
-        attributes: { userId: bannedUserId },
+        attributes: { UserId: bannedUserId },
         eventName: 'app:DELETE_USER_MESSAGES',
         roomIdentifier: chatRoomArn
       })

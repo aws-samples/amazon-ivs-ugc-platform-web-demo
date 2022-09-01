@@ -19,11 +19,12 @@ import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 
 const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const {
-    isLive: isChannelLive,
-    playbackUrl,
-    username,
+    avatar,
     color,
-    avatar
+    isLive: isChannelLive,
+    isViewerBanned,
+    playbackUrl,
+    username
   } = channelData || {};
 
   const playerElementRef = useRef();
@@ -48,7 +49,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     setIsFullscreenEnabled,
     setIsPopupOpen,
     stopPropagAndResetTimeout
-  } = useControls(isPaused);
+  } = useControls(isPaused, isViewerBanned);
   const { dismissNotif, notifyError } = useNotif();
   const { onClickFullscreenHandler } = useFullscreen({
     isFullscreenEnabled,
@@ -61,7 +62,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const hasError = !!error;
   const isChannelAvailable = !!channelData;
   const isSplitView = isMobileView && isLandscape;
-  const shouldShowLoader = isLoading && !hasError;
+  const shouldShowLoader = isLoading && !hasError && !isViewerBanned;
   const shouldShowPlayerOverlay = hasError || isControlsOpen;
 
   const onClickPlayerHandler = useCallback(
@@ -157,7 +158,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
             <video
               className={clsm(
                 ['w-full', 'h-full'],
-                shouldShowLoader ? 'hidden' : 'block'
+                shouldShowLoader || isViewerBanned ? 'hidden' : 'block'
               )}
               muted
               playsInline
@@ -186,6 +187,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
                 isChatVisible={isChatVisible}
                 isControlsOpen={isControlsOpen}
                 isFullscreenEnabled={isFullscreenEnabled}
+                isViewerBanned={isViewerBanned}
                 onClickFullscreenHandler={onClickFullscreenHandler}
                 onControlHoverHandler={onControlHoverHandler}
                 player={livePlayer}

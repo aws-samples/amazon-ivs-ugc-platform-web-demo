@@ -20,7 +20,7 @@ const Channel = () => {
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
     useMobileBreakpoint();
-  const { username: channelUsername } = channelData || {};
+  const { username: channelUsername, isViewerBanned } = channelData || {};
   const [isChatVisible, setIsChatVisible] = useState(true);
   const chatAnimationControls = useAnimation();
   const isSplitView = isMobileView && isLandscape;
@@ -83,6 +83,7 @@ const Channel = () => {
           chatRoomOwnerUsername={channelUsername}
           chatAnimationControls={chatAnimationControls}
           isChannelLoading={isChannelLoading}
+          isViewerBanned={isViewerBanned}
         />
       </NotificationProvider>
       {isSplitView && !isSessionValid && !isChatVisible && (

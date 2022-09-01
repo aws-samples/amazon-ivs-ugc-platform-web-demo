@@ -41,3 +41,17 @@ export const getChatToken = async (chatRoomOwnerUsername) => {
     body: { chatRoomOwnerUsername }
   });
 };
+
+export const banUser = async (bannedUserId) =>
+  await authFetch({
+    method: 'POST',
+    url: `${apiBaseUrl}/user/channel/ban`,
+    body: { bannedUserId }
+  });
+
+export const unbanUser = async (bannedUserId) =>
+  await authFetch({
+    method: 'POST',
+    url: `${apiBaseUrl}/user/channel/unban`,
+    body: { bannedUserId }
+  });

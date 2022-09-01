@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { m } from 'framer-motion';
 
 import { BREAKPOINTS } from '../../../constants';
-import { clsm } from '../../../utils';
+import { clsm, noop } from '../../../utils';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useUser } from '../../../contexts/User';
 import Composer from './Composer';
@@ -18,7 +18,8 @@ const defaultTransition = { duration: 0.25, type: 'tween' };
 const Chat = ({
   chatRoomOwnerUsername,
   chatAnimationControls,
-  isChannelLoading
+  isChannelLoading,
+  isViewerBanned
 }) => {
   const { isSessionValid } = useUser();
   const { isMobileView, isLandscape, currentBreakpoint } =
@@ -26,8 +27,16 @@ const Chat = ({
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
 
+  const handleDeleteMessage = useCallback(noop, []); // Temporary
+  const handleDeleteUserMessages = useCallback(noop, []); // Temporary
+  const handleUserDisconnect = useCallback(noop, []); // Temporary
+
   const { chatUserRole, hasConnectionError, isConnecting, sendMessage } =
-    useChat(chatRoomOwnerUsername);
+    useChat(chatRoomOwnerUsername, isViewerBanned, {
+      handleDeleteMessage,
+      handleDeleteUserMessages,
+      handleUserDisconnect
+    });
   const isLoading = isConnecting || isChannelLoading;
 
   return (
@@ -103,13 +112,15 @@ const Chat = ({
 
 Chat.defaultProps = {
   chatRoomOwnerUsername: '',
-  isChannelLoading: false
+  isChannelLoading: false,
+  isViewerBanned: false
 };
 
 Chat.propTypes = {
   chatRoomOwnerUsername: PropTypes.string,
   chatAnimationControls: PropTypes.object.isRequired,
-  isChannelLoading: PropTypes.bool
+  isChannelLoading: PropTypes.bool,
+  isViewerBanned: PropTypes.bool
 };
 
 export default memo(Chat);

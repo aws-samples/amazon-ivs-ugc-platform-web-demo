@@ -12,5 +12,8 @@ export const CONTROLS_BUTTON_BASE_CLASSES = [
   '[&>svg]:h-8',
   '[&>svg]:fill-white-player',
   '[&>svg]:hover:fill-white',
-  '[&>svg]:focus:fill-white'
+  '[&>svg]:focus:fill-white',
+  '[&>svg]:disabled:fill-white-player',
+  'disabled:opacity-30',
+  'disabled:cursor-auto'
 ];

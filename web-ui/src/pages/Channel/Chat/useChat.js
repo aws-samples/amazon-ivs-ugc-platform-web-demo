@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { encode } from 'html-entities';
 
 import { channel as $content } from '../../../content';
+import { channelAPI } from '../../../api';
 import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
 import {
   CHAT_CAPABILITY,
@@ -21,10 +22,23 @@ import { useUser } from '../../../contexts/User';
  * @typedef {('VIEWER'|'SENDER'|'MODERATOR'|undefined)} ChatUserRole
  */
 
-const useChat = (chatRoomOwnerUsername) => {
+/**
+ * @typedef {Object} ChatEventHandlers
+ * @property {Function} handleDeleteMessage
+ * @property {Function} handleDeleteUserMessages
+ * @property {Function} handleUserDisconnect
+ */
+
+/**
+ * Initializes and controls a connection to the Amazon IVS Chat Messaging API
+ * @param {string} chatRoomOwnerUsername
+ * @param {boolean} isViewerBanned
+ * @param {ChatEventHandlers} eventHandlers
+ */
+const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
   const { addMessage } = useChatMessages();
   const { isSessionValid } = useUser();
-  const { notifyError, dismissNotif } = useNotif();
+  const { notifyError, notifySuccess, dismissNotif } = useNotif();
   const chatCapabilities = useRef([]);
 
   /** @type {[ChatUserRole, Function]} */
@@ -33,12 +47,12 @@ const useChat = (chatRoomOwnerUsername) => {
   // Connection State
   const [connectionReadyState, setConnectionReadyState] = useState();
   const [didConnectionCloseCleanly, setDidConnectionCloseCleanly] = useState();
+  const [hasConnectionError, setHasConnectionError] = useState();
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
   const isInitializingConnection = useRef(false);
   const isRetryingConnection = useRef(false);
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
-  const [hasConnectionError, setHasConnectionError] = useState();
   const isConnecting =
     isInitializingConnection.current || connectionReadyState === 0;
 
@@ -106,6 +120,44 @@ const useChat = (chatRoomOwnerUsername) => {
     send('SEND_MESSAGE', { Content: encode(msg) });
   };
 
+  const deleteMessage = (messageId) => {
+    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
+      console.error(
+        'You do not have permission to delete messages on this channel!'
+      );
+      return;
+    }
+
+    send('DELETE_MESSAGE', {
+      Id: messageId,
+      Reason: 'Deleted by moderator'
+    });
+  };
+
+  const banUser = async (bannedUserId) => {
+    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
+      console.error('You do not have permission to ban users on this channel!');
+      return;
+    }
+
+    const { result, error } = await channelAPI.banUser(bannedUserId);
+
+    if (result) notifySuccess($content.chat.notifications.success.ban_user);
+    if (error) notifyError($content.chat.notifications.error.ban_user);
+  };
+
+  const unbanUser = async (bannedUserId) => {
+    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
+      console.error('You do not have permission to ban users on this channel!');
+      return;
+    }
+
+    const { result, error } = await channelAPI.unbanUser(bannedUserId);
+
+    if (result) notifySuccess($content.chat.notifications.success.unban_user);
+    if (error) notifyError($content.chat.notifications.error.unban_user);
+  };
+
   // Handlers
   const onOpen = useCallback(() => {
     setConnectionReadyState(WebSocket.OPEN);
@@ -138,7 +190,28 @@ const useChat = (chatRoomOwnerUsername) => {
         }
         case 'EVENT':
           // Handle received event
-          console.log('Received Event:', data);
+          const { Attributes, EventName } = data;
+
+          switch (EventName) {
+            case 'aws:DISCONNECT_USER': {
+              const handleUserDisconnect = eventHandlers.handleUserDisconnect;
+              handleUserDisconnect(Attributes.UserId);
+              break;
+            }
+            case 'aws:DELETE_MESSAGE': {
+              const handleDeleteMessage = eventHandlers.handleDeleteMessage;
+              handleDeleteMessage(Attributes.MessageID);
+              break;
+            }
+            case 'app:DELETE_USER_MESSAGES': {
+              const handleDeleteUserMessages =
+                eventHandlers.handleDeleteUserMessages;
+              handleDeleteUserMessages(Attributes.UserId);
+              break;
+            }
+            default: // Ignore events with unknown event names
+          }
+
           break;
         case 'ERROR':
           // Handle received error
@@ -148,7 +221,12 @@ const useChat = (chatRoomOwnerUsername) => {
           console.error('Unknown event received:', data);
       }
     },
-    [addMessage]
+    [
+      addMessage,
+      eventHandlers.handleDeleteMessage,
+      eventHandlers.handleDeleteUserMessages,
+      eventHandlers.handleUserDisconnect
+    ]
   );
 
   // Connection helpers
@@ -195,7 +273,11 @@ const useChat = (chatRoomOwnerUsername) => {
   }, []);
 
   const connect = useCallback(async () => {
-    if (isInitializingConnection.current && !isRetryingConnection.current)
+    if (
+      isViewerBanned ||
+      !chatRoomOwnerUsername ||
+      (isInitializingConnection.current && !isRetryingConnection.current)
+    )
       return;
 
     // Clean up previous connection resources
@@ -236,6 +318,7 @@ const useChat = (chatRoomOwnerUsername) => {
   }, [
     chatRoomOwnerUsername,
     disconnect,
+    isViewerBanned,
     onClose,
     onMessage,
     onOpen,
@@ -244,12 +327,10 @@ const useChat = (chatRoomOwnerUsername) => {
 
   // Initialize connection
   useEffect(() => {
-    if (!chatRoomOwnerUsername) return;
-
     connect();
 
     return disconnect;
-  }, [chatRoomOwnerUsername, connect, disconnect, isSessionValid]);
+  }, [connect, disconnect, isSessionValid]);
 
   // Reconnect on dirty close
   useEffect(() => {
@@ -262,7 +343,15 @@ const useChat = (chatRoomOwnerUsername) => {
     return () => clearTimeout(reconnectTimeoutId);
   }, [connect, didConnectionCloseCleanly]);
 
-  return { chatUserRole, sendMessage, isConnecting, hasConnectionError };
+  return {
+    banUser,
+    chatUserRole,
+    deleteMessage,
+    hasConnectionError,
+    isConnecting,
+    sendMessage,
+    unbanUser
+  };
 };
 
 export default useChat;

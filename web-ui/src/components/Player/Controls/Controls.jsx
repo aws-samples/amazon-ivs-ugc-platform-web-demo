@@ -19,6 +19,7 @@ const Controls = ({
   isChatVisible,
   isControlsOpen,
   isFullscreenEnabled,
+  isViewerBanned,
   onClickFullscreenHandler,
   onControlHoverHandler,
   player,
@@ -38,6 +39,7 @@ const Controls = ({
   } = player;
   const { isMobileView, isLandscape } = useMobileBreakpoint();
   const isSplitView = isMobileView && isLandscape;
+  const isControlDisabled = !isControlsOpen || isViewerBanned;
 
   const onClickPlayPauseHandler = useCallback(
     (event) => {
@@ -98,7 +100,7 @@ const Controls = ({
         <button
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-          disabled={!isControlsOpen}
+          disabled={isControlDisabled}
           onBlur={onControlHoverHandler}
           onFocus={onControlHoverHandler}
           onMouseEnter={onControlHoverHandler}
@@ -108,7 +110,7 @@ const Controls = ({
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
-          isDisabled={!isControlsOpen}
+          isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           setIsPopupOpen={setIsPopupOpen}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
@@ -121,14 +123,14 @@ const Controls = ({
           <button
             aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}
             className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-            disabled={!isControlsOpen}
+            disabled={!isControlsOpen} // The split view toggle control remains enabled for banned viewers
             onClick={onClickToggleChat}
           >
             {isChatVisible ? <ChatOpenSVG /> : <ChatClosedSVG />}
           </button>
         )}
         <RenditionSetting
-          isDisabled={!isControlsOpen}
+          isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           qualities={qualities}
           selectedQualityName={selectedQualityName}
@@ -141,7 +143,7 @@ const Controls = ({
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-          disabled={!isControlsOpen}
+          disabled={isControlDisabled}
           onClick={onClickFullscreenHandler}
         >
           {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
@@ -154,11 +156,13 @@ const Controls = ({
 Controls.defaultProps = {
   isChatVisible: true,
   isControlsOpen: true,
-  isFullscreenEnabled: false
+  isFullscreenEnabled: false,
+  isViewerBanned: false
 };
 
 Controls.propTypes = {
   isChatVisible: PropTypes.bool,
+  isViewerBanned: PropTypes.bool,
   isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
