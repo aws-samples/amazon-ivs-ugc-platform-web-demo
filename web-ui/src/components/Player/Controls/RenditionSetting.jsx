@@ -20,7 +20,7 @@ const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const RenditionSetting = ({
   isDisabled,
-  mobileSVGOpacity,
+  className,
   onControlHoverHandler,
   qualities,
   selectedQualityName,
@@ -96,7 +96,7 @@ const RenditionSetting = ({
           ...CONTROLS_BUTTON_BASE_CLASSES,
           'transition-transform',
           isExpanded && ['rotate-[30deg]', 'border-white'],
-          mobileSVGOpacity
+          className
         ])}
         disabled={isDisabled}
         onBlur={onControlHoverHandler}
@@ -248,12 +248,12 @@ const RenditionSetting = ({
 RenditionSetting.defaultProps = {
   isDisabled: false,
   qualities: [{ name: 'Auto' }],
-  mobileSVGOpacity: ''
+  className: ''
 };
 
 RenditionSetting.propTypes = {
   isDisabled: PropTypes.bool,
-  mobileSVGOpacity: PropTypes.bool,
+  className: PropTypes.string,
   onControlHoverHandler: PropTypes.func.isRequired,
   qualities: PropTypes.arrayOf(PropTypes.object),
   selectedQualityName: PropTypes.string.isRequired,

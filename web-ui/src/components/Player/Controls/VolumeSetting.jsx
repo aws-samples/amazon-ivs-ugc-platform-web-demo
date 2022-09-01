@@ -23,7 +23,7 @@ import InputRange from './InputRange';
 
 const VolumeSetting = ({
   isDisabled,
-  mobileSVGOpacity,
+  className,
   onControlHoverHandler,
   volumeLevel,
   stopPropagAndResetTimeout,
@@ -87,7 +87,7 @@ const VolumeSetting = ({
         className={clsm([
           ...CONTROLS_BUTTON_BASE_CLASSES,
           'transition-transform',
-          mobileSVGOpacity
+          className
         ])}
         disabled={isDisabled}
         onBlur={onControlHoverHandler}
@@ -137,12 +137,12 @@ const VolumeSetting = ({
 VolumeSetting.defaultProps = {
   isDisabled: false,
   volumeLevel: VOLUME_MAX,
-  mobileSVGOpacity: ''
+  className: ''
 };
 
 VolumeSetting.propTypes = {
   isDisabled: PropTypes.bool,
-  mobileSVGOpacity: PropTypes.bool,
+  className: PropTypes.string,
   onControlHoverHandler: PropTypes.func.isRequired,
   volumeLevel: PropTypes.number,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,

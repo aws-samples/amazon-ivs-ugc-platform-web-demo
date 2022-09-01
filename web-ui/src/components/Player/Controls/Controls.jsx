@@ -41,7 +41,7 @@ const Controls = ({
   const { isMobileView, isLandscape, isTouchscreenDevice } =
     useMobileBreakpoint();
 
-  const mobileSVGOpacity = isTouchscreenDevice && '[&>svg]:fill-white';
+  const mobileSVGOpacity = isTouchscreenDevice ? '[&>svg]:fill-white' : '';
 
   const isSplitView = isMobileView && isLandscape;
   const isControlDisabled = !isControlsOpen || isViewerBanned;
@@ -124,7 +124,7 @@ const Controls = ({
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
-          mobileSVGOpacity={mobileSVGOpacity}
+          className={clsm(mobileSVGOpacity)}
           isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           setIsPopupOpen={setIsPopupOpen}
@@ -145,7 +145,7 @@ const Controls = ({
           </button>
         )}
         <RenditionSetting
-          mobileSVGOpacity={mobileSVGOpacity}
+          className={clsm(mobileSVGOpacity)}
           isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           qualities={qualities}
