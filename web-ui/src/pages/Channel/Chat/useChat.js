@@ -8,6 +8,7 @@ import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
 import {
   CHAT_CAPABILITY,
   CHAT_USER_ROLE,
+  SEND_ERRORS,
   closeSocket,
   createSocket,
   requestChatToken
@@ -48,6 +49,7 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
   const [connectionReadyState, setConnectionReadyState] = useState();
   const [didConnectionCloseCleanly, setDidConnectionCloseCleanly] = useState();
   const [hasConnectionError, setHasConnectionError] = useState();
+  const [sendError, setSendError] = useState();
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
   const isInitializingConnection = useRef(false);
   const isRetryingConnection = useRef(false);
@@ -186,6 +188,7 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
         case 'MESSAGE': {
           // Handle received message
           addMessage(data);
+          setSendError(null);
           break;
         }
         case 'EVENT':
@@ -216,6 +219,12 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
         case 'ERROR':
           // Handle received error
           console.log('Received Error:', data);
+
+          if (Object.values(SEND_ERRORS).indexOf(data['ErrorMessage']) > -1) {
+            setSendError({
+              message: data['ErrorMessage']
+            });
+          }
           break;
         default:
           console.error('Unknown event received:', data);
@@ -349,6 +358,7 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
     deleteMessage,
     hasConnectionError,
     isConnecting,
+    sendError,
     sendMessage,
     unbanUser
   };

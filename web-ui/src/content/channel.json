@@ -12,6 +12,11 @@
         "ban_user": "Failed to ban user",
         "unban_user": "Failed to unban user"
       }
+    },
+    "error": {
+      "error_message_not_sent": "Message could not be sent.",
+      "error_max_length_reached": "Max message length reached.",
+      "error_rate_exceeded": "Rate exceeded."
     }
   }
 }

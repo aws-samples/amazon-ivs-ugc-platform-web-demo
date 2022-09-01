@@ -31,12 +31,17 @@ const Chat = ({
   const handleDeleteUserMessages = useCallback(noop, []); // Temporary
   const handleUserDisconnect = useCallback(noop, []); // Temporary
 
-  const { chatUserRole, hasConnectionError, isConnecting, sendMessage } =
-    useChat(chatRoomOwnerUsername, isViewerBanned, {
-      handleDeleteMessage,
-      handleDeleteUserMessages,
-      handleUserDisconnect
-    });
+  const {
+    chatUserRole,
+    hasConnectionError,
+    isConnecting,
+    sendMessage,
+    sendError
+  } = useChat(chatRoomOwnerUsername, isViewerBanned, {
+    handleDeleteMessage,
+    handleDeleteUserMessages,
+    handleUserDisconnect
+  });
   const isLoading = isConnecting || isChannelLoading;
 
   return (
@@ -103,6 +108,7 @@ const Chat = ({
             isDisabled={hasConnectionError}
             chatUserRole={chatUserRole}
             sendMessage={sendMessage}
+            sendError={sendError}
           />
         )}
       </div>

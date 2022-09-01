@@ -13,6 +13,10 @@ export const CHAT_USER_ROLE = {
   SENDER: 'SENDER',
   MODERATOR: 'MODERATOR'
 };
+export const SEND_ERRORS = {
+  RATE_LIMIT_EXCEEDED: 'rate limit exceeded',
+  MAX_LENGTH_EXCEEDED: 'Message exceeds maximum length'
+};
 
 export const requestChatToken = async (chatRoomOwnerUsername) => {
   const { result: { token, sessionExpirationTime, capabilities } = {}, error } =
