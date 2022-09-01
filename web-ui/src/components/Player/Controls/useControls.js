@@ -14,6 +14,7 @@ const useControls = (isPaused, isViewerBanned) => {
     clearTimeout(timeoutId.current);
     timeoutId.current = null;
   }, []);
+
   const closeControls = useCallback(() => {
     if (isPopupOpen) return;
 
@@ -28,6 +29,16 @@ const useControls = (isPaused, isViewerBanned) => {
     }, 3000);
   }, [clearControlsTimeout, closeControls]);
 
+  const resetControls = useCallback(() => {
+    setIsControlsOpen(true);
+    resetControlsTimeout();
+  }, [setIsControlsOpen, resetControlsTimeout]);
+
+  const clearControls = useCallback(() => {
+    setIsControlsOpen(true);
+    clearControlsTimeout();
+  }, [setIsControlsOpen, clearControlsTimeout]);
+
   /**
    * This function should be called in the individual controls handlers to prevent closing the controls overlay when tapping one of the individual controls.
    */
@@ -41,18 +52,22 @@ const useControls = (isPaused, isViewerBanned) => {
     [isTouchscreenDevice, resetControlsTimeout]
   );
 
+  const onTabbingHandler = useCallback(() => {
+    if (isTouchscreenDevice || isPaused) return;
+    resetControls();
+  }, [isTouchscreenDevice, isPaused, resetControls]);
+
   const onMouseMoveHandler = useCallback(() => {
     if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
-    isCoveringControlButton ? clearControlsTimeout() : resetControlsTimeout();
-    setIsControlsOpen(true);
+    isCoveringControlButton ? clearControls() : resetControls();
   }, [
-    isTouchscreenDevice,
-    isPaused,
-    isViewerBanned,
+    clearControls,
     isCoveringControlButton,
-    clearControlsTimeout,
-    resetControlsTimeout
+    isPaused,
+    resetControls,
+    isTouchscreenDevice,
+    isViewerBanned
   ]);
 
   const onControlHoverHandler = useCallback(
@@ -60,12 +75,10 @@ const useControls = (isPaused, isViewerBanned) => {
       if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
       if (event.type === 'focus') {
-        resetControlsTimeout();
-        setIsControlsOpen(true);
+        resetControls();
       } else if (event.type === 'mouseenter') {
         setIsCoveringControlButton(true);
-        setIsControlsOpen(true);
-        clearControlsTimeout();
+        clearControls();
       } else if (['mouseleave', 'blur'].includes(event.type))
         setIsCoveringControlButton(false);
     },
@@ -73,8 +86,8 @@ const useControls = (isPaused, isViewerBanned) => {
       isTouchscreenDevice,
       isPaused,
       isViewerBanned,
-      resetControlsTimeout,
-      clearControlsTimeout
+      clearControls,
+      resetControls
     ]
   );
 
@@ -83,22 +96,21 @@ const useControls = (isPaused, isViewerBanned) => {
     if (!isTouchscreenDevice) return;
 
     if (isPaused || isViewerBanned) {
-      setIsControlsOpen(true);
-      clearControlsTimeout();
+      clearControls();
     } else if (!timeoutId.current) {
-      setIsControlsOpen(true);
-      resetControlsTimeout();
+      resetControls();
     } else {
       closeControls();
       clearControlsTimeout();
     }
   }, [
     clearControlsTimeout,
+    clearControls,
     closeControls,
+    resetControls,
     isPaused,
     isTouchscreenDevice,
-    isViewerBanned,
-    resetControlsTimeout
+    isViewerBanned
   ]);
 
   // Desktop controls toggling logic
@@ -133,7 +145,8 @@ const useControls = (isPaused, isViewerBanned) => {
     onMouseMoveHandler,
     setIsFullscreenEnabled,
     setIsPopupOpen,
-    stopPropagAndResetTimeout
+    stopPropagAndResetTimeout,
+    onTabbingHandler
   };
 };
 

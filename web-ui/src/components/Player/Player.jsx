@@ -48,7 +48,8 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     onMouseMoveHandler,
     setIsFullscreenEnabled,
     setIsPopupOpen,
-    stopPropagAndResetTimeout
+    stopPropagAndResetTimeout,
+    onTabbingHandler
   } = useControls(isPaused, isViewerBanned);
   const { dismissNotif, notifyError } = useNotif();
   const { onClickFullscreenHandler } = useFullscreen({
@@ -175,10 +176,12 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
               className={clsm([
                 PLAYER_OVERLAY_CLASSES,
                 'player-controls-container',
-                'px-10',
+                'px-8',
                 'lg:px-6',
                 'lg:pb-6',
-                'pb-10',
+                'pb-8',
+                'md:px-4',
+                'md:pb-4',
                 'bottom-0'
               ])}
               transition={{ duration: 0.25, type: 'tween' }}
@@ -190,6 +193,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
                 isViewerBanned={isViewerBanned}
                 onClickFullscreenHandler={onClickFullscreenHandler}
                 onControlHoverHandler={onControlHoverHandler}
+                onTabbingHandler={onTabbingHandler}
                 player={livePlayer}
                 selectedQualityName={selectedQualityName}
                 setIsPopupOpen={setIsPopupOpen}

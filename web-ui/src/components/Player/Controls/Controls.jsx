@@ -22,6 +22,7 @@ const Controls = ({
   isViewerBanned,
   onClickFullscreenHandler,
   onControlHoverHandler,
+  onTabbingHandler,
   player,
   selectedQualityName,
   setIsPopupOpen,
@@ -37,7 +38,11 @@ const Controls = ({
     updateVolume,
     volumeLevel
   } = player;
-  const { isMobileView, isLandscape } = useMobileBreakpoint();
+  const { isMobileView, isLandscape, isTouchscreenDevice } =
+    useMobileBreakpoint();
+
+  const mobileSVGOpacity = isTouchscreenDevice && '[&>svg]:fill-white';
+
   const isSplitView = isMobileView && isLandscape;
   const isControlDisabled = !isControlsOpen || isViewerBanned;
 
@@ -64,9 +69,18 @@ const Controls = ({
 
   useEffect(() => {
     /**
-     * This function implements the space bar shortcut to pause or resume playback
+     * This function implements the space bar shortcut to pause or resume playback and
+     * also enables tabbing and shift tabbing for the player
      */
     const onKeyDownHandler = (event) => {
+      if (
+        event.code === 'Tab' ||
+        event.code === 'ShiftLeft' ||
+        event.key === 'Shift' ||
+        event.key === 'Tab'
+      )
+        onTabbingHandler(event);
+
       if (event.code !== 'Space' && event.key !== ' ') return;
 
       if (
@@ -84,7 +98,7 @@ const Controls = ({
     window.addEventListener('keydown', onKeyDownHandler);
 
     return () => window.removeEventListener('keydown', onKeyDownHandler);
-  }, [isPaused, pause, play]);
+  }, [isPaused, pause, play, onTabbingHandler]);
 
   return (
     <div
@@ -96,10 +110,10 @@ const Controls = ({
         'gap-x-4'
       ])}
     >
-      <div className="flex gap-x-4">
+      <div className="flex gap-x-8">
         <button
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
-          className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+          className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
           disabled={isControlDisabled}
           onBlur={onControlHoverHandler}
           onFocus={onControlHoverHandler}
@@ -110,6 +124,7 @@ const Controls = ({
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
+          mobileSVGOpacity={mobileSVGOpacity}
           isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           setIsPopupOpen={setIsPopupOpen}
@@ -118,18 +133,19 @@ const Controls = ({
           volumeLevel={volumeLevel}
         />
       </div>
-      <div className="flex gap-x-4">
+      <div className="flex gap-x-8">
         {isSplitView && (
           <button
             aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}
-            className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
-            disabled={!isControlsOpen} // The split view toggle control remains enabled for banned viewers
+            className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
+            disabled={isControlDisabled} // The split view toggle control remains enabled for banned viewers
             onClick={onClickToggleChat}
           >
             {isChatVisible ? <ChatOpenSVG /> : <ChatClosedSVG />}
           </button>
         )}
         <RenditionSetting
+          mobileSVGOpacity={mobileSVGOpacity}
           isDisabled={isControlDisabled}
           onControlHoverHandler={onControlHoverHandler}
           qualities={qualities}
@@ -142,7 +158,7 @@ const Controls = ({
           aria-label={`${
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
-          className={clsm(CONTROLS_BUTTON_BASE_CLASSES)}
+          className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
           disabled={isControlDisabled}
           onClick={onClickFullscreenHandler}
         >
@@ -167,6 +183,7 @@ Controls.propTypes = {
   isFullscreenEnabled: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   onControlHoverHandler: PropTypes.func.isRequired,
+  onTabbingHandler: PropTypes.func.isRequired,
   player: PropTypes.object.isRequired,
   selectedQualityName: PropTypes.string.isRequired,
   setIsPopupOpen: PropTypes.func.isRequired,

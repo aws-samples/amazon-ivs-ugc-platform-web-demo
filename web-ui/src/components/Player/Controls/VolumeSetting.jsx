@@ -23,6 +23,7 @@ import InputRange from './InputRange';
 
 const VolumeSetting = ({
   isDisabled,
+  mobileSVGOpacity,
   onControlHoverHandler,
   volumeLevel,
   stopPropagAndResetTimeout,
@@ -85,7 +86,8 @@ const VolumeSetting = ({
         } the video volume selector`}
         className={clsm([
           ...CONTROLS_BUTTON_BASE_CLASSES,
-          'transition-transform'
+          'transition-transform',
+          mobileSVGOpacity
         ])}
         disabled={isDisabled}
         onBlur={onControlHoverHandler}
@@ -134,11 +136,13 @@ const VolumeSetting = ({
 
 VolumeSetting.defaultProps = {
   isDisabled: false,
-  volumeLevel: VOLUME_MAX
+  volumeLevel: VOLUME_MAX,
+  mobileSVGOpacity: ''
 };
 
 VolumeSetting.propTypes = {
   isDisabled: PropTypes.bool,
+  mobileSVGOpacity: PropTypes.bool,
   onControlHoverHandler: PropTypes.func.isRequired,
   volumeLevel: PropTypes.number,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,

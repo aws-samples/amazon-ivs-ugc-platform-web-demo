@@ -105,9 +105,7 @@ const Popup = forwardRef(
               alt={`${avatarName || 'Profile'} avatar`}
               draggable={false}
             />
-            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>
-              {username && username.charAt(0).toUpperCase() + username.slice(1)}
-            </p>
+            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{username}</p>
           </Button>
           <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />
 
