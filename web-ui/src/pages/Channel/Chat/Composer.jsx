@@ -25,7 +25,7 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage, sendError }) => {
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid } = useUser();
   const [message, setMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState('');
   const [shouldShake, setShouldShake] = useState(false); // Composer has shake animated only on submit
   const [blockChat, setBlockChat] = useState(false);
   const canSendMessages =
