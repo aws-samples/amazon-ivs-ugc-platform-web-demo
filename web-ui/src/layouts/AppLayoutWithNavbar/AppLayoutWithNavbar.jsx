@@ -51,7 +51,7 @@ const AppLayoutWithNavbar = () => {
                 'w-[calc(100vw_-_64px)]',
                 // Autenticated Sidebar is not visible
                 'md:w-screen',
-                'touch-screen-device:landscape:w-screen'
+                'touch-screen-device:lg:landscape:w-screen'
               ]
             : [
                 // Unautenticated Sidebar is visible

@@ -15,7 +15,7 @@ const Hamburger = ({ isOpen }) => {
       animate: isOpen ? 'opened' : 'closed',
       strokeLinecap: 'round',
       vectorEffect: 'non-scaling-stroke',
-      className: clsm(['stroke-[2.5px]', 'stroke-black', 'dark:stroke-white'])
+      className: clsm(['stroke-[3.5px]', 'stroke-black', 'dark:stroke-white'])
     }),
     [isOpen]
   );
