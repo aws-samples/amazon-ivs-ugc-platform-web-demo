@@ -28,8 +28,9 @@ export const INPUT_BASE_CLASSES = [
   'dark:bg-darkMode-gray-medium',
   'dark:focus:shadow-white',
   'dark:hover:bg-darkMode-gray-medium-hover',
-  'dark:hover:text-darkMode-gray-extraLight',
-  'dark:text-darkMode-gray-light',
+  'dark:hover:placeholder:text-darkMode-gray-extraLight',
+  'dark:placeholder:text-darkMode-gray-light',
+  'dark:text-white',
   'duration-[0.5ms]',
   'ease-in-out',
   'focus:outline-none',
@@ -39,14 +40,15 @@ export const INPUT_BASE_CLASSES = [
   'font-normal',
   'h-[44px]',
   'hover:bg-lightMode-gray-light-hover',
-  'hover:text-lightMode-gray-dark',
+  'hover:placeholder:text-lightMode-gray-dark',
   'min-w-[90px]',
+  'placeholder:text-lightMode-gray-medium',
   'px-5',
   'py-[14px]',
   'read-only:cursor-auto',
   'rounded-3xl',
   'text-[15px]',
-  'text-lightMode-gray-medium',
+  'text-black',
   'transition-all',
   'w-full'
 ];
@@ -56,12 +58,9 @@ export const INPUT_ERROR_CLASSES = ['shadow-darkMode-red', 'shadow-focus'];
 export const INPUT_TYPE_CLASSES = {
   text: [
     ...INPUT_BASE_CLASSES,
-    'dark:text-white',
-    'dark:focus:text-darkMode-gray-light',
     'placeholder-shown:overflow-hidden',
     'placeholder-shown:text-ellipsis',
-    'placeholder-shown:whitespace-nowrap',
-    'focus:text-lightMode-gray-dark'
+    'placeholder-shown:whitespace-nowrap'
   ],
-  password: [...INPUT_BASE_CLASSES, 'dark:text-white']
+  password: INPUT_BASE_CLASSES
 };
