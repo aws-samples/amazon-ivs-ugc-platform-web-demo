@@ -29,12 +29,12 @@ const useControls = (isPaused, isViewerBanned) => {
     }, 3000);
   }, [clearControlsTimeout, closeControls]);
 
-  const resetControls = useCallback(() => {
+  const openControlsResetTimeout = useCallback(() => {
     setIsControlsOpen(true);
     resetControlsTimeout();
   }, [setIsControlsOpen, resetControlsTimeout]);
 
-  const clearControls = useCallback(() => {
+  const openControlsClearTimeout = useCallback(() => {
     setIsControlsOpen(true);
     clearControlsTimeout();
   }, [setIsControlsOpen, clearControlsTimeout]);
@@ -54,20 +54,23 @@ const useControls = (isPaused, isViewerBanned) => {
 
   const onTabbingHandler = useCallback(() => {
     if (isTouchscreenDevice || isPaused) return;
-    resetControls();
-  }, [isTouchscreenDevice, isPaused, resetControls]);
+
+    openControlsResetTimeout();
+  }, [isTouchscreenDevice, isPaused, openControlsResetTimeout]);
 
   const onMouseMoveHandler = useCallback(() => {
     if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
-    isCoveringControlButton ? clearControls() : resetControls();
+    isCoveringControlButton
+      ? openControlsClearTimeout()
+      : openControlsResetTimeout();
   }, [
-    clearControls,
-    isCoveringControlButton,
-    isPaused,
-    resetControls,
     isTouchscreenDevice,
-    isViewerBanned
+    isPaused,
+    isViewerBanned,
+    isCoveringControlButton,
+    openControlsClearTimeout,
+    openControlsResetTimeout
   ]);
 
   const onControlHoverHandler = useCallback(
@@ -75,10 +78,10 @@ const useControls = (isPaused, isViewerBanned) => {
       if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
       if (event.type === 'focus') {
-        resetControls();
+        openControlsResetTimeout();
       } else if (event.type === 'mouseenter') {
         setIsCoveringControlButton(true);
-        clearControls();
+        openControlsClearTimeout();
       } else if (['mouseleave', 'blur'].includes(event.type))
         setIsCoveringControlButton(false);
     },
@@ -86,8 +89,8 @@ const useControls = (isPaused, isViewerBanned) => {
       isTouchscreenDevice,
       isPaused,
       isViewerBanned,
-      clearControls,
-      resetControls
+      openControlsResetTimeout,
+      openControlsClearTimeout
     ]
   );
 
@@ -96,21 +99,21 @@ const useControls = (isPaused, isViewerBanned) => {
     if (!isTouchscreenDevice) return;
 
     if (isPaused || isViewerBanned) {
-      clearControls();
+      openControlsClearTimeout();
     } else if (!timeoutId.current) {
-      resetControls();
+      openControlsResetTimeout();
     } else {
       closeControls();
       clearControlsTimeout();
     }
   }, [
-    clearControlsTimeout,
-    clearControls,
-    closeControls,
-    resetControls,
-    isPaused,
     isTouchscreenDevice,
-    isViewerBanned
+    isPaused,
+    isViewerBanned,
+    openControlsClearTimeout,
+    openControlsResetTimeout,
+    closeControls,
+    clearControlsTimeout
   ]);
 
   // Desktop controls toggling logic

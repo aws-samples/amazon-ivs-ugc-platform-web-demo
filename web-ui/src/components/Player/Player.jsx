@@ -191,11 +191,9 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
                 PLAYER_OVERLAY_CLASSES,
                 'player-controls-container',
                 'px-8',
-                'lg:px-6',
-                'lg:pb-6',
                 'pb-8',
-                'md:px-4',
-                'md:pb-4',
+                'lg:px-4',
+                'lg:pb-4',
                 'bottom-0'
               ])}
               transition={{ duration: 0.25, type: 'tween' }}

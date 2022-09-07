@@ -21,6 +21,8 @@ import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 
 import InputRange from './InputRange';
 
+const MOBILE_INPUT_RANGE_HEIGHT = 112;
+
 const VolumeSetting = ({
   isDisabled,
   className,
@@ -58,10 +60,18 @@ const VolumeSetting = ({
     if (isExpanded && volumeContainerRef?.current) {
       const { height: volumeContainerHeight, width: volumeContainerWidth } =
         volumeContainerRef.current.getBoundingClientRect();
+      const isMobileView = volumeContainerHeight <= MOBILE_INPUT_RANGE_HEIGHT;
+
+      const topPos = isMobileView
+        ? -volumeContainerHeight + 25
+        : -volumeContainerHeight + 45;
+      const leftPos = isMobileView
+        ? -volumeContainerWidth / 2 - 12
+        : -volumeContainerWidth / 2 - 28; // (container width / 2) + (icon width / 2)
 
       setVolumeContainerPos({
-        top: -volumeContainerHeight + 45,
-        left: -volumeContainerWidth / 2 - 28 // (container width / 2) + (icon width / 2)
+        top: topPos,
+        left: leftPos
       });
     } else {
       setVolumeContainerPos(null);
@@ -110,7 +120,8 @@ const VolumeSetting = ({
             'gap-y-2',
             'p-4',
             'rounded-3xl',
-            '-rotate-90'
+            '-rotate-90',
+            'z-20'
           ])}
           id="volume-range-container"
           ref={volumeContainerRef}

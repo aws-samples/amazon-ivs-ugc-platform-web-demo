@@ -22,7 +22,17 @@ const getAnimationProps = (shouldShowPlayerOverlay) => {
 const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => {
   return (
     <>
-      <div className={clsm('flex', 'items-center', 'px-9', 'py-9', 'absolute')}>
+      <div
+        className={clsm(
+          'flex',
+          'items-center',
+          'absolute',
+          'pl-8',
+          'pt-8',
+          'lg:pl-4',
+          'lg:pt-4'
+        )}
+      >
         <PlayerHeaderAvatar color={color} avatar={avatar} />
         <m.div
           className={clsm('flex', 'text-white', 'pl-4', 'z-20')}
@@ -36,11 +46,10 @@ const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => {
         className={clsm([
           PLAYER_OVERLAY_CLASSES,
           'player-header-container',
-          'md:pb-[24px]',
-          'md:portrait:pb-[50px]',
+          'lg:px-4',
+          'lg:pt-4',
           'px-8',
-          'pb-8',
-          'top-0'
+          'pt-8'
         ])}
       ></m.div>
     </>

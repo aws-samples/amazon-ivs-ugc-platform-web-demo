@@ -110,7 +110,7 @@ const Controls = ({
         'gap-x-4'
       ])}
     >
-      <div className="flex gap-x-8">
+      <div className="flex gap-x-4">
         <button
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
@@ -133,7 +133,7 @@ const Controls = ({
           volumeLevel={volumeLevel}
         />
       </div>
-      <div className="flex gap-x-8">
+      <div className="flex gap-x-4">
         {isSplitView && (
           <button
             aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}

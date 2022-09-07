@@ -58,7 +58,8 @@ const InputRange = ({ value, handleChange, max, min, onFocus }) => {
         'bg-grey',
         'form-range',
         'appearance-none',
-        'dark:bg-white'
+        'dark:bg-white',
+        'sm:w-[80px]'
       ])}
       onChange={(e) => handleChange(Number(e.target.value))}
     />
