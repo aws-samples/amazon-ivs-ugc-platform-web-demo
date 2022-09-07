@@ -148,6 +148,7 @@ const RenditionSetting = ({
                 'w-screen'
               ]
             ])}
+            id="rendition-selector-container"
             ref={qualitiesContainerRef}
             style={
               !isMobileView &&

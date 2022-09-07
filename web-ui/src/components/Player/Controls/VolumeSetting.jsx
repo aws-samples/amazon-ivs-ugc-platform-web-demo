@@ -112,6 +112,7 @@ const VolumeSetting = ({
             'rounded-3xl',
             '-rotate-90'
           ])}
+          id="volume-range-container"
           ref={volumeContainerRef}
           style={
             volumeContainerPos && {

@@ -17,6 +17,12 @@ import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 
+const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
+const nonDoubleClickableIds = [
+  'volume-range-container',
+  'rendition-selector-container'
+];
+
 const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const {
     avatar,
@@ -68,8 +74,16 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
 
   const onClickPlayerHandler = useCallback(
     (event) => {
+      const { target } = event;
+
       if (event.detail === 1) mobileClickHandler(event);
-      else if (event.detail === 2) onClickFullscreenHandler(event);
+      else if (
+        event.detail === 2 &&
+        !nonDoubleClickableTags.includes(target.tagName.toLowerCase()) &&
+        !nonDoubleClickableIds.includes(target.id)
+      ) {
+        onClickFullscreenHandler(event);
+      }
     },
     [mobileClickHandler, onClickFullscreenHandler]
   );
