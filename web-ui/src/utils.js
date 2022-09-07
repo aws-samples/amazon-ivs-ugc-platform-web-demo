@@ -243,3 +243,17 @@ export const clsm = (...classes) => {
 
   return customTwMerge(clsx(classes));
 };
+
+/**
+ * Composes functions. Can be used like so:
+ * ```js
+ * compose(fnA, fnB)(initialValue)
+ * ```
+ * More info: https://medium.com/javascript-scene/reduce-composing-software-fe22f0c39a1d
+ * @param  {...function} functions - as many functions as you want to compose
+ * @returns {function} the composed function
+ */
+export const compose =
+  (...functions) =>
+  (fn) =>
+    functions.reduceRight((augmentedFn, fn) => fn(augmentedFn), fn);

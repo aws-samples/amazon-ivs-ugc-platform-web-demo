@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import './UserManagement.css';
-import { clsm } from '../../utils';
 import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
+import { clsm, compose } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
@@ -10,6 +10,7 @@ import Notification from '../../components/Notification';
 import useScrollToTop from '../../hooks/useScrollToTop';
 import useThemeColor from '../../hooks/useThemeColor';
 import withSessionLoader from '../../components/withSessionLoader';
+import withVerticalScroller from '../../components/withVerticalScroller';
 
 const UserManagement = () => {
   const {
@@ -78,4 +79,10 @@ const UserManagement = () => {
   );
 };
 
-export default withSessionLoader(UserManagement, BREAKPOINTS.lg);
+const curriedWithSessionLoader = (component) =>
+  withSessionLoader(component, BREAKPOINTS.lg);
+
+export default compose(
+  curriedWithSessionLoader,
+  withVerticalScroller
+)(UserManagement);

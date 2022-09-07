@@ -1,11 +1,12 @@
+import './StreamHealth.css';
+import { clsm } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useStreams } from '../../contexts/Streams';
+import { WITH_VERTICAL_SCROLLER_BASE_CLASSES } from '../../components/withVerticalScroller/withVerticalScrollerTheme';
 import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import StreamSession from './StreamSession';
 import useScrollToTop from '../../hooks/useScrollToTop';
-import '../../components/withVerticalScroller/withVerticalScroller.css';
-import './StreamHealth.css';
 
 const StreamHealth = () => {
   const { activeStreamSession } = useStreams();
@@ -19,7 +20,12 @@ const StreamHealth = () => {
   return (
     <>
       <Header />
-      <section className="stream-health-section vertical-scroller-container">
+      <section
+        className={clsm([
+          'stream-health-section',
+          ...WITH_VERTICAL_SCROLLER_BASE_CLASSES
+        ])}
+      >
         <StreamSession />
       </section>
       {!isMobileView && <FloatingPlayer />}

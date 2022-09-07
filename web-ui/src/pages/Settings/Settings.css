@@ -62,8 +62,4 @@
   .settings-container label {
     color: var(--palette-color-medium-gray);
   }
-
-  .vertical-scroller-container {
-    @apply bg-white;
-  }
 }
