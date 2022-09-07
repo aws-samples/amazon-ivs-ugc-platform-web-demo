@@ -6,6 +6,7 @@ import { app as $appContent } from '../../../content';
 import { Sensors } from '../../../assets/icons';
 import { useStreams } from '../../../contexts/Streams';
 import { useUser } from '../../../contexts/User';
+import { VOLUME_MIN } from '../../../constants';
 import Button from '../../../components/Button';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
@@ -32,6 +33,7 @@ const FloatingPlayer = () => {
     shouldBlurPlayer,
     videoRef
   } = usePlayer({
+    defaultVolumeLevel: VOLUME_MIN,
     ingestConfiguration: liveSession?.ingestConfiguration,
     isLive,
     playbackUrl: userData?.playbackUrl

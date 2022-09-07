@@ -14,7 +14,12 @@ const {
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
 const { ERROR, AUDIO_BLOCKED } = PlayerEventType;
 
-const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
+const usePlayer = ({
+  defaultVolumeLevel = VOLUME_MAX,
+  ingestConfiguration,
+  isLive,
+  playbackUrl
+}) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const timeoutId = useRef();
@@ -22,7 +27,7 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(true);
-  const [volumeLevel, setVolumeLevel] = useState(VOLUME_MAX);
+  const [volumeLevel, setVolumeLevel] = useState(defaultVolumeLevel);
   const [hasEnded, setHasEnded] = useState(false);
   const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
   const [qualities, setQualities] = useState([{ name: 'Auto' }]);
@@ -148,22 +153,22 @@ const usePlayer = ({ isLive, playbackUrl, ingestConfiguration }) => {
       if (!playerRef.current) create();
 
       playerRef.current.load(playbackUrl);
-      updateVolume(VOLUME_MAX);
+      updateVolume(defaultVolumeLevel);
     },
-    [create, updateVolume]
+    [create, defaultVolumeLevel, updateVolume]
   );
   const reset = useCallback(() => {
     setError(null);
     setIsLoading(true);
     setIsPaused(false);
     setHasEnded(false);
-    setVolumeLevel(VOLUME_MAX);
+    setVolumeLevel(defaultVolumeLevel);
     setHasPlayedFinalBuffer(false);
     setQualities([{ name: 'Auto' }]);
     setHasLoaded(false);
     resetIntervalId();
     destroy();
-  }, [destroy, resetIntervalId]);
+  }, [defaultVolumeLevel, destroy, resetIntervalId]);
 
   const { shouldBlurPlayer, isBlurReady, canvasRef } = usePlayerBlur({
     ingestConfiguration,
