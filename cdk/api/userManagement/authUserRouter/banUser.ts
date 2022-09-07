@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
   DisconnectUserCommand,
   SendEventCommand
@@ -19,19 +19,19 @@ import {
 import { UserContext } from '../authorizer';
 import { getUserByUsername } from '../helpers';
 
-type BanUserRequestBody = { bannedUserId: string | undefined };
+type BanUserRequestBody = { bannedUsername?: string };
 
 const handler = async (
   request: FastifyRequest<{ Body: BanUserRequestBody }>,
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { bannedUserId } = request.body;
+  const { bannedUsername } = request.body;
 
   // Check input
-  if (!bannedUserId) {
+  if (!bannedUsername) {
     console.error(
-      `Missing bannedUserId for the channel owned by the user ${username}`
+      `Missing bannedUsername for the channel owned by the user ${username}`
     );
 
     reply.statusCode = 400;
@@ -39,7 +39,8 @@ const handler = async (
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
   }
 
-  if (bannedUserId === username) {
+  // Disallow users from banning themselves from their own channel
+  if (bannedUsername === username) {
     console.error(
       'A user is not allowed to ban themselves from their own channel'
     );
@@ -50,25 +51,27 @@ const handler = async (
   }
 
   try {
-    const bannedUserData = await getUserByUsername(bannedUserId);
-    const doesBannedUserExist = !!bannedUserData.Count;
+    const { Items: BannedUserItems = [] } = await getUserByUsername(
+      bannedUsername
+    );
 
-    if (!doesBannedUserExist) {
-      console.error(`No user exists with the bannedUserId ${bannedUserId}`);
+    if (!BannedUserItems.length) {
+      console.error(`No user exists with the bannedUsername ${bannedUsername}`);
 
       reply.statusCode = 404;
 
       return reply.send({ __type: USER_NOT_FOUND_EXCEPTION });
     }
 
-    // Add the bannedUserId to the bannedUsers set in the user table
+    // Add the bannedUserSub to the bannedUserSubs set in the user table
+    const { id: bannedUserSub } = unmarshall(BannedUserItems[0]);
     await dynamoDbClient.send(
       new UpdateItemCommand({
         ExpressionAttributeValues: {
-          ':bannedUserId': convertToAttr(new Set([bannedUserId]))
+          ':bannedUserSub': convertToAttr(new Set([bannedUserSub]))
         },
         Key: { id: convertToAttr(sub) },
-        UpdateExpression: 'ADD bannedUsers :bannedUserId',
+        UpdateExpression: 'ADD bannedUserSubs :bannedUserSub',
         TableName: process.env.USER_TABLE_NAME
       })
     );
@@ -81,24 +84,22 @@ const handler = async (
   }
 
   try {
-    const userData = await getUserByUsername(username);
-    const {
-      chatRoomArn: { S: chatRoomArn }
-    } = userData?.Items?.[0] || {};
+    const { Items: UserItems = [] } = await getUserByUsername(username);
+    const { chatRoomArn } = unmarshall(UserItems[0]);
 
     // Disconnect the banned user from the chat room
     await ivsChatClient.send(
       new DisconnectUserCommand({
         reason: 'Kicked by moderator',
         roomIdentifier: chatRoomArn,
-        userId: bannedUserId
+        userId: bannedUsername
       })
     );
 
     // Broadcast an event to delete all messages sent by the banned user to the chat room
     await ivsChatClient.send(
       new SendEventCommand({
-        attributes: { UserId: bannedUserId },
+        attributes: { UserId: bannedUsername },
         eventName: 'app:DELETE_USER_MESSAGES',
         roomIdentifier: chatRoomArn
       })

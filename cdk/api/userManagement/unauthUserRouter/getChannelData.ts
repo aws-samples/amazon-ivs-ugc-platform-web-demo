@@ -39,14 +39,14 @@ const handler = async (
 ) => {
   const { channelOwnerUsername } = request.params;
   const responseBody: GetChannelDataResponseBody = {};
-  let viewerUsername;
+  let viewerSub;
 
   try {
     const { authorization: authorizationToken } = request.headers;
     const isAuthRequest = !!authorizationToken;
 
     if (isAuthRequest) {
-      ({ username: viewerUsername } = await authorizer(request));
+      ({ sub: viewerSub } = await authorizer(request));
     }
   } catch (error) {
     console.error(error);
@@ -66,18 +66,21 @@ const handler = async (
 
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
 
-    const { avatar, bannedUsers, channelArn, color, playbackUrl, username } =
+    const { avatar, bannedUserSubs, channelArn, color, playbackUrl, username } =
       unmarshall(UserItems[0]);
 
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.username = username;
+    responseBody.isViewerBanned = false;
 
-    if (viewerUsername && bannedUsers?.has(viewerUsername)) {
-      // The viewer is banned, so we will only return a subset of the channel data
-      responseBody.isViewerBanned = true;
+    // If the viewer is banned, then only return a subset of the channel data
+    if (viewerSub && bannedUserSubs) {
+      if (bannedUserSubs.has(viewerSub)) {
+        responseBody.isViewerBanned = true;
 
-      return reply.send(responseBody);
+        return reply.send(responseBody);
+      }
     }
 
     // Get the latest stream for this channel, if one exists

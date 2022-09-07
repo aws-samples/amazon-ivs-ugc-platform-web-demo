@@ -5,7 +5,7 @@ import { SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
 
 import {
   ACCOUNT_REGISTRATION_EXCEPTION,
-  BANNED_USERNAMES,
+  RESTRICTED_USERNAMES,
   EMAIL_EXISTS_EXCEPTION,
   RESERVED_USERNAME_EXCEPTION,
   UNEXPECTED_EXCEPTION
@@ -42,8 +42,8 @@ const handler = async (
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
   }
 
-  // Check for banned usernames
-  if (BANNED_USERNAMES.includes(username)) {
+  // Check for restricted usernames
+  if (RESTRICTED_USERNAMES.includes(username)) {
     console.error(`Attempt to register a reserved username: ${username}`);
 
     reply.statusCode = 400;

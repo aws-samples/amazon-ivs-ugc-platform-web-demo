@@ -136,25 +136,25 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
     });
   };
 
-  const banUser = async (bannedUserId) => {
+  const banUser = async (bannedUsername) => {
     if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
       console.error('You do not have permission to ban users on this channel!');
       return;
     }
 
-    const { result, error } = await channelAPI.banUser(bannedUserId);
+    const { result, error } = await channelAPI.banUser(bannedUsername);
 
     if (result) notifySuccess($content.chat.notifications.success.ban_user);
     if (error) notifyError($content.chat.notifications.error.ban_user);
   };
 
-  const unbanUser = async (bannedUserId) => {
+  const unbanUser = async (bannedUsername) => {
     if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
       console.error('You do not have permission to ban users on this channel!');
       return;
     }
 
-    const { result, error } = await channelAPI.unbanUser(bannedUserId);
+    const { result, error } = await channelAPI.unbanUser(bannedUsername);
 
     if (result) notifySuccess($content.chat.notifications.success.unban_user);
     if (error) notifyError($content.chat.notifications.error.unban_user);

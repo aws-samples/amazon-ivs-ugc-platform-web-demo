@@ -2,7 +2,7 @@ import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identi
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
-  BANNED_USERNAMES,
+  RESTRICTED_USERNAMES,
   CHANGE_USERNAME_EXCEPTION,
   RESERVED_USERNAME_EXCEPTION,
   UNEXPECTED_EXCEPTION
@@ -38,7 +38,7 @@ const handler = async (
   }
 
   // Check for banned usernames
-  if (BANNED_USERNAMES.includes(newUsername)) {
+  if (RESTRICTED_USERNAMES.includes(newUsername)) {
     console.error(`Attempt to register a reserved username: ${newUsername}`);
 
     reply.statusCode = 400;

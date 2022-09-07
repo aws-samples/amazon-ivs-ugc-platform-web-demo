@@ -212,7 +212,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"bannedUserId\": \"{{bannedUsername}}\"\n}",
+							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -240,7 +240,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"bannedUserId\": \"{{bannedUsername}}\"\n}",
+							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

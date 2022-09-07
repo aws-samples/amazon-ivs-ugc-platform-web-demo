@@ -1,27 +1,29 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 
 import { dynamoDbClient } from '../../shared/helpers';
+import { getUserByUsername } from '../helpers';
 import {
+  UNBAN_USER_EXCEPTION,
   UNEXPECTED_EXCEPTION,
-  UNBAN_USER_EXCEPTION
+  USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
-type BanUserRequestBody = { bannedUserId: string | undefined };
+type BanUserRequestBody = { bannedUsername?: string };
 
 const handler = async (
   request: FastifyRequest<{ Body: BanUserRequestBody }>,
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { bannedUserId } = request.body;
+  const { bannedUsername } = request.body;
 
   // Check input
-  if (!bannedUserId) {
+  if (!bannedUsername) {
     console.error(
-      `Missing bannedUserId for the channel owned by the user ${username}`
+      `Missing bannedUsername for the channel owned by the user ${username}`
     );
 
     reply.statusCode = 400;
@@ -30,14 +32,27 @@ const handler = async (
   }
 
   try {
-    // Delete the bannedUserId from the bannedUsers set in the user table
+    const { Items: BannedUserItems = [] } = await getUserByUsername(
+      bannedUsername
+    );
+
+    if (!BannedUserItems.length) {
+      console.error(`No user exists with the bannedUsername ${bannedUsername}`);
+
+      reply.statusCode = 404;
+
+      return reply.send({ __type: USER_NOT_FOUND_EXCEPTION });
+    }
+
+    // Delete the bannedUserSub from the bannedUserSubs set in the user table
+    const { id: bannedUserSub } = unmarshall(BannedUserItems[0]);
     await dynamoDbClient.send(
       new UpdateItemCommand({
         ExpressionAttributeValues: {
-          ':bannedUserId': convertToAttr(new Set([bannedUserId]))
+          ':bannedUserSub': convertToAttr(new Set([bannedUserSub]))
         },
         Key: { id: convertToAttr(sub) },
-        UpdateExpression: 'DELETE bannedUsers :bannedUserId',
+        UpdateExpression: 'DELETE bannedUserSubs :bannedUserSub',
         TableName: process.env.USER_TABLE_NAME
       })
     );

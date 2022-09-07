@@ -8,7 +8,6 @@ import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   avatar?: string;
-  bannedUsers?: string[];
   channelResourceId?: string;
   color?: string;
   ingestEndpoint?: string;
@@ -26,7 +25,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const { Item = {} } = await getUser(sub);
     const {
       avatar,
-      bannedUsers,
       channelArn,
       color,
       ingestEndpoint,
@@ -44,7 +42,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         getChannelArnParams(channelArn).resourceId;
     }
     responseBody.avatar = avatar;
-    responseBody.bannedUsers = Array.from(bannedUsers || []);
     responseBody.color = color;
     responseBody.ingestEndpoint = ingestEndpoint;
     responseBody.playbackUrl = playbackUrl;

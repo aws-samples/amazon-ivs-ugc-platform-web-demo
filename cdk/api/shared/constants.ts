@@ -29,7 +29,7 @@ export const STREAM_HEALTH_METRICS_NAMES = [
 export const SEC_PER_HOUR = 3600;
 export const SEC_PER_DAY = SEC_PER_HOUR * 24;
 
-export const BANNED_USERNAMES = [
+export const RESTRICTED_USERNAMES = [
   'health',
   'manager',
   'feed',

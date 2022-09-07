@@ -128,10 +128,10 @@ export const createChatRoomToken = async (
   viewerAttributes?: { displayName?: string; avatar?: string; color?: string },
   capabilities?: (ChatTokenCapability | string)[]
 ) => {
-  let chatRoomArn, bannedUsers;
+  let chatRoomArn, bannedUserSubs;
   const { Items } = await getUserByUsername(chatRoomOwnerUsername);
   if (Items?.length) {
-    ({ chatRoomArn, bannedUsers } = unmarshall(Items[0]));
+    ({ chatRoomArn, bannedUserSubs } = unmarshall(Items[0]));
   } else {
     throw new ChatTokenError(
       `No chat room owner exists with the username ${chatRoomOwnerUsername}`,
@@ -149,12 +149,17 @@ export const createChatRoomToken = async (
   }
 
   const viewerUserId = viewerAttributes?.displayName;
-  if (viewerUserId && bannedUsers?.has(viewerUserId)) {
-    throw new ChatTokenError(
-      `The user ${viewerUserId} is banned from this chat room`,
-      403,
-      FORBIDDEN_EXCEPTION
-    );
+  if (viewerUserId && bannedUserSubs) {
+    const { Items: ViewerItems = [] } = await getUserByUsername(viewerUserId);
+    const { id: viewerSub } = unmarshall(ViewerItems[0]);
+
+    if (bannedUserSubs.has(viewerSub)) {
+      throw new ChatTokenError(
+        `The user ${viewerUserId} is banned from this chat room`,
+        403,
+        FORBIDDEN_EXCEPTION
+      );
+    }
   }
 
   return await ivsChatClient.send(
