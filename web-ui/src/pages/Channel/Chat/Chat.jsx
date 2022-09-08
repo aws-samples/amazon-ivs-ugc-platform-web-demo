@@ -1,11 +1,12 @@
-import PropTypes from 'prop-types';
-import { memo, useCallback } from 'react';
 import { m } from 'framer-motion';
+import { memo, useCallback, useState } from 'react';
+import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../../../constants';
 import { clsm, noop } from '../../../utils';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useUser } from '../../../contexts/User';
+import ChatPopup from './ChatPopup';
 import Composer from './Composer';
 import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
@@ -43,6 +44,14 @@ const Chat = ({
     handleUserDisconnect
   });
   const isLoading = isConnecting || isChannelLoading;
+  const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState({});
+
+  const openChatPopup = useCallback((message, avatar, color, displayName) => {
+    const selectedMessage = { message, avatar, color, displayName };
+    setIsChatPopupOpen(true);
+    setSelectedMessage(selectedMessage);
+  }, []);
 
   return (
     <m.section
@@ -60,6 +69,7 @@ const Chat = ({
       transition={defaultTransition}
       className={clsm([
         'relative',
+        'overflow-hidden',
         'flex',
         'flex-shrink-0',
         'bg-lightMode-gray-light',
@@ -82,6 +92,12 @@ const Chat = ({
         'touch-screen-device:lg:landscape:min-h-[auto]'
       ])}
     >
+      <ChatPopup
+        isOpen={isChatPopupOpen}
+        setIsChatPopupOpen={setIsChatPopupOpen}
+        selectedMessage={selectedMessage}
+        openChatPopup={openChatPopup}
+      />
       <Notification />
       <div
         className={clsm(
@@ -98,7 +114,10 @@ const Chat = ({
         )}
       >
         <ConnectingOverlay isLoading={isLoading} />
-        <Messages chatRoomOwnerUsername={chatRoomOwnerUsername} />
+        <Messages
+          chatRoomOwnerUsername={chatRoomOwnerUsername}
+          openChatPopup={openChatPopup}
+        />
         {isMobileView && !isSessionValid ? (
           <MobileNavbar
             className={clsm(['absolute', 'px-5', 'pt-5', 'pb-6'])}

@@ -1,6 +1,17 @@
 {
   "chat": {
     "say_something": "Say something",
+    "popup": {
+      "delete_message": "Delete message",
+      "ban_user": "Ban user",
+      "cancel": "Cancel"
+    },
+    "modal": {
+      "ban_user_modal": {
+        "confirm_ban_user": "Ban user",
+        "ban_user_message": "Are you sure you would like to ban"
+      }
+    },
     "new_messages": "New messages",
     "notifications": {
       "success": {

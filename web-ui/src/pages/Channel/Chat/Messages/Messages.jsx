@@ -1,14 +1,15 @@
-import PropTypes from 'prop-types';
 import { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../utils';
+import { CHAT_LINE_VARIANT } from '../utils';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
-import ChatLine from './ChatLine';
-import useStickyScroll from '../../../../hooks/useStickyScroll';
+import ChatLine from './ChatLine/ChatLine';
 import StickScrollButton from './StickScrollButton';
+import useStickyScroll from '../../../../hooks/useStickyScroll';
 
-const Messages = ({ chatRoomOwnerUsername }) => {
+const Messages = ({ chatRoomOwnerUsername, openChatPopup }) => {
   const chatRef = useRef();
   const bottomRef = useRef();
   const { messages, initMessages } = useChatMessages();
@@ -58,7 +59,13 @@ const Messages = ({ chatRoomOwnerUsername }) => {
             Id: messageId,
             Sender: { Attributes: senderAttributes }
           }) => (
-            <ChatLine key={messageId} message={message} {...senderAttributes} />
+            <ChatLine
+              key={messageId}
+              message={message}
+              {...senderAttributes}
+              openChatPopup={openChatPopup}
+              variant={CHAT_LINE_VARIANT.MESSAGE}
+            />
           )
         )}
         <div ref={bottomRef} />
@@ -70,6 +77,9 @@ const Messages = ({ chatRoomOwnerUsername }) => {
 
 Messages.defaultProps = { chatRoomOwnerUsername: '' };
 
-Messages.propTypes = { chatRoomOwnerUsername: PropTypes.string };
+Messages.propTypes = {
+  chatRoomOwnerUsername: PropTypes.string,
+  openChatPopup: PropTypes.func.isRequired
+};
 
 export default Messages;

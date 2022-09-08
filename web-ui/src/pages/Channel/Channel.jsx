@@ -1,6 +1,6 @@
+import { useAnimation } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAnimation } from 'framer-motion';
 
 import { BREAKPOINTS } from '../../constants';
 import { clsm } from '../../utils';
