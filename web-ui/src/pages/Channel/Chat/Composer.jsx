@@ -173,15 +173,12 @@ const Composer = ({
             {isLocked && (
               <span
                 className={clsm([
-                  '[&>svg]:h-[21px]',
-                  '[&>svg]:w-4',
+                  '[&>svg]:h-6',
+                  '[&>svg]:w-6',
                   'absolute',
                   'bottom-3',
                   'cursor-not-allowed',
                   'dark:fill-darkMode-gray-light',
-                  'pb-[2px]',
-                  'pt-[1px]',
-                  'px-1',
                   'right-6',
                   'top-3'
                 ])}
