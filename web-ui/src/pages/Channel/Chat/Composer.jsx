@@ -1,24 +1,31 @@
 import PropTypes from 'prop-types';
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { m } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 
-import { channel as $channelContent } from '../../../content';
-import { CHAT_USER_ROLE, SEND_ERRORS } from './utils';
-import { clsm } from '../../../utils';
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
-import { useUser } from '../../../contexts/User';
-import Input from '../../../components/Input';
-import FloatingNav from '../../../components/FloatingNav';
-import ComposerErrorMessage from './ComposerErrorMessage';
 import {
   COMPOSER_MAX_CHARACTER_LENGTH,
   COMPOSER_RATE_LIMIT_BLOCK_TIME_MS
 } from '../../../constants';
+import { channel as $channelContent } from '../../../content';
+import { CHAT_USER_ROLE, SEND_ERRORS } from './utils';
+import { clsm } from '../../../utils';
+import { Lock } from '../../../assets/icons';
+import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useUser } from '../../../contexts/User';
+import ComposerErrorMessage from './ComposerErrorMessage';
+import FloatingNav from '../../../components/FloatingNav';
+import Input from '../../../components/Input';
 
 const $content = $channelContent.chat;
 
-const Composer = ({ chatUserRole, isDisabled, sendMessage, sendError }) => {
+const Composer = ({
+  chatUserRole,
+  isDisabled,
+  isLocked,
+  sendError,
+  sendMessage
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const composerFieldRef = useRef();
@@ -39,6 +46,11 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage, sendError }) => {
       composerFieldRef.current.focus();
     }
   }, [focus]);
+
+  useEffect(() => {
+    // If user is banned, remove any message
+    if (isLocked) setMessage('');
+  }, [isLocked]);
 
   useEffect(() => {
     const blockChatTimer = () => {
@@ -144,15 +156,39 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage, sendError }) => {
                   'dark:focus:shadow-focus',
                   'rounded-b-3xl',
                   'rounded-t-none'
-                ]
+                ],
+                isLocked && ['pr-[60px]', 'read-only:cursor-not-allowed'],
+                isDisabled && ['opacity-30']
               )}
-              placeholder={$content.say_something}
+              placeholder={
+                isLocked ? $content.you_are_banned : $content.say_something
+              }
               onChange={handleOnChange}
               value={message}
-              isDisabled={isDisabled}
               isRequired={false}
               error={errorMessage ? '' : null}
+              readOnly={isDisabled || isLocked}
+              ariaLabel={isDisabled ? 'Chat disabled' : null}
             />
+            {isLocked && (
+              <span
+                className={clsm([
+                  '[&>svg]:h-[21px]',
+                  '[&>svg]:w-4',
+                  'absolute',
+                  'bottom-3',
+                  'cursor-not-allowed',
+                  'dark:fill-darkMode-gray-light',
+                  'pb-[2px]',
+                  'pt-[1px]',
+                  'px-1',
+                  'right-6',
+                  'top-3'
+                ])}
+              >
+                <Lock />
+              </span>
+            )}
           </div>
         </form>
       </m.div>
@@ -164,12 +200,14 @@ const Composer = ({ chatUserRole, isDisabled, sendMessage, sendError }) => {
 Composer.defaultProps = {
   chatUserRole: undefined,
   isDisabled: false,
+  isLocked: false,
   sendError: null
 };
 
 Composer.propTypes = {
   chatUserRole: PropTypes.oneOf(Object.values(CHAT_USER_ROLE)),
   isDisabled: PropTypes.bool,
+  isLocked: PropTypes.bool,
   sendMessage: PropTypes.func.isRequired,
   sendError: PropTypes.shape({
     message: PropTypes.string

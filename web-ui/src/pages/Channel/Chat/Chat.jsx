@@ -37,7 +37,6 @@ const Chat = ({
   const handleDeleteMessage = useCallback(noop, []); // Temporary
   const handleDeleteUserMessages = useCallback(noop, []); // Temporary
   const handleUserDisconnect = useCallback(noop, []); // Temporary
-
   const {
     chatUserRole,
     hasConnectionError,
@@ -140,10 +139,11 @@ const Chat = ({
           />
         ) : (
           <Composer
-            isDisabled={hasConnectionError}
             chatUserRole={chatUserRole}
             sendMessage={sendMessage}
             sendError={sendError}
+            isLocked={isViewerBanned}
+            isDisabled={hasConnectionError}
           />
         )}
       </div>

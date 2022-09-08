@@ -16,6 +16,7 @@ export { ReactComponent as Feed } from './feed.svg';
 export { ReactComponent as FullScreen } from './fullscreen.svg';
 export { ReactComponent as FullScreenExit } from './fullscreen-exit.svg';
 export { ReactComponent as Home } from './home.svg';
+export { ReactComponent as Lock } from './lock.svg';
 export { ReactComponent as Logout } from './logout.svg';
 export { ReactComponent as Mute } from './mute.svg';
 export { ReactComponent as NoData } from './no-data.svg';

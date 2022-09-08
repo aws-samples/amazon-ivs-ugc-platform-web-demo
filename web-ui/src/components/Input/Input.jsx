@@ -16,6 +16,7 @@ import {
 const Input = forwardRef(
   (
     {
+      ariaLabel,
       autoCapitalize,
       autoComplete,
       autoCorrect,
@@ -69,12 +70,13 @@ const Input = forwardRef(
             {...(onClick ? { onClick } : {})}
             {...(onFocus ? { onFocus } : {})}
             {...(onBlur ? { onBlur } : {})}
+            aria-disabled={readOnly}
+            aria-label={ariaLabel}
             className={inputClasses}
             id={name}
             initial-type={initialType}
             name={name}
             placeholder={placeholder}
-            readOnly={readOnly}
             required={isRequired}
             style={
               initialType === 'password' && value
@@ -86,6 +88,7 @@ const Input = forwardRef(
             autoCorrect={autoCorrect}
             autoCapitalize={autoCapitalize}
             autoComplete={autoComplete}
+            readOnly={readOnly}
           />
           <ErrorMessage error={error} />
           <PasswordPeekButton
@@ -106,6 +109,7 @@ const Input = forwardRef(
 );
 
 Input.defaultProps = {
+  ariaLabel: '',
   autoCapitalize: 'none',
   autoComplete: 'on',
   autoCorrect: 'off',
@@ -129,6 +133,7 @@ Input.defaultProps = {
 
 Input.propTypes = {
   autoCapitalize: PropTypes.string,
+  ariaLabel: PropTypes.string,
   autoComplete: PropTypes.string,
   autoCorrect: PropTypes.string,
   className: PropTypes.string,

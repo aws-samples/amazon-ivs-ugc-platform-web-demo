@@ -13,6 +13,7 @@
       }
     },
     "new_messages": "New messages",
+    "you_are_banned": "You are banned from this channel",
     "notifications": {
       "success": {
         "ban_user": "User banned from channel",
