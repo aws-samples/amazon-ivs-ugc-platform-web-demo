@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import { useRef, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
+import './InputRange.css';
 import { clsm, noop } from '../../../../utils';
 import useMediaQuery from '../../../../hooks/useMediaQuery';
-import './InputRange.css';
 
 const volumeDark = {
   track: 'var(--palette-color-white)',
@@ -14,29 +14,25 @@ const volumeLight = {
   offset: 'var(--palette-color-gray)'
 };
 
-const InputRange = ({ value, handleChange, max, min, onFocus }) => {
+const InputRange = ({ value, updateVolume, max, min }) => {
   const inputRef = useRef(null);
-  const preferedColorSchemeDark = useMediaQuery('(prefers-color-scheme: dark)');
-
-  const convertInputValue = (value) => {
-    return ((Number(value) - min) / (max - min)) * 100;
-  };
+  const prefersColorSchemeDark = useMediaQuery('(prefers-color-scheme: dark)');
 
   const updateVolumeGradient = useCallback(
     (value) => {
-      if (preferedColorSchemeDark) {
+      if (prefersColorSchemeDark) {
         return `linear-gradient(to right, ${volumeDark.track} 0%, ${volumeDark.track} ${value}%, ${volumeDark.offset} ${value}%, ${volumeDark.offset} 100%)`;
       } else {
         return `linear-gradient(to right, ${volumeLight.track} 0%, ${volumeLight.track} ${value}%, ${volumeLight.offset} ${value}%, ${volumeLight.offset} 100%)`;
       }
     },
-    [preferedColorSchemeDark]
+    [prefersColorSchemeDark]
   );
 
-  const handleInputChange = (event) => {
-    const value = convertInputValue(event.target.value);
-    inputRef.current.style.background = updateVolumeGradient(value);
-  };
+  const handleInputChange = useCallback(
+    (event) => updateVolume(Number(event.target.value)),
+    [updateVolume]
+  );
 
   useEffect(() => {
     inputRef.current.style.background = updateVolumeGradient(value);
@@ -44,42 +40,38 @@ const InputRange = ({ value, handleChange, max, min, onFocus }) => {
 
   return (
     <input
-      ref={inputRef}
-      onInput={handleInputChange}
-      type="range"
-      min={min.toString()}
-      max={max.toString()}
-      value={value}
-      onFocus={onFocus}
       className={clsm([
-        'w-[110px]',
+        'appearance-none',
+        'bg-grey',
+        'dark:bg-white',
+        'form-range',
         'h-[8px]',
         'rounded-full',
-        'bg-grey',
-        'form-range',
-        'appearance-none',
-        'dark:bg-white',
-        'sm:w-[80px]'
+        'sm:w-[80px]',
+        'w-[110px]'
       ])}
-      onChange={(e) => handleChange(Number(e.target.value))}
+      max={max.toString()}
+      min={min.toString()}
+      onInput={handleInputChange}
+      ref={inputRef}
+      type="range"
+      value={value}
     />
   );
 };
 
 InputRange.propTypes = {
-  value: PropTypes.number,
-  handleChange: PropTypes.func,
   max: PropTypes.number,
   min: PropTypes.number,
-  onFocus: PropTypes.func
+  updateVolume: PropTypes.func,
+  value: PropTypes.number
 };
 
 InputRange.defaultProps = {
-  value: 100,
-  handleChange: noop,
   max: 100,
   min: 0,
-  onFocus: noop
+  updateVolume: noop,
+  value: 100
 };
 
 export default InputRange;

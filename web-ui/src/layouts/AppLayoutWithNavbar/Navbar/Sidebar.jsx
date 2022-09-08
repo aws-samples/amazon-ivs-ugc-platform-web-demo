@@ -16,6 +16,7 @@ const $content = $appContent.navbar;
 const Sidebar = () => {
   const { userData, isSessionValid } = useUser();
   const { avatar: avatarName } = userData || {};
+  const hasAvatar = !!avatars[avatarName];
   const currentPage = useCurrentPage();
 
   const renderWithTooltip = (component, message) =>
@@ -166,14 +167,20 @@ const Sidebar = () => {
                   'hover:shadow-hoverOuter',
                   '[&>img]:rounded-full'
                 ],
-                isOpen && 'shadow-focusOuter'
+                isOpen && 'shadow-focusOuter',
+                !hasAvatar && [
+                  'bg-lightMode-gray-light',
+                  'dark:bg-darkMode-gray',
+                  'dark:hover:bg-darkMode-gray-hover',
+                  'hover:bg-lightMode-gray-light-hover'
+                ]
               )}
               onClick={() => toggle()}
               variant="icon"
               ref={toggleRef}
               data-test-id="sidebar-avatar"
             >
-              {!!avatars[avatarName] && (
+              {hasAvatar && (
                 <img
                   src={avatars[avatarName]}
                   alt={`${avatarName || 'Profile'} avatar`}

@@ -7,7 +7,8 @@ const useControls = (isPaused, isViewerBanned) => {
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
   const { isTouchscreenDevice } = useMobileBreakpoint();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [openPopupIds, setOpenPopupIds] = useState([]);
+  const isPopupOpen = !!openPopupIds.length;
   const timeoutId = useRef(null);
 
   const clearControlsTimeout = useCallback(() => {
@@ -52,12 +53,6 @@ const useControls = (isPaused, isViewerBanned) => {
     [isTouchscreenDevice, resetControlsTimeout]
   );
 
-  const onTabbingHandler = useCallback(() => {
-    if (isTouchscreenDevice || isPaused) return;
-
-    openControlsResetTimeout();
-  }, [isTouchscreenDevice, isPaused, openControlsResetTimeout]);
-
   const onMouseMoveHandler = useCallback(() => {
     if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
@@ -73,7 +68,7 @@ const useControls = (isPaused, isViewerBanned) => {
     openControlsResetTimeout
   ]);
 
-  const onControlHoverHandler = useCallback(
+  const handleControlsVisibility = useCallback(
     (event) => {
       if (isTouchscreenDevice || isPaused || isViewerBanned) return;
 
@@ -94,7 +89,7 @@ const useControls = (isPaused, isViewerBanned) => {
     ]
   );
 
-  // Mobile controls toggling logic
+  // Mobile controls on tap logic
   const mobileClickHandler = useCallback(() => {
     if (!isTouchscreenDevice) return;
 
@@ -116,40 +111,32 @@ const useControls = (isPaused, isViewerBanned) => {
     clearControlsTimeout
   ]);
 
-  // Desktop controls toggling logic
+  // Controls timeout toggling logic
   useEffect(() => {
-    if (isTouchscreenDevice) return;
-
     if (isPaused || isViewerBanned) {
-      clearControlsTimeout();
-      setIsControlsOpen(true);
+      openControlsClearTimeout();
     } else {
       resetControlsTimeout();
     }
   }, [
-    clearControlsTimeout,
     isPaused,
     isTouchscreenDevice,
     isViewerBanned,
+    openControlsClearTimeout,
     resetControlsTimeout
   ]);
 
-  useEffect(() => {
-    if (isTouchscreenDevice) {
-      mobileClickHandler();
-    }
-  }, [mobileClickHandler, isTouchscreenDevice]);
-
   return {
+    handleControlsVisibility,
     isControlsOpen,
     isFullscreenEnabled,
+    isPopupOpen,
     mobileClickHandler,
-    onControlHoverHandler,
     onMouseMoveHandler,
+    openPopupIds,
     setIsFullscreenEnabled,
-    setIsPopupOpen,
-    stopPropagAndResetTimeout,
-    onTabbingHandler
+    setOpenPopupIds,
+    stopPropagAndResetTimeout
   };
 };
 

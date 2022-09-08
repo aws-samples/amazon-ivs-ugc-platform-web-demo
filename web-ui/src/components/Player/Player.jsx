@@ -7,6 +7,7 @@ import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
+import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useNotif } from '../../contexts/Notification';
 import Controls from './Controls';
 import Notification from '../Notification';
@@ -15,7 +16,7 @@ import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import usePrevious from '../../hooks/usePrevious';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -47,15 +48,16 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     videoRef
   } = livePlayer;
   const {
+    handleControlsVisibility,
     isControlsOpen,
     isFullscreenEnabled,
+    isPopupOpen,
     mobileClickHandler,
-    onControlHoverHandler,
     onMouseMoveHandler,
+    openPopupIds,
     setIsFullscreenEnabled,
-    setIsPopupOpen,
-    stopPropagAndResetTimeout,
-    onTabbingHandler
+    setOpenPopupIds,
+    stopPropagAndResetTimeout
   } = useControls(isPaused, isViewerBanned);
   const { dismissNotif, notifyError } = useNotif();
   const { onClickFullscreenHandler } = useFullscreen({
@@ -65,6 +67,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     setIsFullscreenEnabled,
     stopPropagAndResetTimeout
   });
+  const prevIsPopupOpen = usePrevious(isPopupOpen);
 
   const hasError = !!error;
   const isChannelAvailable = !!channelData;
@@ -76,8 +79,12 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     (event) => {
       const { target } = event;
 
-      if (event.detail === 1) mobileClickHandler(event);
-      else if (
+      // This condition ensures that the first tap on mobile closes any open popup before closing the controls with a second tap
+      if (event.detail === 1 && prevIsPopupOpen && !isPopupOpen) {
+        return setOpenPopupIds([]);
+      } else if (event.detail === 1) {
+        mobileClickHandler();
+      } else if (
         event.detail === 2 &&
         !nonDoubleClickableTags.includes(target.tagName.toLowerCase()) &&
         !nonDoubleClickableIds.includes(target.id)
@@ -85,7 +92,21 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         onClickFullscreenHandler(event);
       }
     },
-    [mobileClickHandler, onClickFullscreenHandler]
+    [
+      isPopupOpen,
+      mobileClickHandler,
+      onClickFullscreenHandler,
+      prevIsPopupOpen,
+      setOpenPopupIds
+    ]
+  );
+  // This function prevents click events to be triggered on the controls while the controls are hidden
+  const onClickCaptureControlsHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
+      onClickPlayerHandler(event);
+    },
+    [onClickPlayerHandler]
   );
 
   useEffect(() => {
@@ -199,20 +220,26 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
               transition={{ duration: 0.25, type: 'tween' }}
             >
               <Controls
+                handleControlsVisibility={handleControlsVisibility}
                 isChatVisible={isChatVisible}
                 isControlsOpen={isControlsOpen}
                 isFullscreenEnabled={isFullscreenEnabled}
                 isViewerBanned={isViewerBanned}
                 onClickFullscreenHandler={onClickFullscreenHandler}
-                onControlHoverHandler={onControlHoverHandler}
-                onTabbingHandler={onTabbingHandler}
+                openPopupIds={openPopupIds}
                 player={livePlayer}
                 selectedQualityName={selectedQualityName}
-                setIsPopupOpen={setIsPopupOpen}
+                setOpenPopupIds={setOpenPopupIds}
                 stopPropagAndResetTimeout={stopPropagAndResetTimeout}
                 toggleChat={toggleChat}
               />
             </m.div>
+            {!isControlsOpen && (
+              <div
+                className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}
+                onClickCapture={onClickCaptureControlsHandler}
+              ></div>
+            )}
           </div>
         </>
       ) : (

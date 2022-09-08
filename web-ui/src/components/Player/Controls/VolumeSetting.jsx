@@ -1,60 +1,54 @@
-import {
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useEffect
-} from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-
-import { clsm } from '../../../utils';
-import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import useClickAway from '../../../hooks/useClickAway';
 
 import {
   VolumeHigh as VolumeHighSvg,
   VolumeMedium as VolumeMediumSvg,
   VolumeLow as VolumeLowSvg
 } from '../../../assets/icons';
-
+import { clsm } from '../../../utils';
+import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
-
 import InputRange from './InputRange';
+import useClickAway from '../../../hooks/useClickAway';
 
 const MOBILE_INPUT_RANGE_HEIGHT = 112;
+export const POPUP_ID = 'volume';
 
 const VolumeSetting = ({
-  isDisabled,
   className,
-  onControlHoverHandler,
-  volumeLevel,
+  controlsVisibilityProps,
+  isDisabled,
+  isExpanded,
+  setOpenPopupIds,
   stopPropagAndResetTimeout,
   updateVolume,
-  setIsPopupOpen
+  volumeLevel
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [volumeContainerPos, setVolumeContainerPos] = useState(null);
   const volumeContainerRef = useRef();
   const settingsButtonRef = useRef();
 
   const closeVolumeContainer = useCallback(() => {
-    setIsExpanded(false);
-    setIsPopupOpen(false);
-  }, [setIsPopupOpen]);
+    setOpenPopupIds((prev) => {
+      if (prev.includes(POPUP_ID)) return prev.filter((id) => id !== POPUP_ID);
 
-  const onClickRenditionSettingHandler = useCallback(
+      return prev;
+    });
+  }, [setOpenPopupIds]);
+
+  const onClickVolumeSettingHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
-      setIsExpanded((prev) => !prev);
+      setOpenPopupIds((prev) => {
+        if (!prev.includes(POPUP_ID)) return [...prev, POPUP_ID];
+        else return prev.filter((id) => id !== POPUP_ID);
+      });
     },
-    [stopPropagAndResetTimeout]
+    [setOpenPopupIds, stopPropagAndResetTimeout]
   );
 
   useClickAway([volumeContainerRef, settingsButtonRef], closeVolumeContainer);
-
-  useEffect(() => {
-    setIsPopupOpen(isExpanded);
-  }, [isExpanded, setIsPopupOpen]);
 
   useLayoutEffect(() => {
     if (isExpanded && volumeContainerRef?.current) {
@@ -67,7 +61,7 @@ const VolumeSetting = ({
         : -volumeContainerHeight + 45;
       const leftPos = isMobileView
         ? -volumeContainerWidth / 2 - 12
-        : -volumeContainerWidth / 2 - 28; // (container width / 2) + (icon width / 2)
+        : -volumeContainerWidth / 2 - 27;
 
       setVolumeContainerPos({
         top: topPos,
@@ -91,6 +85,7 @@ const VolumeSetting = ({
   return (
     <div className={clsm(['flex', 'relative'])}>
       <button
+        {...controlsVisibilityProps}
         aria-label={`${
           isExpanded ? 'Close' : 'Open'
         } the video volume selector`}
@@ -100,11 +95,7 @@ const VolumeSetting = ({
           className
         ])}
         disabled={isDisabled}
-        onBlur={onControlHoverHandler}
-        onFocus={onControlHoverHandler}
-        onMouseEnter={onControlHoverHandler}
-        onMouseLeave={onControlHoverHandler}
-        onClick={onClickRenditionSettingHandler}
+        onClick={onClickVolumeSettingHandler}
         ref={settingsButtonRef}
       >
         {getVolumeSVG()}
@@ -133,12 +124,10 @@ const VolumeSetting = ({
           }
         >
           <InputRange
-            onFocus={onControlHoverHandler}
-            value={volumeLevel}
-            handleChange={updateVolume}
             max={VOLUME_MAX}
             min={VOLUME_MIN}
-            name={'volume'}
+            updateVolume={updateVolume}
+            value={volumeLevel}
           />
         </div>
       )}
@@ -147,19 +136,21 @@ const VolumeSetting = ({
 };
 
 VolumeSetting.defaultProps = {
+  className: '',
   isDisabled: false,
-  volumeLevel: VOLUME_MAX,
-  className: ''
+  isExpanded: false,
+  volumeLevel: VOLUME_MAX
 };
 
 VolumeSetting.propTypes = {
-  isDisabled: PropTypes.bool,
   className: PropTypes.string,
-  onControlHoverHandler: PropTypes.func.isRequired,
-  volumeLevel: PropTypes.number,
+  controlsVisibilityProps: PropTypes.object.isRequired,
+  isDisabled: PropTypes.bool,
+  isExpanded: PropTypes.bool,
+  setOpenPopupIds: PropTypes.func.isRequired,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,
   updateVolume: PropTypes.func.isRequired,
-  setIsPopupOpen: PropTypes.func.isRequired
+  volumeLevel: PropTypes.number
 };
 
 export default VolumeSetting;

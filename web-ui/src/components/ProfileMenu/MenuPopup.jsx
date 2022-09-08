@@ -1,18 +1,19 @@
-import PropTypes from 'prop-types';
 import { Fragment, forwardRef, useMemo } from 'react';
 import { m } from 'framer-motion';
+import PropTypes from 'prop-types';
 
-import { app as $appContent } from '../../content';
 import {
   HAIRLINE_DIVIDER_CLASSES,
   MENU_BUTTON_CLASSES,
   MENU_BUTTON_TEXT_CLASSES
 } from './ProfileMenuTheme';
+import { app as $appContent } from '../../content';
 import { clsm } from '../../utils';
 import { Logout } from '../../assets/icons';
 import { useUser } from '../../contexts/User';
 import * as avatars from '../../assets/avatars';
 import Button from '../Button';
+import UserAvatar from '../UserAvatar';
 import withPortal from '../withPortal';
 
 const $content = $appContent.navbar;
@@ -26,6 +27,7 @@ const Popup = forwardRef(
       color: profileColor,
       username
     } = userData || {};
+    const hasAvatar = !!avatars[avatarName];
 
     const commonMenuButtonProps = useMemo(
       () => ({
@@ -75,37 +77,30 @@ const Popup = forwardRef(
         >
           <Button
             {...commonMenuButtonProps}
-            className={clsm(MENU_BUTTON_CLASSES, [
-              'px-3',
-              'py-2.5',
-              'h-auto',
-              '[&>img]:hover:rounded-lg',
-              '[&>img]:focus:rounded-lg'
-            ])}
+            className={clsm(
+              MENU_BUTTON_CLASSES,
+              [
+                'px-3',
+                'py-2.5',
+                'h-auto',
+                '[&>*]:hover:rounded-lg',
+                '[&>*]:focus:rounded-lg'
+              ],
+              !hasAvatar && [
+                '[&>div]:bg-lightMode-gray-light',
+                '[&>div]:hover:bg-lightMode-gray-light-hover',
+                'dark:[&>div]:bg-darkMode-gray',
+                'dark:[&>div]:hover:bg-darkMode-gray-hover'
+              ]
+            )}
             to={`/${username}`}
             type="nav"
             data-test-id="profileMenu-avatar"
           >
-            <img
-              className={clsm(
-                [
-                  'w-11',
-                  'h-11',
-                  'border-2',
-                  'rounded-[22px]',
-                  'transition-all',
-                  'bg-lightMode-gray-extraLight',
-                  'dark:bg-darkMode-gray-medium'
-                ],
-                profileColor
-                  ? `border-profile-${profileColor}`
-                  : 'border-profile'
-              )}
-              src={avatars[avatarName]}
-              alt={`${avatarName || 'Profile'} avatar`}
-              draggable={false}
-            />
-            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{username}</p>
+            <UserAvatar avatarName={avatarName} profileColor={profileColor} />
+            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>
+              {username || $content.profile}
+            </p>
           </Button>
           <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />
 

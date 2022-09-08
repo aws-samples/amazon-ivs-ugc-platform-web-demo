@@ -10,7 +10,8 @@
     "feed": "Feed",
     "following": "Following",
     "stream_health": "Stream health",
-    "stream_manager": "Stream manager"
+    "stream_manager": "Stream manager",
+    "profile": "Profile"
   },
   "modal": {
     "cancel": "Cancel"

@@ -3,7 +3,7 @@ import { decode } from 'html-entities';
 import { m } from 'framer-motion';
 
 import { clsm } from '../../../../utils';
-import * as avatars from '../../../../assets/avatars';
+import UserAvatar from '../../../../components/UserAvatar';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
@@ -33,15 +33,7 @@ const ChatLine = ({ message, avatar, color, displayName }) => (
       'origin-top-left'
     ])}
   >
-    <img
-      className={clsm(
-        ['w-7', 'h-7', 'rounded-[14px]', 'border-2'],
-        color ? `border-profile-${color}` : 'border-profile'
-      )}
-      src={avatars[avatar]}
-      alt={`${avatar || 'Profile'} avatar`}
-      draggable={false}
-    />
+    <UserAvatar avatarName={avatar} profileColor={color} size="sm" />
     <p
       className={clsm([
         'p1',

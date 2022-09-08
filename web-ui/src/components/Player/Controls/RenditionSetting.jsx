@@ -17,34 +17,43 @@ import Button from '../../Button';
 import useClickAway from '../../../hooks/useClickAway';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
+export const POPUP_ID = 'rendition';
 
 const RenditionSetting = ({
-  isDisabled,
   className,
-  onControlHoverHandler,
+  controlsVisibilityProps,
+  isDisabled,
+  isExpanded,
   qualities,
   selectedQualityName,
-  setIsPopupOpen,
+  setOpenPopupIds,
   stopPropagAndResetTimeout,
   updateQuality
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
   const qualitiesContainerRef = useRef();
   const settingsButtonRef = useRef();
   const { isMobileView } = useMobileBreakpoint();
 
   const closeQualitiesContainer = useCallback(() => {
-    setIsExpanded(false);
-    setIsPopupOpen(false);
-  }, [setIsPopupOpen]);
+    setOpenPopupIds((prev) => {
+      if (prev.includes(POPUP_ID)) return prev.filter((id) => id !== POPUP_ID);
+
+      return prev;
+    });
+  }, [setOpenPopupIds]);
+
   const onClickRenditionSettingHandler = useCallback(
     (event) => {
       stopPropagAndResetTimeout(event);
-      setIsExpanded((prev) => !prev);
+      setOpenPopupIds((prev) => {
+        if (!prev.includes(POPUP_ID)) return [...prev, POPUP_ID];
+        else return prev.filter((id) => id !== POPUP_ID);
+      });
     },
-    [stopPropagAndResetTimeout]
+    [setOpenPopupIds, stopPropagAndResetTimeout]
   );
+
   const onSelectQualityHandler = useCallback(
     (event) => {
       const { name } = event.target;
@@ -82,13 +91,10 @@ const RenditionSetting = ({
     closeQualitiesContainer();
   }, [closeQualitiesContainer, isMobileView]);
 
-  useEffect(() => {
-    setIsPopupOpen(isExpanded);
-  }, [isExpanded, setIsPopupOpen]);
-
   return (
     <div className={clsm(['flex', 'relative'])}>
       <button
+        {...controlsVisibilityProps}
         aria-label={`${
           isExpanded ? 'Close' : 'Open'
         } the video quality selector`}
@@ -99,10 +105,6 @@ const RenditionSetting = ({
           className
         ])}
         disabled={isDisabled}
-        onBlur={onControlHoverHandler}
-        onFocus={onControlHoverHandler}
-        onMouseEnter={onControlHoverHandler}
-        onMouseLeave={onControlHoverHandler}
         onClick={onClickRenditionSettingHandler}
         ref={settingsButtonRef}
       >
@@ -248,17 +250,19 @@ const RenditionSetting = ({
 
 RenditionSetting.defaultProps = {
   isDisabled: false,
+  isExpanded: false,
   qualities: [{ name: 'Auto' }],
   className: ''
 };
 
 RenditionSetting.propTypes = {
-  isDisabled: PropTypes.bool,
   className: PropTypes.string,
-  onControlHoverHandler: PropTypes.func.isRequired,
+  controlsVisibilityProps: PropTypes.object.isRequired,
+  isDisabled: PropTypes.bool,
+  isExpanded: PropTypes.bool,
   qualities: PropTypes.arrayOf(PropTypes.object),
   selectedQualityName: PropTypes.string.isRequired,
-  setIsPopupOpen: PropTypes.func.isRequired,
+  setOpenPopupIds: PropTypes.func.isRequired,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,
   updateQuality: PropTypes.func.isRequired
 };

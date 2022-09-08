@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -12,20 +12,24 @@ import {
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
-import RenditionSetting from './RenditionSetting';
-import VolumeSetting from './VolumeSetting';
+import RenditionSetting, {
+  POPUP_ID as RENDITION_SETTING_POPUP_ID
+} from './RenditionSetting';
+import VolumeSetting, {
+  POPUP_ID as VOLUME_SETTING_POPUP_ID
+} from './VolumeSetting';
 
 const Controls = ({
+  handleControlsVisibility,
   isChatVisible,
   isControlsOpen,
   isFullscreenEnabled,
   isViewerBanned,
   onClickFullscreenHandler,
-  onControlHoverHandler,
-  onTabbingHandler,
+  openPopupIds,
   player,
   selectedQualityName,
-  setIsPopupOpen,
+  setOpenPopupIds,
   stopPropagAndResetTimeout,
   toggleChat
 }) => {
@@ -40,11 +44,23 @@ const Controls = ({
   } = player;
   const { isMobileView, isLandscape, isTouchscreenDevice } =
     useMobileBreakpoint();
-
   const mobileSVGOpacity = isTouchscreenDevice ? '[&>svg]:fill-white' : '';
-
   const isSplitView = isMobileView && isLandscape;
-  const isControlDisabled = !isControlsOpen || isViewerBanned;
+  const controlsVisibilityProps = useMemo(
+    () => ({
+      onBlur: handleControlsVisibility,
+      onFocus: handleControlsVisibility,
+      onMouseEnter: handleControlsVisibility,
+      onMouseLeave: handleControlsVisibility
+    }),
+    [handleControlsVisibility]
+  );
+  const isVolumeSettingPopupExpanded = !!openPopupIds.find(
+    (openPopupId) => openPopupId === VOLUME_SETTING_POPUP_ID
+  );
+  const isRenditionSettingPopupExpanded = !!openPopupIds.find(
+    (openPopupId) => openPopupId === RENDITION_SETTING_POPUP_ID
+  );
 
   const onClickPlayPauseHandler = useCallback(
     (event) => {
@@ -69,18 +85,9 @@ const Controls = ({
 
   useEffect(() => {
     /**
-     * This function implements the space bar shortcut to pause or resume playback and
-     * also enables tabbing and shift tabbing for the player
+     * This function implements the space bar shortcut to pause or resume playback
      */
     const onKeyDownHandler = (event) => {
-      if (
-        event.code === 'Tab' ||
-        event.code === 'ShiftLeft' ||
-        event.key === 'Shift' ||
-        event.key === 'Tab'
-      )
-        onTabbingHandler(event);
-
       if (event.code !== 'Space' && event.key !== ' ') return;
 
       if (
@@ -98,7 +105,7 @@ const Controls = ({
     window.addEventListener('keydown', onKeyDownHandler);
 
     return () => window.removeEventListener('keydown', onKeyDownHandler);
-  }, [isPaused, pause, play, onTabbingHandler]);
+  }, [isPaused, pause, play]);
 
   return (
     <div
@@ -112,22 +119,20 @@ const Controls = ({
     >
       <div className="flex gap-x-4">
         <button
+          {...controlsVisibilityProps}
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
-          disabled={isControlDisabled}
-          onBlur={onControlHoverHandler}
-          onFocus={onControlHoverHandler}
-          onMouseEnter={onControlHoverHandler}
-          onMouseLeave={onControlHoverHandler}
+          disabled={isViewerBanned}
           onClick={onClickPlayPauseHandler}
         >
           {isPaused ? <PlaySvg /> : <PauseSvg />}
         </button>
         <VolumeSetting
           className={clsm(mobileSVGOpacity)}
-          isDisabled={isControlDisabled}
-          onControlHoverHandler={onControlHoverHandler}
-          setIsPopupOpen={setIsPopupOpen}
+          controlsVisibilityProps={controlsVisibilityProps}
+          isDisabled={isViewerBanned}
+          isExpanded={isVolumeSettingPopupExpanded}
+          setOpenPopupIds={setOpenPopupIds}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateVolume={updateVolume}
           volumeLevel={volumeLevel}
@@ -135,10 +140,11 @@ const Controls = ({
       </div>
       <div className="flex gap-x-4">
         {isSplitView && (
+          // The split view toggle control remains enabled for banned viewers
           <button
+            {...controlsVisibilityProps}
             aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}
             className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
-            disabled={isControlDisabled} // The split view toggle control remains enabled for banned viewers
             onClick={onClickToggleChat}
           >
             {isChatVisible ? <ChatOpenSVG /> : <ChatClosedSVG />}
@@ -146,20 +152,22 @@ const Controls = ({
         )}
         <RenditionSetting
           className={clsm(mobileSVGOpacity)}
-          isDisabled={isControlDisabled}
-          onControlHoverHandler={onControlHoverHandler}
+          controlsVisibilityProps={controlsVisibilityProps}
+          isDisabled={isViewerBanned}
+          isExpanded={isRenditionSettingPopupExpanded}
           qualities={qualities}
           selectedQualityName={selectedQualityName}
-          setIsPopupOpen={setIsPopupOpen}
+          setOpenPopupIds={setOpenPopupIds}
           stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateQuality={updateQuality}
         />
         <button
+          {...controlsVisibilityProps}
           aria-label={`${
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
-          disabled={isControlDisabled}
+          disabled={isViewerBanned}
           onClick={onClickFullscreenHandler}
         >
           {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
@@ -177,16 +185,16 @@ Controls.defaultProps = {
 };
 
 Controls.propTypes = {
+  handleControlsVisibility: PropTypes.func.isRequired,
   isChatVisible: PropTypes.bool,
-  isViewerBanned: PropTypes.bool,
   isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
+  isViewerBanned: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
-  onControlHoverHandler: PropTypes.func.isRequired,
-  onTabbingHandler: PropTypes.func.isRequired,
+  openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   player: PropTypes.object.isRequired,
   selectedQualityName: PropTypes.string.isRequired,
-  setIsPopupOpen: PropTypes.func.isRequired,
+  setOpenPopupIds: PropTypes.func.isRequired,
   stopPropagAndResetTimeout: PropTypes.func.isRequired,
   toggleChat: PropTypes.func.isRequired
 };
