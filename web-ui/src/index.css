@@ -8,6 +8,9 @@
 
     --mobile-x-spacing: 16px;
 
+    /* Global base colors */
+    --base-color-turquoise: 181, 100%;
+
     /* Dark base colors */
     --base-color-dark-gray: 228, 10%;
 

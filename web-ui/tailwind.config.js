@@ -77,6 +77,10 @@ module.exports = {
               hover: 'hsl(var(--base-color-dark-gray), 20%)'
             }
           },
+          turquoise: {
+            DEFAULT: 'hsl(var(--base-color-turquoise), 42%)',
+            hover: 'hsl(var(--base-color-turquoise), 52%)'
+          },
           green: {
             DEFAULT: 'hsl(var(--base-color-green), 53%)',
             hover: 'hsl(var(--base-color-green), 63%)'
@@ -122,6 +126,10 @@ module.exports = {
               DEFAULT: 'hsl(var(--base-color-white), 27%)',
               hover: 'hsl(var(--base-color-white), 17%)'
             }
+          },
+          turquoise: {
+            DEFAULT: 'hsl(var(--base-color-turquoise), 26%)',
+            hover: 'hsl(var(--base-color-turquoise), 16%)'
           },
           green: {
             DEFAULT: 'hsl(var(--base-color-medium-green), 33%)',

@@ -22,7 +22,8 @@
         "error_loading_chat": "Error loading chat",
         "ban_user": "Failed to ban user",
         "unban_user": "Failed to unban user"
-      }
+      },
+      "moderating": "Moderating"
     },
     "error": {
       "error_message_not_sent": "Message could not be sent.",

@@ -84,12 +84,18 @@ const Notification = () => {
               notif.type === 'success' && [
                 'bg-lightMode-green',
                 'dark:bg-darkMode-green'
+              ],
+              notif.type === 'info' && [
+                'bg-lightMode-turquoise',
+                'dark:bg-darkMode-turquoise'
               ]
             ])}
           >
-            <NotifIcon
-              className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
-            />
+            {NotifIcon && (
+              <NotifIcon
+                className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
+              />
+            )}
             {notif.message}
           </div>
         </m.div>

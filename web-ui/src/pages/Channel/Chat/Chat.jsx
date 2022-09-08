@@ -1,10 +1,14 @@
 import { m } from 'framer-motion';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../../../constants';
+import { channel as $channelContent } from '../../../content';
+import { CHAT_USER_ROLE } from './utils';
 import { clsm, noop } from '../../../utils';
+import { MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useNotif } from '../../../contexts/Notification';
 import { useUser } from '../../../contexts/User';
 import ChatPopup from './ChatPopup';
 import Composer from './Composer';
@@ -14,6 +18,7 @@ import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavb
 import Notification from '../../../components/Notification';
 import useChat from './useChat';
 
+const $content = $channelContent.chat;
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const Chat = ({
@@ -25,6 +30,7 @@ const Chat = ({
   const { isSessionValid } = useUser();
   const { isMobileView, isLandscape, currentBreakpoint } =
     useMobileBreakpoint();
+  const { notifyInfo } = useNotif();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
 
@@ -46,6 +52,16 @@ const Chat = ({
   const isLoading = isConnecting || isChannelLoading;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
+
+  // Show moderation pill if user role is moderator
+  useEffect(() => {
+    if (chatUserRole === CHAT_USER_ROLE.MODERATOR)
+      notifyInfo(
+        $content.notifications.moderating,
+        true,
+        MODERATOR_PILL_TIMEOUT
+      );
+  }, [chatUserRole, notifyInfo]);
 
   const openChatPopup = useCallback((message, avatar, color, displayName) => {
     const selectedMessage = { message, avatar, color, displayName };
