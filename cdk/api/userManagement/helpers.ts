@@ -37,6 +37,13 @@ export const getUserByEmail = (userEmail: string) => {
   return dynamoDbClient.send(queryCommand);
 };
 
+/**
+ * Important Note: the username is case sensitive!
+ * When using this function, ensure that you are using the case sensitive
+ * username that the account was most recently updated to. The access token
+ * is not guranteed to contain the case sensitive username as a user is allowed
+ * to sign in with a case insensitive username.
+ */
 export const getUserByUsername = (username: string) => {
   const queryCommand = new QueryCommand({
     IndexName: 'usernameIndex',
@@ -109,8 +116,8 @@ export type ChatTokenCapabilityType =
  *
  * Note: "capabilities" default to None, but the permission to VIEW messages is implicitly included in all requests.
  *
- * @param chatRoomOwnerUsername username of the user who owns the chat room that the client is trying to access
- * @param viewerUsername unique username that identifies the user associated with this token
+ * @param chatRoomOwnerUsername username of the user who owns the chat room that the client is trying to access (CASE SENSITIVE)
+ * @param viewerAttributes an object describing the displayName (CASE SENSITIVE), avatar and color of the viewer
  * @param capabilities Set of capabilities that the user is allowed to perform in the room: SEND_MESSAGE | DISCONNECT_USER | DELETE_MESSAGE
  *
  * @example Create a token with read-only permissions
@@ -119,7 +126,7 @@ export type ChatTokenCapabilityType =
  * @example Create a token with read and write permissions
  * const result = await createChatRoomToken(
  *  "chatroom-owner-username",
- *  "viewer-username",
+ *  { displayName: "viewer-username", avatar: "bear", color: "blue" },
  *  ['SEND_MESSAGE']
  * );
  */
@@ -151,6 +158,15 @@ export const createChatRoomToken = async (
   const viewerUserId = viewerAttributes?.displayName;
   if (viewerUserId && bannedUserSubs) {
     const { Items: ViewerItems = [] } = await getUserByUsername(viewerUserId);
+
+    if (!ViewerItems?.length) {
+      throw new ChatTokenError(
+        `No user exists with the username ${viewerUserId}`,
+        403,
+        FORBIDDEN_EXCEPTION
+      );
+    }
+
     const { id: viewerSub } = unmarshall(ViewerItems[0]);
 
     if (bannedUserSubs.has(viewerSub)) {

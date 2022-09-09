@@ -8,7 +8,7 @@ import {
   COMPOSER_RATE_LIMIT_BLOCK_TIME_MS
 } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
-import { CHAT_USER_ROLE, SEND_ERRORS } from './utils';
+import { CHAT_USER_ROLE, SEND_ERRORS } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
 import { Lock } from '../../../assets/icons';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';

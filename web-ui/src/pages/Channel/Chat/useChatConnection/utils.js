@@ -1,6 +1,6 @@
-import { getChatToken } from '../../../api/channel';
-import { ENABLE_CHAT_DEBUG_MESSAGES } from '../../../constants';
-import { noop } from '../../../utils';
+import { getChatToken } from '../../../../api/channel';
+import { ENABLE_CHAT_DEBUG_MESSAGES } from '../../../../constants';
+import { noop } from '../../../../utils';
 
 export const CHAT_CAPABILITY = {
   VIEW_MESSAGE: 'VIEW_MESSAGE',

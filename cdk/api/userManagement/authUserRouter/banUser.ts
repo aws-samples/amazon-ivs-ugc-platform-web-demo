@@ -11,13 +11,13 @@ import {
   isIvsChatError,
   ivsChatClient
 } from '../../shared/helpers';
+import { getUser, getUserByUsername } from '../helpers';
 import {
   UNEXPECTED_EXCEPTION,
   BAN_USER_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
 import { UserContext } from '../authorizer';
-import { getUserByUsername } from '../helpers';
 
 type BanUserRequestBody = { bannedUsername?: string };
 
@@ -25,13 +25,26 @@ const handler = async (
   request: FastifyRequest<{ Body: BanUserRequestBody }>,
   reply: FastifyReply
 ) => {
-  const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { bannedUsername } = request.body;
+  const { sub } = request.requestContext.get('user') as UserContext;
+  const { bannedUsername } = request.body; // bannedUsername is case sensitive
+  let chatRoomArn, chatRoomOwnerUsername;
+
+  // Retrieve the chat room data for the requester's channel
+  try {
+    const { Item: UserItem = {} } = await getUser(sub);
+    ({ chatRoomArn, username: chatRoomOwnerUsername } = unmarshall(UserItem));
+  } catch (error) {
+    console.error(error);
+
+    reply.statusCode = 500;
+
+    return reply.send({ __type: UNEXPECTED_EXCEPTION });
+  }
 
   // Check input
   if (!bannedUsername) {
     console.error(
-      `Missing bannedUsername for the channel owned by the user ${username}`
+      `Missing bannedUsername for the channel owned by the user ${chatRoomOwnerUsername}`
     );
 
     reply.statusCode = 400;
@@ -40,7 +53,7 @@ const handler = async (
   }
 
   // Disallow users from banning themselves from their own channel
-  if (bannedUsername === username) {
+  if (bannedUsername === chatRoomOwnerUsername) {
     console.error(
       'A user is not allowed to ban themselves from their own channel'
     );
@@ -84,9 +97,6 @@ const handler = async (
   }
 
   try {
-    const { Items: UserItems = [] } = await getUserByUsername(username);
-    const { chatRoomArn } = unmarshall(UserItems[0]);
-
     // Disconnect the banned user from the chat room
     await ivsChatClient.send(
       new DisconnectUserCommand({

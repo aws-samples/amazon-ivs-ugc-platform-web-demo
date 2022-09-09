@@ -16,13 +16,14 @@
     "you_are_banned": "You are banned from this channel",
     "notifications": {
       "success": {
-        "ban_user": "User banned from channel",
-        "unban_user": "User unbanned from channel"
+        "user_banned": "User banned from channel",
+        "user_unbanned": "User unbanned from channel"
       },
       "error": {
-        "error_loading_chat": "Error loading chat",
         "ban_user": "Failed to ban user",
-        "unban_user": "Failed to unban user"
+        "unban_user": "Failed to unban user",
+        "you_have_been_banned": "You have been banned",
+        "error_loading_chat": "Error loading chat"
       },
       "moderating": "Moderating"
     },

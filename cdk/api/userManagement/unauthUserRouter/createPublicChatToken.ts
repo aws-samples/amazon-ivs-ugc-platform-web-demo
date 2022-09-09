@@ -17,7 +17,7 @@ const handler = async (
   request: FastifyRequest<{ Body: CreatePublicChatTokenRequestBody }>,
   reply: FastifyReply
 ) => {
-  const { chatRoomOwnerUsername } = request.body;
+  const { chatRoomOwnerUsername } = request.body; // chatRoomOwnerUsername is case sensitive
   const responseBody: CreatePublicChatTokenResponseBody = {
     capabilities: ['VIEW_MESSAGE']
   };

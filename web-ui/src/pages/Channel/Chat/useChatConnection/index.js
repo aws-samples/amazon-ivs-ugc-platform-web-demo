@@ -1,27 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { encode } from 'html-entities';
 
-import { channel as $content } from '../../../content';
-import { channelAPI } from '../../../api';
-import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../constants';
+import { channel as $channelContent } from '../../../../content';
+import { CHAT_TOKEN_REFRESH_DELAY_OFFSET } from '../../../../constants';
 import {
-  CHAT_CAPABILITY,
-  CHAT_USER_ROLE,
   SEND_ERRORS,
   closeSocket,
   createSocket,
   requestChatToken
 } from './utils';
-import { ivsChatWebSocketEndpoint } from '../../../api/utils';
-import { retryWithBackoff } from '../../../utils';
-import { useChatMessages } from '../../../contexts/ChatMessages';
-import { useNotif } from '../../../contexts/Notification';
-import { useUser } from '../../../contexts/User';
+import { ivsChatWebSocketEndpoint } from '../../../../api/utils';
+import { retryWithBackoff } from '../../../../utils';
+import { useChatMessages } from '../../../../contexts/ChatMessages';
+import { useNotif } from '../../../../contexts/Notification';
+import { useUser } from '../../../../contexts/User';
+import useChatActions from './useChatActions';
 
-/**
- * @typedef {('VIEWER'|'SENDER'|'MODERATOR'|undefined)} ChatUserRole
- */
+const $content = $channelContent.chat;
 
 /**
  * @typedef {Object} ChatEventHandlers
@@ -34,16 +28,19 @@ import { useUser } from '../../../contexts/User';
  * Initializes and controls a connection to the Amazon IVS Chat Messaging API
  * @param {string} chatRoomOwnerUsername
  * @param {boolean} isViewerBanned
+ * @param {Function} refreshChannelData
  * @param {ChatEventHandlers} eventHandlers
  */
-const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
+const useChatConnection = (
+  chatRoomOwnerUsername,
+  isViewerBanned,
+  refreshChannelData,
+  eventHandlers
+) => {
   const { addMessage } = useChatMessages();
   const { isSessionValid } = useUser();
-  const { notifyError, notifySuccess, dismissNotif } = useNotif();
+  const { notifyError, dismissNotif } = useNotif();
   const chatCapabilities = useRef([]);
-
-  /** @type {[ChatUserRole, Function]} */
-  const [chatUserRole, setChatUserRole] = useState();
 
   // Connection State
   const [connectionReadyState, setConnectionReadyState] = useState();
@@ -53,112 +50,21 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
   const isInitializingConnection = useRef(false);
   const isRetryingConnection = useRef(false);
+  const cancelConnectionRetry = useRef(false);
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
   const isConnecting =
     isInitializingConnection.current || connectionReadyState === 0;
 
-  const updateUserRole = useCallback(() => {
-    let type;
-
-    // Returns true if the user's chat capabilities contain all of the given required capabilities
-    const hasPermission = (requiredCapabilities) =>
-      requiredCapabilities.every((reqCap) =>
-        chatCapabilities.current.includes(reqCap)
-      );
-
-    switch (true) {
-      case hasPermission([
-        CHAT_CAPABILITY.DISCONNECT_USER,
-        CHAT_CAPABILITY.DELETE_MESSAGE
-      ]): {
-        type = CHAT_USER_ROLE.MODERATOR;
-        break;
-      }
-      case hasPermission([CHAT_CAPABILITY.SEND_MESSAGE]): {
-        type = CHAT_USER_ROLE.SENDER;
-        break;
-      }
-      case hasPermission([CHAT_CAPABILITY.VIEW_MESSAGE]): {
-        type = CHAT_USER_ROLE.VIEWER;
-        break;
-      }
-      default: // exhaustive
-    }
-
-    setChatUserRole(type);
-  }, []);
-
-  const send = (action, data) => {
-    try {
-      if (!isConnectionOpen)
-        throw new Error(
-          'Message or event failed to send because there is no open socket connection!'
-        );
-
-      connection.current.send(
-        JSON.stringify({
-          Action: action,
-          RequestId: uuidv4(),
-          ...data
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Actions
-  const sendMessage = (msg) => {
-    if (
-      ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole)
-    ) {
-      console.error(
-        'You do not have permission to send messages to this channel!'
-      );
-      return;
-    }
-
-    send('SEND_MESSAGE', { Content: encode(msg) });
-  };
-
-  const deleteMessage = (messageId) => {
-    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
-      console.error(
-        'You do not have permission to delete messages on this channel!'
-      );
-      return;
-    }
-
-    send('DELETE_MESSAGE', {
-      Id: messageId,
-      Reason: 'Deleted by moderator'
-    });
-  };
-
-  const banUser = async (bannedUsername) => {
-    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
-      console.error('You do not have permission to ban users on this channel!');
-      return;
-    }
-
-    const { result, error } = await channelAPI.banUser(bannedUsername);
-
-    if (result) notifySuccess($content.chat.notifications.success.ban_user);
-    if (error) notifyError($content.chat.notifications.error.ban_user);
-  };
-
-  const unbanUser = async (bannedUsername) => {
-    if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
-      console.error('You do not have permission to ban users on this channel!');
-      return;
-    }
-
-    const { result, error } = await channelAPI.unbanUser(bannedUsername);
-
-    if (result) notifySuccess($content.chat.notifications.success.unban_user);
-    if (error) notifyError($content.chat.notifications.error.unban_user);
-  };
+  // Chat Actions
+  const {
+    banUser,
+    chatUserRole,
+    deleteMessage,
+    sendMessage,
+    unbanUser,
+    updateUserRole
+  } = useChatActions({ chatCapabilities, isConnectionOpen, connection });
 
   // Handlers
   const onOpen = useCallback(() => {
@@ -241,7 +147,16 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
   // Connection helpers
   const retryConnectionWithBackoff = useCallback(
     async (connectFn, error, reasonId, maxRetries = 7) => {
-      if (isRetryingConnection.current) throw error;
+      if (cancelConnectionRetry.current) {
+        cancelConnectionRetry.current = false;
+        isRetryingConnection.current = false;
+        return;
+      }
+
+      if (isRetryingConnection.current) {
+        throw error; // Starts the next retry attempt in the backoff sequence
+      }
+
       isRetryingConnection.current = true;
 
       try {
@@ -258,39 +173,44 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
           onFailure: () => {
             isRetryingConnection.current = false;
             isInitializingConnection.current = false;
-            notifyError(
-              $content.chat.notifications.error.error_loading_chat,
-              false
-            );
+            notifyError($content.notifications.error.error_loading_chat, false);
             setHasConnectionError(true);
           }
         });
-      } catch (error) {
+      } catch (err) {
         console.error(
           'Failed to establish a connection with the WebSocket service.',
-          error
+          err
         );
       }
     },
     [notifyError]
   );
 
+  const cancelRetryConnectionWithBackoff = useCallback(() => {
+    if (isRetryingConnection.current) {
+      cancelConnectionRetry.current = true;
+    }
+  }, []);
+
   const disconnect = useCallback(() => {
     closeSocket(connection.current);
     clearTimeout(refreshTokenTimeoutId.current);
+    refreshChannelData();
     connection.current = null;
-  }, []);
+    refreshTokenTimeoutId.current = null;
+  }, [refreshChannelData]);
 
   const connect = useCallback(async () => {
     if (
-      isViewerBanned ||
+      isViewerBanned !== false ||
       !chatRoomOwnerUsername ||
       (isInitializingConnection.current && !isRetryingConnection.current)
     )
       return;
 
     // Clean up previous connection resources
-    disconnect();
+    if (connection.current) disconnect();
     isInitializingConnection.current = true;
     setDidConnectionCloseCleanly(undefined);
     setHasConnectionError(false);
@@ -352,6 +272,12 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
     return () => clearTimeout(reconnectTimeoutId);
   }, [connect, didConnectionCloseCleanly]);
 
+  // Cancel the retry backoff sequence on unmount
+  useEffect(
+    () => cancelRetryConnectionWithBackoff,
+    [cancelRetryConnectionWithBackoff]
+  );
+
   return {
     banUser,
     chatUserRole,
@@ -364,4 +290,4 @@ const useChat = (chatRoomOwnerUsername, isViewerBanned, eventHandlers) => {
   };
 };
 
-export default useChat;
+export default useChatConnection;

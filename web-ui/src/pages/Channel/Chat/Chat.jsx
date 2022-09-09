@@ -2,11 +2,11 @@ import { m } from 'framer-motion';
 import { memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { BREAKPOINTS } from '../../../constants';
+import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
-import { CHAT_USER_ROLE } from './utils';
+import { CHAT_USER_ROLE } from './useChatConnection/utils';
 import { clsm, noop } from '../../../utils';
-import { MODERATOR_PILL_TIMEOUT } from '../../../constants';
+import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useNotif } from '../../../contexts/Notification';
 import { useUser } from '../../../contexts/User';
@@ -16,7 +16,7 @@ import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
-import useChat from './useChat';
+import useChatConnection from './useChatConnection';
 
 const $content = $channelContent.chat;
 const defaultTransition = { duration: 0.25, type: 'tween' };
@@ -25,9 +25,12 @@ const Chat = ({
   chatRoomOwnerUsername,
   chatAnimationControls,
   isChannelLoading,
-  isViewerBanned
+  isViewerBanned,
+  refreshChannelData
 }) => {
-  const { isSessionValid } = useUser();
+  const { removeMessageByUserId } = useChatMessages();
+  const { isSessionValid, userData } = useUser();
+  const { notifyError } = useNotif();
   const { isMobileView, isLandscape, currentBreakpoint } =
     useMobileBreakpoint();
   const { notifyInfo } = useNotif();
@@ -35,19 +38,39 @@ const Chat = ({
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
 
   const handleDeleteMessage = useCallback(noop, []); // Temporary
-  const handleDeleteUserMessages = useCallback(noop, []); // Temporary
-  const handleUserDisconnect = useCallback(noop, []); // Temporary
+
+  const handleDeleteUserMessages = useCallback(
+    (userId) => removeMessageByUserId(userId),
+    [removeMessageByUserId]
+  );
+
+  const handleUserDisconnect = useCallback(
+    (bannedUsername) => {
+      if (userData?.username === bannedUsername) {
+        // This user has been banned
+        notifyError($content.notifications.error.you_have_been_banned);
+        refreshChannelData();
+      }
+    },
+    [notifyError, refreshChannelData, userData?.username]
+  );
+
   const {
     chatUserRole,
     hasConnectionError,
     isConnecting,
     sendMessage,
     sendError
-  } = useChat(chatRoomOwnerUsername, isViewerBanned, {
-    handleDeleteMessage,
-    handleDeleteUserMessages,
-    handleUserDisconnect
-  });
+  } = useChatConnection(
+    chatRoomOwnerUsername,
+    isViewerBanned,
+    refreshChannelData,
+    {
+      handleDeleteMessage,
+      handleDeleteUserMessages,
+      handleUserDisconnect
+    }
+  );
   const isLoading = isConnecting || isChannelLoading;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
@@ -154,14 +177,15 @@ const Chat = ({
 Chat.defaultProps = {
   chatRoomOwnerUsername: '',
   isChannelLoading: false,
-  isViewerBanned: false
+  isViewerBanned: undefined
 };
 
 Chat.propTypes = {
-  chatRoomOwnerUsername: PropTypes.string,
   chatAnimationControls: PropTypes.object.isRequired,
+  chatRoomOwnerUsername: PropTypes.string,
   isChannelLoading: PropTypes.bool,
-  isViewerBanned: PropTypes.bool
+  isViewerBanned: PropTypes.bool,
+  refreshChannelData: PropTypes.func.isRequired
 };
 
 export default memo(Chat);

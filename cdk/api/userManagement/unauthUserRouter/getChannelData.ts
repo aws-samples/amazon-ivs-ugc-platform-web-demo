@@ -37,7 +37,7 @@ const handler = async (
   request: FastifyRequest<{ Params: GetChannelDataParams }>,
   reply: FastifyReply
 ) => {
-  const { channelOwnerUsername } = request.params;
+  const { channelOwnerUsername } = request.params; // chatRoomOwnerUsername is case sensitive
   const responseBody: GetChannelDataResponseBody = {};
   let viewerSub;
 

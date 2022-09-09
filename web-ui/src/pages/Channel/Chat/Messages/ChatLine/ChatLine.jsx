@@ -3,7 +3,7 @@ import { m } from 'framer-motion';
 import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import { CHAT_LINE_VARIANT } from '../../utils';
+import { CHAT_LINE_VARIANT } from '../../useChatConnection/utils';
 import {
   CHATLINE_BASE_CLASSES as baseClasses,
   TEXT_BASE_CLASSES as textBaseClasses,

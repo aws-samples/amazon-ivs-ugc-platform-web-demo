@@ -18,7 +18,7 @@ const handler = async (
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { bannedUsername } = request.body;
+  const { bannedUsername } = request.body; // bannedUsername is case sensitive
 
   // Check input
   if (!bannedUsername) {

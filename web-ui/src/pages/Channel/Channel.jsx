@@ -15,7 +15,7 @@ import useChannelData from '../../hooks/useChannelData';
 
 const Channel = () => {
   const { username } = useParams();
-  const { channelData, channelError, isChannelLoading } =
+  const { channelData, channelError, isChannelLoading, refreshChannelData } =
     useChannelData(username);
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
@@ -83,6 +83,7 @@ const Channel = () => {
           chatRoomOwnerUsername={channelUsername}
           chatAnimationControls={chatAnimationControls}
           isChannelLoading={isChannelLoading}
+          refreshChannelData={refreshChannelData}
           isViewerBanned={isViewerBanned}
         />
       </NotificationProvider>

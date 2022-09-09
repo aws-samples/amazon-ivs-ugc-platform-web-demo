@@ -3,7 +3,6 @@ import { useState, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { channel as $channelContent } from '../../../content';
-import { CHAT_LINE_VARIANT } from './utils';
 import { clsm, noop } from '../../../utils';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useModal } from '../../../contexts/Modal';
@@ -11,6 +10,7 @@ import Button from '../../../components/Button';
 import ChatLine from './Messages/ChatLine/ChatLine';
 import useClickAway from '../../../hooks/useClickAway';
 import useFocusTrap from '../../../hooks/useFocusTrap';
+import { CHAT_LINE_VARIANT } from './useChatConnection/utils';
 
 const $content = $channelContent.chat.popup;
 const $modalContent = $channelContent.chat.modal.ban_user_modal;
