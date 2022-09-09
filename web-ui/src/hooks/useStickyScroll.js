@@ -4,7 +4,9 @@ const useStickyScroll = (targetRef, bottomRef, data, stickyTolerance = 5) => {
   const [isSticky, setIsSticky] = useState(true);
 
   const scrollToBottom = useCallback(() => {
-    targetRef.current.scrollTop = targetRef.current.scrollHeight;
+    if (targetRef.current) {
+      targetRef.current.scrollTop = targetRef.current.scrollHeight;
+    }
 
     // On mobile browsers, scrolling the bottomRef into view after
     // setting scrollTop ensures that we scroll to the bottom even

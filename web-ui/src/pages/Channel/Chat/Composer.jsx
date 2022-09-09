@@ -16,19 +16,16 @@ import { useUser } from '../../../contexts/User';
 import ComposerErrorMessage from './ComposerErrorMessage';
 import FloatingNav from '../../../components/FloatingNav';
 import Input from '../../../components/Input';
+import { useChannel } from '../../../contexts/Channel';
 
 const $content = $channelContent.chat;
 
-const Composer = ({
-  chatUserRole,
-  isDisabled,
-  isLocked,
-  sendError,
-  sendMessage
-}) => {
+const Composer = ({ chatUserRole, isDisabled, sendError, sendMessage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const composerFieldRef = useRef();
+  const { channelData } = useChannel();
+  const { isViewerBanned: isLocked } = channelData || {};
   const { isMobileView } = useMobileBreakpoint();
   const { isSessionValid } = useUser();
   const [message, setMessage] = useState('');
@@ -197,18 +194,14 @@ const Composer = ({
 Composer.defaultProps = {
   chatUserRole: undefined,
   isDisabled: false,
-  isLocked: false,
   sendError: null
 };
 
 Composer.propTypes = {
   chatUserRole: PropTypes.oneOf(Object.values(CHAT_USER_ROLE)),
   isDisabled: PropTypes.bool,
-  isLocked: PropTypes.bool,
   sendMessage: PropTypes.func.isRequired,
-  sendError: PropTypes.shape({
-    message: PropTypes.string
-  })
+  sendError: PropTypes.shape({ message: PropTypes.string })
 };
 
 export default Composer;

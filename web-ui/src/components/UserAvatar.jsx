@@ -37,12 +37,14 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
 };
 
 UserAvatar.defaultProps = {
-  size: 'lg'
+  size: 'lg',
+  avatarName: '',
+  profileColor: ''
 };
 
 UserAvatar.propTypes = {
-  avatarName: PropTypes.string.isRequired,
-  profileColor: PropTypes.string.isRequired,
+  avatarName: PropTypes.string,
+  profileColor: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg'])
 };
 

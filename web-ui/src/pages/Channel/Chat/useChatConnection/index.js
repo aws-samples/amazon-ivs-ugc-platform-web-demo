@@ -10,6 +10,7 @@ import {
 } from './utils';
 import { ivsChatWebSocketEndpoint } from '../../../../api/utils';
 import { retryWithBackoff } from '../../../../utils';
+import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useNotif } from '../../../../contexts/Notification';
 import { useUser } from '../../../../contexts/User';
@@ -26,17 +27,11 @@ const $content = $channelContent.chat;
 
 /**
  * Initializes and controls a connection to the Amazon IVS Chat Messaging API
- * @param {string} chatRoomOwnerUsername
- * @param {boolean} isViewerBanned
- * @param {Function} refreshChannelData
  * @param {ChatEventHandlers} eventHandlers
  */
-const useChatConnection = (
-  chatRoomOwnerUsername,
-  isViewerBanned,
-  refreshChannelData,
-  eventHandlers
-) => {
+const useChatConnection = (eventHandlers) => {
+  const { channelData, refreshChannelData } = useChannel();
+  const { username: chatRoomOwnerUsername, isViewerBanned } = channelData || {};
   const { addMessage } = useChatMessages();
   const { isSessionValid } = useUser();
   const { notifyError, dismissNotif } = useNotif();

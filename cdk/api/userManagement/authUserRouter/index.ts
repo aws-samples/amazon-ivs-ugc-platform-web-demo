@@ -10,7 +10,6 @@ import getUser from './getUser';
 import banUser from './banUser';
 import unbanUser from './unbanUser';
 import resetStreamKey from './resetStreamKey';
-import createPrivateChatToken from './createPrivateChatToken';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -26,7 +25,6 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.get('/streamKey/reset', resetStreamKey);
 
   resource.post('/resources/create', createResources);
-  resource.post('/chatroom/token/private/create', createPrivateChatToken);
   resource.post('/channel/ban', banUser);
   resource.post('/channel/unban', unbanUser);
 

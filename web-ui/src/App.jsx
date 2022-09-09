@@ -1,19 +1,20 @@
-import { LazyMotion, MotionConfig } from 'framer-motion';
 import {
   BrowserRouter as Router,
   Navigate,
   Route,
   Routes
 } from 'react-router-dom';
+import { LazyMotion, MotionConfig } from 'framer-motion';
 
 // Context Providers
+import { Provider as ChannelProvider } from './contexts/Channel';
 import { Provider as ChatMessagesProvider } from './contexts/ChatMessages';
 import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as StreamsProvider } from './contexts/Streams';
-import { Provider as UserProvider } from './contexts/User';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
+import { Provider as UserProvider } from './contexts/User';
 
 // Pages
 import {
@@ -50,34 +51,40 @@ const App = () => (
               <ModalProvider>
                 <TooltipsProvider>
                   <Routes>
-                    <Route element={<AppLayoutWithNavbar />}>
-                      <Route element={<ChatMessagesProvider />}>
-                        {/* PUBLIC PAGES - UGC */}
-                        <Route index element={<ChannelDirectory />} />
-                        <Route path=":username" element={<Channel />} />
-                        <Route path="feed" element={<Feed />} />
+                    <Route
+                      element={
+                        <ChannelProvider>
+                          <ChatMessagesProvider>
+                            <AppLayoutWithNavbar />
+                          </ChatMessagesProvider>
+                        </ChannelProvider>
+                      }
+                    >
+                      {/* PUBLIC PAGES - UGC */}
+                      <Route index element={<ChannelDirectory />} />
+                      <Route path=":username" element={<Channel />} />
+                      <Route path="feed" element={<Feed />} />
 
-                        {/* PRIVATE PAGES */}
-                        <Route element={<RequireAuth />}>
-                          <Route path="following" element={<Following />} />
-                          <Route element={<StreamsProvider />}>
-                            <Route path="settings" element={<Settings />} />
-                            <Route path="manager" element={<StreamManager />} />
-                            <Route path="health">
-                              <Route index element={<StreamHealth />} />
-                              <Route
-                                path=":streamId"
-                                element={<StreamHealth />}
-                              />
-                              <Route
-                                path="*"
-                                element={<Navigate replace to="/health" />}
-                              />
-                            </Route>
+                      {/* PRIVATE PAGES */}
+                      <Route element={<RequireAuth />}>
+                        <Route path="following" element={<Following />} />
+                        <Route element={<StreamsProvider />}>
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="manager" element={<StreamManager />} />
+                          <Route path="health">
+                            <Route index element={<StreamHealth />} />
+                            <Route
+                              path=":streamId"
+                              element={<StreamHealth />}
+                            />
+                            <Route
+                              path="*"
+                              element={<Navigate replace to="/health" />}
+                            />
                           </Route>
                         </Route>
-                        <Route path="*" element={<Navigate replace to="/" />} />
                       </Route>
+                      <Route path="*" element={<Navigate replace to="/" />} />
                     </Route>
 
                     {/* PUBLIC PAGES - User Management */}

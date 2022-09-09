@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { CHAT_LINE_VARIANT } from '../useChatConnection/utils';
 import { clsm } from '../../../../utils';
+import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
 import ChatLine from './ChatLine/ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
-import { CHAT_LINE_VARIANT } from '../useChatConnection/utils';
 
-const Messages = ({ chatRoomOwnerUsername, openChatPopup }) => {
+const Messages = ({ openChatPopup }) => {
+  const { channelData } = useChannel();
+  const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
   const bottomRef = useRef();
   const { messages, initMessages } = useChatMessages();

@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom';
 import {
   createContext,
   useCallback,
@@ -7,6 +6,7 @@ import {
   useReducer,
   useRef
 } from 'react';
+import PropTypes from 'prop-types';
 
 import { useUser } from './User';
 import useContextHook from './useContextHook';
@@ -40,7 +40,7 @@ const actionTypes = {
   INIT_MESSAGES: 'INIT_MESSAGES',
   ADD_MESSAGE: 'ADD_MESSAGE',
   DELETE_MESSAGE: 'DELETE_MESSAGE',
-  DELETE_MESSAGES_BY_USER_ID: 'REMOVE_MESSAGES_BY_USER_ID'
+  DELETE_MESSAGES_BY_USER_ID: 'DELETE_MESSAGES_BY_USER_ID'
 };
 
 const reducer = (messages, action) => {
@@ -76,7 +76,7 @@ const reducer = (messages, action) => {
   }
 };
 
-export const Provider = () => {
+export const Provider = ({ children }) => {
   /** @type {[Messages, Function]} */
   const [messages, dispatch] = useReducer(reducer, []);
   const { userData, isSessionValid } = useUser();
@@ -136,11 +136,9 @@ export const Provider = () => {
     [addMessage, initMessages, messages, removeMessage, removeMessageByUserId]
   );
 
-  return (
-    <Context.Provider value={value}>
-      <Outlet />
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
+
+Provider.propTypes = { children: PropTypes.node.isRequired };
 
 export const useChatMessages = () => useContextHook(Context);

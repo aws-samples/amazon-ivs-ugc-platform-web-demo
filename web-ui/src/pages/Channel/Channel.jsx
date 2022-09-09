@@ -1,26 +1,22 @@
 import { useAnimation } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { BREAKPOINTS } from '../../constants';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { useChannel } from '../../contexts/Channel';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useUser } from '../../contexts/User';
 import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
-import useChannelData from '../../hooks/useChannelData';
 
 const Channel = () => {
-  const { username } = useParams();
-  const { channelData, channelError, isChannelLoading, refreshChannelData } =
-    useChannelData(username);
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
     useMobileBreakpoint();
-  const { username: channelUsername, isViewerBanned } = channelData || {};
+  const { channelData, channelError } = useChannel();
   const [isChatVisible, setIsChatVisible] = useState(true);
   const chatAnimationControls = useAnimation();
   const isSplitView = isMobileView && isLandscape;
@@ -79,13 +75,7 @@ const Channel = () => {
         channelData={channelData}
       />
       <NotificationProvider>
-        <Chat
-          chatRoomOwnerUsername={channelUsername}
-          chatAnimationControls={chatAnimationControls}
-          isChannelLoading={isChannelLoading}
-          refreshChannelData={refreshChannelData}
-          isViewerBanned={isViewerBanned}
-        />
+        <Chat chatAnimationControls={chatAnimationControls} />
       </NotificationProvider>
       {isSplitView && !isSessionValid && !isChatVisible && (
         <MobileNavbar className="lg:landscape:max-w-[calc(100vw_-_(352px_+_32px))]" />

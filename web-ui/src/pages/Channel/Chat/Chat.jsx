@@ -6,6 +6,7 @@ import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './useChatConnection/utils';
 import { clsm, noop } from '../../../utils';
+import { useChannel } from '../../../contexts/Channel';
 import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useNotif } from '../../../contexts/Notification';
@@ -21,13 +22,8 @@ import useChatConnection from './useChatConnection';
 const $content = $channelContent.chat;
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
-const Chat = ({
-  chatRoomOwnerUsername,
-  chatAnimationControls,
-  isChannelLoading,
-  isViewerBanned,
-  refreshChannelData
-}) => {
+const Chat = ({ chatAnimationControls }) => {
+  const { isChannelLoading, refreshChannelData } = useChannel();
   const { removeMessageByUserId } = useChatMessages();
   const { isSessionValid, userData } = useUser();
   const { notifyError } = useNotif();
@@ -61,16 +57,11 @@ const Chat = ({
     isConnecting,
     sendMessage,
     sendError
-  } = useChatConnection(
-    chatRoomOwnerUsername,
-    isViewerBanned,
-    refreshChannelData,
-    {
-      handleDeleteMessage,
-      handleDeleteUserMessages,
-      handleUserDisconnect
-    }
-  );
+  } = useChatConnection({
+    handleDeleteMessage,
+    handleDeleteUserMessages,
+    handleUserDisconnect
+  });
   const isLoading = isConnecting || isChannelLoading;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
@@ -152,10 +143,7 @@ const Chat = ({
         )}
       >
         <ConnectingOverlay isLoading={isLoading} />
-        <Messages
-          chatRoomOwnerUsername={chatRoomOwnerUsername}
-          openChatPopup={openChatPopup}
-        />
+        <Messages openChatPopup={openChatPopup} />
         {isMobileView && !isSessionValid ? (
           <MobileNavbar
             className={clsm(['absolute', 'px-5', 'pt-5', 'pb-6'])}
@@ -165,7 +153,6 @@ const Chat = ({
             chatUserRole={chatUserRole}
             sendMessage={sendMessage}
             sendError={sendError}
-            isLocked={isViewerBanned}
             isDisabled={hasConnectionError}
           />
         )}
@@ -174,18 +161,6 @@ const Chat = ({
   );
 };
 
-Chat.defaultProps = {
-  chatRoomOwnerUsername: '',
-  isChannelLoading: false,
-  isViewerBanned: undefined
-};
-
-Chat.propTypes = {
-  chatAnimationControls: PropTypes.object.isRequired,
-  chatRoomOwnerUsername: PropTypes.string,
-  isChannelLoading: PropTypes.bool,
-  isViewerBanned: PropTypes.bool,
-  refreshChannelData: PropTypes.func.isRequired
-};
+Chat.propTypes = { chatAnimationControls: PropTypes.object.isRequired };
 
 export default memo(Chat);
