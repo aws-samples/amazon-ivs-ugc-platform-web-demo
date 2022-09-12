@@ -119,7 +119,8 @@ const RenditionSetting = ({
               'h-screen',
               'left-0',
               'top-0',
-              'w-screen'
+              'w-screen',
+              'z-[510]'
             ])}
             animate="visible"
             exit="hidden"
@@ -146,7 +147,7 @@ const RenditionSetting = ({
                 'left-0',
                 'max-h-[65%]',
                 'rounded-b-none',
-                'z-[350]',
+                'z-[510]',
                 'w-screen'
               ]
             ])}

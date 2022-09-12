@@ -14,13 +14,8 @@ const Messages = ({ openChatPopup }) => {
   const { channelData } = useChannel();
   const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
-  const bottomRef = useRef();
   const { messages, initMessages } = useChatMessages();
-  const { isSticky, scrollToBottom } = useStickyScroll(
-    chatRef,
-    bottomRef,
-    messages
-  );
+  const { isSticky, scrollToBottom } = useStickyScroll(chatRef, messages);
   const { isMobileView, isLandscape } = useMobileBreakpoint();
   const isSplitView = isMobileView && isLandscape;
 
@@ -71,7 +66,6 @@ const Messages = ({ openChatPopup }) => {
             />
           )
         )}
-        <div ref={bottomRef} />
       </div>
       <StickScrollButton isSticky={isSticky} scrollToBottom={scrollToBottom} />
     </div>

@@ -139,7 +139,7 @@ const Controls = ({
         />
       </div>
       <div className="flex gap-x-4">
-        {isSplitView && (
+        {isSplitView && !isFullscreenEnabled && (
           // The split view toggle control remains enabled for banned viewers
           <button
             {...controlsVisibilityProps}

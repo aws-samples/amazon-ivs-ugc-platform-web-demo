@@ -1,19 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const useStickyScroll = (targetRef, bottomRef, data, stickyTolerance = 5) => {
+const useStickyScroll = (targetRef, data, stickyTolerance = 5) => {
   const [isSticky, setIsSticky] = useState(true);
 
   const scrollToBottom = useCallback(() => {
     if (targetRef.current) {
       targetRef.current.scrollTop = targetRef.current.scrollHeight;
     }
-
-    // On mobile browsers, scrolling the bottomRef into view after
-    // setting scrollTop ensures that we scroll to the bottom even
-    // when we manually trigger scrollToBottom while scrolling
-    // (i.e. when pressing a "new messages" button while scrolling)
-    setTimeout(() => bottomRef.current?.scrollIntoView(false), 10);
-  }, [bottomRef, targetRef]);
+  }, [targetRef]);
 
   useEffect(() => {
     if (isSticky) scrollToBottom();
