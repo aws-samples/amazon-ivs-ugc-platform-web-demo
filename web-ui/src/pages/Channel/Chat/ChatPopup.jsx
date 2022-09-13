@@ -1,6 +1,6 @@
+import { m } from 'framer-motion';
+import { useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useCallback, useRef } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
 
 import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
@@ -12,6 +12,7 @@ import Button from '../../../components/Button';
 import ChatLine, { CHAT_LINE_VARIANT } from './Messages/ChatLine';
 import useClickAway from '../../../hooks/useClickAway';
 import usePreviousFocus from '../../../hooks/usePreviousFocus';
+import withPortal from '../../../components/withPortal';
 
 const $content = $channelContent.chat.popup;
 const $modalContent = $channelContent.chat.modal.ban_user_modal;
@@ -27,15 +28,18 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  selectedMessage: { avatar, color, displayName, id, message },
-  setIsChatPopupOpen
+  selectedMessage: { avatar, color, displayName, message, id },
+  setIsChatPopupOpen,
+  openChatPopup,
+  isSplitView
 }) => {
-  const { deletedMessageIds } = useChatMessages();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
+  const { deletedMessageIds } = useChatMessages();
   const popupRef = useRef();
   const isOwnMessage = username === displayName;
+  const popupContainerVariant = isSplitView ? 'md:top-4' : '';
   const showChatPopup = useCallback(
     () => setIsChatPopupOpen(true),
     [setIsChatPopupOpen]
@@ -73,89 +77,108 @@ const ChatPopup = ({
   useClickAway([popupRef], () => setIsChatPopupOpen(false));
 
   return (
-    <AnimatePresence initial={false}>
-      {isOpen && (
-        <>
-          <m.div
-            {...defaultAnimationProps}
-            variants={{ visible: { y: 0 }, hidden: { y: '150%' } }}
+    <>
+      <m.div
+        {...defaultAnimationProps}
+        variants={{ visible: { y: 0 }, hidden: { y: '150%' } }}
+        className={clsm([
+          popupContainerVariant,
+          'absolute',
+          'bottom-6',
+          'left-5',
+          'right-5',
+          'md:bottom-4',
+          'md:left-4',
+          'md:right-4',
+          'w-auto',
+          'p-4',
+          'rounded-3xl',
+          'bg-lightMode-gray-light',
+          'dark:bg-darkMode-gray-medium',
+          'z-[999]',
+          'flex',
+          'items-start',
+          'flex-col'
+        ])}
+        ref={popupRef}
+      >
+        <ChatLine
+          message={message}
+          avatar={avatar}
+          color={color}
+          displayName={displayName}
+          variant={CHAT_LINE_VARIANT.POPUP}
+        />
+        <span
+          className={clsm(
+            HAIRLINE_DIVIDER_CLASSES,
+            'mt-4',
+            'mb-4',
+            'dark:bg-darkMode-gray-medium-hover',
+            'bg-lightMode-gray'
+          )}
+        />
+        <div className={clsm(['flex', 'flex-col', 'gap-y-4', 'w-full'])}>
+          <Button
             className={clsm([
-              'absolute',
-              'bottom-6',
-              'left-5',
-              'right-5',
-              'md:bottom-4',
-              'md:left-4',
-              'md:right-4',
-              'w-auto',
-              'h-auto',
-              'p-4',
-              'rounded-3xl',
-              'bg-lightMode-gray-extraLight',
-              'dark:bg-darkMode-gray-medium',
-              'z-[999]',
-              'flex',
-              'justify-center',
-              'items-center',
-              'flex-col'
+              'bg-white',
+              'dark:text-darkMode-red',
+              'text-lightMode-red',
+              'focus:bg-white'
             ])}
-            ref={popupRef}
+            variant="tertiary"
+            onClick={handleDeleteMessage}
           >
-            <ChatLine
-              avatar={avatar}
-              color={color}
-              displayName={displayName}
-              message={message}
-              variant={CHAT_LINE_VARIANT.POPUP}
-            />
-            <span className={clsm(HAIRLINE_DIVIDER_CLASSES, 'm-4')} />
-            <div className={clsm(['flex', 'flex-col', 'gap-y-4', 'w-full'])}>
-              <Button
-                className={clsm('text-lightMode-red-hover')}
-                variant="tertiary"
-                onClick={handleDeleteMessage}
-              >
-                {$content.delete_message}
-              </Button>
-              {!isOwnMessage && (
-                <Button
-                  className={clsm('text-white', 'dark:text-white')}
-                  variant="destructive"
-                  onClick={handleBanUser}
-                >
-                  {$content.ban_user}
-                </Button>
+            {$content.delete_message}
+          </Button>
+          {!isOwnMessage && (
+            <Button
+              className={clsm(
+                'text-white',
+                'dark:text-white',
+                'dark:bg-darkMode-red',
+                'bg-lightMode-red'
               )}
-              <Button variant="secondary" onClick={handleClose}>
-                {$content.cancel}
-              </Button>
-            </div>
-          </m.div>
-          <m.div
-            {...defaultAnimationProps}
-            variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
-            className={clsm([
-              'absolute',
-              'top-0',
-              'left-0',
-              'w-full',
-              'h-full',
-              'bg-modalOverlay',
-              'z-40'
-            ])}
-          ></m.div>
-        </>
-      )}
-    </AnimatePresence>
+              variant="destructive"
+              onClick={handleBanUser}
+            >
+              {$content.ban_user}
+            </Button>
+          )}
+          <Button
+            className={clsm(['bg-lightMode-gray'])}
+            variant="secondary"
+            onClick={handleClose}
+          >
+            {$content.cancel}
+          </Button>
+        </div>
+      </m.div>
+      <m.div
+        {...defaultAnimationProps}
+        variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
+        className={clsm([
+          'absolute',
+          'top-0',
+          'left-0',
+          'w-full',
+          'h-full',
+          'bg-modalOverlay',
+          'z-40'
+        ])}
+      ></m.div>
+    </>
   );
 };
 
-ChatPopup.defaultProps = { isOpen: false };
+ChatPopup.defaultProps = { isOpen: false, isSplitView: false };
 
 ChatPopup.propTypes = {
   banUser: PropTypes.func.isRequired,
   deleteMessage: PropTypes.func.isRequired,
   isOpen: PropTypes.bool,
+  isSplitView: PropTypes.bool,
+  openChatPopup: PropTypes.func.isRequired,
   selectedMessage: PropTypes.shape({
     avatar: PropTypes.string,
     color: PropTypes.string,
@@ -166,4 +189,4 @@ ChatPopup.propTypes = {
   setIsChatPopupOpen: PropTypes.func.isRequired
 };
 
-export default ChatPopup;
+export default withPortal(ChatPopup, 'chat-popup', { isAnimated: true });

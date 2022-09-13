@@ -27,19 +27,22 @@ const StickScrollButton = ({ isSticky, scrollToBottom }) => (
           aria-label="Show new messages"
           className={clsm(
             BUTTON_BASE_CLASSES,
-            'h-9',
-            'px-4',
-            'text-black',
-            '[&>svg]:!fill-black',
-            '[&>svg]:w-4',
+            '[&>svg]:!fill-white',
             '[&>svg]:h-4',
             '[&>svg]:mr-2',
-            'bg-lightMode-gray',
-            'focus:bg-lightMode-gray',
-            'hover:bg-lightMode-gray-hover',
+            '[&>svg]:w-4',
+            'bg-lightMode-gray-medium',
+            'dark:[&>svg]:!fill-black',
             'dark:bg-darkMode-gray-light',
             'dark:focus:bg-darkMode-gray-light',
-            'dark:hover:bg-darkMode-gray-light-hover'
+            'dark:hover:bg-darkMode-gray-light-hover',
+            'dark:text-black',
+            'focus-visible:outline-none',
+            'focus-visible:outline-offset-0',
+            'h-9',
+            'hover:bg-lightMode-gray-medium-hover',
+            'px-4',
+            'text-white'
           )}
           type="button"
           onClick={scrollToBottom}

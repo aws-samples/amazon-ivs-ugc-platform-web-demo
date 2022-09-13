@@ -58,7 +58,10 @@ const withPortal = (
 
       return (
         container &&
-        createPortal(<WrappedComponent ref={ref} {...props} />, container)
+        createPortal(
+          <WrappedComponent isOpen={isOpen} ref={ref} {...props} />,
+          container
+        )
       );
     })
   );

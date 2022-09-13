@@ -20,7 +20,7 @@ const $content = $appContent.navbar;
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const Popup = forwardRef(
-  ({ navData, toggleProfileMenu, isOpen, menuClassName }, ref) => {
+  ({ navData, toggleProfileMenu, menuClassName }, ref) => {
     const { userData, logOut } = useUser();
     const {
       avatar: avatarName,

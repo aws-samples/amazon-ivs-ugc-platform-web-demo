@@ -1,5 +1,5 @@
-import { m } from 'framer-motion';
-import { memo, useCallback, useState, useEffect } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
+import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
@@ -23,6 +23,7 @@ const $content = $channelContent.chat;
 const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const Chat = ({ chatAnimationControls }) => {
+  const chatContainerRef = useRef();
   const { isChannelLoading, refreshChannelData } = useChannel();
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
@@ -113,11 +114,12 @@ const Chat = ({ chatAnimationControls }) => {
         hidden: { x: '100%', width: 0 }
       }}
       transition={defaultTransition}
+      ref={chatContainerRef}
       className={clsm([
         'relative',
         'flex',
         'flex-shrink-0',
-        'bg-lightMode-gray-light',
+        'bg-white',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
         /* Default View */
@@ -172,13 +174,20 @@ const Chat = ({ chatAnimationControls }) => {
           />
         )}
       </div>
-      <ChatPopup
-        banUser={actions.banUser}
-        deleteMessage={actions.deleteMessage}
-        isOpen={isChatPopupOpen}
-        selectedMessage={selectedMessage}
-        setIsChatPopupOpen={setIsChatPopupOpen}
-      />
+      <AnimatePresence>
+        {isChatPopupOpen && (
+          <ChatPopup
+            banUser={actions.banUser}
+            deleteMessage={actions.deleteMessage}
+            isOpen={isChatPopupOpen}
+            selectedMessage={selectedMessage}
+            setIsChatPopupOpen={setIsChatPopupOpen}
+            openChatPopup={openChatPopup}
+            isSplitView={isSplitView}
+            parentEl={isSplitView ? document.body : chatContainerRef.current}
+          />
+        )}
+      </AnimatePresence>
     </m.section>
   );
 };
