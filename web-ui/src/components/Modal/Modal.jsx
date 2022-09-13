@@ -56,8 +56,12 @@ const Modal = () => {
     'sm:[&>button+button]:mb-5'
   ]);
 
-  const handleClose = (event, shouldCancel = true) => {
-    refocus();
+  const handleClose = (
+    event,
+    { shouldCancel = true, shouldRefocus = true } = {}
+  ) => {
+    if (shouldRefocus) refocus(event);
+    else closeModal();
 
     if (shouldCancel && typeof onCancel === 'function') {
       onCancel();
@@ -65,14 +69,19 @@ const Modal = () => {
   };
 
   const handleConfirm = () => {
-    handleClose(null, false);
+    handleClose(null, { shouldCancel: false, shouldRefocus: false });
 
     if (typeof onConfirm === 'function') {
       onConfirm();
     }
   };
 
-  useClickAway([modalRef], handleClose, cancellable);
+  useClickAway(
+    [modalRef],
+    (event) =>
+      handleClose(event, { shouldCancel: false, shouldRefocus: false }),
+    cancellable
+  );
   useFocusTrap([modalRef], !!modal);
 
   // Close the modal on page change

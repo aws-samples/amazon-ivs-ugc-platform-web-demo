@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
 import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
@@ -8,6 +9,8 @@ import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
 import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
+
+const $content = $channelContent.chat;
 
 const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   const { channelData } = useChannel();
@@ -31,7 +34,16 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   }, [isSplitView, scrollToBottom]);
 
   return (
-    <div className={clsm(['relative', 'w-full', 'h-full'])}>
+    <div
+      className={clsm([
+        'flex',
+        'h-full',
+        'items-end',
+        'justify-center',
+        'relative',
+        'w-full'
+      ])}
+    >
       <div
         className={clsm([
           'absolute',
@@ -54,10 +66,28 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
           ({
             Content: message,
             Id: messageId,
-            Sender: { Attributes: senderAttributes }
+            isDeleted,
+            isOwnMessage,
+            Sender: { Attributes: senderAttributes },
+            wasDeletedByUser
           }) => {
             const selectMessageToModerate = () =>
-              openChatPopup({ message, ...senderAttributes });
+              openChatPopup({ message, id: messageId, ...senderAttributes });
+
+            if (isDeleted && (isOwnMessage || wasDeletedByUser))
+              return (
+                <p
+                  className={clsm([
+                    'dark:text-darkMode-gray-light',
+                    'font-bold',
+                    'py-3'
+                  ])}
+                  key={messageId}
+                >
+                  {$content.message_removed}
+                </p>
+              );
+            else if (isDeleted) return null;
 
             return (
               <ChatLine

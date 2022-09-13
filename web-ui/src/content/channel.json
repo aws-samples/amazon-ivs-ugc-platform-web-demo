@@ -14,16 +14,19 @@
     },
     "new_messages": "New messages",
     "you_are_banned": "You are banned from this channel",
+    "message_removed": "Message removed",
     "notifications": {
       "success": {
         "user_banned": "User banned from channel",
-        "user_unbanned": "User unbanned from channel"
+        "user_unbanned": "User unbanned from channel",
+        "message_removed": "Message removed"
       },
       "error": {
         "ban_user": "Failed to ban user",
         "unban_user": "Failed to unban user",
         "you_have_been_banned": "You have been banned",
-        "error_loading_chat": "Error loading chat"
+        "error_loading_chat": "Error loading chat",
+        "your_message_was_removed": "Your message was removed"
       },
       "moderating": "Moderating"
     },

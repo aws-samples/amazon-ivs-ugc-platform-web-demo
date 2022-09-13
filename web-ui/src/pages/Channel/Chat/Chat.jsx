@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './useChatConnection/utils';
-import { clsm, noop } from '../../../utils';
+import { clsm } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
 import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
@@ -24,9 +24,8 @@ const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const Chat = ({ chatAnimationControls }) => {
   const { isChannelLoading, refreshChannelData } = useChannel();
-  const { removeMessageByUserId } = useChatMessages();
   const { isSessionValid, userData } = useUser();
-  const { notifyError, notifyInfo } = useNotif();
+  const { notifyError, notifyInfo, notifySuccess } = useNotif();
   const { isMobileView, isLandscape, currentBreakpoint } =
     useMobileBreakpoint();
   const isSplitView = isMobileView && isLandscape;
@@ -35,10 +34,29 @@ const Chat = ({ chatAnimationControls }) => {
   /**
    * Chat Event Handlers
    */
-  const handleDeleteMessage = useCallback(noop, []); // Temporary
-  const handleDeleteUserMessages = useCallback(
-    (userId) => removeMessageByUserId(userId),
-    [removeMessageByUserId]
+  const {
+    deletedMessageIds,
+    removeMessage,
+    removeMessageByUserId,
+    sentMessageIds
+  } = useChatMessages();
+  const handleDeleteMessage = useCallback(
+    (messageId) => {
+      removeMessage(messageId);
+
+      if (deletedMessageIds.current.includes(messageId)) {
+        notifySuccess($content.notifications.success.message_removed);
+      } else if (sentMessageIds.current.includes(messageId)) {
+        notifyError($content.notifications.error.your_message_was_removed);
+      }
+    },
+    [
+      deletedMessageIds,
+      notifyError,
+      notifySuccess,
+      removeMessage,
+      sentMessageIds
+    ]
   );
   const handleUserDisconnect = useCallback(
     (bannedUsername) => {
@@ -54,7 +72,7 @@ const Chat = ({ chatAnimationControls }) => {
   const { actions, chatUserRole, hasConnectionError, isConnecting, sendError } =
     useChatConnection({
       handleDeleteMessage,
-      handleDeleteUserMessages,
+      handleDeleteUserMessages: removeMessageByUserId,
       handleUserDisconnect
     });
   const isLoading = isConnecting || isChannelLoading;

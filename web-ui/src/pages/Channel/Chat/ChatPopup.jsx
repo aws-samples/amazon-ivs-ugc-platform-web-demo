@@ -5,6 +5,7 @@ import { m, AnimatePresence } from 'framer-motion';
 import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
+import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useModal } from '../../../contexts/Modal';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
@@ -26,9 +27,10 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  selectedMessage: { avatar, color, displayName, message },
+  selectedMessage: { avatar, color, displayName, id, message },
   setIsChatPopupOpen
 }) => {
+  const { deletedMessageIds } = useChatMessages();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
@@ -47,10 +49,11 @@ const ChatPopup = ({
     onRefocus: hideChatPopup
   });
 
-  const handleDeleteMessage = () => {
-    console.log('Message Deleted', { message });
+  const handleDeleteMessage = useCallback(() => {
+    deleteMessage(id);
+    deletedMessageIds.current.push(id);
     handleClose();
-  };
+  }, [deleteMessage, deletedMessageIds, handleClose, id]);
 
   const handleBanUser = () => {
     handleClose();
@@ -157,6 +160,7 @@ ChatPopup.propTypes = {
     avatar: PropTypes.string,
     color: PropTypes.string,
     displayName: PropTypes.string,
+    id: PropTypes.string,
     message: PropTypes.string
   }).isRequired,
   setIsChatPopupOpen: PropTypes.func.isRequired

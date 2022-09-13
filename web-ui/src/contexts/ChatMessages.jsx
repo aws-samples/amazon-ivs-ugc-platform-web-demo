@@ -49,15 +49,23 @@ const reducer = (messages, action) => {
       return action.initialMessages || [];
     }
     case actionTypes.ADD_MESSAGE: {
-      const { message: newMessage } = action;
+      const { message: newMessage, isOwnMessage } = action;
 
-      return [...messages, newMessage];
+      return [...messages, { ...newMessage, isOwnMessage }];
     }
     case actionTypes.DELETE_MESSAGE: {
-      const { messageId: messageIdToDelete } = action;
+      const { messageId: messageIdToDelete, deletedMessageIds } = action;
+      const wasDeletedByUser =
+        deletedMessageIds.current.includes(messageIdToDelete);
 
-      const newMessages = messages.filter(
-        (msg) => msg.Id !== messageIdToDelete
+      const newMessages = messages.reduce(
+        (acc, msg) => [
+          ...acc,
+          msg.Id === messageIdToDelete
+            ? { ...msg, isDeleted: true, wasDeletedByUser }
+            : msg
+        ],
+        []
       );
 
       return newMessages;
@@ -79,6 +87,13 @@ const reducer = (messages, action) => {
 export const Provider = ({ children }) => {
   /** @type {[Messages, Function]} */
   const [messages, dispatch] = useReducer(reducer, []);
+  /**
+   * `sentMessageIds` and `deletedMessageIds` have to be refs to avoid redefining `addMessage` which would reset the chat connection.
+   * `sentMessageIds` and `deletedMessageIds` are used to show the notifications upon message deletion.
+   * The corresponding messages are flagged respectively using the `isOwnMessage` and `wasDeletedByUser` booleans which are attached to `messages` (used for rendering).
+   */
+  const sentMessageIds = useRef([]);
+  const deletedMessageIds = useRef([]);
   const { userData, isSessionValid } = useUser();
   const { username: ownUsername } = userData || {};
   const chatRoomOwnerUsername = useRef();
@@ -91,14 +106,23 @@ export const Provider = ({ children }) => {
     dispatch({ type: actionTypes.INIT_MESSAGES, initialMessages });
   }, []);
 
-  const addMessage = useCallback((message) => {
-    dispatch({ type: actionTypes.ADD_MESSAGE, message });
-  }, []);
+  const addMessage = useCallback(
+    (message) => {
+      const isOwnMessage = ownUsername === message.Sender.UserId;
+
+      // Upon receiving a new message, we detect if the message was sent by the current user
+      if (isOwnMessage) sentMessageIds.current.push(message.Id);
+
+      dispatch({ type: actionTypes.ADD_MESSAGE, message, isOwnMessage });
+    },
+    [ownUsername]
+  );
 
   const removeMessage = useCallback((messageId) => {
     dispatch({
       type: actionTypes.DELETE_MESSAGE,
-      messageId
+      messageId,
+      deletedMessageIds
     });
   }, []);
 
@@ -128,12 +152,21 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       addMessage,
+      deletedMessageIds,
       initMessages,
       messages,
       removeMessage,
-      removeMessageByUserId
+      removeMessageByUserId,
+      sentMessageIds
     }),
-    [addMessage, initMessages, messages, removeMessage, removeMessageByUserId]
+    [
+      addMessage,
+      initMessages,
+      messages,
+      removeMessage,
+      removeMessageByUserId,
+      sentMessageIds
+    ]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
