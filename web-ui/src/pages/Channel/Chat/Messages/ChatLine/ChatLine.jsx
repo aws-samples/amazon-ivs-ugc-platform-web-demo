@@ -1,33 +1,51 @@
 import { decode } from 'html-entities';
+import { forwardRef, useCallback, useRef } from 'react';
 import { m } from 'framer-motion';
-import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import { CHAT_LINE_VARIANT } from '../../useChatConnection/utils';
 import {
-  CHATLINE_BASE_CLASSES as baseClasses,
-  TEXT_BASE_CLASSES as textBaseClasses,
-  TEXT_VARIANT_CLASSES as textClasses,
-  CHATLINE_VARIANT_CLASSES as variantClasses
+  CHATLINE_BASE_CLASSES as chatLineBaseClasses,
+  CHATLINE_HOVER_AND_FOCUS_CLASSES as chatLineHoverAndFocusClasses,
+  CHATLINE_VARIANT_CLASSES as chatLineVariantClasses,
+  TEXT_BASE_CLASSES as chatTextBaseClasses,
+  TEXT_VARIANT_CLASSES as chatTextVariantClasses
 } from './ChatLineTheme';
 import { clsm } from '../../../../../utils';
+import { useLastFocusedElement } from '../../../../../contexts/LastFocusedElement';
 import UserAvatar from '../../../../../components/UserAvatar';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
+export const CHAT_LINE_VARIANT = { MESSAGE: 'message', POPUP: 'popup' };
 
 const ChatLine = ({
-  message,
   avatar,
   color,
   displayName,
-  openChatPopup,
+  isFocusable,
+  message,
+  onClick,
   variant
 }) => {
-  const classes = clsm([baseClasses, ...variantClasses[variant]]);
+  const isStaticChatLine = !onClick;
+  const chatLineClasses = clsm(
+    chatLineBaseClasses,
+    chatLineVariantClasses[variant],
+    !isStaticChatLine && chatLineHoverAndFocusClasses
+  );
+  const chatTextClasses = clsm(
+    chatTextBaseClasses,
+    chatTextVariantClasses[variant]
+  );
+  const { setLastFocusedElement } = useLastFocusedElement();
+  const chatLineRef = useRef();
 
-  const selectMessage = useCallback(() => {
-    openChatPopup(message, avatar, color, displayName);
-  }, [openChatPopup, message, avatar, color, displayName]);
+  const handleChatLineButtonClick = useCallback(
+    (event) => {
+      setLastFocusedElement(chatLineRef.current);
+      onClick(event);
+    },
+    [onClick, setLastFocusedElement]
+  );
 
   return (
     <ChatLineWrapper
@@ -39,12 +57,15 @@ const ChatLine = ({
         hidden: { opacity: 0, scale: 0.9 }
       }}
       transition={defaultTransition}
-      className={classes}
+      className={chatLineClasses}
       chatLineVariant={variant}
-      {...(variant === CHAT_LINE_VARIANT.MESSAGE
+      isStaticChatLine={isStaticChatLine}
+      ref={chatLineRef}
+      {...(!isFocusable ? { tabIndex: -1 } : {})}
+      {...(variant === CHAT_LINE_VARIANT.MESSAGE && !isStaticChatLine
         ? {
             'aria-label': `Select ${displayName.toLowerCase()}'s message `,
-            onClick: selectMessage
+            onClick: handleChatLineButtonClick
           }
         : {})}
     >
@@ -53,7 +74,7 @@ const ChatLine = ({
         profileColor={color}
         size={variant === CHAT_LINE_VARIANT.MESSAGE ? 'sm' : 'md'}
       />
-      <p className={clsm([...textBaseClasses, textClasses[variant]])}>
+      <p className={chatTextClasses}>
         <b>{displayName}</b>
         &nbsp;
         {decode(message).replace(/\\/g, '\\\\')}
@@ -62,31 +83,41 @@ const ChatLine = ({
   );
 };
 
-const ChatLineWrapper = ({ children, chatLineVariant, ...restProps }) => {
-  if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE)
-    return <m.button {...restProps}>{children}</m.button>;
+const ChatLineWrapper = forwardRef(
+  ({ children, chatLineVariant, isStaticChatLine, ...restProps }, ref) => {
+    if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE)
+      return (
+        <m.button disabled={isStaticChatLine} ref={ref} {...restProps}>
+          {children}
+        </m.button>
+      );
 
-  if (chatLineVariant === CHAT_LINE_VARIANT.POPUP)
-    return <m.div {...restProps}>{children}</m.div>;
+    if (chatLineVariant === CHAT_LINE_VARIANT.POPUP)
+      return <m.div {...restProps}>{children}</m.div>;
 
-  return null;
-};
+    return null;
+  }
+);
 
 ChatLineWrapper.propTypes = {
+  chatLineVariant: PropTypes.oneOf(Object.values(CHAT_LINE_VARIANT)).isRequired,
   children: PropTypes.node.isRequired,
-  chatLineVariant: PropTypes.oneOf(Object.values(CHAT_LINE_VARIANT)).isRequired
+  isStaticChatLine: PropTypes.bool.isRequired
 };
 
 ChatLine.defaultProps = {
+  isFocusable: true,
+  onClick: null,
   variant: CHAT_LINE_VARIANT.MESSAGE
 };
 
 ChatLine.propTypes = {
-  message: PropTypes.string.isRequired,
   avatar: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   displayName: PropTypes.string.isRequired,
-  openChatPopup: PropTypes.func.isRequired,
+  isFocusable: PropTypes.bool,
+  message: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
   variant: PropTypes.oneOf(Object.values(CHAT_LINE_VARIANT))
 };
 

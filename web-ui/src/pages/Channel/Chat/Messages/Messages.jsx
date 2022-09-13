@@ -1,16 +1,15 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { CHAT_LINE_VARIANT } from '../useChatConnection/utils';
 import { clsm } from '../../../../utils';
 import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
-import ChatLine from './ChatLine/ChatLine';
+import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
 
-const Messages = ({ openChatPopup }) => {
+const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   const { channelData } = useChannel();
   const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
@@ -56,15 +55,20 @@ const Messages = ({ openChatPopup }) => {
             Content: message,
             Id: messageId,
             Sender: { Attributes: senderAttributes }
-          }) => (
-            <ChatLine
-              key={messageId}
-              message={message}
-              {...senderAttributes}
-              openChatPopup={openChatPopup}
-              variant={CHAT_LINE_VARIANT.MESSAGE}
-            />
-          )
+          }) => {
+            const selectMessageToModerate = () =>
+              openChatPopup({ message, ...senderAttributes });
+
+            return (
+              <ChatLine
+                {...(isModerator ? { onClick: selectMessageToModerate } : {})}
+                {...senderAttributes}
+                isFocusable={isModerator && !isChatPopupOpen}
+                key={messageId}
+                message={message}
+              />
+            );
+          }
         )}
       </div>
       <StickScrollButton isSticky={isSticky} scrollToBottom={scrollToBottom} />
@@ -72,10 +76,11 @@ const Messages = ({ openChatPopup }) => {
   );
 };
 
-Messages.defaultProps = { chatRoomOwnerUsername: '' };
+Messages.defaultProps = { isChatPopupOpen: false, isModerator: false };
 
 Messages.propTypes = {
-  chatRoomOwnerUsername: PropTypes.string,
+  isChatPopupOpen: PropTypes.bool,
+  isModerator: PropTypes.bool,
   openChatPopup: PropTypes.func.isRequired
 };
 

@@ -1,7 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
+import './Settings.css';
+import { clsm } from '../../utils';
 import { dashboard as $content } from '../../content';
 import { getInputErrorData } from './utils';
+import { OUTER_INPUT_VARIANT_CLASSES as outerInputClasses } from '../../components/Input/InputTheme';
 import { PROFILE_COLORS } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
@@ -9,14 +12,11 @@ import { useNotif } from '../../contexts/Notification';
 import { userManagementAPI } from '../../api';
 import { useUser } from '../../contexts/User';
 import * as userAvatars from '../../assets/avatars';
+import Button from '../../components/Button';
 import Form from '../../components/Form';
 import IconSelect from '../../components/IconSelect';
-import Button from '../../components/Button';
 import InputLabel from '../../components/Input/InputLabel';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
-import { OUTER_INPUT_VARIANT_CLASSES as outerInputClasses } from '../../components/Input/InputTheme';
-import { clsm } from '../../utils';
-import './Settings.css';
 
 const defaultFormProps = (inputVariant) => ({
   formVariant: 'horizontal',
@@ -26,6 +26,7 @@ const defaultFormProps = (inputVariant) => ({
 });
 
 const AccountSettings = () => {
+  const deleteAccountButtonRef = useRef();
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
   const [isChangeAvatarLoading, setIsChangeAvatarLoading] = useState(false);
   const [isChangeColorLoading, setIsChangeColorLoading] = useState(false);
@@ -40,7 +41,7 @@ const AccountSettings = () => {
   );
   const inputContainerClasses = clsm(outerInputClasses[inputVariant]);
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = useCallback(() => {
     if (isDeleteAccountLoading) return;
 
     const deleteAccount = async () => {
@@ -60,9 +61,10 @@ const AccountSettings = () => {
       isDestructive: true,
       message: $content.modal.account_deletion_modal.confirm_intent_message,
       confirmText: $content.modal.account_deletion_modal.delete_account,
-      onConfirm: deleteAccount
+      onConfirm: deleteAccount,
+      lastFocusedElement: deleteAccountButtonRef
     });
-  };
+  }, [isDeleteAccountLoading, logOut, notifyError, openModal]);
 
   const handleSavePasswordError = useCallback(
     (error) => {
@@ -226,11 +228,12 @@ const AccountSettings = () => {
             variant={inputVariant}
           />
           <Button
-            variant="destructive"
-            type="button"
-            onClick={handleDeleteAccount}
-            isLoading={isDeleteAccountLoading}
             className="min-w-[190px]"
+            isLoading={isDeleteAccountLoading}
+            onClick={handleDeleteAccount}
+            ref={deleteAccountButtonRef}
+            type="button"
+            variant="destructive"
           >
             {$content.settings_page.delete_my_account}
           </Button>

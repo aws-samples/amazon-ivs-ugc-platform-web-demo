@@ -34,6 +34,7 @@ const Input = forwardRef(
       onFocus,
       placeholder,
       readOnly,
+      tabIndex,
       type: initialType,
       value,
       variant
@@ -70,13 +71,18 @@ const Input = forwardRef(
             {...(onClick ? { onClick } : {})}
             {...(onFocus ? { onFocus } : {})}
             {...(onBlur ? { onBlur } : {})}
+            {...(tabIndex ? { tabIndex } : {})}
             aria-disabled={readOnly}
             aria-label={ariaLabel}
+            autoCapitalize={autoCapitalize}
+            autoComplete={autoComplete}
+            autoCorrect={autoCorrect}
             className={inputClasses}
             id={name}
             initial-type={initialType}
             name={name}
             placeholder={placeholder}
+            readOnly={readOnly}
             required={isRequired}
             style={
               initialType === 'password' && value
@@ -85,10 +91,6 @@ const Input = forwardRef(
             }
             type={inputType}
             value={value}
-            autoCorrect={autoCorrect}
-            autoCapitalize={autoCapitalize}
-            autoComplete={autoComplete}
-            readOnly={readOnly}
           />
           <ErrorMessage error={error} />
           <PasswordPeekButton
@@ -126,14 +128,15 @@ Input.defaultProps = {
   onFocus: null,
   placeholder: '',
   readOnly: false,
+  tabIndex: null,
   type: 'text',
   value: '',
   variant: 'vertical'
 };
 
 Input.propTypes = {
-  autoCapitalize: PropTypes.string,
   ariaLabel: PropTypes.string,
+  autoCapitalize: PropTypes.string,
   autoComplete: PropTypes.string,
   autoCorrect: PropTypes.string,
   className: PropTypes.string,
@@ -150,6 +153,7 @@ Input.propTypes = {
   onFocus: PropTypes.func,
   placeholder: PropTypes.string,
   readOnly: PropTypes.bool,
+  tabIndex: PropTypes.number,
   type: PropTypes.oneOf(['text', 'password']),
   value: PropTypes.string,
   variant: PropTypes.oneOf(['vertical', 'horizontal'])

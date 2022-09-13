@@ -1,20 +1,19 @@
 import PropTypes from 'prop-types';
-import { useState, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 
 import { channel as $channelContent } from '../../../content';
-import { clsm, noop } from '../../../utils';
+import { clsm } from '../../../utils';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useModal } from '../../../contexts/Modal';
+import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
-import ChatLine from './Messages/ChatLine/ChatLine';
+import ChatLine, { CHAT_LINE_VARIANT } from './Messages/ChatLine';
 import useClickAway from '../../../hooks/useClickAway';
-import useFocusTrap from '../../../hooks/useFocusTrap';
-import { CHAT_LINE_VARIANT } from './useChatConnection/utils';
+import usePreviousFocus from '../../../hooks/usePreviousFocus';
 
 const $content = $channelContent.chat.popup;
 const $modalContent = $channelContent.chat.modal.ban_user_modal;
-
 const defaultTransition = { duration: 0.5, type: 'tween' };
 const defaultAnimationProps = {
   animate: 'visible',
@@ -24,38 +23,50 @@ const defaultAnimationProps = {
 };
 
 const ChatPopup = ({
+  banUser,
+  deleteMessage,
   isOpen,
-  setIsChatPopupOpen,
-  selectedMessage,
-  openChatPopup
+  selectedMessage: { avatar, color, displayName, message },
+  setIsChatPopupOpen
 }) => {
-  const { color, message, avatar, displayName } = selectedMessage;
-  const [isBanningUserLoading, setIsBanningUserLoading] = useState(false);
+  const { userData } = useUser();
+  const { username } = userData || {};
   const { openModal } = useModal();
   const popupRef = useRef();
+  const isOwnMessage = username === displayName;
+  const showChatPopup = useCallback(
+    () => setIsChatPopupOpen(true),
+    [setIsChatPopupOpen]
+  );
+  const hideChatPopup = useCallback(
+    () => setIsChatPopupOpen(false),
+    [setIsChatPopupOpen]
+  );
+  const { refocus: handleClose } = usePreviousFocus({
+    isActive: isOpen,
+    onRefocus: hideChatPopup
+  });
 
-  // ban user handler will be completed in a subsequent PR
+  const handleDeleteMessage = () => {
+    console.log('Message Deleted', { message });
+    handleClose();
+  };
+
   const handleBanUser = () => {
-    if (isBanningUserLoading) return;
-    setIsChatPopupOpen(false);
-    const banUser = () => {
-      setIsBanningUserLoading(true);
-
-      console.log('banned the user');
-    };
-
-    const banMessage = `${$modalContent.ban_user_message} ${displayName}?`;
+    handleClose();
 
     openModal({
       isDestructive: true,
-      message: banMessage,
+      message: `${$modalContent.ban_user_message} ${displayName}?`,
       confirmText: $modalContent.confirm_ban_user,
-      onConfirm: banUser,
-      onCancel: () => setIsChatPopupOpen(true)
+      onConfirm: async () => {
+        await banUser(displayName);
+        handleClose();
+      },
+      onCancel: showChatPopup
     });
   };
 
-  useFocusTrap([popupRef], !!isOpen);
   useClickAway([popupRef], () => setIsChatPopupOpen(false));
 
   return (
@@ -88,36 +99,31 @@ const ChatPopup = ({
             ref={popupRef}
           >
             <ChatLine
-              message={message}
               avatar={avatar}
               color={color}
               displayName={displayName}
-              openChatPopup={openChatPopup}
+              message={message}
               variant={CHAT_LINE_VARIANT.POPUP}
             />
-
             <span className={clsm(HAIRLINE_DIVIDER_CLASSES, 'm-4')} />
             <div className={clsm(['flex', 'flex-col', 'gap-y-4', 'w-full'])}>
-              {/* the functionality will be done in a subsequent PR */}
               <Button
                 className={clsm('text-lightMode-red-hover')}
                 variant="tertiary"
+                onClick={handleDeleteMessage}
               >
                 {$content.delete_message}
               </Button>
-              <Button
-                className={clsm('text-white', 'dark:text-white')}
-                variant="destructive"
-                onClick={handleBanUser}
-              >
-                {$content.ban_user}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setIsChatPopupOpen(false);
-                }}
-              >
+              {!isOwnMessage && (
+                <Button
+                  className={clsm('text-white', 'dark:text-white')}
+                  variant="destructive"
+                  onClick={handleBanUser}
+                >
+                  {$content.ban_user}
+                </Button>
+              )}
+              <Button variant="secondary" onClick={handleClose}>
                 {$content.cancel}
               </Button>
             </div>
@@ -141,17 +147,19 @@ const ChatPopup = ({
   );
 };
 
-ChatPopup.defaultProps = {
-  isOpen: false,
-  setIsChatPopupOpen: noop,
-  openChatPopup: noop
-};
+ChatPopup.defaultProps = { isOpen: false };
 
 ChatPopup.propTypes = {
+  banUser: PropTypes.func.isRequired,
+  deleteMessage: PropTypes.func.isRequired,
   isOpen: PropTypes.bool,
-  setIsChatPopupOpen: PropTypes.func,
-  openChatPopup: PropTypes.func,
-  selectedMessage: PropTypes.object.isRequired
+  selectedMessage: PropTypes.shape({
+    avatar: PropTypes.string,
+    color: PropTypes.string,
+    displayName: PropTypes.string,
+    message: PropTypes.string
+  }).isRequired,
+  setIsChatPopupOpen: PropTypes.func.isRequired
 };
 
 export default ChatPopup;

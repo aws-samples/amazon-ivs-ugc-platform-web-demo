@@ -26,20 +26,20 @@ const Chat = ({ chatAnimationControls }) => {
   const { isChannelLoading, refreshChannelData } = useChannel();
   const { removeMessageByUserId } = useChatMessages();
   const { isSessionValid, userData } = useUser();
-  const { notifyError } = useNotif();
+  const { notifyError, notifyInfo } = useNotif();
   const { isMobileView, isLandscape, currentBreakpoint } =
     useMobileBreakpoint();
-  const { notifyInfo } = useNotif();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
 
+  /**
+   * Chat Event Handlers
+   */
   const handleDeleteMessage = useCallback(noop, []); // Temporary
-
   const handleDeleteUserMessages = useCallback(
     (userId) => removeMessageByUserId(userId),
     [removeMessageByUserId]
   );
-
   const handleUserDisconnect = useCallback(
     (bannedUsername) => {
       if (userData?.username === bannedUsername) {
@@ -51,36 +51,35 @@ const Chat = ({ chatAnimationControls }) => {
     [notifyError, refreshChannelData, userData?.username]
   );
 
-  const {
-    chatUserRole,
-    hasConnectionError,
-    isConnecting,
-    sendMessage,
-    sendError
-  } = useChatConnection({
-    handleDeleteMessage,
-    handleDeleteUserMessages,
-    handleUserDisconnect
-  });
+  const { actions, chatUserRole, hasConnectionError, isConnecting, sendError } =
+    useChatConnection({
+      handleDeleteMessage,
+      handleDeleteUserMessages,
+      handleUserDisconnect
+    });
   const isLoading = isConnecting || isChannelLoading;
+
+  /**
+   * Chat Moderation State and Actions
+   */
+  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
+  const openChatPopup = useCallback((messageData) => {
+    setIsChatPopupOpen(true);
+    setSelectedMessage(messageData);
+  }, []);
 
   // Show moderation pill if user role is moderator
   useEffect(() => {
-    if (chatUserRole === CHAT_USER_ROLE.MODERATOR)
+    if (isModerator) {
       notifyInfo(
         $content.notifications.moderating,
         true,
         MODERATOR_PILL_TIMEOUT
       );
-  }, [chatUserRole, notifyInfo]);
-
-  const openChatPopup = useCallback((message, avatar, color, displayName) => {
-    const selectedMessage = { message, avatar, color, displayName };
-    setIsChatPopupOpen(true);
-    setSelectedMessage(selectedMessage);
-  }, []);
+    }
+  }, [isModerator, notifyInfo]);
 
   return (
     <m.section
@@ -98,12 +97,11 @@ const Chat = ({ chatAnimationControls }) => {
       transition={defaultTransition}
       className={clsm([
         'relative',
-        'overflow-hidden',
         'flex',
         'flex-shrink-0',
         'bg-lightMode-gray-light',
         'dark:bg-darkMode-gray-dark',
-        'overflow-x-hidden',
+        'overflow-hidden',
         /* Default View */
         'w-[360px]',
         'h-screen',
@@ -121,12 +119,6 @@ const Chat = ({ chatAnimationControls }) => {
         'touch-screen-device:lg:landscape:min-h-[auto]'
       ])}
     >
-      <ChatPopup
-        isOpen={isChatPopupOpen}
-        setIsChatPopupOpen={setIsChatPopupOpen}
-        selectedMessage={selectedMessage}
-        openChatPopup={openChatPopup}
-      />
       <Notification />
       <div
         className={clsm(
@@ -143,7 +135,11 @@ const Chat = ({ chatAnimationControls }) => {
         )}
       >
         <ConnectingOverlay isLoading={isLoading} />
-        <Messages openChatPopup={openChatPopup} />
+        <Messages
+          isChatPopupOpen={isChatPopupOpen}
+          isModerator={isModerator}
+          openChatPopup={openChatPopup}
+        />
         {isMobileView && !isSessionValid ? (
           <MobileNavbar
             className={clsm(['absolute', 'px-5', 'pt-5', 'pb-6'])}
@@ -151,12 +147,20 @@ const Chat = ({ chatAnimationControls }) => {
         ) : (
           <Composer
             chatUserRole={chatUserRole}
-            sendMessage={sendMessage}
-            sendError={sendError}
             isDisabled={hasConnectionError}
+            isFocusable={!isChatPopupOpen}
+            sendError={sendError}
+            sendMessage={actions.sendMessage}
           />
         )}
       </div>
+      <ChatPopup
+        banUser={actions.banUser}
+        deleteMessage={actions.deleteMessage}
+        isOpen={isChatPopupOpen}
+        selectedMessage={selectedMessage}
+        setIsChatPopupOpen={setIsChatPopupOpen}
+      />
     </m.section>
   );
 };

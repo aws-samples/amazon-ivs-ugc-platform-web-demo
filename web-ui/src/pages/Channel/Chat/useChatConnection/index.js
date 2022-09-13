@@ -52,14 +52,11 @@ const useChatConnection = (eventHandlers) => {
     isInitializingConnection.current || connectionReadyState === 0;
 
   // Chat Actions
-  const {
-    banUser,
-    chatUserRole,
-    deleteMessage,
-    sendMessage,
-    unbanUser,
-    updateUserRole
-  } = useChatActions({ chatCapabilities, isConnectionOpen, connection });
+  const { actions, chatUserRole, updateUserRole } = useChatActions({
+    chatCapabilities,
+    isConnectionOpen,
+    connection
+  });
 
   // Handlers
   const onOpen = useCallback(() => {
@@ -273,16 +270,7 @@ const useChatConnection = (eventHandlers) => {
     [cancelRetryConnectionWithBackoff]
   );
 
-  return {
-    banUser,
-    chatUserRole,
-    deleteMessage,
-    hasConnectionError,
-    isConnecting,
-    sendError,
-    sendMessage,
-    unbanUser
-  };
+  return { actions, chatUserRole, hasConnectionError, isConnecting, sendError };
 };
 
 export default useChatConnection;

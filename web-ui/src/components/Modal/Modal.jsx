@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { clsm } from '../../utils';
@@ -12,10 +12,10 @@ import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
+import usePreviousFocus from '../../hooks/usePreviousFocus';
 
 const Modal = () => {
   const modalRef = useRef();
-  const lastFocusedElement = useRef();
   const { currentBreakpoint } = useMobileBreakpoint();
   const isResponsiveView = currentBreakpoint < BREAKPOINTS.sm;
   const { modal, closeModal } = useModal();
@@ -30,6 +30,10 @@ const Modal = () => {
   } = modal || {};
   const { pathname } = useLocation();
   const prevPathname = usePrevious(pathname);
+  const { refocus } = usePreviousFocus({
+    isActive: !!modal,
+    onRefocus: closeModal
+  });
 
   const modalContainerClasses = clsm([
     'dark:bg-darkMode-gray',
@@ -52,23 +56,16 @@ const Modal = () => {
     'sm:[&>button+button]:mb-5'
   ]);
 
-  const handleClose = useCallback(
-    (event) => {
-      if (event && event instanceof KeyboardEvent && event.keyCode !== 27)
-        return;
+  const handleClose = (event, shouldCancel = true) => {
+    refocus();
 
-      closeModal();
-      setTimeout(() => lastFocusedElement.current?.focus());
-
-      if (typeof onCancel === 'function') {
-        onCancel();
-      }
-    },
-    [closeModal, onCancel]
-  );
+    if (shouldCancel && typeof onCancel === 'function') {
+      onCancel();
+    }
+  };
 
   const handleConfirm = () => {
-    handleClose();
+    handleClose(null, false);
 
     if (typeof onConfirm === 'function') {
       onConfirm();
@@ -77,16 +74,6 @@ const Modal = () => {
 
   useClickAway([modalRef], handleClose, cancellable);
   useFocusTrap([modalRef], !!modal);
-
-  useEffect(() => {
-    if (!!modal) {
-      document.addEventListener('keydown', handleClose);
-      lastFocusedElement.current = document.activeElement;
-      lastFocusedElement.current.blur();
-    }
-
-    return () => document.removeEventListener('keydown', handleClose);
-  }, [handleClose, modal]);
 
   // Close the modal on page change
   useEffect(() => {

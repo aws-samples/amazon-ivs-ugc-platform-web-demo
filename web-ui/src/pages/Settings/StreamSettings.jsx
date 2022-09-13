@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import copyToClipboard from 'copy-to-clipboard';
 
 import { dashboard as $content } from '../../content';
@@ -12,6 +12,7 @@ import Input from '../../components/Input';
 import './Settings.css';
 
 const StreamSettings = () => {
+  const resetStreamKeyButtonRef = useRef();
   const [isResetStreamKeyLoading, setIsResetStreamKeyLoading] = useState(false);
   const { isDefaultResponsiveView } = useMobileBreakpoint();
   const { notifySuccess, notifyError } = useNotif();
@@ -47,11 +48,12 @@ const StreamSettings = () => {
     };
 
     openModal({
-      isDestructive: true,
-      message: $content.modal.reset_stream_key_modal.confirm_intent_message,
-      subMessage: $content.modal.reset_stream_key_modal.stream_will_terminate,
       confirmText: $content.modal.reset_stream_key_modal.reset_stream_key,
-      onConfirm: resetStreamKey
+      isDestructive: true,
+      lastFocusedElement: resetStreamKeyButtonRef,
+      message: $content.modal.reset_stream_key_modal.confirm_intent_message,
+      onConfirm: resetStreamKey,
+      subMessage: $content.modal.reset_stream_key_modal.stream_will_terminate
     });
   };
 
@@ -72,6 +74,7 @@ const StreamSettings = () => {
           className="input-button"
           isLoading={isResetStreamKeyLoading}
           onClick={handleResetStreamKey}
+          ref={resetStreamKeyButtonRef}
           variant="destructive"
         >
           {$content.settings_page.reset}

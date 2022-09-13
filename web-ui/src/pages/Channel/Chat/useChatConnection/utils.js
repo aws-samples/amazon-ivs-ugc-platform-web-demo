@@ -14,11 +14,6 @@ export const CHAT_USER_ROLE = {
   MODERATOR: 'MODERATOR'
 };
 
-export const CHAT_LINE_VARIANT = {
-  MESSAGE: 'message',
-  POPUP: 'popup'
-};
-
 export const SEND_ERRORS = {
   RATE_LIMIT_EXCEEDED: 'rate limit exceeded',
   MAX_LENGTH_EXCEEDED: 'Message exceeds maximum length'

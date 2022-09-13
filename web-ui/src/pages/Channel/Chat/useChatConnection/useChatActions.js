@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { encode } from 'html-entities';
 
@@ -142,14 +142,12 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
     [chatUserRole, notifyError, notifySuccess]
   );
 
-  return {
-    banUser,
-    chatUserRole,
-    deleteMessage,
-    sendMessage,
-    unbanUser,
-    updateUserRole
-  };
+  const actions = useMemo(
+    () => ({ banUser, deleteMessage, sendMessage, unbanUser }),
+    [banUser, deleteMessage, sendMessage, unbanUser]
+  );
+
+  return { actions, chatUserRole, updateUserRole };
 };
 
 export default useChatActions;

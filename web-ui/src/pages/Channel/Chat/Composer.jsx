@@ -20,7 +20,13 @@ import { useChannel } from '../../../contexts/Channel';
 
 const $content = $channelContent.chat;
 
-const Composer = ({ chatUserRole, isDisabled, sendError, sendMessage }) => {
+const Composer = ({
+  chatUserRole,
+  isDisabled,
+  isFocusable,
+  sendError,
+  sendMessage
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const composerFieldRef = useRef();
@@ -132,9 +138,9 @@ const Composer = ({ chatUserRole, isDisabled, sendError, sendMessage }) => {
           <div>
             <ComposerErrorMessage errorMessage={errorMessage} />
             <Input
-              ref={composerFieldRef}
+              {...(!isFocusable ? { tabIndex: -1 } : {})}
+              ariaLabel={isDisabled ? 'Chat disabled' : null}
               autoComplete="off"
-              name="chatComposer"
               className={clsm(
                 [
                   'bg-lightMode-gray',
@@ -157,15 +163,16 @@ const Composer = ({ chatUserRole, isDisabled, sendError, sendMessage }) => {
                 isLocked && ['pr-[60px]', 'read-only:cursor-not-allowed'],
                 isDisabled && ['opacity-30']
               )}
+              error={errorMessage ? '' : null}
+              isRequired={false}
+              name="chatComposer"
+              onChange={handleOnChange}
               placeholder={
                 isLocked ? $content.you_are_banned : $content.say_something
               }
-              onChange={handleOnChange}
-              value={message}
-              isRequired={false}
-              error={errorMessage ? '' : null}
               readOnly={isDisabled || isLocked}
-              ariaLabel={isDisabled ? 'Chat disabled' : null}
+              ref={composerFieldRef}
+              value={message}
             />
             {isLocked && (
               <span
@@ -194,12 +201,14 @@ const Composer = ({ chatUserRole, isDisabled, sendError, sendMessage }) => {
 Composer.defaultProps = {
   chatUserRole: undefined,
   isDisabled: false,
+  isFocusable: true,
   sendError: null
 };
 
 Composer.propTypes = {
   chatUserRole: PropTypes.oneOf(Object.values(CHAT_USER_ROLE)),
   isDisabled: PropTypes.bool,
+  isFocusable: PropTypes.bool,
   sendMessage: PropTypes.func.isRequired,
   sendError: PropTypes.shape({ message: PropTypes.string })
 };

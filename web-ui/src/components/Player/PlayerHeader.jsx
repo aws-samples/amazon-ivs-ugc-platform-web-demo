@@ -31,7 +31,7 @@ const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => (
         'lg:pt-4'
       )}
     >
-      <div className={clsm(['z-10'])}>
+      <div className={clsm(['z-10', 'flex-shrink-0'])}>
         <UserAvatar avatarName={avatar} profileColor={color} />
       </div>
       <m.div
