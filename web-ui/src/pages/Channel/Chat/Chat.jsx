@@ -168,6 +168,7 @@ const Chat = ({ chatAnimationControls }) => {
           <Composer
             chatUserRole={chatUserRole}
             isDisabled={hasConnectionError}
+            isLoading={isLoading}
             isFocusable={!isChatPopupOpen}
             sendError={sendError}
             sendMessage={actions.sendMessage}

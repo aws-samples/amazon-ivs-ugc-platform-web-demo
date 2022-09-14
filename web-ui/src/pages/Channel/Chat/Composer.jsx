@@ -24,6 +24,7 @@ const Composer = ({
   chatUserRole,
   isDisabled,
   isFocusable,
+  isLoading,
   sendError,
   sendMessage
 }) => {
@@ -42,6 +43,11 @@ const Composer = ({
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);
   const focus = location.state?.focus;
+
+  const setSubmitErrorStates = (_errorMessage) => {
+    setErrorMessage(`${$content.error.message_not_sent} ${_errorMessage}`);
+    setShouldShake(true);
+  };
 
   useEffect(() => {
     // If previous route has focus state, focus on composer
@@ -74,49 +80,60 @@ const Composer = ({
       let _errorMessage = '';
       if (sendError.message === SEND_ERRORS.RATE_LIMIT_EXCEEDED) {
         setBlockChat(true);
-        _errorMessage = $content.error.error_rate_exceeded;
+        _errorMessage = $content.error.rate_exceeded;
       } else if (sendError.message === SEND_ERRORS.MAX_LENGTH_EXCEEDED) {
-        _errorMessage = $content.error.error_max_length_reached;
+        _errorMessage = $content.error.max_length_reached;
       }
-      setErrorMessage(
-        `${$content.error.error_message_not_sent} ${_errorMessage}`
-      );
-      setShouldShake(true);
+      // connection error or chat is loading (chat is not connected)
+      setSubmitErrorStates(_errorMessage);
     }
-  }, [sendError]);
+  }, [sendError, isLoading]);
 
   const navigateToLogin = () =>
     navigate('/login', { state: { from: location, focus: 'COMPOSER' } });
 
   const handleOnChange = (event) => {
+    const { value } = event.target;
+    setMessage(value);
     if (canSendMessages) {
-      const { value } = event.target;
-      setMessage(value);
       // On change errors
       if (value.length > COMPOSER_MAX_CHARACTER_LENGTH) {
-        setErrorMessage($content.error.error_max_length_reached);
+        setErrorMessage($content.error.max_length_reached);
       } else if (!blockChat) {
         setErrorMessage('');
       }
-    } else {
+    } else if (!isLoading && !canSendMessages) {
       navigateToLogin();
     }
   };
 
   const handleSendMessage = (event) => {
     event.preventDefault();
-    if (canSendMessages) {
-      if (!message || blockChat) return;
-      sendMessage(message);
-      !errorMessage && setMessage('');
-      setShouldShake(false);
+    if (isLoading) {
+      setSubmitErrorStates($content.error.wait_until_connected);
     } else {
-      navigateToLogin();
+      if (canSendMessages) {
+        if (!message || blockChat) return;
+        if (errorMessage.includes($content.error.wait_until_connected)) {
+          setErrorMessage('');
+          setMessage('');
+        }
+        sendMessage(message);
+        !errorMessage && setMessage('');
+        setShouldShake(false);
+      } else {
+        navigateToLogin();
+      }
     }
   };
 
   return (
-    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
+    <div
+      className={clsm(
+        ['w-full', 'pt-5', 'pb-6', 'px-[18px]'],
+        isLoading && ['z-50']
+      )}
+    >
       <m.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
@@ -202,6 +219,7 @@ Composer.defaultProps = {
   chatUserRole: undefined,
   isDisabled: false,
   isFocusable: true,
+  isLoading: true,
   sendError: null
 };
 
@@ -209,6 +227,7 @@ Composer.propTypes = {
   chatUserRole: PropTypes.oneOf(Object.values(CHAT_USER_ROLE)),
   isDisabled: PropTypes.bool,
   isFocusable: PropTypes.bool,
+  isLoading: PropTypes.bool,
   sendMessage: PropTypes.func.isRequired,
   sendError: PropTypes.shape({ message: PropTypes.string })
 };

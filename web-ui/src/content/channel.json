@@ -31,9 +31,10 @@
       "moderating": "Moderating"
     },
     "error": {
-      "error_message_not_sent": "Message could not be sent.",
-      "error_max_length_reached": "Max message length reached.",
-      "error_rate_exceeded": "Rate exceeded."
+      "message_not_sent": "Message could not be sent.",
+      "max_length_reached": "Max message length reached.",
+      "rate_exceeded": "Rate exceeded.",
+      "wait_until_connected": "Please wait until chat has connected."
     }
   }
 }
