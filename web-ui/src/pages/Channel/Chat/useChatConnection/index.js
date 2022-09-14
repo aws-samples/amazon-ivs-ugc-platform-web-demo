@@ -33,7 +33,8 @@ const useChatConnection = (eventHandlers) => {
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned } = channelData || {};
   const { addMessage } = useChatMessages();
-  const { isSessionValid } = useUser();
+  const { isSessionValid, userData } = useUser();
+  const { username: ownUsername } = userData || {};
   const { notifyError, dismissNotif } = useNotif();
   const chatCapabilities = useRef([]);
 
@@ -197,6 +198,7 @@ const useChatConnection = (eventHandlers) => {
     if (
       isViewerBanned !== false ||
       !chatRoomOwnerUsername ||
+      (!ownUsername && isSessionValid) ||
       (isInitializingConnection.current && !isRetryingConnection.current)
     )
       return;
@@ -239,10 +241,12 @@ const useChatConnection = (eventHandlers) => {
   }, [
     chatRoomOwnerUsername,
     disconnect,
+    isSessionValid,
     isViewerBanned,
     onClose,
     onMessage,
     onOpen,
+    ownUsername,
     retryConnectionWithBackoff
   ]);
 
