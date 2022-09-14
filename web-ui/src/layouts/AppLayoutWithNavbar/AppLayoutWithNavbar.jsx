@@ -1,10 +1,12 @@
 import { Outlet } from 'react-router-dom';
 
 import { clsm } from '../../utils';
+import { FLOATING_PLAYER_PAGES } from '../../constants';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useUser } from '../../contexts/User';
 import FloatingNav from '../../components/FloatingNav';
+import FloatingPlayer from '../../pages/StreamHealth/FloatingPlayer';
 import Modal from '../../components/Modal';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
@@ -17,6 +19,8 @@ const AppLayoutWithNavbar = () => {
   const { isSessionValid } = useUser();
   const { modal } = useModal();
   const currentPage = useCurrentPage();
+  const shouldRenderFloatingPlayer =
+    !isMobileView && FLOATING_PLAYER_PAGES.includes(currentPage);
 
   const renderNav = () => {
     switch (true) {
@@ -65,6 +69,7 @@ const AppLayoutWithNavbar = () => {
         )}
       >
         {currentPage !== 'channel' && <Notification />}
+        {shouldRenderFloatingPlayer && <FloatingPlayer />}
         <Modal isOpen={!!modal} />
         <Outlet />
       </main>

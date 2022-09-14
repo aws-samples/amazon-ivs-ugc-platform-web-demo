@@ -56,13 +56,14 @@ jobs:
         run: npx playwright install
 
       - name: Install Playwright Dependencies, Build App and Run Playwright Tests
+        id: e2e-tests
         run: |
           npx playwright install-deps
           npm run test:e2e:ci
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
-        if: always()
+        if: failure() && steps.e2e-tests.outcome == 'failure'
         with:
           name: playwright-report
           path: ./web-ui/e2e/playwright-report

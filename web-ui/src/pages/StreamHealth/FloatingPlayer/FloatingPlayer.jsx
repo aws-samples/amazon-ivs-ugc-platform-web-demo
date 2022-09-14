@@ -1,4 +1,4 @@
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import './FloatingPlayer.css';
@@ -10,6 +10,7 @@ import { VOLUME_MIN } from '../../../constants';
 import Button from '../../../components/Button';
 import LivePill from '../../../components/LivePill';
 import Spinner from '../../../components/Spinner';
+import useCurrentPage from '../../../hooks/useCurrentPage';
 import usePlayer from '../../../hooks/usePlayer';
 
 const $content = $appContent.floating_player;
@@ -17,6 +18,7 @@ const $content = $appContent.floating_player;
 const FloatingPlayer = () => {
   const {
     activeStreamSession,
+    hasStreamSessions,
     isLive,
     streamSessions,
     updateActiveStreamSession
@@ -39,9 +41,8 @@ const FloatingPlayer = () => {
     playbackUrl: userData?.playbackUrl
   });
   const [isExpanded, setIsExpanded] = useState(true);
-  const isSettingsPage = !!useMatch('settings');
+  const currentPage = useCurrentPage();
   const navigate = useNavigate();
-  const hasStreamSessions = !!streamSessions?.length;
   const prevIsLiveValue = useRef(isLive);
   const shouldShowSpinner =
     (isLoading && isLive !== false) || (shouldBlurPlayer && !isBlurReady);
@@ -51,8 +52,8 @@ const FloatingPlayer = () => {
   const setLiveActiveStreamSession = useCallback(() => {
     updateActiveStreamSession(streamSessions?.[0]);
 
-    if (isSettingsPage) navigate('/health');
-  }, [isSettingsPage, navigate, streamSessions, updateActiveStreamSession]);
+    if (currentPage !== 'stream_health') navigate('/health');
+  }, [currentPage, navigate, streamSessions, updateActiveStreamSession]);
 
   useEffect(() => {
     if (isLive) {
@@ -104,12 +105,13 @@ const FloatingPlayer = () => {
         </div>
         {isExpanded &&
           isLive &&
-          (activeStreamSession?.index > 0 || isSettingsPage) && (
+          (activeStreamSession?.index > 0 ||
+            currentPage !== 'stream_health') && (
             <Button onClick={setLiveActiveStreamSession} variant="secondary">
               {$content.view_stream_session}
             </Button>
           )}
-        {isExpanded && !isLive && (
+        {isExpanded && !isLive && hasStreamSessions !== undefined && (
           <div className="offline-stream-container">
             {hasStreamSessions ? (
               <p className="mini-player-text p2">
@@ -123,7 +125,7 @@ const FloatingPlayer = () => {
                 <p className="mini-player-text offline-instructions p2">
                   {$content.offline_instructions}
                 </p>
-                {!isSettingsPage && (
+                {currentPage !== 'settings' && (
                   <div className="settings-link">
                     <Button type="nav" variant="secondary" to="/settings">
                       {$content.settings}

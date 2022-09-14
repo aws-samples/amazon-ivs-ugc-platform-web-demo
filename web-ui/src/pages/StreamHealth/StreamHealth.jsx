@@ -3,14 +3,13 @@ import { clsm } from '../../utils';
 import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useStreams } from '../../contexts/Streams';
 import { WITH_VERTICAL_SCROLLER_BASE_CLASSES } from '../../components/withVerticalScroller/withVerticalScrollerTheme';
-import FloatingPlayer from './FloatingPlayer';
 import Header from './Header';
 import StreamSession from './StreamSession';
 import useScrollToTop from '../../hooks/useScrollToTop';
 
 const StreamHealth = () => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView, isMobileView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useMobileBreakpoint();
 
   useScrollToTop({
     dependency: activeStreamSession?.streamId,
@@ -28,7 +27,6 @@ const StreamHealth = () => {
       >
         <StreamSession />
       </section>
-      {!isMobileView && <FloatingPlayer />}
     </>
   );
 };

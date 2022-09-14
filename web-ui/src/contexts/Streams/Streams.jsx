@@ -8,11 +8,11 @@ import {
 } from 'react';
 import {
   generatePath,
-  Outlet,
   useMatch,
   useNavigate,
   useParams
 } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import { useUser } from '../../contexts/User';
 import useActiveStreamSession from './useActiveStreamSession';
@@ -25,7 +25,7 @@ import useThrottledCallback from '../../hooks/useThrottledCallback';
 const Context = createContext(null);
 Context.displayName = 'Streams';
 
-export const Provider = () => {
+export const Provider = ({ children }) => {
   const { isSessionValid, userData } = useUser();
   const { streamId: paramsStreamId } = useParams();
   const isInitialized = useRef(false);
@@ -297,11 +297,9 @@ export const Provider = () => {
     ]
   );
 
-  return (
-    <Context.Provider value={value}>
-      <Outlet />
-    </Context.Provider>
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
+
+Provider.propTypes = { children: PropTypes.node.isRequired };
 
 export const useStreams = () => useContextHook(Context);

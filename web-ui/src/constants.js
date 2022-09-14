@@ -9,6 +9,11 @@ export const CHANNEL_TYPE = { BASIC: 'BASIC', STANDARD: 'STANDARD' };
 export const VOLUME_MEDIAN = 50;
 export const VOLUME_MIN = 0;
 export const VOLUME_MAX = 100;
+export const FLOATING_PLAYER_PAGES = [
+  'stream_manager',
+  'stream_health',
+  'settings'
+];
 
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
 export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';

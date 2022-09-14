@@ -49,28 +49,28 @@ const App = () => (
         <LastFocusedElementProvider>
           <MobileBreakpointProvider>
             <NotificationProvider>
-              <UserProvider>
-                <ModalProvider>
-                  <TooltipsProvider>
-                    <Routes>
-                      <Route
-                        element={
-                          <ChannelProvider>
-                            <ChatMessagesProvider>
-                              <AppLayoutWithNavbar />
-                            </ChatMessagesProvider>
-                          </ChannelProvider>
-                        }
-                      >
-                        {/* PUBLIC PAGES - UGC */}
-                        <Route index element={<ChannelDirectory />} />
-                        <Route path=":username" element={<Channel />} />
-                        <Route path="feed" element={<Feed />} />
+              <ModalProvider>
+                <TooltipsProvider>
+                  <UserProvider>
+                    <StreamsProvider>
+                      <Routes>
+                        <Route
+                          element={
+                            <ChannelProvider>
+                              <ChatMessagesProvider>
+                                <AppLayoutWithNavbar />
+                              </ChatMessagesProvider>
+                            </ChannelProvider>
+                          }
+                        >
+                          {/* PUBLIC PAGES - UGC */}
+                          <Route index element={<ChannelDirectory />} />
+                          <Route path=":username" element={<Channel />} />
+                          <Route path="feed" element={<Feed />} />
 
-                        {/* PRIVATE PAGES */}
-                        <Route element={<RequireAuth />}>
-                          <Route path="following" element={<Following />} />
-                          <Route element={<StreamsProvider />}>
+                          {/* PRIVATE PAGES */}
+                          <Route element={<RequireAuth />}>
+                            <Route path="following" element={<Following />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="manager" element={<StreamManager />} />
                             <Route path="health">
@@ -85,20 +85,23 @@ const App = () => (
                               />
                             </Route>
                           </Route>
+                          <Route
+                            path="*"
+                            element={<Navigate replace to="/" />}
+                          />
                         </Route>
-                        <Route path="*" element={<Navigate replace to="/" />} />
-                      </Route>
 
-                      {/* PUBLIC PAGES - User Management */}
-                      <Route element={<UserManagement />}>
-                        <Route path="login" element={<SigninUser />} />
-                        <Route path="register" element={<RegisterUser />} />
-                        <Route path="reset" element={<ResetPassword />} />
-                      </Route>
-                    </Routes>
-                  </TooltipsProvider>
-                </ModalProvider>
-              </UserProvider>
+                        {/* PUBLIC PAGES - User Management */}
+                        <Route element={<UserManagement />}>
+                          <Route path="login" element={<SigninUser />} />
+                          <Route path="register" element={<RegisterUser />} />
+                          <Route path="reset" element={<ResetPassword />} />
+                        </Route>
+                      </Routes>
+                    </StreamsProvider>
+                  </UserProvider>
+                </TooltipsProvider>
+              </ModalProvider>
             </NotificationProvider>
           </MobileBreakpointProvider>
         </LastFocusedElementProvider>

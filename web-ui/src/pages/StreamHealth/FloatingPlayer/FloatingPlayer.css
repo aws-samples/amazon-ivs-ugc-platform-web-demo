@@ -90,11 +90,11 @@
 
 .floating-player {
   align-items: flex-end;
-  bottom: 30px;
+  bottom: 24px;
   display: flex;
   flex-direction: column-reverse;
   position: fixed;
-  right: 30px;
+  right: 24px;
   z-index: 200;
 }
 
