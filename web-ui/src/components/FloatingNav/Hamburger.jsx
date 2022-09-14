@@ -15,7 +15,7 @@ const Hamburger = ({ isOpen }) => {
       animate: isOpen ? 'opened' : 'closed',
       strokeLinecap: 'round',
       vectorEffect: 'non-scaling-stroke',
-      className: clsm(['stroke-[3.5px]', 'stroke-black', 'dark:stroke-white'])
+      className: clsm(['stroke-[3.15px]', 'stroke-black', 'dark:stroke-white'])
     }),
     [isOpen]
   );
@@ -23,7 +23,13 @@ const Hamburger = ({ isOpen }) => {
   return (
     <m.svg
       viewBox={`0 0 ${unitWidth} ${unitHeight}`}
-      className={clsm(['overflow-visible', 'w-6', 'h-4'])}
+      className={clsm([
+        'overflow-visible',
+        'w-6',
+        'h-4',
+        'scale-[0.725]',
+        isOpen && 'ml-[1px]'
+      ])}
       preserveAspectRatio="none"
     >
       {/* TOP */}
@@ -42,8 +48,8 @@ const Hamburger = ({ isOpen }) => {
       <m.line
         x1="0"
         x2={unitWidth}
-        y1="2"
-        y2="2"
+        y1={isOpen ? 2 : 2.1}
+        y2={isOpen ? 2 : 2.1}
         variants={{
           closed: { opacity: 1 },
           opened: { opacity: 0 }
@@ -54,8 +60,8 @@ const Hamburger = ({ isOpen }) => {
       <m.line
         x1="0"
         x2={unitWidth}
-        y1="4"
-        y2="4"
+        y1={isOpen ? 4 : 4.2}
+        y2={isOpen ? 4 : 4.2}
         variants={{
           closed: { rotate: 0, translateY: 0 },
           opened: { rotate: -45, translateY: -2 }
