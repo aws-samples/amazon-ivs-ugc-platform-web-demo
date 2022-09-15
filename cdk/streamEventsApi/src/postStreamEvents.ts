@@ -5,13 +5,17 @@ import {
   LIMIT_BREACH_EVENT_TYPE,
   SESSION_CREATED,
   SESSION_ENDED,
+  STARVATION_START,
+  STREAM_HEALTH_CHANGE_EVENT_TYPE,
   UNEXPECTED_EXCEPTION
 } from './constants';
 import {
   AdditionalStreamAttributes,
-  addStreamEventToDb,
+  getStreamEvents,
   getStreamsByChannelArn,
-  getUserByChannelArn
+  getUserByChannelArn,
+  StreamEvent,
+  updateStreamEvents
 } from './helpers';
 
 const handler = async (
@@ -45,9 +49,7 @@ const handler = async (
     let userSub;
 
     if (Items && Items.length > 0) {
-      ({
-        id: { S: userSub }
-      } = Items[0]);
+      ({ id: userSub } = unmarshall(Items[0]));
     } else {
       throw new Error('User not found');
     }
@@ -75,24 +77,43 @@ const handler = async (
       }
     }
 
+    const newEvent: StreamEvent = {
+      eventTime,
+      name: limitName || eventName,
+      type: eventType
+    };
+    const streamEvents = await getStreamEvents(channelArn, streamId);
+    streamEvents.push(newEvent);
+    const sortedStreamEvents =
+      streamEvents.sort(
+        ({ eventTime: eventTime1 }, { eventTime: eventTime2 }) => {
+          /* istanbul ignore else */
+          if (eventTime1 && eventTime2) {
+            return eventTime1 > eventTime2 ? 1 : -1; // Ascending order
+          } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+        }
+      ) || [];
+    const latestStreamHealthChangeEvent = sortedStreamEvents
+      .filter(({ type }) => type === STREAM_HEALTH_CHANGE_EVENT_TYPE)
+      .pop();
+
     const additionalAttributes: AdditionalStreamAttributes = {};
 
+    additionalAttributes.isHealthy =
+      latestStreamHealthChangeEvent?.name !== STARVATION_START;
+
     if (eventName === SESSION_CREATED) {
-      additionalAttributes.startTime = eventTime;
       additionalAttributes.hasErrorEvent = false;
+      additionalAttributes.startTime = eventTime;
     }
     if (eventName === SESSION_ENDED) additionalAttributes.endTime = eventTime;
     if (eventType === LIMIT_BREACH_EVENT_TYPE)
       additionalAttributes.hasErrorEvent = true;
 
-    await addStreamEventToDb({
+    await updateStreamEvents({
       additionalAttributes,
       channelArn,
-      newEvent: {
-        eventTime,
-        name: limitName || eventName,
-        type: eventType
-      },
+      streamEvents,
       streamId,
       userSub
     });

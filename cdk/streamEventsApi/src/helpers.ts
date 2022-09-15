@@ -1,11 +1,25 @@
 import {
   DynamoDBClient,
+  GetItemCommand,
   QueryCommand,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
-import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 
 export const dynamoDbClient = new DynamoDBClient({});
+
+export type AdditionalStreamAttributes = {
+  isHealthy?: boolean;
+  hasErrorEvent?: boolean;
+  startTime?: string;
+  endTime?: string;
+};
+
+export type StreamEvent = {
+  eventTime: string;
+  name: string;
+  type: string;
+};
 
 export const getUserByChannelArn = (eventChannelArn: string) => {
   const queryCommand = new QueryCommand({
@@ -21,16 +35,12 @@ export const getUserByChannelArn = (eventChannelArn: string) => {
   return dynamoDbClient.send(queryCommand);
 };
 
-export type AdditionalStreamAttributes = {
-  hasErrorEvent?: boolean;
-  endTime?: string;
-  startTime?: string;
-};
-
 export const getStreamsByChannelArn = (userChannelArn: string) => {
   const queryCommand = new QueryCommand({
     ScanIndexForward: false,
-    ExpressionAttributeValues: { ':userChannelArn': { S: userChannelArn } },
+    ExpressionAttributeValues: {
+      ':userChannelArn': convertToAttr(userChannelArn)
+    },
     IndexName: 'startTimeIndex',
     KeyConditionExpression: 'channelArn=:userChannelArn',
     ProjectionExpression: 'startTime, id',
@@ -40,42 +50,61 @@ export const getStreamsByChannelArn = (userChannelArn: string) => {
   return dynamoDbClient.send(queryCommand);
 };
 
-export const addStreamEventToDb = ({
+export const getStreamEvents = async (
+  channelArn: string,
+  streamId: string
+): Promise<StreamEvent[]> => {
+  const { Item = {} } = await dynamoDbClient.send(
+    new GetItemCommand({
+      ConsistentRead: true,
+      Key: {
+        channelArn: convertToAttr(channelArn),
+        id: convertToAttr(streamId)
+      },
+      ProjectionExpression: 'truncatedEvents',
+      TableName: process.env.STREAM_TABLE_NAME
+    })
+  );
+  const { truncatedEvents = [] } = unmarshall(Item);
+
+  return truncatedEvents;
+};
+
+export const updateStreamEvents = ({
   additionalAttributes = {},
   channelArn,
-  newEvent,
+  streamEvents,
   streamId,
   userSub
 }: {
   additionalAttributes?: AdditionalStreamAttributes;
   channelArn: string;
-  newEvent: {
-    eventTime: string;
-    name: string;
-    type: string;
-  };
+  streamEvents: StreamEvent[];
   streamId: string;
   userSub: string;
 }) => {
-  let setAdditionalAttributesExpression = '';
+  const userSubUpdateExpression = 'userSub=if_not_exists(userSub, :userSub)';
+  const truncatedEventsUpdateExpression = 'truncatedEvents=:truncatedEvents';
+  const additionalAttributesExpression = `${Object.keys(additionalAttributes)
+    .map((key) => `${key}=:${key}`)
+    .join(', ')}`;
+  const updateExpression = [
+    userSubUpdateExpression,
+    truncatedEventsUpdateExpression,
+    additionalAttributesExpression
+  ].join(', ');
 
-  if (Object.keys(additionalAttributes).length) {
-    setAdditionalAttributesExpression = `, ${Object.keys(additionalAttributes)
-      .map((key) => `${key}=:${key}`)
-      .join(', ')}`;
-  }
   const updateItemCommand = new UpdateItemCommand({
     ExpressionAttributeValues: {
       ...Object.entries(additionalAttributes).reduce(
         (acc, [key, value]) => ({ ...acc, [`:${key}`]: convertToAttr(value) }),
         {}
       ),
-      ':emptyList': convertToAttr([]),
       ':userSub': convertToAttr(userSub),
-      ':newEvent': convertToAttr([newEvent])
+      ':truncatedEvents': convertToAttr(streamEvents)
     },
-    Key: { channelArn: { S: channelArn }, id: { S: streamId } },
-    UpdateExpression: `SET userSub=if_not_exists(userSub, :userSub), truncatedEvents=list_append(if_not_exists(truncatedEvents, :emptyList), :newEvent)${setAdditionalAttributesExpression}`,
+    Key: { channelArn: convertToAttr(channelArn), id: convertToAttr(streamId) },
+    UpdateExpression: `SET ${updateExpression}`,
     TableName: process.env.STREAM_TABLE_NAME
   });
 
