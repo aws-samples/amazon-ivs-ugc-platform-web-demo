@@ -174,8 +174,11 @@ const Composer = ({
                 errorMessage && [
                   'dark:focus:shadow-darkMode-red',
                   'dark:focus:shadow-focus',
+                  'dark:shadow-darkMode-red',
+                  'focus:shadow-lightMode-red',
                   'rounded-b-3xl',
-                  'rounded-t-none'
+                  'rounded-t-none',
+                  'shadow-lightMode-red'
                 ],
                 isLocked && ['pr-[60px]', 'read-only:cursor-not-allowed'],
                 isDisabled && ['opacity-30']
@@ -194,11 +197,13 @@ const Composer = ({
             {isLocked && (
               <span
                 className={clsm([
+                  '[&>svg]:fill-lightMode-gray-medium',
                   '[&>svg]:h-6',
                   '[&>svg]:w-6',
                   'absolute',
                   'bottom-3',
                   'cursor-not-allowed',
+                  'dark:[&>svg]:fill-darkMode-gray-light',
                   'dark:fill-darkMode-gray-light',
                   'right-6',
                   'top-3'

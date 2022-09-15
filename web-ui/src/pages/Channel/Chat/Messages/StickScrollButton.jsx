@@ -21,7 +21,7 @@ const StickScrollButton = ({ isSticky, scrollToBottom }) => (
           hidden: { opacity: 0, y: '25%', scale: 0.75 }
         }}
         transition={defaultTransition}
-        className={clsm(['bottom-2', 'flex', 'justify-center'])}
+        className={clsm(['bottom-2', 'flex', 'justify-center', 'pb-3'])}
       >
         <button
           aria-label="Show new messages"

@@ -46,6 +46,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
     >
       <div
         className={clsm([
+          'no-scrollbar',
           'absolute',
           'h-full',
           'w-full',

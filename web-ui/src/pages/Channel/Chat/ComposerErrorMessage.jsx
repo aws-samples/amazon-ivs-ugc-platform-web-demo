@@ -7,7 +7,8 @@ const ComposerErrorMessage = ({ errorMessage }) => {
   return (
     <div
       className={clsm([
-        'bg-darkMode-red',
+        'dark:bg-darkMode-red',
+        'bg-lightMode-red',
         'flex',
         'font-bold',
         'leading-[18.15px]',

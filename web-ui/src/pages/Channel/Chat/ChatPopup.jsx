@@ -122,9 +122,15 @@ const ChatPopup = ({
           <Button
             className={clsm([
               'bg-white',
+              'dark:bg-white',
+              'dark:focus:bg-white',
+              'dark:focus:shadow-darkMode-red',
+              'dark:hover:bg-white-hover',
               'dark:text-darkMode-red',
-              'text-lightMode-red',
-              'focus:bg-white'
+              'focus:bg-white',
+              'focus:shadow-lightMode-red',
+              'hover:bg-lightMode-gray-light-hover',
+              'text-lightMode-red'
             ])}
             variant="tertiary"
             onClick={handleDeleteMessage}
@@ -134,10 +140,16 @@ const ChatPopup = ({
           {!isOwnMessage && (
             <Button
               className={clsm(
-                'text-white',
-                'dark:text-white',
+                'bg-lightMode-red',
                 'dark:bg-darkMode-red',
-                'bg-lightMode-red'
+                'dark:focus:bg-darkMode-red',
+                'dark:focus:shadow-white',
+                'dark:hover:bg-darkMode-red-hover',
+                'dark:text-white',
+                'focus:bg-lightMode-red',
+                'focus:shadow-black',
+                'hover:bg-lightMode-red-hover',
+                'text-white'
               )}
               variant="destructive"
               onClick={handleBanUser}
@@ -146,7 +158,13 @@ const ChatPopup = ({
             </Button>
           )}
           <Button
-            className={clsm(['bg-lightMode-gray'])}
+            className={clsm([
+              'bg-lightMode-gray',
+              'hover:bg-lightMode-gray-hover',
+              'focus:bg-lightMode-gray',
+              'focus:shadow-black',
+              'dark:focus:shadow-white'
+            ])}
             variant="secondary"
             onClick={handleClose}
           >
