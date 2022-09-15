@@ -250,6 +250,21 @@ export const Provider = ({ children }) => {
     paramsStreamId
   ]);
 
+  useEffect(() => {
+    if (isStreamHealthPage || !hasStreamSessions) return;
+
+    const latestStreamSession = streamSessions[0];
+    if (!activeStreamSession?.isLive && latestStreamSession.isLive) {
+      updateActiveStreamSession(latestStreamSession);
+    }
+  }, [
+    activeStreamSession?.isLive,
+    hasStreamSessions,
+    isStreamHealthPage,
+    streamSessions,
+    updateActiveStreamSession
+  ]);
+
   // Force a brief spinner when switching between active stream sessions
   useEffect(() => {
     if (hasActiveStreamChanged) {

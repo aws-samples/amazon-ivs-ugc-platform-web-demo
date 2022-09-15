@@ -27,10 +27,11 @@ import { UserContext } from '../userManagement/authorizer';
 export interface GetStreamSessionResponseBody {
   channel: { type: ChannelType };
   endTime?: Date;
-  streamId?: string;
   ingestConfiguration?: IngestConfiguration;
+  isHealthy?: boolean;
   metrics: FormattedMetricData[];
   startTime?: Date;
+  streamId?: string;
   truncatedEvents?: StreamEvent[];
 }
 
@@ -58,9 +59,10 @@ const handler = async (
     const {
       endTime,
       id: streamId,
+      isHealthy,
       metrics = {},
-      userSub,
-      truncatedEvents
+      truncatedEvents,
+      userSub
     } = streamSession;
     const isLive = !endTime;
 
@@ -195,6 +197,7 @@ const handler = async (
       channel: { type: process.env.IVS_CHANNEL_TYPE as ChannelType },
       endTime,
       ingestConfiguration,
+      isHealthy,
       metrics: formattedMetricsData,
       startTime,
       streamId,

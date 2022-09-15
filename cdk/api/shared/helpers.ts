@@ -54,6 +54,7 @@ export interface StreamSessionDbRecord {
   endTime?: string;
   id?: string;
   ingestConfiguration?: IngestConfiguration;
+  isHealthy?: boolean;
   metrics?: { [key: string]: DbFormattedMetricData[] };
   startTime?: string;
   truncatedEvents?: DbStreamEvent[];

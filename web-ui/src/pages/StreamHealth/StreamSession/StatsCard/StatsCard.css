@@ -11,6 +11,8 @@
 
 .stats-card-container svg {
   fill: var(--palette-color-white);
+  width: 18px;
+  height: 18px;
 }
 
 .stats-card-container.offline svg {

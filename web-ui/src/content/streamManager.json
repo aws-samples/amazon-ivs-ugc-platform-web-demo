@@ -1,0 +1,8 @@
+{
+  "status_bar": {
+    "concurrent_views": "Concurrent views",
+    "poor": "Poor",
+    "stable": "Stable",
+    "view_stream_health": "View stream health"
+  }
+}

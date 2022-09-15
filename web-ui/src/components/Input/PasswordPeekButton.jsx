@@ -30,7 +30,9 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
   ]);
   const visibilityIconClasses = clsm([
     'dark:fill-white',
-    'fill-lightMode-gray-dark'
+    'fill-lightMode-gray-dark',
+    'h-[18px]',
+    'w-[18px]'
   ]);
 
   const passwordPeek = (event) => {
