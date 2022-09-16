@@ -28,16 +28,17 @@
       "functions": 100,
       "lines": 100
     },
+    "userManagement/authUserRouter/deleteUser.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
     "metrics/": {
       "statements": 100,
       "branches": 100,
       "functions": 100,
       "lines": 100
-    }
-  },
-  "globals": {
-    "ts-jest": {
-      "tsconfig": "tsconfig.json"
     }
   },
   "preset": "ts-jest",

@@ -7,10 +7,12 @@ import {
   DeleteChannelCommand,
   StopStreamCommand
 } from '@aws-sdk/client-ivs';
+import { DeleteRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { ACCOUNT_DELETION_EXCEPTION } from '../../shared/constants';
-import { cognitoClient, ivsClient } from '../../shared/helpers';
+import { cognitoClient, ivsChatClient, ivsClient } from '../../shared/helpers';
 import { deleteUser, getUser } from '../helpers';
 import { UserContext } from '../authorizer';
 
@@ -20,9 +22,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     // Get user from userTable
     const { Item = {} } = await getUser(sub);
-    const {
-      channelArn: { S: channelArn }
-    } = Item;
+    const { channelArn, chatRoomArn } = unmarshall(Item);
 
     if (channelArn) {
       // First stop the stream if it's running
@@ -43,6 +43,15 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       });
 
       await ivsClient.send(deleteChannelCommand);
+    }
+
+    if (chatRoomArn) {
+      // Delete the IVS chat room
+      const deleteChatRoomCommand = new DeleteRoomCommand({
+        identifier: chatRoomArn
+      });
+
+      await ivsChatClient.send(deleteChatRoomCommand);
     }
 
     // Delete the Dynamo user entry

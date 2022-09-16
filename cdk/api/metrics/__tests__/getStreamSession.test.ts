@@ -2,10 +2,11 @@ import {
   GetMetricDataCommand,
   MetricDataResult
 } from '@aws-sdk/client-cloudwatch';
+import 'aws-sdk-client-mock-jest';
+import { convertToAttr, marshall } from '@aws-sdk/util-dynamodb';
 import { GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { GetStreamSessionCommand } from '@aws-sdk/client-ivs';
 import { LightMyRequestResponse } from 'fastify';
-import { convertToAttr, marshall } from '@aws-sdk/util-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 
 import {

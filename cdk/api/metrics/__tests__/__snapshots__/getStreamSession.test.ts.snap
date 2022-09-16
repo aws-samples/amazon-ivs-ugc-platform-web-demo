@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`getStreamSession controller general cases should return the correct metrics for a live stream less than 3 hours long 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -70,13 +70,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -86,13 +86,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -152,13 +152,13 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 29.75984462169303,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -218,7 +218,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
@@ -226,10 +226,10 @@ Array [
 `;
 
 exports[`getStreamSession controller general cases should return the correct metrics for an offline stream less than 3 hours long 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -295,13 +295,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -311,13 +311,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -383,13 +383,13 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 29.75984462169303,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -455,7 +455,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
@@ -463,10 +463,10 @@ Array [
 `;
 
 exports[`getStreamSession controller general cases should return the ingestConfiguration from IVS when it is not yet in the DB for an offline stream 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -532,13 +532,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -548,13 +548,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -620,13 +620,13 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 29.75984462169303,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -692,7 +692,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
@@ -700,10 +700,10 @@ Array [
 `;
 
 exports[`getStreamSession controller general cases should return the metrics from DynamoDB when they are available for an offline stream 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -769,13 +769,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -785,13 +785,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -857,13 +857,13 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 29.75984462169303,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -929,7 +929,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
@@ -937,10 +937,10 @@ Array [
 `;
 
 exports[`getStreamSession controller partial and empty data should handle missing MetricResults in the CloudWatch response and return partial statistics 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -1006,13 +1006,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -1022,13 +1022,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -1088,11 +1088,11 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {},
+    "statistics": {},
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -1152,7 +1152,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
@@ -1160,10 +1160,10 @@ Array [
 `;
 
 exports[`getStreamSession controller partial and empty data should handle missing Timestamps or missing Values in the charts metrics and return a partial response 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -1229,13 +1229,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -1245,7 +1245,7 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
@@ -1253,10 +1253,10 @@ Array [
 `;
 
 exports[`getStreamSession controller partial and empty data should handle missing Values in the statistics metrics and return partial statistics 1`] = `
-Array [
-  Object {
+[
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1.528315336,
       2.81361773,
       1.5884570709999999,
@@ -1322,13 +1322,13 @@ Array [
     ],
     "label": "KeyframeInterval",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1.9971621265228496,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       1,
       1,
       1,
@@ -1338,13 +1338,13 @@ Array [
     ],
     "label": "ConcurrentViews",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1,
     },
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       15.656954494493235,
       30.03254031136825,
       30.061019373693295,
@@ -1404,11 +1404,11 @@ Array [
     ],
     "label": "IngestFramerate",
     "period": 5,
-    "statistics": Object {},
+    "statistics": {},
   },
-  Object {
+  {
     "alignedStartTime": "2022-06-10T19:07:00.000Z",
-    "data": Array [
+    "data": [
       664695.6391561396,
       1443717.167094591,
       1177497.9347690933,
@@ -1468,7 +1468,7 @@ Array [
     ],
     "label": "IngestVideoBitrate",
     "period": 5,
-    "statistics": Object {
+    "statistics": {
       "average": 1294593.0107171512,
     },
   },
