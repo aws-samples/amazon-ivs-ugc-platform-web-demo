@@ -31,7 +31,6 @@ const Chat = ({ chatAnimationControls }) => {
     useMobileBreakpoint();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-
   /**
    * Chat Event Handlers
    */
@@ -91,14 +90,14 @@ const Chat = ({ chatAnimationControls }) => {
 
   // Show moderation pill if user role is moderator
   useEffect(() => {
-    if (isModerator) {
+    if (isModerator && !isLoading) {
       notifyInfo(
         $content.notifications.moderating,
         true,
         MODERATOR_PILL_TIMEOUT
       );
     }
-  }, [isModerator, notifyInfo]);
+  }, [isModerator, notifyInfo, isLoading]);
 
   return (
     <m.section

@@ -13,7 +13,7 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
   const avatarClassNames = clsm([
     [
       'bg-lightMode-gray-extraLight',
-      'border-2',
+      'ring-2',
       'dark:bg-darkMode-gray-medium',
       'flex-shrink-0',
       'rounded-[22px]',

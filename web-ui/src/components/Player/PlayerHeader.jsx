@@ -38,7 +38,17 @@ const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => (
         className={clsm('flex', 'text-white', 'pl-4', 'z-20')}
         {...getAnimationProps(shouldShowPlayerOverlay)}
       >
-        <h3 className={clsm(['text-white'])}>{username}</h3>
+        <h3
+          className={clsm([
+            'text-white',
+            'overflow-hidden',
+            'whitespace-nowrap',
+            'overflow-ellipsis',
+            'max-w-[200px]'
+          ])}
+        >
+          {username}
+        </h3>
       </m.div>
     </div>
     <m.div

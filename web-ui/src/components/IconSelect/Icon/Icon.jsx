@@ -15,10 +15,20 @@ const Icon = ({
   size,
   onClick
 }) => {
-  const classes = clsm(['selectable-icon', `type-${type}`, size], {
-    selected: isSelected,
-    hoverable: isHoverable
-  });
+  const classes = clsm(
+    [
+      'selectable-icon',
+      `type-${type}`,
+      size,
+      'focus:outline-none',
+      'focus:ring-white',
+      'focus:ring-2'
+    ],
+    {
+      selected: isSelected,
+      hoverable: isHoverable
+    }
+  );
 
   return onClick ? (
     <button

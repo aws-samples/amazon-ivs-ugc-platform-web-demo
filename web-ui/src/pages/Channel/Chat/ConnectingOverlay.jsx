@@ -46,7 +46,7 @@ const ConnectingOverlay = ({ isLoading }) => {
               'h-11',
               'p-2.5',
               'rounded-full',
-              'bg-lightMode-gray-extraLight',
+              'bg-lightMode-gray',
               'dark:bg-darkMode-gray',
               'z-50'
             ])}
@@ -62,7 +62,8 @@ const ConnectingOverlay = ({ isLoading }) => {
               'left-0',
               'w-full',
               'h-full',
-              'bg-loadingOverlay',
+              'dark:bg-loadingOverlay',
+              'bg-white',
               'z-40'
             ])}
           ></m.div>

@@ -80,6 +80,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
                 <p
                   className={clsm([
                     'dark:text-darkMode-gray-light',
+                    'text-lightMode-gray-dark',
                     'font-bold',
                     'py-3'
                   ])}

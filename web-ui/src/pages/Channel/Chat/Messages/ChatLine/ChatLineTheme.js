@@ -14,8 +14,8 @@ export const CHATLINE_VARIANT_CLASSES = {
   message: [
     'gap-x-1.5',
     'max-w-full',
-    'px-3',
-    'py-2.5',
+    'px-3.5',
+    'py-3',
     'w-auto',
     'rounded-3xl'
   ],

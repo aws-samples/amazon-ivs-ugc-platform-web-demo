@@ -51,9 +51,9 @@ const FloatingNav = () => (
             'h-12',
             'min-w-[48px]',
             'min-h-[48px]',
-            'bg-white',
+            'bg-lightMode-gray',
             'hover:bg-lightMode-gray-hover',
-            'focus:bg-lightMode-gray-light'
+            'focus:bg-lightMode-gray'
           ])}
           onClick={() => toggle()}
           variant="secondary"
