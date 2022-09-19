@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
 
 import { AcmeSml, AcmeLrg, Settings } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
@@ -14,6 +14,7 @@ import ProfileMenu from '../../../components/ProfileMenu';
 const $content = $appContent.navbar;
 
 const Sidebar = () => {
+  const sidebarRef = useRef();
   const { userData, isSessionValid } = useUser();
   const { avatar: avatarName } = userData || {};
   const hasAvatar = !!avatars[avatarName];
@@ -55,6 +56,7 @@ const Sidebar = () => {
           ? ['w-16', 'pt-7', 'pb-4', 'px-2.5'] // Authenticated
           : ['w-60', 'pt-10', 'pb-6', 'px-4', 'lg:portrait:w-40'] // Unauthenticated
       )}
+      ref={sidebarRef}
     >
       {isSessionValid ? (
         <AcmeSml
@@ -152,6 +154,7 @@ const Sidebar = () => {
           navData={[
             { label: $content.settings, icon: <Settings />, to: '/settings' }
           ]}
+          sidebarRef={sidebarRef.current}
         >
           {({ isOpen, toggle, toggleRef }) => (
             <Button

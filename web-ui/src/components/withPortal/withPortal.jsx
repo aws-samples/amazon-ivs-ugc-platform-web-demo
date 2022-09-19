@@ -8,18 +8,25 @@ const DEFAULT_PORTAL_OPTIONS = {
   containerClasses: []
 };
 
-const initContainer = (
+/**
+ * Creates and/or returns the container to attach the portal to.
+ * When provided, `prevSiblingEl` takes precedence over `parentEl`.
+ */
+const initContainer = ({
+  containerClassname = '',
   containerId,
   parentEl = document.body,
-  containerClassname = ''
-) => {
+  prevSiblingEl
+}) => {
   let container = document.getElementById(containerId);
 
   if (!container) {
     container = document.createElement('div');
     container.setAttribute('id', containerId);
     if (containerClassname) container.setAttribute('class', containerClassname);
-    parentEl.appendChild(container);
+
+    if (prevSiblingEl) prevSiblingEl.after(container);
+    else parentEl.appendChild(container);
   }
 
   return container;
@@ -35,35 +42,42 @@ const withPortal = (
 ) =>
   memo(
     // eslint-disable-next-line react/prop-types
-    forwardRef(({ isOpen, parentEl, position, ...props }, ref) => {
-      const id = useRef(`${containerId}-container`);
-      const container = isOpen
-        ? initContainer(id.current, parentEl, clsm(containerClasses))
-        : null;
+    forwardRef(
+      ({ isOpen, parentEl, prevSiblingEl, position, ...props }, ref) => {
+        const id = useRef(`${containerId}-container`);
+        const container = isOpen
+          ? initContainer({
+              containerClassname: clsm(containerClasses),
+              containerId: id.current,
+              parentEl,
+              prevSiblingEl
+            })
+          : null;
 
-      useLayoutEffect(() => {
-        if (position && container) {
-          for (const attr in position) {
-            const val = position[attr];
-            if (val) container.style[attr] = `${val}px`;
+        useLayoutEffect(() => {
+          if (position && container) {
+            for (const attr in position) {
+              const val = position[attr];
+              if (val) container.style[attr] = `${val}px`;
+            }
           }
-        }
-      }, [container, parentEl, position]);
+        }, [container, parentEl, position, prevSiblingEl]);
 
-      useEffect(() => {
-        if (!isAnimated) {
-          return () => container?.remove();
-        }
-      }, [container]);
+        useEffect(() => {
+          if (!isAnimated) {
+            return () => container?.remove();
+          }
+        }, [container]);
 
-      return (
-        container &&
-        createPortal(
-          <WrappedComponent isOpen={isOpen} ref={ref} {...props} />,
-          container
-        )
-      );
-    })
+        return (
+          container &&
+          createPortal(
+            <WrappedComponent isOpen={isOpen} ref={ref} {...props} />,
+            container
+          )
+        );
+      }
+    )
   );
 
 export default withPortal;

@@ -91,7 +91,7 @@ export const Provider = ({ children }) => {
 
   // Set current breakpoint
   useEffect(() => {
-    const handleWindowResize = () => {
+    const updateCurrentBreakpoint = () => {
       const innerWidth = window.innerWidth;
 
       if (innerWidth >= BREAKPOINTS.lg) setCurrentBreakpoint(BREAKPOINTS.lg);
@@ -102,10 +102,15 @@ export const Provider = ({ children }) => {
       else setCurrentBreakpoint(BREAKPOINTS.xs);
     };
 
-    handleWindowResize();
-    window.addEventListener('resize', handleWindowResize);
+    updateCurrentBreakpoint();
 
-    return () => window.removeEventListener('resize', handleWindowResize);
+    window.addEventListener('resize', updateCurrentBreakpoint);
+    window.addEventListener('orientationchange', updateCurrentBreakpoint);
+
+    return () => {
+      window.removeEventListener('resize', updateCurrentBreakpoint);
+      window.addEventListener('orientationchange', updateCurrentBreakpoint);
+    };
   }, []);
 
   // Set --mobile-vh CSS variable
@@ -124,9 +129,14 @@ export const Provider = ({ children }) => {
   );
   useEffect(() => {
     updateMobileVh();
-    window.addEventListener('resize', updateMobileVh);
 
-    return () => window.removeEventListener('resize', updateMobileVh);
+    window.addEventListener('resize', updateMobileVh);
+    window.addEventListener('orientationchange', updateMobileVh);
+
+    return () => {
+      window.removeEventListener('resize', updateMobileVh);
+      window.removeEventListener('orientationchange', updateMobileVh);
+    };
   }, [updateMobileVh]);
 
   const value = useMemo(

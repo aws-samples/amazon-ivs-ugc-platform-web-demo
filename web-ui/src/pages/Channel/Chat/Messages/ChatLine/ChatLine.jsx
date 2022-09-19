@@ -85,15 +85,15 @@ const ChatLine = ({
 
 const ChatLineWrapper = forwardRef(
   ({ children, chatLineVariant, isStaticChatLine, ...restProps }, ref) => {
+    if (chatLineVariant === CHAT_LINE_VARIANT.POPUP || isStaticChatLine)
+      return <m.div {...restProps}>{children}</m.div>;
+
     if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE)
       return (
-        <m.button disabled={isStaticChatLine} ref={ref} {...restProps}>
+        <m.button ref={ref} {...restProps}>
           {children}
         </m.button>
       );
-
-    if (chatLineVariant === CHAT_LINE_VARIANT.POPUP)
-      return <m.div {...restProps}>{children}</m.div>;
 
     return null;
   }

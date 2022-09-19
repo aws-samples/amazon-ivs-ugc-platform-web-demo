@@ -15,7 +15,8 @@ const ProfileMenu = ({
   containerClassName,
   fadeBackground,
   menuClassName,
-  navData
+  navData,
+  sidebarRef
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
@@ -38,11 +39,12 @@ const ProfileMenu = ({
     <>
       <div className={clsm(['z-[300]', isOpen && containerClassName])}>
         <MenuPopup
-          isOpen={isOpen}
-          ref={profileMenuRef}
           asPortal={asPortal}
-          navData={navData}
+          isOpen={isOpen}
           menuClassName={menuClassName}
+          navData={navData}
+          ref={profileMenuRef}
+          sidebarRef={sidebarRef}
           toggleProfileMenu={toggleProfileMenu}
         />
         {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
@@ -76,7 +78,8 @@ ProfileMenu.defaultProps = {
   containerClassName: undefined,
   fadeBackground: false,
   menuClassName: undefined,
-  navData: []
+  navData: [],
+  sidebarRef: null
 };
 
 ProfileMenu.propTypes = {
@@ -85,7 +88,8 @@ ProfileMenu.propTypes = {
   containerClassName: PropTypes.string,
   fadeBackground: PropTypes.bool,
   menuClassName: PropTypes.string,
-  navData: PropTypes.array
+  navData: PropTypes.array,
+  sidebarRef: PropTypes.object
 };
 
 export default ProfileMenu;
