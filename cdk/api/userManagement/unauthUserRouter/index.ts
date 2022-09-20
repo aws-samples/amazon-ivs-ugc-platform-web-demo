@@ -1,8 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 
-import createChatToken from './createChatToken'
+import createChatToken from './createChatToken';
 import forgotPassword from './forgotPassword';
-import getChannelData from './getChannelData'
+import getChannelData from './getChannelData';
 import signUp from './signUp';
 
 const router: FastifyPluginAsync = async (resource) => {

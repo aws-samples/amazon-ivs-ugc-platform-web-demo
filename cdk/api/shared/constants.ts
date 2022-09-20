@@ -28,6 +28,8 @@ export const STREAM_HEALTH_METRICS_NAMES = [
 
 export const SEC_PER_HOUR = 3600;
 export const SEC_PER_DAY = SEC_PER_HOUR * 24;
+export const MAX_USERNAME_CHARACTER_COUNT = 20;
+export const MIN_USERNAME_CHARACTER_COUNT = 4;
 
 export const RESTRICTED_USERNAMES = [
   'health',

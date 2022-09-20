@@ -7,7 +7,9 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "watch": "nodemon index.ts",
-    "test": "ALLOWED_ORIGIN=* SERVICE_NAME=all jest"
+    "test": "ALLOWED_ORIGIN=* SERVICE_NAME=all jest",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -31,6 +33,7 @@
     "aws-sdk-client-mock-jest": "^2.0.0",
     "jest": "^29.0.3",
     "nodemon": "^2.0.19",
+    "prettier": "^2.7.1",
     "ts-jest": "^29.0.1",
     "ts-node": "^10.8.2",
     "typescript": "^4.7.4"

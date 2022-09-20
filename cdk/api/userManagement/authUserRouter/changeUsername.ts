@@ -5,7 +5,9 @@ import {
   RESTRICTED_USERNAMES,
   CHANGE_USERNAME_EXCEPTION,
   RESERVED_USERNAME_EXCEPTION,
-  UNEXPECTED_EXCEPTION
+  UNEXPECTED_EXCEPTION,
+  MIN_USERNAME_CHARACTER_COUNT,
+  MAX_USERNAME_CHARACTER_COUNT
 } from '../../shared/constants';
 import {
   cognitoClient,
@@ -44,6 +46,20 @@ const handler = async (
     reply.statusCode = 400;
 
     return reply.send({ __type: RESERVED_USERNAME_EXCEPTION });
+  }
+
+  // Check minimum and maximum allowed characters for username
+  if (
+    username.length < MIN_USERNAME_CHARACTER_COUNT ||
+    username.length > MAX_USERNAME_CHARACTER_COUNT
+  ) {
+    console.error(
+      `${username} character length must be at least ${MIN_USERNAME_CHARACTER_COUNT} and a maximum of ${MAX_USERNAME_CHARACTER_COUNT}`
+    );
+
+    reply.statusCode = 400;
+
+    return reply.send({ __type: CHANGE_USERNAME_EXCEPTION });
   }
 
   try {

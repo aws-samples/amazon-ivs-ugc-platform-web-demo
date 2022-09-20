@@ -8,6 +8,8 @@ import {
   RESTRICTED_USERNAMES,
   EMAIL_EXISTS_EXCEPTION,
   RESERVED_USERNAME_EXCEPTION,
+  MAX_USERNAME_CHARACTER_COUNT,
+  MIN_USERNAME_CHARACTER_COUNT,
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
 import {
@@ -49,6 +51,20 @@ const handler = async (
     reply.statusCode = 400;
 
     return reply.send({ __type: RESERVED_USERNAME_EXCEPTION });
+  }
+
+  // Check minimum and maximum allowed characters for username
+  if (
+    username.length < MIN_USERNAME_CHARACTER_COUNT ||
+    username.length > MAX_USERNAME_CHARACTER_COUNT
+  ) {
+    console.error(
+      `${username} character length must be at least ${MIN_USERNAME_CHARACTER_COUNT} and a maximum of ${MAX_USERNAME_CHARACTER_COUNT}`
+    );
+
+    reply.statusCode = 400;
+
+    return reply.send({ __type: ACCOUNT_REGISTRATION_EXCEPTION });
   }
 
   let userConfirmed;

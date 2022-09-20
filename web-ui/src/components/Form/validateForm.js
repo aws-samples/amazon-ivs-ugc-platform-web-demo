@@ -11,6 +11,11 @@ const validatePasswordLength = (password) => {
   return !!password && regex.test(password);
 };
 
+const validateUsernameLength = (username) => {
+  const regex = /^.{4,20}$/;
+  return !!username && regex.test(username);
+};
+
 const validatePasswordStrength = (password) => {
   const regex =
     /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\^$*.[\]{}()?\-"!@#%&/,><':;|_~`])/;
@@ -52,7 +57,7 @@ export const validateForm = (formProps, inputNameToValidate) => {
 
       switch (true) {
         case name.toLowerCase().includes('username'): {
-          if (!validateUsername(value))
+          if (!validateUsername(value) || !validateUsernameLength(value))
             errors[name] = input_error.invalid_username;
           break;
         }

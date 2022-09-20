@@ -36,7 +36,7 @@
   "return_to_login": "Return to login",
   "input_error": {
     "invalid_email": "Enter a valid email.",
-    "invalid_username": "Only letters, numbers & symbols are allowed.",
+    "invalid_username": "Use 4 to 20 characters with a mix of letters, numbers & symbols.",
     "invalid_password_length": "Use 8 characters or more.",
     "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
     "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",

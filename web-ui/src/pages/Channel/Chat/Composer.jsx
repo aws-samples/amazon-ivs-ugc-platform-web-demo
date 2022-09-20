@@ -194,7 +194,18 @@ const Composer = ({
                   'rounded-t-none',
                   'shadow-lightMode-red'
                 ],
-                isLocked && ['pr-[60px]', 'read-only:cursor-not-allowed'],
+                isLocked && [
+                  'dark:read-only:focus:bg-darkMode-gray',
+                  'dark:read-only:hover:bg-darkMode-gray',
+                  'dark:read-only:hover:placeholder-darkMode-gray-light',
+                  'pr-[60px]',
+                  'read-only:cursor-not-allowed',
+                  'read-only:focus:bg-lightMode-gray',
+                  'read-only:focus:shadow-none',
+                  'read-only:hover:bg-lightMode-gray',
+                  'read-only:hover:placeholder-lightMode-gray-dark',
+                  'read-only:hover:placeholder-lightMode-gray-medium'
+                ],
                 isDisabled && ['opacity-30']
               )}
               error={errorMessage ? '' : null}

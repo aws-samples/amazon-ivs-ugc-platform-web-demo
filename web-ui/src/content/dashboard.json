@@ -125,7 +125,7 @@
       "invalid_password_length": "Use 8 characters or more.",
       "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
       "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
-      "invalid_username": "Only letters, numbers & symbols are allowed.",
+      "invalid_username": "Use 4 to 20 characters with a mix of letters, numbers & symbols.",
       "passwords_mismatch": "Passwords didn’t match. Try again.",
       "same_as_old_password": "Your new password cannot be the same as your old password.",
       "unavailable_username": "This username is unavailable.",

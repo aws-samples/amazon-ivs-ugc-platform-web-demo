@@ -67,6 +67,30 @@ describe('changeUsername controller', () => {
       expect(__type).toBe(RESERVED_USERNAME_EXCEPTION);
     });
 
+    it('should return a change username exception when the username is less than four characters', async () => {
+      const response = await server.inject({
+        ...defaultRequestParams,
+        payload: { ...defaultValidPayload, username: 'joe' }
+      });
+      const { __type } = JSON.parse(response.payload);
+
+      expect(mockConsoleError).toHaveBeenCalledTimes(1);
+      expect(response.statusCode).toBe(400);
+      expect(__type).toBe(CHANGE_USERNAME_EXCEPTION);
+    });
+
+    it('should return a change username exception when the username is more than twenty characters', async () => {
+      const response = await server.inject({
+        ...defaultRequestParams,
+        payload: { ...defaultValidPayload, username: 'alexanderhamilton1234' }
+      });
+      const { __type } = JSON.parse(response.payload);
+
+      expect(mockConsoleError).toHaveBeenCalledTimes(1);
+      expect(response.statusCode).toBe(400);
+      expect(__type).toBe(CHANGE_USERNAME_EXCEPTION);
+    });
+
     it('should return a change username exception when the Cognito client fails', async () => {
       mockCognitoClient.on(AdminUpdateUserAttributesCommand).rejects({});
 

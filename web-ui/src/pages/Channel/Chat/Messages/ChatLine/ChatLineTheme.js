@@ -42,7 +42,7 @@ export const CHATLINE_HOVER_AND_FOCUS_CLASSES = [
 ];
 
 export const TEXT_BASE_CLASSES = [
-  'break-words',
+  'break-all',
   'dark:text-darkMode-gray-light',
   'min-w-0',
   'p1',

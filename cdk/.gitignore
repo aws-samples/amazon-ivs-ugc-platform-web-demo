@@ -1,5 +1,6 @@
 *.js
 !sanitize-output.js
+!.prettierrc.js
 *.d.ts
 node_modules
 dist
