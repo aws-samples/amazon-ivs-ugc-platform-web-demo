@@ -21,7 +21,7 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
       'z-10'
     ],
     dimensions,
-    profileColor ? `border-profile-${profileColor}` : 'border-profile'
+    profileColor ? `ring-profile-${profileColor}` : 'ring-profile'
   ]);
 
   return hasAvatar ? (

@@ -20,13 +20,18 @@ export const CHATLINE_VARIANT_CLASSES = {
     'rounded-3xl'
   ],
   popup: [
+    'bg-transparent',
     'cursor-default',
+    'dark:bg-transparent',
     'gap-x-2',
     'md:max-w-[700px]',
-    'w-full',
-    'bg-lightMode-gray-light',
+    'overflow-y-scroll',
+    'pb-[2px]',
+    'pt-4',
+    'px-4',
+    'rounded-3xl',
     'supports-overlay:overflow-y-overlay',
-    'overflow-y-scroll'
+    'w-full'
   ]
 };
 
@@ -56,7 +61,6 @@ export const TEXT_VARIANT_CLASSES = {
     '[&>b]:text-lightMode-gray-dark',
     'dark:[&>b]:text-darkMode-gray-light',
     'dark:text-white',
-    'mt-1',
     'text-black'
   ]
 };

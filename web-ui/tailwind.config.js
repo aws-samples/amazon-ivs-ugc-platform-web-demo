@@ -161,7 +161,7 @@ module.exports = {
       }
     }
   },
-  safelist: [{ pattern: /(border|bg)-profile(-.)?/ }],
+  safelist: [{ pattern: /(border|bg|ring)-profile(-.)?/ }],
   corePlugins: { aspectRatio: false },
   plugins: [
     // aspect-ratio (modern and legacy support)

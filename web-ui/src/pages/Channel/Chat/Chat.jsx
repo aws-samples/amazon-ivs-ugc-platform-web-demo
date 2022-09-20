@@ -31,6 +31,7 @@ const Chat = ({ chatAnimationControls }) => {
     useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
+
   /**
    * Chat Event Handlers
    */
@@ -187,11 +188,11 @@ const Chat = ({ chatAnimationControls }) => {
             banUser={actions.banUser}
             deleteMessage={actions.deleteMessage}
             isOpen={isChatPopupOpen}
+            isStackedView={isStackedView}
+            openChatPopup={openChatPopup}
+            parentEl={isSplitView ? document.body : chatContainerRef.current}
             selectedMessage={selectedMessage}
             setIsChatPopupOpen={setIsChatPopupOpen}
-            openChatPopup={openChatPopup}
-            isSplitView={isSplitView}
-            parentEl={isSplitView ? document.body : chatContainerRef.current}
           />
         )}
       </AnimatePresence>

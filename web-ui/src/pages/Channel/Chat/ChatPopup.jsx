@@ -7,6 +7,7 @@ import { clsm } from '../../../utils';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useModal } from '../../../contexts/Modal';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import ChatLine, { CHAT_LINE_VARIANT } from './Messages/ChatLine';
@@ -28,18 +29,19 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  selectedMessage: { avatar, color, displayName, message, id },
-  setIsChatPopupOpen,
+  isStackedView,
   openChatPopup,
-  isSplitView
+  selectedMessage: { avatar, color, displayName, message, id },
+  setIsChatPopupOpen
 }) => {
+  const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
   const { deletedMessageIds } = useChatMessages();
   const popupRef = useRef();
   const isOwnMessage = username === displayName;
-  const popupContainerVariant = isSplitView ? 'md:top-4' : '';
+
   const showChatPopup = useCallback(
     () => setIsChatPopupOpen(true),
     [setIsChatPopupOpen]
@@ -77,28 +79,38 @@ const ChatPopup = ({
   useClickAway([popupRef], () => setIsChatPopupOpen(false));
 
   return (
-    <>
+    <div
+      className={clsm([
+        'absolute',
+        'flex-col',
+        'flex',
+        'h-screen',
+        'justify-end',
+        'left-0',
+        'md:p-4',
+        'px-5',
+        'py-6',
+        'top-0',
+        'w-full',
+        'z-[500]',
+        isStackedView && ['h-full'],
+        isMobileView && ['fixed', 'w-screen']
+      ])}
+    >
       <m.div
         {...defaultAnimationProps}
         variants={{ visible: { y: 0 }, hidden: { y: '150%' } }}
         className={clsm([
-          popupContainerVariant,
-          'absolute',
-          'bottom-6',
-          'left-5',
-          'right-5',
-          'md:bottom-4',
-          'md:left-4',
-          'md:right-4',
-          'w-auto',
-          'p-4',
-          'rounded-3xl',
           'bg-lightMode-gray-light',
           'dark:bg-darkMode-gray-medium',
-          'z-[999]',
+          'flex-col',
           'flex',
           'items-start',
-          'flex-col'
+          'lg:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_48px)]',
+          'md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px)]',
+          'rounded-3xl',
+          'w-full',
+          'z-[300]'
         ])}
         ref={popupRef}
       >
@@ -109,16 +121,25 @@ const ChatPopup = ({
           displayName={displayName}
           variant={CHAT_LINE_VARIANT.POPUP}
         />
-        <span
-          className={clsm(
-            HAIRLINE_DIVIDER_CLASSES,
-            'mt-4',
-            'mb-4',
-            'dark:bg-darkMode-gray-medium-hover',
-            'bg-lightMode-gray'
-          )}
-        />
-        <div className={clsm(['flex', 'flex-col', 'gap-y-4', 'w-full'])}>
+        <div className={clsm(['flex', 'p-4', 'pt-[14px]', 'w-full'])}>
+          <span
+            className={clsm(
+              HAIRLINE_DIVIDER_CLASSES,
+              'bg-lightMode-gray',
+              'dark:bg-darkMode-gray-medium-hover'
+            )}
+          />
+        </div>
+        <div
+          className={clsm([
+            'flex-col',
+            'flex',
+            'gap-y-4',
+            'pb-4',
+            'px-4',
+            'w-full'
+          ])}
+        >
           <Button
             className={clsm([
               'bg-white',
@@ -160,10 +181,10 @@ const ChatPopup = ({
           <Button
             className={clsm([
               'bg-lightMode-gray',
-              'hover:bg-lightMode-gray-hover',
+              'dark:focus:shadow-white',
               'focus:bg-lightMode-gray',
               'focus:shadow-black',
-              'dark:focus:shadow-white'
+              'hover:bg-lightMode-gray-hover'
             ])}
             variant="secondary"
             onClick={handleClose}
@@ -177,25 +198,28 @@ const ChatPopup = ({
         variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
         className={clsm([
           'absolute',
-          'top-0',
-          'left-0',
-          'w-full',
-          'h-full',
           'bg-modalOverlay',
-          'z-40'
+          'h-full',
+          'left-0',
+          'top-0',
+          'w-full',
+          'z-[299]'
         ])}
       ></m.div>
-    </>
+    </div>
   );
 };
 
-ChatPopup.defaultProps = { isOpen: false, isSplitView: false };
+ChatPopup.defaultProps = {
+  isOpen: false,
+  isStackedView: false
+};
 
 ChatPopup.propTypes = {
   banUser: PropTypes.func.isRequired,
   deleteMessage: PropTypes.func.isRequired,
   isOpen: PropTypes.bool,
-  isSplitView: PropTypes.bool,
+  isStackedView: PropTypes.bool,
   openChatPopup: PropTypes.func.isRequired,
   selectedMessage: PropTypes.shape({
     avatar: PropTypes.string,
