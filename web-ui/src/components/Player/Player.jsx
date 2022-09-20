@@ -7,8 +7,8 @@ import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useNotif } from '../../contexts/Notification';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Controls from './Controls';
 import Notification from '../Notification';
 import PlayerHeader from './PlayerHeader';
@@ -37,7 +37,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const playerElementRef = useRef();
   const [isLive, setIsLive] = useState();
   const livePlayer = usePlayer({ playbackUrl, isLive });
-  const { isLandscape, isMobileView } = useMobileBreakpoint();
+  const { isLandscape, isMobileView } = useResponsiveDevice();
   const {
     error,
     hasEnded,
@@ -148,8 +148,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         'bg-lightMode-gray',
         'dark:bg-black',
         'lg:aspect-video',
-        'md:landscape:aspect-auto',
-        'touch-screen-device:lg:landscape:aspect-auto'
+        isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerElementRef}
       onMouseMove={onMouseMoveHandler}

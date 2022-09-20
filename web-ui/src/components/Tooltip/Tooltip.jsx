@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import './Tooltip.css';
 import { keepWithinViewport } from './utils';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useTooltips } from '../../contexts/Tooltips';
 import TooltipPortal from './TooltipPortal';
 import useClickAway from '../../hooks/useClickAway';
@@ -19,7 +19,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
   const { addTooltip, removeTooltip } = useTooltips();
-  const { mainRef, isTouchscreenDevice } = useMobileBreakpoint();
+  const { mainRef, isTouchscreenDevice } = useResponsiveDevice();
   const parentRef = useRef();
   const tooltipRef = useRef();
   const tooltipId = useRef(uuidv4());

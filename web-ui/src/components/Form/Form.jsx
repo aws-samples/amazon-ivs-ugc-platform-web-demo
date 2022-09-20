@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import './Form.css';
 import { BREAKPOINTS } from '../../constants';
 import { noop, throttle } from '../../utils';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
@@ -38,7 +38,7 @@ const Form = ({
       validationCheck
     });
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
-  const { currentBreakpoint } = useMobileBreakpoint();
+  const { currentBreakpoint } = useResponsiveDevice();
   const isMobileView = currentBreakpoint < BREAKPOINTS.sm;
 
   const SubmitButton = useCallback(

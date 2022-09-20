@@ -12,7 +12,7 @@ import { Close, Settings as SettingsSvg } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { player as $content } from '../../../content';
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../Button';
 import useClickAway from '../../../hooks/useClickAway';
 
@@ -33,7 +33,7 @@ const RenditionSetting = ({
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
   const qualitiesContainerRef = useRef();
   const settingsButtonRef = useRef();
-  const { isMobileView } = useMobileBreakpoint();
+  const { isMobileView } = useResponsiveDevice();
 
   const closeQualitiesContainer = useCallback(() => {
     setOpenPopupIds((prev) => {

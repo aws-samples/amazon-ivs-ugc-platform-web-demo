@@ -42,7 +42,7 @@ const useChatConnection = (eventHandlers) => {
   const [connectionReadyState, setConnectionReadyState] = useState();
   const [didConnectionCloseCleanly, setDidConnectionCloseCleanly] = useState();
   const [hasConnectionError, setHasConnectionError] = useState();
-  const [sendError, setSendError] = useState();
+  const [sendAttemptError, setSendAttemptError] = useState();
   const isConnectionOpen = connectionReadyState === WebSocket.OPEN;
   const isInitializingConnection = useRef(false);
   const isRetryingConnection = useRef(false);
@@ -87,7 +87,7 @@ const useChatConnection = (eventHandlers) => {
         case 'MESSAGE': {
           // Handle received message
           addMessage(data);
-          setSendError(null);
+          setSendAttemptError(null);
           break;
         }
         case 'EVENT':
@@ -120,7 +120,7 @@ const useChatConnection = (eventHandlers) => {
           console.log('Received Error:', data);
 
           if (Object.values(SEND_ERRORS).indexOf(data['ErrorMessage']) > -1) {
-            setSendError({
+            setSendAttemptError({
               message: data['ErrorMessage']
             });
           }
@@ -274,7 +274,13 @@ const useChatConnection = (eventHandlers) => {
     [cancelRetryConnectionWithBackoff]
   );
 
-  return { actions, chatUserRole, hasConnectionError, isConnecting, sendError };
+  return {
+    actions,
+    chatUserRole,
+    hasConnectionError,
+    isConnecting,
+    sendAttemptError
+  };
 };
 
 export default useChatConnection;

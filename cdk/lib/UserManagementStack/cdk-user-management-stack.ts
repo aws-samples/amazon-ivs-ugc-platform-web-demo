@@ -134,6 +134,7 @@ export class UserManagementStack extends NestedStack {
         'ivschat:CreateChatToken',
         'ivschat:CreateRoom',
         'ivschat:DeleteMessage',
+        'ivschat:DeleteRoom',
         'ivschat:DisconnectUser',
         'ivschat:SendEvent'
       ],

@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { useMobileBreakpoint } from '../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../contexts/ResponsiveDevice';
 
 const useScrollToTop = ({ dependency, isResponsiveView }) => {
   const location = useLocation();
-  const { mainRef } = useMobileBreakpoint();
+  const { mainRef } = useResponsiveDevice();
 
   useEffect(() => {
     if (mainRef.current) {

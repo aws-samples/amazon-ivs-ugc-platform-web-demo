@@ -1,6 +1,6 @@
 import './StreamHealth.css';
 import { clsm } from '../../utils';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useStreams } from '../../contexts/Streams';
 import { WITH_VERTICAL_SCROLLER_BASE_CLASSES } from '../../components/withVerticalScroller/withVerticalScrollerTheme';
 import Header from './Header';
@@ -9,7 +9,7 @@ import useScrollToTop from '../../hooks/useScrollToTop';
 
 const StreamHealth = () => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
 
   useScrollToTop({
     dependency: activeStreamSession?.streamId,

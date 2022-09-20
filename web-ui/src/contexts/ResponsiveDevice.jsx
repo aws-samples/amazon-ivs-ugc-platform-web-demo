@@ -15,20 +15,21 @@ import useMediaQuery from '../hooks/useMediaQuery';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
 
 const Context = createContext(null);
-Context.displayName = 'MobileBreakpoint';
+Context.displayName = 'ResponsiveDevice';
 
 export const Provider = ({ children }) => {
   const [currentBreakpoint, setCurrentBreakpoint] = useState();
   const mainRef = useRef();
   const mobileOverlayIds = useRef([]);
   const windowPageScrollY = useRef();
-
+  const isLandscapeMatches = useMediaQuery('(orientation: landscape)');
+  const [isLandscape, setIsLandscape] = useState();
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
-  const isLandscape = useMediaQuery('(orientation: landscape)');
   const isTouchscreenDevice = useMediaQuery('(hover:none)');
   const isMobileView =
     isDefaultResponsiveView ||
     (isLandscape && isTouchscreenDevice && currentBreakpoint < BREAKPOINTS.lg);
+  const supportsScreenOrientation = !!window.screen?.orientation;
 
   const lockBody = useCallback(() => {
     if (isiOS()) {
@@ -90,27 +91,13 @@ export const Provider = ({ children }) => {
   );
 
   // Set current breakpoint
-  useEffect(() => {
-    const updateCurrentBreakpoint = () => {
-      const innerWidth = window.innerWidth;
+  const updateCurrentBreakpoint = useCallback(() => {
+    const innerWidth = window.innerWidth;
 
-      if (innerWidth >= BREAKPOINTS.lg) setCurrentBreakpoint(BREAKPOINTS.lg);
-      else if (innerWidth >= BREAKPOINTS.md)
-        setCurrentBreakpoint(BREAKPOINTS.md);
-      else if (innerWidth >= BREAKPOINTS.sm)
-        setCurrentBreakpoint(BREAKPOINTS.sm);
-      else setCurrentBreakpoint(BREAKPOINTS.xs);
-    };
-
-    updateCurrentBreakpoint();
-
-    window.addEventListener('resize', updateCurrentBreakpoint);
-    window.addEventListener('orientationchange', updateCurrentBreakpoint);
-
-    return () => {
-      window.removeEventListener('resize', updateCurrentBreakpoint);
-      window.addEventListener('orientationchange', updateCurrentBreakpoint);
-    };
+    if (innerWidth >= BREAKPOINTS.lg) setCurrentBreakpoint(BREAKPOINTS.lg);
+    else if (innerWidth >= BREAKPOINTS.md) setCurrentBreakpoint(BREAKPOINTS.md);
+    else if (innerWidth >= BREAKPOINTS.sm) setCurrentBreakpoint(BREAKPOINTS.sm);
+    else setCurrentBreakpoint(BREAKPOINTS.xs);
   }, []);
 
   // Set --mobile-vh CSS variable
@@ -127,17 +114,48 @@ export const Provider = ({ children }) => {
     10,
     [isDefaultResponsiveView, isTouchscreenDevice]
   );
-  useEffect(() => {
-    updateMobileVh();
 
-    window.addEventListener('resize', updateMobileVh);
-    window.addEventListener('orientationchange', updateMobileVh);
+  const updateOrientation = useCallback(() => {
+    /**
+     * screen.orientation has proven to be more accurate than the CSS media query.
+     * Most specifically on Firefox mobile, some devices are switch to landscape when the virtual keyboard is open when they're still technically in portrait mode.
+     */
+    if (supportsScreenOrientation)
+      setIsLandscape(!!window.screen.orientation.type.includes('landscape'));
+    else setIsLandscape(isLandscapeMatches);
+  }, [isLandscapeMatches, supportsScreenOrientation]);
+
+  useEffect(() => {
+    const onDimensionsChange = () => {
+      updateMobileVh();
+      updateCurrentBreakpoint();
+      updateOrientation();
+    };
+
+    onDimensionsChange();
+
+    if (supportsScreenOrientation)
+      window.screen.orientation.addEventListener('change', onDimensionsChange);
+    window.addEventListener('resize', onDimensionsChange);
+    window.addEventListener('orientationchange', onDimensionsChange);
 
     return () => {
-      window.removeEventListener('resize', updateMobileVh);
-      window.removeEventListener('orientationchange', updateMobileVh);
+      if (supportsScreenOrientation) {
+        window.screen.orientation.removeEventListener(
+          'change',
+          onDimensionsChange
+        );
+      }
+
+      window.removeEventListener('resize', onDimensionsChange);
+      window.removeEventListener('orientationchange', onDimensionsChange);
     };
-  }, [updateMobileVh]);
+  }, [
+    supportsScreenOrientation,
+    updateCurrentBreakpoint,
+    updateMobileVh,
+    updateOrientation
+  ]);
 
   const value = useMemo(
     () => ({
@@ -166,4 +184,4 @@ export const Provider = ({ children }) => {
 
 Provider.propTypes = { children: PropTypes.node.isRequired };
 
-export const useMobileBreakpoint = () => useContextHook(Context);
+export const useResponsiveDevice = () => useContextHook(Context);

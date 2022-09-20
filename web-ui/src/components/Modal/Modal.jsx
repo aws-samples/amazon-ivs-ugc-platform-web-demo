@@ -2,21 +2,21 @@ import { m } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { clsm } from '../../utils';
 import { app as $content } from '../../content';
 import { BREAKPOINTS } from '../../constants';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { clsm } from '../../utils';
 import { useModal } from '../../contexts/Modal';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../Button';
 import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
-import withPortal from '../withPortal';
 import usePreviousFocus from '../../hooks/usePreviousFocus';
+import withPortal from '../withPortal';
 
 const Modal = () => {
   const modalRef = useRef();
-  const { currentBreakpoint } = useMobileBreakpoint();
+  const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < BREAKPOINTS.sm;
   const { modal, closeModal } = useModal();
   const {

@@ -5,7 +5,7 @@ import { BREAKPOINTS } from '../../constants';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useChannel } from '../../contexts/Channel';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
 import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
@@ -15,7 +15,7 @@ import Player from '../../components/Player';
 const Channel = () => {
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
-    useMobileBreakpoint();
+    useResponsiveDevice();
   const { channelData, channelError } = useChannel();
   const [isChatVisible, setIsChatVisible] = useState(true);
   const chatAnimationControls = useAnimation();
@@ -63,10 +63,12 @@ const Channel = () => {
         'lg:h-full',
         'lg:min-h-screen',
         /* Split View */
-        'md:landscape:flex-row',
-        'md:landscape:h-screen',
-        'touch-screen-device:lg:landscape:flex-row',
-        'touch-screen-device:lg:landscape:h-screen'
+        isLandscape && [
+          'md:flex-row',
+          'md:h-screen',
+          'touch-screen-device:lg:flex-row',
+          'touch-screen-device:lg:h-screen'
+        ]
       ])}
     >
       <Player
@@ -78,7 +80,11 @@ const Channel = () => {
         <Chat chatAnimationControls={chatAnimationControls} />
       </NotificationProvider>
       {isSplitView && !isSessionValid && !isChatVisible && (
-        <MobileNavbar className="lg:landscape:max-w-[calc(100vw_-_(352px_+_32px))]" />
+        <MobileNavbar
+          className={clsm(
+            isLandscape && 'lg:max-w-[calc(100vw_-_(352px_+_32px))]'
+          )}
+        />
       )}
     </div>
   );

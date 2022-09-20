@@ -10,9 +10,9 @@ import { LazyMotion, MotionConfig } from 'framer-motion';
 import { Provider as ChannelProvider } from './contexts/Channel';
 import { Provider as ChatMessagesProvider } from './contexts/ChatMessages';
 import { Provider as LastFocusedElementProvider } from './contexts/LastFocusedElement';
-import { Provider as MobileBreakpointProvider } from './contexts/MobileBreakpoint';
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
+import { Provider as ResponsiveDeviceProvider } from './contexts/ResponsiveDevice';
 import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
@@ -47,7 +47,7 @@ const App = () => (
     <LazyMotion features={loadMotionFeatures} strict>
       <MotionConfig reducedMotion="user">
         <LastFocusedElementProvider>
-          <MobileBreakpointProvider>
+          <ResponsiveDeviceProvider>
             <NotificationProvider>
               <ModalProvider>
                 <TooltipsProvider>
@@ -103,7 +103,7 @@ const App = () => (
                 </TooltipsProvider>
               </ModalProvider>
             </NotificationProvider>
-          </MobileBreakpointProvider>
+          </ResponsiveDeviceProvider>
         </LastFocusedElementProvider>
       </MotionConfig>
     </LazyMotion>

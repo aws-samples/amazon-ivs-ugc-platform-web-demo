@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useRef } from 'react';
 
+import './StreamEventsList.css';
 import { Close } from '../../../../../../assets/icons';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { noop } from '../../../../../../utils';
-import { useMobileBreakpoint } from '../../../../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
 import MetricPanel from '../../MetricPanel';
 import StreamEventItem from './StreamEventItem';
-import './StreamEventsList.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
@@ -23,7 +23,7 @@ const StreamEventsList = ({
   streamEvents,
   toggleLearnMore
 }) => {
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const { activeStreamSession = {}, isLoadingStreamData } = useStreams();
   const wrapperRef = useRef();
   const selectedEventRef = useRef();

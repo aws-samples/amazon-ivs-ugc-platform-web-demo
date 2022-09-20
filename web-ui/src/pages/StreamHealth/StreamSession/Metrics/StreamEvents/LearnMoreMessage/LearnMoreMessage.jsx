@@ -5,13 +5,13 @@ import { m } from 'framer-motion';
 import './LearnMoreMessage.css';
 import { Close } from '../../../../../../assets/icons';
 import { substitutePlaceholders } from '../../../../../../utils';
-import { useMobileBreakpoint } from '../../../../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
 
   return (

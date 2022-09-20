@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom';
 
 import { clsm } from '../../utils';
 import { FLOATING_PLAYER_PAGES } from '../../constants';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
 import FloatingNav from '../../components/FloatingNav';
 import FloatingPlayer from '../../pages/StreamHealth/FloatingPlayer';
@@ -14,8 +14,8 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, isMobileView, mainRef } =
-    useMobileBreakpoint();
+  const { isDefaultResponsiveView, isLandscape, isMobileView, mainRef } =
+    useResponsiveDevice();
   const { isSessionValid } = useUser();
   const { modal } = useModal();
   const currentPage = useCurrentPage();
@@ -51,20 +51,22 @@ const AppLayoutWithNavbar = () => {
           ],
           isSessionValid
             ? [
-                // Autenticated Sidebar is visible
+                // Authenticated Sidebar is visible
                 'w-[calc(100vw_-_64px)]',
-                // Autenticated Sidebar is not visible
+                // Authenticated Sidebar is not visible
                 'md:w-screen',
-                'touch-screen-device:lg:landscape:w-screen'
+                isLandscape && 'touch-screen-device:lg:w-screen'
               ]
             : [
-                // Unautenticated Sidebar is visible
+                // Unauthenticated Sidebar is visible
                 'w-[calc(100vw_-_240px)]',
                 'lg:portrait:w-[calc(100vw_-_160px)]',
-                // Unautenticated MobileNavbar is visible
+                // Unauthenticated MobileNavbar is visible
                 'md:portrait:w-screen',
-                'md:landscape:w-screen',
-                'touch-screen-device:lg:landscape:w-screen'
+                isLandscape && [
+                  'md:w-screen',
+                  'touch-screen-device:lg:w-screen'
+                ]
               ]
         )}
       >

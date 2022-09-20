@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AnimatePresence, useAnimation } from 'framer-motion';
 
 import { BREAKPOINTS } from '../../constants';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import MobilePanel from './MobilePanel';
 
 const ResponsivePanel = ({
@@ -14,7 +14,7 @@ const ResponsivePanel = ({
   panelId,
   preserveVisible
 }) => {
-  const { currentBreakpoint } = useMobileBreakpoint();
+  const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
   const controls = useAnimation();
 

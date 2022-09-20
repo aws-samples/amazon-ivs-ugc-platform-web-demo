@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import { useEffect, useMemo, useRef } from 'react';
 import { m, usePresence } from 'framer-motion';
 
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import useFocusTrap from '../../../hooks/useFocusTrap';
 import withPortal from '../../withPortal';
 import './MobilePanel.css';
 
 const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
-  const { addMobileOverlay, removeMobileOverlay } = useMobileBreakpoint();
+  const { addMobileOverlay, removeMobileOverlay } = useResponsiveDevice();
   const headerRef = useRef();
   const panelRef = useRef();
   const variants = useMemo(() => {

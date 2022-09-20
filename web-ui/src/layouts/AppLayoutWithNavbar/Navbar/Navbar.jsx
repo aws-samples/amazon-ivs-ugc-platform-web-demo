@@ -1,10 +1,10 @@
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import MobileNavbar from './MobileNavbar';
 import Sidebar from './Sidebar';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 
 const Navbar = () => {
-  const { isMobileView } = useMobileBreakpoint();
+  const { isMobileView } = useResponsiveDevice();
   const currentPage = useCurrentPage();
   const isChannelPage = currentPage === 'channel';
 

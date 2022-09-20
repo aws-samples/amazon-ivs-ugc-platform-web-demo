@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 
 const useControls = (isPaused, isViewerBanned) => {
   const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
-  const { isTouchscreenDevice } = useMobileBreakpoint();
+  const { isTouchscreenDevice } = useResponsiveDevice();
   const [openPopupIds, setOpenPopupIds] = useState([]);
   const isPopupOpen = !!openPopupIds.length;
   const timeoutId = useRef(null);

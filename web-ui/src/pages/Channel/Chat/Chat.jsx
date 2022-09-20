@@ -8,8 +8,8 @@ import { CHAT_USER_ROLE } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
 import { useChatMessages } from '../../../contexts/ChatMessages';
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
 import { useNotif } from '../../../contexts/Notification';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
 import ChatPopup from './ChatPopup';
 import Composer from './Composer';
@@ -28,7 +28,7 @@ const Chat = ({ chatAnimationControls }) => {
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
   const { isMobileView, isLandscape, currentBreakpoint } =
-    useMobileBreakpoint();
+    useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
   /**
@@ -69,12 +69,17 @@ const Chat = ({ chatAnimationControls }) => {
     [notifyError, refreshChannelData, userData?.username]
   );
 
-  const { actions, chatUserRole, hasConnectionError, isConnecting, sendError } =
-    useChatConnection({
-      handleDeleteMessage,
-      handleDeleteUserMessages: removeMessageByUserId,
-      handleUserDisconnect
-    });
+  const {
+    actions,
+    chatUserRole,
+    hasConnectionError,
+    isConnecting,
+    sendAttemptError
+  } = useChatConnection({
+    handleDeleteMessage,
+    handleDeleteUserMessages: removeMessageByUserId,
+    handleUserDisconnect
+  });
   const isLoading = isConnecting || isChannelLoading;
 
   /**
@@ -130,12 +135,14 @@ const Chat = ({ chatAnimationControls }) => {
         'lg:flex-grow',
         'lg:min-h-[200px]',
         /* Split View */
-        'md:landscape:w-[308px]',
-        'md:landscape:h-screen',
-        'md:landscape:min-h-[auto]',
-        'touch-screen-device:lg:landscape:w-[308px]',
-        'touch-screen-device:lg:landscape:h-screen',
-        'touch-screen-device:lg:landscape:min-h-[auto]'
+        isLandscape && [
+          'md:w-[308px]',
+          'md:h-screen',
+          'md:min-h-[auto]',
+          'touch-screen-device:lg:w-[308px]',
+          'touch-screen-device:lg:h-screen',
+          'touch-screen-device:lg:min-h-[auto]'
+        ]
       ])}
     >
       <Notification />
@@ -169,7 +176,7 @@ const Chat = ({ chatAnimationControls }) => {
             isDisabled={hasConnectionError}
             isLoading={isLoading}
             isFocusable={!isChatPopupOpen}
-            sendError={sendError}
+            sendAttemptError={sendAttemptError}
             sendMessage={actions.sendMessage}
           />
         )}

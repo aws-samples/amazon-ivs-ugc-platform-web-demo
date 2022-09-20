@@ -1,20 +1,20 @@
 import { useRef, useState } from 'react';
 import copyToClipboard from 'copy-to-clipboard';
 
+import './Settings.css';
 import { dashboard as $content } from '../../content';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { userManagementAPI } from '../../api';
 import { useUser } from '../../contexts/User';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import './Settings.css';
 
 const StreamSettings = () => {
   const resetStreamKeyButtonRef = useRef();
   const [isResetStreamKeyLoading, setIsResetStreamKeyLoading] = useState(false);
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { userData, fetchUserData } = useUser();

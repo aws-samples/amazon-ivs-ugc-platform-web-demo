@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import './StreamEvents.css';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { processEvents } from './utils';
 import { scrollToTop } from '../../../../../utils';
-import { useMobileBreakpoint } from '../../../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../contexts/Streams';
 import Button from '../../../../../components/Button';
 import LearnMoreMessage from './LearnMoreMessage';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import StreamEventsList from './StreamEventsList';
-import './StreamEvents.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
 const EVENT_PREVIEW_COUNT = 2;
 
 const StreamEvents = () => {
-  const { isDefaultResponsiveView } = useMobileBreakpoint();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const { activeStreamSession = {} } = useStreams();
   const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);

@@ -6,12 +6,12 @@ import { app as $content } from '../../content';
 import { BREAKPOINTS } from '../../constants';
 import { noop } from '../../utils';
 import { SyncError } from '../../assets/icons';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../Button';
 import Spinner from '../Spinner';
 
 const FullScreenLoader = ({ hasError, mobileBreakpoint, onClick }) => {
-  const { currentBreakpoint } = useMobileBreakpoint();
+  const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
   const loadingContainerRef = useRef();
   let loadingContainerResponsiveStyle = isResponsiveView

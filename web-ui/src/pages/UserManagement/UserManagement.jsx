@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import './UserManagement.css';
 import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { clsm, compose } from '../../utils';
-import { useMobileBreakpoint } from '../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import Notification from '../../components/Notification';
@@ -19,7 +19,7 @@ const UserManagement = () => {
     isCreatingResources,
     isSessionValid
   } = useUser();
-  const { currentBreakpoint, mainRef } = useMobileBreakpoint();
+  const { currentBreakpoint, mainRef } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';

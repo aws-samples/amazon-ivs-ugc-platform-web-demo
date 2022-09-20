@@ -11,7 +11,7 @@ import {
 } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { useMobileBreakpoint } from '../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import RenditionSetting, {
   POPUP_ID as RENDITION_SETTING_POPUP_ID
 } from './RenditionSetting';
@@ -43,7 +43,7 @@ const Controls = ({
     volumeLevel
   } = player;
   const { isMobileView, isLandscape, isTouchscreenDevice } =
-    useMobileBreakpoint();
+    useResponsiveDevice();
   const mobileSVGOpacity = isTouchscreenDevice ? '[&>svg]:fill-white' : '';
   const isSplitView = isMobileView && isLandscape;
   const controlsVisibilityProps = useMemo(

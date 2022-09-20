@@ -5,7 +5,7 @@ import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
 import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
-import { useMobileBreakpoint } from '../../../../contexts/MobileBreakpoint';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
@@ -18,7 +18,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   const chatRef = useRef();
   const { messages, initMessages } = useChatMessages();
   const { isSticky, scrollToBottom } = useStickyScroll(chatRef, messages);
-  const { isMobileView, isLandscape } = useMobileBreakpoint();
+  const { isMobileView, isLandscape } = useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
 
   useEffect(() => {
