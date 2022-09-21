@@ -1,24 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useCallback } from 'react';
 
-import { activeStreamSessionFetcher } from './fetchers';
+import { noop } from '../../utils';
 import { STREAM_SESSION_DATA_REFRESH_INTERVAL } from '../../constants';
+import { streamSessionDataFetcher } from './fetchers';
+import { useUser } from '../User';
 import useSWRWithKeyUpdate from '../../hooks/useSWRWithKeyUpdate';
 
-const useActiveStreamSession = ({
+const useStreamSessionData = ({
   isLive,
-  isSessionValid,
+  isRevalidationEnabled = true,
   setStreamSessions,
   streamSessions,
-  userData
+  onSuccess = noop
 }) => {
-  const [activeStreamSessionId, setActiveStreamSessionId] = useState();
-  const activeStreamSession = useMemo(
-    () =>
-      streamSessions?.find(
-        ({ streamId }) => streamId === activeStreamSessionId
-      ),
-    [activeStreamSessionId, streamSessions]
-  );
+  const { isSessionValid, userData } = useUser();
 
   const setStale = (streamId) => (isStale) => {
     setStreamSessions((prevSessions) => {
@@ -37,27 +32,30 @@ const useActiveStreamSession = ({
   };
 
   const {
-    error: fetchActiveStreamSessionError,
-    isValidating: isValidatingActiveStreamSession,
+    error: fetchStreamSessionDataError,
+    isValidating: isValidatingStreamSessionData,
     /**
-     * updateActiveStreamSession is used to change the key that SWR is using to poll the data.
-     * Here, the key contains the streamId of the selected session. It is used as an URL parameter when calling the API.
+     * updateKey is used to change the key that SWR is using to poll the data.
+     * Here, the key contains a stream object with the streamId of the selected session. It is used as a URL parameter when calling the API.
      */
-    updateKey: updateActiveStreamSession,
+    updateKey,
     /**
-     * refreshCurrentActiveStreamSession is used to manually poll new data based on a user interaction after an error occurred with a previous data fetching.
+     * refreshCurrentStreamSessionData is used to manually poll new data based on a user interaction after an error occurred with a previous data fetching.
      * It does not update the key and polls for the currently selected session.
-     * Important: calling this function will bypass the frozen state and refresh the current active session anyways
+     * Important: calling this function will bypass the frozen state and refresh the current stream session data anyways
      */
-    mutate: refreshCurrentActiveStreamSession
-  } = useSWRWithKeyUpdate(
-    userData && isSessionValid && userData.channelResourceId,
-    activeStreamSessionFetcher,
-    {
+    mutate: refreshCurrentStreamSessionData,
+    swrKey
+  } = useSWRWithKeyUpdate({
+    baseKey: userData && isSessionValid && userData.channelResourceId,
+    fetcher: streamSessionDataFetcher,
+    isEnabled: isRevalidationEnabled,
+    options: {
       refreshInterval: isLive ? STREAM_SESSION_DATA_REFRESH_INTERVAL : 0, // Disabled when refreshInterval = 0
       revalidateOnFocus: isLive,
       revalidateOnReconnect: isLive,
       revalidateOnMount: true,
+      revalidateIfStale: false,
       dedupingInterval: 0,
       onSuccess: (streamSessionMetadata) => {
         setStreamSessions(
@@ -74,21 +72,30 @@ const useActiveStreamSession = ({
                   }
                 : prevStreamSession
             ),
-          () => setActiveStreamSessionId(streamSessionMetadata.streamId)
+          () => onSuccess(streamSessionMetadata)
         );
       },
       shouldRetryOnError: false
     }
+  });
+
+  const updateStreamSessionDataFetchKey = useCallback(
+    (stream) => {
+      const { streamId: fetchKeyStreamId } = swrKey?.[1] || {};
+
+      if (fetchKeyStreamId !== stream.streamId) {
+        updateKey(stream);
+      }
+    },
+    [swrKey, updateKey]
   );
 
   return {
-    activeStreamSession,
-    fetchActiveStreamSessionError,
-    isValidatingActiveStreamSession,
-    refreshCurrentActiveStreamSession,
-    setActiveStreamSessionId,
-    updateActiveStreamSession
+    fetchStreamSessionDataError,
+    isValidatingStreamSessionData,
+    refreshCurrentStreamSessionData,
+    updateStreamSessionDataFetchKey
   };
 };
 
-export default useActiveStreamSession;
+export default useStreamSessionData;

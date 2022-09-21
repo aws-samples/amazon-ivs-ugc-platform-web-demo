@@ -6,19 +6,15 @@ import {
   useRef,
   useState
 } from 'react';
-import {
-  generatePath,
-  useMatch,
-  useNavigate,
-  useParams
-} from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { useUser } from '../../contexts/User';
-import useActiveStreamSession from './useActiveStreamSession';
 import useContextHook from '../useContextHook';
+import useCurrentPage from '../../hooks/useCurrentPage';
 import useDebouncedCallback from '../../hooks/useDebouncedCallback';
 import usePrevious from '../../hooks/usePrevious';
+import useStreamSessionData from './useStreamSessionData';
 import useStreamSessions from './useStreamSessions';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
@@ -29,8 +25,14 @@ export const Provider = ({ children }) => {
   const { isSessionValid, userData } = useUser();
   const { streamId: paramsStreamId } = useParams();
   const isInitialized = useRef(false);
-  const isStreamHealthPage = !!useMatch('health/*');
   const navigate = useNavigate();
+  const currentPage = useCurrentPage();
+  const isStreamHealthPage = currentPage === 'stream_health';
+  const isDashboardPage = [
+    'stream_health',
+    'stream_manager',
+    'settings'
+  ].includes(currentPage);
 
   /**
    * STREAM SESSIONS LIST DATA
@@ -46,7 +48,7 @@ export const Provider = ({ children }) => {
     setSize,
     setStreamSessions,
     streamSessions
-  } = useStreamSessions({ isSessionValid, userData });
+  } = useStreamSessions({ isRevalidationEnabled: isDashboardPage });
 
   const isLive = useMemo(
     () => streamSessions?.some(({ isLive }) => isLive) || false,
@@ -56,19 +58,27 @@ export const Provider = ({ children }) => {
   /**
    * ACTIVE STREAM SESSION DATA
    */
+  const [activeStreamSessionId, setActiveStreamSessionId] = useState();
+  const activeStreamSession = useMemo(
+    () =>
+      streamSessions?.find(
+        ({ streamId }) => streamId === activeStreamSessionId
+      ) || streamSessions?.[0],
+    [activeStreamSessionId, streamSessions]
+  );
+
   const {
-    activeStreamSession,
-    fetchActiveStreamSessionError,
-    isValidatingActiveStreamSession,
-    refreshCurrentActiveStreamSession,
-    setActiveStreamSessionId,
-    updateActiveStreamSession
-  } = useActiveStreamSession({
+    fetchStreamSessionDataError: fetchActiveStreamSessionError,
+    isValidatingStreamSessionData: isValidatingActiveStreamSession,
+    refreshCurrentStreamSessionData: refreshCurrentActiveStreamSession,
+    updateStreamSessionDataFetchKey: updateActiveStreamSession
+  } = useStreamSessionData({
     isLive,
-    isSessionValid,
+    isRevalidationEnabled: isStreamHealthPage,
+    onSuccess: (streamSessionData) =>
+      setActiveStreamSessionId(streamSessionData.streamId),
     setStreamSessions,
-    streamSessions,
-    userData
+    streamSessions
   });
   const prevActiveStreamSession = usePrevious(activeStreamSession);
   const hasActiveStreamChanged =
@@ -105,12 +115,7 @@ export const Provider = ({ children }) => {
 
       debouncedUpdateActiveStreamSession(session);
     },
-    [
-      debouncedUpdateActiveStreamSession,
-      isStreamHealthPage,
-      navigate,
-      setActiveStreamSessionId
-    ]
+    [debouncedUpdateActiveStreamSession, isStreamHealthPage, navigate]
   );
 
   const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
@@ -202,7 +207,6 @@ export const Provider = ({ children }) => {
     isStreamHealthPage,
     navigate,
     paramsStreamId,
-    setActiveStreamSessionId,
     streamSessions,
     updateActiveStreamSession
   ]);
@@ -250,21 +254,6 @@ export const Provider = ({ children }) => {
     paramsStreamId
   ]);
 
-  useEffect(() => {
-    if (isStreamHealthPage || !hasStreamSessions) return;
-
-    const latestStreamSession = streamSessions[0];
-    if (!activeStreamSession?.isLive && latestStreamSession.isLive) {
-      updateActiveStreamSession(latestStreamSession);
-    }
-  }, [
-    activeStreamSession?.isLive,
-    hasStreamSessions,
-    isStreamHealthPage,
-    streamSessions,
-    updateActiveStreamSession
-  ]);
-
   // Force a brief spinner when switching between active stream sessions
   useEffect(() => {
     if (hasActiveStreamChanged) {
@@ -285,6 +274,7 @@ export const Provider = ({ children }) => {
       isLoadingNextStreamSessionsPage,
       isLoadingStreamData,
       streamSessions,
+      setStreamSessions,
       refreshCurrentActiveStreamSession:
         refreshCurrentActiveStreamSessionWithLoading,
       refreshCurrentStreamSessions,
@@ -307,6 +297,7 @@ export const Provider = ({ children }) => {
       refreshCurrentActiveStreamSessionWithLoading,
       refreshCurrentStreamSessions,
       refreshCurrentStreamSessionsWithLoading,
+      setStreamSessions,
       streamSessions,
       throttledUpdateStreamSessions
     ]

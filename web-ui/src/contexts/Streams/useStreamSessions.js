@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
+
 import { STREAM_SESSIONS_REFRESH_INTERVAL } from '../../constants';
-
-import useStateWithCallback from '../../hooks/useStateWithCallback';
 import { streamSessionsFetcher } from './fetchers';
+import { useUser } from '../User';
+import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const useStreamSessions = ({ isSessionValid, userData }) => {
+const useStreamSessions = ({ isRevalidationEnabled = true }) => {
+  const { isSessionValid, userData } = useUser();
   const [streamSessions, setStreamSessions] = useStateWithCallback();
   const [canLoadMoreStreamSessions, setCanLoadMoreStreamSessions] =
     useState(true);
@@ -27,7 +29,7 @@ const useStreamSessions = ({ isSessionValid, userData }) => {
     // This function is called before each fetcher request.
     // It is also triggered by a call to setSize().
     (pageIndex, previousPageData) => {
-      if (!isSessionValid || !userData) return null;
+      if (!isSessionValid || !userData || !isRevalidationEnabled) return null;
 
       if (previousPageData && !previousPageData.nextToken) return null; // reached the end of the stream sessions list
 

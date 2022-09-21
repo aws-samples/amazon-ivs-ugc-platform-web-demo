@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { matchRoutes, useLocation } from 'react-router-dom';
 
 const ROUTES = [
@@ -20,15 +19,9 @@ const ROUTES = [
 
 const useCurrentPage = () => {
   const location = useLocation();
-  const [currentPage, setCurrentPage] = useState();
+  const [match] = matchRoutes(ROUTES, location) || [];
 
-  useEffect(() => {
-    const [match] = matchRoutes(ROUTES, location) || [];
-
-    if (match) setCurrentPage(match.route.name);
-  }, [location]);
-
-  return currentPage;
+  return match?.route?.name;
 };
 
 export default useCurrentPage;

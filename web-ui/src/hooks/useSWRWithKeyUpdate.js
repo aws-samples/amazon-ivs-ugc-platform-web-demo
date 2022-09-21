@@ -1,9 +1,14 @@
 import { useCallback, useState } from 'react';
 import useSWR from 'swr';
 
-const useSWRWithKeyUpdate = (baseKey, fetcher, options) => {
+const useSWRWithKeyUpdate = ({
+  baseKey,
+  fetcher,
+  options,
+  isEnabled = true
+}) => {
   const [swrKey, setSwrKey] = useState(null);
-  const swr = useSWR(swrKey, fetcher, options);
+  const swr = useSWR(isEnabled ? swrKey : null, fetcher, options);
 
   const updateKey = useCallback(
     (fetchKey) => {
@@ -16,7 +21,7 @@ const useSWRWithKeyUpdate = (baseKey, fetcher, options) => {
     [baseKey]
   );
 
-  return { updateKey, ...swr };
+  return { updateKey, swrKey, ...swr };
 };
 
 export default useSWRWithKeyUpdate;

@@ -34,7 +34,7 @@ export const streamSessionsFetcher = async (channelResourceId, nextToken) => {
   };
 };
 
-export const activeStreamSessionFetcher = async (
+export const streamSessionDataFetcher = async (
   channelResourceId,
   streamSession
 ) => {

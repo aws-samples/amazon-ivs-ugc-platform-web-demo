@@ -15,8 +15,10 @@ const NO_DATA_VALUE = '------';
 const NO_ELAPSED_TIME_VALUE = '--:--:--';
 
 const StatusBar = () => {
-  const { activeStreamSession } = useStreams();
-  const { isHealthy, isLive, metrics, startTime } = activeStreamSession || {};
+  const { updateActiveStreamSession, streamSessions, hasStreamSessions } =
+    useStreams();
+  const latestStreamSession = hasStreamSessions ? streamSessions[0] : {};
+  const { isHealthy, isLive, metrics, startTime } = latestStreamSession;
   const navigate = useNavigate();
 
   // Elapsed Stream Time
@@ -42,15 +44,17 @@ const StatusBar = () => {
     health = NO_DATA_VALUE;
   }
 
-  const handleHealthClick = useCallback(() => navigate('/health'), [navigate]);
+  const handleHealthClick = useCallback(() => {
+    updateActiveStreamSession(streamSessions[0]);
+    navigate('/health');
+  }, [navigate, streamSessions, updateActiveStreamSession]);
 
   return (
     <div
       className={clsm([
-        'grid',
-        'grid-rows-1',
-        'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,74px)]',
+        'flex',
         'items-center',
+        'justify-between',
         'h-12',
         'w-full',
         'max-w-[320px]',
