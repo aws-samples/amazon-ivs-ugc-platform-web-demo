@@ -140,12 +140,12 @@ const Popup = forwardRef(
 const PortalPopup = withPortal(Popup, 'profile-menu-popup');
 
 const MenuPopup = forwardRef(
-  ({ asPortal, isOpen, sidebarRef, ...restProps }, ref) =>
+  ({ asPortal, isOpen, siblingRef, ...restProps }, ref) =>
     asPortal ? (
       <PortalPopup
         isOpen={isOpen}
         ref={ref}
-        prevSiblingEl={sidebarRef}
+        prevSiblingEl={siblingRef.current}
         {...restProps}
       />
     ) : (
@@ -153,12 +153,16 @@ const MenuPopup = forwardRef(
     )
 );
 
-MenuPopup.defaultProps = { asPortal: false, isOpen: false, sidebarRef: null };
+MenuPopup.defaultProps = {
+  asPortal: false,
+  isOpen: false,
+  siblingRef: { current: null }
+};
 
 MenuPopup.propTypes = {
   asPortal: PropTypes.bool,
   isOpen: PropTypes.bool,
-  sidebarRef: PropTypes.object
+  siblingRef: PropTypes.object
 };
 
 Popup.defaultProps = {

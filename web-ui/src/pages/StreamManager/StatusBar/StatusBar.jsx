@@ -62,7 +62,8 @@ const StatusBar = () => {
         'py-3.5',
         'rounded-3xl',
         'bg-lightMode-gray-extraLight',
-        'dark:bg-darkMode-gray-dark'
+        'dark:bg-darkMode-gray-dark',
+        'mb-6'
       ])}
     >
       <StatusItem icon={<Hourglass />} value={elapsedTime} />

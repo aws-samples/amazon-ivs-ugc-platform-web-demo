@@ -26,6 +26,7 @@ const Composer = ({
   isDisabled,
   isFocusable,
   isLoading,
+  menuPopupSiblingRef,
   sendAttemptError,
   sendMessage
 }) => {
@@ -240,7 +241,7 @@ const Composer = ({
           </div>
         </form>
       </m.div>
-      {isMobileView && <FloatingNav />}
+      {isMobileView && <FloatingNav siblingRef={menuPopupSiblingRef} />}
     </div>
   );
 };
@@ -250,6 +251,7 @@ Composer.defaultProps = {
   isDisabled: false,
   isFocusable: true,
   isLoading: true,
+  menuPopupSiblingRef: null,
   sendAttemptError: null
 };
 
@@ -258,6 +260,7 @@ Composer.propTypes = {
   isDisabled: PropTypes.bool,
   isFocusable: PropTypes.bool,
   isLoading: PropTypes.bool,
+  menuPopupSiblingRef: PropTypes.object,
   sendAttemptError: PropTypes.shape({ message: PropTypes.string }),
   sendMessage: PropTypes.func.isRequired
 };

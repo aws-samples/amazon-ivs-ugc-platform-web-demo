@@ -1,18 +1,21 @@
+export const BUTTON_OUTLINE_CLASSES = [
+  'focus:outline-none',
+  'focus:shadow-focus',
+  'shadow-black',
+  'dark:shadow-white'
+];
+
 export const BUTTON_BASE_CLASSES = [
   '[&>svg]:fill-black',
   'border-none',
   'cursor-pointer',
   'dark:[&>svg]:fill-white',
-  'dark:shadow-white',
   'disabled:cursor-auto',
   'disabled:opacity-30',
   'disabled:pointer-events-none',
   'duration-[0.15s]',
   'ease-in-out',
   'flex',
-  'focus:outline-none',
-  'shadow-black',
-  'focus:shadow-focus',
   'h-[44px]',
   'items-center',
   'justify-center',
@@ -23,7 +26,8 @@ export const BUTTON_BASE_CLASSES = [
   'select-none',
   'transition-all',
   'w-auto',
-  'whitespace-nowrap'
+  'whitespace-nowrap',
+  ...BUTTON_OUTLINE_CLASSES
 ];
 
 const TEXT_BASE_CLASSES = [

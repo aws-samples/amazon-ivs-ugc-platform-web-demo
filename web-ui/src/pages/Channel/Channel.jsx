@@ -1,5 +1,5 @@
-import { useAnimation } from 'framer-motion';
-import { useEffect, useState, useCallback } from 'react';
+import { m, useAnimation } from 'framer-motion';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 import { BREAKPOINTS } from '../../constants';
 import { clsm } from '../../utils';
@@ -12,7 +12,10 @@ import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar'
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
 
+const chatDefaultTransition = { duration: 0.25, type: 'tween' };
+
 const Channel = () => {
+  const chatContainerRef = useRef();
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
     useResponsiveDevice();
@@ -77,7 +80,48 @@ const Channel = () => {
         channelData={channelData}
       />
       <NotificationProvider>
-        <Chat chatAnimationControls={chatAnimationControls} />
+        <m.section
+          ref={chatContainerRef}
+          animate={chatAnimationControls}
+          initial="visible"
+          exit="hidden"
+          variants={{
+            visible: {
+              x: 0,
+              width: isSplitView ? 308 : isStackedView ? '100%' : 360,
+              transitionEnd: { x: 0 }
+            },
+            hidden: { x: '100%', width: 0 }
+          }}
+          transition={chatDefaultTransition}
+          className={clsm([
+            'relative',
+            'flex',
+            'flex-shrink-0',
+            'bg-white',
+            'dark:bg-darkMode-gray-dark',
+            'overflow-hidden',
+            /* Default View */
+            'w-[360px]',
+            'h-screen',
+            /* Stacked View */
+            'lg:w-full',
+            'lg:h-full',
+            'lg:flex-grow',
+            'lg:min-h-[200px]',
+            /* Split View */
+            isLandscape && [
+              'md:w-[308px]',
+              'md:h-screen',
+              'md:min-h-[auto]',
+              'touch-screen-device:lg:w-[308px]',
+              'touch-screen-device:lg:h-screen',
+              'touch-screen-device:lg:min-h-[auto]'
+            ]
+          ])}
+        >
+          <Chat chatContainerRef={chatContainerRef} />
+        </m.section>
       </NotificationProvider>
       {isSplitView && !isSessionValid && !isChatVisible && (
         <MobileNavbar

@@ -30,9 +30,16 @@ export const Provider = ({ children }) => {
    * whenever the user logs out or a new user logs in. This is essential as we need to
    * make sure that the value of isViewerBanned is always accurate for the user who is
    * signed in, and this can only be guranteed if the SWR key is updated appropriately.
+   * The SWR key is filterd to remove duplicate usernames so that duplicate data isn't
+   * fetched by SWR.
    */
-  const swrKey =
-    currentPage === 'channel' ? [channelUsername, userData?.username] : null;
+  let swrKey = null;
+  if (currentPage === 'channel' && channelUsername) {
+    const keyArr = [channelUsername, userData?.username];
+    swrKey = keyArr.filter((item, i) => keyArr.indexOf(item) === i);
+  } else if (currentPage !== 'channel' && userData) {
+    swrKey = [userData?.username];
+  }
   const {
     data: channelData,
     error: channelError,

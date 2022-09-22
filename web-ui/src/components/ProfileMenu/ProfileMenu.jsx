@@ -16,7 +16,7 @@ const ProfileMenu = ({
   fadeBackground,
   menuClassName,
   navData,
-  sidebarRef
+  siblingRef
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
@@ -44,7 +44,7 @@ const ProfileMenu = ({
           menuClassName={menuClassName}
           navData={navData}
           ref={profileMenuRef}
-          sidebarRef={sidebarRef}
+          siblingRef={siblingRef}
           toggleProfileMenu={toggleProfileMenu}
         />
         {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
@@ -79,7 +79,7 @@ ProfileMenu.defaultProps = {
   fadeBackground: false,
   menuClassName: undefined,
   navData: [],
-  sidebarRef: null
+  siblingRef: null
 };
 
 ProfileMenu.propTypes = {
@@ -89,7 +89,7 @@ ProfileMenu.propTypes = {
   fadeBackground: PropTypes.bool,
   menuClassName: PropTypes.string,
   navData: PropTypes.array,
-  sidebarRef: PropTypes.object
+  siblingRef: PropTypes.object
 };
 
 export default ProfileMenu;

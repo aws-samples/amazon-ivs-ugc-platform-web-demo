@@ -154,7 +154,7 @@ const Sidebar = () => {
           navData={[
             { label: $content.settings, icon: <Settings />, to: '/settings' }
           ]}
-          sidebarRef={sidebarRef.current}
+          siblingRef={sidebarRef}
         >
           {({ isOpen, toggle, toggleRef }) => (
             <Button

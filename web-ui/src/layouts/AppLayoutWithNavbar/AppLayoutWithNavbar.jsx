@@ -24,8 +24,9 @@ const AppLayoutWithNavbar = () => {
 
   const renderNav = () => {
     switch (true) {
-      case isMobileView && currentPage === 'channel':
-        return null; // The mobile channel page has its own FloatingNav and MobileNavbar
+      case isMobileView &&
+        (currentPage === 'channel' || currentPage === 'stream_manager'):
+        return null; // The mobile channel and stream manager pages have their own FloatingNav and/or MobileNavbar
       case isMobileView && isSessionValid:
         return <FloatingNav />;
       default:

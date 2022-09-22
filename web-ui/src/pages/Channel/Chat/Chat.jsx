@@ -1,5 +1,5 @@
-import { m, AnimatePresence } from 'framer-motion';
-import { memo, useCallback, useState, useEffect, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
@@ -20,18 +20,15 @@ import Notification from '../../../components/Notification';
 import useChatConnection from './useChatConnection';
 
 const $content = $channelContent.chat;
-const defaultTransition = { duration: 0.25, type: 'tween' };
 
-const Chat = ({ chatAnimationControls }) => {
-  const chatContainerRef = useRef();
+const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
   const { isChannelLoading, refreshChannelData } = useChannel();
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
-  const { isMobileView, isLandscape, currentBreakpoint } =
+  const { isLandscape, isMobileView, currentBreakpoint } =
     useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-
   /**
    * Chat Event Handlers
    */
@@ -106,60 +103,18 @@ const Chat = ({ chatAnimationControls }) => {
   }, [isModerator, notifyInfo, isLoading]);
 
   return (
-    <m.section
-      animate={chatAnimationControls}
-      initial="visible"
-      exit="hidden"
-      variants={{
-        visible: {
-          x: 0,
-          width: isSplitView ? 308 : isStackedView ? '100%' : 360,
-          transitionEnd: { x: 0 }
-        },
-        hidden: { x: '100%', width: 0 }
-      }}
-      transition={defaultTransition}
-      ref={chatContainerRef}
-      className={clsm([
-        'relative',
-        'flex',
-        'flex-shrink-0',
-        'bg-white',
-        'dark:bg-darkMode-gray-dark',
-        'overflow-hidden',
-        /* Default View */
-        'w-[360px]',
-        'h-screen',
-        /* Stacked View */
-        'lg:w-full',
-        'lg:h-full',
-        'lg:flex-grow',
-        'lg:min-h-[200px]',
-        /* Split View */
-        isLandscape && [
-          'md:w-[308px]',
-          'md:h-screen',
-          'md:min-h-[auto]',
-          'touch-screen-device:lg:w-[308px]',
-          'touch-screen-device:lg:h-screen',
-          'touch-screen-device:lg:min-h-[auto]'
-        ]
-      ])}
-    >
+    <>
       <Notification />
       <div
-        className={clsm(
-          [
-            'relative',
-            'flex',
-            'flex-1',
-            'flex-col',
-            'items-center',
-            'justify-between',
-            'px-0.5'
-          ],
-          isSplitView && ['absolute', 'w-[308px]', 'h-screen']
-        )}
+        className={clsm([
+          'relative',
+          'flex',
+          'flex-1',
+          'flex-col',
+          'items-center',
+          'justify-between',
+          'px-0.5'
+        ])}
       >
         <ConnectingOverlay isLoading={isLoading} />
         <Messages
@@ -173,10 +128,11 @@ const Chat = ({ chatAnimationControls }) => {
           />
         ) : (
           <Composer
+            menuPopupSiblingRef={menuPopupSiblingRef}
             chatUserRole={chatUserRole}
             isDisabled={hasConnectionError}
-            isLoading={isLoading}
             isFocusable={!isChatPopupOpen}
+            isLoading={isLoading}
             sendAttemptError={sendAttemptError}
             sendMessage={actions.sendMessage}
           />
@@ -196,10 +152,18 @@ const Chat = ({ chatAnimationControls }) => {
           />
         )}
       </AnimatePresence>
-    </m.section>
+    </>
   );
 };
 
-Chat.propTypes = { chatAnimationControls: PropTypes.object.isRequired };
+Chat.defaultProps = {
+  chatContainerRef: null,
+  menuPopupSiblingRef: null
+};
+
+Chat.propTypes = {
+  chatContainerRef: PropTypes.object,
+  menuPopupSiblingRef: PropTypes.object
+};
 
 export default memo(Chat);

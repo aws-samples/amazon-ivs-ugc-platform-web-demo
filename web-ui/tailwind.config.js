@@ -150,7 +150,10 @@ module.exports = {
         },
         profile: {
           DEFAULT: colors.white,
-          green: 'hsl(144, 42%, 42%)',
+          green: {
+            DEFAULT: 'hsl(var(--base-color-creator-green), 42%)',
+            hover: 'hsl(var(--base-color-creator-green), 50%)'
+          },
           yellow: 'hsl(50, 100%, 64%)',
           blue: 'hsl(241, 100%, 64%)',
           orange: 'hsl(14, 100%, 71%)',
@@ -183,6 +186,15 @@ module.exports = {
             width: '100%',
             height: '100%',
             paddingBottom: 0
+          }
+        },
+        '.aspect-square': {
+          aspectRatio: '1 / 1',
+          '@supports not (aspect-ratio: 1 / 1)': {
+            position: 'relative',
+            width: '100%',
+            height: 0,
+            paddingBottom: '100%' /* 1:1 */
           }
         }
       });
