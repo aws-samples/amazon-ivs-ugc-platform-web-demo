@@ -117,8 +117,6 @@ const useChatConnection = (eventHandlers) => {
           break;
         case 'ERROR':
           // Handle received error
-          console.log('Received Error:', data);
-
           if (Object.values(SEND_ERRORS).indexOf(data['ErrorMessage']) > -1) {
             setSendAttemptError({
               message: data['ErrorMessage']

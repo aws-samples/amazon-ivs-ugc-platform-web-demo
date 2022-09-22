@@ -1,7 +1,7 @@
 import { clsm } from '../../../utils';
 import { BUTTON_OUTLINE_CLASSES } from '../../../components/Button/ButtonTheme';
 
-const StreamActionButton = () => (
+const ManagerStreamActionButton = () => (
   <button
     className={clsm(
       [
@@ -23,4 +23,4 @@ const StreamActionButton = () => (
   </button>
 );
 
-export default StreamActionButton;
+export default ManagerStreamActionButton;

@@ -58,9 +58,11 @@ const AccountSettings = () => {
     };
 
     openModal({
-      isDestructive: true,
-      message: $content.modal.account_deletion_modal.confirm_intent_message,
-      confirmText: $content.modal.account_deletion_modal.delete_account,
+      content: {
+        confirmText: $content.modal.account_deletion_modal.delete_account,
+        isDestructive: true,
+        message: $content.modal.account_deletion_modal.confirm_intent_message
+      },
       onConfirm: deleteAccount,
       lastFocusedElement: deleteAccountButtonRef
     });
@@ -182,11 +184,13 @@ const AccountSettings = () => {
           onSuccess={() => {
             notifySuccess($content.notification.success.password_saved);
             openModal({
-              cancellable: false,
-              confirmText: $content.modal.password_updated_modal.okay,
-              message: $content.modal.password_updated_modal.password_updated,
-              subMessage:
-                $content.modal.password_updated_modal.confirmation_message
+              content: {
+                isInformational: true,
+                confirmText: $content.modal.password_updated_modal.okay,
+                message: $content.modal.password_updated_modal.password_updated,
+                subMessage:
+                  $content.modal.password_updated_modal.confirmation_message
+              }
             });
           }}
           submitHandler={userManagementAPI.changePassword}

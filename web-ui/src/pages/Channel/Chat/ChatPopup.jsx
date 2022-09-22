@@ -65,9 +65,11 @@ const ChatPopup = ({
     handleClose();
 
     openModal({
-      isDestructive: true,
-      message: `${$modalContent.ban_user_message} ${displayName}?`,
-      confirmText: $modalContent.confirm_ban_user,
+      content: {
+        confirmText: $modalContent.confirm_ban_user,
+        isDestructive: true,
+        message: `${$modalContent.ban_user_message} ${displayName}?`
+      },
       onConfirm: async () => {
         await banUser(displayName);
         handleClose();

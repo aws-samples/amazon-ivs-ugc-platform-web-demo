@@ -1,8 +1,8 @@
 import { clsm } from '../../../utils';
 
-import StreamActionButton from './StreamActionButton';
+import ManagerStreamActionButton from './ManagerStreamActionButton';
 
-const StreamActions = () => {
+const ManagerStreamActions = () => {
   return (
     <section
       className={clsm([
@@ -30,10 +30,10 @@ const StreamActions = () => {
       {Array(4) // Temporary
         .fill()
         .map((_, i) => (
-          <StreamActionButton key={i} />
+          <ManagerStreamActionButton key={i} />
         ))}
     </section>
   );
 };
 
-export default StreamActions;
+export default ManagerStreamActions;

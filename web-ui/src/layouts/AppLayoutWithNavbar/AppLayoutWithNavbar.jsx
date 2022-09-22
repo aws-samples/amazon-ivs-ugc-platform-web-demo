@@ -2,12 +2,11 @@ import { Outlet } from 'react-router-dom';
 
 import { clsm } from '../../utils';
 import { FLOATING_PLAYER_PAGES } from '../../constants';
-import { useModal } from '../../contexts/Modal';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import FloatingNav from '../../components/FloatingNav';
 import FloatingPlayer from '../../pages/StreamHealth/FloatingPlayer';
-import Modal from '../../components/Modal';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
 import useCurrentPage from '../../hooks/useCurrentPage';
@@ -17,7 +16,6 @@ const AppLayoutWithNavbar = () => {
   const { isDefaultResponsiveView, isLandscape, isMobileView, mainRef } =
     useResponsiveDevice();
   const { isSessionValid } = useUser();
-  const { modal } = useModal();
   const currentPage = useCurrentPage();
   const shouldRenderFloatingPlayer =
     !isMobileView && FLOATING_PLAYER_PAGES.includes(currentPage);
@@ -73,7 +71,7 @@ const AppLayoutWithNavbar = () => {
       >
         {currentPage !== 'channel' && <Notification />}
         {shouldRenderFloatingPlayer && <FloatingPlayer />}
-        <Modal isOpen={!!modal} />
+        <ConfirmationModal />
         <Outlet />
       </main>
     </div>

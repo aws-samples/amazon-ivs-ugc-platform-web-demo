@@ -48,12 +48,14 @@ const StreamSettings = () => {
     };
 
     openModal({
-      confirmText: $content.modal.reset_stream_key_modal.reset_stream_key,
-      isDestructive: true,
+      content: {
+        confirmText: $content.modal.reset_stream_key_modal.reset_stream_key,
+        isDestructive: true,
+        message: $content.modal.reset_stream_key_modal.confirm_intent_message,
+        subMessage: $content.modal.reset_stream_key_modal.stream_will_terminate
+      },
       lastFocusedElement: resetStreamKeyButtonRef,
-      message: $content.modal.reset_stream_key_modal.confirm_intent_message,
-      onConfirm: resetStreamKey,
-      subMessage: $content.modal.reset_stream_key_modal.stream_will_terminate
+      onConfirm: resetStreamKey
     });
   };
 

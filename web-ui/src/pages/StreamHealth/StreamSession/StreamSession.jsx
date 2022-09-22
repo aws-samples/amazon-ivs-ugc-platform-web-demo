@@ -49,9 +49,11 @@ const StreamSession = () => {
       !activeStreamSession.isLive
     ) {
       openModal({
-        confirmText: $liveStreamEndedModalContent.reload,
-        message: $liveStreamEndedModalContent.live_stream_ended,
-        subMessage: $liveStreamEndedModalContent.live_stream_ended_message,
+        content: {
+          confirmText: $liveStreamEndedModalContent.reload,
+          message: $liveStreamEndedModalContent.live_stream_ended,
+          subMessage: $liveStreamEndedModalContent.live_stream_ended_message
+        },
         onConfirm: () => refreshCurrentActiveStreamSession(),
         onCancel: () => activeStreamSession.setStale(true)
       });

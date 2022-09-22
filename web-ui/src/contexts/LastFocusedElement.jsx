@@ -14,7 +14,7 @@ export const Provider = ({ children }) => {
     []
   );
   const setLastFocusedElement = useCallback(
-    (ref) => (lastFocusedElement.current = ref),
+    (elem) => (lastFocusedElement.current = elem),
     []
   );
 

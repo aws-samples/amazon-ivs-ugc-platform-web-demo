@@ -1,10 +1,17 @@
 import { useEffect, useRef } from 'react';
 
 import { clsm } from '../../utils';
+import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { streamManager as $streamManager } from '../../content';
+import { useManagerStreamActions } from '../../contexts/ManagerStreamActions';
 import { useStreams } from '../../contexts/Streams';
-import StreamManagerChat from './StreamManagerChat';
+import Button from '../../components/Button';
+import ManagerStreamActionModal from './ManagerStreamActions/ManagerStreamActionModal';
+import Notification from '../../components/Notification';
+import Quiz from './ManagerStreamActions/ManagerStreamActionForms/Quiz';
 import StatusBar from './StatusBar';
-import StreamActions from './StreamActions';
+import ManagerStreamActions from './ManagerStreamActions';
+import StreamManagerChat from './StreamManagerChat';
 import useStreamSessionData from '../../contexts/Streams/useStreamSessionData';
 import withVerticalScroller from '../../components/withVerticalScroller';
 
@@ -24,6 +31,21 @@ const StreamManager = () => {
     }
   }, [isLive, streamSessions, updateStreamSessionDataFetchKey]);
 
+  /* TEMPORARY - provided as example */
+  const { openManagerStreamActionModal } = useManagerStreamActions();
+  const managerStreamActionButtonRef = useRef();
+  const openQuizManagerStreamAction = () => {
+    openManagerStreamActionModal({
+      content: {
+        title: $streamManager.manager_stream_actions_modal.quiz.host_a_quiz,
+        confirmText:
+          $streamManager.manager_stream_actions_modal.quiz.start_quiz,
+        managerStreamActionContent: <Quiz />
+      },
+      lastFocusedElement: managerStreamActionButtonRef
+    });
+  };
+
   return (
     <div
       className={clsm(
@@ -40,6 +62,19 @@ const StreamManager = () => {
       )}
     >
       <StatusBar />
+      <NotificationProvider>
+        <Notification className={clsm(['fixed', 'z-[1001]'])} />
+        <ManagerStreamActionModal />
+      </NotificationProvider>
+
+      {/* TEMPORARY - provided as example */}
+      <Button
+        className={clsm(['mb-6'])}
+        ref={managerStreamActionButtonRef}
+        onClick={openQuizManagerStreamAction}
+      >
+        Open a Sample Modal
+      </Button>
       <div
         ref={streamManagerRef}
         className={clsm([
@@ -53,7 +88,7 @@ const StreamManager = () => {
           'w-full'
         ])}
       >
-        <StreamActions />
+        <ManagerStreamActions />
         <StreamManagerChat siblingRef={streamManagerRef} />
       </div>
     </div>

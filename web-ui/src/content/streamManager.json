@@ -4,5 +4,13 @@
     "poor": "Poor",
     "stable": "Stable",
     "view_stream_health": "View stream health"
+  },
+  "manager_stream_actions_modal": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "quiz": {
+      "host_a_quiz": "Host a quiz",
+      "start_quiz": "Start quiz"
+    }
   }
 }

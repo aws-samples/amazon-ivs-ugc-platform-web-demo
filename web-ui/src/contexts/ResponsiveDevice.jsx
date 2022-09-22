@@ -117,13 +117,13 @@ export const Provider = ({ children }) => {
 
   const updateOrientation = useCallback(() => {
     /**
-     * screen.orientation has proven to be more accurate than the CSS media query.
+     * screen.orientation has proven to be more accurate than the CSS media query for touchscreen devices.
      * Most specifically on Firefox mobile, some devices are switch to landscape when the virtual keyboard is open when they're still technically in portrait mode.
      */
-    if (supportsScreenOrientation)
+    if (supportsScreenOrientation && isTouchscreenDevice)
       setIsLandscape(!!window.screen.orientation.type.includes('landscape'));
     else setIsLandscape(isLandscapeMatches);
-  }, [isLandscapeMatches, supportsScreenOrientation]);
+  }, [isLandscapeMatches, isTouchscreenDevice, supportsScreenOrientation]);
 
   useEffect(() => {
     const onDimensionsChange = () => {

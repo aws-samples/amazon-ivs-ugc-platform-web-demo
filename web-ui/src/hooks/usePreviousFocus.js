@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react';
 
+import { noop } from '../utils';
 import { useLastFocusedElement } from '../contexts/LastFocusedElement';
 
 /**
  * Before you use the `refocus` function exposed by this hook, you should set the last focused element using setLastFocusedElement.
  * Relying on `document.activeElement` isn't an option as it is not fully supported on Safari.
  */
-const usePreviousFocus = ({ isActive, onRefocus }) => {
+const usePreviousFocus = ({ isActive, onRefocus = noop }) => {
   const { getLastFocusedElement, setLastFocusedElement } =
     useLastFocusedElement();
 

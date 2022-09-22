@@ -95,8 +95,7 @@ export const BUTTON_VARIANT_CLASSES = {
     'h-auto',
     'hover:bg-lightMode-gray-light-hover',
     'min-w-[auto]',
-    'px-2',
-    'py-2',
+    'p-2.5',
     'rounded-[50%]'
   ],
   primaryText: [

@@ -1,17 +1,18 @@
-import { useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import { Check, ErrorIcon } from '../../assets/icons';
+import { clsm } from '../../utils';
 import {
   useNotif,
   NOTIF_ANIMATION_DURATION_MS
 } from '../../contexts/Notification';
-import { clsm } from '../../utils';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import usePrevious from '../../hooks/usePrevious';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const Notification = () => {
+const Notification = ({ className }) => {
   const { NOTIF_TYPES, notif, dismissNotif } = useNotif();
   const [shouldSkipExitAnimation, setShouldSkipExitAnimation] =
     useStateWithCallback(false);
@@ -50,7 +51,8 @@ const Notification = () => {
             'py-0',
             'px-4',
             'w-fit',
-            'z-[500]'
+            'z-[500]',
+            className
           ])}
           exit={shouldSkipExitAnimation ? '' : 'hidden'}
           initial="hidden"
@@ -103,5 +105,9 @@ const Notification = () => {
     </AnimatePresence>
   );
 };
+
+Notification.propTypes = { className: PropTypes.string };
+
+Notification.defaultProps = { className: '' };
 
 export default Notification;

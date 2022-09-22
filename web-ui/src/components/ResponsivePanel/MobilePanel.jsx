@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
-import { useEffect, useMemo, useRef } from 'react';
 import { m, usePresence } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import PropTypes from 'prop-types';
 
-import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
-import useFocusTrap from '../../../hooks/useFocusTrap';
-import withPortal from '../../withPortal';
-import './MobilePanel.css';
+import { clsm } from '../../utils';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
+import useFocusTrap from '../../hooks/useFocusTrap';
+import withPortal from '../withPortal';
 
 const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   const { addMobileOverlay, removeMobileOverlay } = useResponsiveDevice();
@@ -47,7 +47,7 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   return (
     <m.div
       ref={panelRef}
-      className="mobile-panel"
+      className={clsm(['absolute', 'h-full', 'w-full', 'pointer-events-auto'])}
       transition={{ duration: 0.25, type: 'tween' }}
       variants={variants}
       initial="hidden"
@@ -66,4 +66,16 @@ MobilePanel.propTypes = {
   slideInDirection: PropTypes.string.isRequired
 };
 
-export default withPortal(MobilePanel, 'mobile-panel', { isAnimated: true });
+export default withPortal(MobilePanel, 'mobile-panel', {
+  isAnimated: true,
+  containerClasses: clsm([
+    'fixed',
+    'w-screen',
+    'h-full',
+    'z-[500]',
+    'top-0',
+    'left-0',
+    'pointer-events-none',
+    'bg-transparent'
+  ])
+});
