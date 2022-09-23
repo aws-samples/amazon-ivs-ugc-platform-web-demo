@@ -75,9 +75,7 @@ const ChatLine = ({
         size={variant === CHAT_LINE_VARIANT.MESSAGE ? 'sm' : 'md'}
       />
       <p className={chatTextClasses}>
-        <b>{displayName}</b>
-        &nbsp;
-        {decode(message).replace(/\\/g, '\\\\')}
+        <b>{displayName}</b> {decode(message).replace(/\\/g, '\\\\')}
       </p>
     </ChatLineWrapper>
   );
