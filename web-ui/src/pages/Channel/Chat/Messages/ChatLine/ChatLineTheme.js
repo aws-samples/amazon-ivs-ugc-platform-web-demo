@@ -47,20 +47,16 @@ export const CHATLINE_HOVER_AND_FOCUS_CLASSES = [
 ];
 
 export const TEXT_BASE_CLASSES = [
-  'break-all',
+  '[&>b]:break-all',
+  'break-words',
   'dark:text-darkMode-gray-light',
   'min-w-0',
   'p1',
-  'text-black',
-  'text-left'
+  'text-left',
+  'text-lightMode-gray-dark'
 ];
 
 export const TEXT_VARIANT_CLASSES = {
-  message: ['dark:text-darkMode-gray-light', 'text-lightMode-gray-dark'],
-  popup: [
-    '[&>b]:text-lightMode-gray-dark',
-    'dark:[&>b]:text-darkMode-gray-light',
-    'dark:text-white',
-    'text-black'
-  ]
+  message: [],
+  popup: ['mt-1']
 };

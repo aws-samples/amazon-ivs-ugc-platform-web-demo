@@ -94,10 +94,14 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
   // Show moderation pill if user role is moderator
   useEffect(() => {
     if (isModerator && !isLoading) {
-      notifyInfo(
-        $content.notifications.moderating,
-        true,
-        MODERATOR_PILL_TIMEOUT
+      setTimeout(
+        () =>
+          notifyInfo(
+            $content.notifications.moderating,
+            true,
+            MODERATOR_PILL_TIMEOUT
+          ),
+        300 // Wait for the loading spinner exit transition to complete
       );
     }
   }, [isModerator, notifyInfo, isLoading]);
@@ -124,7 +128,13 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
         />
         {isMobileView && !isSessionValid ? (
           <MobileNavbar
-            className={clsm(['absolute', 'px-5', 'pt-5', 'pb-6'])}
+            className={clsm([
+              'pb-6',
+              'pt-5',
+              'px-5',
+              'static',
+              'translate-x-0'
+            ])}
           />
         ) : (
           <Composer

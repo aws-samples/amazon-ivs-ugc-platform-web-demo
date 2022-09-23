@@ -25,7 +25,9 @@ export const Provider = ({ children }) => {
   const isLandscapeMatches = useMediaQuery('(orientation: landscape)');
   const [isLandscape, setIsLandscape] = useState();
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
-  const isTouchscreenDevice = useMediaQuery('(hover:none)');
+  const isTouchscreenDevice = !useMediaQuery(
+    '(hover:hover) and (pointer: fine)'
+  );
   const isMobileView =
     isDefaultResponsiveView ||
     (isLandscape && isTouchscreenDevice && currentBreakpoint < BREAKPOINTS.lg);

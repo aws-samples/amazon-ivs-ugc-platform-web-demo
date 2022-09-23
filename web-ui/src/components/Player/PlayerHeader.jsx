@@ -5,26 +5,23 @@ import { clsm } from '../../utils';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
 import UserAvatar from '../UserAvatar';
 
-const getAnimationProps = (shouldShowPlayerOverlay) => {
-  return {
-    animate: shouldShowPlayerOverlay ? 'visible' : 'hidden',
-    initial: 'hidden',
-    exit: 'hidden',
-    variants: {
-      hidden: { opacity: 0 },
-      visible: { opacity: 1 }
-    },
-    transition: { duration: 0.25, type: 'tween' }
-  };
-};
+const getAnimationProps = (shouldShowPlayerOverlay) => ({
+  animate: shouldShowPlayerOverlay ? 'visible' : 'hidden',
+  initial: 'hidden',
+  exit: 'hidden',
+  variants: {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+  },
+  transition: { duration: 0.25, type: 'tween' }
+});
 
-const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => (
-  <>
+const PlayerHeader = ({ avatar, color, shouldShowPlayerOverlay, username }) => (
+  <div className={clsm(['absolute', 'w-full', 'top-0'])}>
     <div
       className={clsm(
         'flex',
         'items-center',
-        'absolute',
         'pl-8',
         'pt-8',
         'lg:pl-4',
@@ -34,46 +31,57 @@ const PlayerHeader = ({ username, shouldShowPlayerOverlay, color, avatar }) => (
       <div className={clsm(['z-10', 'flex-shrink-0'])}>
         <UserAvatar avatarName={avatar} profileColor={color} />
       </div>
-      <m.div
-        className={clsm('flex', 'text-white', 'pl-4', 'z-20')}
-        {...getAnimationProps(shouldShowPlayerOverlay)}
-      >
-        <h3
-          className={clsm([
-            'text-white',
+      {!!username && (
+        <m.div
+          className={clsm(
+            'flex',
             'overflow-hidden',
-            'whitespace-nowrap',
-            'overflow-ellipsis',
-            'max-w-[200px]'
-          ])}
+            'text-white',
+            'pl-4',
+            'z-20'
+          )}
+          {...getAnimationProps(shouldShowPlayerOverlay)}
         >
-          {username}
-        </h3>
-      </m.div>
+          <h3
+            className={clsm([
+              'text-white',
+              'overflow-hidden',
+              'whitespace-nowrap',
+              'overflow-ellipsis'
+            ])}
+          >
+            {username}
+          </h3>
+        </m.div>
+      )}
     </div>
     <m.div
       {...getAnimationProps(shouldShowPlayerOverlay)}
       className={clsm([
         PLAYER_OVERLAY_CLASSES,
         'player-header-container',
-        'lg:px-4',
         'lg:pt-4',
+        'lg:px-4',
+        'pt-8',
         'px-8',
-        'pt-8'
+        'top-0'
       ])}
     ></m.div>
-  </>
+  </div>
 );
 
 PlayerHeader.defaultProps = {
-  shouldShowPlayerOverlay: true
+  avatar: '',
+  color: '',
+  shouldShowPlayerOverlay: true,
+  username: ''
 };
 
 PlayerHeader.propTypes = {
-  username: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
-  avatar: PropTypes.string.isRequired,
-  shouldShowPlayerOverlay: PropTypes.bool
+  avatar: PropTypes.string,
+  color: PropTypes.string,
+  shouldShowPlayerOverlay: PropTypes.bool,
+  username: PropTypes.string
 };
 
 export default PlayerHeader;

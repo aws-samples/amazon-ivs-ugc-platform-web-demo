@@ -217,7 +217,7 @@ const usePlayer = ({
     // Update volume
     const ivsVolume = Number((volumeLevel / 100).toFixed(1));
 
-    if (playerRef.current.isMuted()) playerRef.current.setMuted(false);
+    playerRef.current.setMuted(ivsVolume === 0);
     if (playerRef.current.getVolume() !== ivsVolume)
       playerRef.current.setVolume(ivsVolume);
   }, [

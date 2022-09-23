@@ -83,8 +83,8 @@ const Popup = forwardRef(
                 'px-3',
                 'py-2.5',
                 'h-auto',
-                '[&>*]:hover:rounded-lg',
-                '[&>*]:focus:rounded-lg'
+                '[&>img]:hover:rounded-lg',
+                '[&>img]:focus:rounded-lg'
               ],
               !hasAvatar && [
                 '[&>div]:bg-lightMode-gray-light',

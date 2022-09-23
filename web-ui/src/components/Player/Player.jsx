@@ -154,6 +154,12 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
       onMouseMove={onMouseMoveHandler}
     >
       <Notification />
+      <PlayerHeader
+        avatar={avatar}
+        color={color}
+        shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
+        username={username}
+      />
       {isLive || isLive === undefined || hasFinalBuffer ? (
         <>
           {shouldShowLoader && (
@@ -182,14 +188,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
             onClick={onClickPlayerHandler}
             role="toolbar"
           >
-            {isChannelAvailable && (
-              <PlayerHeader
-                username={username}
-                color={color}
-                avatar={avatar}
-                shouldShowPlayerOverlay={shouldShowPlayerOverlay}
-              />
-            )}
             <video
               className={clsm(
                 ['w-full', 'h-full'],

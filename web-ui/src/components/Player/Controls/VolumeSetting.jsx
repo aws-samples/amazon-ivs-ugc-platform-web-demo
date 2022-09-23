@@ -92,6 +92,7 @@ const VolumeSetting = ({
         className={clsm([
           ...CONTROLS_BUTTON_BASE_CLASSES,
           'transition-transform',
+          isExpanded && 'border-white',
           className
         ])}
         disabled={isDisabled}
