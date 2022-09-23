@@ -126,7 +126,7 @@ const Channel = () => {
       {isSplitView && !isSessionValid && !isChatVisible && (
         <MobileNavbar
           className={clsm(
-            isLandscape && 'lg:max-w-[calc(100vw_-_(352px_+_32px))]'
+            isLandscape && 'lg:max-w-[calc(100vw_-_(352px_+_96px))]'
           )}
         />
       )}

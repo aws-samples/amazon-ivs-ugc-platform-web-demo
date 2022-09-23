@@ -102,16 +102,19 @@ export const Provider = ({ children }) => {
     else setCurrentBreakpoint(BREAKPOINTS.xs);
   }, []);
 
-  // Set --mobile-vh CSS variable
+  // Set --mobile-vh and --mobile-vw CSS variables
   const updateMobileVh = useDebouncedCallback(
     () => {
       if (!isDefaultResponsiveView && !isTouchscreenDevice) {
         document.documentElement.style.removeProperty('--mobile-vh'); // Remove --mobile-vh on desktop devices
+        document.documentElement.style.removeProperty('--mobile-vw'); // Remove --mobile-vw on desktop devices
         return;
       }
 
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
+      const vw = window.innerWidth * 0.01;
+      document.documentElement.style.setProperty('--mobile-vw', `${vw}px`);
     },
     10,
     [isDefaultResponsiveView, isTouchscreenDevice]
