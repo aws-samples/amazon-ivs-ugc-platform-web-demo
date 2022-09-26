@@ -14,8 +14,10 @@ const Button = forwardRef(
   (
     {
       'data-test-id': dataTestId,
+      ariaControls,
       ariaDisabled,
       ariaLabel,
+      ariaSelected,
       children,
       className,
       customStyles,
@@ -25,8 +27,11 @@ const Button = forwardRef(
       name,
       onClick,
       onFocus,
+      onKeyDown,
       onMouseDown,
+      role,
       saveLocationFromState,
+      tabIndex,
       to,
       type,
       variant
@@ -35,7 +40,11 @@ const Button = forwardRef(
   ) => {
     const location = useLocation();
     const commonProps = {
+      ...(!!ariaControls ? { 'aria-controls': ariaControls } : {}),
       ...(!!ariaLabel ? { 'aria-label': ariaLabel } : {}),
+      ...(!!role ? { role: role } : {}),
+      ...(ariaSelected !== null ? { 'aria-selected': ariaSelected } : {}),
+      ...(tabIndex !== null ? { tabIndex } : {}),
       'aria-disabled': ariaDisabled,
       'data-test-id': dataTestId,
       id,
@@ -76,6 +85,7 @@ const Button = forwardRef(
         className={classes}
         disabled={isDisabled}
         onFocus={onFocus}
+        onKeyDown={onKeyDown}
         onMouseDown={onMouseDown}
         type={type}
       >
@@ -87,8 +97,10 @@ const Button = forwardRef(
 
 Button.defaultProps = {
   'data-test-id': undefined,
+  ariaControls: '',
   ariaDisabled: false,
   ariaLabel: '',
+  ariaSelected: null,
   className: '',
   customStyles: {},
   id: undefined,
@@ -98,8 +110,11 @@ Button.defaultProps = {
   onBlur: undefined,
   onClick: undefined,
   onFocus: undefined,
+  onKeyDown: undefined,
   onMouseDown: undefined,
+  role: '',
   saveLocationFromState: false,
+  tabIndex: null,
   to: '',
   type: 'button',
   variant: 'primary',
@@ -108,8 +123,10 @@ Button.defaultProps = {
 
 Button.propTypes = {
   'data-test-id': PropTypes.string,
+  ariaControls: PropTypes.string,
   ariaDisabled: PropTypes.bool,
   ariaLabel: PropTypes.string,
+  ariaSelected: PropTypes.bool,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   customStyles: PropTypes.object,
@@ -119,8 +136,11 @@ Button.propTypes = {
   name: PropTypes.string,
   onClick: PropTypes.func,
   onFocus: PropTypes.func,
+  onKeyDown: PropTypes.func,
   onMouseDown: PropTypes.func,
+  role: PropTypes.string,
   saveLocationFromState: PropTypes.bool,
+  tabIndex: PropTypes.number,
   to: PropTypes.string,
   type: PropTypes.oneOf(['button', 'submit', 'reset', 'nav']),
   variant: PropTypes.oneOf([

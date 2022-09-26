@@ -63,6 +63,7 @@ module.exports = {
           gray: {
             DEFAULT: 'hsl(var(--base-color-medium-gray), 27%)',
             hover: 'hsl(var(--base-color-medium-gray), 37%)',
+            tabButton: 'hsl(var(--base-color-medium-gray), 13%)',
             extraLight: {
               DEFAULT: 'hsl(var(--base-color-extra-light-gray), 86%)',
               hover: 'hsl(var(--base-color-extra-light-gray),96%)'
@@ -113,6 +114,7 @@ module.exports = {
           gray: {
             DEFAULT: 'hsl(var(--base-color-white), 80%)',
             hover: 'hsl(var(--base-color-white), 70%)',
+            tabButton: 'hsl(var(--base-color-white), 95%)',
             extraLight: {
               DEFAULT: 'hsl(var(--base-color-white), 96%)',
               hover: 'hsl(var(--base-color-white), 86%)'

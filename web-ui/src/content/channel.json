@@ -36,5 +36,6 @@
       "rate_exceeded": "Rate exceeded.",
       "wait_until_connected": "Please wait until chat has connected."
     }
-  }
+  },
+  "tabs": { "chat": "Chat" }
 }

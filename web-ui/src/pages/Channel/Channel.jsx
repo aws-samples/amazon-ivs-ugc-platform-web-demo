@@ -2,19 +2,31 @@ import { m, useAnimation } from 'framer-motion';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
 import { BREAKPOINTS } from '../../constants';
+import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
+import Button from '../../components/Button';
 import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
+import Tabs from '../../components/Tabs/Tabs';
 
 const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
+// Temporary
+// eslint-disable-next-line no-unused-vars
+const viewerStreamActionTypes = ['quiz', 'product', 'notice', 'celebration'];
+
+const DEFAULT_SELECTED_TAB_INDEX = 1;
+
 const Channel = () => {
+  const [selectedTabIndex, setSelectedTabIndex] = useState(
+    DEFAULT_SELECTED_TAB_INDEX
+  );
   const chatContainerRef = useRef();
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
@@ -24,6 +36,10 @@ const Channel = () => {
   const chatAnimationControls = useAnimation();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
+  const currentViewerStreamAction = null; // Temporary, set to one of the item from `viewerStreamActionTypes` to show the tabs
+  const currentViewerStreamActionTitle = `${currentViewerStreamAction
+    ?.charAt(0)
+    ?.toUpperCase()}${currentViewerStreamAction?.slice(1)}`;
 
   const toggleChat = useCallback(
     ({ value, skipAnimation } = {}) => {
@@ -120,7 +136,44 @@ const Channel = () => {
             ]
           ])}
         >
-          <Chat chatContainerRef={chatContainerRef} />
+          <Tabs>
+            {!!currentViewerStreamAction && isStackedView && (
+              <>
+                <Tabs.List
+                  selectedIndex={selectedTabIndex}
+                  setSelectedIndex={setSelectedTabIndex}
+                  tabs={[
+                    { label: currentViewerStreamActionTitle, panelIndex: 0 },
+                    { label: $channelContent.tabs.chat, panelIndex: 1 }
+                  ]}
+                />
+                <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
+                  {/* Temporary - START */}
+                  <div
+                    className={clsm([
+                      'flex',
+                      'h-56',
+                      'items-center',
+                      'justify-center',
+                      'mb-4',
+                      'mx-auto',
+                      'rounded-3xl',
+                      'w-[calc(100%_-_40px)]',
+                      `bg-profile-${channelData?.color}`
+                    ])}
+                  >
+                    <Button variant="secondary">
+                      {currentViewerStreamActionTitle} goes here
+                    </Button>
+                  </div>
+                  {/* Temporary - END */}
+                </Tabs.Panel>
+              </>
+            )}
+            <Tabs.Panel index={1} selectedIndex={selectedTabIndex}>
+              <Chat chatContainerRef={chatContainerRef} />
+            </Tabs.Panel>
+          </Tabs>
         </m.section>
       </NotificationProvider>
       {isSplitView && !isSessionValid && !isChatVisible && (
