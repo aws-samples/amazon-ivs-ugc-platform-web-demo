@@ -12,14 +12,14 @@ Context.displayName = 'Modal';
 
 export const MODAL_TYPE = {
   CONFIRMATION: 'CONFIRMATION',
-  MANAGER_STREAM_ACTION: 'MANAGER_STREAM_ACTION'
+  STREAM_MANAGER_ACTION: 'STREAM_MANAGER_ACTION'
 };
 
 /**
  * @typedef {Object} Modal The data object that is passed from the openModal function in order to open a new Modal
  * @property {Function} [onCancel=()=>{}] Called when the Modal is cancelled (i.e. clicking the "Cancel" button, pressing the Escape key, or clicking anywhere outside the Modal)
  * @property {Function} [onConfirm=()=>{}] Called when the Modal is submitted through user input
- * @property {Function} [onSave=()=>{}] Saves the Modal data (only used for MANAGER_STREAM_ACTION modals)
+ * @property {Function} [onSave=()=>{}] Saves the Modal data (only used for STREAM_MANAGER_ACTION modals)
  * @property {string} [type=CONFIRMATION] The type of Modal (defaults to CONFIRMATION)
  * @property {object} [lastFocusedElement] A ref pointing to the element that you wish to refocus when the modal closes
  * @property {object} content The data that the Modal component receives and uses to render the Modal
@@ -71,16 +71,22 @@ export const Provider = ({ children }) => {
     [onCancel, refocus]
   );
 
-  const handleConfirm = useCallback(() => {
-    onSave();
-    onConfirm();
-    closeModal({ shouldCancel: false, shouldRefocus: false });
-  }, [closeModal, onConfirm, onSave]);
+  const handleSave = useCallback(
+    (data) => {
+      onSave(data);
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+    },
+    [closeModal, onSave]
+  );
 
-  const handleSave = useCallback(() => {
-    onSave();
-    closeModal({ shouldCancel: false, shouldRefocus: false });
-  }, [closeModal, onSave]);
+  const handleConfirm = useCallback(
+    (data) => {
+      onSave(data);
+      onConfirm(data);
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+    },
+    [closeModal, onConfirm, onSave]
+  );
 
   const value = useMemo(
     () => ({

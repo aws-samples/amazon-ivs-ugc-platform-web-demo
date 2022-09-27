@@ -11,6 +11,7 @@ import useSWR from 'swr';
 import { getCurrentSession } from '../api/utils';
 import { userManagementAPI } from '../api';
 import useContextHook from './useContextHook';
+import useLocalStorage from '../hooks/useLocalStorage';
 import usePrevious from '../hooks/usePrevious';
 
 const Context = createContext(null);
@@ -30,8 +31,12 @@ export const Provider = ({ children }) => {
     useState(false);
   const [userData, setUserData] = useState();
   const [isSessionValid, setIsSessionValid] = useState();
-  const prevIsSessionValid = usePrevious(isSessionValid);
   const [logOutAction, setLogOutAction] = useState('');
+  const prevIsSessionValid = usePrevious(isSessionValid);
+  const { remove: removeStoredUserData } = useLocalStorage({
+    key: userData?.username,
+    keyPrefix: 'user'
+  });
 
   const {
     data: session,
@@ -74,8 +79,9 @@ export const Provider = ({ children }) => {
       userManagementAPI.signOut();
       checkSessionStatus();
       setUserData(null);
+      removeStoredUserData();
     },
-    [checkSessionStatus]
+    [checkSessionStatus, removeStoredUserData]
   );
 
   // Initial session check on page load

@@ -5,12 +5,23 @@
     "stable": "Stable",
     "view_stream_health": "View stream health"
   },
-  "manager_stream_actions_modal": {
+  "stream_manager_actions_modal": {
     "save": "Save",
     "cancel": "Cancel",
     "quiz": {
       "host_a_quiz": "Host a quiz",
       "start_quiz": "Start quiz"
+    },
+    "product": {
+      "feature_a_product": "Feature a product",
+      "show_product": "Show product"
+    },
+    "notice": {
+      "show_a_notice": "Show a notice",
+      "show_notice": "Show notice"
+    },
+    "celebration": {
+      "trigger_a_celebration": "Trigger a celebration"
     }
   }
 }

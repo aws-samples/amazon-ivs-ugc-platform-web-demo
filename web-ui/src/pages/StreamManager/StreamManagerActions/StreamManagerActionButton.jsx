@@ -1,8 +1,13 @@
-import { clsm } from '../../../utils';
-import { BUTTON_OUTLINE_CLASSES } from '../../../components/Button/ButtonTheme';
+import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 
-const ManagerStreamActionButton = () => (
+import { BUTTON_OUTLINE_CLASSES } from '../../../components/Button/ButtonTheme';
+import { clsm } from '../../../utils';
+
+const StreamManagerActionButton = forwardRef(({ name, onClick }, ref) => (
   <button
+    ref={ref}
+    onClick={onClick}
     className={clsm(
       [
         'bg-profile-green',
@@ -19,8 +24,13 @@ const ManagerStreamActionButton = () => (
       BUTTON_OUTLINE_CLASSES
     )}
   >
-    Stream action
+    {name}
   </button>
-);
+));
 
-export default ManagerStreamActionButton;
+StreamManagerActionButton.propTypes = {
+  name: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired
+};
+
+export default StreamManagerActionButton;

@@ -7,21 +7,24 @@ import { MODAL_TYPE, useModal } from '../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useNotif } from '../../../contexts/Notification';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import Button from '../../../components/Button';
 import Modal from '../../../components/Modal';
 import ResponsivePanel from '../../../components/ResponsivePanel';
 import useMediaQuery from '../../../hooks/useMediaQuery';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
-const $content = $streamManagerContent.manager_stream_actions_modal;
+const $content = $streamManagerContent.stream_manager_actions_modal;
 
-const ManagerStreamActionModal = () => {
+const StreamManagerActionModal = () => {
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
-  const { title, confirmText, managerStreamActionContent } = content || {};
+  const { title, confirmText, streamManagerActionContent } = content || {};
+  const { getStreamManagerActionData } = useStreamManagerActions();
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { dismissNotif } = useNotif();
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
+  const streamManagerActionData = getStreamManagerActionData();
   const mainContentRef = useRef();
   const prefersDarkColorScheme = useMediaQuery('(prefers-color-scheme: dark)');
   const buttonClasses = clsm(['w-auto', 'md:w-full']);
@@ -36,7 +39,10 @@ const ManagerStreamActionModal = () => {
     isModalOpen
   );
 
-  const renderManagerStreamAction = (children) => (
+  const save = () => handleSave(streamManagerActionData);
+  const send = () => handleConfirm(streamManagerActionData);
+
+  const renderStreamManagerAction = (children) => (
     <>
       {
         /**
@@ -75,9 +81,9 @@ const ManagerStreamActionModal = () => {
   }, [dismissNotif, isModalOpen]);
 
   return (
-    type === MODAL_TYPE.MANAGER_STREAM_ACTION &&
+    type === MODAL_TYPE.STREAM_MANAGER_ACTION &&
     !!content &&
-    renderManagerStreamAction(
+    renderStreamManagerAction(
       <div
         className={clsm(
           [
@@ -135,7 +141,7 @@ const ManagerStreamActionModal = () => {
           )}
         >
           <h2 className={clsm(['text-center', 'pb-12'])}>{title}</h2>
-          {managerStreamActionContent}
+          {streamManagerActionContent}
         </div>
         <footer
           className={clsm(
@@ -149,23 +155,32 @@ const ManagerStreamActionModal = () => {
           )}
         >
           <Button
-            className={clsm(['w-auto', !isLandscape && 'md:hidden'])}
+            className={clsm([
+              'w-auto',
+              'sm:hidden',
+              !isLandscape && 'md:hidden'
+            ])}
             onClick={() => closeModal()}
             variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
           >
             {$content.cancel}
           </Button>
           <div
-            className={clsm(['flex', 'gap-x-3', !isLandscape && 'md:w-full'])}
+            className={clsm([
+              'flex',
+              'gap-x-3',
+              'sm:w-full',
+              !isLandscape && 'md:w-full'
+            ])}
           >
             <Button
               className={buttonClasses}
-              onClick={handleSave}
+              onClick={save}
               variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
             >
               {$content.save}
             </Button>
-            <Button className={buttonClasses} onClick={handleConfirm}>
+            <Button className={buttonClasses} onClick={send}>
               {confirmText}
             </Button>
           </div>
@@ -175,4 +190,4 @@ const ManagerStreamActionModal = () => {
   );
 };
 
-export default ManagerStreamActionModal;
+export default StreamManagerActionModal;

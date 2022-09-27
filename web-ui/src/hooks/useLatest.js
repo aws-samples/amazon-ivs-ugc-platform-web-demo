@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 const useLatest = (current) => {
-  const storedValue = useRef(current);
+  const value = useRef(current);
 
-  useEffect(() => (storedValue.current = current));
+  value.current = current;
 
-  return storedValue;
+  return value;
 };
 
 export default useLatest;

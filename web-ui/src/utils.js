@@ -257,3 +257,49 @@ export const compose =
   (...functions) =>
   (fn) =>
     functions.reduceRight((augmentedFn, fn) => fn(augmentedFn), fn);
+
+const dateReplacer = function (key, value) {
+  return this[key] instanceof Date ? this[key].toUTCString() : value;
+};
+
+export const constructObjectPath = (path = [], value) => {
+  const compose = (_path, _value) => {
+    if (!_path.length) return _value;
+
+    const pathKey = _path.pop();
+    const nextValue = { [`${pathKey}`]: _value };
+
+    return compose(_path, nextValue);
+  };
+
+  try {
+    return compose(path.slice(0), structuredClone(value));
+  } catch (error) {
+    // structuredClone is not supported by older browsers
+    return compose(
+      path.slice(0),
+      JSON.parse(JSON.stringify(value, dateReplacer))
+    );
+  }
+};
+
+export const deconstructObjectPath = (path = [], value) => {
+  const decompose = (_path, _value) => {
+    if (!_path.length) return _value;
+
+    const pathKey = _path.shift();
+    const nextValue = _value[pathKey];
+
+    return decompose(_path, nextValue);
+  };
+
+  try {
+    return decompose(path.slice(0), structuredClone(value));
+  } catch (error) {
+    // structuredClone is not supported by older browsers
+    return decompose(
+      path.slice(0),
+      JSON.parse(JSON.stringify(value, dateReplacer))
+    );
+  }
+};
