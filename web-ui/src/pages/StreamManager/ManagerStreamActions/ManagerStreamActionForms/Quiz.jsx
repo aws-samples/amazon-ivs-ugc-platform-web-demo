@@ -1,19 +1,17 @@
 import { clsm } from '../../../../utils';
-import {
-  MANAGER_STREAM_ACTION_NAME,
-  useManagerStreamActions
-} from '../../../../contexts/ManagerStreamActions';
+import { STREAM_ACTION_NAME } from '../../../../constants';
+import { useManagerStreamActions } from '../../../../contexts/ManagerStreamActions';
 import Input from '../../../../components/Input';
 
 const Quiz = () => {
   const { getManagerStreamActionData, updateManagerStreamActionData } =
     useManagerStreamActions();
-  const { value } = getManagerStreamActionData(MANAGER_STREAM_ACTION_NAME.QUIZ);
+  const { value } = getManagerStreamActionData(STREAM_ACTION_NAME.QUIZ);
 
   const handleOnChange = ({ target }) => {
     updateManagerStreamActionData(
       { value: target.value },
-      MANAGER_STREAM_ACTION_NAME.QUIZ
+      STREAM_ACTION_NAME.QUIZ
     );
   };
 

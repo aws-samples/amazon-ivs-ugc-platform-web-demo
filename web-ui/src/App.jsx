@@ -17,6 +17,7 @@ import { Provider as ResponsiveDeviceProvider } from './contexts/ResponsiveDevic
 import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
+import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
 
 // Pages
 import {
@@ -66,7 +67,14 @@ const App = () => (
                         >
                           {/* PUBLIC PAGES - UGC */}
                           <Route index element={<ChannelDirectory />} />
-                          <Route path=":username" element={<Channel />} />
+                          <Route
+                            path=":username"
+                            element={
+                              <ViewerStreamActionsProvider>
+                                <Channel />
+                              </ViewerStreamActionsProvider>
+                            }
+                          />
                           <Route path="feed" element={<Feed />} />
 
                           {/* PRIVATE PAGES */}

@@ -96,3 +96,10 @@ export const MODERATOR_PILL_TIMEOUT = 5000; // ms
 
 export const COMPOSER_MAX_CHARACTER_LENGTH = 500;
 export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
+
+export const STREAM_ACTION_NAME = {
+  QUIZ: 'quiz',
+  PRODUCT: 'product',
+  NOTICE: 'notice',
+  CELEBRATION: 'celebration'
+};

@@ -2,23 +2,17 @@ import { createContext, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { MODAL_TYPE, useModal } from './Modal';
+import { STREAM_ACTION_NAME } from '../constants';
 import useContextHook from './useContextHook';
 
 const Context = createContext(null);
 Context.displayName = 'ManagerStreamActions';
 
-export const MANAGER_STREAM_ACTION_NAME = {
-  QUIZ: 'quiz',
-  PRODUCT: 'product',
-  NOTICE: 'notice',
-  CELEBRATION: 'celebration'
-};
-
 const DEFAULT_STATE = {
-  [MANAGER_STREAM_ACTION_NAME.QUIZ]: { value: '' },
-  [MANAGER_STREAM_ACTION_NAME.PRODUCT]: {},
-  [MANAGER_STREAM_ACTION_NAME.NOTICE]: {},
-  [MANAGER_STREAM_ACTION_NAME.CELEBRATION]: {}
+  [STREAM_ACTION_NAME.QUIZ]: { value: '' },
+  [STREAM_ACTION_NAME.PRODUCT]: {},
+  [STREAM_ACTION_NAME.NOTICE]: {},
+  [STREAM_ACTION_NAME.CELEBRATION]: {}
 };
 
 export const Provider = ({ children }) => {

@@ -1,14 +1,14 @@
 import { m, useAnimation } from 'framer-motion';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
-import { BREAKPOINTS } from '../../constants';
+import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../constants';
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
-import Button from '../../components/Button';
+import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
@@ -36,10 +36,11 @@ const Channel = () => {
   const chatAnimationControls = useAnimation();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-  const currentViewerStreamAction = null; // Temporary, set to one of the item from `viewerStreamActionTypes` to show the tabs
-  const currentViewerStreamActionTitle = `${currentViewerStreamAction
-    ?.charAt(0)
-    ?.toUpperCase()}${currentViewerStreamAction?.slice(1)}`;
+  const {
+    currentViewerStreamActionName,
+    currentViewerStreamActionTitle,
+    shouldRenderActionInTab
+  } = useViewerStreamActions();
 
   const toggleChat = useCallback(
     ({ value, skipAnimation } = {}) => {
@@ -137,7 +138,7 @@ const Channel = () => {
           ])}
         >
           <Tabs>
-            {!!currentViewerStreamAction && isStackedView && (
+            {shouldRenderActionInTab && isStackedView && (
               <>
                 <Tabs.List
                   selectedIndex={selectedTabIndex}
@@ -148,25 +149,10 @@ const Channel = () => {
                   ]}
                 />
                 <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                  {/* Temporary - START */}
-                  <div
-                    className={clsm([
-                      'flex',
-                      'h-56',
-                      'items-center',
-                      'justify-center',
-                      'mb-4',
-                      'mx-auto',
-                      'rounded-3xl',
-                      'w-[calc(100%_-_40px)]',
-                      `bg-profile-${channelData?.color}`
-                    ])}
-                  >
-                    <Button variant="secondary">
-                      {currentViewerStreamActionTitle} goes here
-                    </Button>
-                  </div>
-                  {/* Temporary - END */}
+                  {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
+                    'TODO: Quiz action here'}
+                  {currentViewerStreamActionName ===
+                    STREAM_ACTION_NAME.PRODUCT && 'TODO: Product action here'}
                 </Tabs.Panel>
               </>
             )}
