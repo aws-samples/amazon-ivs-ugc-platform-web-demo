@@ -141,6 +141,7 @@ const RenditionSetting = ({
               'flex',
               'p-4',
               'rounded-3xl',
+              'z-[510]',
               isMobileView && [
                 'bottom-0',
                 'fixed',

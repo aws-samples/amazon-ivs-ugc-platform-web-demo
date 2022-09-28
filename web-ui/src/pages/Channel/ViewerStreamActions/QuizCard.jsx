@@ -3,16 +3,13 @@ import { m } from 'framer-motion';
 import { useState, useLayoutEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import {
+  correctAnswerClasses,
+  defaultViewerStreamActionAnimationProps,
+  incorrectAnswerClasses
+} from './viewerStreamActionsTheme';
 import Button from '../../../components/Button';
 import ProgressBar from './ProgressBar';
-
-const defaultTransition = { duration: 1, ease: [1, -0.56, 0, 1] };
-const defaultAnimationProps = {
-  animate: 'visible',
-  exit: 'hidden',
-  initial: 'hidden',
-  transition: defaultTransition
-};
 
 const defaultQuizAnswerHeight = 42;
 
@@ -32,21 +29,6 @@ const QuizCard = ({
   const [chosenAnswer, setChosenAnswer] = useState('');
   const correctAnswer = answers[correctAnswerIndex];
   const quizButtonArrRef = useRef([]);
-
-  const correct = clsm([
-    'bg-darkMode-green',
-    'hover:bg-darkMode-green',
-    'focus:bg-darkMode-green',
-    'focus:shadow-none',
-    'animate-blink'
-  ]);
-  const incorrect = clsm([
-    'bg-darkMode-red',
-    'hover:bg-darkMode-red',
-    'focus:bg-darkMode-red',
-    'focus:shadow-none',
-    'animate-blink'
-  ]);
 
   const profileColorButtonClassNames = clsm([
     color
@@ -103,7 +85,9 @@ const QuizCard = ({
       ])}
     >
       <m.div
-        {...(!shouldRenderActionInTab ? defaultAnimationProps : {})}
+        {...(!shouldRenderActionInTab
+          ? defaultViewerStreamActionAnimationProps
+          : {})}
         variants={{
           visible: { y: 0, opacity: 1, scale: 1 },
           hidden: { y: '100%', opacity: 0, scale: 0.5 }
@@ -147,8 +131,8 @@ const QuizCard = ({
                 'h-auto',
                 isAnswerSelected === true && chosenAnswer === answer
                   ? answer === correctAnswer
-                    ? correct
-                    : incorrect
+                    ? correctAnswerClasses
+                    : incorrectAnswerClasses
                   : ''
               ])}
               onClick={() => selectAnswer(answer)}

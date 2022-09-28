@@ -22,9 +22,6 @@ export const Provider = ({ children }) => {
     ?.charAt(0)
     ?.toUpperCase()}${currentViewerStreamActionName?.slice(1)}`;
 
-  const [remainingTime, setRemainingTime] = useState(
-    currentViewerStreamActionData?.duration
-  );
   const shouldRenderActionInTab = useMemo(
     () =>
       [STREAM_ACTION_NAME.QUIZ, STREAM_ACTION_NAME.PRODUCT].includes(
@@ -46,16 +43,13 @@ export const Provider = ({ children }) => {
       currentViewerStreamActionData: augmentedCurrentViewerStreamActionData,
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
-      shouldRenderActionInTab,
       setCurrentViewerAction,
-      remainingTime,
-      setRemainingTime
+      shouldRenderActionInTab
     }),
     [
       augmentedCurrentViewerStreamActionData,
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
-      remainingTime,
       shouldRenderActionInTab
     ]
   );

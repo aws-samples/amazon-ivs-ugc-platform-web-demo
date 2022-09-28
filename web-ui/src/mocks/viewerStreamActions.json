@@ -3,24 +3,19 @@
     "name": "quiz",
     "duration": 7,
     "data": {
-      "question": "We’ll ease you in slowly, the last few questions will have you poring through every page of your Harry Potter books in desperation. Do you even dare attempt it?",
-      "correctAnswerIndex": 0,
-      "answers": [
-        "Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it. ― Albus Dumbledore, -----",
-        "Toronto",
-        "Ottawa",
-        "Montréal"
-      ]
+      "question": "What is the capital of Canada?",
+      "correctAnswerIndex": 2,
+      "answers": ["Vancouver", "Toronto", "Ottawa", "Montréal"]
     }
   },
   {
     "name": "product",
     "isEnabled": true,
     "data": {
-      "title": "Shoes",
-      "description": "Your streamer's favorite shoes",
-      "price": "$25",
-      "imageUrl": "https://api.lorem.space/image/shoes?w=300&h=300"
+      "title": "Sneakers",
+      "description": "Your streamer's favorite sneakers",
+      "price": "$250",
+      "imageUrl": "https://api.lorem.space/image/shoes?w=1024&h=1024"
     }
   },
   {

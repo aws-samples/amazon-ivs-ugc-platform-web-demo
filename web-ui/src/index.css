@@ -5,36 +5,25 @@
 @layer base {
   :root {
     --default-border-radius: 24px;
-
     --mobile-x-spacing: 16px;
 
     /* Global base colors */
     --base-color-turquoise: 181, 100%;
-
     --base-color-creator-green: 144, 42%;
 
     /* Dark base colors */
     --base-color-dark-gray: 228, 10%;
-
     --base-color-medium-gray: 227, 10%;
-
     --base-color-light-gray: 227, 12%;
-
     --base-color-extra-light-gray: 229, 16%;
-
     --base-color-green: 135, 68%;
-
     --base-color-red: 5, 69%;
-
     --base-color-blue: 200, 100%;
 
     /* Light base colors */
     --base-color-white: 0, 0%;
-
     --base-color-medium-green: 135, 61%;
-
     --base-color-light-red: 359, 76%;
-
     --base-color-medium-blue: 205, 79%;
 
     /* Base profile colors */

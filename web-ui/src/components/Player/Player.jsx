@@ -1,9 +1,10 @@
-import { m, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import './Controls/Controls.css';
 import { clsm } from '../../utils';
+import { defaultViewerStreamActionAnimationProps } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
@@ -15,7 +16,8 @@ import Button from '../Button';
 import Controls from './Controls';
 import Notification from '../Notification';
 import PlayerHeader from './PlayerHeader';
-import QuizCard from '../../pages/Channel/StreamActions/QuizCard';
+import ProductViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Product';
+import QuizCard from '../../pages/Channel/ViewerStreamActions/QuizCard';
 import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
@@ -161,18 +163,18 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
   return (
     <section
       className={clsm([
-        'relative',
-        'flex',
-        'flex-col',
-        'items-center',
-        'justify-center',
-        'w-full',
-        'h-full',
-        'max-h-screen',
         'bg-lightMode-gray',
         'dark:bg-black',
+        'flex-col',
+        'flex',
+        'h-full',
+        'items-center',
+        'justify-center',
         'lg:aspect-video',
-        'overflow-y-hidden',
+        'max-h-screen',
+        'overflow-hidden',
+        'relative',
+        'w-full',
         isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerElementRef}
@@ -338,6 +340,33 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
               setCurrentViewerAction={setCurrentViewerAction}
               shouldRenderActionInTab={shouldRenderActionInTab}
             />
+          )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {currentViewerStreamActionName === STREAM_ACTION_NAME.PRODUCT &&
+          !shouldRenderActionInTab && (
+            <m.div
+              {...defaultViewerStreamActionAnimationProps}
+              variants={{
+                visible: { y: 0, opacity: 1, scale: 1 },
+                hidden: { y: '100%', opacity: 0, scale: 0.5 }
+              }}
+              className={clsm([
+                'absolute',
+                'bg-white',
+                'bottom-4',
+                'dark:bg-[#161616F2]',
+                'max-w-[256px]',
+                'right-4',
+                'rounded-3xl',
+                'transition-[margin]',
+                'w-full',
+                'z-[500]',
+                isControlsOpen && showStream && 'mb-20'
+              ])}
+            >
+              <ProductViewerStreamAction {...currentViewerStreamActionData} />
+            </m.div>
           )}
       </AnimatePresence>
     </section>

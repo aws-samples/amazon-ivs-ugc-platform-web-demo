@@ -13,8 +13,9 @@ import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
+import ProductViewerStreamAction from './ViewerStreamActions/Product';
 import Tabs from '../../components/Tabs/Tabs';
-import QuizCard from './StreamActions/QuizCard';
+import QuizCard from './ViewerStreamActions/QuizCard';
 
 const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
@@ -158,7 +159,25 @@ const Channel = () => {
                     />
                   )}
                   {currentViewerStreamActionName ===
-                    STREAM_ACTION_NAME.PRODUCT && 'TODO: Product action here'}
+                    STREAM_ACTION_NAME.PRODUCT && (
+                    <div
+                      className={clsm([
+                        'absolute',
+                        'h-full',
+                        'no-scrollbar',
+                        'overflow-x-hidden',
+                        'overflow-y-auto',
+                        'pb-5',
+                        'px-5',
+                        'supports-overlay:overflow-y-overlay',
+                        'w-full'
+                      ])}
+                    >
+                      <ProductViewerStreamAction
+                        {...currentViewerStreamActionData}
+                      />
+                    </div>
+                  )}
                 </Tabs.Panel>
               </>
             )}

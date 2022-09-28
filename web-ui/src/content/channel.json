@@ -37,5 +37,8 @@
       "wait_until_connected": "Please wait until chat has connected."
     }
   },
-  "tabs": { "chat": "Chat" }
+  "tabs": { "chat": "Chat" },
+  "actions": {
+    "product": { "buy_now": "Buy now", "learn_more": "Learn more" }
+  }
 }
