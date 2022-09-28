@@ -6,9 +6,7 @@ const Panel = ({ children, index, selectedIndex }) => (
   <div
     className={clsm([
       'h-full',
-      'overflow-auto',
       'relative',
-      'supports-overlay:overflow-overlay',
       'w-full',
       selectedIndex === index ? 'flex' : 'hidden'
     ])}

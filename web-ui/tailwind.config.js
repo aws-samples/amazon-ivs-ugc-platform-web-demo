@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 const plugin = require('tailwindcss/plugin');
-const colors = require('tailwindcss/colors');
 const {
   default: flattenColorPalette
 } = require('tailwindcss/lib/util/flattenColorPalette');
@@ -154,22 +153,126 @@ module.exports = {
           }
         },
         profile: {
-          DEFAULT: colors.white,
-          green: {
-            DEFAULT: 'hsl(var(--base-color-creator-green), 42%)',
-            hover: 'hsl(var(--base-color-creator-green), 50%)'
+          default: {
+            DEFAULT: 'hsl(var(--base-profile-color-default), 48%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-default), 38%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-default), 63%)',
+              hover: 'hsl(var(--base-profile-color-default), 73%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-default), 73%)'
+            }
           },
-          yellow: 'hsl(50, 100%, 64%)',
-          blue: 'hsl(241, 100%, 64%)',
-          orange: 'hsl(14, 100%, 71%)',
-          purple: 'hsl(274, 40%, 54%)',
-          aqua: 'hsl(169, 100%, 67%)',
-          violet: 'hsl(243, 100%, 86%)'
+          green: {
+            DEFAULT: 'hsl(var(--base-profile-color-green), 42%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-green), 32%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-green), 50%)',
+              hover: 'hsl(var(--base-profile-color-green), 60%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-green), 55%)'
+            }
+          },
+          yellow: {
+            DEFAULT: 'hsl(var(--base-profile-color-yellow), 64%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-yellow), 38%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-yellow), 75%)',
+              hover: 'hsl(var(--base-profile-color-yellow), 85%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-yellow), 80%)'
+            }
+          },
+          blue: {
+            DEFAULT: 'hsl(var(--base-profile-color-blue), 64%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-blue), 59%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-blue), 72%)',
+              hover: 'hsl(var(--base-profile-color-blue), 82%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-blue), 80%)'
+            }
+          },
+          salmon: {
+            DEFAULT: 'hsl(var(--base-profile-color-salmon), 71%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-salmon), 61%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-salmon), 81%)',
+              hover: 'hsl(var(--base-profile-color-salmon), 91%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-salmon), 85%)'
+            }
+          },
+          purple: {
+            DEFAULT: 'hsl(var(--base-profile-color-purple), 54%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-purple), 44%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-purple), 64%)',
+              hover: 'hsl(var(--base-profile-color-purple), 74%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-purple), 70%)'
+            }
+          },
+          turquoise: {
+            DEFAULT: 'hsl(var(--base-profile-color-turquoise), 67%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-turquoise), 42%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-turquoise), 87%)',
+              hover: 'hsl(var(--base-profile-color-turquoise), 97%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-turquoise), 90%)'
+            }
+          },
+          lavender: {
+            DEFAULT: 'hsl(var(--base-profile-color-lavender), 86%)',
+            dark: {
+              DEFAULT: 'hsl(var(--base-profile-color-lavender), 76%)'
+            },
+            light: {
+              DEFAULT: 'hsl(var(--base-profile-color-lavender), 92%)',
+              hover: 'hsl(var(--base-color-white), 100%)'
+            },
+            extraLight: {
+              DEFAULT: 'hsl(var(--base-profile-color-lavender), 98%)'
+            }
+          }
+        }
+      },
+      animation: {
+        blink: 'blink 0.45s infinite'
+      },
+      keyframes: {
+        blink: {
+          '50%': { opacity: '0.8' }
         }
       }
     }
   },
-  safelist: [{ pattern: /(border|bg|ring)-profile(-.)?/ }],
+  safelist: [
+    { pattern: /(border|ring)-profile(-.*)?/ },
+    { pattern: /bg-profile(-.*)?/, variants: ['hover'] }
+  ],
   corePlugins: { aspectRatio: false },
   plugins: [
     // aspect-ratio (modern and legacy support)

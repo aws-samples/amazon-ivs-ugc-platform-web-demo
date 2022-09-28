@@ -14,14 +14,12 @@ import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar'
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
 import Tabs from '../../components/Tabs/Tabs';
+import QuizCard from './StreamActions/QuizCard';
 
 const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
-// Temporary
-// eslint-disable-next-line no-unused-vars
-const viewerStreamActionTypes = ['quiz', 'product', 'notice', 'celebration'];
-
-const DEFAULT_SELECTED_TAB_INDEX = 1;
+const DEFAULT_SELECTED_TAB_INDEX = 0;
+const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(
@@ -31,16 +29,18 @@ const Channel = () => {
   const { isSessionValid } = useUser();
   const { isLandscape, isMobileView, currentBreakpoint } =
     useResponsiveDevice();
+  const {
+    currentViewerStreamActionData,
+    currentViewerStreamActionName,
+    currentViewerStreamActionTitle,
+    setCurrentViewerAction,
+    shouldRenderActionInTab
+  } = useViewerStreamActions();
   const { channelData, channelError } = useChannel();
   const [isChatVisible, setIsChatVisible] = useState(true);
   const chatAnimationControls = useAnimation();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-  const {
-    currentViewerStreamActionName,
-    currentViewerStreamActionTitle,
-    shouldRenderActionInTab
-  } = useViewerStreamActions();
 
   const toggleChat = useCallback(
     ({ value, skipAnimation } = {}) => {
@@ -138,7 +138,7 @@ const Channel = () => {
           ])}
         >
           <Tabs>
-            {shouldRenderActionInTab && isStackedView && (
+            {shouldRenderActionInTab && (
               <>
                 <Tabs.List
                   selectedIndex={selectedTabIndex}
@@ -149,14 +149,27 @@ const Channel = () => {
                   ]}
                 />
                 <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                  {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
-                    'TODO: Quiz action here'}
+                  {currentViewerStreamActionName ===
+                    STREAM_ACTION_NAME.QUIZ && (
+                    <QuizCard
+                      {...currentViewerStreamActionData}
+                      setCurrentViewerAction={setCurrentViewerAction}
+                      shouldRenderActionInTab={shouldRenderActionInTab}
+                    />
+                  )}
                   {currentViewerStreamActionName ===
                     STREAM_ACTION_NAME.PRODUCT && 'TODO: Product action here'}
                 </Tabs.Panel>
               </>
             )}
-            <Tabs.Panel index={1} selectedIndex={selectedTabIndex}>
+            <Tabs.Panel
+              index={1}
+              selectedIndex={
+                shouldRenderActionInTab
+                  ? selectedTabIndex
+                  : CHAT_PANEL_TAB_INDEX
+              }
+            >
               <Chat chatContainerRef={chatContainerRef} />
             </Tabs.Panel>
           </Tabs>

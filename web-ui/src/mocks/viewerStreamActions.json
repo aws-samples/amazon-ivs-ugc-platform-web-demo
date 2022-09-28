@@ -3,9 +3,14 @@
     "name": "quiz",
     "duration": 7,
     "data": {
-      "question": "What is the capital of Canada?",
+      "question": "We’ll ease you in slowly, the last few questions will have you poring through every page of your Harry Potter books in desperation. Do you even dare attempt it?",
       "correctAnswerIndex": 0,
-      "answers": ["Vancouver", "Toronto", "Ottawa", "Montréal"]
+      "answers": [
+        "Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it. ― Albus Dumbledore, -----",
+        "Toronto",
+        "Ottawa",
+        "Montréal"
+      ]
     }
   },
   {

@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,16 +7,21 @@ import { clsm } from '../../utils';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
+import { STREAM_ACTION_NAME } from '../../constants';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
+import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
+import Button from '../Button';
 import Controls from './Controls';
 import Notification from '../Notification';
 import PlayerHeader from './PlayerHeader';
+import QuizCard from '../../pages/Channel/StreamActions/QuizCard';
 import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
 import usePrevious from '../../hooks/usePrevious';
+import viewerStreamActionsMock from '../../mocks/viewerStreamActions.json'; // Temp
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -68,12 +73,19 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     stopPropagAndResetTimeout
   });
   const prevIsPopupOpen = usePrevious(isPopupOpen);
+  const {
+    currentViewerStreamActionData,
+    currentViewerStreamActionName,
+    setCurrentViewerAction,
+    shouldRenderActionInTab
+  } = useViewerStreamActions();
 
   const hasError = !!error;
   const isChannelAvailable = !!channelData;
   const isSplitView = isMobileView && isLandscape;
   const shouldShowLoader = isLoading && !hasError && !isViewerBanned;
   const shouldShowPlayerOverlay = hasError || isControlsOpen;
+  const showStream = isLive || isLive === undefined || hasFinalBuffer;
 
   const onClickPlayerHandler = useCallback(
     (event) => {
@@ -107,6 +119,18 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
       onClickPlayerHandler(event);
     },
     [onClickPlayerHandler]
+  );
+
+  // This is a *temporary* function that switches between the quiz and the product popups
+  const onClickStreamActionHandler = useCallback(
+    (nextViewerStreamAction) => {
+      setCurrentViewerAction((prev) =>
+        prev?.name === nextViewerStreamAction.name
+          ? null
+          : { ...nextViewerStreamAction, startTime: Date.now() }
+      );
+    },
+    [setCurrentViewerAction]
   );
 
   useEffect(() => {
@@ -148,6 +172,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         'bg-lightMode-gray',
         'dark:bg-black',
         'lg:aspect-video',
+        'overflow-y-hidden',
         isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerElementRef}
@@ -160,7 +185,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
         username={username}
       />
-      {isLive || isLive === undefined || hasFinalBuffer ? (
+      {showStream ? (
         <>
           {shouldShowLoader && (
             <div
@@ -271,6 +296,50 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           </h2>
         </div>
       )}
+      {/* Temporary - START */}
+      <div
+        className={clsm([
+          'absolute',
+          'flex',
+          'gap-x-4',
+          'top-4',
+          'right-4',
+          'z-[999]'
+        ])}
+      >
+        <Button
+          className={clsm([
+            `bg-profile-${color ? color : 'default'}`,
+            `hover:bg-profile-${color ? color : 'default'}`,
+            `focus:bg-profile-${color ? color : 'default'}`
+          ])}
+          onClick={() => onClickStreamActionHandler(viewerStreamActionsMock[0])}
+        >
+          Quiz
+        </Button>
+        <Button
+          className={clsm([
+            `bg-profile-${color ? color : 'default'}`,
+            `hover:bg-profile-${color ? color : 'default'}`,
+            `focus:bg-profile-${color ? color : 'default'}`
+          ])}
+          onClick={() => onClickStreamActionHandler(viewerStreamActionsMock[1])}
+        >
+          Product
+        </Button>
+      </div>
+      {/* Temporary - END */}
+      <AnimatePresence>
+        {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
+          !shouldRenderActionInTab && (
+            <QuizCard
+              {...currentViewerStreamActionData}
+              isControlsOpen={isControlsOpen && showStream}
+              setCurrentViewerAction={setCurrentViewerAction}
+              shouldRenderActionInTab={shouldRenderActionInTab}
+            />
+          )}
+      </AnimatePresence>
     </section>
   );
 };

@@ -36,6 +36,16 @@
     --base-color-light-red: 359, 76%;
 
     --base-color-medium-blue: 205, 79%;
+
+    /* Base profile colors */
+    --base-profile-color-default: 200, 100%;
+    --base-profile-color-green: 144, 42%;
+    --base-profile-color-yellow: 50, 100%;
+    --base-profile-color-blue: 241, 100%;
+    --base-profile-color-salmon: 14, 100%;
+    --base-profile-color-purple: 274, 40%;
+    --base-profile-color-turquoise: 169, 100%;
+    --base-profile-color-lavender: 243, 100%;
   }
 }
 
