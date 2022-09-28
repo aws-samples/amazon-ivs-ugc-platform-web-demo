@@ -1,7 +1,8 @@
+import { unpack } from '../utils/streamActionHelpers';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';
-import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 
 const { IVSPlayer } = window;
 
@@ -12,7 +13,7 @@ const {
   PlayerState
 } = IVSPlayer;
 const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
-const { ERROR, AUDIO_BLOCKED } = PlayerEventType;
+const { ERROR, AUDIO_BLOCKED, TEXT_METADATA_CUE } = PlayerEventType;
 
 const usePlayer = ({
   defaultVolumeLevel = VOLUME_MAX,
@@ -82,11 +83,18 @@ const usePlayer = ({
 
   // Generic PlayerEventType event listener
   const onError = useCallback((err) => {
-    console.warn(`Player Event - ERROR:`, err, playerRef.current);
+    console.warn('Player Event - ERROR:', err, playerRef.current);
 
     setError(err);
     setIsLoading(false);
     setIsPaused(true);
+  }, []);
+
+  // Timed metadata event listener
+  const onTimedMetadata = useCallback((cue) => {
+    // TEMPORARY
+    const metadata = unpack(cue.text);
+    console.info(`Timed metadata: `, metadata);
   }, []);
 
   const destroy = useCallback(() => {
@@ -96,16 +104,17 @@ const usePlayer = ({
     playerRef.current.removeEventListener(READY, onStateChange);
     playerRef.current.removeEventListener(PLAYING, onStateChange);
     playerRef.current.removeEventListener(BUFFERING, onStateChange);
+    playerRef.current.removeEventListener(TEXT_METADATA_CUE, onTimedMetadata);
+    playerRef.current.removeEventListener(AUDIO_BLOCKED, onAudioBlocked);
     playerRef.current.removeEventListener(ENDED, onStateChange);
     playerRef.current.removeEventListener(ERROR, onError);
-    playerRef.current.removeEventListener(AUDIO_BLOCKED, onAudioBlocked);
 
     // delete and nullify player
     playerRef.current.pause();
     playerRef.current.delete();
     playerRef.current = null;
     videoRef.current?.removeAttribute('src'); // remove possible stale src
-  }, [onError, onStateChange, onAudioBlocked]);
+  }, [onStateChange, onTimedMetadata, onAudioBlocked, onError]);
 
   const create = useCallback(() => {
     if (!isPlayerSupported) {
@@ -125,11 +134,11 @@ const usePlayer = ({
     playerRef.current.addEventListener(READY, onStateChange);
     playerRef.current.addEventListener(PLAYING, onStateChange);
     playerRef.current.addEventListener(BUFFERING, onStateChange);
+    playerRef.current.addEventListener(TEXT_METADATA_CUE, onTimedMetadata);
+    playerRef.current.addEventListener(AUDIO_BLOCKED, onAudioBlocked);
     playerRef.current.addEventListener(ENDED, onStateChange);
     playerRef.current.addEventListener(ERROR, onError);
-
-    playerRef.current.addEventListener(AUDIO_BLOCKED, onAudioBlocked);
-  }, [destroy, onError, onStateChange, onAudioBlocked]);
+  }, [destroy, onStateChange, onError, onTimedMetadata, onAudioBlocked]);
 
   const play = useCallback(() => {
     setIsPaused(false);

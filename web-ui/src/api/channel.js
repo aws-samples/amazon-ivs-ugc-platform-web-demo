@@ -55,3 +55,10 @@ export const unbanUser = async (bannedUsername) =>
     url: `${apiBaseUrl}/user/channel/unban`,
     body: { bannedUsername }
   });
+
+export const sendStreamAction = async (metadataString) =>
+  await authFetch({
+    method: 'POST',
+    url: `${apiBaseUrl}/user/channel/actions/send`,
+    body: { metadata: metadataString }
+  });

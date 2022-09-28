@@ -124,7 +124,8 @@ export class UserManagementStack extends NestedStack {
         'ivs:CreateStreamKey',
         'ivs:DeleteChannel',
         'ivs:DeleteStreamKey',
-        'ivs:StopStream'
+        'ivs:StopStream',
+        'ivs:PutMetadata'
       ],
       effect: iam.Effect.ALLOW,
       resources: ['*']

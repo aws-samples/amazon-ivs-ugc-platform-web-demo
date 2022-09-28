@@ -1,22 +1,25 @@
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 
 import { clsm } from '../../../utils';
-import { streamManager as $streamManagerContent } from '../../../content';
-
 import { Quiz, Product, Notice } from './StreamManagerActionForms';
-import { STREAM_ACTION_NAME } from '../../../constants';
+import {
+  HIDE_WIP_STREAM_ACTIONS,
+  STREAM_ACTION_NAME
+} from '../../../constants';
+import { streamManager as $streamManagerContent } from '../../../content';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
 
 const $content = $streamManagerContent.stream_manager_actions_modal;
 
 const StreamManagerActions = () => {
-  const { openStreamManagerActionModal } = useStreamManagerActions();
+  const { openStreamManagerActionModal, sendStreamAction } =
+    useStreamManagerActions();
   const quizStreamManagerActionButtonRef = useRef();
   const productStreamManagerActionButtonRef = useRef();
   const noticeStreamManagerActionButtonRef = useRef();
 
-  const openQuizStreamManagerAction = useCallback(() => {
+  const openQuizStreamManagerAction = () =>
     openStreamManagerActionModal(STREAM_ACTION_NAME.QUIZ, {
       content: {
         title: $content.quiz.host_a_quiz,
@@ -25,9 +28,8 @@ const StreamManagerActions = () => {
       },
       lastFocusedElement: quizStreamManagerActionButtonRef
     });
-  }, [openStreamManagerActionModal]);
 
-  const openProductStreamManagerAction = useCallback(() => {
+  const openProductStreamManagerAction = () =>
     openStreamManagerActionModal(STREAM_ACTION_NAME.PRODUCT, {
       content: {
         title: $content.product.feature_a_product,
@@ -36,9 +38,8 @@ const StreamManagerActions = () => {
       },
       lastFocusedElement: productStreamManagerActionButtonRef
     });
-  }, [openStreamManagerActionModal]);
 
-  const openNoticeStreamManagerAction = useCallback(() => {
+  const openNoticeStreamManagerAction = () =>
     openStreamManagerActionModal(STREAM_ACTION_NAME.NOTICE, {
       content: {
         title: $content.notice.show_a_notice,
@@ -47,7 +48,10 @@ const StreamManagerActions = () => {
       },
       lastFocusedElement: noticeStreamManagerActionButtonRef
     });
-  }, [openStreamManagerActionModal]);
+
+  const triggerCelebrationStreamManagerAction = async () => {
+    await sendStreamAction(STREAM_ACTION_NAME.CELEBRATION);
+  };
 
   return (
     <section
@@ -74,24 +78,32 @@ const StreamManagerActions = () => {
       ])}
     >
       <StreamManagerActionButton
+        ariaLabel="Open the quiz stream action editor"
         name={$content.quiz.host_a_quiz}
         onClick={openQuizStreamManagerAction}
         ref={quizStreamManagerActionButtonRef}
       />
       <StreamManagerActionButton
+        ariaLabel="Open the product feature stream action editor"
         name={$content.product.feature_a_product}
         onClick={openProductStreamManagerAction}
         ref={productStreamManagerActionButtonRef}
       />
-      <StreamManagerActionButton
-        name={$content.notice.show_a_notice}
-        onClick={openNoticeStreamManagerAction}
-        ref={noticeStreamManagerActionButtonRef}
-      />
-      <StreamManagerActionButton
-        name={$content.celebration.trigger_a_celebration}
-        onClick={() => console.info('🎵 Ce-le-brate good times, come on! 🎵')}
-      />
+      {!HIDE_WIP_STREAM_ACTIONS && (
+        <>
+          <StreamManagerActionButton
+            ariaLabel="Open the notice stream action editor"
+            name={$content.notice.show_a_notice}
+            onClick={openNoticeStreamManagerAction}
+            ref={noticeStreamManagerActionButtonRef}
+          />
+          <StreamManagerActionButton
+            ariaLabel="Open the celebration stream action editor"
+            name={$content.celebration.trigger_a_celebration}
+            onClick={triggerCelebrationStreamManagerAction}
+          />
+        </>
+      )}
     </section>
   );
 };

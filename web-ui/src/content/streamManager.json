@@ -23,5 +23,18 @@
     "celebration": {
       "trigger_a_celebration": "Trigger a celebration"
     }
+  },
+  "notifications": {
+    "success": {
+      "stream_action_saved": "Stream action successfully saved",
+      "started_quiz": "Host a quiz started",
+      "started_product": "Feature a product started",
+      "started_notice": "Show a notice started",
+      "started_celebration": "Trigger a celebration started"
+    },
+    "error": {
+      "unable_to_send": "Unable to send",
+      "unable_to_start_stream_action": "Unable to start stream action"
+    }
   }
 }

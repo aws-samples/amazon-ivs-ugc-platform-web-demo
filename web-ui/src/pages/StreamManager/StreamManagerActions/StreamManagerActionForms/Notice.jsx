@@ -23,7 +23,7 @@ const Notice = () => {
       ])}
       placeholder="Enter a value..."
       label="Notice Value"
-      name={STREAM_ACTION_NAME.QUIZ}
+      name={STREAM_ACTION_NAME.NOTICE}
       value={value}
       onChange={handleOnChange}
     />

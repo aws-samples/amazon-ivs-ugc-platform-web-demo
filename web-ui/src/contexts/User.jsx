@@ -35,7 +35,7 @@ export const Provider = ({ children }) => {
   const prevIsSessionValid = usePrevious(isSessionValid);
   const { remove: removeStoredUserData } = useLocalStorage({
     key: userData?.username,
-    keyPrefix: 'user'
+    options: { keyPrefix: 'user' }
   });
 
   const {

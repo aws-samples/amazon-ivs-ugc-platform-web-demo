@@ -50,11 +50,11 @@ const handler = async (
 
   // Check minimum and maximum allowed characters for username
   if (
-    username.length < MIN_USERNAME_CHARACTER_COUNT ||
-    username.length > MAX_USERNAME_CHARACTER_COUNT
+    newUsername.length < MIN_USERNAME_CHARACTER_COUNT ||
+    newUsername.length > MAX_USERNAME_CHARACTER_COUNT
   ) {
     console.error(
-      `${username} character length must be at least ${MIN_USERNAME_CHARACTER_COUNT} and a maximum of ${MAX_USERNAME_CHARACTER_COUNT}`
+      `"${newUsername}" character length must be at least ${MIN_USERNAME_CHARACTER_COUNT} and a maximum of ${MAX_USERNAME_CHARACTER_COUNT}`
     );
 
     reply.statusCode = 400;

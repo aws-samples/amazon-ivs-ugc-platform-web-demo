@@ -1,6 +1,7 @@
-import clsx from 'clsx';
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
-import { CHANNEL_TYPE } from './constants';
+import clsx from 'clsx';
+
+import { CHANNEL_TYPE } from '../constants';
 
 export const noop = () => {};
 
@@ -263,20 +264,20 @@ const dateReplacer = function (key, value) {
 };
 
 export const constructObjectPath = (path = [], value) => {
-  const compose = (_path, _value) => {
+  const construct = (_path, _value) => {
     if (!_path.length) return _value;
 
     const pathKey = _path.pop();
     const nextValue = { [`${pathKey}`]: _value };
 
-    return compose(_path, nextValue);
+    return construct(_path, nextValue);
   };
 
   try {
-    return compose(path.slice(0), structuredClone(value));
+    return construct(path.slice(0), structuredClone(value));
   } catch (error) {
     // structuredClone is not supported by older browsers
-    return compose(
+    return construct(
       path.slice(0),
       JSON.parse(JSON.stringify(value, dateReplacer))
     );
@@ -284,20 +285,20 @@ export const constructObjectPath = (path = [], value) => {
 };
 
 export const deconstructObjectPath = (path = [], value) => {
-  const decompose = (_path, _value) => {
+  const deconstruct = (_path, _value) => {
     if (!_path.length) return _value;
 
     const pathKey = _path.shift();
     const nextValue = _value[pathKey];
 
-    return decompose(_path, nextValue);
+    return deconstruct(_path, nextValue);
   };
 
   try {
-    return decompose(path.slice(0), structuredClone(value));
+    return deconstruct(path.slice(0), structuredClone(value));
   } catch (error) {
     // structuredClone is not supported by older browsers
-    return decompose(
+    return deconstruct(
       path.slice(0),
       JSON.parse(JSON.stringify(value, dateReplacer))
     );

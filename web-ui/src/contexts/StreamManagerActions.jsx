@@ -7,33 +7,47 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 
+import { channelAPI } from '../api';
 import { MODAL_TYPE, useModal } from './Modal';
-import { STREAM_ACTION_NAME } from '../constants';
+import { pack, unpack } from '../utils/streamActionHelpers';
+import {
+  CELEBRATION_STREAM_ACTION_DURATION,
+  STREAM_ACTION_NAME
+} from '../constants';
+import { streamManager as $content } from '../content';
+import { useNotif } from './Notification';
 import { useUser } from './User';
 import useContextHook from './useContextHook';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const Context = createContext(null);
-Context.displayName = 'ManagerStreamActions';
+Context.displayName = 'StreamManagerActions';
 
 const DEFAULT_STATE = {
-  [STREAM_ACTION_NAME.QUIZ]: { value: '' },
+  [STREAM_ACTION_NAME.QUIZ]: {},
   [STREAM_ACTION_NAME.PRODUCT]: {},
   [STREAM_ACTION_NAME.NOTICE]: {},
-  [STREAM_ACTION_NAME.CELEBRATION]: {}
+  [STREAM_ACTION_NAME.CELEBRATION]: {
+    duration: CELEBRATION_STREAM_ACTION_DURATION
+  }
 };
 
 export const Provider = ({ children }) => {
   const { openModal } = useModal();
   const { userData } = useUser();
+  const { notifyError, notifySuccess } = useNotif();
   const {
     value: storedStreamManagerActionData,
     set: setStoredStreamManagerActionData
   } = useLocalStorage({
     key: userData?.username,
-    keyPrefix: 'user',
     initialValue: DEFAULT_STATE,
-    path: ['streamActions']
+    options: {
+      keyPrefix: 'user',
+      path: ['streamActions'],
+      serialize: pack,
+      deserialize: unpack
+    }
   });
   const [streamManagerActionData, setStreamManagerActionData] =
     useState(DEFAULT_STATE);
@@ -78,8 +92,21 @@ export const Provider = ({ children }) => {
 
   /* Saves the form data in local storage */
   const saveStreamManagerActionData = useCallback(
-    (data) => setStoredStreamManagerActionData(data),
-    [setStoredStreamManagerActionData]
+    (data, didSendStreamAction = false) => {
+      const shouldSave =
+        JSON.stringify(data) !== JSON.stringify(storedStreamManagerActionData);
+
+      if (shouldSave) setStoredStreamManagerActionData(data);
+
+      if (!didSendStreamAction) {
+        notifySuccess($content.notifications.success.stream_action_saved);
+      }
+    },
+    [
+      notifySuccess,
+      setStoredStreamManagerActionData,
+      storedStreamManagerActionData
+    ]
   );
 
   /* Resets the form data to the last data saved in local storage */
@@ -88,39 +115,48 @@ export const Provider = ({ children }) => {
   }, [storedStreamManagerActionData]);
 
   /* Sends a timed metadata event to all stream viewers */
-  const sendTimedMetadata = (actionName, data) => {
-    const streamActionData = data[actionName];
-    const startTime = new Date().toISOString();
-    // TEMPORARY
-    console.info('Timed metadata sent for', {
-      actionName,
-      startTime,
-      streamActionData
-    });
-  };
+  const sendStreamAction = useCallback(
+    async (actionName, data = storedStreamManagerActionData) => {
+      const metadata = pack({ data: data[actionName], name: actionName });
+      const { result, error } = await channelAPI.sendStreamAction(metadata);
+
+      if (result)
+        notifySuccess($content.notifications.success[`started_${actionName}`]);
+      if (error)
+        notifyError($content.notifications.error.unable_to_start_stream_action);
+    },
+    [notifyError, notifySuccess, storedStreamManagerActionData]
+  );
 
   const openStreamManagerActionModal = useCallback(
     (actionName, modalData) => {
       openModal({
         onSave: saveStreamManagerActionData,
         onCancel: resetStreamManagerActionData,
-        onConfirm: (data) => sendTimedMetadata(actionName, data),
+        onConfirm: (data) => sendStreamAction(actionName, data),
         type: MODAL_TYPE.STREAM_MANAGER_ACTION,
         ...modalData
       });
     },
-    [openModal, resetStreamManagerActionData, saveStreamManagerActionData]
+    [
+      openModal,
+      resetStreamManagerActionData,
+      saveStreamManagerActionData,
+      sendStreamAction
+    ]
   );
 
   const value = useMemo(
     () => ({
       getStreamManagerActionData,
       openStreamManagerActionModal,
+      sendStreamAction,
       updateStreamManagerActionData
     }),
     [
       getStreamManagerActionData,
       openStreamManagerActionModal,
+      sendStreamAction,
       updateStreamManagerActionData
     ]
   );

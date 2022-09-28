@@ -81,7 +81,7 @@ export const Provider = ({ children }) => {
 
   const handleConfirm = useCallback(
     (data) => {
-      onSave(data);
+      onSave(data, true);
       onConfirm(data);
       closeModal({ shouldCancel: false, shouldRefocus: false });
     },

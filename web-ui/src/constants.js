@@ -103,3 +103,7 @@ export const STREAM_ACTION_NAME = {
   NOTICE: 'notice',
   CELEBRATION: 'celebration'
 };
+
+export const CELEBRATION_STREAM_ACTION_DURATION = 10; // seconds
+
+export const HIDE_WIP_STREAM_ACTIONS = true;

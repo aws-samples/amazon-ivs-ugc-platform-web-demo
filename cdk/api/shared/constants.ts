@@ -4,12 +4,15 @@ export const BAN_USER_EXCEPTION = 'BanUserException';
 export const CHANGE_USER_PREFERENCES_EXCEPTION =
   'ChangeUserPreferencesException';
 export const CHANGE_USERNAME_EXCEPTION = 'ChangeUsernameException';
+export const CHANNEL_NOT_BROADCASTING_EXCEPTION =
+  'ChannelNotBroadcastingException';
 export const CHATROOM_ARN_NOT_FOUND_EXCEPTION = 'ChatRoomArnNotFoundException';
 export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
 export const FORBIDDEN_EXCEPTION = 'ForbiddenException';
 export const FORGOT_PASSWORD_EXCEPTION = 'ForgotPasswordException';
 export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';
 export const RESET_STREAM_KEY_EXCEPTION = 'ResetStreamKeyException';
+export const TIMED_METADATA_EXCEPTION = 'TimedMetadataException';
 export const UNAUTHORIZED_EXCEPTION = 'UnauthorizedException';
 export const UNBAN_USER_EXCEPTION = 'UnbanUserException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';

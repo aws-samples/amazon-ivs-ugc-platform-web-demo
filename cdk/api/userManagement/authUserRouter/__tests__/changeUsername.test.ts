@@ -55,7 +55,7 @@ describe('changeUsername controller', () => {
       expect(__type).toBe(UNEXPECTED_EXCEPTION);
     });
 
-    it('should return a reserved username exception when the new username is banned', async () => {
+    it('should return a reserved username exception when the new username is restricted', async () => {
       const response = await injectAuthorizedRequest(server, {
         ...defaultRequestParams,
         payload: { ...defaultValidPayload, newUsername: 'settings' }
@@ -68,9 +68,9 @@ describe('changeUsername controller', () => {
     });
 
     it('should return a change username exception when the username is less than four characters', async () => {
-      const response = await server.inject({
+      const response = await injectAuthorizedRequest(server, {
         ...defaultRequestParams,
-        payload: { ...defaultValidPayload, username: 'joe' }
+        payload: { ...defaultValidPayload, newUsername: 'joe' }
       });
       const { __type } = JSON.parse(response.payload);
 
@@ -80,9 +80,12 @@ describe('changeUsername controller', () => {
     });
 
     it('should return a change username exception when the username is more than twenty characters', async () => {
-      const response = await server.inject({
+      const response = await injectAuthorizedRequest(server, {
         ...defaultRequestParams,
-        payload: { ...defaultValidPayload, username: 'alexanderhamilton1234' }
+        payload: {
+          ...defaultValidPayload,
+          newUsername: 'alexanderhamilton1234'
+        }
       });
       const { __type } = JSON.parse(response.payload);
 

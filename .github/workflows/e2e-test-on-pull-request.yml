@@ -1,4 +1,4 @@
-name: On Pull Request Testing Workflow
+name: On Pull Request E2E Testing Workflow
 
 on:
   pull_request:

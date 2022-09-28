@@ -181,87 +181,6 @@
 					"response": []
 				},
 				{
-					"name": "/user/channel/:channelOwnerUsername",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								":channelOwnerUsername"
-							],
-							"variable": [
-								{
-									"key": "channelOwnerUsername",
-									"value": "{{username}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/channel/ban",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/ban",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								"ban"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/channel/unban",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/unban",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								"unban"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/user/streamKey/reset",
 					"request": {
 						"method": "GET",
@@ -514,6 +433,121 @@
 								"token",
 								"private",
 								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "/user/channel/:channelOwnerUsername",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								":channelOwnerUsername"
+							],
+							"variable": [
+								{
+									"key": "channelOwnerUsername",
+									"value": "{{username}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/channel/ban",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/ban",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/channel/unban",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/unban",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								"unban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user/channel/actions/send",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"metadata\": \"{'name':'quiz','data':{'duration':10,'question':'What house at Hogwarts does Harry belong to?','correctAnswerIndex':1,'answers':['Slytherin','Gryffindor','Hufflepuff','Ravenclaw']}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/user/channel/actions/send",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"user",
+								"channel",
+								"actions",
+								"send"
 							]
 						}
 					},

@@ -3,13 +3,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { constructObjectPath, deconstructObjectPath } from '../utils';
 import useLatest from '../hooks/useLatest';
 
-const serialize = JSON.stringify;
-const deserialize = JSON.parse;
-
-const initializer = (key, initialValue, path) => {
+const initializer = (key, initialValue, options) => {
   if (!key) return null;
 
   try {
+    const { path, serialize, deserialize } = options;
     const localStorageItem = localStorage.getItem(key);
 
     if (localStorageItem === null) {
@@ -33,26 +31,45 @@ const initializer = (key, initialValue, path) => {
   }
 };
 
+const defaultOptions = {
+  keyPrefix: '',
+  path: [],
+  serialize: JSON.stringify,
+  deserialize: JSON.parse
+};
+
+/**
+ * @typedef {Object} LocalStorageOptions
+ * @property {string} [keyPrefix=''] An optional prefix appended to the key with a colon, as such: [keyPrefix]:[key]
+ * @property {Array<string>} [path=[]] An optional working object path starting at the key where the value is read and written
+ * @property {Function} [serialize=JSON.stringify] An optional custom serializer (defaults to JSON.stringify)
+ * @property {Function} [deserialize=JSON.parse] An optional custom deserializer (defaults to JSON.parse)
+ */
+
 /**
  * @typedef {Object} LocalStorageConfig
- * @property {string} key local storage key
- * @property {string} [keyPrefix=''] an optional prefix appended to the key with a colon, as such: <keyPrefix>:<key>
- * @property {any} [initialValue=null] the value to store for the given key if no key value exists in local storage
- * @property {Array<string>} [path=[]] an optional working object path starting at the key where the value is read and written
+ * @property {string} key Local storage key
+ * @property {any} [initialValue=null] The value to store for the given key if no key value exists in local storage
+ * @property {LocalStorageOptions} [options=defaultOptions] A set of options to further customize the behaviour of this hook
  *
  * @param {LocalStorageConfig} config
  */
 const useLocalStorage = ({
   key,
-  keyPrefix = '',
   initialValue = null,
-  path = []
+  options: {
+    path = defaultOptions.path,
+    keyPrefix = defaultOptions.keyPrefix,
+    serialize = defaultOptions.serialize,
+    deserialize = defaultOptions.deserialize
+  } = defaultOptions
 }) => {
-  const localStorageKey = [keyPrefix, key].join(':');
+  const localStorageKey = keyPrefix ? [keyPrefix, key].join(':') : key;
+  const options = { path, keyPrefix, serialize, deserialize };
+  const latestOptions = useLatest(options);
   const latestInitialValue = useLatest(initialValue);
-  const latestPath = useLatest(path);
   const [value, setValue] = useState(
-    () => !!key && initializer(localStorageKey, initialValue, path) // lazy state initialization with local storage
+    () => (!!key ? initializer(localStorageKey, initialValue, options) : null) // lazy state initialization with local storage
   );
 
   useEffect(() => {
@@ -61,11 +78,11 @@ const useLocalStorage = ({
         initializer(
           localStorageKey,
           latestInitialValue.current,
-          latestPath.current
+          latestOptions.current
         )
       );
     }
-  }, [localStorageKey, latestInitialValue, latestPath, key]);
+  }, [key, latestInitialValue, latestOptions, localStorageKey]);
 
   /**
    * Sets the value at the end of the working object path of the localStorageKey location
@@ -74,7 +91,8 @@ const useLocalStorage = ({
     (value) => {
       try {
         setValue((prevValue) => {
-          const composedValue = constructObjectPath(latestPath.current, value);
+          const { path, serialize } = latestOptions.current;
+          const composedValue = constructObjectPath(path, value);
           const serializedValue = serialize(composedValue);
           localStorage.setItem(localStorageKey, serializedValue);
 
@@ -86,7 +104,7 @@ const useLocalStorage = ({
         console.error(error);
       }
     },
-    [localStorageKey, latestPath]
+    [latestOptions, localStorageKey]
   );
 
   /**
