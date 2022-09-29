@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
-import { clsm, noop } from '../../../../../utils';
-import Label from '../../../../../components/Input/InputLabel';
-import InputRange from '../../../../../components/InputRange';
-import Input from '../../../../../components/Input';
 import { bound } from '../../../../../utils';
+import { clsm, noop } from '../../../../../utils';
+import Input from '../../../../../components/Input';
+import InputRange from '../../../../../components/InputRange';
+import Label from '../../../../../components/Input/InputLabel';
 
 const RangeSelector = ({
   dataKey,

@@ -42,7 +42,10 @@ const StreamManagerActionModal = () => {
   );
 
   const save = () => handleSave(streamManagerActionData);
-  const send = () => handleConfirm(streamManagerActionData);
+  const send = (e) => {
+    e.preventDefault();
+    handleConfirm(streamManagerActionData);
+  };
 
   const renderStreamManagerAction = (children) => (
     <>
@@ -86,7 +89,8 @@ const StreamManagerActionModal = () => {
     type === MODAL_TYPE.STREAM_MANAGER_ACTION &&
     !!content &&
     renderStreamManagerAction(
-      <div
+      <form
+        onSubmit={send}
         className={clsm(
           [
             'flex',
@@ -145,7 +149,14 @@ const StreamManagerActionModal = () => {
           )}
         >
           <h2 className={clsm(['text-center', 'pb-12'])}>{title}</h2>
-          <div className={clsm(isContentOverflowing && 'pb-12')}>
+          <div
+            className={clsm([
+              'flex',
+              'flex-col',
+              'gap-8',
+              isContentOverflowing && 'pb-12'
+            ])}
+          >
             {streamManagerActionContent}
           </div>
         </div>
@@ -186,7 +197,7 @@ const StreamManagerActionModal = () => {
             >
               {$content.save}
             </Button>
-            <Button className={buttonClasses} onClick={send}>
+            <Button type="submit" className={buttonClasses}>
               {isSendingStreamAction && <Spinner className="absolute" />}
               <p {...(isSendingStreamAction ? { className: 'invisible' } : {})}>
                 {confirmText}
@@ -194,7 +205,7 @@ const StreamManagerActionModal = () => {
             </Button>
           </div>
         </footer>
-      </div>
+      </form>
     )
   );
 };

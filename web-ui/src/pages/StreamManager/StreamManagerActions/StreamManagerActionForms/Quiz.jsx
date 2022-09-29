@@ -1,4 +1,3 @@
-import { clsm } from '../../../../utils';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import {
@@ -29,7 +28,7 @@ const Quiz = () => {
     updateStreamManagerActionData(data, STREAM_ACTION_NAME.QUIZ);
 
   return (
-    <div className={clsm(['flex', 'flex-col', 'gap-8'])}>
+    <>
       <Input
         label={$content.question}
         name="streamManagerActionFormQuestion"
@@ -58,7 +57,7 @@ const Quiz = () => {
         min={QUIZ_STREAM_ACTION_DURATION_MIN}
         max={QUIZ_STREAM_ACTION_DURATION_MAX}
       />
-    </div>
+    </>
   );
 };
 
