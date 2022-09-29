@@ -62,5 +62,6 @@ export const INPUT_TYPE_CLASSES = {
     'placeholder-shown:text-ellipsis',
     'placeholder-shown:whitespace-nowrap'
   ],
-  password: INPUT_BASE_CLASSES
+  password: INPUT_BASE_CLASSES,
+  number: INPUT_BASE_CLASSES
 };

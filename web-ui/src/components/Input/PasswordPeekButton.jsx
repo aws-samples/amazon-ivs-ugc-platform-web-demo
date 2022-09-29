@@ -66,7 +66,7 @@ PasswordPeekButton.defaultProps = {
 
 PasswordPeekButton.propTypes = {
   label: PropTypes.string,
-  inputType: PropTypes.oneOf(['text', 'password', 'button']),
+  inputType: PropTypes.oneOf(['text', 'password', 'button', 'number']),
   setInputType: PropTypes.func,
   isVisible: PropTypes.bool
 };

@@ -37,13 +37,19 @@ const Input = forwardRef(
       tabIndex,
       type: initialType,
       value,
-      variant
+      variant,
+      min,
+      max
     },
     ref
   ) => {
     const [inputType, setInputType] = useState(initialType);
     const hideDescription = useRef(false);
-    const outerInputClasses = clsm(variant, outerInputVariantClasses[variant]);
+    const outerInputClasses = clsm(
+      variant,
+      outerInputVariantClasses[variant],
+      inputType === 'number' && ['w-auto']
+    );
 
     const innerInputClasses = clsm(innerInputVariantClasses);
 
@@ -72,6 +78,8 @@ const Input = forwardRef(
             {...(onFocus ? { onFocus } : {})}
             {...(onBlur ? { onBlur } : {})}
             {...(tabIndex ? { tabIndex } : {})}
+            {...(min ? { min } : {})}
+            {...(max ? { max } : {})}
             aria-disabled={readOnly}
             aria-label={ariaLabel}
             autoCapitalize={autoCapitalize}
@@ -131,7 +139,9 @@ Input.defaultProps = {
   tabIndex: null,
   type: 'text',
   value: '',
-  variant: 'vertical'
+  variant: 'vertical',
+  min: 0,
+  max: 100
 };
 
 Input.propTypes = {
@@ -154,9 +164,11 @@ Input.propTypes = {
   placeholder: PropTypes.string,
   readOnly: PropTypes.bool,
   tabIndex: PropTypes.number,
-  type: PropTypes.oneOf(['text', 'password']),
+  type: PropTypes.oneOf(['text', 'password', 'number']),
   value: PropTypes.string,
-  variant: PropTypes.oneOf(['vertical', 'horizontal'])
+  variant: PropTypes.oneOf(['vertical', 'horizontal']),
+  min: PropTypes.number,
+  max: PropTypes.number
 };
 
 export default Input;

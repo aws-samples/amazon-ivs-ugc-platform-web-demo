@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import useMutationObserver from './useMutationObserver';
 
 const focusableSelectors = 'a[href], button, textarea, input, select';
 
 const useFocusTrap = (refs, isEnabled = true) => {
   const [elements, setElements] = useState([]);
-  const currIndex = useRef(null);
   const targetRefs = useRef(refs);
 
-  useEffect(() => {
+  const updateFocusElements = useCallback(() => {
     if (!isEnabled) return;
 
     const nodesToFocus = targetRefs.current.reduce(
@@ -26,6 +26,12 @@ const useFocusTrap = (refs, isEnabled = true) => {
     return () => setElements([]);
   }, [isEnabled]);
 
+  useMutationObserver(targetRefs.current, updateFocusElements);
+
+  useEffect(() => {
+    updateFocusElements();
+  }, [updateFocusElements]);
+
   useEffect(() => {
     // Focus trap to constrain the tab focus to elements within the target container
     const handleTabKey = (event) => {
@@ -34,38 +40,32 @@ const useFocusTrap = (refs, isEnabled = true) => {
       const focusableElements = elements.filter(
         (el) => !el.hidden && !el.disabled
       );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const hasElementFocus = focusableElements.includes(
+        document.activeElement
+      );
 
-      let nextIndex;
-      if (currIndex.current === -1) {
-        // Setting the starting index
-        nextIndex = event.shiftKey ? -1 : 0;
-      } else {
-        nextIndex = event.shiftKey
-          ? currIndex.current - 1
-          : currIndex.current + 1;
-      }
-
-      const n = focusableElements.length;
-      const nextIndexBounded = ((nextIndex % n) + n) % n;
-      const elementToFocus = focusableElements[nextIndexBounded];
-
-      currIndex.current = nextIndexBounded;
-
-      if (document.activeElement !== elementToFocus) {
+      if (
+        event.shiftKey &&
+        (!hasElementFocus || document.activeElement === firstElement)
+      ) {
         event.preventDefault();
-        elementToFocus.focus();
+        lastElement.focus();
+      } else if (
+        !event.shiftKey &&
+        (!hasElementFocus || document.activeElement === lastElement)
+      ) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
     if (isEnabled && elements.length) {
-      currIndex.current = elements.findIndex(
-        (el) => el === document.activeElement
-      );
-
       document.addEventListener('keydown', handleTabKey);
-    }
 
-    return () => document.removeEventListener('keydown', handleTabKey);
+      return () => document.removeEventListener('keydown', handleTabKey);
+    }
   }, [elements, isEnabled]);
 };
 

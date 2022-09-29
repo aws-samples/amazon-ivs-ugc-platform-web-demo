@@ -12,8 +12,10 @@ import { MODAL_TYPE, useModal } from './Modal';
 import { pack, unpack } from '../utils/streamActionHelpers';
 import {
   CELEBRATION_STREAM_ACTION_DURATION,
+  QUIZ_STREAM_ACTION_ANSWERS_MIN,
   STREAM_ACTION_NAME
 } from '../constants';
+import { QUIZ_DATA_KEYS } from '../pages/StreamManager/StreamManagerActions/StreamManagerActionForms/Quiz';
 import { streamManager as $content } from '../content';
 import { useChannel } from './Channel';
 import { useNotif } from './Notification';
@@ -25,7 +27,12 @@ const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
 
 const DEFAULT_STATE = {
-  [STREAM_ACTION_NAME.QUIZ]: { duration: 10 },
+  [STREAM_ACTION_NAME.QUIZ]: {
+    [QUIZ_DATA_KEYS.QUESTION]: '',
+    [QUIZ_DATA_KEYS.ANSWERS]: Array(QUIZ_STREAM_ACTION_ANSWERS_MIN).fill(''),
+    [QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX]: 0,
+    [QUIZ_DATA_KEYS.DURATION]: 15
+  },
   [STREAM_ACTION_NAME.PRODUCT]: {},
   [STREAM_ACTION_NAME.NOTICE]: {},
   [STREAM_ACTION_NAME.CELEBRATION]: {

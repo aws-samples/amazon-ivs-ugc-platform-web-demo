@@ -107,3 +107,9 @@ export const STREAM_ACTION_NAME = {
 export const CELEBRATION_STREAM_ACTION_DURATION = 10; // seconds
 
 export const HIDE_WIP_STREAM_ACTIONS = true;
+
+export const QUIZ_STREAM_ACTION_DURATION_MIN = 5; // seconds
+export const QUIZ_STREAM_ACTION_DURATION_MAX = 30; // seconds
+
+export const QUIZ_STREAM_ACTION_ANSWERS_MIN = 3;
+export const QUIZ_STREAM_ACTION_ANSWERS_MAX = 5;

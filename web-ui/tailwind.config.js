@@ -431,13 +431,27 @@ module.exports = {
       );
     }),
     // Lobotomized Owl Selector (https://www.markhuot.com/2019/01/01/tailwindcss-owl)
-    plugin(({ e, matchUtilities, config, theme }) => {
+    plugin(({ matchUtilities, theme }) => {
       const lobotomizedOwlSelector = '& > * + *';
 
       matchUtilities(
         {
           o: (value) => ({
             [lobotomizedOwlSelector]: { marginTop: value }
+          })
+        },
+        { values: theme('margin') }
+      );
+    }),
+
+    // Scrollbar-track: Add styles to scrollbar
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          'scrollbar-mt': (value) => ({
+            '&::-webkit-scrollbar-track': {
+              marginTop: value
+            }
           })
         },
         { values: theme('margin') }

@@ -11,7 +11,12 @@
     "cancel": "Cancel",
     "quiz": {
       "host_a_quiz": "Host a quiz",
-      "start_quiz": "Start quiz"
+      "start_quiz": "Start quiz",
+      "question": "Question",
+      "answers": "Answers",
+      "answer": "Answer",
+      "add_answer": "Add answer",
+      "duration": "Duration"
     },
     "product": {
       "feature_a_product": "Feature a product",

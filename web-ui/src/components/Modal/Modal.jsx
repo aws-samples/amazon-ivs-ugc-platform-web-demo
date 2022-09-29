@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../utils';
 import { useModal } from '../../contexts/Modal';
 import useClickAway from '../../hooks/useClickAway';
-import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
+import useFocusTrap from '../../hooks/useFocusTrap';
 import withPortal from '../withPortal';
 
 const Modal = ({ children, className }) => {

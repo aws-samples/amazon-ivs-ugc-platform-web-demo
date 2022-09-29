@@ -9,7 +9,7 @@ import {
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
-import InputRange from './InputRange';
+import InputRange from '../../../components/InputRange';
 import useClickAway from '../../../hooks/useClickAway';
 
 const MOBILE_INPUT_RANGE_HEIGHT = 112;
@@ -127,7 +127,7 @@ const VolumeSetting = ({
           <InputRange
             max={VOLUME_MAX}
             min={VOLUME_MIN}
-            updateVolume={updateVolume}
+            onChange={updateVolume}
             value={volumeLevel}
           />
         </div>

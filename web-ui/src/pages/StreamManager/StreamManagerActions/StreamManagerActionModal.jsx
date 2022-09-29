@@ -116,7 +116,8 @@ const StreamManagerActionModal = () => {
             '[&>svg]:w-6',
             '[&>svg]:h-6',
             '[&>svg]:dark:fill-white',
-            '[&>svg]:fill-darkMode-gray-dark'
+            '[&>svg]:fill-darkMode-gray-dark',
+            'z-10'
           ])}
           onClick={() => closeModal()}
           variant="icon"
@@ -134,7 +135,8 @@ const StreamManagerActionModal = () => {
               'md:pt-6',
               'overflow-x-hidden',
               'overflow-y-auto',
-              'supports-overlay:overflow-y-overlay'
+              'supports-overlay:overflow-y-overlay',
+              'scrollbar-mt-4'
             ],
             isLandscape && [
               'touch-screen-device:lg:px-4',
@@ -143,7 +145,9 @@ const StreamManagerActionModal = () => {
           )}
         >
           <h2 className={clsm(['text-center', 'pb-12'])}>{title}</h2>
-          {streamManagerActionContent}
+          <div className={clsm(isContentOverflowing && 'pb-12')}>
+            {streamManagerActionContent}
+          </div>
         </div>
         <footer
           className={clsm(

@@ -9,6 +9,7 @@ export { ReactComponent as ChevronLeft } from './chevron-left.svg';
 export { ReactComponent as ChevronRight } from './chevron-right.svg';
 export { ReactComponent as Close } from './close.svg';
 export { ReactComponent as Copy } from './copy.svg';
+export { ReactComponent as Delete } from './delete.svg';
 export { ReactComponent as DownArrow } from './down-arrow.svg';
 export { ReactComponent as ErrorIcon } from './error.svg';
 export { ReactComponent as Favorite } from './favorite.svg';
