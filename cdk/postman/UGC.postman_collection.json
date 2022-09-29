@@ -4,7 +4,7 @@
 		"name": "UGC",
 		"description": "# UGC\n\nThe UGC backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "9583492"
+		"_exporter_id": "20287494"
 	},
 	"item": [
 		{
@@ -531,7 +531,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"metadata\": \"{'name':'quiz','data':{'duration':10,'question':'What house at Hogwarts does Harry belong to?','correctAnswerIndex':1,'answers':['Slytherin','Gryffindor','Hufflepuff','Ravenclaw']}}\"\n}",
+							"raw": "{\n    \"metadata\": \"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -549,7 +549,8 @@
 								"actions",
 								"send"
 							]
-						}
+						},
+						"description": "Sample product action:\n\n```\n\"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n\n```\n\nSample quiz action:\n\n```\n\"{\\\"name\\\":\\\"quiz\\\",\\\"data\\\":{\\\"duration\\\":10,\\\"question\\\":\\\"What house at Hogwarts does Harry belong to?\\\",\\\"correctAnswerIndex\\\":1,\\\"answers\\\":[\\\"Slytherin\\\",\\\"Gryffindor\\\",\\\"Hufflepuff\\\",\\\"Ravenclaw\\\"]}}\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
 					},
 					"response": []
 				}

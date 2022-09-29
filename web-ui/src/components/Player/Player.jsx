@@ -12,7 +12,6 @@ import { STREAM_ACTION_NAME } from '../../constants';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
-import Button from '../Button';
 import Controls from './Controls';
 import Notification from '../Notification';
 import PlayerHeader from './PlayerHeader';
@@ -23,7 +22,6 @@ import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
 import usePlayer from '../../hooks/usePlayer';
 import usePrevious from '../../hooks/usePrevious';
-import viewerStreamActionsMock from '../../mocks/viewerStreamActions.json'; // Temp
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -40,10 +38,42 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     playbackUrl,
     username
   } = channelData || {};
-
+  const {
+    currentViewerStreamActionData,
+    currentViewerStreamActionName,
+    setCurrentViewerAction,
+    shouldRenderActionInTab
+  } = useViewerStreamActions();
   const playerElementRef = useRef();
   const [isLive, setIsLive] = useState();
-  const livePlayer = usePlayer({ playbackUrl, isLive });
+  const onTimedMetadataHandler = useCallback(
+    (metadata) => {
+      setCurrentViewerAction((prevViewerAction) => {
+        if (metadata && prevViewerAction?.name === metadata?.name) {
+          // This is done to ensure the animations are triggered when the same action is dispatched with new data
+          setTimeout(() => {
+            setCurrentViewerAction({
+              ...metadata,
+              startTime: Date.now()
+            });
+          }, defaultViewerStreamActionAnimationProps.transition.duration * 1000);
+
+          return null;
+        }
+
+        return {
+          ...metadata,
+          startTime: Date.now()
+        };
+      });
+    },
+    [setCurrentViewerAction]
+  );
+  const livePlayer = usePlayer({
+    playbackUrl,
+    isLive,
+    onTimedMetadataHandler
+  });
   const { isLandscape, isMobileView } = useResponsiveDevice();
   const {
     error,
@@ -75,12 +105,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     stopPropagAndResetTimeout
   });
   const prevIsPopupOpen = usePrevious(isPopupOpen);
-  const {
-    currentViewerStreamActionData,
-    currentViewerStreamActionName,
-    setCurrentViewerAction,
-    shouldRenderActionInTab
-  } = useViewerStreamActions();
 
   const hasError = !!error;
   const isChannelAvailable = !!channelData;
@@ -121,18 +145,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
       onClickPlayerHandler(event);
     },
     [onClickPlayerHandler]
-  );
-
-  // This is a *temporary* function that switches between the quiz and the product popups
-  const onClickStreamActionHandler = useCallback(
-    (nextViewerStreamAction) => {
-      setCurrentViewerAction((prev) =>
-        prev?.name === nextViewerStreamAction.name
-          ? null
-          : { ...nextViewerStreamAction, startTime: Date.now() }
-      );
-    },
-    [setCurrentViewerAction]
   );
 
   useEffect(() => {
@@ -298,39 +310,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           </h2>
         </div>
       )}
-      {/* Temporary - START */}
-      <div
-        className={clsm([
-          'absolute',
-          'flex',
-          'gap-x-4',
-          'top-4',
-          'right-4',
-          'z-[999]'
-        ])}
-      >
-        <Button
-          className={clsm([
-            `bg-profile-${color ? color : 'default'}`,
-            `hover:bg-profile-${color ? color : 'default'}`,
-            `focus:bg-profile-${color ? color : 'default'}`
-          ])}
-          onClick={() => onClickStreamActionHandler(viewerStreamActionsMock[0])}
-        >
-          Quiz
-        </Button>
-        <Button
-          className={clsm([
-            `bg-profile-${color ? color : 'default'}`,
-            `hover:bg-profile-${color ? color : 'default'}`,
-            `focus:bg-profile-${color ? color : 'default'}`
-          ])}
-          onClick={() => onClickStreamActionHandler(viewerStreamActionsMock[1])}
-        >
-          Product
-        </Button>
-      </div>
-      {/* Temporary - END */}
       <AnimatePresence>
         {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
           !shouldRenderActionInTab && (

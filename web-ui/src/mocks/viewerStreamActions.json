@@ -10,17 +10,12 @@
   },
   {
     "name": "product",
-    "isEnabled": true,
     "data": {
       "title": "Sneakers",
       "description": "Your streamer's favorite sneakers",
       "price": "$250",
       "imageUrl": "https://api.lorem.space/image/shoes?w=1024&h=1024"
     }
-  },
-  {
-    "name": "product",
-    "isEnabled": false
   },
   {
     "name": "notice",

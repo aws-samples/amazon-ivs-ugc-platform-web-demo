@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';
+import { noop } from '../utils';
 
 const { IVSPlayer } = window;
 
@@ -19,7 +20,8 @@ const usePlayer = ({
   defaultVolumeLevel = VOLUME_MAX,
   ingestConfiguration,
   isLive,
-  playbackUrl
+  playbackUrl,
+  onTimedMetadataHandler = noop
 }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
@@ -91,11 +93,16 @@ const usePlayer = ({
   }, []);
 
   // Timed metadata event listener
-  const onTimedMetadata = useCallback((cue) => {
-    // TEMPORARY
-    const metadata = unpack(cue.text);
-    console.info(`Timed metadata: `, metadata);
-  }, []);
+  const onTimedMetadata = useCallback(
+    (cue) => {
+      const metadata = unpack(cue.text);
+
+      onTimedMetadataHandler({ ...metadata, startTime: Date.now() });
+
+      console.info(`Timed metadata: `, metadata);
+    },
+    [onTimedMetadataHandler]
+  );
 
   const destroy = useCallback(() => {
     if (!playerRef.current) return;

@@ -1,6 +1,5 @@
-import { clsm } from '../../../utils';
 import { m } from 'framer-motion';
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useCallback, useState, useLayoutEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -8,6 +7,8 @@ import {
   defaultViewerStreamActionAnimationProps,
   incorrectAnswerClasses
 } from './viewerStreamActionsTheme';
+import { clsm } from '../../../utils';
+import { STREAM_ACTION_NAME } from '../../../constants';
 import Button from '../../../components/Button';
 import ProgressBar from './ProgressBar';
 
@@ -56,6 +57,15 @@ const QuizCard = ({
     setChosenAnswer(answer);
     setTimeout(() => setCurrentViewerAction(null), 2000);
   };
+
+  const onCompletionHandler = useCallback(() => {
+    setCurrentViewerAction((prev) => {
+      if (prev?.name === STREAM_ACTION_NAME.QUIZ) return null;
+
+      // Don't cancel the current action if it changed to something other than a quiz
+      return prev;
+    });
+  }, [setCurrentViewerAction]);
 
   useLayoutEffect(() => {
     quizButtonArrRef.current.forEach((quizButton) => {
@@ -147,7 +157,7 @@ const QuizCard = ({
               color={color}
               duration={duration}
               startTime={startTime}
-              onCompletion={() => setCurrentViewerAction(null)}
+              onCompletion={onCompletionHandler}
             />
           </div>
         </div>

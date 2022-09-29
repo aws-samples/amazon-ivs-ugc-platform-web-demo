@@ -5,7 +5,7 @@ import { useEffect, useRef, useCallback } from 'react';
 
 const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
   const durationInMs = duration * 1000;
-  const remaningTimeRef = useRef(null);
+  const remainingTimeRef = useRef(null);
   const intervalIdRef = useRef();
 
   const commonClasses = ['rounded-full', 'h-1.5'];
@@ -30,7 +30,7 @@ const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
         setTimeout(() => onCompletion(), 2000);
       }
 
-      remaningTimeRef.current.style.width = updateWidth(
+      remainingTimeRef.current.style.width = updateWidth(
         bound(remainingTimeInMs, 0)
       );
     };
@@ -49,7 +49,7 @@ const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
       ])}
     >
       <div
-        ref={remaningTimeRef}
+        ref={remainingTimeRef}
         className={clsm([
           commonClasses,
           'transition-[width]',

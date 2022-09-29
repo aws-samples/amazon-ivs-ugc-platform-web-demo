@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
 import { useResponsiveDevice } from './ResponsiveDevice';
-import { useUser } from './User';
+import { useChannel } from './Channel';
 import useContextHook from './useContextHook';
 
 const Context = createContext(null);
 Context.displayName = 'ViewerStreamActions';
 
 export const Provider = ({ children }) => {
-  const { userData } = useUser();
-  const { color } = userData || {};
+  const { channelData } = useChannel();
+  const { color } = channelData || {};
   const { currentBreakpoint } = useResponsiveDevice();
   const [currentViewerAction, setCurrentViewerAction] = useState();
   const isChannelPageStackedView = currentBreakpoint < BREAKPOINTS.lg;
