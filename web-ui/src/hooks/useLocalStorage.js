@@ -88,16 +88,22 @@ const useLocalStorage = ({
    * Sets the value at the end of the working object path of the localStorageKey location
    */
   const set = useCallback(
-    (value) => {
+    (valueOrFn) => {
       try {
+        let valueToStore;
+
         setValue((prevValue) => {
+          valueToStore =
+            valueOrFn instanceof Function ? valueOrFn(prevValue) : valueOrFn;
           const { path, serialize } = latestOptions.current;
-          const composedValue = constructObjectPath(path, value);
+          const composedValue = constructObjectPath(path, valueToStore);
           const serializedValue = serialize(composedValue);
           localStorage.setItem(localStorageKey, serializedValue);
 
-          return value;
+          return valueToStore;
         });
+
+        return valueToStore;
       } catch (error) {
         // If the user is in private mode or has a storage restriction, localStorage can throw.
         // JSON.stringify can throw, too.

@@ -10,7 +10,7 @@ import { streamManager as $streamManagerContent } from '../../../content';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
 
-const $content = $streamManagerContent.stream_manager_actions_modal;
+const $content = $streamManagerContent.stream_manager_actions;
 
 const StreamManagerActions = () => {
   const { openStreamManagerActionModal, sendStreamAction } =
@@ -79,29 +79,37 @@ const StreamManagerActions = () => {
     >
       <StreamManagerActionButton
         ariaLabel="Open the quiz stream action editor"
-        name={$content.quiz.host_a_quiz}
+        name={STREAM_ACTION_NAME.QUIZ}
         onClick={openQuizStreamManagerAction}
         ref={quizStreamManagerActionButtonRef}
-      />
+      >
+        {$content.quiz.host_a_quiz}
+      </StreamManagerActionButton>
       <StreamManagerActionButton
         ariaLabel="Open the product feature stream action editor"
-        name={$content.product.feature_a_product}
+        name={STREAM_ACTION_NAME.PRODUCT}
         onClick={openProductStreamManagerAction}
         ref={productStreamManagerActionButtonRef}
-      />
+      >
+        {$content.product.feature_a_product}
+      </StreamManagerActionButton>
       {!HIDE_WIP_STREAM_ACTIONS && (
         <>
           <StreamManagerActionButton
             ariaLabel="Open the notice stream action editor"
-            name={$content.notice.show_a_notice}
+            name={STREAM_ACTION_NAME.NOTICE}
             onClick={openNoticeStreamManagerAction}
             ref={noticeStreamManagerActionButtonRef}
-          />
+          >
+            {$content.notice.show_a_notice}
+          </StreamManagerActionButton>
           <StreamManagerActionButton
             ariaLabel="Open the celebration stream action editor"
-            name={$content.celebration.trigger_a_celebration}
+            name={STREAM_ACTION_NAME.CELEBRATION}
             onClick={triggerCelebrationStreamManagerAction}
-          />
+          >
+            {$content.celebration.trigger_a_celebration}
+          </StreamManagerActionButton>
         </>
       )}
     </section>

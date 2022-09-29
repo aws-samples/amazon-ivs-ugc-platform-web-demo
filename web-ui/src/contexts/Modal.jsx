@@ -80,12 +80,11 @@ export const Provider = ({ children }) => {
   );
 
   const handleConfirm = useCallback(
-    (data) => {
-      onSave(data, true);
-      onConfirm(data);
+    async (data) => {
+      await onConfirm(data);
       closeModal({ shouldCancel: false, shouldRefocus: false });
     },
-    [closeModal, onConfirm, onSave]
+    [closeModal, onConfirm]
   );
 
   const value = useMemo(

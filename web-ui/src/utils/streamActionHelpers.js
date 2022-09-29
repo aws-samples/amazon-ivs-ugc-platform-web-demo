@@ -4,15 +4,13 @@ const STREAM_ACTION_METADATA_KEYS = [
   'data',
   'description',
   'duration',
+  'expiry',
   'imageUrl',
-  'isActive',
   'message',
   'name',
   'price',
   'question',
-  'startTime',
-  'title',
-  'value' // Temporary - for demonstration purposes only
+  'title'
 ];
 
 const lookupMap = new Map();

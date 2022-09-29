@@ -11,23 +11,25 @@ import { useStreamManagerActions } from '../../../contexts/StreamManagerActions'
 import Button from '../../../components/Button';
 import Modal from '../../../components/Modal';
 import ResponsivePanel from '../../../components/ResponsivePanel';
+import Spinner from '../../../components/Spinner';
 import useMediaQuery from '../../../hooks/useMediaQuery';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
-const $content = $streamManagerContent.stream_manager_actions_modal;
+const $content = $streamManagerContent.stream_manager_actions;
 
 const StreamManagerActionModal = () => {
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
   const { title, confirmText, streamManagerActionContent } = content || {};
-  const { getStreamManagerActionData } = useStreamManagerActions();
+  const { getStreamManagerActionData, isSendingStreamAction } =
+    useStreamManagerActions();
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { dismissNotif } = useNotif();
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const streamManagerActionData = getStreamManagerActionData();
   const mainContentRef = useRef();
   const prefersDarkColorScheme = useMediaQuery('(prefers-color-scheme: dark)');
-  const buttonClasses = clsm(['w-auto', 'md:w-full']);
+  const buttonClasses = clsm(['relative', 'w-auto', 'md:w-full']);
   useResizeObserver(
     mainContentRef,
     (entry) => {
@@ -181,7 +183,10 @@ const StreamManagerActionModal = () => {
               {$content.save}
             </Button>
             <Button className={buttonClasses} onClick={send}>
-              {confirmText}
+              {isSendingStreamAction && <Spinner className="absolute" />}
+              <p {...(isSendingStreamAction ? { className: 'invisible' } : {})}>
+                {confirmText}
+              </p>
             </Button>
           </div>
         </footer>
