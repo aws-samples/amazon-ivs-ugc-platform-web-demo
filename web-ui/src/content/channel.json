@@ -39,6 +39,10 @@
   },
   "tabs": { "chat": "Chat" },
   "actions": {
-    "product": { "buy_now": "Buy now", "learn_more": "Learn more" }
+    "product": {
+      "buy_now": "Buy now",
+      "learn_more": "Learn more",
+      "popup": { "buy_now": "Buy now", "add_to_cart": "Add to cart" }
+    }
   }
 }

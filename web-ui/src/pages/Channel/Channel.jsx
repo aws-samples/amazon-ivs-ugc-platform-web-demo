@@ -13,9 +13,10 @@ import Chat from './Chat';
 import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from '../../components/Player';
+import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescriptionModal';
 import ProductViewerStreamAction from './ViewerStreamActions/Product';
-import Tabs from '../../components/Tabs/Tabs';
 import QuizCard from './ViewerStreamActions/QuizCard';
+import Tabs from '../../components/Tabs/Tabs';
 
 const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
@@ -97,6 +98,7 @@ const Channel = () => {
         toggleChat={toggleChat}
         channelData={channelData}
       />
+      <ProductDescriptionModal />
       <NotificationProvider>
         <m.section
           ref={chatContainerRef}
