@@ -86,7 +86,7 @@ const ChatPopup = ({
         'absolute',
         'flex-col',
         'flex',
-        'h-screen',
+        'h-full',
         'justify-end',
         'left-0',
         'md:p-4',
@@ -95,7 +95,6 @@ const ChatPopup = ({
         'top-0',
         'w-full',
         'z-[500]',
-        isStackedView && ['h-full'],
         isMobileView && ['fixed', 'w-screen']
       ])}
     >
