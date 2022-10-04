@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../../utils';
@@ -9,6 +9,7 @@ import {
 import Button from '../../../../../../components/Button';
 import Label from '../../../../../../components/Input/InputLabel';
 import RadioTextInput from './RadioTextInput';
+import usePrevious from '../../../../../../hooks/usePrevious';
 
 const LIMITS = STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ];
 
@@ -24,9 +25,18 @@ const StreamManagerActionRadioGroup = ({
   placeholder,
   maxLengthPerOption
 }) => {
+  const radioInputRefs = useRef([]);
   const addButtonRef = useRef();
   const showDeleteOptionButton = options.length > LIMITS.answers.min;
   const disableAddOptionButton = options.length >= LIMITS.answers.max;
+  const previousOptionLength = usePrevious(options.length);
+
+  useEffect(() => {
+    // Focus on newly added option input field
+    if (options.length > previousOptionLength) {
+      radioInputRefs.current[previousOptionLength].focus();
+    }
+  }, [previousOptionLength, options.length]);
 
   const handleOptionTextChange = (value, index) => {
     updateData({
@@ -60,6 +70,7 @@ const StreamManagerActionRadioGroup = ({
       [dataKey]: options.filter((_, i) => i !== index),
       [selectedDataKey]: newSelectedOptionIndex
     });
+    radioInputRefs.current[index === 0 ? 0 : index - 1].focus();
   };
 
   return (
@@ -68,12 +79,13 @@ const StreamManagerActionRadioGroup = ({
       <div className={clsm(['flex', 'flex-col', 'gap-6'])}>
         {options.map((_, index) => (
           <RadioTextInput
-            index={index}
-            isChecked={selectedOptionIndex === index}
+            ref={(el) => (radioInputRefs.current[index] = el)}
             key={index}
-            maxLength={maxLengthPerOption}
             name={name}
             onChange={handleOptionTextChange}
+            index={index}
+            isChecked={selectedOptionIndex === index}
+            maxLength={maxLengthPerOption}
             onClick={handleSelectOption}
             value={options[index]}
             onDelete={

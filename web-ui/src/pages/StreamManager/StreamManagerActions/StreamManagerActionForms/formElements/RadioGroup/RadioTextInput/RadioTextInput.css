@@ -1,5 +1,5 @@
 .radio[type='radio'] {
-  @apply appearance-none relative inline-block cursor-pointer leading-4 outline-none;
+  @apply appearance-none inline-block cursor-pointer leading-4 outline-none align-top;
 }
 
 .radio[type='radio']:before,

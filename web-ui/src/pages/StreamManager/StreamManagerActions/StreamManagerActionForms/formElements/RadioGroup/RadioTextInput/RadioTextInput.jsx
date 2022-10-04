@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { forwardRef } from 'react';
 
 import { clsm, noop } from '../../../../../../../utils';
 import { Delete } from '../../../../../../../assets/icons';
@@ -6,63 +7,70 @@ import Button from '../../../../../../../components/Button';
 import Input from '../../../../../../../components/Input';
 import './RadioTextInput.css';
 
-const StreamManagerRadioTextInput = ({
-  index,
-  isChecked,
-  maxLength,
-  name,
-  onChange,
-  onClick,
-  onDelete,
-  placeholder,
-  value
-}) => {
-  return (
-    <div className={clsm(['flex', 'gap-[22px]', 'w-full'])}>
-      <div
-        className={clsm([
-          'flex',
-          'gap-[52px]',
-          'md:gap-[44px]',
-          'md:ml-3',
-          'w-full'
-        ])}
-      >
-        <input
-          aria-label={value}
-          checked={isChecked}
-          className={clsm('radio')}
-          name={name}
-          onChange={onClick}
-          type="radio"
-          value={index}
-        />
-        <Input
-          className={clsm(['dark:bg-darkMode-gray-dark'])}
-          maxLength={maxLength}
-          name={`${name}-${index}`}
-          onChange={({ target }) => onChange(target.value, index)}
-          placeholder={placeholder}
-          value={value}
-        />
-      </div>
-      {onDelete && (
-        <Button
-          variant="icon"
-          onClick={onDelete}
+const StreamManagerRadioTextInput = forwardRef(
+  (
+    {
+      index,
+      isChecked,
+      maxLength,
+      name,
+      onChange,
+      onClick,
+      onDelete,
+      placeholder,
+      value
+    },
+    ref
+  ) => {
+    return (
+      <div className={clsm(['flex', 'gap-[22px]', 'w-full'])}>
+        <div
           className={clsm([
-            '[&>svg]:h-6',
-            '[&>svg]:w-6',
-            'dark:[&>svg]:fill-darkMode-gray-light'
+            'flex',
+            'gap-[52px]',
+            'md:gap-[44px]',
+            'md:ml-3',
+            'w-full',
+            'relative'
           ])}
-          ariaLabel={`delete ${value || name} item`}
         >
-          <Delete />
-        </Button>
-      )}
-    </div>
-  );
-};
+          <input
+            aria-label={value}
+            checked={isChecked}
+            className="radio"
+            name={name}
+            onChange={onClick}
+            type="radio"
+            value={index}
+          />
+          <Input
+            className={'dark:bg-darkMode-gray-dark'}
+            maxLength={maxLength}
+            name={`${name}-${index}`}
+            onChange={({ target }) => onChange(target.value, index)}
+            placeholder={placeholder}
+            value={value}
+            ref={ref}
+          />
+        </div>
+        {onDelete && (
+          <Button
+            variant="icon"
+            onClick={onDelete}
+            className={clsm([
+              '[&>svg]:h-6',
+              '[&>svg]:w-6',
+              'dark:[&>svg]:fill-darkMode-gray-light'
+            ])}
+            ariaLabel={`delete ${value || name} item`}
+          >
+            <Delete />
+          </Button>
+        )}
+      </div>
+    );
+  }
+);
 
 StreamManagerRadioTextInput.defaultProps = {
   index: 0,
