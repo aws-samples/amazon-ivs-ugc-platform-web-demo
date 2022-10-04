@@ -342,10 +342,14 @@ module.exports = {
     }
   },
   safelist: [
-    { pattern: /(border|ring)-profile(-.*)?/ },
+    { pattern: /(border|ring|fill|stroke)-profile(-.*)?/ },
     {
       pattern: /bg-profile(-.*)?/,
       variants: ['hover', 'focus', 'dark', 'dark:hover', 'dark:focus']
+    },
+    {
+      pattern: /(stroke|ring)-profile-(.*)-hover/,
+      variants: ['group-hover']
     },
     { pattern: /text-profile(-.*)?/, variants: ['dark'] }
   ],

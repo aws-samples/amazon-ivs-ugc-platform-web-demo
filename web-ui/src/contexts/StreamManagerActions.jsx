@@ -138,7 +138,7 @@ export const Provider = ({ children }) => {
         ({ result, error } = await channelAPI.sendStreamAction(metadata));
       }
 
-      // Save the form data, including the startTime only if the send request was successful
+      // Save the form data only if the send request was successful
       const dataToSave = data;
       if (result) {
         const { duration } = actionData;
@@ -147,7 +147,7 @@ export const Provider = ({ children }) => {
             ? new Date(Date.now() + duration * 1000).toISOString()
             : undefined;
 
-        dataToSave._active = { expiry, name: actionName };
+        dataToSave._active = { duration, expiry, name: actionName };
       }
       saveStreamManagerActionData(dataToSave);
 

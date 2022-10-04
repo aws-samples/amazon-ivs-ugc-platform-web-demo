@@ -16,10 +16,12 @@
       "answers": "Answers",
       "answer": "Answer",
       "add_answer": "Add answer",
-      "duration": "Duration"
+      "duration": "Duration",
+      "hosting_a_quiz": "Hosting a quiz"
     },
     "product": {
       "feature_a_product": "Feature a product",
+      "featuring_a_product": "Featuring a product",
       "show_product": "Show product",
       "title": "Title",
       "price": "Price",
@@ -30,11 +32,15 @@
     },
     "notice": {
       "show_a_notice": "Show a notice",
+      "showing_a_notice": "Showing a notice",
       "show_notice": "Show notice"
     },
     "celebration": {
-      "trigger_a_celebration": "Trigger a celebration"
-    }
+      "trigger_a_celebration": "Trigger a celebration",
+      "triggering_a_celebration": "Triggering a celebration"
+    },
+    "on": "On",
+    "off": "Off"
   },
   "notifications": {
     "success": {

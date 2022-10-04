@@ -1,11 +1,17 @@
 import { useRef } from 'react';
 
-import { clsm } from '../../../utils';
-import { Quiz, Product, Notice } from './StreamManagerActionForms';
+import {
+  CallToAction,
+  Celebration,
+  FactCheck,
+  ShoppingBag
+} from '../../../assets/icons';
 import {
   HIDE_WIP_STREAM_ACTIONS,
   STREAM_ACTION_NAME
 } from '../../../constants';
+import { clsm } from '../../../utils';
+import { Quiz, Product, Notice } from './StreamManagerActionForms';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
@@ -71,45 +77,59 @@ const StreamManagerActions = () => {
         'p-5',
         'rounded-3xl',
         'sm:grid-rows-1',
-        'sm:min-h-[105px]',
+        'sm:min-h-0',
         'sm:overflow-hidden',
+        'xs:grid-cols-3',
         'supports-overlay:overflow-overlay',
-        'w-full'
+        'w-full',
+        !HIDE_WIP_STREAM_ACTIONS && 'xs:grid-rows-2'
       ])}
     >
       <StreamManagerActionButton
         ariaLabel="Open the quiz stream action editor"
+        icon={FactCheck}
+        label={{
+          default: $content.quiz.host_a_quiz,
+          active: $content.quiz.hosting_a_quiz
+        }}
         name={STREAM_ACTION_NAME.QUIZ}
         onClick={openQuizStreamManagerAction}
         ref={quizStreamManagerActionButtonRef}
-      >
-        {$content.quiz.host_a_quiz}
-      </StreamManagerActionButton>
+      />
       <StreamManagerActionButton
         ariaLabel="Open the product feature stream action editor"
+        icon={ShoppingBag}
+        label={{
+          default: $content.product.feature_a_product,
+          active: $content.product.featuring_a_product
+        }}
         name={STREAM_ACTION_NAME.PRODUCT}
         onClick={openProductStreamManagerAction}
         ref={productStreamManagerActionButtonRef}
-      >
-        {$content.product.feature_a_product}
-      </StreamManagerActionButton>
+      />
       {!HIDE_WIP_STREAM_ACTIONS && (
         <>
           <StreamManagerActionButton
             ariaLabel="Open the notice stream action editor"
+            icon={CallToAction}
+            label={{
+              default: $content.notice.show_a_notice,
+              active: $content.notice.showing_a_notice
+            }}
             name={STREAM_ACTION_NAME.NOTICE}
             onClick={openNoticeStreamManagerAction}
             ref={noticeStreamManagerActionButtonRef}
-          >
-            {$content.notice.show_a_notice}
-          </StreamManagerActionButton>
+          />
           <StreamManagerActionButton
             ariaLabel="Open the celebration stream action editor"
+            icon={Celebration}
+            label={{
+              default: $content.celebration.trigger_a_celebration,
+              active: $content.celebration.triggering_a_celebration
+            }}
             name={STREAM_ACTION_NAME.CELEBRATION}
             onClick={triggerCelebrationStreamManagerAction}
-          >
-            {$content.celebration.trigger_a_celebration}
-          </StreamManagerActionButton>
+          />
         </>
       )}
     </section>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { clsm } from '../../utils';
+import { HIDE_WIP_STREAM_ACTIONS } from '../../constants';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
 import { useStreams } from '../../contexts/Streams';
@@ -58,8 +59,10 @@ const StreamManager = () => {
             'lg:grid-rows-[188px,minmax(200px,100%)]',
             'lg:grid',
             'max-w-[960px]',
-            'sm:grid-rows-[minmax(105px,auto),minmax(200px,100%)]',
-            'w-full'
+            'sm:grid-rows-[minmax(0,auto),minmax(200px,100%)]',
+            'w-full',
+            !HIDE_WIP_STREAM_ACTIONS &&
+              'xs:grid-rows-[170px,minmax(200px,100%)]'
           ])}
         >
           <StreamManagerActions />
