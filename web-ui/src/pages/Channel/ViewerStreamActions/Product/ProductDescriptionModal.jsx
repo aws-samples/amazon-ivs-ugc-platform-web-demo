@@ -9,7 +9,7 @@ import Modal from '../../../../components/Modal';
 
 const ProductDescriptionModal = () => {
   const { closeModal, content, isModalOpen, type } = useModal();
-  const { title, productDescriptionContent } = content || {};
+  const { productDescriptionContent } = content || {};
   const { isLandscape } = useResponsiveDevice();
   const mainContentRef = useRef();
 
@@ -47,7 +47,7 @@ const ProductDescriptionModal = () => {
           )}
         >
           <Button
-            ariaLabel={`Close the modal for the product description ${title}`}
+            ariaLabel={`Close the modal for the product description`}
             className={clsm([
               'absolute',
               'top-2',
@@ -55,7 +55,8 @@ const ProductDescriptionModal = () => {
               '[&>svg]:w-6',
               '[&>svg]:h-6',
               '[&>svg]:dark:fill-white',
-              '[&>svg]:fill-darkMode-gray-dark'
+              '[&>svg]:fill-darkMode-gray-dark',
+              'z-10'
             ])}
             onClick={closeModal}
             variant="icon"

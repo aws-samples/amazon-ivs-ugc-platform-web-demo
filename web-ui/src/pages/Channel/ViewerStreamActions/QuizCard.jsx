@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import {
   correctAnswerClasses,
   defaultViewerStreamActionAnimationProps,
-  incorrectAnswerClasses
+  incorrectAnswerClasses,
+  defaultViewerStreamActionVariants
 } from './viewerStreamActionsTheme';
 import { clsm } from '../../../utils';
 import { STREAM_ACTION_NAME } from '../../../constants';
@@ -91,17 +92,15 @@ const QuizCard = ({
         'transition-[margin]',
         'w-full',
         'z-10',
-        isControlsOpen && !shouldRenderActionInTab && 'mb-20'
+        'mb-4',
+        isControlsOpen && !shouldRenderActionInTab && 'mb-40'
       ])}
     >
       <m.div
         {...(!shouldRenderActionInTab
           ? defaultViewerStreamActionAnimationProps
           : {})}
-        variants={{
-          visible: { y: 0, opacity: 1, scale: 1 },
-          hidden: { y: '100%', opacity: 0, scale: 0.5 }
-        }}
+        variants={defaultViewerStreamActionVariants}
         className={clsm([
           `bg-profile-${color ? color : 'default'}`,
           'flex-col',
@@ -134,11 +133,14 @@ const QuizCard = ({
             <Button
               key={`answer-${index}`}
               ariaLabel={`answer ${index + 1}`}
-              customStyles={{ minHeight: `${answerHeight}px` }}
+              customStyles={{
+                minHeight: `${answerHeight}px`
+              }}
               className={clsm([
                 profileColorButtonClassNames,
                 'whitespace-normal',
                 'h-auto',
+                'break-anywhere',
                 isAnswerSelected === true && chosenAnswer === answer
                   ? answer === correctAnswer
                     ? correctAnswerClasses

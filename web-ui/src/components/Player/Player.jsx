@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 
 import './Controls/Controls.css';
 import { clsm } from '../../utils';
-import { defaultViewerStreamActionAnimationProps } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
+import {
+  defaultViewerStreamActionAnimationProps,
+  defaultViewerStreamActionVariants
+} from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
 import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
@@ -326,10 +329,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           !shouldRenderActionInTab && (
             <m.div
               {...defaultViewerStreamActionAnimationProps}
-              variants={{
-                visible: { y: 0, opacity: 1, scale: 1 },
-                hidden: { y: '100%', opacity: 0, scale: 0.5 }
-              }}
+              variants={defaultViewerStreamActionVariants}
               className={clsm([
                 'absolute',
                 'bg-white',
@@ -341,6 +341,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
                 'transition-[margin]',
                 'w-full',
                 'z-[500]',
+                'mb-4',
                 isControlsOpen && showStream && 'mb-20'
               ])}
             >

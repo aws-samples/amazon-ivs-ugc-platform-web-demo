@@ -20,7 +20,12 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
 
-  const customClasses = ['max-w-[318px]', 'sm:max-w-none', 'max-h-[318px]'];
+  const customClasses = [
+    'max-w-[318px]',
+    'max-h-[318px]',
+    'sm:max-w-none',
+    'sm:max-h-fit'
+  ];
   const productImgEl = (
     <ProductCardImage
       color={color}
@@ -40,7 +45,9 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
           'flex-col',
           'justify-end',
           'max-w-[180px]',
-          'sm:max-w-none'
+          'sm:max-w-none',
+          'md:pl-4',
+          'sm:pl-0'
         ])}
       >
         <div
@@ -49,17 +56,20 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
             'flex',
             'flex-col',
             'justify-center',
-            'sm:pb-8'
+            'sm:pb-8',
+            'md:pr-2'
           ])}
         >
           <h3>{title}</h3>
           <p
             className={clsm([
-              'pt-2.5',
+              'py-2.5',
+              'sm:pb-0',
               'sm:pt-2',
               'text-[#A0A0A0]',
               'text-sm',
-              'sm:text-md'
+              'sm:text-md',
+              'break-words'
             ])}
           >
             {description}

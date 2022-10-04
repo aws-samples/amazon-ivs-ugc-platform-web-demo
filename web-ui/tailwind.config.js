@@ -420,6 +420,15 @@ module.exports = {
       });
     }),
 
+    // used to break words onto another line for long character counts
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        '.break-anywhere': {
+          'overflow-wrap': 'anywhere'
+        }
+      });
+    }),
+
     // scrollbar thumb color
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
