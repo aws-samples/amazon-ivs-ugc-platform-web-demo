@@ -39,7 +39,8 @@ const Input = forwardRef(
       value,
       variant,
       min,
-      max
+      max,
+      maxLength
     },
     ref
   ) => {
@@ -80,6 +81,7 @@ const Input = forwardRef(
             {...(tabIndex ? { tabIndex } : {})}
             {...(min ? { min } : {})}
             {...(max ? { max } : {})}
+            {...(typeof maxLength === 'number' ? { maxLength } : {})}
             aria-disabled={readOnly}
             aria-label={ariaLabel}
             autoCapitalize={autoCapitalize}
@@ -141,7 +143,8 @@ Input.defaultProps = {
   value: '',
   variant: 'vertical',
   min: 0,
-  max: 100
+  max: 100,
+  maxLength: undefined
 };
 
 Input.propTypes = {
@@ -168,7 +171,8 @@ Input.propTypes = {
   value: PropTypes.string,
   variant: PropTypes.oneOf(['vertical', 'horizontal']),
   min: PropTypes.number,
-  max: PropTypes.number
+  max: PropTypes.number,
+  maxLength: PropTypes.number
 };
 
 export default Input;

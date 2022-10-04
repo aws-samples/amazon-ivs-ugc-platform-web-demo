@@ -13,6 +13,8 @@ export const FORGOT_PASSWORD_EXCEPTION = 'ForgotPasswordException';
 export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';
 export const RESET_STREAM_KEY_EXCEPTION = 'ResetStreamKeyException';
 export const TIMED_METADATA_EXCEPTION = 'TimedMetadataException';
+export const TIMED_METADATA_VALIDATION_EXCEPTION =
+  'TimedMetadataValidationException';
 export const UNAUTHORIZED_EXCEPTION = 'UnauthorizedException';
 export const UNBAN_USER_EXCEPTION = 'UnbanUserException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';

@@ -10,11 +10,8 @@ import PropTypes from 'prop-types';
 import { channelAPI } from '../api';
 import { MODAL_TYPE, useModal } from './Modal';
 import { pack, unpack } from '../utils/streamActionHelpers';
-import {
-  CELEBRATION_STREAM_ACTION_DURATION,
-  QUIZ_STREAM_ACTION_ANSWERS_MIN,
-  STREAM_ACTION_NAME
-} from '../constants';
+import { STREAM_ACTION_NAME, STREAM_MANAGER_ACTION_LIMITS } from '../constants';
+import { PRODUCT_DATA_KEYS } from '../pages/StreamManager/StreamManagerActions/StreamManagerActionForms/Product';
 import { QUIZ_DATA_KEYS } from '../pages/StreamManager/StreamManagerActions/StreamManagerActionForms/Quiz';
 import { streamManager as $content } from '../content';
 import { useChannel } from './Channel';
@@ -29,14 +26,22 @@ Context.displayName = 'StreamManagerActions';
 const DEFAULT_STATE = {
   [STREAM_ACTION_NAME.QUIZ]: {
     [QUIZ_DATA_KEYS.QUESTION]: '',
-    [QUIZ_DATA_KEYS.ANSWERS]: Array(QUIZ_STREAM_ACTION_ANSWERS_MIN).fill(''),
+    [QUIZ_DATA_KEYS.ANSWERS]: Array(
+      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ].answers.min
+    ).fill(''),
     [QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX]: 0,
     [QUIZ_DATA_KEYS.DURATION]: 15
   },
-  [STREAM_ACTION_NAME.PRODUCT]: {},
+  [STREAM_ACTION_NAME.PRODUCT]: {
+    [PRODUCT_DATA_KEYS.TITLE]: '',
+    [PRODUCT_DATA_KEYS.PRICE]: '',
+    [PRODUCT_DATA_KEYS.IMAGE_URL]: '',
+    [PRODUCT_DATA_KEYS.DESCRIPTION]: ''
+  },
   [STREAM_ACTION_NAME.NOTICE]: {},
   [STREAM_ACTION_NAME.CELEBRATION]: {
-    duration: CELEBRATION_STREAM_ACTION_DURATION
+    duration:
+      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.CELEBRATION].duration
   }
 };
 

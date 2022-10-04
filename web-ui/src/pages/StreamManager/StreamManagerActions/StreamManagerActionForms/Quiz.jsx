@@ -1,15 +1,15 @@
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import {
-  QUIZ_STREAM_ACTION_DURATION_MAX,
-  QUIZ_STREAM_ACTION_DURATION_MIN,
-  STREAM_ACTION_NAME
+  STREAM_ACTION_NAME,
+  STREAM_MANAGER_ACTION_LIMITS
 } from '../../../../constants';
 import Input from './formElements/Input';
 import RadioGroup from './formElements/RadioGroup';
 import RangeSelector from './formElements/RangeSelector';
 
 const $content = $streamManagerContent.stream_manager_actions.quiz;
+const LIMITS = STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ];
 
 export const QUIZ_DATA_KEYS = {
   QUESTION: 'question',
@@ -36,17 +36,19 @@ const Quiz = () => {
         value={question}
         onChange={updateStreamManagerActionQuizData}
         placeholder={$content.question}
+        maxLength={LIMITS.question}
       />
       <RadioGroup
-        label={$content.answers}
-        name="streamManagerActionFormAnswers"
         addOptionButtonText={$content.add_answer}
+        dataKey={QUIZ_DATA_KEYS.ANSWERS}
+        label={$content.answers}
+        maxLengthPerOption={LIMITS.answer}
+        name="streamManagerActionFormAnswers"
         options={answers}
+        placeholder={$content.answer}
+        selectedDataKey={QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX}
         selectedOptionIndex={correctAnswerIndex}
         updateData={updateStreamManagerActionQuizData}
-        dataKey={QUIZ_DATA_KEYS.ANSWERS}
-        selectedDataKey={QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX}
-        placeholder={$content.answer}
       />
       <RangeSelector
         label={$content.duration}
@@ -54,8 +56,8 @@ const Quiz = () => {
         dataKey={QUIZ_DATA_KEYS.DURATION}
         updateData={updateStreamManagerActionQuizData}
         value={duration}
-        min={QUIZ_STREAM_ACTION_DURATION_MIN}
-        max={QUIZ_STREAM_ACTION_DURATION_MAX}
+        min={LIMITS.duration.min}
+        max={LIMITS.duration.max}
       />
     </>
   );

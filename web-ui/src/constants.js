@@ -104,12 +104,23 @@ export const STREAM_ACTION_NAME = {
   CELEBRATION: 'celebration'
 };
 
-export const CELEBRATION_STREAM_ACTION_DURATION = 10; // seconds
-
 export const HIDE_WIP_STREAM_ACTIONS = true;
 
-export const QUIZ_STREAM_ACTION_DURATION_MIN = 5; // seconds
-export const QUIZ_STREAM_ACTION_DURATION_MAX = 30; // seconds
-
-export const QUIZ_STREAM_ACTION_ANSWERS_MIN = 3;
-export const QUIZ_STREAM_ACTION_ANSWERS_MAX = 5;
+export const STREAM_MANAGER_ACTION_LIMITS = {
+  [STREAM_ACTION_NAME.QUIZ]: {
+    answer: 128, // TENTATIVE
+    answers: { min: 3, max: 5 },
+    duration: { min: 5, max: 30 }, // seconds
+    question: 256 // TENTATIVE
+  },
+  [STREAM_ACTION_NAME.PRODUCT]: {
+    title: 128,
+    price: 10,
+    url: 256, // TENTATIVE
+    description: 256
+  },
+  [STREAM_ACTION_NAME.NOTICE]: {},
+  [STREAM_ACTION_NAME.CELEBRATION]: {
+    duration: 10 // seconds
+  }
+};

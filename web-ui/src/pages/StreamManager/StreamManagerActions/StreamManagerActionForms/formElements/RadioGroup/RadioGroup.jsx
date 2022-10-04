@@ -1,14 +1,16 @@
-import PropTypes from 'prop-types';
 import { useRef } from 'react';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../../utils';
 import {
-  QUIZ_STREAM_ACTION_ANSWERS_MIN,
-  QUIZ_STREAM_ACTION_ANSWERS_MAX
+  STREAM_ACTION_NAME,
+  STREAM_MANAGER_ACTION_LIMITS
 } from '../../../../../../constants';
 import Button from '../../../../../../components/Button';
 import Label from '../../../../../../components/Input/InputLabel';
 import RadioTextInput from './RadioTextInput';
+
+const LIMITS = STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ];
 
 const StreamManagerActionRadioGroup = ({
   addOptionButtonText,
@@ -19,13 +21,12 @@ const StreamManagerActionRadioGroup = ({
   selectedDataKey,
   selectedOptionIndex,
   updateData,
-  placeholder
+  placeholder,
+  maxLengthPerOption
 }) => {
   const addButtonRef = useRef();
-  const showDeleteOptionButton =
-    options.length > QUIZ_STREAM_ACTION_ANSWERS_MIN;
-  const disableAddOptionButton =
-    options.length >= QUIZ_STREAM_ACTION_ANSWERS_MAX;
+  const showDeleteOptionButton = options.length > LIMITS.answers.min;
+  const disableAddOptionButton = options.length >= LIMITS.answers.max;
 
   const handleOptionTextChange = (value, index) => {
     updateData({
@@ -67,13 +68,14 @@ const StreamManagerActionRadioGroup = ({
       <div className={clsm(['flex', 'flex-col', 'gap-6'])}>
         {options.map((_, index) => (
           <RadioTextInput
-            key={index}
-            name={name}
-            onChange={handleOptionTextChange}
             index={index}
             isChecked={selectedOptionIndex === index}
-            value={options[index]}
+            key={index}
+            maxLength={maxLengthPerOption}
+            name={name}
+            onChange={handleOptionTextChange}
             onClick={handleSelectOption}
+            value={options[index]}
             onDelete={
               showDeleteOptionButton ? () => handleDeleteOption(index) : null
             }
@@ -100,6 +102,7 @@ const StreamManagerActionRadioGroup = ({
 StreamManagerActionRadioGroup.defaultProps = {
   addOptionButtonText: '',
   label: '',
+  maxLengthPerOption: undefined,
   placeholder: '',
   selectedOptionIndex: 0
 };
@@ -108,6 +111,7 @@ StreamManagerActionRadioGroup.propTypes = {
   addOptionButtonText: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
   label: PropTypes.string,
+  maxLengthPerOption: PropTypes.number,
   name: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
   placeholder: PropTypes.string,

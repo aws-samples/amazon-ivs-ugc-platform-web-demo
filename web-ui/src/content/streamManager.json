@@ -20,7 +20,13 @@
     },
     "product": {
       "feature_a_product": "Feature a product",
-      "show_product": "Show product"
+      "show_product": "Show product",
+      "title": "Title",
+      "price": "Price",
+      "price_placeholder": "$10",
+      "image_url": "Image URL",
+      "image_url_placeholder": "https://my-image.png",
+      "description": "Description"
     },
     "notice": {
       "show_a_notice": "Show a notice",

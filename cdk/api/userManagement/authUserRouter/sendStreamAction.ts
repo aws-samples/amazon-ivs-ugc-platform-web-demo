@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   ChannelNotBroadcasting,
-  PutMetadataCommand
+  PutMetadataCommand,
+  ValidationException
 } from '@aws-sdk/client-ivs';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
@@ -10,6 +11,7 @@ import { ivsClient } from '../../shared/helpers';
 import {
   CHANNEL_NOT_BROADCASTING_EXCEPTION,
   TIMED_METADATA_EXCEPTION,
+  TIMED_METADATA_VALIDATION_EXCEPTION,
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
 import { UserContext } from '../authorizer';
@@ -44,9 +46,14 @@ const handler = async (
 
     if (error instanceof ChannelNotBroadcasting) {
       return reply.send({ __type: CHANNEL_NOT_BROADCASTING_EXCEPTION });
-    } else {
-      return reply.send({ __type: TIMED_METADATA_EXCEPTION });
-    }
+    } else if (error instanceof ValidationException) {
+      reply.statusCode = 400;
+
+      return reply.send({
+        __type: TIMED_METADATA_VALIDATION_EXCEPTION,
+        message: error.message
+      });
+    } else return reply.send({ __type: TIMED_METADATA_EXCEPTION });
   }
 
   return reply.send({});

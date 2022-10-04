@@ -9,12 +9,13 @@ import './RadioTextInput.css';
 const StreamManagerRadioTextInput = ({
   index,
   isChecked,
+  maxLength,
   name,
   onChange,
   onClick,
   onDelete,
-  value,
-  placeholder
+  placeholder,
+  value
 }) => {
   return (
     <div className={clsm(['flex', 'gap-[22px]', 'w-full'])}>
@@ -28,20 +29,21 @@ const StreamManagerRadioTextInput = ({
         ])}
       >
         <input
+          aria-label={value}
+          checked={isChecked}
+          className={clsm('radio')}
+          name={name}
+          onChange={onClick}
           type="radio"
           value={index}
-          name={name}
-          checked={isChecked}
-          onChange={onClick}
-          className={clsm('radio')}
-          aria-label={value}
         />
         <Input
+          className={clsm(['dark:bg-darkMode-gray-dark'])}
+          maxLength={maxLength}
           name={`${name}-${index}`}
           onChange={({ target }) => onChange(target.value, index)}
-          value={value}
           placeholder={placeholder}
-          className={clsm(['dark:bg-darkMode-gray-dark'])}
+          value={value}
         />
       </div>
       {onDelete && (
@@ -65,6 +67,7 @@ const StreamManagerRadioTextInput = ({
 StreamManagerRadioTextInput.defaultProps = {
   index: 0,
   isChecked: false,
+  maxLength: undefined,
   onChange: noop,
   onClick: noop,
   onDelete: null,
@@ -75,6 +78,7 @@ StreamManagerRadioTextInput.defaultProps = {
 StreamManagerRadioTextInput.propTypes = {
   index: PropTypes.number,
   isChecked: PropTypes.bool,
+  maxLength: PropTypes.number,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,
   onClick: PropTypes.func,

@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../../../utils';
 import Input from '../../../../../components/Input';
 
 const StreamManagerActionInput = ({
@@ -9,7 +8,8 @@ const StreamManagerActionInput = ({
   name,
   onChange,
   placeholder,
-  value
+  value,
+  maxLength
 }) => {
   const handleOnChange = ({ target }) => {
     onChange({ [dataKey]: target.value });
@@ -17,18 +17,20 @@ const StreamManagerActionInput = ({
 
   return (
     <Input
+      className="dark:bg-darkMode-gray-dark"
       label={label}
+      maxLength={maxLength}
       name={name}
+      onChange={handleOnChange}
       placeholder={placeholder}
       value={value}
-      onChange={handleOnChange}
-      className={clsm(['dark:bg-darkMode-gray-dark'])}
     />
   );
 };
 
 StreamManagerActionInput.defaultProps = {
   label: '',
+  maxLength: undefined,
   placeholder: '',
   value: ''
 };
@@ -36,6 +38,7 @@ StreamManagerActionInput.defaultProps = {
 StreamManagerActionInput.propTypes = {
   dataKey: PropTypes.string.isRequired,
   label: PropTypes.string,
+  maxLength: PropTypes.number,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
