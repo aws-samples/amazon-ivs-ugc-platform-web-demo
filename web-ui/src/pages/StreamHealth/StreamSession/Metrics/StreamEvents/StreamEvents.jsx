@@ -61,6 +61,7 @@ const StreamEvents = () => {
   return (
     <div className="stream-events">
       <ResponsivePanel
+        containerClasses="top-16"
         isOpen={!isDefaultResponsiveView || isStreamEventsListVisible}
         panelId="stream-events-panel"
       >
@@ -74,7 +75,11 @@ const StreamEvents = () => {
           isLearnMoreVisible={isLearnMoreVisible}
         />
       </ResponsivePanel>
-      <ResponsivePanel isOpen={isLearnMoreVisible} panelId="learn-more-panel">
+      <ResponsivePanel
+        containerClasses="top-16"
+        isOpen={isLearnMoreVisible}
+        panelId="learn-more-panel"
+      >
         <LearnMoreMessage
           event={selectedEvent}
           toggleLearnMore={toggleLearnMore}

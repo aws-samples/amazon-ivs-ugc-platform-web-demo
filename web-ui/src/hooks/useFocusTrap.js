@@ -4,9 +4,13 @@ import useMutationObserver from './useMutationObserver';
 const focusableSelectors = 'a[href], button, textarea, input, select';
 
 const useFocusTrap = (refs, isEnabled = true) => {
-  const [elements, setElements] = useState([]);
+  const [elementLists, setElementLists] = useState([]);
   const targetRefs = useRef(refs);
 
+  /**
+   * Updates the lists of elements based on the provided targetRefs
+   * @returns {Element[][]}
+   */
   const updateFocusElements = useCallback(() => {
     if (!isEnabled) return;
 
@@ -14,16 +18,18 @@ const useFocusTrap = (refs, isEnabled = true) => {
       (nodes, { current: targetEl }) => {
         if (targetEl) {
           const nodeList = targetEl.querySelectorAll(focusableSelectors);
-          nodes.push(...nodeList);
+
+          return [...nodes, Array.from(nodeList)];
         }
+
         return nodes;
       },
       []
     );
 
-    setElements(Array.from(nodesToFocus));
+    setElementLists(nodesToFocus);
 
-    return () => setElements([]);
+    return () => setElementLists([]);
   }, [isEnabled]);
 
   useMutationObserver(targetRefs.current, updateFocusElements);
@@ -33,40 +39,72 @@ const useFocusTrap = (refs, isEnabled = true) => {
   }, [updateFocusElements]);
 
   useEffect(() => {
-    // Focus trap to constrain the tab focus to elements within the target container
+    /**
+     * Focus trap to constrain the tab focus to elements within the target container.
+     * The trap also handles focus between refs that aren't siblings in the DOM.
+     */
     const handleTabKey = (event) => {
       if (event.keyCode !== 9) return;
 
-      const focusableElements = elements.filter(
-        (el) => !el.hidden && !el.disabled
+      const focusableElements = elementLists.map((elementList) =>
+        elementList.filter((element) => !element.hidden && !element.disabled)
       );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      const hasElementFocus = focusableElements.includes(
-        document.activeElement
+      const currentElementListIndex = focusableElements.findIndex(
+        (elementList) => elementList.includes(document.activeElement)
       );
 
-      if (
-        event.shiftKey &&
-        (!hasElementFocus || document.activeElement === firstElement)
-      ) {
+      const currentElementList = focusableElements[currentElementListIndex];
+      const hasElementFocus = currentElementListIndex > -1;
+      let nextElementToFocus;
+
+      if (event.shiftKey) {
+        const lastElementListIndex = focusableElements.length - 1;
+        const currentListFirstElement = currentElementList[0];
+
+        if (!hasElementFocus) {
+          const lastElementList = focusableElements[lastElementListIndex];
+
+          nextElementToFocus = lastElementList[lastElementList.length - 1];
+        } else if (document.activeElement === currentListFirstElement) {
+          const nextElementListIndex =
+            currentElementListIndex === 0
+              ? lastElementListIndex
+              : currentElementListIndex - 1;
+          const nextElementList = focusableElements[nextElementListIndex];
+
+          nextElementToFocus = nextElementList[nextElementList.length - 1];
+        }
+      } else {
+        const currentListLastElement =
+          currentElementList[currentElementList.length - 1];
+
+        if (!hasElementFocus) {
+          const firstElementList = focusableElements[0];
+
+          nextElementToFocus = firstElementList[0];
+        } else if (document.activeElement === currentListLastElement) {
+          const nextElementListIndex =
+            currentElementListIndex === focusableElements.length - 1
+              ? 0
+              : currentElementListIndex + 1;
+          const nextElementList = focusableElements[nextElementListIndex];
+
+          nextElementToFocus = nextElementList[0];
+        }
+      }
+
+      if (nextElementToFocus) {
         event.preventDefault();
-        lastElement.focus();
-      } else if (
-        !event.shiftKey &&
-        (!hasElementFocus || document.activeElement === lastElement)
-      ) {
-        event.preventDefault();
-        firstElement.focus();
+        nextElementToFocus.focus();
       }
     };
 
-    if (isEnabled && elements.length) {
+    if (isEnabled && elementLists.length) {
       document.addEventListener('keydown', handleTabKey);
 
       return () => document.removeEventListener('keydown', handleTabKey);
     }
-  }, [elements, isEnabled]);
+  }, [elementLists, isEnabled]);
 };
 
 export default useFocusTrap;

@@ -54,7 +54,7 @@
   align-items: center;
   column-gap: 5px;
   display: flex;
-  width: 270px;
+  width: 206px;
 }
 
 .config-value p {
@@ -80,7 +80,7 @@
   }
 }
 
-@media (max-width: 575px) {
+@media (max-width: 610px) {
   .config-item {
     align-items: flex-start;
     flex-direction: column;

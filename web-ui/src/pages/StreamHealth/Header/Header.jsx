@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import './Header.css';
+import { clsm } from '../../../utils';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import NavigatorPopup from './NavigatorPopup';
 import ResponsivePanel from '../../../components/ResponsivePanel';
 import SessionNavigator from './SessionNavigator';
@@ -9,8 +10,9 @@ import useClickAway from '../../../hooks/useClickAway';
 import useFocusTrap from '../../../hooks/useFocusTrap';
 
 const Header = () => {
-  const [isNavOpen, setIsNavOpen] = useState(false);
+  const { isMobileView } = useResponsiveDevice();
   const { pathname } = useLocation();
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const headerRef = useRef();
   const navButtonRef = useRef();
   const navPopupRef = useRef();
@@ -41,7 +43,24 @@ const Header = () => {
 
   return (
     <>
-      <header ref={headerRef} className="header">
+      <header
+        className={clsm([
+          'bg-lightMode-gray-extraLight',
+          'dark:bg-black',
+          'gap-x-4',
+          'grid-cols-[1fr_minmax(auto,654px)_1fr]',
+          'grid',
+          'h-16',
+          'md:grid-cols-[1fr_minmax(auto,464px)_1fr]',
+          'relative',
+          'top-0',
+          'w-[calc(100vw-64px)]',
+          'z-[520]',
+          isMobileView && 'w-screen'
+        ])}
+        id="stream-health-header"
+        ref={headerRef}
+      >
         <SessionNavigator
           ref={navButtonRef}
           isNavOpen={isNavOpen}
@@ -49,6 +68,7 @@ const Header = () => {
         />
       </header>
       <ResponsivePanel
+        containerClasses={clsm(['top-16', 'z-[510]'])}
         isOpen={isNavOpen}
         panelId="nav-panel"
         preserveVisible

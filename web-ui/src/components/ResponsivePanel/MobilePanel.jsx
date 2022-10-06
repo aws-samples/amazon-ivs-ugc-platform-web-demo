@@ -28,7 +28,7 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   const [isPresent, safeToRemove] = usePresence();
 
   useEffect(() => {
-    headerRef.current = document.getElementsByClassName('header')[0];
+    headerRef.current = document.getElementById('stream-health-header');
   }, []);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ MobilePanel.propTypes = {
 
 export default withPortal(MobilePanel, 'mobile-panel', {
   isAnimated: true,
-  containerClasses: clsm([
+  baseContainerClasses: clsm([
     'fixed',
     'w-screen',
     'h-full',

@@ -59,7 +59,7 @@ Modal.propTypes = {
 };
 
 export default withPortal(Modal, 'modal', {
-  containerClasses: [
+  baseContainerClasses: [
     'flex',
     'items-center',
     'justify-center',

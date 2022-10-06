@@ -271,16 +271,6 @@
       font-size: 24px;
       font-weight: 700;
     }
-
-    body {
-      overflow-y: auto;
-    }
-
-    @supports (overflow: overlay) {
-      body {
-        overflow-y: overlay;
-      }
-    }
   }
   @media (prefers-reduced-motion: reduce) {
     * {

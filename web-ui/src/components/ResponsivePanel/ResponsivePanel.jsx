@@ -1,18 +1,19 @@
-import PropTypes from 'prop-types';
-import { useEffect } from 'react';
 import { AnimatePresence, useAnimation } from 'framer-motion';
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../../constants';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import MobilePanel from './MobilePanel';
 
 const ResponsivePanel = ({
-  slideInDirection,
   children,
+  containerClasses,
   isOpen,
   mobileBreakpoint,
   panelId,
-  preserveVisible
+  preserveVisible,
+  slideInDirection
 }) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
@@ -31,6 +32,7 @@ const ResponsivePanel = ({
       {isOpen &&
         (isResponsiveView ? (
           <MobilePanel
+            containerClasses={containerClasses}
             controls={controls}
             isOpen
             panelId={panelId}
@@ -46,6 +48,7 @@ const ResponsivePanel = ({
 };
 
 ResponsivePanel.defaultProps = {
+  containerClasses: '',
   isOpen: false,
   mobileBreakpoint: BREAKPOINTS.md,
   preserveVisible: false,
@@ -54,6 +57,7 @@ ResponsivePanel.defaultProps = {
 
 ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
+  containerClasses: PropTypes.string,
   isOpen: PropTypes.bool,
   mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
   panelId: PropTypes.string.isRequired,

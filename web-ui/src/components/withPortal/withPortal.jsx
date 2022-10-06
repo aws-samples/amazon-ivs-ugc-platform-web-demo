@@ -5,7 +5,7 @@ import { clsm } from '../../utils';
 
 const DEFAULT_PORTAL_OPTIONS = {
   isAnimated: false,
-  containerClasses: []
+  baseContainerClasses: []
 };
 
 /**
@@ -27,6 +27,9 @@ const initContainer = ({
 
     if (prevSiblingEl) prevSiblingEl.after(container);
     else parentEl.appendChild(container);
+  } else if (containerClassname) {
+    // If the container already exists, update the classnames as they can be passed as props
+    container.setAttribute('class', containerClassname);
   }
 
   return container;
@@ -37,17 +40,27 @@ const withPortal = (
   containerId,
   {
     isAnimated = DEFAULT_PORTAL_OPTIONS.isAnimated,
-    containerClasses = DEFAULT_PORTAL_OPTIONS.containerClasses
+    baseContainerClasses = DEFAULT_PORTAL_OPTIONS.baseContainerClasses
   } = DEFAULT_PORTAL_OPTIONS
 ) =>
   memo(
     // eslint-disable-next-line react/prop-types
     forwardRef(
-      ({ isOpen, parentEl, prevSiblingEl, position, ...props }, ref) => {
+      (
+        {
+          containerClasses,
+          isOpen,
+          parentEl,
+          prevSiblingEl,
+          position,
+          ...props
+        },
+        ref
+      ) => {
         const id = useRef(`${containerId}-container`);
         const container = isOpen
           ? initContainer({
-              containerClassname: clsm(containerClasses),
+              containerClassname: clsm(baseContainerClasses, containerClasses),
               containerId: id.current,
               parentEl,
               prevSiblingEl

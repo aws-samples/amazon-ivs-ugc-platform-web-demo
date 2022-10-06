@@ -37,6 +37,7 @@ export const Provider = ({ children }) => {
     if (isiOS()) {
       windowPageScrollY.current = window.pageYOffset;
       document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     }
 
     document.body.style.overflow = 'hidden';
@@ -46,6 +47,7 @@ export const Provider = ({ children }) => {
     if (isiOS()) {
       document.querySelector('html').style.scrollBehavior = 'auto';
       document.body.style.position = null;
+      document.body.style.width = null;
 
       window.scrollTo({
         top: windowPageScrollY.current,

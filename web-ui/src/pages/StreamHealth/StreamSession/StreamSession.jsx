@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import './StreamSession.css';
+import { clsm } from '../../../utils';
 import { dashboard as $dashboardContent } from '../../../content';
 import { useModal } from '../../../contexts/Modal';
 import { useStreams } from '../../../contexts/Streams';
@@ -10,6 +10,7 @@ import Metrics from './Metrics';
 import StaticNotification from '../../../components/StaticNotification';
 import StatsCard from './StatsCard/StatsCard';
 import usePrevious from '../../../hooks/usePrevious';
+import withVerticalScroller from '../../../components/withVerticalScroller';
 
 const $notificationWithCTAContent =
   $dashboardContent.stream_session_page.notification_with_cta;
@@ -66,13 +67,28 @@ const StreamSession = () => {
   ]);
 
   return (
-    <article className="stream-session">
+    <article
+      className={clsm([
+        'bg-white',
+        'dark:bg-black',
+        'flex-col',
+        'flex',
+        'items-center',
+        'justify-center',
+        'max-w-[960px]',
+        'mb-[90px]',
+        'mx-auto',
+        'px-4',
+        'relative',
+        'w-full'
+      ])}
+    >
       {(shouldShowFailedToLoadNotif || shouldShowNewUserNotif) && (
         <StaticNotification
           cta={
             shouldShowFailedToLoadNotif ? (
               <Button
-                customStyles={{ width: '117px' }}
+                className="w-[117px]"
                 isLoading={isLoadingStreamData}
                 onClick={
                   !!fetchStreamSessionsError
@@ -84,7 +100,7 @@ const StreamSession = () => {
                 {$notificationWithCTAContent.try_again}
               </Button>
             ) : (
-              <Button type="nav" to="/settings">
+              <Button className="sm:w-full" type="nav" to="/settings">
                 {$notificationWithCTAContent.settings}
               </Button>
             )
@@ -99,4 +115,6 @@ const StreamSession = () => {
   );
 };
 
-export default StreamSession;
+export default withVerticalScroller(StreamSession, {
+  containerClasses: ['h-[calc(100vh_-_64px)]']
+});
