@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { DEFAULT_NOTIF_TIMEOUT } from '../constants';
 import useContextHook from './useContextHook';
 import useStateWithCallback from '../hooks/useStateWithCallback';
 
@@ -12,7 +13,12 @@ const NOTIF_TYPES = {
   ERROR: 'error',
   INFO: 'info'
 };
-const DEFAULT_NOTIF_TIMEOUT = 3000; // ms
+
+const defaultNotifOptions = {
+  className: '',
+  timeout: DEFAULT_NOTIF_TIMEOUT,
+  withTimeout: true
+};
 
 export const NOTIF_ANIMATION_DURATION_MS = 250; // ms
 
@@ -26,13 +32,16 @@ export const Provider = ({ children }) => {
   }, [setNotif]);
 
   const notify = useCallback(
-    ({
+    (
       message,
       type,
-      withTimeout = true,
-      timeout = DEFAULT_NOTIF_TIMEOUT
-    }) => {
-      const notificationOptions = { message, type, withTimeout, timeout };
+      {
+        withTimeout = defaultNotifOptions.withTimeout,
+        timeout = defaultNotifOptions.timeout,
+        className = defaultNotifOptions.className
+      } = defaultNotifOptions
+    ) => {
+      const notifProps = { message, type, withTimeout, timeout, className };
       let shouldDismissNotif = false;
 
       setNotif(
@@ -43,17 +52,17 @@ export const Provider = ({ children }) => {
 
             return null;
           } else {
-            return notificationOptions;
+            return notifProps;
           }
         },
         () => {
           if (shouldDismissNotif) {
             if (withTimeout)
               setTimeout(
-                () => setNotif(notificationOptions),
+                () => setNotif(notifProps),
                 NOTIF_ANIMATION_DURATION_MS
               );
-            else setNotif(notificationOptions);
+            else setNotif(notifProps);
           }
         }
       );
@@ -62,20 +71,17 @@ export const Provider = ({ children }) => {
   );
 
   const notifyError = useCallback(
-    (message, withTimeout = true, timeout = DEFAULT_NOTIF_TIMEOUT) =>
-      notify({ message, type: NOTIF_TYPES.ERROR, withTimeout, timeout }),
+    (message, options) => notify(message, NOTIF_TYPES.ERROR, options),
     [notify]
   );
 
   const notifySuccess = useCallback(
-    (message, withTimeout = true, timeout = DEFAULT_NOTIF_TIMEOUT) =>
-      notify({ message, type: NOTIF_TYPES.SUCCESS, withTimeout, timeout }),
+    (message, options) => notify(message, NOTIF_TYPES.SUCCESS, options),
     [notify]
   );
 
   const notifyInfo = useCallback(
-    (message, withTimeout = true, timeout = DEFAULT_NOTIF_TIMEOUT) =>
-      notify({ message, type: NOTIF_TYPES.INFO, withTimeout, timeout }),
+    (message, options) => notify(message, NOTIF_TYPES.INFO, options),
     [notify]
   );
 

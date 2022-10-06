@@ -10,6 +10,7 @@ import useSWR from 'swr';
 
 import { getCurrentSession } from '../api/utils';
 import { userManagementAPI } from '../api';
+import { pack, unpack } from '../utils/streamActionHelpers';
 import useContextHook from './useContextHook';
 import useLocalStorage from '../hooks/useLocalStorage';
 import usePrevious from '../hooks/usePrevious';
@@ -35,7 +36,7 @@ export const Provider = ({ children }) => {
   const prevIsSessionValid = usePrevious(isSessionValid);
   const { remove: removeStoredUserData } = useLocalStorage({
     key: userData?.username,
-    options: { keyPrefix: 'user' }
+    options: { keyPrefix: 'user', serialize: pack, deserialize: unpack }
   });
 
   const {

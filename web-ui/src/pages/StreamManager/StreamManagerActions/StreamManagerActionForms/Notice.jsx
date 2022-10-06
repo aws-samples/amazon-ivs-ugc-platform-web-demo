@@ -9,10 +9,10 @@ const Notice = () => {
   const { value } = getStreamManagerActionData(STREAM_ACTION_NAME.NOTICE);
 
   const handleOnChange = ({ target }) => {
-    updateStreamManagerActionData(
-      { value: target.value },
-      STREAM_ACTION_NAME.NOTICE
-    );
+    updateStreamManagerActionData({
+      newData: { value: target.value },
+      actionName: STREAM_ACTION_NAME.NOTICE
+    });
   };
 
   return (

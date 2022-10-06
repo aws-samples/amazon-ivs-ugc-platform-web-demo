@@ -4,11 +4,15 @@
 
 .radio[type='radio']:before,
 .radio[type='radio']:after {
-  @apply absolute left-0 w-5 h-5 rounded-full top-[50%] -translate-y-1/2 content-[''];
+  @apply absolute left-0 w-5 h-5 rounded-full top-[22px] -translate-y-1/2 content-[''];
 }
 
 .radio[type='radio']:before {
   @apply shadow-focus shadow-white;
+}
+
+.radio[type='radio'].error:before {
+  @apply shadow-focus shadow-darkMode-red;
 }
 
 .radio[type='radio']:hover:before {
@@ -82,6 +86,10 @@
 @media (prefers-color-scheme: light) {
   .radio[type='radio']:before {
     @apply shadow-black;
+  }
+
+  .radio[type='radio'].error:before {
+    @apply shadow-lightMode-red;
   }
 
   .radio[type='radio']:hover:before {

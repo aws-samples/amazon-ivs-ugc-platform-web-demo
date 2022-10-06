@@ -1,11 +1,10 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 
 import { BREAKPOINTS } from '../../../constants';
 import { Close } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { MODAL_TYPE, useModal } from '../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../content';
-import { useNotif } from '../../../contexts/Notification';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import Button from '../../../components/Button';
@@ -24,7 +23,6 @@ const StreamManagerActionModal = () => {
   const { getStreamManagerActionData, isSendingStreamAction } =
     useStreamManagerActions();
   const { isMobileView, isLandscape } = useResponsiveDevice();
-  const { dismissNotif } = useNotif();
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const streamManagerActionData = getStreamManagerActionData();
   const mainContentRef = useRef();
@@ -80,10 +78,6 @@ const StreamManagerActionModal = () => {
       </Modal>
     </>
   );
-
-  useEffect(() => {
-    if (!isModalOpen) dismissNotif();
-  }, [dismissNotif, isModalOpen]);
 
   return (
     type === MODAL_TYPE.STREAM_MANAGER_ACTION &&

@@ -7,18 +7,22 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import { channelAPI } from '../api';
-import { MODAL_TYPE, useModal } from './Modal';
-import { pack, unpack } from '../utils/streamActionHelpers';
-import { STREAM_ACTION_NAME, STREAM_MANAGER_ACTION_LIMITS } from '../constants';
-import { PRODUCT_DATA_KEYS } from '../pages/StreamManager/StreamManagerActions/StreamManagerActionForms/Product';
-import { QUIZ_DATA_KEYS } from '../pages/StreamManager/StreamManagerActions/StreamManagerActionForms/Quiz';
-import { streamManager as $content } from '../content';
-import { useChannel } from './Channel';
-import { useNotif } from './Notification';
-import { useUser } from './User';
-import useContextHook from './useContextHook';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { channelAPI } from '../../api';
+import { MODAL_TYPE, useModal } from '../Modal';
+import { pack, unpack } from '../../utils/streamActionHelpers';
+import {
+  PRODUCT_DATA_KEYS,
+  QUIZ_DATA_KEYS,
+  STREAM_ACTION_NAME,
+  STREAM_MANAGER_ACTION_LIMITS
+} from '../../constants';
+import { streamManager as $content } from '../../content';
+import { useChannel } from '../Channel';
+import { useNotif } from '../Notification';
+import { useUser } from '../User';
+import useContextHook from '../useContextHook';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import useStreamManagerActionValidation from './useStreamManagerActionValidation';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
@@ -27,7 +31,9 @@ const DEFAULT_STATE = {
   [STREAM_ACTION_NAME.QUIZ]: {
     [QUIZ_DATA_KEYS.QUESTION]: '',
     [QUIZ_DATA_KEYS.ANSWERS]: Array(
-      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ].answers.min
+      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ][
+        QUIZ_DATA_KEYS.ANSWERS
+      ].min
     ).fill(''),
     [QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX]: 0,
     [QUIZ_DATA_KEYS.DURATION]: 15
@@ -54,7 +60,7 @@ export const Provider = ({ children }) => {
   const { userData } = useUser();
   const { channelData } = useChannel();
   const { isLive } = channelData || {};
-  const { notifyError, notifySuccess } = useNotif();
+  const { notifyError, notifySuccess, dismissNotif } = useNotif();
   const {
     value: storedStreamManagerActionData,
     set: setStoredStreamManagerActionData
@@ -75,6 +81,12 @@ export const Provider = ({ children }) => {
     () => streamManagerActionData?._active || null,
     [streamManagerActionData?._active]
   );
+  const {
+    currentStreamManagerActionErrors,
+    resetStreamManagerActionErrorData,
+    throttledValidateStreamManagerActionData,
+    validateStreamManagerActionData
+  } = useStreamManagerActionValidation();
 
   /**
    * Gets the current form state data for the given stream action name,
@@ -92,19 +104,28 @@ export const Provider = ({ children }) => {
    * Updates the current form state data for the given stream action name
    * by merging in the provided newData object
    */
-  const updateStreamManagerActionData = useCallback((newData, actionName) => {
-    setStreamManagerActionData((prevData) =>
-      actionName
-        ? {
-            ...prevData,
-            [actionName]: {
-              ...prevData[actionName],
-              ...newData
+  const updateStreamManagerActionData = useCallback(
+    ({ newData, actionName, shouldValidate = true }) => {
+      setStreamManagerActionData((prevData) =>
+        actionName
+          ? {
+              ...prevData,
+              [actionName]: {
+                ...prevData[actionName],
+                ...newData
+              }
             }
-          }
-        : newData
-    );
-  }, []);
+          : newData
+      );
+
+      if (shouldValidate) {
+        throttledValidateStreamManagerActionData(newData, actionName, {
+          disableFormatValidation: true
+        });
+      }
+    },
+    [throttledValidateStreamManagerActionData]
+  );
 
   /**
    * Saves the form data in local storage
@@ -117,7 +138,10 @@ export const Provider = ({ children }) => {
         const shouldUpdate =
           JSON.stringify(prevStoredData) !== JSON.stringify(data);
         const dataToSave = shouldUpdate ? data : prevStoredData;
-        updateStreamManagerActionData(dataToSave);
+        updateStreamManagerActionData({
+          newData: dataToSave,
+          shouldValidate: false
+        });
 
         return dataToSave;
       }),
@@ -204,26 +228,60 @@ export const Provider = ({ children }) => {
   const openStreamManagerActionModal = useCallback(
     (actionName, modalData) => {
       const onSave = (data) => {
+        if (!validateStreamManagerActionData(data[actionName], actionName)) {
+          notifyError($content.notifications.error.unable_to_save, {
+            className: ['fixed', 'z-[1100]']
+          });
+
+          return false;
+        }
+
+        resetStreamManagerActionErrorData();
         saveStreamManagerActionData(data);
         notifySuccess($content.notifications.success.stream_action_saved);
+
+        return true;
       };
 
-      const onConfirm = (data) => sendStreamAction(actionName, data);
+      const onConfirm = (data) => {
+        if (!validateStreamManagerActionData(data[actionName], actionName)) {
+          notifyError($content.notifications.error.unable_to_send, {
+            className: ['fixed', 'z-[1100]']
+          });
+
+          return false;
+        }
+
+        resetStreamManagerActionErrorData();
+        sendStreamAction(actionName, data);
+
+        return true;
+      };
+
+      const onCancel = () => {
+        dismissNotif();
+        resetStreamManagerActionData();
+        resetStreamManagerActionErrorData();
+      };
 
       openModal({
         onSave,
         onConfirm,
-        onCancel: resetStreamManagerActionData,
+        onCancel,
         type: MODAL_TYPE.STREAM_MANAGER_ACTION,
         ...modalData
       });
     },
     [
+      dismissNotif,
+      notifyError,
       notifySuccess,
       openModal,
       resetStreamManagerActionData,
+      resetStreamManagerActionErrorData,
       saveStreamManagerActionData,
-      sendStreamAction
+      sendStreamAction,
+      validateStreamManagerActionData
     ]
   );
 
@@ -259,21 +317,27 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       activeStreamManagerActionData,
+      currentStreamManagerActionErrors,
       getStreamManagerActionData,
       isSendingStreamAction,
       openStreamManagerActionModal,
       sendStreamAction,
       stopStreamAction,
-      updateStreamManagerActionData
+      updateStreamManagerActionData,
+      validateStreamManagerActionData,
+      throttledValidateStreamManagerActionData
     }),
     [
       activeStreamManagerActionData,
+      currentStreamManagerActionErrors,
       getStreamManagerActionData,
       isSendingStreamAction,
       openStreamManagerActionModal,
       sendStreamAction,
       stopStreamAction,
-      updateStreamManagerActionData
+      updateStreamManagerActionData,
+      validateStreamManagerActionData,
+      throttledValidateStreamManagerActionData
     ]
   );
 

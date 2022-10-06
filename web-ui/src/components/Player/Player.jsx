@@ -169,7 +169,9 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
 
   useEffect(() => {
     if (hasError) {
-      notifyError($content.notification.error.error_loading_stream, false);
+      notifyError($content.notification.error.error_loading_stream, {
+        withTimeout: false
+      });
     } else {
       dismissNotif();
     }

@@ -164,7 +164,9 @@ const useChatConnection = (eventHandlers) => {
           onFailure: () => {
             isRetryingConnection.current = false;
             isInitializingConnection.current = false;
-            notifyError($content.notifications.error.error_loading_chat, false);
+            notifyError($content.notifications.error.error_loading_chat, {
+              withTimeout: false
+            });
             setHasConnectionError(true);
           }
         });

@@ -10,9 +10,10 @@ import './RadioTextInput.css';
 const StreamManagerRadioTextInput = forwardRef(
   (
     {
+      hasRadioError,
       index,
+      inputError,
       isChecked,
-      maxLength,
       name,
       onChange,
       onClick,
@@ -37,7 +38,7 @@ const StreamManagerRadioTextInput = forwardRef(
           <input
             aria-label={value}
             checked={isChecked}
-            className="radio"
+            className={clsm(['radio', hasRadioError && 'error'])}
             name={name}
             onChange={onClick}
             type="radio"
@@ -45,12 +46,12 @@ const StreamManagerRadioTextInput = forwardRef(
           />
           <Input
             className={'dark:bg-darkMode-gray-dark'}
-            maxLength={maxLength}
+            error={inputError}
             name={`${name}-${index}`}
             onChange={({ target }) => onChange(target.value, index)}
             placeholder={placeholder}
-            value={value}
             ref={ref}
+            value={value}
           />
         </div>
         {onDelete && (
@@ -58,6 +59,8 @@ const StreamManagerRadioTextInput = forwardRef(
             variant="icon"
             onClick={onDelete}
             className={clsm([
+              'h-11',
+              'w-11',
               '[&>svg]:h-6',
               '[&>svg]:w-6',
               'dark:[&>svg]:fill-darkMode-gray-light'
@@ -73,9 +76,10 @@ const StreamManagerRadioTextInput = forwardRef(
 );
 
 StreamManagerRadioTextInput.defaultProps = {
+  hasRadioError: false,
   index: 0,
+  inputError: null,
   isChecked: false,
-  maxLength: undefined,
   onChange: noop,
   onClick: noop,
   onDelete: null,
@@ -84,9 +88,10 @@ StreamManagerRadioTextInput.defaultProps = {
 };
 
 StreamManagerRadioTextInput.propTypes = {
+  hasRadioError: PropTypes.bool,
   index: PropTypes.number,
+  inputError: PropTypes.string,
   isChecked: PropTypes.bool,
-  maxLength: PropTypes.number,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,
   onClick: PropTypes.func,

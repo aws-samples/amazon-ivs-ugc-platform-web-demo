@@ -74,7 +74,10 @@ export const Provider = ({ children }) => {
 
   const handleSave = useCallback(
     (data) => {
-      onSave(data);
+      const isValid = onSave(data);
+
+      if (isValid === false) return;
+
       closeModal({ shouldCancel: false, shouldRefocus: false });
     },
     [closeModal, onSave]
@@ -82,7 +85,10 @@ export const Provider = ({ children }) => {
 
   const handleConfirm = useCallback(
     async (data) => {
-      await onConfirm(data);
+      const isValid = await onConfirm(data);
+
+      if (isValid === false) return;
+
       closeModal({ shouldCancel: false, shouldRefocus: false });
     },
     [closeModal, onConfirm]

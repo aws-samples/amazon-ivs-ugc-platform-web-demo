@@ -39,6 +39,11 @@
       "trigger_a_celebration": "Trigger a celebration",
       "triggering_a_celebration": "Triggering a celebration"
     },
+    "input_error": {
+      "enter_valid_url": "Enter a valid URL.",
+      "max_length_exceeded": "Maximum length exceeded.",
+      "select_correct_answer": "Select a correct answer."
+    },
     "on": "On",
     "off": "Off"
   },
@@ -52,6 +57,7 @@
     },
     "error": {
       "unable_to_send": "Unable to send",
+      "unable_to_save": "Unable to save",
       "unable_to_start_stream_action": "Unable to start stream action"
     }
   }

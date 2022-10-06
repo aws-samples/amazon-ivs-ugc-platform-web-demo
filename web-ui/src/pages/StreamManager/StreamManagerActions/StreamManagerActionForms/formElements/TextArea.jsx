@@ -1,14 +1,18 @@
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../utils';
-import { INPUT_BASE_CLASSES } from '../../../../../components/Input/InputTheme';
+import {
+  INPUT_BASE_CLASSES,
+  INPUT_ERROR_CLASSES
+} from '../../../../../components/Input/InputTheme';
+import InputErrorMessage from '../../../../../components/Input/InputErrorMessage';
 import Label from '../../../../../components/Input/InputLabel';
 
 const StreamManagerActionTextArea = ({
   cols,
   dataKey,
+  error,
   label,
-  maxLength,
   name,
   onChange,
   placeholder,
@@ -25,6 +29,7 @@ const StreamManagerActionTextArea = ({
       <textarea
         className={clsm([
           INPUT_BASE_CLASSES,
+          error && INPUT_ERROR_CLASSES,
           'resize-none',
           'h-[100px]',
           'px-5',
@@ -35,7 +40,6 @@ const StreamManagerActionTextArea = ({
           'no-scrollbar'
         ])}
         id={name}
-        maxLength={maxLength}
         name={name}
         onChange={handleOnChange}
         placeholder={placeholder}
@@ -44,14 +48,15 @@ const StreamManagerActionTextArea = ({
         required
         autoComplete="off"
       />
+      <InputErrorMessage error={error} />
     </div>
   );
 };
 
 StreamManagerActionTextArea.defaultProps = {
   cols: '20',
+  error: '',
   label: '',
-  maxLength: undefined,
   placeholder: '',
   rows: '4',
   value: ''
@@ -60,8 +65,8 @@ StreamManagerActionTextArea.defaultProps = {
 StreamManagerActionTextArea.propTypes = {
   cols: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
+  error: PropTypes.string,
   label: PropTypes.string,
-  maxLength: PropTypes.number,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,

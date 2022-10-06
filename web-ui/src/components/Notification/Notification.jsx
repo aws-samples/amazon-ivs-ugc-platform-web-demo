@@ -1,6 +1,5 @@
 import { m, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
-import PropTypes from 'prop-types';
 
 import { Check, ErrorIcon } from '../../assets/icons';
 import { clsm } from '../../utils';
@@ -12,12 +11,13 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import usePrevious from '../../hooks/usePrevious';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const Notification = ({ className }) => {
+const Notification = () => {
   const { NOTIF_TYPES, notif, dismissNotif } = useNotif();
   const [shouldSkipExitAnimation, setShouldSkipExitAnimation] =
     useStateWithCallback(false);
   const currPage = useCurrentPage();
   const prevPage = usePrevious(currPage);
+  const { type, message, className } = notif || {};
 
   // Skip the exit animation if the dismissal is triggered by a page change
   useEffect(() => {
@@ -56,8 +56,8 @@ const Notification = ({ className }) => {
           ])}
           exit={shouldSkipExitAnimation ? '' : 'hidden'}
           initial="hidden"
-          key={`${notif.type}-notification`}
-          data-test-id={`${notif.type}-notification`}
+          key={`${type}-notification`}
+          data-test-id={`${type}-notification`}
           transition={{
             duration: NOTIF_ANIMATION_DURATION_MS / 1000,
             type: 'tween'
@@ -79,15 +79,12 @@ const Notification = ({ className }) => {
               'py-[10px]',
               'rounded-3xl',
               'text-white',
-              notif.type === 'error' && [
-                'bg-lightMode-red',
-                'dark:bg-darkMode-red'
-              ],
-              notif.type === 'success' && [
+              type === 'error' && ['bg-lightMode-red', 'dark:bg-darkMode-red'],
+              type === 'success' && [
                 'bg-lightMode-green',
                 'dark:bg-darkMode-green'
               ],
-              notif.type === 'info' && [
+              type === 'info' && [
                 'bg-lightMode-turquoise',
                 'dark:bg-darkMode-turquoise'
               ]
@@ -98,16 +95,12 @@ const Notification = ({ className }) => {
                 className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
               />
             )}
-            {notif.message}
+            {message}
           </div>
         </m.div>
       )}
     </AnimatePresence>
   );
 };
-
-Notification.propTypes = { className: PropTypes.string };
-
-Notification.defaultProps = { className: '' };
 
 export default Notification;

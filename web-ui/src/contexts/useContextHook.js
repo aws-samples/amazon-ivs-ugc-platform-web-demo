@@ -3,7 +3,7 @@ import { useContext } from 'react';
 const useContextHook = (Context) => {
   const contextValue = useContext(Context);
 
-  if (!contextValue) {
+  if (contextValue === null) {
     const contextName = Context.displayName;
 
     throw new Error(

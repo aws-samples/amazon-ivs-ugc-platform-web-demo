@@ -2,34 +2,38 @@ import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../../utils';
-import {
-  STREAM_ACTION_NAME,
-  STREAM_MANAGER_ACTION_LIMITS
-} from '../../../../../../constants';
+import { streamManager as $streamManagerContent } from '../../../../../../content';
 import Button from '../../../../../../components/Button';
+import ErrorMessage from '../../../../../../components/Input/InputErrorMessage';
 import Label from '../../../../../../components/Input/InputLabel';
 import RadioTextInput from './RadioTextInput';
 import usePrevious from '../../../../../../hooks/usePrevious';
 
-const LIMITS = STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ];
+const $content = $streamManagerContent.stream_manager_actions;
 
 const StreamManagerActionRadioGroup = ({
   addOptionButtonText,
   dataKey,
   label,
+  maxOptions,
+  minOptions,
   name,
+  optionErrors,
   options,
+  placeholder,
   selectedDataKey,
   selectedOptionIndex,
-  updateData,
-  placeholder,
-  maxLengthPerOption
+  updateData
 }) => {
   const radioInputRefs = useRef([]);
   const addButtonRef = useRef();
-  const showDeleteOptionButton = options.length > LIMITS.answers.min;
-  const disableAddOptionButton = options.length >= LIMITS.answers.max;
+  const shouldShowDeleteOptionButton = options.length > minOptions;
+  const shouldShowAddOptionButton = options.length < maxOptions;
   const previousOptionLength = usePrevious(options.length);
+  const hasSelection =
+    !!selectedDataKey &&
+    typeof selectedOptionIndex === 'number' &&
+    selectedOptionIndex >= 0;
 
   useEffect(() => {
     // Focus on newly added option input field
@@ -47,17 +51,20 @@ const StreamManagerActionRadioGroup = ({
       ]
     });
   };
+
   const handleSelectOption = ({ target }) => {
     updateData({
       [selectedDataKey]: parseInt(target.value)
     });
   };
+
   const handleAddOption = () => {
     updateData({
       [dataKey]: [...options, '']
     });
     addButtonRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
   const handleDeleteOption = (index) => {
     let newSelectedOptionIndex = selectedOptionIndex;
     if (selectedOptionIndex > index) {
@@ -85,15 +92,21 @@ const StreamManagerActionRadioGroup = ({
             onChange={handleOptionTextChange}
             index={index}
             isChecked={selectedOptionIndex === index}
-            maxLength={maxLengthPerOption}
             onClick={handleSelectOption}
             value={options[index]}
             onDelete={
-              showDeleteOptionButton ? () => handleDeleteOption(index) : null
+              shouldShowDeleteOptionButton
+                ? () => handleDeleteOption(index)
+                : null
             }
             placeholder={placeholder}
+            inputError={optionErrors[index]}
+            hasRadioError={!hasSelection}
           />
         ))}
+        {!hasSelection && (
+          <ErrorMessage error={$content.input_error.select_correct_answer} />
+        )}
         <Button
           ref={addButtonRef}
           variant="secondary"
@@ -102,7 +115,7 @@ const StreamManagerActionRadioGroup = ({
             'bg-lightMode-gray',
             'hover:bg-lightMode-gray-hover'
           ])}
-          isDisabled={disableAddOptionButton}
+          isDisabled={!shouldShowAddOptionButton}
         >
           {addOptionButtonText}
         </Button>
@@ -113,8 +126,10 @@ const StreamManagerActionRadioGroup = ({
 
 StreamManagerActionRadioGroup.defaultProps = {
   addOptionButtonText: '',
+  optionErrors: [],
   label: '',
-  maxLengthPerOption: undefined,
+  maxOptions: Infinity,
+  minOptions: 0,
   placeholder: '',
   selectedOptionIndex: 0
 };
@@ -122,8 +137,10 @@ StreamManagerActionRadioGroup.defaultProps = {
 StreamManagerActionRadioGroup.propTypes = {
   addOptionButtonText: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
+  optionErrors: PropTypes.arrayOf(PropTypes.string),
   label: PropTypes.string,
-  maxLengthPerOption: PropTypes.number,
+  maxOptions: PropTypes.number,
+  minOptions: PropTypes.number,
   name: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
   placeholder: PropTypes.string,

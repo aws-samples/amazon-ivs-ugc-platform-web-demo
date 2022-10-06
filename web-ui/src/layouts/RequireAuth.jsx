@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { DASHBOARD_THEME_COLOR } from '../constants';
+import { MAIN_THEME_COLOR } from '../constants';
 import { useUser } from '../contexts/User';
 import useThemeColor from '../hooks/useThemeColor';
 import withSessionLoader from '../components/withSessionLoader';
@@ -9,7 +9,7 @@ const RequireAuth = () => {
   const location = useLocation();
   const { isSessionValid, prevIsSessionValid, logOutAction } = useUser();
 
-  useThemeColor(DASHBOARD_THEME_COLOR);
+  useThemeColor(MAIN_THEME_COLOR);
 
   if (isSessionValid === false)
     /**

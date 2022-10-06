@@ -45,30 +45,30 @@ const StreamManager = () => {
       )}
     >
       <StatusBar />
-      <StreamManagerActionsProvider>
-        <NotificationProvider>
-          <Notification className={clsm(['fixed', 'z-[1001]'])} />
+      <NotificationProvider>
+        <StreamManagerActionsProvider>
+          <Notification />
           <StreamManagerActionModal />
-        </NotificationProvider>
-        <div
-          ref={streamManagerRef}
-          className={clsm([
-            'flex',
-            'gap-6',
-            'h-full',
-            'lg:grid-rows-[188px,minmax(200px,100%)]',
-            'lg:grid',
-            'max-w-[960px]',
-            'sm:grid-rows-[minmax(0,auto),minmax(200px,100%)]',
-            'w-full',
-            !HIDE_WIP_STREAM_ACTIONS &&
-              'xs:grid-rows-[170px,minmax(200px,100%)]'
-          ])}
-        >
-          <StreamManagerActions />
-          <StreamManagerChat siblingRef={streamManagerRef} />
-        </div>
-      </StreamManagerActionsProvider>
+          <div
+            ref={streamManagerRef}
+            className={clsm([
+              'flex',
+              'gap-6',
+              'h-full',
+              'lg:grid-rows-[188px,minmax(200px,100%)]',
+              'lg:grid',
+              'max-w-[960px]',
+              'sm:grid-rows-[minmax(0,auto),minmax(200px,100%)]',
+              'w-full',
+              !HIDE_WIP_STREAM_ACTIONS &&
+                'xs:grid-rows-[170px,minmax(200px,100%)]'
+            ])}
+          >
+            <StreamManagerActions />
+            <StreamManagerChat siblingRef={streamManagerRef} />
+          </div>
+        </StreamManagerActionsProvider>
+      </NotificationProvider>
     </div>
   );
 };

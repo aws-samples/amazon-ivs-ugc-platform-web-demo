@@ -259,8 +259,17 @@ export const compose =
   (fn) =>
     functions.reduceRight((augmentedFn, fn) => fn(augmentedFn), fn);
 
-const dateReplacer = function (key, value) {
-  return this[key] instanceof Date ? this[key].toUTCString() : value;
+export const cloneObject = (obj) => {
+  const dateReplacer = function (key, value) {
+    return this[key] instanceof Date ? this[key].toUTCString() : value;
+  };
+
+  try {
+    return structuredClone(obj);
+  } catch (error) {
+    // structuredClone is not supported by older browsers
+    return JSON.parse(JSON.stringify(obj, dateReplacer));
+  }
 };
 
 export const constructObjectPath = (path = [], value) => {
@@ -273,15 +282,7 @@ export const constructObjectPath = (path = [], value) => {
     return construct(_path, nextValue);
   };
 
-  try {
-    return construct(path.slice(0), structuredClone(value));
-  } catch (error) {
-    // structuredClone is not supported by older browsers
-    return construct(
-      path.slice(0),
-      JSON.parse(JSON.stringify(value, dateReplacer))
-    );
-  }
+  return construct(path.slice(0), cloneObject(value));
 };
 
 export const deconstructObjectPath = (path = [], value) => {
@@ -294,13 +295,5 @@ export const deconstructObjectPath = (path = [], value) => {
     return deconstruct(_path, nextValue);
   };
 
-  try {
-    return deconstruct(path.slice(0), structuredClone(value));
-  } catch (error) {
-    // structuredClone is not supported by older browsers
-    return deconstruct(
-      path.slice(0),
-      JSON.parse(JSON.stringify(value, dateReplacer))
-    );
-  }
+  return deconstruct(path.slice(0), cloneObject(value));
 };

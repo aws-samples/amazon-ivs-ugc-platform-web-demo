@@ -96,11 +96,9 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
     if (isModerator && !isLoading) {
       setTimeout(
         () =>
-          notifyInfo(
-            $content.notifications.moderating,
-            true,
-            MODERATOR_PILL_TIMEOUT
-          ),
+          notifyInfo($content.notifications.moderating, {
+            timeout: MODERATOR_PILL_TIMEOUT
+          }),
         300 // Wait for the loading spinner exit transition to complete
       );
     }
