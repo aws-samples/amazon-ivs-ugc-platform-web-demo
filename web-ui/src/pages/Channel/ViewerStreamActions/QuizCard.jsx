@@ -28,8 +28,7 @@ const QuizCard = ({
 }) => {
   const [answerHeight, setAnswerHeight] = useState(defaultQuizAnswerHeight);
   const [isAnswerSelected, setIsAnswerSelected] = useState();
-  const [chosenAnswer, setChosenAnswer] = useState('');
-  const correctAnswer = answers[correctAnswerIndex];
+  const [chosenAnswerIndex, setChosenAnswerIndex] = useState();
   const quizButtonArrRef = useRef([]);
 
   const profileColorButtonClassNames = clsm([
@@ -53,9 +52,9 @@ const QuizCard = ({
     ? ['max-w-[640px]', 'min-w-[482px]', 'h-screen', 'justify-end']
     : '';
 
-  const selectAnswer = (answer) => {
+  const selectAnswer = (index) => {
     setIsAnswerSelected(true);
-    setChosenAnswer(answer);
+    setChosenAnswerIndex(index);
     setTimeout(() => setCurrentViewerAction(null), 2000);
   };
 
@@ -141,14 +140,16 @@ const QuizCard = ({
                 'whitespace-normal',
                 'h-auto',
                 'break-anywhere',
-                isAnswerSelected === true && chosenAnswer === answer
-                  ? answer === correctAnswer
+                isAnswerSelected === true && chosenAnswerIndex === index
+                  ? index === correctAnswerIndex
                     ? correctAnswerClasses
                     : incorrectAnswerClasses
                   : ''
               ])}
-              onClick={() => selectAnswer(answer)}
-              isDisabled={isAnswerSelected === true && chosenAnswer !== answer}
+              onClick={() => selectAnswer(index)}
+              isDisabled={
+                isAnswerSelected === true && chosenAnswerIndex !== index
+              }
               ref={(el) => (quizButtonArrRef.current[index] = el)}
             >
               {answer}
