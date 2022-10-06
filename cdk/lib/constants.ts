@@ -14,11 +14,12 @@ export interface UGCResourceWithUserManagementConfig
 
 export interface UserManagementResourceConfig {
   allowedOrigin: string;
+  clientBaseUrl: string;
   enableUserAutoVerify: boolean;
   ivsChannelType: ChannelType;
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
-  clientBaseUrl: string;
+  signUpAllowedDomains: string[];
 }
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {

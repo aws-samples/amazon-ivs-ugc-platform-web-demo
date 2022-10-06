@@ -31,7 +31,8 @@ export class UserManagementStack extends NestedStack {
     const { resourceConfig } = props;
 
     // Configuration variables based on the stage (dev or prod)
-    const { enableUserAutoVerify, ivsChannelType } = resourceConfig;
+    const { enableUserAutoVerify, ivsChannelType, signUpAllowedDomains } =
+      resourceConfig;
 
     // Dynamo DB User Table
     const userTable = new dynamodb.Table(this, `${stackNamePrefix}-UserTable`, {
@@ -162,6 +163,7 @@ export class UserManagementStack extends NestedStack {
     this.policies = policies;
 
     const containerEnv = {
+      SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       IVS_CHANNEL_TYPE: ivsChannelType,
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,

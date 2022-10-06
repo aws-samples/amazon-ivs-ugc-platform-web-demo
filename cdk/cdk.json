@@ -26,6 +26,7 @@
     "dev": {
       "resourceConfig": {
         "allowedOrigin": "*",
+        "clientBaseUrl": "http://localhost:3000",
         "deploySeparateContainers": false,
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
@@ -33,21 +34,22 @@
         "maxAzs": 2,
         "minScalingCapacity": 1,
         "natGateways": 1,
-        "stageName": "dev",
-        "clientBaseUrl": "http://localhost:3000"
+        "signUpAllowedDomains": [],
+        "stageName": "dev"
       }
     },
     "prod": {
       "resourceConfig": {
         "allowedOrigin": "http://localhost:3000",
+        "clientBaseUrl": "http://localhost:3000",
         "deploySeparateContainers": true,
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "maxAzs": 3,
         "minScalingCapacity": 1,
         "natGateways": 2,
-        "stageName": "prod",
-        "clientBaseUrl": "http://localhost:3000"
+        "signUpAllowedDomains": [],
+        "stageName": "prod"
       }
     }
   }

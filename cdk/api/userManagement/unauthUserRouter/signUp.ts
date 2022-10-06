@@ -27,6 +27,9 @@ type SignUpRequestBody = {
   username: string;
 };
 
+const { SIGN_UP_ALLOWED_DOMAINS: signUpAllowedDomainsStr = '[]' } = process.env;
+const signUpAllowedDomains: string[] = JSON.parse(signUpAllowedDomainsStr);
+
 const handler = async (
   request: FastifyRequest<{ Body: SignUpRequestBody }>,
   reply: FastifyReply
@@ -42,6 +45,25 @@ const handler = async (
     reply.statusCode = 400;
 
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
+  }
+
+  // Check for allowed email domains
+  if (
+    // If signUpAllowedDomains is empty, allow any email domain
+    signUpAllowedDomains.length &&
+    !signUpAllowedDomains.some(
+      (signUpAllowedDomain) => email.split('@')[1] === signUpAllowedDomain
+    )
+  ) {
+    console.error(
+      `Provided email "${email}" does not match any of the allowed domains:\n${signUpAllowedDomains.join(
+        '\n'
+      )}`
+    );
+
+    reply.statusCode = 400;
+
+    return reply.send({ __type: ACCOUNT_REGISTRATION_EXCEPTION });
   }
 
   // Check for restricted usernames
