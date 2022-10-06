@@ -2,7 +2,7 @@
   "header": {
     "return_to_session": "Return to session",
     "log_out": "Log out",
-    "stream_session": "Stream Session",
+    "stream_session": "Stream session",
     "select_stream_session": "Select a session to view",
     "settings": "Settings",
     "session_navigator": {

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import './StreamEvents.css';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { processEvents } from './utils';
-import { scrollToTop } from '../../../../../utils';
+import { clsm, scrollToTop } from '../../../../../utils';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../contexts/Streams';
 import Button from '../../../../../components/Button';
@@ -97,7 +97,7 @@ const StreamEvents = () => {
           {streamEvents.length > EVENT_PREVIEW_COUNT && (
             <Button
               onClick={() => setIsStreamEventsListVisible(true)}
-              className="view-all-events-btn"
+              className={clsm('m-auto')}
               variant="secondary"
             >
               {$content.view_all_events}

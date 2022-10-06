@@ -41,10 +41,6 @@
   color: var(--palette-color-light-gray);
 }
 
-.view-all-events-btn {
-  margin: auto;
-}
-
 @media (max-width: 767px) {
   .stream-events {
     margin-bottom: 30px;

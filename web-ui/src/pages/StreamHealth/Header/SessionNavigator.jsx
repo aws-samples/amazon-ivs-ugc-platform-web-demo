@@ -14,7 +14,8 @@ const NAV_BUTTON_CLASSES = [
   'py-1.5',
   'px-3.5',
   'min-w-[auto]',
-  'xs:hidden'
+  'xs:hidden',
+  'bg-lightMode-gray-extraLight'
 ];
 const TIME_CLASSES = [
   'dark:text-darkMode-gray-light',
@@ -101,7 +102,8 @@ const SessionNavigator = forwardRef(
             'max-w-lg',
             'p-2',
             'sm:max-w-none',
-            'w-full'
+            'w-full',
+            'bg-lightMode-gray-extraLight'
           ])}
           isDisabled={!!fetchStreamSessionsError}
           onClick={handleSessionNavigator}

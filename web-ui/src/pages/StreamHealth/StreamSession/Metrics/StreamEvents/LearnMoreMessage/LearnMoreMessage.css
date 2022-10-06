@@ -21,12 +21,6 @@
   position: relative;
 }
 
-.learn-more-btn {
-  position: absolute;
-  right: 15px;
-  top: -7px;
-}
-
 .learn-more-message {
   height: calc(100% - 16px);
   overflow: auto;

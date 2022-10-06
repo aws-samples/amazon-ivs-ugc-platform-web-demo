@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import './StreamEventsList.css';
 import { Close } from '../../../../../../assets/icons';
 import { dashboard as $dashboardContent } from '../../../../../../content';
-import { noop } from '../../../../../../utils';
+import { clsm, noop } from '../../../../../../utils';
 import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
@@ -87,7 +87,7 @@ const StreamEventsList = ({
         isDefaultResponsiveView &&
         !isPreview && (
           <Button
-            className="close-events-list-btn"
+            className={clsm(['mr-[15px]', 'w-11', 'h-11'])}
             onClick={handleCloseEventsList}
             variant="icon"
           >

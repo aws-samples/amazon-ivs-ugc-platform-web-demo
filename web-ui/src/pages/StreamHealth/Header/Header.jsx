@@ -45,7 +45,7 @@ const Header = () => {
     <>
       <header
         className={clsm([
-          'bg-lightMode-gray-extraLight',
+          'bg-white',
           'dark:bg-black',
           'gap-x-4',
           'grid-cols-[1fr_minmax(auto,654px)_1fr]',

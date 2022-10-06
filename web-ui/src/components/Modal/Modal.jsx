@@ -34,6 +34,7 @@ const Modal = ({ children, className }) => {
         'rounded-3xl',
         'bg-lightMode-gray-light',
         'dark:bg-darkMode-gray',
+        'max-w-[595px]',
         className
       ])}
       ref={modalRef}

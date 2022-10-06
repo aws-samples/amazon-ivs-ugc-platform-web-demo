@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { useEffect, useRef } from 'react';
 import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
+import './StreamEventsList.css';
+import { clsm } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { ErrorIcon, Check } from '../../../../../../assets/icons';
 import { formatDate, formatTime } from '../../../../../../hooks/useDateTime';
@@ -9,7 +11,6 @@ import Button from '../../../../../../components/Button';
 import Tooltip from '../../../../../../components/Tooltip';
 import usePrevious from '../../../../../../hooks/usePrevious';
 import useStringOverflow from '../../../../../../hooks/useStringOverflow';
-import './StreamEventsList.css';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
@@ -120,7 +121,12 @@ const StreamEventItem = ({
             {hasLearnMore && isSelected && (
               <div className="learn-more-button-container">
                 <Button
-                  className="learn-more-button"
+                  className={clsm([
+                    'pointer-events-auto',
+                    'w-full',
+                    'bg-darkMode-gray',
+                    'hover:bg-darkMode-gray-hover'
+                  ])}
                   id="learn-more-button"
                   onClick={() => toggleLearnMore(true)}
                   ref={learnMoreBtnRef}

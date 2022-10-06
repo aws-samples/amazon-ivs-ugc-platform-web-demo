@@ -90,15 +90,6 @@
   margin: 15px;
 }
 
-.learn-more-button {
-  pointer-events: auto;
-  width: 100%;
-}
-
-.close-events-list-btn {
-  margin-right: 15px;
-}
-
 @media (max-width: 767px) {
   .stream-events-list {
     padding: 0;
@@ -122,14 +113,6 @@
 
   .event-time {
     color: var(--palette-color-medium-gray);
-  }
-
-  .event-description-container .learn-more-button {
-    background: var(--palette-color-gray);
-  }
-
-  .event-description-container .learn-more-button:hover {
-    background: var(--palette-color-gray-hover);
   }
 }
 
