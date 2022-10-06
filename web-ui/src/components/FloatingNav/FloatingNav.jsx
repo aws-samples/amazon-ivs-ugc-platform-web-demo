@@ -21,7 +21,7 @@ const FloatingNav = ({ siblingRef }) => {
           'sm:right-9',
           'bottom-12',
           'right-[52px]',
-          isLandscape && ['absolute', 'right-5', 'bottom-6']
+          isLandscape && ['absolute', 'sm:right-5', 'lg:right-5', 'bottom-6']
         ]
       )}
     >
@@ -56,7 +56,7 @@ const FloatingNav = ({ siblingRef }) => {
           isStreamManagerPage && [
             'lg:w-[calc(100vw_-_104px)]',
             'sm:w-[calc(100vw_-_72px)]',
-            'touch-screen-device:lg:max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_66px))]',
+            'max-h-[min(634px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
             'h-auto'
           ]
         )}
@@ -64,13 +64,15 @@ const FloatingNav = ({ siblingRef }) => {
           ['w-full', 'h-full', 'origin-bottom-right'],
           isStreamManagerPage &&
             isLandscape && [
-              'bottom-[92px]',
               'fixed',
-              'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_138px))]',
+              'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_126px))]',
               'right-[52px]',
+              'sm:right-[36px]',
               'sm:w-full',
-              'w-[calc(100vw_-_104px)]',
-              'z-[500]'
+              'z-[500]',
+              'max-w-[400px]',
+              'bottom-[112px]',
+              'sm:w-[calc(100vw_-_72px)]'
             ]
         )}
       >

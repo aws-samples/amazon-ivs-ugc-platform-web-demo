@@ -20,7 +20,8 @@ const StreamManagerChat = ({ siblingRef }) => {
         'overflow-hidden',
         'relative',
         'rounded-3xl',
-        'w-full'
+        'w-full',
+        'flex-1'
       ])}
     >
       <NotificationProvider>

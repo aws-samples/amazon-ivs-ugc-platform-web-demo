@@ -53,7 +53,13 @@ const StreamManagerActionButton = forwardRef(
     };
 
     const isCountingDown = isActive && !isPerpetual;
-    const currentLabel = isActive ? label.active : label.default;
+    const currentLabel = (
+      <>
+        {isActive ? label.active : label.default}
+        <br />
+        {` a ${name}`}
+      </>
+    );
     let statusLabel =
       isActive && (isPerpetual ? $content.on : textFormattedTimeLeft);
 
@@ -72,6 +78,7 @@ const StreamManagerActionButton = forwardRef(
             'focus:outline-none',
             'focus:shadow-focus',
             'group',
+            'h-[148px]',
             'rounded-xl',
             'shadow-black',
             'sm:aspect-square',
@@ -93,6 +100,7 @@ const StreamManagerActionButton = forwardRef(
             'items-center',
             'justify-center',
             'mx-5',
+            'md:mx-4',
             isSmallBreakpoint && 'gap-y-0'
           ])}
         >

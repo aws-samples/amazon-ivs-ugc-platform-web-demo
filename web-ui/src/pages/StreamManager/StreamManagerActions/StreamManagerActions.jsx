@@ -28,7 +28,7 @@ const StreamManagerActions = () => {
   const openQuizStreamManagerAction = () =>
     openStreamManagerActionModal(STREAM_ACTION_NAME.QUIZ, {
       content: {
-        title: $content.quiz.host_a_quiz,
+        title: `${$content.quiz.host} a ${STREAM_ACTION_NAME.QUIZ}`,
         confirmText: $content.quiz.start_quiz,
         streamManagerActionContent: <Quiz />
       },
@@ -38,7 +38,7 @@ const StreamManagerActions = () => {
   const openProductStreamManagerAction = () =>
     openStreamManagerActionModal(STREAM_ACTION_NAME.PRODUCT, {
       content: {
-        title: $content.product.feature_a_product,
+        title: `${$content.product.feature} a ${STREAM_ACTION_NAME.PRODUCT}`,
         confirmText: $content.product.show_product,
         streamManagerActionContent: <Product />
       },
@@ -62,26 +62,23 @@ const StreamManagerActions = () => {
   return (
     <section
       className={clsm([
+        'auto-grid-row',
+        'auto-rows-max',
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'gap-5',
         'grid-cols-2',
-        'grid-rows-[repeat(2,148px)]',
         'grid',
         'lg:grid-cols-4',
-        'lg:grid-rows-[repeat(1,148px)]',
         'lg:max-w-full',
-        'lg:min-h-[188px]',
         'max-w-[351px]',
         'overflow-auto',
         'p-5',
         'rounded-3xl',
-        'sm:grid-rows-1',
-        'sm:min-h-0',
-        'sm:overflow-hidden',
-        'xs:grid-cols-3',
+        'sm:grid-rows-none',
         'supports-overlay:overflow-overlay',
         'w-full',
+        'xs:grid-cols-3',
         !HIDE_WIP_STREAM_ACTIONS && 'xs:grid-rows-2'
       ])}
     >
@@ -89,8 +86,8 @@ const StreamManagerActions = () => {
         ariaLabel="Open the quiz stream action editor"
         icon={FactCheck}
         label={{
-          default: $content.quiz.host_a_quiz,
-          active: $content.quiz.hosting_a_quiz
+          default: $content.quiz.host,
+          active: $content.quiz.hosting
         }}
         name={STREAM_ACTION_NAME.QUIZ}
         onClick={openQuizStreamManagerAction}
@@ -100,8 +97,8 @@ const StreamManagerActions = () => {
         ariaLabel="Open the product feature stream action editor"
         icon={ShoppingBag}
         label={{
-          default: $content.product.feature_a_product,
-          active: $content.product.featuring_a_product
+          default: $content.product.feature,
+          active: $content.product.featuring
         }}
         name={STREAM_ACTION_NAME.PRODUCT}
         onClick={openProductStreamManagerAction}

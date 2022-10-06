@@ -54,11 +54,10 @@ const StreamManager = () => {
             className={clsm([
               'flex',
               'gap-6',
-              'h-full',
-              'lg:grid-rows-[188px,minmax(200px,100%)]',
+              'grow',
+              'lg:grid-rows-[min-content,minmax(200px,100%)]',
               'lg:grid',
               'max-w-[960px]',
-              'sm:grid-rows-[minmax(0,auto),minmax(200px,100%)]',
               'w-full',
               !HIDE_WIP_STREAM_ACTIONS &&
                 'xs:grid-rows-[170px,minmax(200px,100%)]'

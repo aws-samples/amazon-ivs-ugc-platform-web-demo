@@ -10,25 +10,25 @@
     "save": "Save",
     "cancel": "Cancel",
     "quiz": {
-      "host_a_quiz": "Host a quiz",
       "start_quiz": "Start quiz",
       "question": "Question",
       "answers": "Answers",
       "answer": "Answer",
       "add_answer": "Add answer",
       "duration": "Duration",
-      "hosting_a_quiz": "Hosting a quiz"
+      "host": "Host",
+      "hosting": "Hosting"
     },
     "product": {
-      "feature_a_product": "Feature a product",
-      "featuring_a_product": "Featuring a product",
       "show_product": "Show product",
       "title": "Title",
       "price": "Price",
       "price_placeholder": "$10",
       "image_url": "Image URL",
       "image_url_placeholder": "https://my-image.png",
-      "description": "Description"
+      "description": "Description",
+      "feature": "Feature",
+      "featuring": "Featuring"
     },
     "notice": {
       "show_a_notice": "Show a notice",
