@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { constructObjectPath, deconstructObjectPath } from '../utils';
 import useLatest from '../hooks/useLatest';
+import usePrevious from './usePrevious';
 
 const initializer = (key, initialValue, options) => {
   if (!key) return null;
@@ -64,25 +65,40 @@ const useLocalStorage = ({
     deserialize = defaultOptions.deserialize
   } = defaultOptions
 }) => {
-  const localStorageKey = keyPrefix ? [keyPrefix, key].join(':') : key;
+  let localStorageKey;
+  if (key) localStorageKey = keyPrefix ? [keyPrefix, key].join(':') : key;
+  const prevLocalStorageKey = usePrevious(localStorageKey);
   const options = { path, keyPrefix, serialize, deserialize };
   const latestOptions = useLatest(options);
   const latestInitialValue = useLatest(initialValue);
   const [value, setValue] = useState(
-    () => (!!key ? initializer(localStorageKey, initialValue, options) : null) // lazy state initialization with local storage
+    () => initializer(localStorageKey, initialValue, options) // lazy state initialization with local storage
   );
 
+  /**
+   * Initialization
+   */
   useEffect(() => {
-    if (!!key) {
-      setValue(
-        initializer(
-          localStorageKey,
-          latestInitialValue.current,
-          latestOptions.current
-        )
-      );
+    setValue(
+      initializer(
+        localStorageKey,
+        latestInitialValue.current,
+        latestOptions.current
+      )
+    );
+
+    // If localStorageKey changed, transfer the data to the
+    // new key and remove the old local storage item
+    if (
+      localStorageKey &&
+      prevLocalStorageKey &&
+      prevLocalStorageKey !== localStorageKey
+    ) {
+      const item = localStorage.getItem(prevLocalStorageKey);
+      if (item !== null) localStorage.setItem(localStorageKey, item);
+      localStorage.removeItem(prevLocalStorageKey);
     }
-  }, [key, latestInitialValue, latestOptions, localStorageKey]);
+  }, [latestInitialValue, latestOptions, localStorageKey, prevLocalStorageKey]);
 
   /**
    * Sets the value at the end of the working object path of the localStorageKey location
@@ -116,14 +132,28 @@ const useLocalStorage = ({
   /**
    * Removes the entire value found at the localStorageKey location
    */
-  const remove = useCallback(() => {
-    try {
-      localStorage.removeItem(localStorageKey);
-      setValue(null);
-    } catch {
-      // If the user is in private mode or has a storage restriction, localStorage can throw.
-    }
-  }, [localStorageKey]);
+
+  const remove = useCallback(
+    (removeByKeyPrefix = false) => {
+      try {
+        if (removeByKeyPrefix) {
+          for (const _key of Object.keys(localStorage)) {
+            const [_keyPrefix] = _key.split(':');
+            if (_keyPrefix === keyPrefix) {
+              localStorage.removeItem(_key);
+            }
+          }
+        } else {
+          localStorage.removeItem(localStorageKey);
+        }
+
+        setValue(null);
+      } catch {
+        // If the user is in private mode or has a storage restriction, localStorage can throw.
+      }
+    },
+    [keyPrefix, localStorageKey]
+  );
 
   return { value, set, remove };
 };

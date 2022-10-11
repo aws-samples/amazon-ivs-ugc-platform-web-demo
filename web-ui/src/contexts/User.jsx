@@ -80,9 +80,8 @@ export const Provider = ({ children }) => {
       userManagementAPI.signOut();
       checkSessionStatus();
       setUserData(null);
-      removeStoredUserData();
     },
-    [checkSessionStatus, removeStoredUserData]
+    [checkSessionStatus]
   );
 
   // Initial session check on page load
@@ -100,6 +99,14 @@ export const Provider = ({ children }) => {
       fetchUserData();
     }
   }, [fetchUserData, isSessionValid, userData]);
+
+  // Remove all stored user data when the session becomes invalid
+  // (i.e. user logs out, user session expires, etc.)
+  useEffect(() => {
+    if (isSessionValid === false) {
+      removeStoredUserData(true);
+    }
+  }, [isSessionValid, removeStoredUserData]);
 
   const value = useMemo(
     () => ({
