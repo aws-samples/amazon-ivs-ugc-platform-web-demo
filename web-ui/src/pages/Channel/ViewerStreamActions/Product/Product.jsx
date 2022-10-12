@@ -42,7 +42,6 @@ const Product = ({ color, description, imageUrl, price, title }) => {
   return (
     <div
       className={clsm([
-        'break-anywhere',
         'flex-col',
         'flex',
         'gap-y-4',
@@ -65,8 +64,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
           'font-bold',
           'leading-6',
           'text-black',
-          'text-xl',
-          'line-clamp-2'
+          'text-xl'
         ])}
       >
         {title}
