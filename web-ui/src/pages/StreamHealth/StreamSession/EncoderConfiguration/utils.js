@@ -3,6 +3,36 @@ import { dashboard as $dashboardContent } from '../../../../content';
 
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
+const EDGE_LIMIT_480P = 855;
+const EDGE_LIMIT_1080P = 1920;
+
+const MAX_PIXEL_VALUE_480P = 415000;
+const MAX_PIXEL_VALUE_1080P = 2100000;
+
+const MAX_BITRATE_BASIC_480P = 1500000;
+const MAX_BITRATE_BASIC_1080P = 3500000;
+const MAX_BITRATE_STANDARD = 8500000;
+
+const exceedsFullHdRes = (videoWidth, videoHeight) => {
+  const pixels = videoWidth * videoHeight;
+
+  return (
+    pixels > MAX_PIXEL_VALUE_1080P ||
+    videoHeight > EDGE_LIMIT_1080P ||
+    videoWidth > EDGE_LIMIT_1080P
+  );
+};
+
+const exceedsSdRes = (videoWidth, videoHeight) => {
+  const pixels = videoWidth * videoHeight;
+
+  return (
+    pixels > MAX_PIXEL_VALUE_480P ||
+    videoHeight > EDGE_LIMIT_480P ||
+    videoWidth > EDGE_LIMIT_480P
+  );
+};
+
 const ENCODER_CONFIG_DATA = [
   {
     id: 'video-encoder',
@@ -64,22 +94,11 @@ const ENCODER_CONFIG_DATA = [
     transform: ([videoWidth, videoHeight]) => `${videoWidth} x ${videoHeight}`,
     units: '',
     validate: ([videoWidth, videoHeight], channelType) => {
-      const pixels = videoWidth * videoHeight;
-      const edgeLimitBasic = 855;
-      const edgeLimitStandard = 1920;
-
       if (
-        (channelType === CHANNEL_TYPE.BASIC &&
-          (pixels > 415000 ||
-            videoHeight > edgeLimitBasic ||
-            videoWidth > edgeLimitBasic)) ||
-        (channelType === CHANNEL_TYPE.STANDARD &&
-          (pixels > 2100000 ||
-            videoHeight > edgeLimitStandard ||
-            videoWidth > edgeLimitStandard))
-      ) {
+        [CHANNEL_TYPE.BASIC, CHANNEL_TYPE.STANDARD].includes(channelType) &&
+        exceedsFullHdRes(videoWidth, videoHeight)
+      )
         return 'encoderResolutionError';
-      }
 
       return null;
     }
@@ -96,18 +115,36 @@ const ENCODER_CONFIG_DATA = [
   {
     id: 'video-target-bitrate',
     label: $content.target_bitrate,
-    path: [['video', 'targetBitrate']],
+    path: [
+      ['video', 'targetBitrate'],
+      ['video', 'videoWidth'],
+      ['video', 'videoHeight']
+    ],
     transform: ([targetBitrate]) =>
       +(targetBitrate * Math.pow(10, -6)).toFixed(2),
     units: $content.mbps,
-    validate: ([targetBitrate], channelType) => {
-      if (
-        (channelType === CHANNEL_TYPE.BASIC && targetBitrate > 1500000) ||
-        (channelType === CHANNEL_TYPE.STANDARD && targetBitrate > 8500000)
-      )
-        return 'encoderTargetBitrateError';
+    validate: ([targetBitrate, videoWidth, videoHeight], channelType) => {
+      let hasEncoderTargetBitrateError = false;
 
-      return null;
+      if (channelType === CHANNEL_TYPE.BASIC) {
+        if (
+          // Resolution > 480p and <= 1080p
+          (exceedsSdRes(videoWidth, videoHeight) &&
+            !exceedsFullHdRes(videoWidth, videoHeight) &&
+            targetBitrate > MAX_BITRATE_BASIC_1080P) ||
+          // Resolution <= 480p
+          (!exceedsSdRes(videoWidth, videoHeight) &&
+            targetBitrate > MAX_BITRATE_BASIC_480P)
+        )
+          hasEncoderTargetBitrateError = true;
+      } else if (
+        channelType === CHANNEL_TYPE.STANDARD &&
+        targetBitrate > MAX_BITRATE_STANDARD
+      ) {
+        hasEncoderTargetBitrateError = true;
+      }
+
+      return hasEncoderTargetBitrateError ? 'encoderTargetBitrateError' : null;
     }
   },
   {
