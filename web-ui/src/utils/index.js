@@ -125,35 +125,54 @@ export const debounce = (callback, delay, atBegin = false) => {
   return throttle(callback, delay, atBegin);
 };
 
-export const retryWithBackoff = ({
+/**
+ * A rate limiting mechanism that retries an asynchronous operation until a maximum
+ * retry count has been reached. The exponential backoff algorithm waits for a
+ * duration of time that increases exponentially between each retry attempt.
+ *
+ * For instance, the exponential backoff schedule would look like the following:
+ * wait 200ms, retry, wait 400ms, retry, wait 800ms, retry, wait 1600ms...
+ *
+ * @typedef {Object} RetryWithExponentialBackoffOptions
+ * @property {Function} promiseFn An asynchronous function that returns a promise
+ * @property {number} maxRetries The maximum number of retries that should be attempted
+ * @property {Function} [onRetry=(nextRetries)=>{}] A callback function called before each retry attempt
+ * @property {Function} [onSuccess=()=>{}] A callback function called when a retry attempt succeeds
+ * @property {Function} [onFailure=()=>{}] A callback function called when all retry attempts have failed
+ *
+ * @param {RetryWithExponentialBackoffOptions} options
+ */
+export const retryWithExponentialBackoff = ({
   promiseFn,
   maxRetries,
   onRetry = noop,
   onSuccess = noop,
   onFailure = noop
 }) => {
-  const waitFor = (ms) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
+  const waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const retry = async (retries) => {
     try {
+      // backoff
       if (retries > 0) {
         const timeToWait = 2 ** retries * 100;
         await waitFor(timeToWait);
       }
 
+      // evaluate
       const result = await promiseFn();
       onSuccess();
 
       return result;
     } catch (error) {
       if (retries < maxRetries) {
+        // retry
         const nextRetries = retries + 1;
         onRetry(nextRetries);
 
         return retry(nextRetries);
       } else {
+        // fail
         console.warn('Max retries reached. Bubbling the error up.');
         onFailure();
         throw error;

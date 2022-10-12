@@ -46,3 +46,6 @@ export const RESTRICTED_USERNAMES = [
   'register',
   'reset'
 ];
+
+export const TIMED_METADATA_MAXIMUM_REQUEST_RETRIES = 3;
+export const TIMED_METADATA_CONSTANT_BACKOFF_RETRY_DELAY = 1000; // ms

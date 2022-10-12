@@ -9,7 +9,7 @@ import {
   requestChatToken
 } from './utils';
 import { ivsChatWebSocketEndpoint } from '../../../../api/utils';
-import { retryWithBackoff } from '../../../../utils';
+import { retryWithExponentialBackoff } from '../../../../utils';
 import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useNotif } from '../../../../contexts/Notification';
@@ -151,7 +151,7 @@ const useChatConnection = (eventHandlers) => {
       isRetryingConnection.current = true;
 
       try {
-        return await retryWithBackoff({
+        return await retryWithExponentialBackoff({
           promiseFn: connectFn,
           maxRetries,
           onRetry: (retryAttempt) =>
