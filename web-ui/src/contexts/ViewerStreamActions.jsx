@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
@@ -11,7 +11,7 @@ Context.displayName = 'ViewerStreamActions';
 
 export const Provider = ({ children }) => {
   const { channelData } = useChannel();
-  const { color } = channelData || {};
+  const { color, isLive } = channelData || {};
   const { currentBreakpoint } = useResponsiveDevice();
   const [currentViewerAction, setCurrentViewerAction] = useState();
   const isChannelPageStackedView = currentBreakpoint < BREAKPOINTS.lg;
@@ -21,6 +21,10 @@ export const Provider = ({ children }) => {
   const currentViewerStreamActionTitle = `${currentViewerStreamActionName
     ?.charAt(0)
     ?.toUpperCase()}${currentViewerStreamActionName?.slice(1)}`;
+
+  useEffect(() => {
+    if (!isLive) setCurrentViewerAction(null);
+  }, [isLive]);
 
   const shouldRenderActionInTab = useMemo(
     () =>

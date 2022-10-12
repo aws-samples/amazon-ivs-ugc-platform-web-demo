@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -7,42 +8,55 @@ import {
 } from './ProductTheme';
 import { clsm } from '../../../../utils';
 
-const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => (
-  <div
-    className={clsm([
-      'bg-lightMode-gray-light',
-      'dark:bg-darkMode-gray',
-      'relative',
-      'rounded-3xl',
-      'w-full',
-      customClasses
-    ])}
-  >
-    <img className={clsm(['rounded-3xl'])} src={imageUrl} alt={title} />
-    <span
+const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => {
+  const imgRef = useRef();
+  const onErrorHandler = () => {
+    imgRef.current.style.display = 'none';
+  };
+
+  return (
+    <div
       className={clsm([
-        'absolute',
-        'px-2.5',
-        'py-0.5',
-        'right-3.5',
+        'bg-lightMode-gray-light',
+        'dark:bg-darkMode-gray',
+        'relative',
         'rounded-3xl',
-        'top-3.5',
-        'text-black',
-        shouldForceWhiteTextLightMode(color) && [
-          'text-white',
-          'dark:text-black'
-        ],
-        shouldForceWhiteTextLightDark(color) && [
-          'text-white',
-          'dark:text-white'
-        ],
-        getPrimaryBgColorClass(color)
+        'w-full',
+        customClasses
       ])}
     >
-      {price}
-    </span>
-  </div>
-);
+      <img
+        className={clsm(['text-[0px]', 'rounded-3xl'])}
+        src={imageUrl}
+        alt={title}
+        ref={imgRef}
+        onError={onErrorHandler}
+      />
+      <span
+        className={clsm([
+          'absolute',
+          'px-2.5',
+          'py-0.5',
+          'right-3.5',
+          'rounded-3xl',
+          'top-3.5',
+          'text-black',
+          shouldForceWhiteTextLightMode(color) && [
+            'text-white',
+            'dark:text-black'
+          ],
+          shouldForceWhiteTextLightDark(color) && [
+            'text-white',
+            'dark:text-white'
+          ],
+          getPrimaryBgColorClass(color)
+        ])}
+      >
+        {price}
+      </span>
+    </div>
+  );
+};
 
 ProductCardImage.defaultProps = {
   customClasses: [],

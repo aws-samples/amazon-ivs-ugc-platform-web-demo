@@ -31,6 +31,8 @@ export const Provider = ({ children }) => {
   const [hasErrorCreatingResources, setHasErrorCreatingResources] =
     useState(false);
   const [userData, setUserData] = useState();
+  const [hasFetchedInitialUserData, setHasFetchedInitialUserData] =
+    useState(false);
   const [isSessionValid, setIsSessionValid] = useState();
   const [logOutAction, setLogOutAction] = useState('');
   const prevIsSessionValid = usePrevious(isSessionValid);
@@ -47,6 +49,7 @@ export const Provider = ({ children }) => {
 
   const fetchUserData = useCallback(async () => {
     const { result } = await userManagementAPI.getUserData();
+    setHasFetchedInitialUserData(true);
 
     if (result) {
       setUserData(
@@ -80,6 +83,7 @@ export const Provider = ({ children }) => {
       userManagementAPI.signOut();
       checkSessionStatus();
       setUserData(null);
+      setHasFetchedInitialUserData(false);
     },
     [checkSessionStatus]
   );
@@ -113,6 +117,7 @@ export const Provider = ({ children }) => {
       checkSessionStatus,
       fetchUserData,
       hasErrorCreatingResources,
+      hasFetchedInitialUserData,
       initUserResources,
       isCreatingResources,
       isSessionValid,
@@ -125,6 +130,7 @@ export const Provider = ({ children }) => {
       checkSessionStatus,
       fetchUserData,
       hasErrorCreatingResources,
+      hasFetchedInitialUserData,
       initUserResources,
       isCreatingResources,
       isSessionValid,

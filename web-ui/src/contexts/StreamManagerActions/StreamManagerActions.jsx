@@ -23,6 +23,7 @@ import { useUser } from '../User';
 import useContextHook from '../useContextHook';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useStreamManagerActionValidation from './useStreamManagerActionValidation';
+import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
@@ -49,6 +50,9 @@ const DEFAULT_STATE = {
     duration:
       STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.CELEBRATION].duration
   }
+};
+const FIXED_NOTIF_OPTIONS = {
+  className: ['fixed', 'z-[1100]']
 };
 
 /**
@@ -151,16 +155,15 @@ export const Provider = ({ children }) => {
   /**
    * Sends a timed metadata event to all stream viewers
    */
-  const sendStreamAction = useCallback(
+  const sendStreamAction = useThrottledCallback(
     async (actionName, data = storedStreamManagerActionData) => {
       // Send a timed metadata event
       const actionData = data[actionName];
-      let result, error;
-      if (isLive) {
-        setIsSendingStreamAction(true);
-        const metadata = pack({ data: actionData, name: actionName });
-        ({ result, error } = await channelAPI.sendStreamAction(metadata));
-      }
+
+      setIsSendingStreamAction(true);
+
+      const metadata = pack({ data: actionData, name: actionName });
+      const { result, error } = await channelAPI.sendStreamAction(metadata);
 
       // Save the form data only if the send request was successful
       const dataToSave = data;
@@ -176,15 +179,21 @@ export const Provider = ({ children }) => {
       saveStreamManagerActionData(dataToSave);
 
       // Notify the user of the send request status
-      if (error || !isLive)
-        notifyError($content.notifications.error.unable_to_start_stream_action);
-      else
+      if (error)
+        notifyError(
+          $content.notifications.error.unable_to_start_stream_action,
+          FIXED_NOTIF_OPTIONS
+        );
+      else {
         notifySuccess($content.notifications.success[`started_${actionName}`]);
+      }
 
       setIsSendingStreamAction(false);
+
+      return result;
     },
+    100,
     [
-      isLive,
       notifyError,
       notifySuccess,
       saveStreamManagerActionData,
@@ -229,33 +238,35 @@ export const Provider = ({ children }) => {
     (actionName, modalData) => {
       const onSave = (data) => {
         if (!validateStreamManagerActionData(data[actionName], actionName)) {
-          notifyError($content.notifications.error.unable_to_save, {
-            className: ['fixed', 'z-[1100]']
-          });
-
-          return false;
+          notifyError(
+            $content.notifications.error.unable_to_save,
+            FIXED_NOTIF_OPTIONS
+          );
+        } else {
+          resetStreamManagerActionErrorData();
+          saveStreamManagerActionData(data);
+          notifySuccess(
+            $content.notifications.success.stream_action_saved,
+            FIXED_NOTIF_OPTIONS
+          );
         }
-
-        resetStreamManagerActionErrorData();
-        saveStreamManagerActionData(data);
-        notifySuccess($content.notifications.success.stream_action_saved);
-
-        return true;
       };
 
-      const onConfirm = (data) => {
+      const onConfirm = async (data) => {
         if (!validateStreamManagerActionData(data[actionName], actionName)) {
-          notifyError($content.notifications.error.unable_to_send, {
-            className: ['fixed', 'z-[1100]']
-          });
+          notifyError(
+            $content.notifications.error.unable_to_send,
+            FIXED_NOTIF_OPTIONS
+          );
 
           return false;
         }
 
         resetStreamManagerActionErrorData();
-        sendStreamAction(actionName, data);
 
-        return true;
+        const result = await sendStreamAction(actionName, data);
+
+        return !!result;
       };
 
       const onCancel = () => {

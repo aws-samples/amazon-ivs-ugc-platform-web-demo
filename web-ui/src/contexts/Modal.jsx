@@ -72,22 +72,13 @@ export const Provider = ({ children }) => {
     [onCancel, refocus]
   );
 
-  const handleSave = useCallback(
-    (data) => {
-      const isValid = onSave(data);
-
-      if (isValid === false) return;
-
-      closeModal({ shouldCancel: false, shouldRefocus: false });
-    },
-    [closeModal, onSave]
-  );
+  const handleSave = useCallback((data) => onSave(data), [onSave]);
 
   const handleConfirm = useCallback(
     async (data) => {
-      const isValid = await onConfirm(data);
+      const shouldCloseModal = await onConfirm(data);
 
-      if (isValid === false) return;
+      if (shouldCloseModal === false) return;
 
       closeModal({ shouldCancel: false, shouldRefocus: false });
     },

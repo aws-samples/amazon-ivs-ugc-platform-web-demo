@@ -53,7 +53,8 @@ const useFocusTrap = (refs, isEnabled = true) => {
         (elementList) => elementList.includes(document.activeElement)
       );
 
-      const currentElementList = focusableElements[currentElementListIndex];
+      const currentElementList =
+        focusableElements[currentElementListIndex] || focusableElements[0];
       const hasElementFocus = currentElementListIndex > -1;
       let nextElementToFocus;
 

@@ -23,7 +23,7 @@ const DEFAULT_TRANSITION_CLASSES = [
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
     const Icon = icon;
-    const { userData } = useUser();
+    const { hasFetchedInitialUserData, userData } = useUser();
     const { color = 'default' } = userData || {};
     const { currentBreakpoint } = useResponsiveDevice();
     const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
@@ -66,6 +66,8 @@ const StreamManagerActionButton = forwardRef(
     if (!isActive) statusLabel = $content.off;
 
     const isTextColorInverted = ['green', 'blue'].includes(color);
+
+    if (!hasFetchedInitialUserData) return null;
 
     return (
       <button

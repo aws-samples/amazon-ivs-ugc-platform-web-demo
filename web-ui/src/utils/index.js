@@ -78,18 +78,20 @@ export const throttle = (callback, delay, debounceMode) => {
     const elapsed = Date.now() - lastExec;
     const exec = () => {
       lastExec = Date.now();
-      callback(...args);
+
+      return callback(...args);
     };
+    let result;
 
     if (cancelled) {
       return;
     }
     if (debounceMode && !timeoutID) {
-      exec();
+      result = exec();
     }
     clearExistingTimeout();
     if (debounceMode === undefined && elapsed > delay) {
-      exec();
+      result = exec();
     } else {
       const clearTimeoutID = () => {
         timeoutID = undefined;
@@ -99,12 +101,15 @@ export const throttle = (callback, delay, debounceMode) => {
         debounceMode === undefined ? delay - elapsed : delay
       );
     }
+
+    return result;
   };
 
   wrapper.cancel = () => {
     clearExistingTimeout();
     cancelled = true;
   };
+
   return wrapper;
 };
 

@@ -31,6 +31,7 @@ export const CHATLINE_VARIANT_CLASSES = {
     'px-4',
     'rounded-3xl',
     'supports-overlay:overflow-y-overlay',
+    'scrollbar-mt-4',
     'w-full'
   ]
 };

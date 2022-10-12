@@ -25,10 +25,15 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
   const { isChannelLoading, refreshChannelData } = useChannel();
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
-  const { isLandscape, isMobileView, currentBreakpoint } =
+  const { isLandscape, isMobileView, currentBreakpoint, mainRef } =
     useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
+  let chatPopupParentEl = chatContainerRef.current;
+
+  if (isSplitView) chatPopupParentEl = document.body;
+  else if (isStackedView) chatPopupParentEl = mainRef.current;
+
   /**
    * Chat Event Handlers
    */
@@ -154,7 +159,7 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
             isOpen={isChatPopupOpen}
             isStackedView={isStackedView}
             openChatPopup={openChatPopup}
-            parentEl={isSplitView ? document.body : chatContainerRef.current}
+            parentEl={chatPopupParentEl}
             selectedMessage={selectedMessage}
             setIsChatPopupOpen={setIsChatPopupOpen}
           />

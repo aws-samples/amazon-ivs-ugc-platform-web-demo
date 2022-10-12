@@ -19,6 +19,12 @@ const initContainer = ({
   prevSiblingEl
 }) => {
   let container = document.getElementById(containerId);
+  const containerParentEl = container?.parentElement;
+
+  if (containerParentEl && containerParentEl !== parentEl) {
+    container.remove();
+    container = null;
+  }
 
   if (!container) {
     container = document.createElement('div');
