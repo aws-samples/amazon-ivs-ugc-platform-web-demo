@@ -44,6 +44,7 @@ const RangeSelector = ({
           min={min}
           max={max}
           variant="horizontal"
+          autoComplete="off"
         />
       </div>
     </div>

@@ -52,18 +52,18 @@ const StatusBar = () => {
   return (
     <div
       className={clsm([
+        'bg-lightMode-gray-extraLight',
+        'dark:bg-darkMode-gray-dark',
         'flex',
+        'h-full',
         'items-center',
         'justify-between',
-        'h-12',
-        'w-full',
         'max-w-[320px]',
+        'mb-6',
         'px-4',
         'py-3.5',
         'rounded-3xl',
-        'bg-lightMode-gray-extraLight',
-        'dark:bg-darkMode-gray-dark',
-        'mb-6'
+        'w-full'
       ])}
     >
       <StatusItem icon={<Hourglass />} value={elapsedTime} />

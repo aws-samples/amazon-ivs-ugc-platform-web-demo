@@ -32,10 +32,11 @@ const StreamManager = () => {
   return (
     <div
       className={clsm(
-        'flex-col',
-        'flex',
+        'gap-6',
+        'grid-rows-[48px,auto]',
+        'grid',
         'h-screen',
-        'items-center',
+        'justify-items-center',
         'overflow-auto',
         'px-8',
         'py-6',
@@ -52,11 +53,13 @@ const StreamManager = () => {
           <div
             ref={streamManagerRef}
             className={clsm([
-              'flex',
               'gap-6',
+              'grid-cols-[351px,auto]',
+              'grid',
               'grow',
+              'h-full',
+              'lg:grid-cols-none',
               'lg:grid-rows-[min-content,minmax(200px,100%)]',
-              'lg:grid',
               'max-w-[960px]',
               'w-full',
               !HIDE_WIP_STREAM_ACTIONS &&

@@ -101,7 +101,8 @@ const StreamManagerActionModal = () => {
           isLandscape && [
             'touch-screen-device:lg:h-full',
             'touch-screen-device:lg:max-h-screen',
-            'touch-screen-device:lg:rounded-none'
+            'touch-screen-device:lg:rounded-none',
+            'max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px)]'
           ]
         )}
       >

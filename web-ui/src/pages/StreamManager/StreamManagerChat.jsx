@@ -14,14 +14,13 @@ const StreamManagerChat = ({ siblingRef }) => {
       className={clsm([
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
+        'flex-1',
         'flex',
         'h-full',
-        'lg:min-h-[200px]',
         'overflow-hidden',
         'relative',
         'rounded-3xl',
-        'w-full',
-        'flex-1'
+        'w-full'
       ])}
     >
       <NotificationProvider>

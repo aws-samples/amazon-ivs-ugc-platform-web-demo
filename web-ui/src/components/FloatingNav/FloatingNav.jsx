@@ -32,7 +32,7 @@ const FloatingNav = ({ siblingRef }) => {
         fadeBackground
         containerClassName={clsm(
           [
-            'o-4',
+            'space-y-4',
             'flex',
             'flex-col',
             'items-end',

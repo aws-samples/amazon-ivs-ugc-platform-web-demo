@@ -355,6 +355,12 @@ module.exports = {
   ],
   corePlugins: { aspectRatio: false },
   plugins: [
+    /**
+     * A plugin that provides utilities for visually truncating text after a fixed number of lines.
+     * https://github.com/tailwindlabs/tailwindcss-line-clamp
+     */
+    require('@tailwindcss/line-clamp'),
+
     // aspect-ratio (modern and legacy support)
     plugin(({ addUtilities }) => {
       addUtilities({
@@ -441,19 +447,6 @@ module.exports = {
           })
         },
         { values: flattenColorPalette(theme('colors')) }
-      );
-    }),
-    // Lobotomized Owl Selector (https://www.markhuot.com/2019/01/01/tailwindcss-owl)
-    plugin(({ matchUtilities, theme }) => {
-      const lobotomizedOwlSelector = '& > * + *';
-
-      matchUtilities(
-        {
-          o: (value) => ({
-            [lobotomizedOwlSelector]: { marginTop: value }
-          })
-        },
-        { values: theme('margin') }
       );
     }),
 
