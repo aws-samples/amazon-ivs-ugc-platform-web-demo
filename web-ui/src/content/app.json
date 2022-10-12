@@ -32,6 +32,15 @@
   "date_time": {
     "just_now": "just now"
   },
+  "status_bar": {
+    "avg": "(avg)",
+    "concurrent_views_offline": "Average concurrent views for the entire session",
+    "concurrent_views": "Concurrent views",
+    "offline": "Offline",
+    "poor": "Poor",
+    "stable": "Stable",
+    "view_stream_health": "View stream health"
+  },
   "hide": "Hide",
   "show": "Show",
   "page_unavailable": "This page is unavailable",

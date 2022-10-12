@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import Tooltip from '../../../../components/Tooltip';
+import Tooltip from '../../Tooltip';
 
 const StatusItemTooltip = ({ children, text }) =>
   text ? (

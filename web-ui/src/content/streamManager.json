@@ -1,10 +1,4 @@
 {
-  "status_bar": {
-    "concurrent_views": "Concurrent views",
-    "poor": "Poor",
-    "stable": "Stable",
-    "view_stream_health": "View stream health"
-  },
   "stream_manager_actions": {
     "unit_seconds": "s",
     "save": "Save",

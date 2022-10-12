@@ -8,8 +8,8 @@ import Button from '../../../components/Button';
 import EncoderConfiguration from './EncoderConfiguration';
 import Metrics from './Metrics';
 import StaticNotification from '../../../components/StaticNotification';
-import StatsCard from './StatsCard/StatsCard';
 import usePrevious from '../../../hooks/usePrevious';
+import StatusBar from '../../../components/StatusBar';
 import withVerticalScroller from '../../../components/withVerticalScroller';
 
 const $notificationWithCTAContent =
@@ -108,7 +108,7 @@ const StreamSession = () => {
           message={ctaMessage}
         />
       )}
-      <StatsCard />
+      <StatusBar />
       <Metrics />
       <EncoderConfiguration />
     </article>

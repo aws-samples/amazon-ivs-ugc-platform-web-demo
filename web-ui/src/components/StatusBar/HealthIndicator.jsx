@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../utils';
-import { streamManager as $streamManagerContent } from '../../../content';
+import { clsm } from '../../utils';
+import { app as $appContent } from '../../content';
 
-const $content = $streamManagerContent.status_bar;
+const $content = $appContent.status_bar;
 const HEALTH = { STABLE: $content.stable, POOR: $content.poor };
 
 const HealthIndicator = ({ health }) => {

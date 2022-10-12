@@ -6,7 +6,7 @@ import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
 import { useStreams } from '../../contexts/Streams';
 import Notification from '../../components/Notification';
-import StatusBar from './StatusBar';
+import StatusBar from '../../components/StatusBar';
 import StreamManagerActionModal from './StreamManagerActions/StreamManagerActionModal';
 import StreamManagerActions from './StreamManagerActions';
 import StreamManagerChat from './StreamManagerChat';

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { clsm, noop } from '../../../../utils';
+import { clsm, noop } from '../../../utils';
 
 const StatusItemWrapper = ({ isActionable, children, onClick }) => {
   const defaultClasses = clsm([
