@@ -163,7 +163,7 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
     [QUIZ_DATA_KEYS.DURATION]: { min: 5, max: 30 } // seconds
   },
   [STREAM_ACTION_NAME.PRODUCT]: {
-    [PRODUCT_DATA_KEYS.TITLE]: { maxCharLength: 128 },
+    [PRODUCT_DATA_KEYS.TITLE]: { maxCharLength: 32 },
     [PRODUCT_DATA_KEYS.PRICE]: { maxCharLength: 10 },
     [PRODUCT_DATA_KEYS.IMAGE_URL]: { maxCharLength: 256 }, // TENTATIVE
     [PRODUCT_DATA_KEYS.DESCRIPTION]: { maxCharLength: 256 }

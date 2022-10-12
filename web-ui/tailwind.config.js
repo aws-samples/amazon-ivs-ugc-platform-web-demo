@@ -355,6 +355,12 @@ module.exports = {
   ],
   corePlugins: { aspectRatio: false },
   plugins: [
+    /**
+     * A plugin that provides utilities for visually truncating text after a fixed number of lines.
+     * https://github.com/tailwindlabs/tailwindcss-line-clamp
+     */
+    require('@tailwindcss/line-clamp'),
+
     // aspect-ratio (modern and legacy support)
     plugin(({ addUtilities }) => {
       addUtilities({

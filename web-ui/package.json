@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.23.1",
+    "@tailwindcss/line-clamp": "^0.4.2",
     "autoprefixer": "^10.4.8",
     "crypto-random-string": "^3.3.1",
     "dotenv-cli": "^6.0.0",
