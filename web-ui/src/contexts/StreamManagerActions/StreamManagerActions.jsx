@@ -79,6 +79,8 @@ export const Provider = ({ children }) => {
     }
   });
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
+  const [hasLoadedInitialStoredData, setHasLoadedInitialStoredData] =
+    useState(false);
   const [streamManagerActionData, setStreamManagerActionData] =
     useState(DEFAULT_STATE);
   const activeStreamManagerActionData = useMemo(
@@ -301,29 +303,39 @@ export const Provider = ({ children }) => {
    * streamManagerActionData with the stored value in local storage
    */
   useEffect(() => {
-    if (!storedStreamManagerActionData) return;
+    if (!storedStreamManagerActionData || hasLoadedInitialStoredData) return;
 
     // Remove active stream manager action data from local storage if it has expired
-    const savedStreamManagerActionData = saveStreamManagerActionData(
-      (prevStoredData) => {
-        const { expiry } = prevStoredData._active || {};
-        const hasExpired = new Date().toISOString() > expiry;
+    saveStreamManagerActionData((prevStoredData) => {
+      const { expiry } = prevStoredData?._active || {};
+      const hasExpired = new Date().toISOString() > expiry;
+
+      return hasExpired
+        ? { ...prevStoredData, _active: undefined }
+        : prevStoredData;
+    });
+    setHasLoadedInitialStoredData(true);
+  }, [
+    hasLoadedInitialStoredData,
+    saveStreamManagerActionData,
+    storedStreamManagerActionData
+  ]);
+
+  // Clears the active action when a stream goes offline
+  useEffect(() => {
+    const updateActiveAction = (setter) => {
+      setter((prevData) => {
         const isOffline = isLive === false;
 
-        return hasExpired || isOffline
-          ? { ...prevStoredData, _active: undefined }
-          : prevStoredData;
-      }
-    );
+        return isOffline ? { ...prevData, _active: undefined } : prevData;
+      });
+    };
 
-    // Update the local streamManagerActionData with the stored value in local storage
-    setStreamManagerActionData((prevStreamManagerActionData) =>
-      JSON.stringify(prevStreamManagerActionData) !==
-      JSON.stringify(savedStreamManagerActionData)
-        ? savedStreamManagerActionData
-        : prevStreamManagerActionData
-    );
-  }, [isLive, saveStreamManagerActionData, storedStreamManagerActionData]);
+    if (hasLoadedInitialStoredData) {
+      updateActiveAction(setStoredStreamManagerActionData);
+      updateActiveAction(setStreamManagerActionData);
+    }
+  }, [hasLoadedInitialStoredData, isLive, setStoredStreamManagerActionData]);
 
   const value = useMemo(
     () => ({
