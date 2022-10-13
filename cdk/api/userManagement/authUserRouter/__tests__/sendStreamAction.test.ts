@@ -16,20 +16,23 @@ import {
   UNEXPECTED_EXCEPTION
 } from '../../../shared/constants';
 import { dynamoDbClient, ivsClient } from '../../../shared/helpers';
-import { injectAuthorizedRequest } from '../../../testUtils';
+import {
+  createRouteAuthenticationTests,
+  injectAuthorizedRequest
+} from '../../../testUtils';
 import buildServer from '../../../buildServer';
 
 const mockIvsClient = mockClient(ivsClient);
 const mockDynamoDbClient = mockClient(dynamoDbClient);
-const route = '/user/channel/actions/send';
-const defaultRequestParams = { method: 'POST' as const, url: route };
+const url = '/user/channel/actions/send';
+const defaultRequestParams = { method: 'POST' as const, url };
 const defaultValidPayload = { metadata: 'N4XyAA==' };
 const defaultUserData = {
   channelArn: 'arn:aws:ivs:us-west-2:0123456789:channel/a1b2c3d4e5f6'
 };
 
 const throttlingExceptionResponse = new ThrottlingException({
-  exceptionMessage:
+  message:
     'Operation: ivs:PutMetadata exceeded call rate: 5 for resource: arn:aws:ivs:us-west-2:0123456789:channel/a1b2c3d4e5f6',
   $metadata: {
     httpStatusCode: 429,
@@ -45,13 +48,17 @@ describe('sendStreamAction controller', () => {
   const server = buildServer();
   const mockConsoleError = jest.fn();
   const realConsoleError = console.error;
+  const mockConsoleWarn = jest.fn();
+  const realConsoleWarn = console.warn;
 
   beforeAll(() => {
     console.error = mockConsoleError;
+    console.warn = mockConsoleWarn;
   });
 
   afterAll(() => {
     console.error = realConsoleError;
+    console.warn = realConsoleWarn;
   });
 
   beforeEach(() => {
@@ -62,6 +69,8 @@ describe('sendStreamAction controller', () => {
       Item: marshall(defaultUserData)
     });
   });
+
+  createRouteAuthenticationTests({ server, ...defaultRequestParams });
 
   describe('error handling', () => {
     it('should retry sending a timed metadata event when receving a throttling exception and fail', async () => {
@@ -83,7 +92,7 @@ describe('sendStreamAction controller', () => {
     it('should return a ChannelNotBroadcasting exception when the stream is offline', async () => {
       const channelNotBroadcastingExceptionResponse =
         new ChannelNotBroadcasting({
-          exceptionMessage:
+          message:
             'ChannelNotBroadcasting: Channel: arn:aws:ivs:us-west-2:0123456789:channel/a1b2c3d4e5f6 is not currently online',
           $metadata: {
             httpStatusCode: 404,
@@ -114,7 +123,7 @@ describe('sendStreamAction controller', () => {
 
     it('should return a timed metadata validation exception when the metadata payload fails validation', async () => {
       const validationExceptionResponse = new ValidationException({
-        exceptionMessage: 'Metadata size exceeds payload limit',
+        message: 'Metadata size exceeds payload limit',
         $metadata: {
           httpStatusCode: 400,
           requestId: '1afa767d-5fb3-4aba-b743-ff57a58686f1',
@@ -144,7 +153,7 @@ describe('sendStreamAction controller', () => {
 
     it('should return a timed metadata exception when the IVS client fails', async () => {
       const accessDeniedExceptionResponse = new AccessDeniedException({
-        exceptionMessage:
+        message:
           'User: arn:aws:iam::0123456789:user/janeDoe is not authorized to perform: ivs:PutMetadata on resource: arn:aws:ivs:us-west-2:0123456789:channel/a1b2c3d4e5f6',
         $metadata: {
           httpStatusCode: 403,
@@ -188,7 +197,7 @@ describe('sendStreamAction controller', () => {
 
     it('should return a validation exception when metadata payload is missing', async () => {
       const validationExceptionResponse = new ValidationException({
-        exceptionMessage: 'PutMetadata.channelArn is a required attribute',
+        message: 'PutMetadata.channelArn is a required attribute',
         $metadata: {
           httpStatusCode: 400,
           requestId: '762ed35b-3a0d-498a-abff-b5f426d1a535',

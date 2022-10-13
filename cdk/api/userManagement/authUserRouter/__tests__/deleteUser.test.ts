@@ -1,9 +1,4 @@
 import {
-  ChannelNotBroadcasting,
-  DeleteChannelCommand,
-  StopStreamCommand
-} from '@aws-sdk/client-ivs';
-import {
   AdminDeleteUserCommand,
   AdminDisableUserCommand
 } from '@aws-sdk/client-cognito-identity-provider';
@@ -11,23 +6,31 @@ import { DeleteItemCommand, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { DeleteRoomCommand } from '@aws-sdk/client-ivschat';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
+import {
+  ChannelNotBroadcasting,
+  DeleteChannelCommand,
+  StopStreamCommand
+} from '@aws-sdk/client-ivs';
 
+import { ACCOUNT_DELETION_EXCEPTION } from '../../../shared/constants';
 import {
   cognitoClient,
   dynamoDbClient,
   ivsChatClient,
   ivsClient
 } from '../../../shared/helpers';
-import { ACCOUNT_DELETION_EXCEPTION } from '../../../shared/constants';
-import { injectAuthorizedRequest } from '../../../testUtils';
+import {
+  createRouteAuthenticationTests,
+  injectAuthorizedRequest
+} from '../../../testUtils';
 import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
 const mockIvsClient = mockClient(ivsClient);
 const mockIvsChatClient = mockClient(ivsChatClient);
-const route = '/user';
-const defaultRequestParams = { method: 'DELETE' as const, url: route };
+const url = '/user';
+const defaultRequestParams = { method: 'DELETE' as const, url };
 
 describe('deleteUser controller', () => {
   const server = buildServer();
@@ -55,6 +58,8 @@ describe('deleteUser controller', () => {
     mockIvsChatClient.reset();
     mockCognitoClient.reset();
   });
+
+  createRouteAuthenticationTests({ server, ...defaultRequestParams });
 
   describe('error handling', () => {
     it('should return an account deletion exception when the stream fails to be stopped', async () => {
@@ -144,9 +149,12 @@ describe('deleteUser controller', () => {
 
   describe('general cases', () => {
     it('should successfully delete the account', async () => {
-      mockIvsClient
-        .on(StopStreamCommand)
-        .rejects(new ChannelNotBroadcasting({ $metadata: {} }));
+      mockIvsClient.on(StopStreamCommand).rejects(
+        new ChannelNotBroadcasting({
+          message: 'The stream is offline for the given channel ARN.',
+          $metadata: {}
+        })
+      );
 
       const response = await injectAuthorizedRequest(server, {
         ...defaultRequestParams

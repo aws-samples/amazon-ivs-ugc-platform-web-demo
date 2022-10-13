@@ -1,6 +1,7 @@
 # Amazon IVS UGC web demo
 
-A demo web application intended as an educational tool for demonstrating how you can implement a ... [TODO]
+A demo web application intended as an educational tool for demonstrating how customers can use Amazon IVS and other
+AWS services to create a full-featured web application with user authentication, live stream playback, live chat messaging, interactive virtual experiences, stream monitoring, and much more.
 
 This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
@@ -20,13 +21,13 @@ This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AW
 
 Deploying the CDK stack will:
 
-- create a Cognito User Pool to handle user signup and authentication
-- create three Cognito triggers Lambda functions that are required for the user management flows
-- create DynamoDB User and Metrics tables to hold user and stream data
-- create a Load Balancer and ECS Service that will handle act as the backend for the frontend application
-- create a CloudFront distribution and set it up in front of the backend to handle traffic from the clients
-- create an API Gateway, a Load Balancer and an ECS Service to handle EventBridge IVS events and store them in the Metrics DynamoDB table
-- create an EventBridge rule to dispatch the IVS events to the above API Gateway
+- create a Cognito User Pool to handle user sign-up and authentication
+- create three Cognito triggers implemented with Lambda functions that are required for the user management flows
+- create two DynamoDB tables to hold user and stream metrics data
+- create an Application Load Balancer and ECS Service that will act as the backend for the frontend application
+- create a CloudFront distribution that sits in front of the backend service to handle incoming traffic from clients
+- create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge IVS events and store them in the Metrics DynamoDB table
+- create an EventBridge rule to dispatch the IVS events to the aforementioned API Gateway
 
 ### Architecture
 
@@ -34,17 +35,18 @@ Deploying the CDK stack will:
 
 ### Configuration
 
-The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage comes with sensible defaults but can be edited prior to deploying the stack:
+The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage is set with sensible defaults but can be edited prior to deploying the stack:
 
-- `allowedOrigin` is the origin (domain name) that the backend uses as the value for the `Access-Control-Allow-Origin` HTTP response header. You can use a custom domain, or specify `"*"` to allow all origins.
+- `allowedOrigin` is the origin (domain name) that the backend uses as the value for the `Access-Control-Allow-Origin` HTTP response header. This property is required in order for browsers to allow the requesting code (frontend application) running at the allowedOrigin domain to access our backend resources. You can use a custom domain, or specify `"*"` to allow all origins.
+- `clientBaseUrl` should be set to the base URL of the frontend application. This URL is used for sending verification emails with links that redirect the user back to the frontend application to complete the verification process.
 - `deploySeparateContainers`, setting this to `true` will deploy the backend in two separate services, each one with the minimal required permissions. While being more costly, this option will scale better and is recommended for production.
 - `enableUserAutoVerify`, setting this to `true` is not recommended for production. It will skip the email verification when a new user signs up in the app.
 - `ivsChannelType` can be set to `BASIC` or `STANDARD`.
 - `logRetention` is the number of days that the logs for the Cognito triggers will be kept. Omit this property to keep the logs forever.
-- `maxAzs` is the maximum number of availability zones for the VPC that will hold the backend. Setting this value to the maximum number of availability zones in your region will reduce the risk of the backend going offline but also increase the running cost.
-- `minScalingCapacity` sets the minimum number of tasks to run for each of the backend services. You can increase this value if you're expecting high traffic on production.
+- `maxAzs` is the maximum number of availability zones (AZs) for the VPC in the region that the stack is deployed. Setting this value to the maximum number of AZs in your region will reduce the risk of the backend going offline but also increase the running cost. If you pick a number that is higher than the amount of AZs in your region, then all the AZs in the region will be used. Therefore, to use all "all AZs" available to your account, specify a high number for this property (such as 99). While it is possible to use 1 AZ, we recommend using a minimum of 2 AZs to take advantage of the safety and reliability of geographic redundancy (i.e. when one AZ becomes unhealthy or unavailable, the unaffected AZ will be used instead).
+- `minScalingCapacity` sets the lower limit of the number of tasks for Service Auto Scaling to use when running each of the backend services, ensuring that the backend services will not be automatically adjusted below this amount. You may increase this value if you're expecting high traffic in production. Alternatively, if you know that the backend services may be idle for a long period of time and you want to optimize for costs, you may set this value to 1.
 - `natGateways`, at least one NAT Gateway is required for the tasks to fetch the Docker image from the ECR Repository. This value can be increased up to the `maxAzs` value in production.
-- `clientBaseUrl` should be set to the base URL of the frontend application.
+- `signUpAllowedDomains` is a list of email domains that are allowed to be used when creating a new account in the app. An attempt to create an account with an email containing a domain that is not in this allowlist will be rejected. Setting this property to an empty list will allow all email domains to be used for account creation.
 
 ### Deployment
 
@@ -81,7 +83,7 @@ To avoid unexpected charges to your account, be sure to destroy the CDK stack wh
    make destroy
    ```
 
-This command will delete all the AWS resources that were created for this demo, with the exception of the IVS channels. These IVS channels will have to be manually stopped, if they happen to still be live, and deleted from the AWS console. Any channels that remain in offline status will not incur charges to your account.
+This command will delete all the AWS resources that were created for this demo, with the exception of the IVS channels and IVS chat rooms. These IVS resources will have to be manually stopped, in the case of channels that are still live, and deleted from the AWS console. Any channels that remain in offline status or chat rooms that have not been deleted will not incur charges to your account.
 
 Additionally, the `make destroy` command will also run a clean-up process that will delete the cloud assembly directory (`cdk.out`).
 
@@ -105,7 +107,7 @@ Unit testing is run on the backend API using [Jest](https://jestjs.io/).
    npm run test
    ```
 
-Currently, the backend unit testing suite covers only the metrics API and the `buildServer.ts` file.
+Currently, the backend unit testing suite covers only the metrics API and the `buildServer.ts` file, while the user management API is only partially covered.
 
 ### End-to-end Testing
 
@@ -121,7 +123,7 @@ Currently, the E2E testing suite covers only the most common user management flo
 
 ### Automated Testing
 
-Testing is automated using two GitHub Actions workflows: one for running the backend unit tests (`backend-unit-test-on-pull-request`) and another for running the E2E tests (`e2e-test-on-pull-request`). Each workflow is configured to run on every pull request made to the `master` branch. Additionally, to save on GitHub Actions execution minutes, the backend unit testing workflow is run only if changes were made to the files inside the `cdk/api` directory, and the E2E testing workflow is run only if changes were made to the files inside the `web-ui` directory.
+Testing is automated using two GitHub Actions workflows: one for running the backend unit tests (`backend-unit-test-on-pull-request`) and another for running the E2E tests (`e2e-test-on-pull-request`). Each workflow is configured to run on every pull request made to the `master` branch. Additionally, to save on GitHub Actions execution minutes, the backend unit testing workflow is run only if changes were made to the files inside the `cdk/api` directory, and the E2E testing workflow is run only if changes were made to the files inside the `web-ui` directory. In the instance that the E2E workflow fails at the testing step, an artifact will be generated containing the playwright test report. These artifacts have a retention period of 7 days, after which they are automatically deleted from the workflow run results.
 
 ## Limitations
 
@@ -140,9 +142,12 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
   });
   ```
 
+- iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as we do on desktop devices. The current workaround that has been implemented is to initiate the default WebKit fullscreen mode, which uses the native iOS video player UI.
+- Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
+
 ## Estimated costs
 
-For this estimation, we considered the usage costs associated with 1, 10 and 100 users, where each "user" is assumed to monitor one 4-hour live stream with 1 viewer. Additionally, the estimated costs below reflect the usage costs of running the production configuration of the CDK stack.
+For this estimation, we considered the usage costs associated with 1, 10 and 100 users, where each "user" is assumed to monitor one 4-hour live stream with 1 viewer. In each scenario, we assumed that there were no more than 10,800 chat messages sent by the end of the 4-hour stream. Additionally, the estimated costs below reflect the usage costs of running the production configuration of the CDK stack.
 
 ### Overall pricing
 

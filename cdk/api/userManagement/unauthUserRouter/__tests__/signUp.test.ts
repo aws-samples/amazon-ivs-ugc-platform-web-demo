@@ -14,8 +14,8 @@ import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
-const route = '/user/register';
-const defaultRequestParams = { method: 'POST' as const, url: route };
+const url = '/user/register';
+const defaultRequestParams = { method: 'POST' as const, url };
 
 const defaultValidPayload = {
   avatar: 'avatar',

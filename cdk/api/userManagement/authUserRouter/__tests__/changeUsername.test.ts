@@ -1,6 +1,6 @@
+import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { mockClient } from 'aws-sdk-client-mock';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
 
 import {
   CHANGE_USERNAME_EXCEPTION,
@@ -8,13 +8,16 @@ import {
   UNEXPECTED_EXCEPTION
 } from '../../../shared/constants';
 import { cognitoClient, dynamoDbClient } from '../../../shared/helpers';
-import { injectAuthorizedRequest } from '../../../testUtils';
+import {
+  createRouteAuthenticationTests,
+  injectAuthorizedRequest
+} from '../../../testUtils';
 import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
-const route = '/user/username/update';
-const defaultRequestParams = { method: 'PUT' as const, url: route };
+const url = '/user/username/update';
+const defaultRequestParams = { method: 'PUT' as const, url };
 
 const defaultValidPayload = {
   newUsername: 'newUsername'
@@ -40,6 +43,8 @@ describe('changeUsername controller', () => {
     mockDynamoDbClient.reset();
     mockDynamoDbClient.on(UpdateItemCommand).resolves({});
   });
+
+  createRouteAuthenticationTests({ server, ...defaultRequestParams });
 
   describe('error handling', () => {
     it('should return an unexpected exception when the input is incomplete', async () => {

@@ -32,7 +32,7 @@ const Notification = () => {
 
   return (
     <AnimatePresence
-      exitBeforeEnter
+      mode="wait"
       onExitComplete={() => setShouldSkipExitAnimation(false)}
     >
       {notif && (

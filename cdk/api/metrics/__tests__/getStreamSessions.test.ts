@@ -22,7 +22,7 @@ const defaultExpectedSessions = [
 ];
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
-const route = '/metrics/channelResourceId/streamSessions';
+const url = '/metrics/channelResourceId/streamSessions';
 
 describe('getStreamSessions controller', () => {
   const server = buildServer();
@@ -44,12 +44,12 @@ describe('getStreamSessions controller', () => {
     console.error = realConsoleError;
   });
 
-  createRouteAuthenticationTests(server, route);
+  createRouteAuthenticationTests({ server, url });
 
   it('should handle a request with an empty query string', async () => {
     mockDynamoDbClient.on(QueryCommand).resolves({});
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(200);
@@ -61,7 +61,7 @@ describe('getStreamSessions controller', () => {
     mockDynamoDbClient.on(QueryCommand).resolves({});
 
     const response = await injectAuthorizedRequest(server, {
-      url: route,
+      url,
       query: { nextToken: '' }
     });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
@@ -74,7 +74,7 @@ describe('getStreamSessions controller', () => {
   it('should return an unexpected exception when the DynamoDB client fails', async () => {
     mockDynamoDbClient.on(QueryCommand).rejects({});
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { __type } = JSON.parse(response.payload);
 
     expect(mockConsoleError).toHaveBeenCalledTimes(1);
@@ -88,7 +88,7 @@ describe('getStreamSessions controller', () => {
     process.env.REGION = 'region';
     process.env.ACCOUNT_ID = 'accountId';
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
 
     expect(
@@ -110,7 +110,7 @@ describe('getStreamSessions controller', () => {
       ]
     });
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(200);
@@ -125,7 +125,7 @@ describe('getStreamSessions controller', () => {
       ]
     });
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { maxResults, streamSessions } = JSON.parse(response.payload);
 
     expect(response.statusCode).toBe(200);
@@ -140,7 +140,7 @@ describe('getStreamSessions controller', () => {
       .on(QueryCommand)
       .resolves({ LastEvaluatedKey: { id: { S: 'streamId' } } });
 
-    const response = await injectAuthorizedRequest(server, { url: route });
+    const response = await injectAuthorizedRequest(server, { url });
     const { maxResults, nextToken, streamSessions } = JSON.parse(
       response.payload
     );
@@ -153,7 +153,7 @@ describe('getStreamSessions controller', () => {
 
   it('should decrypt the token value', async () => {
     const response = await injectAuthorizedRequest(server, {
-      url: route,
+      url,
       query: { nextToken: encryptNextToken('{"id":"123"}') }
     });
     const { maxResults, streamSessions } = JSON.parse(response.payload);

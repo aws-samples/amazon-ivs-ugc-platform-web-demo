@@ -1,15 +1,212 @@
 {
 	"info": {
-		"_postman_id": "652c855a-6734-4420-b438-d3ce3322fd21",
+		"_postman_id": "853b6969-a93a-4d62-b2d5-b41e30de5385",
 		"name": "UGC",
-		"description": "# UGC\n\nThe UGC backend is divided into two individual APIs:\n\n*   User Management\n*   Metrics",
+		"description": "The UGC backend is divided into two individual APIs:\n\n- User Management (incl. Chat and Channel endpoints)\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20287494"
+		"_exporter_id": "9583492"
 	},
 	"item": [
 		{
 			"name": "User Management",
 			"item": [
+				{
+					"name": "Chat",
+					"item": [
+						{
+							"name": "/user/chatToken/create",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { token: privateToken } = JSON.parse(responseBody);",
+											"",
+											"if (privateToken) {",
+											"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/chatToken/create",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"chatToken",
+										"create"
+									]
+								},
+								"description": "This endpoint will generate an IVS chat room token that can be used to establish a connection with the Amazon IVS Chat Messaging API. Specifically, the token can connect a user to an IVS chat room, whether that be their own chat room or that of another user's.\n\nIf the token is not used to establish a connection before the expiration time lapses, the token becomes invalid. Tokens are valid for one minute from the time of creation and can only be used one time to establish a connection.\n\nThe established connection, or \"session\", remains active for 60 minutes, at which point it is automatically terminated by the Amazon IVS Chat Messaging API. Once the session expires, a new token must be generated to establish a new connection.\n\nThe generated token can have a set of capabilities associated with it, providing it with certain permissions. The permission to view messages is implicitly provided with all generated tokens.\n\nIf a **valid** access token is provided with the request, then the token will be generated with the SEND_MESSAGE capability. In the instance that the token corresponds to the user's own chat room, additional DELETE_MESSAGE and DISCONNECT_USER moderation capabilities are attached to the token.\n\nIf no access token is provided with the request, then the token will be generated with no additional permissions other than the implicit permission to view messages."
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to manage the user's IVS chat room resource."
+				},
+				{
+					"name": "Channel",
+					"item": [
+						{
+							"name": "/user/channel/:channelOwnerUsername",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"channel",
+										":channelOwnerUsername"
+									],
+									"variable": [
+										{
+											"key": "channelOwnerUsername",
+											"value": "{{username}}"
+										}
+									]
+								},
+								"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
+							},
+							"response": []
+						},
+						{
+							"name": "/user/streamKey/reset",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/streamKey/reset",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"streamKey",
+										"reset"
+									]
+								},
+								"description": "This endpoint will destroy the existing stream key and create a new one."
+							},
+							"response": []
+						},
+						{
+							"name": "/user/channel/ban",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/channel/ban",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"channel",
+										"ban"
+									]
+								},
+								"description": "This endpoint is used to ban a user from a channel.\n\nOnce a user is banned from a channel, they are immediately disconnected from the chat room and an event is broadcasted to all users to delete all messages sent by the banned user to the chat room.\n\nAdditionally, a chat token request made by a banned user will result in a **403 Forbidden** response. Lastly, requests made by a banned user to retrieve channel data are allowed but the response will not include stream-related data (i.e. `isLive` and `playbackUrl` are omitted from the response) in order to prohibit them from watching a livestream on that channel.\n\nNote that a user is not allowed to ban themselves from their own channel."
+							},
+							"response": []
+						},
+						{
+							"name": "/user/channel/unban",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/channel/unban",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"channel",
+										"unban"
+									]
+								},
+								"description": "This endpoint is used to unban a user from a channel.\n\nOnce a user is unbanned from a channel, they will be permitted to request chat tokens and retrieve stream-related data (i.e. `isLive` and `playbackUrl`) from the channel info endpoint."
+							},
+							"response": []
+						},
+						{
+							"name": "/user/channel/actions/send",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"metadata\": \"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakersYour streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/user/channel/actions/send",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"user",
+										"channel",
+										"actions",
+										"send"
+									]
+								},
+								"description": "This endpoint is used to send a stream action as a timed metadata event to the user's channel.\n\nSample product action:\n\n```\n\"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n\n```\n\nSample quiz action:\n\n```\n\"{\\\"name\\\":\\\"quiz\\\",\\\"data\\\":{\\\"duration\\\":10,\\\"question\\\":\\\"What house at Hogwarts does Harry belong to?\\\",\\\"correctAnswerIndex\\\":1,\\\"answers\\\":[\\\"Slytherin\\\",\\\"Gryffindor\\\",\\\"Hufflepuff\\\",\\\"Ravenclaw\\\"]}}\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to manage the user's IVS channel resource."
+				},
 				{
 					"name": "/user/register",
 					"request": {
@@ -181,26 +378,6 @@
 					"response": []
 				},
 				{
-					"name": "/user/streamKey/reset",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/streamKey/reset",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"streamKey",
-								"reset"
-							]
-						},
-						"description": "This endpoint will destroy the existing stream key and create a new one."
-					},
-					"response": []
-				},
-				{
 					"name": "/user/password/reset",
 					"request": {
 						"auth": {
@@ -251,7 +428,7 @@
 					"response": []
 				}
 			],
-			"description": "## User Management\n\nThis API serves a purpose of creating new users and managing their account information and their associated AWS resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation.\nSome endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n    \n``` shell\naws cognito-idp initiate-auth --client-id <userPoolClientId> --auth-parameters USERNAME=<username>,PASSWORD=<password> --auth-flow USER_PASSWORD_AUTH --client-metadata submittedUsername=<username>\n```\n\nThis command will give you an `AccessToken`, paste its value in the environment attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code>\n```\n\nYou will find `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage argument.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id <userPoolClientId> --username <username> --confirmation-code <confirmation-code> --password <password>\n```\n\nYou will find `confirmation-code` in the confirmation email sent calling the `/user/password/reset` endpoint.",
+			"description": "This API serves the purpose of creating new users and providing operations to manage their account information and associated AWS resources, such as their IVS channel and chat room resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation. Some endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n\n``` shell\naws cognito-idp initiate-auth --client-id  --auth-parameters USERNAME=,PASSWORD= --auth-flow USER_PASSWORD_AUTH --client-metadata submittedUsername=\n\n```\n\nThis command will give you an `AccessToken`, paste its value in the corresponding environment variable attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id  --username  --confirmation-code \n\n```\n\nYou will find the `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage configuration.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id  --username  --confirmation-code  --password \n\n```\n\nYou will find `confirmation-code` in the confirmation email sent by calling the `/user/password/reset` endpoint.",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -361,7 +538,7 @@
 					"response": []
 				}
 			],
-			"description": "## Metrics\n\nThis API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated User Management endpoints.",
+			"description": "This API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated User Management endpoints.",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -380,179 +557,6 @@
 							""
 						]
 					}
-				}
-			]
-		},
-		{
-			"name": "Chat",
-			"item": [
-				{
-					"name": "/user/chatToken/create",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { token: privateToken } = JSON.parse(responseBody);",
-									"",
-									"if (privateToken) {",
-									"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/chatroom/token/private/create",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"chatroom",
-								"token",
-								"private",
-								"create"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Channel",
-			"item": [
-				{
-					"name": "/user/channel/:channelOwnerUsername",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								":channelOwnerUsername"
-							],
-							"variable": [
-								{
-									"key": "channelOwnerUsername",
-									"value": "{{username}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/channel/ban",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/ban",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								"ban"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/channel/unban",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/unban",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								"unban"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/channel/actions/send",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"metadata\": \"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/channel/actions/send",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"channel",
-								"actions",
-								"send"
-							]
-						},
-						"description": "Sample product action:\n\n```\n\"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n\n```\n\nSample quiz action:\n\n```\n\"{\\\"name\\\":\\\"quiz\\\",\\\"data\\\":{\\\"duration\\\":10,\\\"question\\\":\\\"What house at Hogwarts does Harry belong to?\\\",\\\"correctAnswerIndex\\\":1,\\\"answers\\\":[\\\"Slytherin\\\",\\\"Gryffindor\\\",\\\"Hufflepuff\\\",\\\"Ravenclaw\\\"]}}\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
-					},
-					"response": []
 				}
 			]
 		}

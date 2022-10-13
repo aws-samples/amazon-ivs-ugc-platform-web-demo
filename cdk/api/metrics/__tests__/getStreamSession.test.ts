@@ -1,30 +1,33 @@
+import 'aws-sdk-client-mock-jest';
+import { convertToAttr, marshall } from '@aws-sdk/util-dynamodb';
+import { GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import {
   GetMetricDataCommand,
   MetricDataResult
 } from '@aws-sdk/client-cloudwatch';
-import 'aws-sdk-client-mock-jest';
-import { convertToAttr, marshall } from '@aws-sdk/util-dynamodb';
-import { GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { GetStreamSessionCommand } from '@aws-sdk/client-ivs';
 import { LightMyRequestResponse } from 'fastify';
 import { mockClient } from 'aws-sdk-client-mock';
 
 import {
-  INGEST_FRAMERATE,
-  INGEST_VIDEO_BITRATE,
-  UNEXPECTED_EXCEPTION
-} from '../../shared/constants';
-import { GetStreamSessionResponseBody } from '../getStreamSession';
-import { injectAuthorizedRequest } from '../../testUtils';
-import buildServer from '../../buildServer';
-import metricDataResultsJsonMock from '../../__mocks__/metricDataResults.json';
-import streamSessionJsonMock from '../../__mocks__/streamSession.json';
-import formattedMetricsDataJsonMock from '../../__mocks__/formattedMetricsData.json';
-import {
   cloudwatchClient,
   dynamoDbClient,
   ivsClient
 } from '../../shared/helpers';
+import {
+  createRouteAuthenticationTests,
+  injectAuthorizedRequest
+} from '../../testUtils';
+import { GetStreamSessionResponseBody } from '../getStreamSession';
+import {
+  INGEST_FRAMERATE,
+  INGEST_VIDEO_BITRATE,
+  UNEXPECTED_EXCEPTION
+} from '../../shared/constants';
+import buildServer from '../../buildServer';
+import formattedMetricsDataJsonMock from '../../__mocks__/formattedMetricsData.json';
+import metricDataResultsJsonMock from '../../__mocks__/metricDataResults.json';
+import streamSessionJsonMock from '../../__mocks__/streamSession.json';
 
 const metricDataResultsMock = metricDataResultsJsonMock.map(
   (metricDataResult) => ({
@@ -37,7 +40,7 @@ const metricDataResultsMock = metricDataResultsJsonMock.map(
 const mockIvsClient = mockClient(ivsClient);
 const mockCloudwatchClient = mockClient(cloudwatchClient);
 const mockDynamoDbClient = mockClient(dynamoDbClient);
-const route = '/metrics/channelResourceId/streamSessions/streamSessionId';
+const url = '/metrics/channelResourceId/streamSessions/streamSessionId';
 const mockNow = new Date('2022-06-10T19:12:05.000Z');
 const mockNowTimestamp = mockNow.getTime();
 const mockDefaultStartTime = new Date('2022-06-10T19:07:00.000Z');
@@ -119,11 +122,13 @@ describe('getStreamSession controller', () => {
       .resolves({ Item: marshall(dynamoDbStreamSessionMock) });
   });
 
+  createRouteAuthenticationTests({ server, url });
+
   describe('error handling', () => {
     it('should return an unexpected exception when the DynamoDB client fails', async () => {
       mockDynamoDbClient.on(GetItemCommand).rejects({});
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { __type } = JSON.parse(response.payload);
 
       expect(mockConsoleError).toHaveBeenCalledTimes(1);
@@ -134,7 +139,7 @@ describe('getStreamSession controller', () => {
     it('should return an unexpected exception when the streamSession is missing', async () => {
       mockDynamoDbClient.on(GetItemCommand).resolves({});
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { __type } = JSON.parse(response.payload);
 
       expect(mockConsoleError).toHaveBeenCalledTimes(1);
@@ -147,7 +152,7 @@ describe('getStreamSession controller', () => {
         .on(GetItemCommand)
         .resolves({ Item: marshall({ userSub: 'sub' }) });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { __type } = JSON.parse(response.payload);
 
       expect(mockConsoleError.mock.lastCall[0].message).toBe(
@@ -162,7 +167,7 @@ describe('getStreamSession controller', () => {
         .on(GetItemCommand)
         .resolves({ Item: marshall({ userSub: 'differentSub' }) });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { __type } = JSON.parse(response.payload);
 
       expect(mockConsoleError.mock.lastCall[0].message).toBe(
@@ -228,7 +233,7 @@ describe('getStreamSession controller', () => {
         throw new Error('Wrong input');
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const parsedPayload = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -251,7 +256,7 @@ describe('getStreamSession controller', () => {
     it('should return the correct metrics for an offline stream less than 3 hours long', async () => {
       setupOfflineStreamTest();
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const parsedPayload = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -281,7 +286,7 @@ describe('getStreamSession controller', () => {
         })
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const parsedPayload = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -306,7 +311,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const parsedPayload = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -350,7 +355,7 @@ describe('getStreamSession controller', () => {
         throw new Error('Wrong input');
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const parsedPayload = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -385,7 +390,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
       expect(rest.ingestConfiguration).toBeUndefined();
@@ -400,7 +405,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
       expect(rest).toMatchObject({
@@ -411,7 +416,7 @@ describe('getStreamSession controller', () => {
     });
 
     it('should return empty metrics if CloudWatch returns empty metrics', async () => {
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
       expect(rest).toMatchObject(defaultExpectedResponse);
@@ -433,7 +438,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(response.payload);
 
       expect(rest).toMatchObject(defaultExpectedResponse);
@@ -456,7 +461,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
@@ -487,7 +492,7 @@ describe('getStreamSession controller', () => {
         )
       });
 
-      const response = await injectAuthorizedRequest(server, { url: route });
+      const response = await injectAuthorizedRequest(server, { url });
       const { metrics, ...rest } = JSON.parse(
         response.payload
       ) as GetStreamSessionResponseBody;
