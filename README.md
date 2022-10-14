@@ -31,7 +31,7 @@ Deploying the CDK stack will:
 
 ### Architecture
 
-![Amazon Stream Health Dashboard Demo Architecture](stream-health-architecture.png)
+![Amazon UGC Demo Architecture](ugc-architecture.png)
 
 ### Configuration
 
