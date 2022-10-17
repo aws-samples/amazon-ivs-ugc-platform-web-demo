@@ -3,18 +3,14 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import StatusItemTooltip from './StatusItemTooltip';
 import StatusItemWrapper from './StatusItemWrapper';
-import { app as $appContent } from '../../../content';
-
-const $content = $appContent.status_bar;
 
 const StatusItem = ({
+  concurrentViewsTooltipText,
+  hasError,
   icon,
   isLive,
-  isStreamHealthPage,
   onClick,
-  concurrentViewsTooltipText,
-  value,
-  hasError
+  value
 }) => (
   <div className="flex">
     <StatusItemTooltip text={concurrentViewsTooltipText}>
@@ -36,22 +32,21 @@ const StatusItem = ({
         >
           {icon}
         </div>
-        <p
-          className={clsm([
-            'p2',
-            'text-black',
-            'dark:text-white',
-            hasError &&
-              typeof value === 'number' && [
-                'text-lightMode-red',
-                'dark:text-darkMode-red'
-              ]
-          ])}
-        >
-          {value}
-        </p>
-        {!isLive && isStreamHealthPage && typeof value === 'number' && (
-          <p className="p2">{$content.avg}</p>
+        {value !== null && (
+          <p
+            className={clsm([
+              'p2',
+              'text-black',
+              'dark:text-white',
+              hasError &&
+                typeof value === 'number' && [
+                  'text-lightMode-red',
+                  'dark:text-darkMode-red'
+                ]
+            ])}
+          >
+            {value}
+          </p>
         )}
       </StatusItemWrapper>
     </StatusItemTooltip>
@@ -59,20 +54,19 @@ const StatusItem = ({
 );
 
 StatusItem.defaultProps = {
-  isLive: false,
-  isStreamHealthPage: false,
-  onClick: null,
   concurrentViewsTooltipText: '',
-  hasError: false
+  hasError: false,
+  isLive: false,
+  onClick: null,
+  value: null
 };
 
 StatusItem.propTypes = {
+  concurrentViewsTooltipText: PropTypes.string,
+  hasError: PropTypes.bool,
   icon: PropTypes.node.isRequired,
   isLive: PropTypes.bool,
-  isStreamHealthPage: PropTypes.bool,
   onClick: PropTypes.func,
-  concurrentViewsTooltipText: PropTypes.string,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  hasError: PropTypes.bool
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 export default StatusItem;

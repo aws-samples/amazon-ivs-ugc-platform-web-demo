@@ -51,7 +51,7 @@ const Header = () => {
           'grid-cols-[1fr_minmax(auto,654px)_1fr]',
           'grid',
           'h-16',
-          'md:grid-cols-[1fr_minmax(auto,464px)_1fr]',
+          'md:grid-cols-[1fr_minmax(auto,468px)_1fr]',
           'relative',
           'top-0',
           'w-[calc(100vw-64px)]',

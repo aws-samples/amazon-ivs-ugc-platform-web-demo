@@ -1,15 +1,16 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { clsm } from '../../utils';
-import { CONCURRENT_VIEWS } from '../../constants';
-import { Hourglass, Visibility } from '../../assets/icons';
 import { app as $appContent } from '../../content';
+import { BREAKPOINTS, CONCURRENT_VIEWS } from '../../constants';
+import { clsm } from '../../utils';
+import { Hourglass, Visibility } from '../../assets/icons';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useStreams } from '../../contexts/Streams';
 import HealthIndicator from './HealthIndicator';
 import StatusItem from './StatusItem/StatusItem';
-import useElapsedTime from '../../hooks/useElapsedTime';
 import useCurrentPage from '../../hooks/useCurrentPage';
+import useElapsedTime from '../../hooks/useElapsedTime';
 
 const $content = $appContent.status_bar;
 const NO_DATA_VALUE = '------';
@@ -22,6 +23,7 @@ const StatusBar = () => {
     hasStreamSessions,
     activeStreamSession
   } = useStreams();
+  const { currentBreakpoint } = useResponsiveDevice();
 
   const latestStreamSessionData = hasStreamSessions ? streamSessions[0] : {};
   const activeStreamSessionData = activeStreamSession
@@ -106,12 +108,11 @@ const StatusBar = () => {
     >
       <StatusItem isLive={isLive} icon={<Hourglass />} value={elapsedTime} />
       <StatusItem
+        concurrentViewsTooltipText={concurrentViewsTooltipText}
+        hasError={hasErrorEvent && isLive && isStreamHealthPage}
         icon={<Visibility />}
         isLive={isLive}
-        isStreamHealthPage={isStreamHealthPage}
-        concurrentViewsTooltipText={concurrentViewsTooltipText}
         value={concurrentViewsValue}
-        hasError={hasErrorEvent && isLive && isStreamHealthPage}
       />
       {!isStreamHealthPage && (
         <StatusItem
@@ -121,8 +122,8 @@ const StatusBar = () => {
                 concurrentViewsTooltipText: $content.view_stream_health
               }
             : {})}
+          {...(currentBreakpoint < BREAKPOINTS.xs ? {} : { value: health })}
           icon={<HealthIndicator health={health} />}
-          value={health}
         />
       )}
     </div>

@@ -13,6 +13,10 @@ import StreamEventsList from './StreamEventsList';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
+const DEFAULT_RESPONSIVE_PANEL_CONTAINER_CLASSES = clsm([
+  'h-[calc(100%_-_64px)]',
+  'top-16'
+]);
 const EVENT_PREVIEW_COUNT = 2;
 
 const StreamEvents = () => {
@@ -61,7 +65,7 @@ const StreamEvents = () => {
   return (
     <div className="stream-events">
       <ResponsivePanel
-        containerClasses="top-16"
+        containerClasses={DEFAULT_RESPONSIVE_PANEL_CONTAINER_CLASSES}
         isOpen={!isDefaultResponsiveView || isStreamEventsListVisible}
         panelId="stream-events-panel"
       >
@@ -76,7 +80,7 @@ const StreamEvents = () => {
         />
       </ResponsivePanel>
       <ResponsivePanel
-        containerClasses="top-16"
+        containerClasses={DEFAULT_RESPONSIVE_PANEL_CONTAINER_CLASSES}
         isOpen={isLearnMoreVisible}
         panelId="learn-more-panel"
       >

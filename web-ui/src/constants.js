@@ -8,7 +8,7 @@ export const CHANNEL_TYPE = { BASIC: 'BASIC', STANDARD: 'STANDARD' };
 /**
  * APP
  */
-export const BREAKPOINTS = { xs: 331, sm: 576, md: 768, lg: 990 };
+export const BREAKPOINTS = { xxs: 0, xs: 331, sm: 576, md: 768, lg: 990 };
 
 export const MAIN_THEME_COLOR = '#292b32';
 

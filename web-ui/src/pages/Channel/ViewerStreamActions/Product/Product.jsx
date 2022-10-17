@@ -10,16 +10,19 @@ import {
 } from './ProductTheme';
 import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
-import Button from '../../../../components/Button';
 import { useModal, MODAL_TYPE } from '../../../../contexts/Modal';
-import ProductDescription from './ProductDescription';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import Button from '../../../../components/Button';
+import FloatingNav from '../../../../components/FloatingNav';
 import ProductCardImage from './ProductCardImage';
+import ProductDescription from './ProductDescription';
 
 const $content = $channelContent.actions.product;
 
 const Product = ({ color, description, imageUrl, price, title }) => {
   const learnMoreButtonRef = useRef();
   const { openModal } = useModal();
+  const { isMobileView } = useResponsiveDevice();
 
   const openProductDetails = () => {
     openModal({
@@ -49,7 +52,8 @@ const Product = ({ color, description, imageUrl, price, title }) => {
         'items-center',
         'p-5',
         'rounded-3xl',
-        'w-full'
+        'w-full',
+        isMobileView && 'mb-12'
       ])}
     >
       <ProductCardImage
@@ -102,6 +106,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
           {$content.learn_more}
         </Button>
       </div>
+      {isMobileView && <FloatingNav />}
     </div>
   );
 };

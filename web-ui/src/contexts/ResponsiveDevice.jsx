@@ -101,7 +101,8 @@ export const Provider = ({ children }) => {
     if (innerWidth >= BREAKPOINTS.lg) setCurrentBreakpoint(BREAKPOINTS.lg);
     else if (innerWidth >= BREAKPOINTS.md) setCurrentBreakpoint(BREAKPOINTS.md);
     else if (innerWidth >= BREAKPOINTS.sm) setCurrentBreakpoint(BREAKPOINTS.sm);
-    else setCurrentBreakpoint(BREAKPOINTS.xs);
+    else if (innerWidth >= BREAKPOINTS.xs) setCurrentBreakpoint(BREAKPOINTS.xs);
+    else setCurrentBreakpoint(BREAKPOINTS.xxs);
   }, []);
 
   // Set --mobile-vh and --mobile-vw CSS variables

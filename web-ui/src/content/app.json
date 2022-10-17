@@ -33,7 +33,6 @@
     "just_now": "just now"
   },
   "status_bar": {
-    "avg": "(avg)",
     "concurrent_views_offline": "Average concurrent views for the entire session",
     "concurrent_views": "Concurrent views",
     "offline": "Offline",
