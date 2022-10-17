@@ -1,4 +1,10 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
@@ -22,9 +28,14 @@ export const Provider = ({ children }) => {
     ?.charAt(0)
     ?.toUpperCase()}${currentViewerStreamActionName?.slice(1)}`;
 
+  const clearCurrentViewerAction = useCallback(
+    () => setCurrentViewerAction(null),
+    []
+  );
+
   useEffect(() => {
-    if (!isLive) setCurrentViewerAction(null);
-  }, [isLive]);
+    if (!isLive) clearCurrentViewerAction();
+  }, [clearCurrentViewerAction, isLive]);
 
   const shouldRenderActionInTab = useMemo(
     () =>
@@ -44,6 +55,7 @@ export const Provider = ({ children }) => {
 
   const value = useMemo(
     () => ({
+      clearCurrentViewerAction,
       currentViewerStreamActionData: augmentedCurrentViewerStreamActionData,
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
@@ -52,6 +64,7 @@ export const Provider = ({ children }) => {
     }),
     [
       augmentedCurrentViewerStreamActionData,
+      clearCurrentViewerAction,
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
       shouldRenderActionInTab

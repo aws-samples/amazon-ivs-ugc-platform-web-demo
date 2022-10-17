@@ -1,8 +1,8 @@
 [
   {
     "name": "quiz",
-    "duration": 7,
     "data": {
+      "duration": 7,
       "question": "What is the capital of Canada?",
       "correctAnswerIndex": 2,
       "answers": ["Vancouver", "Toronto", "Ottawa", "Montréal"]
@@ -19,14 +19,16 @@
   },
   {
     "name": "notice",
-    "duration": 7,
     "data": {
+      "duration": 7,
       "title": "200k subs",
       "message": "Yay 200k subs, thanks all!"
     }
   },
   {
     "name": "celebration",
-    "duration": 10
+    "data": {
+      "duration": 10
+    }
   }
 ]

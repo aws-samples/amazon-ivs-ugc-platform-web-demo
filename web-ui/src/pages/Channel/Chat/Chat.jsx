@@ -11,6 +11,7 @@ import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useNotif } from '../../../contexts/Notification';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
+import CelebrationViewerStreamAction from '../ViewerStreamActions/Celebration';
 import ChatPopup from './ChatPopup';
 import Composer from './Composer';
 import ConnectingOverlay from './ConnectingOverlay';
@@ -18,10 +19,25 @@ import Messages from './Messages';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
 import useChatConnection from './useChatConnection';
+import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const $content = $channelContent.chat;
 
-const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
+const Chat = ({
+  chatContainerRef,
+  menuPopupSiblingRef,
+  shouldRunCelebration
+}) => {
+  const [chatContainerDimensions, setChatContainerDimensions] = useState();
+
+  useResizeObserver(chatContainerRef, (entry) => {
+    if (entry) {
+      const { clientWidth, clientHeight } = entry.target;
+
+      setChatContainerDimensions({ width: clientWidth, height: clientHeight });
+    }
+  });
+
   const { isChannelLoading, refreshChannelData } = useChannel();
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
@@ -111,6 +127,10 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
 
   return (
     <>
+      <CelebrationViewerStreamAction
+        chatContainerDimensions={chatContainerDimensions}
+        shouldRun={shouldRunCelebration}
+      />
       <Notification />
       <div
         className={clsm([
@@ -171,12 +191,14 @@ const Chat = ({ chatContainerRef, menuPopupSiblingRef }) => {
 
 Chat.defaultProps = {
   chatContainerRef: null,
-  menuPopupSiblingRef: null
+  menuPopupSiblingRef: null,
+  shouldRunCelebration: false
 };
 
 Chat.propTypes = {
   chatContainerRef: PropTypes.object,
-  menuPopupSiblingRef: PropTypes.object
+  menuPopupSiblingRef: PropTypes.object,
+  shouldRunCelebration: PropTypes.bool
 };
 
 export default memo(Chat);

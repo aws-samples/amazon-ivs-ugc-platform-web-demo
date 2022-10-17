@@ -17,6 +17,7 @@ import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescri
 import ProductViewerStreamAction from './ViewerStreamActions/Product';
 import QuizCard from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
+import useCountdown from '../../hooks/useCountdown';
 
 const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
@@ -32,12 +33,27 @@ const Channel = () => {
   const { isLandscape, isMobileView, currentBreakpoint } =
     useResponsiveDevice();
   const {
+    clearCurrentViewerAction,
     currentViewerStreamActionData,
     currentViewerStreamActionName,
     currentViewerStreamActionTitle,
     setCurrentViewerAction,
     shouldRenderActionInTab
   } = useViewerStreamActions();
+  const isCelebrationViewerAction =
+    currentViewerStreamActionName === STREAM_ACTION_NAME.CELEBRATION;
+  const { duration: viewerActionDuration, startTime: viewerActionStartTime } =
+    currentViewerStreamActionData;
+  const viewerActionExpiry =
+    typeof viewerActionDuration === 'number' &&
+    typeof viewerActionStartTime === 'number'
+      ? viewerActionStartTime + viewerActionDuration * 1000
+      : null;
+  useCountdown({
+    expiry: viewerActionExpiry,
+    isEnabled: isCelebrationViewerAction && viewerActionExpiry,
+    onExpiry: clearCurrentViewerAction
+  });
   const { channelData, channelError } = useChannel();
   const [isChatVisible, setIsChatVisible] = useState(true);
   const chatAnimationControls = useAnimation();
@@ -191,7 +207,10 @@ const Channel = () => {
                   : CHAT_PANEL_TAB_INDEX
               }
             >
-              <Chat chatContainerRef={chatContainerRef} />
+              <Chat
+                chatContainerRef={chatContainerRef}
+                shouldRunCelebration={isCelebrationViewerAction}
+              />
             </Tabs.Panel>
           </Tabs>
         </m.section>

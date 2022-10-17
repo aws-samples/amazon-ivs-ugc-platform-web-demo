@@ -4,7 +4,7 @@
 		"name": "UGC",
 		"description": "The UGC backend is divided into two individual APIs:\n\n- User Management (incl. Chat and Channel endpoints)\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "9583492"
+		"_exporter_id": "20287494"
 	},
 	"item": [
 		{
@@ -181,7 +181,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"metadata\": \"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakersYour streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n}",
+									"raw": "{\n    \"metadata\": \"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -200,7 +200,7 @@
 										"send"
 									]
 								},
-								"description": "This endpoint is used to send a stream action as a timed metadata event to the user's channel.\n\nSample product action:\n\n```\n\"{\\\"name\\\":\\\"product\\\",\\\"data\\\":{\\\"title\\\":\\\"Sneakers\\\",\\\"description\\\":\\\"Your streamer's favorite sneakers\\\",\\\"price\\\":\\\"$250\\\",\\\"imageUrl\\\":\\\"https://api.lorem.space/image/shoes?w=1024&h=1024\\\"}}\"\n\n```\n\nSample quiz action:\n\n```\n\"{\\\"name\\\":\\\"quiz\\\",\\\"data\\\":{\\\"duration\\\":10,\\\"question\\\":\\\"What house at Hogwarts does Harry belong to?\\\",\\\"correctAnswerIndex\\\":1,\\\"answers\\\":[\\\"Slytherin\\\",\\\"Gryffindor\\\",\\\"Hufflepuff\\\",\\\"Ravenclaw\\\"]}}\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
+								"description": "This endpoint is used to send a stream action as a timed metadata event to the user's channel.\n\nSample product action:\n\n```\n\"N4IgdghgtgpiBcIAOAnA9gEwK4GMAuIANCBhHhAqHgJZ4A2ciAymDBANYwoDORJM3HCmpIaaMAhABNNFhQACbnhRtYKAOTd5AMwgA3NMLwxFrDl17FU1HIxAASAEwBWAAx9qUCAHMYAVRQ6SQALPDwkbngAeiiIJGoAOjpDGCgE7iQIWyjPHxgo7mC0AQB+AHcAXgBGV0cAFgAyYOraupAAX3agA\"\n\n```\n\nSample quiz action:\n\n```\n\"N4IgdghgtgpiBcICOBXAlgLxAGhAEwgBcIFQ8UAnItAezAQEYAGXVGAZ0NvsQHUALIgAJ+NFOxhDhACRoBzAO4QKhdkLw0OQ6cooBPIQCMYAGzpyhhGgH4cIAMY0KFGPcIBBMOwUwKASTA8GAAPRlwILx8KdgQAbRAAZRM9Qn5fNHpcAHF9ADNcjI0KO2kUfJMYAAcy3LsAJQgANxgwexMIBRAAXQBfHqA==\"\n\n```\n\nSample celebration action:\n\n```\n\"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
 							},
 							"response": []
 						}

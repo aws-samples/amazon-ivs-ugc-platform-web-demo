@@ -145,7 +145,7 @@ const Composer = ({
   return (
     <div
       className={clsm(
-        ['w-full', 'pt-5', 'pb-6', 'px-[18px]'],
+        ['w-full', 'pt-5', 'pb-6', 'px-[18px]', 'z-10'],
         isLoading && ['z-50']
       )}
     >

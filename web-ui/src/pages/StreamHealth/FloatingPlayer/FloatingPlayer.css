@@ -186,7 +186,7 @@
   z-index: 10;
 }
 
-canvas {
+.video-container canvas {
   border-radius: 15px;
   bottom: 0;
   height: 100%;
