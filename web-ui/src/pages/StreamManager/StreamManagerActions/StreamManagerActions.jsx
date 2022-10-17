@@ -6,58 +6,33 @@ import {
   FactCheck,
   ShoppingBag
 } from '../../../assets/icons';
-import {
-  HIDE_WIP_STREAM_ACTIONS,
-  STREAM_ACTION_NAME
-} from '../../../constants';
 import { clsm } from '../../../utils';
-import { Quiz, Product, Notice } from './StreamManagerActionForms';
+import { Notice, Product, Quiz } from './StreamManagerActionForms';
+import { STREAM_ACTION_NAME } from '../../../constants';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
 
-const $content = $streamManagerContent.stream_manager_actions;
+const STREAM_MANAGER_ACTION_ICONS = {
+  [STREAM_ACTION_NAME.QUIZ]: ShoppingBag,
+  [STREAM_ACTION_NAME.PRODUCT]: FactCheck,
+  [STREAM_ACTION_NAME.CELEBRATION]: Celebration,
+  [STREAM_ACTION_NAME.NOTICE]: CallToAction
+};
+
+const STREAM_MANAGER_ACTION_MODAL_FORMS = {
+  [STREAM_ACTION_NAME.QUIZ]: <Quiz />,
+  [STREAM_ACTION_NAME.PRODUCT]: <Product />,
+  [STREAM_ACTION_NAME.NOTICE]: <Notice />
+};
+
+const WIP_STREAM_MANAGER_ACTIONS = [STREAM_ACTION_NAME.NOTICE];
 
 const StreamManagerActions = () => {
   const { openStreamManagerActionModal, sendStreamAction } =
     useStreamManagerActions();
-  const quizStreamManagerActionButtonRef = useRef();
-  const productStreamManagerActionButtonRef = useRef();
-  const noticeStreamManagerActionButtonRef = useRef();
-
-  const openQuizStreamManagerAction = () =>
-    openStreamManagerActionModal(STREAM_ACTION_NAME.QUIZ, {
-      content: {
-        title: `${$content.quiz.host} a ${STREAM_ACTION_NAME.QUIZ}`,
-        confirmText: $content.quiz.start_quiz,
-        streamManagerActionContent: <Quiz />
-      },
-      lastFocusedElement: quizStreamManagerActionButtonRef
-    });
-
-  const openProductStreamManagerAction = () =>
-    openStreamManagerActionModal(STREAM_ACTION_NAME.PRODUCT, {
-      content: {
-        title: `${$content.product.feature} a ${STREAM_ACTION_NAME.PRODUCT}`,
-        confirmText: $content.product.show_product,
-        streamManagerActionContent: <Product />
-      },
-      lastFocusedElement: productStreamManagerActionButtonRef
-    });
-
-  const openNoticeStreamManagerAction = () =>
-    openStreamManagerActionModal(STREAM_ACTION_NAME.NOTICE, {
-      content: {
-        title: $content.notice.show_a_notice,
-        confirmText: $content.notice.show_notice,
-        streamManagerActionContent: <Notice />
-      },
-      lastFocusedElement: noticeStreamManagerActionButtonRef
-    });
-
-  const triggerCelebrationStreamManagerAction = async () => {
-    await sendStreamAction(STREAM_ACTION_NAME.CELEBRATION);
-  };
+  const streamManagerActionButtonRefsMap = useRef(new Map());
+  const lastFocusedStreamManagerActionButtonRef = useRef();
 
   return (
     <section
@@ -78,57 +53,54 @@ const StreamManagerActions = () => {
         'sm:grid-rows-none',
         'supports-overlay:overflow-overlay',
         'w-full',
-        'xs:grid-cols-3',
-        !HIDE_WIP_STREAM_ACTIONS && 'xs:grid-rows-2'
+        'xs:grid-cols-3'
       ])}
     >
-      <StreamManagerActionButton
-        ariaLabel="Open the quiz stream action editor"
-        icon={FactCheck}
-        label={{
-          default: $content.quiz.host,
-          active: $content.quiz.hosting
-        }}
-        name={STREAM_ACTION_NAME.QUIZ}
-        onClick={openQuizStreamManagerAction}
-        ref={quizStreamManagerActionButtonRef}
-      />
-      <StreamManagerActionButton
-        ariaLabel="Open the product feature stream action editor"
-        icon={ShoppingBag}
-        label={{
-          default: $content.product.feature,
-          active: $content.product.featuring
-        }}
-        name={STREAM_ACTION_NAME.PRODUCT}
-        onClick={openProductStreamManagerAction}
-        ref={productStreamManagerActionButtonRef}
-      />
-      {!HIDE_WIP_STREAM_ACTIONS && (
-        <>
+      {Object.values(STREAM_ACTION_NAME).map((actionName) => {
+        if (WIP_STREAM_MANAGER_ACTIONS.includes(actionName)) return null;
+
+        const hasModal = actionName in STREAM_MANAGER_ACTION_MODAL_FORMS;
+        const $content =
+          $streamManagerContent.stream_manager_actions[actionName];
+        const ariaLabel = hasModal
+          ? `Open the ${actionName} stream action editor`
+          : `Trigger a ${actionName} stream action`;
+        const label = {
+          default: $content.default_label,
+          active: $content.active_label
+        };
+
+        const onClick = () => {
+          if (hasModal) {
+            lastFocusedStreamManagerActionButtonRef.current =
+              streamManagerActionButtonRefsMap.current.get(actionName);
+
+            openStreamManagerActionModal(actionName, {
+              content: {
+                confirmText: $content.confirm_text,
+                streamManagerActionContent:
+                  STREAM_MANAGER_ACTION_MODAL_FORMS[actionName],
+                title: $content.modal_form_title
+              },
+              lastFocusedElement: lastFocusedStreamManagerActionButtonRef
+            });
+          } else sendStreamAction(actionName);
+        };
+
+        return (
           <StreamManagerActionButton
-            ariaLabel="Open the notice stream action editor"
-            icon={CallToAction}
-            label={{
-              default: $content.notice.show_a_notice,
-              active: $content.notice.showing_a_notice
-            }}
-            name={STREAM_ACTION_NAME.NOTICE}
-            onClick={openNoticeStreamManagerAction}
-            ref={noticeStreamManagerActionButtonRef}
+            ariaLabel={ariaLabel}
+            icon={STREAM_MANAGER_ACTION_ICONS[actionName]}
+            key={actionName}
+            label={label}
+            name={actionName}
+            onClick={onClick}
+            ref={(el) =>
+              streamManagerActionButtonRefsMap.current.set(actionName, el)
+            }
           />
-          <StreamManagerActionButton
-            ariaLabel="Open the celebration stream action editor"
-            icon={Celebration}
-            label={{
-              default: $content.celebration.trigger_a_celebration,
-              active: $content.celebration.triggering_a_celebration
-            }}
-            name={STREAM_ACTION_NAME.CELEBRATION}
-            onClick={triggerCelebrationStreamManagerAction}
-          />
-        </>
-      )}
+        );
+      })}
     </section>
   );
 };

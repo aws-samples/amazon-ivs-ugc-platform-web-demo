@@ -129,13 +129,11 @@ export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 /**
  * STREAM ACTIONS
  */
-export const HIDE_WIP_STREAM_ACTIONS = true;
-
 export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
   PRODUCT: 'product',
-  NOTICE: 'notice',
-  CELEBRATION: 'celebration'
+  CELEBRATION: 'celebration',
+  NOTICE: 'notice'
 };
 
 export const QUIZ_DATA_KEYS = {

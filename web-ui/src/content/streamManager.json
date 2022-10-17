@@ -4,34 +4,37 @@
     "save": "Save",
     "cancel": "Cancel",
     "quiz": {
-      "start_quiz": "Start quiz",
+      "confirm_text": "Start quiz",
       "question": "Question",
       "answers": "Answers",
       "answer": "Answer",
       "add_answer": "Add answer",
       "duration": "Duration",
-      "host": "Host",
-      "hosting": "Hosting"
+      "default_label": "Host",
+      "active_label": "Hosting",
+      "modal_form_title": "Host a quiz"
     },
     "product": {
-      "show_product": "Show product",
+      "confirm_text": "Show product",
       "title": "Title",
       "price": "Price",
       "price_placeholder": "$10",
       "image_url": "Image URL",
       "image_url_placeholder": "https://my-image.png",
       "description": "Description",
-      "feature": "Feature",
-      "featuring": "Featuring"
+      "default_label": "Feature",
+      "active_label": "Featuring",
+      "modal_form_title": "Feature a product"
     },
     "notice": {
-      "show_a_notice": "Show a notice",
-      "showing_a_notice": "Showing a notice",
-      "show_notice": "Show notice"
+      "confirm_text": "Show notice",
+      "default_label": "Show",
+      "active_label": "Showing",
+      "modal_form_title": "Show a notice"
     },
     "celebration": {
-      "trigger_a_celebration": "Trigger a celebration",
-      "triggering_a_celebration": "Triggering a celebration"
+      "default_label": "Trigger",
+      "active_label": "Triggering"
     },
     "input_error": {
       "enter_valid_url": "Enter a valid URL.",
