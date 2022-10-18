@@ -45,7 +45,6 @@ const StreamManagerRadioTextInput = forwardRef(
             value={index}
           />
           <Input
-            autoComplete="off"
             className={'dark:bg-darkMode-gray-dark'}
             error={inputError}
             name={`${name}-${index}`}

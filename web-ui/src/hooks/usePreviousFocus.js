@@ -13,8 +13,7 @@ const usePreviousFocus = ({ isActive, onRefocus = noop }) => {
 
   const refocus = useCallback(
     (event) => {
-      if (event && event instanceof KeyboardEvent && event.key !== 'Escape')
-        return;
+      if (event && event.key !== 'Escape') return;
 
       setTimeout(() => {
         getLastFocusedElement()?.focus();

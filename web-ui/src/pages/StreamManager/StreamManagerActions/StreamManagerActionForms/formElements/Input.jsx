@@ -8,7 +8,6 @@ const StreamManagerActionInput = ({ dataKey, onChange, ...inputProps }) => {
 
   return (
     <Input
-      autoComplete="off"
       className="dark:bg-darkMode-gray-dark"
       onChange={handleOnChange}
       {...inputProps}
