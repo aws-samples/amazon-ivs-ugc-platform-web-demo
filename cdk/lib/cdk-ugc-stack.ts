@@ -4,6 +4,7 @@ import {
   aws_ec2 as ec2,
   aws_ecs as ecs,
   aws_iam as iam,
+  aws_ecr_assets as ecrAssets,
   CfnOutput,
   Stack,
   StackProps
@@ -51,7 +52,8 @@ export class UGCStack extends Stack {
 
     // Container image
     const containerImage = ecs.ContainerImage.fromAsset(
-      path.join(__dirname, '../api')
+      path.join(__dirname, '../api'),
+      { platform: ecrAssets.Platform.LINUX_AMD64 } // Allows for ARM architectures to build docker images for AMD architectures
     );
 
     // User Management Stack
