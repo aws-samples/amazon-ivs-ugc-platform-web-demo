@@ -2,9 +2,9 @@ import {
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins as origins,
   aws_ec2 as ec2,
+  aws_ecr_assets as ecrAssets,
   aws_ecs as ecs,
   aws_iam as iam,
-  aws_ecr_assets as ecrAssets,
   CfnOutput,
   Stack,
   StackProps

@@ -1,11 +1,12 @@
 import {
+  aws_apigateway as apigateway,
   aws_dynamodb as dynamodb,
   aws_ec2 as ec2,
-  aws_elasticloadbalancingv2 as elbv2,
+  aws_ecr_assets as ecrAssets,
   aws_ecs as ecs,
+  aws_elasticloadbalancingv2 as elbv2,
   aws_events as events,
   aws_events_targets as eventsTargets,
-  aws_apigateway as apigateway,
   aws_iam as iam,
   NestedStack,
   NestedStackProps,
@@ -76,7 +77,8 @@ export class MetricsStack extends NestedStack {
 
     // Stream Events Container Image
     const containerImage = ecs.ContainerImage.fromAsset(
-      path.join(__dirname, '../../streamEventsApi')
+      path.join(__dirname, '../../streamEventsApi'),
+      { platform: ecrAssets.Platform.LINUX_AMD64 } // Allows for ARM architectures to build docker images for AMD architectures
     );
 
     const streamEventsSecurityGroup = new ec2.SecurityGroup(
