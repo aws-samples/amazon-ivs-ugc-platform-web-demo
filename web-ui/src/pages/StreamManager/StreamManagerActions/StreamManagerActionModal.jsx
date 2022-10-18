@@ -109,13 +109,15 @@ const StreamManagerActionModal = () => {
         <Button
           ariaLabel={`Close the modal for the stream action named ${title}`}
           className={clsm([
-            'absolute',
-            'top-4',
-            'right-4',
-            '[&>svg]:w-6',
-            '[&>svg]:h-6',
             '[&>svg]:dark:fill-white',
             '[&>svg]:fill-darkMode-gray-dark',
+            '[&>svg]:h-6',
+            '[&>svg]:w-6',
+            'absolute',
+            'bg-white',
+            'dark:bg-darkMode-gray-medium',
+            'right-4',
+            'top-4',
             'z-10'
           ])}
           onClick={() => closeModal()}

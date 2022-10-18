@@ -54,6 +54,8 @@
   align-items: center;
   column-gap: 5px;
   display: flex;
+  flex: 1;
+  min-width: 0;
   width: 206px;
 }
 

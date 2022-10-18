@@ -78,8 +78,9 @@ const StreamSession = () => {
         'max-w-[960px]',
         'mb-[90px]',
         'mx-auto',
-        'px-4',
+        'px-8',
         'relative',
+        'sm:px-4',
         'w-full'
       ])}
     >
