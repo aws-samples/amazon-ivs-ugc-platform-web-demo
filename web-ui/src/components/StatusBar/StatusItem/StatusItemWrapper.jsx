@@ -1,15 +1,20 @@
 import PropTypes from 'prop-types';
 
 import { clsm, noop } from '../../../utils';
+import useCurrentPage from '../../../hooks/useCurrentPage';
 
 const StatusItemWrapper = ({ isActionable, children, onClick }) => {
+  const currentPage = useCurrentPage();
+  const isStreamHealthPage = currentPage === 'stream_health';
+
   const defaultClasses = clsm([
     'flex',
     'items-center',
     'gap-x-2',
     'py-1',
     'px-2',
-    'overflow-hidden'
+    'overflow-hidden',
+    isStreamHealthPage && 'min-w-[80px]'
   ]);
 
   if (isActionable)
