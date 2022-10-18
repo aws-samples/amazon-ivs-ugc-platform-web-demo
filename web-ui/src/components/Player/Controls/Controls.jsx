@@ -114,10 +114,10 @@ const Controls = ({
         'justify-between',
         'w-full',
         'items-center',
-        'gap-x-4'
+        'space-x-4'
       ])}
     >
-      <div className="flex gap-x-4">
+      <div className="flex space-x-4">
         <button
           {...controlsVisibilityProps}
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
@@ -138,7 +138,7 @@ const Controls = ({
           volumeLevel={volumeLevel}
         />
       </div>
-      <div className="flex gap-x-4">
+      <div className="flex space-x-4">
         {isSplitView && !isFullscreenEnabled && (
           // The split view toggle control remains enabled for banned viewers
           <button

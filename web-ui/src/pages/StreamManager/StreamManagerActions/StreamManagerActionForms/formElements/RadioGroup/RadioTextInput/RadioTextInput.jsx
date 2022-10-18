@@ -24,12 +24,12 @@ const StreamManagerRadioTextInput = forwardRef(
     ref
   ) => {
     return (
-      <div className={clsm(['flex', 'gap-[22px]', 'w-full'])}>
+      <div className={clsm(['flex', 'space-x-[22px]', 'w-full'])}>
         <div
           className={clsm([
             'flex',
-            'gap-[52px]',
-            'md:gap-[44px]',
+            'space-x-[52px]',
+            'md:space-x-[44px]',
             'md:ml-3',
             'w-full',
             'relative'

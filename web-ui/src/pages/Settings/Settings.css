@@ -6,15 +6,15 @@
   margin: 32px auto 96px;
   max-width: 960px;
   padding: 0 30px;
-  row-gap: 30px;
   width: 100%;
+  @apply space-y-[30px];
 }
 
 .settings-container section {
   display: flex;
   flex-direction: column;
-  row-gap: 20px;
   width: 100%;
+  @apply space-y-5;
 }
 
 .settings-container section h3 {
@@ -32,7 +32,7 @@
 
 .input-btn-group {
   display: flex;
-  column-gap: 10px;
+  @apply space-x-2.5;
 }
 
 @media (max-width: 767px) {
@@ -49,8 +49,8 @@
 @media (max-width: 330px) {
   .input-btn-group:first-of-type {
     flex-wrap: wrap;
-    gap: 10px;
     margin-bottom: 10px;
+    @apply space-y-2.5;
   }
 
   .input-btn-group:first-of-type button:first-of-type {

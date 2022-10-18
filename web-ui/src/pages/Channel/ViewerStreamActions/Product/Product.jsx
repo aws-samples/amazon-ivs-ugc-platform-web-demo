@@ -48,10 +48,10 @@ const Product = ({ color, description, imageUrl, price, title }) => {
         'break-anywhere',
         'flex-col',
         'flex',
-        'gap-y-4',
         'items-center',
         'p-5',
         'rounded-3xl',
+        'space-y-4',
         'w-full',
         isMobileView && 'mb-12'
       ])}
@@ -75,7 +75,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
       >
         {title}
       </h2>
-      <div className={clsm(['flex', 'flex-col', 'gap-y-2', 'w-full'])}>
+      <div className={clsm(['flex', 'flex-col', 'space-y-2', 'w-full'])}>
         <Button
           className={clsm([
             `hover:${getPrimaryBgColorClass(color)}-hover`,

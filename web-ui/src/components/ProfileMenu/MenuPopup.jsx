@@ -69,7 +69,7 @@ const Popup = forwardRef(
             'py-4',
             'flex',
             'flex-col',
-            'gap-y-4',
+            'space-y-4',
             'overflow-y-auto',
             'overflow-x-hidden',
             'supports-overlay:overflow-y-overlay'

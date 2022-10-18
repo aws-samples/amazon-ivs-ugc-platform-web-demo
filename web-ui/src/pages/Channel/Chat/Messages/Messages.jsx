@@ -53,7 +53,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
           'flex',
           'flex-col',
           'items-start',
-          'gap-y-3',
+          'space-y-3',
           'px-[18px]',
           'pt-5',
           'overflow-x-hidden',

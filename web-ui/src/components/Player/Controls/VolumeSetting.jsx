@@ -109,7 +109,7 @@ const VolumeSetting = ({
             'dark:bg-darkMode-gray',
             'flex-col',
             'flex',
-            'gap-y-2',
+            'space-y-2',
             'p-4',
             'rounded-3xl',
             '-rotate-90',

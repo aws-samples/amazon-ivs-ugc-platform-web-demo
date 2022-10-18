@@ -126,7 +126,13 @@ const QuizCard = ({
           {question}
         </h3>
         <div
-          className={clsm(['flex-col', 'flex', 'gap-y-2.5', 'px-5', 'w-full'])}
+          className={clsm([
+            'flex-col',
+            'flex',
+            'px-5',
+            'space-y-2.5',
+            'w-full'
+          ])}
         >
           {answers.map((answer, index) => (
             <Button

@@ -22,7 +22,7 @@
 .resend-action-container {
   align-items: center;
   display: flex;
-  column-gap: 20px;
+  @apply space-x-5;
 }
 
 @media (max-width: 575px) {

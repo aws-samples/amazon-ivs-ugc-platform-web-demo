@@ -79,7 +79,7 @@ const Sidebar = () => {
           'flex-col',
           'items-center',
           'py-6',
-          'gap-y-6',
+          'space-y-6',
           'w-full'
         ])}
       >
@@ -105,7 +105,7 @@ const Sidebar = () => {
                     >
                       <span
                         className={clsm(
-                          ['flex', 'items-center', 'gap-x-3'],
+                          ['flex', 'items-center', 'space-x-3'],
                           isActive
                             ? [
                                 'text-darkMode-blue',
@@ -198,7 +198,7 @@ const Sidebar = () => {
           className={clsm([
             'flex',
             'flex-col',
-            'gap-y-4',
+            'space-y-4',
             'w-full',
             'bg-lightMode-gray-extraLight',
             'dark:bg-darkMode-gray-medium',

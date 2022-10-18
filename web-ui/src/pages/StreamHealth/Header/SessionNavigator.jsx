@@ -20,7 +20,7 @@ const NAV_BUTTON_CLASSES = [
 const TIME_CLASSES = [
   'dark:text-darkMode-gray-light',
   'flex',
-  'gap-x-0.5',
+  'space-x-0.5',
   'items-center',
   'justify-center',
   'text-lightMode-gray-medium'
@@ -81,7 +81,7 @@ const SessionNavigator = forwardRef(
       <div
         className={clsm([
           'self-center',
-          'gap-x-2.5',
+          'space-x-2.5',
           'flex',
           'justify-center',
           'col-start-2'

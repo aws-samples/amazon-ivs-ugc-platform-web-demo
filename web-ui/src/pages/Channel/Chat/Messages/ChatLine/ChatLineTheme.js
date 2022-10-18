@@ -12,7 +12,7 @@ export const CHATLINE_BASE_CLASSES = [
 
 export const CHATLINE_VARIANT_CLASSES = {
   message: [
-    'gap-x-1.5',
+    'space-x-1.5',
     'max-w-full',
     'px-3.5',
     'py-3',
@@ -23,7 +23,7 @@ export const CHATLINE_VARIANT_CLASSES = {
     'bg-transparent',
     'cursor-default',
     'dark:bg-transparent',
-    'gap-x-2',
+    'space-x-2',
     'md:max-w-[700px]',
     'overflow-y-scroll',
     'pb-[2px]',

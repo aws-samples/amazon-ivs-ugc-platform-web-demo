@@ -135,7 +135,7 @@ const ChatPopup = ({
           className={clsm([
             'flex-col',
             'flex',
-            'gap-y-4',
+            'space-y-4',
             'pb-4',
             'px-4',
             'w-full'

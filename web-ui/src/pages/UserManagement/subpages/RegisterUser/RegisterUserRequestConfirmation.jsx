@@ -38,7 +38,7 @@ const RegisterUserRequestConfirmation = ({ username }) => {
         'm-auto',
         'text-center',
         'max-w-[450px]',
-        'gap-y-[45px]'
+        'space-y-[45px]'
       ])}
     >
       <h2>{$content.register_page.verify_your_account}</h2>

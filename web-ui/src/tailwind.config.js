@@ -388,7 +388,15 @@ module.exports = {
             position: 'relative',
             width: '100%',
             height: 0,
-            paddingBottom: '100%' /* 1:1 */
+            paddingBottom: '100%' /* 1:1 */,
+            '& > div': {
+              /* Center align content */
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0
+            }
           }
         }
       });

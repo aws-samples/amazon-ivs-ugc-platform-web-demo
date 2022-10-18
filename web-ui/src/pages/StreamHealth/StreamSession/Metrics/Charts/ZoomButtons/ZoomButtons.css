@@ -1,6 +1,6 @@
 .preset-zoom-buttons {
-  column-gap: 30px;
   display: flex;
+  @apply space-x-[30px];
 }
 
 .preset-zoom-buttons button {
@@ -41,7 +41,7 @@
 
 @media (max-width: 330px) {
   .preset-zoom-buttons {
-    column-gap: 15px;
+    @apply space-x-[15px];
   }
 }
 

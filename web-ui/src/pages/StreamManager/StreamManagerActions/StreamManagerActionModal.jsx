@@ -150,7 +150,7 @@ const StreamManagerActionModal = () => {
             className={clsm([
               'flex',
               'flex-col',
-              'gap-8',
+              'space-y-8',
               isContentOverflowing && 'pb-12'
             ])}
           >
@@ -182,7 +182,7 @@ const StreamManagerActionModal = () => {
           <div
             className={clsm([
               'flex',
-              'gap-x-3',
+              'space-x-3',
               'sm:w-full',
               !isLandscape && 'md:w-full'
             ])}

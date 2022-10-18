@@ -3,25 +3,25 @@
   background: var(--palette-color-gray);
   border-radius: var(--default-border-radius);
   display: flex;
-  gap: 90px;
   justify-content: space-between;
   margin-top: 15px;
   padding: 20px 30px;
+  @apply space-x-[90px];
 }
 
 .static-notification-content {
   align-items: center;
   display: flex;
-  gap: 15px;
   max-width: 420px;
+  @apply space-y-[15px];
 }
 
 @media (max-width: 575px) {
   .static-notification-container {
     flex-direction: column;
-    gap: 20px;
     padding: 30px;
     width: 100%;
+    @apply space-y-5 space-x-0;
   }
 
   .static-notification-content {

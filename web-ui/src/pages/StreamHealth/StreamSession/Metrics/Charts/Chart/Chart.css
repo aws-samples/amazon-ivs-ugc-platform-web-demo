@@ -17,8 +17,8 @@
   height: 100%;
   padding: 10px;
   pointer-events: none;
-  row-gap: 5px;
   width: 100%;
+  @apply space-y-[5px];
 }
 
 .chart-tooltip .p3 {

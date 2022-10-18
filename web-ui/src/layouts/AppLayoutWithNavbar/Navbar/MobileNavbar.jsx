@@ -36,7 +36,7 @@ const MobileNavbar = ({ className }) => {
           className={clsm([
             'flex',
             'flex-row',
-            'gap-4',
+            'space-x-4',
             'px-4',
             'py-3.5',
             'w-full',

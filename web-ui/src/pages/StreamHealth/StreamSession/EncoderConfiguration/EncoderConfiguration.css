@@ -8,18 +8,15 @@
 }
 
 .config-grid {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 30px 60px;
-  height: 235px;
+  @apply grid grid-cols-2 md:grid-cols-1 gap-y-[30px] gap-x-[60px];
+  @apply h-[235px];
 }
 
 .config-item {
   display: flex;
   align-items: center;
-  column-gap: 30px;
   max-height: 22.5px;
+  @apply space-x-[30px];
 }
 
 .config-item.error .config-label,
@@ -52,11 +49,11 @@
 
 .config-value {
   align-items: center;
-  column-gap: 5px;
   display: flex;
   flex: 1;
   min-width: 0;
   width: 206px;
+  @apply space-x-[5px];
 }
 
 .config-value p {
@@ -76,9 +73,9 @@
   }
 
   .config-value {
-    column-gap: 10px;
     max-width: none;
     width: 100%;
+    @apply space-x-2.5;
   }
 }
 
@@ -87,7 +84,7 @@
     align-items: flex-start;
     flex-direction: column;
     max-height: none;
-    row-gap: 10px;
+    @apply space-y-2.5 space-x-0;
   }
 }
 

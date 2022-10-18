@@ -35,7 +35,7 @@ const ConfirmationModal = () => {
             'items-center',
             'justify-end',
             'mt-8',
-            'gap-x-2.5',
+            'space-x-2.5',
             'sm:flex-col-reverse',
             'sm:[&>button+button]:mb-5'
           ])}

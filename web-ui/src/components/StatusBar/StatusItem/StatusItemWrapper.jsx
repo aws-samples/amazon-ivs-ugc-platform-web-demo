@@ -10,7 +10,7 @@ const StatusItemWrapper = ({ isActionable, children, onClick }) => {
   const defaultClasses = clsm([
     'flex',
     'items-center',
-    'gap-x-2',
+    'space-x-2',
     'py-1',
     'px-2',
     'overflow-hidden',

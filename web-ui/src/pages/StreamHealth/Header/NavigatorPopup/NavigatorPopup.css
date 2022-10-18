@@ -28,8 +28,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 30px;
-  row-gap: 30px;
   scrollbar-color: var(--palette-color-gray) transparent;
+  @apply space-y-[30px];
 }
 
 .nav-popup::-webkit-scrollbar-track {
@@ -39,8 +39,8 @@
 .session-group {
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
   width: 100%;
+  @apply space-y-[15px];
 }
 
 .button.secondary.session-button {
@@ -63,14 +63,14 @@
   align-items: flex-start;
   display: flex;
   flex-direction: column;
-  row-gap: 5px;
+  @apply space-y-[5px];
 }
 
 .session-date {
   align-items: center;
-  column-gap: 15px;
   display: flex;
   height: 20px;
+  @apply space-x-[15px];
 }
 
 .session-date p {
@@ -84,7 +84,7 @@
 
 .session-time {
   display: flex;
-  column-gap: 2px;
+  @apply space-x-0.5;
 }
 
 .session-time p {

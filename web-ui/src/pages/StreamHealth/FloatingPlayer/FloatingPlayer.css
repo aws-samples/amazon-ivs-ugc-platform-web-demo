@@ -135,10 +135,10 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  row-gap: 10px;
   transform-origin: bottom right;
   visibility: hidden;
   width: 210px;
+  @apply space-y-2.5;
 }
 
 .mini-player-container.is-expanded {
@@ -213,8 +213,8 @@
   border-radius: var(--default-border-radius);
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
   padding: 20px;
+  @apply space-y-2.5;
 }
 
 .offline-stream-container .settings-link {

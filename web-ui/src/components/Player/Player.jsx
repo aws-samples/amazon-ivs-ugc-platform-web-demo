@@ -290,7 +290,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
             'flex-col',
             'justify-center',
             'items-center',
-            'gap-y-2',
+            'space-y-2',
             'absolute',
             'w-full',
             'h-full',

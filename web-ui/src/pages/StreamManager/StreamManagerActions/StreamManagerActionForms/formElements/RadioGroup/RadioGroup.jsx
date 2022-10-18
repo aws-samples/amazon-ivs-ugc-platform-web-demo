@@ -83,7 +83,7 @@ const StreamManagerActionRadioGroup = ({
   return (
     <div className={clsm(['flex', 'flex-col'])}>
       {label && <Label label={label} htmlFor={name} />}
-      <div className={clsm(['flex', 'flex-col', 'gap-6'])}>
+      <div className={clsm(['flex', 'flex-col', 'space-y-6'])}>
         {options.map((_, index) => (
           <RadioTextInput
             ref={(el) => (radioInputRefs.current[index] = el)}

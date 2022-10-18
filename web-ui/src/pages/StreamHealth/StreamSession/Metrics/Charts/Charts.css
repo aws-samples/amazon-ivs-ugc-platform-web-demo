@@ -22,7 +22,7 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  row-gap: 30px;
+  @apply space-y-[30px];
 }
 
 @media (max-width: 767px) {

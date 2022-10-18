@@ -68,7 +68,7 @@ const UserManagement = () => {
             'items-center',
             'flex-col',
             'w-full',
-            'gap-y-8',
+            'space-y-8',
             'py-8'
           )}
         >

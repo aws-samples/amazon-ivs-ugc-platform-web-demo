@@ -42,11 +42,11 @@ const List = ({ selectedIndex, setSelectedIndex, tabs }) => {
         'bg-white',
         'dark:bg-darkMode-gray-dark',
         'flex',
-        'gap-3',
         'justify-center',
         'pb-5',
         'pt-4',
         'px-5',
+        'space-x-3',
         'w-full',
         'z-[60]'
       ])}

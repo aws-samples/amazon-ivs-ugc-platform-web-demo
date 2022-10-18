@@ -47,7 +47,7 @@ const Header = () => {
         className={clsm([
           'bg-white',
           'dark:bg-black',
-          'gap-x-4',
+          'space-x-4',
           'grid-cols-[1fr_minmax(auto,654px)_1fr]',
           'grid',
           'h-16',

@@ -98,12 +98,12 @@ const StreamManagerActionButton = forwardRef(
           className={clsm([
             'flex-col',
             'flex',
-            'gap-y-2',
+            'space-y-2',
             'items-center',
             'justify-center',
             'mx-5',
             'md:mx-4',
-            isSmallBreakpoint && 'gap-y-0'
+            isSmallBreakpoint && 'space-y-0'
           ])}
         >
           {!isSmallBreakpoint && currentLabel && (

@@ -10,7 +10,7 @@ const ErrorMessage = ({ error }) => {
       className={clsx([
         '[&>svg]:mt-[-1px]',
         'flex',
-        'gap-x-[6.33px]',
+        'space-x-[6.33px]',
         'pt-[5px]',
         'text-[13px]',
         'text-darkMode-red'

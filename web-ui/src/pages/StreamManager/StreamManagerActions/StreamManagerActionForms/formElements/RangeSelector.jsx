@@ -26,7 +26,7 @@ const RangeSelector = ({
   return (
     <div>
       {label && <Label label={label} htmlFor={name} />}
-      <div className={clsm(['flex', 'gap-4', 'items-center'])}>
+      <div className={clsm(['flex', 'space-x-4', 'items-center'])}>
         <InputRange
           onChange={handleOnChange}
           value={value || min}

@@ -17,14 +17,14 @@ const PageUnavailable = () => (
       'dark:bg-black'
     )}
   >
-    <div className={clsm(['flex', 'flex-col', 'items-center', 'gap-y-8'])}>
+    <div className={clsm(['flex', 'flex-col', 'items-center', 'space-y-8'])}>
       <div
         className={clsm([
           'flex',
           'flex-col',
           'items-center',
           'opacity-50',
-          'gap-y-2'
+          'space-y-2'
         ])}
       >
         <SmartToy

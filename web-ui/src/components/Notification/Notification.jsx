@@ -40,17 +40,19 @@ const Notification = () => {
           animate="visible"
           aria-live="polite"
           className={clsm([
-            'notification',
             'absolute',
+            'flex',
+            'justify-center',
             'left-0',
+            'max-w-[595px]',
+            'mx-auto',
+            'my-0',
+            'notification',
+            'px-4',
+            'py-0',
             'right-0',
             'top-[32px]',
-            'my-0',
-            'mx-auto',
-            'max-w-[595px]',
-            'py-0',
-            'px-4',
-            'w-fit',
+            'w-full',
             'z-[500]',
             className
           ])}
@@ -72,7 +74,7 @@ const Notification = () => {
               'dark:text-black',
               'flex',
               'font-bold',
-              'gap-x-[11.5px]',
+              'space-x-[11.5px]',
               'items-center',
               'leading-[18px]',
               'px-[20px]',
@@ -95,7 +97,7 @@ const Notification = () => {
                 className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
               />
             )}
-            {message}
+            <p>{message}</p>
           </div>
         </m.div>
       )}

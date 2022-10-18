@@ -123,7 +123,7 @@ export const BUTTON_VARIANT_CLASSES = {
     'dark:[&>svg]:fill-white',
     'dark:text-darkMode-blue',
     'dark:text-white',
-    'gap-x-3',
+    'space-x-3',
     'hover:bg-lightMode-gray-light-hover',
     '!justify-start',
     'px-3',

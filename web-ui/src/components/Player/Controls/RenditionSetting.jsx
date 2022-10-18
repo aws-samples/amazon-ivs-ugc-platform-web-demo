@@ -196,7 +196,7 @@ const RenditionSetting = ({
               className={clsm([
                 'flex',
                 'flex-col',
-                'gap-y-2',
+                'space-y-2',
                 'overflow-y-auto',
                 isMobileView && [
                   'border-lightMode-gray-light-hover',
