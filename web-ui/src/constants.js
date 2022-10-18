@@ -21,7 +21,7 @@ export const CHANNEL_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
  */
 export const USE_MOCKS = false;
 
-export const ENABLE_CHAT_DEBUG_MESSAGES = true;
+export const ENABLE_CHAT_DEBUG_MESSAGES = false;
 
 /**
  * EXCEPTIONS

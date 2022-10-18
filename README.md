@@ -7,7 +7,7 @@ This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AW
 
 ![Amazon UGC Demo](amazon-ivs-ugc-web-demo.png)
 
-**This project is intended for education purposes only and not for production usage.**
+**This project is intended for educational purposes only and not for production usage.**
 
 ## Prerequisites
 
@@ -26,8 +26,8 @@ Deploying the CDK stack will:
 - create two DynamoDB tables to hold user and stream metrics data
 - create an Application Load Balancer and ECS Service that will act as the backend for the frontend application
 - create a CloudFront distribution that sits in front of the backend service to handle incoming traffic from clients
-- create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge IVS events and store them in the Metrics DynamoDB table
-- create an EventBridge rule to dispatch the IVS events to the aforementioned API Gateway
+- create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
+- create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 
 ### Architecture
 
@@ -48,6 +48,11 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 - `natGateways`, at least one NAT Gateway is required for the tasks to fetch the Docker image from the ECR Repository. This value can be increased up to the `maxAzs` value in production.
 - `signUpAllowedDomains` is a list of email domains that are allowed to be used when creating a new account in the app. An attempt to create an account with an email containing a domain that is not in this allowlist will be rejected. Setting this property to an empty list will allow all email domains to be used for account creation.
 
+  Example:
+  ```json
+  "signUpAllowedDomains": ["example.com"]
+  ```
+
 ### Deployment
 
 ***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
@@ -58,7 +63,17 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    make app
    ```
 
-   This command will install dependencies, bootstrap the CDK assets (if needed), and finally deploy the stack.
+   This command will install dependencies, bootstrap the CDK assets (if needed), and finally deploy the stack. By default, the `make app` command will deploy the stack using the `dev` stage configuration. To specify a different deployment stage, you will need to set the `STAGE` environment variable to either "dev" or "prod" in the `make app` command. For instance, to deploy the `prod` stage configuration, run the following command:
+
+   ```shell
+   make app STAGE=prod
+   ```
+
+   Optionally, you may also specify the AWS named profile to use when deploying the stack using the `AWS_PROFILE` environment variable:
+
+   ```shell
+   make app AWS_PROFILE=user1
+   ```
 
    ***NOTE:** the deployment might take up to 15 minutes.*
 
@@ -68,6 +83,18 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    npm install
    npm start
    ```
+
+Running `make app` is only required when you deploy the stack for the first time. Subsequent re-deployments will run faster with the following command (be sure to specify the `STAGE` value if you are deploying to a stage other than `dev`):
+
+```shell
+make deploy STAGE=<stage>
+```
+
+Additionally, if you want to make changes to any of the stage configuration options after the stack has been deployed, you will need to re-deploy the stack in order for the changes to take effect. For instance, say that you deployed the stack under the `prod` stage and then decided to update the `allowedOrigins` value in the configuration options. After updating the `cdk.json` file, you will then need to run the following command to re-deploy the `prod` stack with the new changes:
+
+```shell
+make deploy STAGE=prod
+```
 
 ## Backend Specification
 
@@ -83,7 +110,7 @@ To avoid unexpected charges to your account, be sure to destroy the CDK stack wh
    make destroy
    ```
 
-This command will delete all the AWS resources that were created for this demo, with the exception of the IVS channels and IVS chat rooms. These IVS resources will have to be manually stopped, in the case of channels that are still live, and deleted from the AWS console. Any channels that remain in offline status or chat rooms that have not been deleted will not incur charges to your account.
+This command will delete all the AWS resources that were created for this demo, with the exception of the Amazon IVS channels and Amazon IVS chat rooms. These Amazon IVS resources will have to be manually stopped, in the case of channels that are still live, and deleted from the AWS console. Any channels that remain in offline status or chat rooms that have not been deleted will not incur charges to your account.
 
 Additionally, the `make destroy` command will also run a clean-up process that will delete the cloud assembly directory (`cdk.out`).
 
@@ -128,9 +155,9 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 ## Limitations
 
 - In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
-- While this demo relies on EventBrige to gather information about a user's stream(s), the streaming configuration details are still retrieved from the IVS API. Therefore, during high traffic conditions, these requests may be throttled once the 5 TPS [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved from the IVS API.
+- While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved from the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the 5 TPS [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved from the Amazon IVS API.
 - By default, Cognito will send user account-related emails using a Cognito-hosted domain, which are limited to 50 emails / day per account. If you wish to increase the email delivery volume, you will need to configure your Cognito user pool to use Amazon SES configured with your own domain. For more information, see [Email settings for Amazon Cognito user pools](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html).
-- The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev, and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
+- The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
 
   ```typescript
   new UGCStack(new App(), `UGC-${stage}`, {
@@ -141,6 +168,8 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
   resourceConfig
   });
   ```
+
+  Alternatively, you may also choose to [request a quota increase](https://console.aws.amazon.com/servicequotas/home/services/vpc/quotas) for "NAT gateways per Availability Zone" and "VPCs per Region."
 
 - iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as we do on desktop devices. The current workaround that has been implemented is to initiate the default WebKit fullscreen mode, which uses the native iOS video player UI.
 - Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.

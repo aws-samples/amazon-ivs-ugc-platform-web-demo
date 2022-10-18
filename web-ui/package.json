@@ -33,6 +33,9 @@
     "tailwind-merge": "^1.6.1",
     "util": "^0.12.4"
   },
+  "engines": {
+    "npm": ">=8.3.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -66,5 +69,8 @@
     "serve": "^14.0.1",
     "tailwindcss": "^3.1.7",
     "uuid": "^9.0.0"
+  },
+  "overrides": {
+    "d3-color": "3.1.0"
   }
 }
