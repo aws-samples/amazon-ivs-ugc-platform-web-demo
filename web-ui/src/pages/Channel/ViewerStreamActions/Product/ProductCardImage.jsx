@@ -20,13 +20,13 @@ const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => {
         'bg-lightMode-gray-light',
         'dark:bg-darkMode-gray',
         'relative',
-        'rounded-3xl',
+        'rounded-xl',
         'w-full',
         customClasses
       ])}
     >
       <img
-        className={clsm(['text-[0px]', 'rounded-3xl'])}
+        className={clsm(['text-[0px]', 'rounded-xl'])}
         src={imageUrl}
         alt={title}
         ref={imgRef}

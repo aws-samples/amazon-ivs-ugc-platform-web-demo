@@ -145,7 +145,16 @@ const StreamManagerActionModal = () => {
             ]
           )}
         >
-          <h2 className={clsm(['text-center', 'pb-12'])}>{title}</h2>
+          <h2
+            className={clsm([
+              'text-center',
+              'pb-12',
+              'text-black',
+              'dark:text-white'
+            ])}
+          >
+            {title}
+          </h2>
           <div
             className={clsm([
               'flex',

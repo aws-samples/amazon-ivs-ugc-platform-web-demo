@@ -1,23 +1,13 @@
 import { useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  getPrimaryBgColorClass,
-  getSecondaryBgColorClasses,
-  getSecondaryTextColorClass,
-  shouldForceWhiteTextLightDark,
-  shouldForceWhiteTextLightMode
-} from './ProductTheme';
-import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
 import { useModal, MODAL_TYPE } from '../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import Button from '../../../../components/Button';
 import FloatingNav from '../../../../components/FloatingNav';
+import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
 import ProductDescription from './ProductDescription';
-
-const $content = $channelContent.actions.product;
 
 const Product = ({ color, description, imageUrl, price, title }) => {
   const learnMoreButtonRef = useRef();
@@ -57,7 +47,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
       ])}
     >
       <ProductCardImage
-        customClasses={['h-[216px]']}
+        customClasses={['h-[220px]', 'min-w-[220px]']}
         imageUrl={imageUrl}
         price={price}
         title={title}
@@ -75,37 +65,11 @@ const Product = ({ color, description, imageUrl, price, title }) => {
       >
         {title}
       </h2>
-      <div className={clsm(['flex', 'flex-col', 'space-y-2', 'w-full'])}>
-        <Button
-          className={clsm([
-            `hover:${getPrimaryBgColorClass(color)}-hover`,
-            `focus:${getPrimaryBgColorClass(color)}`,
-            getPrimaryBgColorClass(color),
-            shouldForceWhiteTextLightMode(color) && [
-              'text-white',
-              'dark:text-black'
-            ],
-            shouldForceWhiteTextLightDark(color) && [
-              'text-white',
-              'dark:text-white'
-            ],
-            'sm:w-full'
-          ])}
-        >
-          {$content.buy_now}
-        </Button>
-        <Button
-          className={clsm([
-            `dark:${getSecondaryTextColorClass(color)}`,
-            getSecondaryBgColorClasses(color),
-            'sm:w-full'
-          ])}
-          onClick={openProductDetails}
-          ref={learnMoreButtonRef}
-        >
-          {$content.learn_more}
-        </Button>
-      </div>
+      <ProductButtons
+        ref={learnMoreButtonRef}
+        openProductDetails={openProductDetails}
+        variant="popup"
+      />
       {isMobileView && <FloatingNav />}
     </div>
   );

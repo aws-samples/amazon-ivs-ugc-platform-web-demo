@@ -1,53 +1,63 @@
-import { clsm, noop } from '../../../../utils';
 import PropTypes from 'prop-types';
 
-import {
-  getPrimaryBgColorClass,
-  getSecondaryBgColorClasses,
-  getSecondaryTextColorClass,
-  shouldForceWhiteTextLightDark,
-  shouldForceWhiteTextLightMode
-} from './ProductTheme';
 import { BREAKPOINTS } from '../../../../constants';
-import { channel as $channelContent } from '../../../../content';
+import { clsm, isiOS } from '../../../../utils';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import Button from '../../../../components/Button';
+import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
+import { useEffect, useRef } from 'react';
 
-const $popupContent = $channelContent.actions.product.popup;
-
-const ProductDescription = ({ title, description, color, price, imageUrl }) => {
-  const { currentBreakpoint } = useResponsiveDevice();
+const ProductDescription = ({ color, title, description, price, imageUrl }) => {
+  const { currentBreakpoint, isLandscape } = useResponsiveDevice();
+  const productDescriptionRef = useRef();
   const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
-
-  const customClasses = [
-    'max-w-[318px]',
-    'max-h-[318px]',
+  const customProductImageClasses = [
+    'w-[320px]',
+    'h-[320px]',
+    'sm:w-full',
     'sm:max-w-none',
-    'sm:max-h-fit'
+    'sm:max-h-fit',
+    'sm:h-[calc(100vw_-_32px)]'
   ];
-  const productImgEl = (
-    <ProductCardImage
-      color={color}
-      customClasses={customClasses}
-      imageUrl={imageUrl}
-      price={price}
-      title={title}
-    />
-  );
+
+  /*
+  We've found that on iOS devices, some of the existing CSS styles weren't applied correctly after an orientation change. 
+  Forcing the browser to repaint the element by updating the style attribute seems to solve the issue.
+  */
+
+  useEffect(() => {
+    if (isiOS()) {
+      productDescriptionRef.current.style.overflowWrap = 'anywhere';
+    }
+  }, [isLandscape]);
 
   return (
-    <div className={clsm(['flex', 'sm:flex-col', 'w-full', 'justify-between'])}>
-      {!isSmallBreakpoint && productImgEl}
+    <div
+      className={clsm([
+        'flex',
+        'sm:flex-col',
+        'w-full',
+        'justify-between',
+        'sm:h-full'
+      ])}
+    >
+      <ProductCardImage
+        color={color}
+        customClasses={customProductImageClasses}
+        imageUrl={imageUrl}
+        price={price}
+        title={title}
+      />
       <div
         className={clsm([
           'flex',
           'flex-col',
           'justify-end',
-          'max-w-[180px]',
-          'sm:max-w-none',
-          'md:pl-4',
-          'sm:pl-0'
+          'w-[180px]',
+          'md:pl-2',
+          'sm:pl-0',
+          'sm:pt-8',
+          'sm:w-full'
         ])}
       >
         <div
@@ -60,8 +70,9 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
             'md:pr-2'
           ])}
         >
-          <h3>{title}</h3>
+          <h2 className={clsm(['text-black', 'dark:text-white'])}>{title}</h2>
           <p
+            ref={productDescriptionRef}
             className={clsm([
               'py-2.5',
               'sm:pb-0',
@@ -69,48 +80,15 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
               'text-[#A0A0A0]',
               'text-sm',
               'sm:text-md',
-              'break-words'
+              'break-anywhere'
             ])}
           >
             {description}
           </p>
         </div>
-        {isSmallBreakpoint && productImgEl}
-        <div className={clsm(['items-center', 'flex', 'flex-col', 'sm:pt-8'])}>
-          <Button
-            ariaLabel={`${$popupContent.buy_now}`}
-            className={clsm([
-              `hover:${getPrimaryBgColorClass(color)}-hover`,
-              `focus:${getPrimaryBgColorClass(color)}`,
-              getPrimaryBgColorClass(color),
-              shouldForceWhiteTextLightMode(color) && [
-                'text-white',
-                'dark:text-black'
-              ],
-              shouldForceWhiteTextLightDark(color) && [
-                'text-white',
-                'dark:text-white'
-              ],
-              'w-full'
-            ])}
-            onClick={noop}
-          >
-            {$popupContent.buy_now}
-          </Button>
-          <Button
-            ariaLabel={`${$popupContent.add_to_cart}`}
-            className={clsm([
-              'mt-2.5',
-              'sm:mt-3',
-              'w-full',
-              `dark:${getSecondaryTextColorClass(color)}`,
-              getSecondaryBgColorClasses(color)
-            ])}
-            onClick={noop}
-          >
-            {$popupContent.add_to_cart}
-          </Button>
-        </div>
+        {!isSmallBreakpoint && (
+          <ProductButtons variant="productDescriptionDesktop" />
+        )}
       </div>
     </div>
   );
@@ -118,16 +96,16 @@ const ProductDescription = ({ title, description, color, price, imageUrl }) => {
 
 ProductDescription.defaultProps = {
   color: 'default',
-  price: '',
-  imageUrl: ''
+  imageUrl: '',
+  price: ''
 };
 
 ProductDescription.propTypes = {
-  description: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  price: PropTypes.string,
   color: PropTypes.string,
-  imageUrl: PropTypes.string
+  description: PropTypes.string.isRequired,
+  imageUrl: PropTypes.string,
+  price: PropTypes.string,
+  title: PropTypes.string.isRequired
 };
 
 export default ProductDescription;
