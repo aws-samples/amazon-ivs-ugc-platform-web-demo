@@ -10,6 +10,8 @@ export { ReactComponent as Checkmark } from './checkmark-round.svg';
 export { ReactComponent as ChevronLeft } from './chevron-left.svg';
 export { ReactComponent as ChevronRight } from './chevron-right.svg';
 export { ReactComponent as Close } from './close.svg';
+export { ReactComponent as ConfettiClosed } from './confetti-closed.svg';
+export { ReactComponent as ConfettiOpen } from './confetti-open.svg';
 export { ReactComponent as Copy } from './copy.svg';
 export { ReactComponent as Delete } from './delete.svg';
 export { ReactComponent as DownArrow } from './down-arrow.svg';

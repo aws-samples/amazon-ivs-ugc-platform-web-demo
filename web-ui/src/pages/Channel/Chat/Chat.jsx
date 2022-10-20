@@ -38,7 +38,8 @@ const Chat = ({
     }
   });
 
-  const { isChannelLoading, refreshChannelData } = useChannel();
+  const { channelData, isChannelLoading, refreshChannelData } = useChannel();
+  const { color: channelColor } = channelData || {};
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
   const { isLandscape, isMobileView, currentBreakpoint, mainRef } =
@@ -129,6 +130,7 @@ const Chat = ({
     <>
       <CelebrationViewerStreamAction
         chatContainerDimensions={chatContainerDimensions}
+        color={channelColor}
         shouldRun={shouldRunCelebration}
       />
       <Notification />

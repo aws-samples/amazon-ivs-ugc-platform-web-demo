@@ -321,3 +321,5 @@ export const deconstructObjectPath = (path = [], value) => {
 
   return deconstruct(path.slice(0), cloneObject(value));
 };
+
+export const range = (length) => Array.from({ length }, (_, i) => i);
