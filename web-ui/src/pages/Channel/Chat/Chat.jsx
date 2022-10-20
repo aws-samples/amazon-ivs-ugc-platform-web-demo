@@ -29,15 +29,6 @@ const Chat = ({
   shouldRunCelebration
 }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
-
-  useResizeObserver(chatContainerRef, (entry) => {
-    if (entry) {
-      const { clientWidth, clientHeight } = entry.target;
-
-      setChatContainerDimensions({ width: clientWidth, height: clientHeight });
-    }
-  });
-
   const { channelData, isChannelLoading, refreshChannelData } = useChannel();
   const { color: channelColor } = channelData || {};
   const { isSessionValid, userData } = useUser();
@@ -125,6 +116,22 @@ const Chat = ({
       );
     }
   }, [isModerator, notifyInfo, isLoading]);
+
+  const updateChatContainerDimensions = useCallback((elem) => {
+    const { clientWidth, clientHeight } = elem;
+
+    setChatContainerDimensions({ width: clientWidth, height: clientHeight });
+  }, []);
+
+  useResizeObserver(chatContainerRef, (entry) => {
+    if (entry) updateChatContainerDimensions(entry.target);
+  });
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      updateChatContainerDimensions(chatContainerRef.current);
+    }
+  }, [chatContainerRef, updateChatContainerDimensions]);
 
   return (
     <>
