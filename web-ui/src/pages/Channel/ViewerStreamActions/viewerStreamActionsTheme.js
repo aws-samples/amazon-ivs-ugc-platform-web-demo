@@ -1,18 +1,26 @@
 import { clsm } from '../../../utils';
 
-const transition = {
+export const defaultViewerStreamActionTransition = {
   duration: 0.2,
   transition: { ease: 'easeInOut' }
 };
 
 export const defaultViewerStreamActionVariants = {
-  visible: { y: 0, opacity: 1, transition },
-  hidden: { y: 15, opacity: 0, transition }
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: defaultViewerStreamActionTransition
+  },
+  hidden: { y: 15, opacity: 0, transition: defaultViewerStreamActionTransition }
 };
 
 export const reversedViewerStreamActionVariants = {
   ...defaultViewerStreamActionVariants,
-  hidden: { y: -15, opacity: 0, transition }
+  hidden: {
+    y: -15,
+    opacity: 0,
+    transition: defaultViewerStreamActionTransition
+  }
 };
 
 export const defaultViewerStreamActionAnimationProps = {

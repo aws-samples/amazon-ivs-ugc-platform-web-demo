@@ -6,6 +6,7 @@ import './Controls/Controls.css';
 import { clsm } from '../../utils';
 import {
   defaultViewerStreamActionAnimationProps,
+  defaultViewerStreamActionTransition,
   defaultViewerStreamActionVariants
 } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
@@ -59,7 +60,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
               ...metadata,
               startTime: Date.now()
             });
-          }, defaultViewerStreamActionAnimationProps.transition.duration * 1000);
+          }, defaultViewerStreamActionTransition.duration * 1000);
 
           return null;
         }
