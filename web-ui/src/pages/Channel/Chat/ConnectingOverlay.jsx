@@ -1,9 +1,11 @@
-import PropTypes from 'prop-types';
-import { useEffect, useRef, useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import Spinner from '../../../components/Spinner';
+import useCurrentPage from '../../../hooks/useCurrentPage';
+import usePrevious from '../../../hooks/usePrevious';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
 const defaultAnimationProps = {
@@ -14,6 +16,9 @@ const defaultAnimationProps = {
 };
 
 const ConnectingOverlay = ({ isLoading }) => {
+  const currentPage = useCurrentPage();
+  const isStreamManagerPage = currentPage === 'stream_manager';
+  const previousIsLoading = usePrevious(isLoading);
   const [shouldShowConnectingOverlay, setShouldShowConnectingOverlay] =
     useState(true);
 
@@ -22,7 +27,7 @@ const ConnectingOverlay = ({ isLoading }) => {
   useEffect(() => {
     if (isLoading) {
       setShouldShowConnectingOverlay(true);
-    } else {
+    } else if (!isLoading && previousIsLoading) {
       loaderTimeoutId.current = setTimeout(
         () => setShouldShowConnectingOverlay(false),
         (defaultTransition.duration / 2) * 1000
@@ -30,7 +35,7 @@ const ConnectingOverlay = ({ isLoading }) => {
     }
 
     return () => clearTimeout(loaderTimeoutId.current);
-  }, [isLoading]);
+  }, [isLoading, previousIsLoading]);
 
   return (
     <AnimatePresence initial={false}>
@@ -41,14 +46,15 @@ const ConnectingOverlay = ({ isLoading }) => {
             variants={{ visible: { y: 0 }, hidden: { y: '-150%' } }}
             className={clsm([
               'absolute',
-              'top-4',
-              'w-11',
+              'bg-lightMode-gray',
+              'dark:bg-darkMode-gray',
               'h-11',
               'p-2.5',
               'rounded-full',
-              'bg-lightMode-gray',
-              'dark:bg-darkMode-gray',
-              'z-50'
+              'top-4',
+              'w-11',
+              'z-50',
+              isStreamManagerPage && 'bg-lightMode-gray-extraLight'
             ])}
           >
             <Spinner variant="light" />
@@ -58,13 +64,14 @@ const ConnectingOverlay = ({ isLoading }) => {
             variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
             className={clsm([
               'absolute',
-              'top-0',
-              'left-0',
-              'w-full',
+              'bg-darkMode-loadingOverlay',
+              'dark:bg-darkMode-loadingOverlay',
               'h-full',
-              'dark:bg-loadingOverlay',
-              'bg-white',
-              'z-40'
+              'left-0',
+              'top-0',
+              'w-full',
+              'z-40',
+              !isStreamManagerPage && 'bg-lightMode-loadingOverlay'
             ])}
           ></m.div>
         </>

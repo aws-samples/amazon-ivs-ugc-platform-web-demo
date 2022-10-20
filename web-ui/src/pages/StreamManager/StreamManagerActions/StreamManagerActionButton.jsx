@@ -149,13 +149,15 @@ const StreamManagerActionButton = forwardRef(
               <div
                 className={clsm([
                   'absolute',
-                  'h-[27px]',
+                  'h-[26px]',
+                  'left-[7px]',
                   'ring-2',
                   'rounded-full',
-                  'w-[27px]',
+                  'top-[7px]',
+                  'w-[26px]',
+                  'z-50',
                   `group-hover:ring-profile-${color}-hover`,
                   `ring-profile-${color}`,
-                  'z-50',
                   DEFAULT_TRANSITION_CLASSES
                 ])}
               ></div>

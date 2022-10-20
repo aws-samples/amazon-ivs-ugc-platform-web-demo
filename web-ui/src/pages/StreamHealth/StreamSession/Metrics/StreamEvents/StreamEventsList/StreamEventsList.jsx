@@ -17,13 +17,14 @@ const StreamEventsList = ({
   isHidden,
   isLearnMoreVisible,
   isPreview,
+  isStreamEventsListVisible,
   selectedEventId,
   setIsStreamEventsListVisible,
   setSelectedEventId,
   streamEvents,
   toggleLearnMore
 }) => {
-  const { isDefaultResponsiveView } = useResponsiveDevice();
+  const { isDefaultResponsiveView, isMobileView } = useResponsiveDevice();
   const { activeStreamSession = {}, isLoadingStreamData } = useStreams();
   const wrapperRef = useRef();
   const selectedEventRef = useRef();
@@ -74,7 +75,11 @@ const StreamEventsList = ({
   }, []);
 
   const hasEvents = !!streamEvents.length;
-  const metricPanelWrapperClasses = ['stream-events-list'];
+  const metricPanelWrapperClasses = [
+    'stream-events-list',
+    'space-y-4',
+    isStreamEventsListVisible && isMobileView && 'pb-20'
+  ];
   if (!hasEvents) metricPanelWrapperClasses.push('no-stream-events-wrapper');
 
   return (
@@ -126,6 +131,7 @@ StreamEventsList.defaultProps = {
   isHidden: false,
   isLearnMoreVisible: false,
   isPreview: false,
+  isStreamEventsListVisible: false,
   selectedEventId: null,
   setIsStreamEventsListVisible: noop,
   streamEvents: []
@@ -135,6 +141,7 @@ StreamEventsList.propTypes = {
   isHidden: PropTypes.bool,
   isLearnMoreVisible: PropTypes.bool,
   isPreview: PropTypes.bool,
+  isStreamEventsListVisible: PropTypes.bool,
   selectedEventId: PropTypes.string,
   setIsStreamEventsListVisible: PropTypes.func,
   setSelectedEventId: PropTypes.func.isRequired,

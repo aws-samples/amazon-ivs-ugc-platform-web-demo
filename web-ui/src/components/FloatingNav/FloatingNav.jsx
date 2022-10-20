@@ -16,7 +16,7 @@ const FloatingNav = ({ siblingRef }) => {
   return (
     <div
       className={clsm(
-        ['fixed', 'flex', 'flex-col-reverse', 'right-5', 'bottom-6', 'z-[500]'],
+        ['fixed', 'flex', 'flex-col-reverse', 'right-5', 'bottom-6', 'z-[800]'],
         isStreamManagerPage && [
           'sm:right-9',
           'bottom-12',

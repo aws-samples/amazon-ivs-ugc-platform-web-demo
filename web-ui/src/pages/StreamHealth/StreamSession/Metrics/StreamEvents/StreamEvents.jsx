@@ -71,12 +71,13 @@ const StreamEvents = () => {
       >
         <StreamEventsList
           isHidden={!isStreamEventsListVisible}
+          isLearnMoreVisible={isLearnMoreVisible}
+          isStreamEventsListVisible={isStreamEventsListVisible}
           selectedEventId={selectedEventId}
           setIsStreamEventsListVisible={setIsStreamEventsListVisible}
           setSelectedEventId={setSelectedEventId}
           streamEvents={streamEvents}
           toggleLearnMore={toggleLearnMore}
-          isLearnMoreVisible={isLearnMoreVisible}
         />
       </ResponsivePanel>
       <ResponsivePanel
@@ -93,6 +94,7 @@ const StreamEvents = () => {
         <>
           <StreamEventsList
             isPreview
+            isStreamEventsListVisible={isStreamEventsListVisible}
             selectedEventId={selectedEventId}
             setSelectedEventId={setSelectedEventId}
             streamEvents={streamEvents.slice(0, EVENT_PREVIEW_COUNT)}
@@ -101,7 +103,7 @@ const StreamEvents = () => {
           {streamEvents.length > EVENT_PREVIEW_COUNT && (
             <Button
               onClick={() => setIsStreamEventsListVisible(true)}
-              className={clsm('m-auto')}
+              className={clsm('mx-auto', 'my-4')}
               variant="secondary"
             >
               {$content.view_all_events}

@@ -10,7 +10,9 @@ import {
 } from './viewerStreamActionsTheme';
 import { clsm } from '../../../utils';
 import { STREAM_ACTION_NAME } from '../../../constants';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
+import FloatingNav from '../../../components/FloatingNav';
 import ProgressBar from './ProgressBar';
 
 const defaultQuizAnswerHeight = 42;
@@ -30,6 +32,7 @@ const QuizCard = ({
   const [isAnswerSelected, setIsAnswerSelected] = useState();
   const [chosenAnswerIndex, setChosenAnswerIndex] = useState();
   const quizButtonArrRef = useRef([]);
+  const { isMobileView } = useResponsiveDevice();
 
   const profileColorButtonClassNames = clsm([
     color
@@ -92,7 +95,8 @@ const QuizCard = ({
         'w-full',
         'z-10',
         'mb-4',
-        isControlsOpen && !shouldRenderActionInTab && 'mb-40'
+        isControlsOpen && !shouldRenderActionInTab && 'mb-40',
+        isMobileView && 'pb-20'
       ])}
     >
       <m.div
@@ -171,6 +175,7 @@ const QuizCard = ({
           </div>
         </div>
       </m.div>
+      {isMobileView && <FloatingNav />}
     </div>
   );
 };

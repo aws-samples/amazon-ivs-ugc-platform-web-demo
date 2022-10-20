@@ -46,7 +46,6 @@ module.exports = {
       minWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
       maxWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
       colors: {
-        loadingOverlay: 'hsl(0 0% 0% / 0.3)',
         modalOverlay: 'hsl(0 0% 0% / 0.5)',
         white: {
           DEFAULT: 'hsl(var(--base-color-white), 100%)',
@@ -59,6 +58,7 @@ module.exports = {
           gradient: 'hsl(var(--base-color-white), 0%, 0.75)'
         },
         darkMode: {
+          loadingOverlay: 'hsl(0 0% 0% / 0.3)',
           gray: {
             DEFAULT: 'hsl(var(--base-color-medium-gray), 27%)',
             hover: 'hsl(var(--base-color-medium-gray), 37%)',
@@ -110,6 +110,7 @@ module.exports = {
           }
         },
         lightMode: {
+          loadingOverlay: 'hsl(0 100% 100% / 0.3)',
           gray: {
             DEFAULT: 'hsl(var(--base-color-white), 80%)',
             hover: 'hsl(var(--base-color-white), 70%)',

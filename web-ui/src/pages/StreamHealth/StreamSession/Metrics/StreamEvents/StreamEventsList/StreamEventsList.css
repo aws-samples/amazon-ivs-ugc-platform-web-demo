@@ -11,10 +11,6 @@
   margin-top: -5px;
 }
 
-.event-item-container {
-  padding-bottom: 15px;
-}
-
 .event-item {
   background: hsla(var(--base-color-medium-gray), 18%, 0);
   border-radius: 24px;

@@ -75,11 +75,7 @@ const StreamEventItem = ({
   }, [controls, isSelected, shouldReduceMotion]);
 
   return (
-    <div
-      className="event-item-container"
-      data-id={id}
-      ref={setSelectedEventRef}
-    >
+    <div data-id={id} ref={setSelectedEventRef}>
       <div
         aria-disabled={!isExpandable}
         aria-label={`${
