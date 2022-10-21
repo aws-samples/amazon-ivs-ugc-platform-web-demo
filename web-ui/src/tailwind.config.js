@@ -343,16 +343,16 @@ module.exports = {
     }
   },
   safelist: [
-    { pattern: /(border|ring|fill|stroke)-profile(-.*)?/ },
+    { pattern: /^(ring|fill|stroke)-profile-([a-z]+)$/ },
     {
-      pattern: /bg-profile(-.*)?/,
+      pattern: /^bg-profile([-a-zA-Z]+)$/,
       variants: ['hover', 'focus', 'dark', 'dark:hover', 'dark:focus']
     },
     {
-      pattern: /(stroke|ring)-profile-(.*)-hover/,
+      pattern: /^(stroke|ring)-profile-([a-z]+)-hover$/,
       variants: ['group-hover']
     },
-    { pattern: /text-profile(-.*)?/, variants: ['dark'] }
+    { pattern: /^text-profile-([a-z]+)$/, variants: ['dark'] }
   ],
   corePlugins: { aspectRatio: false },
   plugins: [
