@@ -12,8 +12,8 @@ const usePreviousFocus = ({ isActive, onRefocus = noop }) => {
     useLastFocusedElement();
 
   const refocus = useCallback(
-    (event) => {
-      if (event && event.key !== 'Escape') return;
+    (event, forceRefocus = false) => {
+      if (event && event.key !== 'Escape' && !forceRefocus) return;
 
       setTimeout(() => {
         getLastFocusedElement()?.focus();

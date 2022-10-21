@@ -119,7 +119,7 @@ const Sidebar = () => {
                               ]
                         )}
                       >
-                        {icon} {!isSessionValid && displayName}
+                        {icon} {!isSessionValid && <span>{displayName}</span>}
                       </span>
                     </Button>,
                     displayName

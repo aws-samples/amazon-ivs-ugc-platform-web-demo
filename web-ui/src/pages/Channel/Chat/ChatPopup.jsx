@@ -78,6 +78,8 @@ const ChatPopup = ({
     });
   };
 
+  const handleCancelAndRefocus = (event) => handleClose(event, true);
+
   useClickAway([popupRef], () => setIsChatPopupOpen(false));
 
   return (
@@ -188,7 +190,7 @@ const ChatPopup = ({
               'hover:bg-lightMode-gray-hover'
             ])}
             variant="secondary"
-            onClick={handleClose}
+            onClick={handleCancelAndRefocus}
           >
             {$content.cancel}
           </Button>
