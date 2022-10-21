@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import './FloatingPlayer.css';
 import { app as $appContent } from '../../../content';
@@ -43,7 +43,6 @@ const FloatingPlayer = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const currentPage = useCurrentPage();
   const navigate = useNavigate();
-  const prevIsLiveValue = useRef(isLive);
   const shouldShowSpinner =
     (isLoading && isLive !== false) || (shouldBlurPlayer && !isBlurReady);
   const hidePlayerStyles = shouldShowSpinner
@@ -54,12 +53,6 @@ const FloatingPlayer = () => {
 
     if (currentPage !== 'stream_health') navigate('/health');
   }, [currentPage, navigate, streamSessions, updateActiveStreamSession]);
-
-  useEffect(() => {
-    if (isLive) {
-      prevIsLiveValue.current = true;
-    }
-  }, [isLive]);
 
   // Lower the rendition of the player to the lowest available resolution
   useEffect(() => {
@@ -115,13 +108,11 @@ const FloatingPlayer = () => {
           <div className="offline-stream-container">
             {hasStreamSessions ? (
               <p className="mini-player-text p2">
-                {prevIsLiveValue.current
-                  ? $content.stream_went_offline
-                  : $content.no_current_live_stream}
+                {$content.your_channel_is_offline}
               </p>
             ) : (
               <>
-                <h4>{$content.no_current_live_stream}</h4>
+                <h4>{$content.your_channel_is_offline}</h4>
                 <p className="mini-player-text offline-instructions p2">
                   {$content.offline_instructions}
                 </p>

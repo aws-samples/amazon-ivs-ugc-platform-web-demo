@@ -22,12 +22,11 @@
   },
   "floating_player": {
     "view_stream_session": "View stream session",
-    "no_current_live_stream": "No current live stream",
     "offline_instructions": "To start streaming, find your ingest server url and stream key in settings.",
     "settings": "Settings",
-    "stream_went_offline": "Your stream just went offline. Try reconnecting your streaming software.",
     "expand": "Expand player",
-    "collapse": "Collapse player"
+    "collapse": "Collapse player",
+    "your_channel_is_offline": "Your channel is offline"
   },
   "date_time": {
     "just_now": "just now"
