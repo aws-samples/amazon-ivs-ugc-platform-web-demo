@@ -3,11 +3,11 @@ import { forwardRef, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
 import './NavigatorPopup.css';
-import { dashboard as $dashboardContent } from '../../../../content';
-import { groupStreamSessions } from '../utils';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreams } from '../../../../contexts/Streams';
-import Button from '../../../../components/Button';
+import { dashboard as $dashboardContent } from '../../../content';
+import { groupStreamSessions } from '../Header/utils';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import { useStreams } from '../../../contexts/Streams';
+import Button from '../../../components/Button';
 import StreamSessionButton from './StreamSessionButton';
 
 const $content = $dashboardContent.header.session_navigator;

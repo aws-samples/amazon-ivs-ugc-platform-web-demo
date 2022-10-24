@@ -95,7 +95,7 @@
   flex-direction: column-reverse;
   position: fixed;
   right: 24px;
-  z-index: 200;
+  z-index: 300;
 }
 
 .floating-player .icon-button {
@@ -173,7 +173,6 @@
   left: 10px;
   position: absolute;
   top: 10px;
-  z-index: 20;
 }
 
 .video-container video {
@@ -183,7 +182,6 @@
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 10;
 }
 
 .video-container canvas {

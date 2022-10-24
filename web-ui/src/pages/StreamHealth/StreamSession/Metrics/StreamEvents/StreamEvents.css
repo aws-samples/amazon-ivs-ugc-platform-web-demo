@@ -8,7 +8,6 @@
 
 .stream-events .metrics-panel {
   height: 100%;
-  z-index: 5;
 }
 
 .stream-events .metrics-spinner-container,

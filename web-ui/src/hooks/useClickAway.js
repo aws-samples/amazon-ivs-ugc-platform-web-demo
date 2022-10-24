@@ -1,22 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+
+import useLatest from './useLatest';
 
 const events = ['pointerdown'];
 
 const useClickAway = (targetRefs, onClickAway, isEnabled = true) => {
-  const savedCallback = useRef(onClickAway);
-  const refs = useRef(targetRefs);
-
-  useEffect(() => {
-    savedCallback.current = onClickAway;
-  }, [onClickAway]);
+  const latestCallback = useLatest(onClickAway);
+  const latestRefs = useLatest(targetRefs);
 
   useEffect(() => {
     if (!isEnabled) return;
 
     const handler = (event) => {
-      refs.current.every(
+      latestRefs.current.every(
         ({ current: target }) => target && !target.contains(event.target)
-      ) && setTimeout(() => savedCallback.current(event), 50);
+      ) && setTimeout(() => latestCallback.current(event), 50);
     };
 
     for (const eventName of events) {
@@ -28,7 +26,7 @@ const useClickAway = (targetRefs, onClickAway, isEnabled = true) => {
         document.removeEventListener(eventName, handler);
       }
     };
-  }, [isEnabled]);
+  }, [isEnabled, latestRefs, latestCallback]);
 };
 
 export default useClickAway;

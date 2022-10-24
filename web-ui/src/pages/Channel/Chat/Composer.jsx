@@ -143,12 +143,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div
-      className={clsm(
-        ['w-full', 'pt-5', 'pb-6', 'px-[18px]', 'z-10'],
-        isLoading && ['z-50']
-      )}
-    >
+    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
       <m.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
@@ -159,7 +154,7 @@ const Composer = ({
       >
         <form
           className={clsm(
-            ['relative', 'z-510'],
+            'relative',
             isSessionValid && [
               'md:w-[calc(100%_-_60px)]',
               isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'

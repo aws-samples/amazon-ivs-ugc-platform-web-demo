@@ -6,7 +6,7 @@
   position: absolute;
   top: 64px;
   width: 100%;
-  z-index: 250;
+  z-index: 550;
 }
 
 .nav-popup-wrapper {
@@ -24,7 +24,7 @@
   background: transparent;
   display: flex;
   flex-direction: column;
-  height: calc(100% - 64px);
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   padding: 30px;
@@ -138,6 +138,10 @@ svg.session-icon.success {
     margin: 0;
     max-height: 100%;
     max-width: 100%;
+  }
+
+  .nav-popup {
+    height: calc(100% - 64px);
   }
 }
 

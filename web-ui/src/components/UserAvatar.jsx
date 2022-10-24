@@ -13,12 +13,11 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
   const avatarClassNames = clsm([
     [
       'bg-lightMode-gray-extraLight',
-      'ring-2',
       'dark:bg-darkMode-gray-medium',
       'flex-shrink-0',
+      'ring-2',
       'rounded-[22px]',
-      'transition-all',
-      'z-10'
+      'transition-all'
     ],
     dimensions,
     profileColor ? `ring-profile-${profileColor}` : 'ring-profile'

@@ -135,12 +135,6 @@ const Chat = ({
 
   return (
     <>
-      <CelebrationViewerStreamAction
-        chatContainerDimensions={chatContainerDimensions}
-        color={channelColor}
-        shouldRun={shouldRunCelebration}
-      />
-      <Notification />
       <div
         className={clsm([
           'relative',
@@ -152,12 +146,17 @@ const Chat = ({
           'px-0.5'
         ])}
       >
-        <ConnectingOverlay isLoading={isLoading} />
         <Messages
           isChatPopupOpen={isChatPopupOpen}
           isModerator={isModerator}
           openChatPopup={openChatPopup}
         />
+        <CelebrationViewerStreamAction
+          chatContainerDimensions={chatContainerDimensions}
+          color={channelColor}
+          shouldRun={shouldRunCelebration}
+        />
+        <ConnectingOverlay isLoading={isLoading} />
         {isMobileView && !isSessionValid ? (
           <MobileNavbar
             className={clsm([
@@ -194,6 +193,7 @@ const Chat = ({
           />
         )}
       </AnimatePresence>
+      <Notification />
     </>
   );
 };

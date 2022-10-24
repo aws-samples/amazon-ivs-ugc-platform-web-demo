@@ -11,7 +11,7 @@ import Button from '../../../../../../components/Button';
 
 const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useStreams();
-  const { isDefaultResponsiveView, isMobileView } = useResponsiveDevice();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
 
   return (
@@ -55,7 +55,7 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
           )
         }}
         skipHtml={true}
-        className={clsm(['learn-more-message', isMobileView && 'pb-20'])}
+        className="learn-more-message"
       >
         {subbedMsg}
       </ReactMarkdown>

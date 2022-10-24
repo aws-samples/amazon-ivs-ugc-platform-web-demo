@@ -69,7 +69,7 @@ export default withPortal(Modal, 'modal', {
     'top-0',
     'left-0',
     'w-full',
-    'z-[1000]',
-    'bg-modalOverlay'
+    'bg-modalOverlay',
+    'z-[700]'
   ]
 });

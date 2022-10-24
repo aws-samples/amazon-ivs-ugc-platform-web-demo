@@ -80,11 +80,12 @@ const SessionNavigator = forwardRef(
     return (
       <div
         className={clsm([
-          'self-center',
-          'space-x-2.5',
+          'col-start-2',
           'flex',
           'justify-center',
-          'col-start-2'
+          'px-4',
+          'self-center',
+          'space-x-2.5'
         ])}
       >
         <Button

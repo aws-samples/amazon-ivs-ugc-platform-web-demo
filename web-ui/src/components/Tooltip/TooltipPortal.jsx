@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
-import withPortal from '../withPortal';
 import './Tooltip.css';
+import { clsm } from '../../utils';
+import withPortal from '../withPortal';
 
 const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => (
   <span
@@ -20,4 +21,13 @@ TooltipPortal.propTypes = {
   message: PropTypes.node.isRequired
 };
 
-export default withPortal(TooltipPortal, 'tooltip');
+export default withPortal(TooltipPortal, 'tooltip', {
+  baseContainerClasses: clsm([
+    'absolute',
+    'flex',
+    'items-center',
+    'justify-center',
+    'w-max',
+    'z-[900]'
+  ])
+});

@@ -72,10 +72,10 @@ export default withPortal(MobilePanel, 'mobile-panel', {
     'fixed',
     'w-screen',
     'h-full',
-    'z-[500]',
     'top-0',
     'left-0',
     'pointer-events-none',
-    'bg-transparent'
+    'bg-transparent',
+    'z-[500]'
   ])
 });

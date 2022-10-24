@@ -8,14 +8,14 @@ import useStateWithCallback from '../hooks/useStateWithCallback';
 const Context = createContext(null);
 Context.displayName = 'Notification';
 
-const NOTIF_TYPES = {
+export const NOTIF_TYPES = {
   SUCCESS: 'success',
   ERROR: 'error',
   INFO: 'info'
 };
 
 const defaultNotifOptions = {
-  className: '',
+  asPortal: false,
   timeout: DEFAULT_NOTIF_TIMEOUT,
   withTimeout: true
 };
@@ -36,17 +36,17 @@ export const Provider = ({ children }) => {
       message,
       type,
       {
-        withTimeout = defaultNotifOptions.withTimeout,
+        asPortal = defaultNotifOptions.asPortal,
         timeout = defaultNotifOptions.timeout,
-        className = defaultNotifOptions.className
+        withTimeout = defaultNotifOptions.withTimeout
       } = defaultNotifOptions
     ) => {
-      const notifProps = { message, type, withTimeout, timeout, className };
+      const notifProps = { asPortal, message, timeout, type, withTimeout };
       let shouldDismissNotif = false;
 
       setNotif(
         (prevNotif) => {
-          if (prevNotif && prevNotif.message !== message) {
+          if (prevNotif) {
             shouldDismissNotif = true;
             clearTimeout(timeoutID.current);
 
@@ -96,7 +96,6 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       dismissNotif,
-      NOTIF_TYPES,
       notif,
       notifyError,
       notifyInfo,

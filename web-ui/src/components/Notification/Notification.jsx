@@ -1,23 +1,54 @@
-import { m, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import { Check, ErrorIcon } from '../../assets/icons';
-import { clsm } from '../../utils';
 import {
-  useNotif,
-  NOTIF_ANIMATION_DURATION_MS
+  NOTIF_ANIMATION_DURATION_MS,
+  NOTIF_TYPES,
+  useNotif
 } from '../../contexts/Notification';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import usePrevious from '../../hooks/usePrevious';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
+import InlineNotification from './InlineNotification';
+import PortalNotification from './PortalNotification';
 
-const Notification = () => {
-  const { NOTIF_TYPES, notif, dismissNotif } = useNotif();
+const getNotificationAnimationProps = (shouldSkipExitAnimation, type) => ({
+  animate: 'visible',
+  initial: 'hidden',
+  exit: shouldSkipExitAnimation ? '' : 'hidden',
+  transition: {
+    duration: NOTIF_ANIMATION_DURATION_MS / 1000,
+    type: 'tween'
+  },
+  variants: {
+    hidden: { opacity: 0, y: -25 },
+    visible: { opacity: 1, y: 0 }
+  }
+});
+
+const Notification = ({ className }) => {
+  const { notif, dismissNotif } = useNotif();
+  const { asPortal, message, type } = notif || {};
   const [shouldSkipExitAnimation, setShouldSkipExitAnimation] =
     useStateWithCallback(false);
   const currPage = useCurrentPage();
   const prevPage = usePrevious(currPage);
-  const { type, message, className } = notif || {};
+  const isOpen = !!notif;
+
+  let NotifIcon = null;
+  if (type === NOTIF_TYPES.ERROR) NotifIcon = ErrorIcon;
+  if (type === NOTIF_TYPES.SUCCESS) NotifIcon = Check;
+
+  const props = {
+    type,
+    message,
+    className,
+    key: `${type}-${message}`,
+    Icon: NotifIcon,
+    animationProps: getNotificationAnimationProps(shouldSkipExitAnimation)
+  };
 
   // Skip the exit animation if the dismissal is triggered by a page change
   useEffect(() => {
@@ -26,83 +57,22 @@ const Notification = () => {
     }
   }, [dismissNotif, currPage, prevPage, setShouldSkipExitAnimation, notif]);
 
-  let NotifIcon = null;
-  if (notif?.type === NOTIF_TYPES.ERROR) NotifIcon = ErrorIcon;
-  if (notif?.type === NOTIF_TYPES.SUCCESS) NotifIcon = Check;
-
   return (
     <AnimatePresence
       mode="wait"
       onExitComplete={() => setShouldSkipExitAnimation(false)}
     >
-      {notif && (
-        <m.div
-          animate="visible"
-          aria-live="polite"
-          className={clsm([
-            'absolute',
-            'flex',
-            'justify-center',
-            'left-0',
-            'max-w-[595px]',
-            'mx-auto',
-            'my-0',
-            'notification',
-            'px-4',
-            'py-0',
-            'right-0',
-            'top-[32px]',
-            'w-full',
-            'z-[500]',
-            className
-          ])}
-          exit={shouldSkipExitAnimation ? '' : 'hidden'}
-          initial="hidden"
-          key={`${type}-notification`}
-          data-test-id={`${type}-notification`}
-          transition={{
-            duration: NOTIF_ANIMATION_DURATION_MS / 1000,
-            type: 'tween'
-          }}
-          variants={{
-            hidden: { opacity: 0, y: -25 },
-            visible: { opacity: 1, y: 0 }
-          }}
-        >
-          <div
-            className={clsm([
-              'dark:text-black',
-              'flex',
-              'font-bold',
-              'space-x-[11.5px]',
-              'items-center',
-              'leading-[18px]',
-              'px-[20px]',
-              'py-[10px]',
-              'rounded-3xl',
-              'text-white',
-              type === 'error' && ['bg-lightMode-red', 'dark:bg-darkMode-red'],
-              type === 'success' && [
-                'bg-lightMode-green',
-                'dark:bg-darkMode-green'
-              ],
-              type === 'info' && [
-                'bg-lightMode-turquoise',
-                'dark:bg-darkMode-turquoise'
-              ]
-            ])}
-          >
-            {NotifIcon && (
-              <NotifIcon
-                className={clsm(['dark:fill-black', 'fill-white', 'shrink-0'])}
-              />
-            )}
-            <p>{message}</p>
-          </div>
-        </m.div>
+      {asPortal ? (
+        <PortalNotification isOpen={isOpen} {...props} />
+      ) : (
+        isOpen && <InlineNotification {...props} />
       )}
     </AnimatePresence>
   );
 };
+
+Notification.propTypes = { className: PropTypes.string };
+
+Notification.defaultProps = { className: '' };
 
 export default Notification;

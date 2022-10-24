@@ -14,89 +14,79 @@ const FloatingNav = ({ siblingRef }) => {
   const isStreamManagerPage = currentPage === 'stream_manager';
 
   return (
-    <div
-      className={clsm(
-        ['fixed', 'flex', 'flex-col-reverse', 'right-5', 'bottom-6', 'z-[800]'],
+    <ProfileMenu
+      siblingRef={siblingRef}
+      asPortal={isStreamManagerPage && isLandscape}
+      navData={navMenuButtonData}
+      fadeBackground
+      containerClassName={clsm([
+        'fixed',
+        'flex',
+        'flex-col',
+        'items-end',
+        'space-y-4',
+        'right-5',
+        'bottom-6',
+        'h-auto',
+        'w-[calc(100vw_-_40px)]',
+        /**
+         * The container's max-height is calculated by considering the viewport height of mobile webkit browsers,
+         * which define a fixed value for vh that is based on the maximum height of the screen.
+         *
+         * Reference: https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
+         */
+        'max-h-[650px]', // Fallback
+        'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px))]', // Mobile (portrait) max-height calculation
+        isLandscape && [
+          'md:max-w-[400px]',
+          'touch-screen-device:max-w-[400px]'
+        ],
         isStreamManagerPage && [
-          'sm:right-9',
           'bottom-12',
           'right-[52px]',
+          'sm:right-9',
+          'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
           isLandscape && ['absolute', 'sm:right-5', 'lg:right-5', 'bottom-6']
+        ]
+      ])}
+      menuClassName={clsm(
+        ['w-full', 'h-full', 'origin-bottom-right'],
+        isStreamManagerPage && [
+          'lg:w-[calc(100vw_-_104px)]',
+          'sm:w-[calc(100vw_-_72px)]',
+          isLandscape && [
+            'fixed',
+            'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_126px))]',
+            'right-[52px]',
+            'sm:right-[36px]',
+            'sm:w-full',
+            'max-w-[400px]',
+            'bottom-[112px]',
+            'sm:w-[calc(100vw_-_72px)]'
+          ]
         ]
       )}
     >
-      <ProfileMenu
-        siblingRef={siblingRef}
-        asPortal={isStreamManagerPage && isLandscape}
-        navData={navMenuButtonData}
-        fadeBackground
-        containerClassName={clsm(
-          [
-            'space-y-4',
-            'flex',
-            'flex-col',
-            'items-end',
-            'w-[calc(100vw_-_40px)]',
-            'h-[calc(100vh_-_40px)]',
-            isLandscape && [
-              'md:max-w-[400px]',
-              'touch-screen-device:max-w-[400px]',
-              'touch-screen-device:lg:max-h-[570px]', // Fallback
-              'touch-screen-device:lg:max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px))]' // Mobile (landscape) max-height calculation
-            ],
-            /**
-             * The container's max-height is calculated by considering the viewport height of mobile webkit browsers,
-             * which define a fixed value for vh that is based on the maximum height of the screen.
-             *
-             * Reference: https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
-             */
-            'max-h-[634px]', // Fallback
-            'max-h-[min(634px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px))]' // Mobile (portrait) max-height calculation
-          ],
-          isStreamManagerPage && [
-            'lg:w-[calc(100vw_-_104px)]',
-            'sm:w-[calc(100vw_-_72px)]',
-            'max-h-[min(634px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
-            'h-auto'
-          ]
-        )}
-        menuClassName={clsm(
-          ['w-full', 'h-full', 'origin-bottom-right'],
-          isStreamManagerPage &&
-            isLandscape && [
-              'fixed',
-              'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_126px))]',
-              'right-[52px]',
-              'sm:right-[36px]',
-              'sm:w-full',
-              'z-[500]',
-              'max-w-[400px]',
-              'bottom-[112px]',
-              'sm:w-[calc(100vw_-_72px)]'
-            ]
-        )}
-      >
-        {({ isOpen, toggle, toggleRef }) => (
-          <Button
-            data-test-id="floating-menu-toggle"
-            className={clsm([
-              'w-12',
-              'h-12',
-              'min-w-[48px]',
-              'min-h-[48px]',
-              'bg-lightMode-gray',
-              'hover:bg-lightMode-gray-hover',
-              'focus:bg-lightMode-gray'
-            ])}
-            onClick={() => toggle()}
-            variant="secondary"
-            ref={toggleRef}
-          >
-            <Hamburger isOpen={isOpen} />
-          </Button>
-        )}
-      </ProfileMenu>
-    </div>
+      {({ isOpen, toggle, toggleRef }) => (
+        <Button
+          data-test-id="floating-menu-toggle"
+          className={clsm([
+            'w-12',
+            'h-12',
+            'min-w-[48px]',
+            'min-h-[48px]',
+            'bg-lightMode-gray',
+            'hover:bg-lightMode-gray-hover',
+            'focus:bg-lightMode-gray'
+          ])}
+          onClick={() => toggle()}
+          variant="secondary"
+          ref={toggleRef}
+        >
+          <Hamburger isOpen={isOpen} />
+        </Button>
+      )}
+    </ProfileMenu>
   );
 };
 

@@ -11,6 +11,7 @@ import { channelAPI } from '../../api';
 import { MODAL_TYPE, useModal } from '../Modal';
 import { pack, unpack } from '../../utils/streamActionHelpers';
 import {
+  DEFAULT_CELEBRATION_DURATION,
   PRODUCT_DATA_KEYS,
   QUIZ_DATA_KEYS,
   STREAM_ACTION_NAME,
@@ -46,13 +47,7 @@ const DEFAULT_STATE = {
     [PRODUCT_DATA_KEYS.DESCRIPTION]: ''
   },
   [STREAM_ACTION_NAME.NOTICE]: {},
-  [STREAM_ACTION_NAME.CELEBRATION]: {
-    duration:
-      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.CELEBRATION].duration
-  }
-};
-const FIXED_NOTIF_OPTIONS = {
-  className: ['fixed', 'z-[1100]']
+  [STREAM_ACTION_NAME.CELEBRATION]: { duration: DEFAULT_CELEBRATION_DURATION }
 };
 
 /**
@@ -93,6 +88,14 @@ export const Provider = ({ children }) => {
     throttledValidateStreamManagerActionData,
     validateStreamManagerActionData
   } = useStreamManagerActionValidation();
+  const notifySuccessPortal = useCallback(
+    (msg) => notifySuccess(msg, { asPortal: true }),
+    [notifySuccess]
+  );
+  const notifyErrorPortal = useCallback(
+    (msg) => notifyError(msg, { asPortal: true }),
+    [notifyError]
+  );
 
   /**
    * Gets the current form state data for the given stream action name,
@@ -158,7 +161,11 @@ export const Provider = ({ children }) => {
    * Sends a timed metadata event to all stream viewers
    */
   const sendStreamAction = useThrottledCallback(
-    async (actionName, data = storedStreamManagerActionData) => {
+    async (
+      actionName,
+      data = storedStreamManagerActionData,
+      hasModalSource = true
+    ) => {
       // Send a timed metadata event
       const actionData = data[actionName];
 
@@ -181,12 +188,14 @@ export const Provider = ({ children }) => {
       saveStreamManagerActionData(dataToSave);
 
       // Notify the user of the send request status
-      if (error)
-        notifyError(
-          $content.notifications.error.unable_to_start_stream_action,
-          FIXED_NOTIF_OPTIONS
+      if (error) {
+        const notifySendError = hasModalSource
+          ? notifyErrorPortal
+          : notifyError;
+        notifySendError(
+          $content.notifications.error.unable_to_start_stream_action
         );
-      else {
+      } else {
         notifySuccess($content.notifications.success[`started_${actionName}`]);
       }
 
@@ -240,26 +249,19 @@ export const Provider = ({ children }) => {
     (actionName, modalData) => {
       const onSave = (data) => {
         if (!validateStreamManagerActionData(data[actionName], actionName)) {
-          notifyError(
-            $content.notifications.error.unable_to_save,
-            FIXED_NOTIF_OPTIONS
-          );
+          notifyErrorPortal($content.notifications.error.unable_to_save);
         } else {
           resetStreamManagerActionErrorData();
           saveStreamManagerActionData(data);
-          notifySuccess(
-            $content.notifications.success.stream_action_saved,
-            FIXED_NOTIF_OPTIONS
+          notifySuccessPortal(
+            $content.notifications.success.stream_action_saved
           );
         }
       };
 
       const onConfirm = async (data) => {
         if (!validateStreamManagerActionData(data[actionName], actionName)) {
-          notifyError(
-            $content.notifications.error.unable_to_send,
-            FIXED_NOTIF_OPTIONS
-          );
+          notifyErrorPortal($content.notifications.error.unable_to_send);
 
           return false;
         }
@@ -287,8 +289,8 @@ export const Provider = ({ children }) => {
     },
     [
       dismissNotif,
-      notifyError,
-      notifySuccess,
+      notifyErrorPortal,
+      notifySuccessPortal,
       openModal,
       resetStreamManagerActionData,
       resetStreamManagerActionErrorData,

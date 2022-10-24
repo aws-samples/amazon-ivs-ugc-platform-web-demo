@@ -20,7 +20,7 @@ const STREAM_MANAGER_ACTION_ICONS = {
   [STREAM_ACTION_NAME.NOTICE]: CallToAction
 };
 
-const STREAM_MANAGER_ACTION_MODAL_FORMS = {
+export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
   [STREAM_ACTION_NAME.QUIZ]: <Quiz />,
   [STREAM_ACTION_NAME.PRODUCT]: <Product />,
   [STREAM_ACTION_NAME.NOTICE]: <Notice />
@@ -84,7 +84,7 @@ const StreamManagerActions = () => {
               },
               lastFocusedElement: lastFocusedStreamManagerActionButtonRef
             });
-          } else sendStreamAction(actionName);
+          } else sendStreamAction(actionName, undefined, false);
         };
 
         return (

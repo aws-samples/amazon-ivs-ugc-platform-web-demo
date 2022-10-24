@@ -1,5 +1,4 @@
 .selectable-icon {
-  z-index: 10;
   height: auto;
   padding: 0;
   display: flex;
@@ -22,7 +21,6 @@ button.selectable-icon {
 
 .selectable-icon img,
 .selectable-icon .color {
-  z-index: 1;
   border-radius: 50%;
 }
 
@@ -53,7 +51,7 @@ button.selectable-icon {
   border-radius: 50%;
 }
 
-.selectable-icon.selected.type-image:after {
+.selectable-icon.selected.type-image:before {
   content: '';
   position: absolute;
   width: 100%;
@@ -61,11 +59,9 @@ button.selectable-icon {
   background: rgba(0, 0, 0, 0.5);
   opacity: 1;
   border-radius: 50%;
-  z-index: 1;
 }
 
 .selectable-icon > svg,
 .selectable-icon > .spinner {
   position: absolute;
-  z-index: 2;
 }

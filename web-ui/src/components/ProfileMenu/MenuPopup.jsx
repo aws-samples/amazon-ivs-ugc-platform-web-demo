@@ -53,10 +53,10 @@ const Popup = forwardRef(
           'rounded-3xl',
           'dark:bg-darkMode-gray',
           'bg-lightMode-gray-light',
+          'no-scrollbar',
           'overflow-y-auto',
           'overflow-x-hidden',
           'supports-overlay:overflow-y-overlay',
-          'z-[300]',
           menuClassName
         ])}
         ref={ref}
@@ -138,7 +138,7 @@ const Popup = forwardRef(
 );
 
 const PortalPopup = withPortal(Popup, 'profile-menu-popup', {
-  baseContainerClasses: 'absolute'
+  baseContainerClasses: clsm(['absolute', 'z-[1000]'])
 });
 
 const MenuPopup = forwardRef(

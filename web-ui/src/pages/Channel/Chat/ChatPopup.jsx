@@ -96,10 +96,22 @@ const ChatPopup = ({
         'py-6',
         'top-0',
         'w-full',
-        'z-[500]',
+        'z-[200]',
         isMobileView && ['fixed', 'w-screen']
       ])}
     >
+      <m.div
+        {...defaultAnimationProps}
+        variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
+        className={clsm([
+          'absolute',
+          'bg-modalOverlay',
+          'h-full',
+          'left-0',
+          'top-0',
+          'w-full'
+        ])}
+      ></m.div>
       <m.div
         {...defaultAnimationProps}
         variants={{ visible: { y: 0 }, hidden: { y: '150%' } }}
@@ -111,9 +123,9 @@ const ChatPopup = ({
           'items-start',
           'lg:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_48px)]',
           'md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px)]',
+          'relative',
           'rounded-3xl',
-          'w-full',
-          'z-[300]'
+          'w-full'
         ])}
         ref={popupRef}
       >
@@ -196,19 +208,6 @@ const ChatPopup = ({
           </Button>
         </div>
       </m.div>
-      <m.div
-        {...defaultAnimationProps}
-        variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
-        className={clsm([
-          'absolute',
-          'bg-modalOverlay',
-          'h-full',
-          'left-0',
-          'top-0',
-          'w-full',
-          'z-[299]'
-        ])}
-      ></m.div>
     </div>
   );
 };

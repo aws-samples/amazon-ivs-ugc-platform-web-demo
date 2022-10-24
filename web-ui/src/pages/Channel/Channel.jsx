@@ -109,112 +109,111 @@ const Channel = () => {
         ]
       ])}
     >
-      <Player
-        isChatVisible={isChatVisible}
-        toggleChat={toggleChat}
-        channelData={channelData}
-      />
-      <ProductDescriptionModal />
       <NotificationProvider>
-        <m.section
-          ref={chatContainerRef}
-          animate={chatAnimationControls}
-          initial="visible"
-          exit="hidden"
-          variants={{
-            visible: {
-              x: 0,
-              width: isSplitView ? 308 : isStackedView ? '100%' : 360,
-              transitionEnd: { x: 0 }
-            },
-            hidden: { x: '100%', width: 0 }
-          }}
-          transition={chatDefaultTransition}
-          className={clsm([
-            'relative',
-            'flex',
-            'flex-shrink-0',
-            'bg-white',
-            'dark:bg-darkMode-gray-dark',
-            'overflow-hidden',
-            /* Default View */
-            'w-[360px]',
-            'h-screen',
-            /* Stacked View */
-            'lg:w-full',
-            'lg:h-full',
-            'lg:flex-grow',
-            'lg:min-h-[200px]',
-            /* Split View */
-            isLandscape && [
-              'md:w-[308px]',
-              'md:h-screen',
-              'md:min-h-[auto]',
-              'touch-screen-device:lg:w-[308px]',
-              'touch-screen-device:lg:h-screen',
-              'touch-screen-device:lg:min-h-[auto]'
-            ]
-          ])}
-        >
-          <Tabs>
-            {shouldRenderActionInTab && (
-              <>
-                <Tabs.List
-                  selectedIndex={selectedTabIndex}
-                  setSelectedIndex={setSelectedTabIndex}
-                  tabs={[
-                    { label: currentViewerStreamActionTitle, panelIndex: 0 },
-                    { label: $channelContent.tabs.chat, panelIndex: 1 }
-                  ]}
-                />
-                <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                  {currentViewerStreamActionName ===
-                    STREAM_ACTION_NAME.QUIZ && (
-                    <QuizCard
+        <Player
+          isChatVisible={isChatVisible}
+          toggleChat={toggleChat}
+          channelData={channelData}
+        />
+      </NotificationProvider>
+      <ProductDescriptionModal />
+      <m.section
+        ref={chatContainerRef}
+        animate={chatAnimationControls}
+        initial="visible"
+        exit="hidden"
+        variants={{
+          visible: {
+            x: 0,
+            width: isSplitView ? 308 : isStackedView ? '100%' : 360,
+            transitionEnd: { x: 0 }
+          },
+          hidden: { x: '100%', width: 0 }
+        }}
+        transition={chatDefaultTransition}
+        className={clsm([
+          'relative',
+          'flex',
+          'flex-shrink-0',
+          'bg-white',
+          'dark:bg-darkMode-gray-dark',
+          'overflow-hidden',
+          /* Default View */
+          'w-[360px]',
+          'h-screen',
+          /* Stacked View */
+          'lg:w-full',
+          'lg:h-full',
+          'lg:flex-grow',
+          'lg:min-h-[200px]',
+          /* Split View */
+          isLandscape && [
+            'md:w-[308px]',
+            'md:h-screen',
+            'md:min-h-[auto]',
+            'touch-screen-device:lg:w-[308px]',
+            'touch-screen-device:lg:h-screen',
+            'touch-screen-device:lg:min-h-[auto]'
+          ]
+        ])}
+      >
+        <Tabs>
+          {shouldRenderActionInTab && (
+            <>
+              <Tabs.List
+                selectedIndex={selectedTabIndex}
+                setSelectedIndex={setSelectedTabIndex}
+                tabs={[
+                  { label: currentViewerStreamActionTitle, panelIndex: 0 },
+                  { label: $channelContent.tabs.chat, panelIndex: 1 }
+                ]}
+              />
+              <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
+                {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ && (
+                  <QuizCard
+                    {...currentViewerStreamActionData}
+                    setCurrentViewerAction={setCurrentViewerAction}
+                    shouldRenderActionInTab={shouldRenderActionInTab}
+                  />
+                )}
+                {currentViewerStreamActionName ===
+                  STREAM_ACTION_NAME.PRODUCT && (
+                  <div
+                    className={clsm([
+                      'absolute',
+                      'h-full',
+                      'no-scrollbar',
+                      'overflow-x-hidden',
+                      'overflow-y-auto',
+                      'pb-5',
+                      'px-5',
+                      'supports-overlay:overflow-y-overlay',
+                      'w-full'
+                    ])}
+                  >
+                    <ProductViewerStreamAction
                       {...currentViewerStreamActionData}
-                      setCurrentViewerAction={setCurrentViewerAction}
-                      shouldRenderActionInTab={shouldRenderActionInTab}
                     />
-                  )}
-                  {currentViewerStreamActionName ===
-                    STREAM_ACTION_NAME.PRODUCT && (
-                    <div
-                      className={clsm([
-                        'absolute',
-                        'h-full',
-                        'no-scrollbar',
-                        'overflow-x-hidden',
-                        'overflow-y-auto',
-                        'pb-5',
-                        'px-5',
-                        'supports-overlay:overflow-y-overlay',
-                        'w-full'
-                      ])}
-                    >
-                      <ProductViewerStreamAction
-                        {...currentViewerStreamActionData}
-                      />
-                    </div>
-                  )}
-                </Tabs.Panel>
-              </>
-            )}
-            <Tabs.Panel
-              index={1}
-              selectedIndex={
-                shouldRenderActionInTab
-                  ? selectedTabIndex
-                  : CHAT_PANEL_TAB_INDEX
-              }
-            >
+                  </div>
+                )}
+              </Tabs.Panel>
+            </>
+          )}
+          <Tabs.Panel
+            index={1}
+            selectedIndex={
+              shouldRenderActionInTab ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
+            }
+          >
+            <NotificationProvider>
               <Chat
                 chatContainerRef={chatContainerRef}
                 shouldRunCelebration={isCelebrationViewerAction}
               />
-            </Tabs.Panel>
-          </Tabs>
-        </m.section>
-      </NotificationProvider>
+            </NotificationProvider>
+          </Tabs.Panel>
+        </Tabs>
+      </m.section>
       {isSplitView && !isSessionValid && !isChatVisible && (
         <MobileNavbar
           className={clsm(

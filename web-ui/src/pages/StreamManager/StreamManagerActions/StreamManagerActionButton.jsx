@@ -145,22 +145,6 @@ const StreamManagerActionButton = forwardRef(
                 isTextColorInverted && 'ring-white'
               ])}
             >
-              {/* Hide aliasing on Chrome */}
-              <div
-                className={clsm([
-                  'absolute',
-                  'h-[26px]',
-                  'left-[7px]',
-                  'ring-2',
-                  'rounded-full',
-                  'top-[7px]',
-                  'w-[26px]',
-                  'z-50',
-                  `group-hover:ring-profile-${color}-hover`,
-                  `ring-profile-${color}`,
-                  DEFAULT_TRANSITION_CLASSES
-                ])}
-              ></div>
               <svg
                 className={clsm(['-rotate-90', 'h-7', 'rounded-full', 'w-7'])}
                 viewBox={`0 0 ${PROGRESS_PIE_DIAMETER} ${PROGRESS_PIE_DIAMETER}`}
@@ -182,6 +166,21 @@ const StreamManagerActionButton = forwardRef(
                   } ${STROKE_DASHARRAY_MAX}`}
                 />
               </svg>
+              {/* Hide aliasing on Chrome */}
+              <div
+                className={clsm([
+                  'absolute',
+                  'h-[26px]',
+                  'left-[7px]',
+                  'ring-2',
+                  'rounded-full',
+                  'top-[7px]',
+                  'w-[26px]',
+                  `group-hover:ring-profile-${color}-hover`,
+                  `ring-profile-${color}`,
+                  DEFAULT_TRANSITION_CLASSES
+                ])}
+              ></div>
             </div>
           )}
           <p

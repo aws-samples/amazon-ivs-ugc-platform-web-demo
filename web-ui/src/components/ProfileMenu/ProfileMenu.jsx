@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { AnimatePresence, m } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
 import MenuPopup from './MenuPopup';
@@ -36,19 +36,7 @@ const ProfileMenu = ({
   useEffect(() => toggleProfileMenu(false), [pathname, toggleProfileMenu]);
 
   return (
-    <>
-      <div className={clsm(['z-[300]', isOpen && containerClassName])}>
-        <MenuPopup
-          asPortal={asPortal}
-          isOpen={isOpen}
-          menuClassName={menuClassName}
-          navData={navData}
-          ref={profileMenuRef}
-          siblingRef={siblingRef}
-          toggleProfileMenu={toggleProfileMenu}
-        />
-        {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
-      </div>
+    <div className={clsm([containerClassName, isOpen ? 'z-[1000]' : 'w-auto'])}>
       <AnimatePresence>
         {fadeBackground && isOpen && (
           <m.div
@@ -56,10 +44,10 @@ const ProfileMenu = ({
               'fixed',
               'top-0',
               'left-0',
+              '!m-0',
               'w-screen',
               'h-screen',
-              'bg-modalOverlay',
-              'z-[299]'
+              'bg-modalOverlay'
             ])}
             animate="visible"
             exit="hidden"
@@ -69,7 +57,19 @@ const ProfileMenu = ({
           ></m.div>
         )}
       </AnimatePresence>
-    </>
+      <MenuPopup
+        asPortal={asPortal}
+        isOpen={isOpen}
+        menuClassName={clsm(['z-0', menuClassName])}
+        navData={navData}
+        ref={profileMenuRef}
+        siblingRef={siblingRef}
+        toggleProfileMenu={toggleProfileMenu}
+      />
+      <div className="z-0">
+        {ToggleBtn({ isOpen, toggle: toggleProfileMenu, toggleRef })}
+      </div>
+    </div>
   );
 };
 

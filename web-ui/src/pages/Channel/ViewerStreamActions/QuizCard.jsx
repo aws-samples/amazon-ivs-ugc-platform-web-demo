@@ -93,7 +93,6 @@ const QuizCard = ({
         'supports-overlay:overflow-y-overlay',
         'transition-[margin]',
         'w-full',
-        'z-10',
         'mb-4',
         isControlsOpen && !shouldRenderActionInTab && 'mb-40',
         isMobileView && 'pb-20'

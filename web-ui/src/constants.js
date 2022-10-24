@@ -150,6 +150,8 @@ export const PRODUCT_DATA_KEYS = {
   DESCRIPTION: 'description'
 };
 
+export const DEFAULT_CELEBRATION_DURATION = 10; // seconds
+
 export const STREAM_MANAGER_ACTION_LIMITS = {
   [STREAM_ACTION_NAME.QUIZ]: {
     [QUIZ_DATA_KEYS.ANSWERS]: {
@@ -167,5 +169,5 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
     [PRODUCT_DATA_KEYS.DESCRIPTION]: { maxCharLength: 256 }
   },
   [STREAM_ACTION_NAME.NOTICE]: {},
-  [STREAM_ACTION_NAME.CELEBRATION]: { duration: 10 } // seconds
+  [STREAM_ACTION_NAME.CELEBRATION]: {}
 };

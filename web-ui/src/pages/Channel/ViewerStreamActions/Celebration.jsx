@@ -73,6 +73,15 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
 
   return (
     <>
+      {chatContainerDimensions ? (
+        <Confetti
+          {...chatContainerDimensions}
+          colors={Object.values(profileColors)}
+          numberOfPieces={shouldRun ? 200 : 0}
+          initialVelocityY={35}
+          style={{ zIndex: 'auto' }}
+        />
+      ) : null}
       <AnimatePresence>
         {shouldRun && (
           <m.div
@@ -102,8 +111,7 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
               'overflow-hidden',
               'rounded-xl',
               'top-5',
-              'w-[calc(100%_-_40px)]',
-              'z-20'
+              'w-[calc(100%_-_40px)]'
             ])}
           >
             <div
@@ -128,14 +136,6 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
           </m.div>
         )}
       </AnimatePresence>
-      {chatContainerDimensions ? (
-        <Confetti
-          {...chatContainerDimensions}
-          colors={Object.values(profileColors)}
-          numberOfPieces={shouldRun ? 200 : 0}
-          initialVelocityY={35}
-        />
-      ) : null}
     </>
   );
 };

@@ -40,41 +40,44 @@ const ConnectingOverlay = ({ isLoading }) => {
   return (
     <AnimatePresence initial={false}>
       {shouldShowConnectingOverlay && (
-        <>
-          <m.div
-            {...defaultAnimationProps}
-            variants={{ visible: { y: 0 }, hidden: { y: '-150%' } }}
-            className={clsm([
-              'absolute',
-              'bg-lightMode-gray',
-              'dark:bg-darkMode-gray',
-              'h-11',
-              'p-2.5',
-              'rounded-full',
-              'top-4',
-              'w-11',
-              'z-50',
-              isStreamManagerPage && 'bg-lightMode-gray-extraLight'
-            ])}
-          >
-            <Spinner variant="light" />
-          </m.div>
+        <div className={clsm(['absolute', 'w-full', 'h-full'])}>
           <m.div
             {...defaultAnimationProps}
             variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
             className={clsm([
               'absolute',
-              'bg-darkMode-loadingOverlay',
-              'dark:bg-darkMode-loadingOverlay',
-              'h-full',
               'left-0',
               'top-0',
               'w-full',
-              'z-40',
-              !isStreamManagerPage && 'bg-lightMode-loadingOverlay'
+              'h-full',
+              'bg-darkMode-loadingOverlay',
+              'dark:bg-darkMode-loadingOverlay',
+              isStreamManagerPage
+                ? 'rounded-3xl'
+                : 'bg-lightMode-loadingOverlay'
             ])}
           ></m.div>
-        </>
+          <m.div
+            {...defaultAnimationProps}
+            variants={{ visible: { y: 0 }, hidden: { y: '-150%' } }}
+            className={clsm([
+              'absolute',
+              'top-4',
+              'left-0',
+              'right-0',
+              'rounded-full',
+              'w-11',
+              'h-11',
+              'm-auto',
+              'p-2.5',
+              'bg-lightMode-gray',
+              'dark:bg-darkMode-gray',
+              isStreamManagerPage && 'bg-lightMode-gray-extraLight'
+            ])}
+          >
+            <Spinner variant="light" />
+          </m.div>
+        </div>
       )}
     </AnimatePresence>
   );

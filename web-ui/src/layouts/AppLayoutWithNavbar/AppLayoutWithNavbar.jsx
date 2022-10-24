@@ -6,7 +6,7 @@ import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import FloatingNav from '../../components/FloatingNav';
-import FloatingPlayer from '../../pages/StreamHealth/FloatingPlayer';
+import FloatingPlayer from '../../components/FloatingPlayer';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
 import useCurrentPage from '../../hooks/useCurrentPage';
@@ -17,13 +17,15 @@ const AppLayoutWithNavbar = () => {
     useResponsiveDevice();
   const { isSessionValid } = useUser();
   const currentPage = useCurrentPage();
+  const isChannelPage = currentPage === 'channel';
+  const isStreamManagerPage = currentPage === 'stream_manager';
+  const isStreamHealthPage = currentPage === 'stream_health';
   const shouldRenderFloatingPlayer =
     !isMobileView && FLOATING_PLAYER_PAGES.includes(currentPage);
 
   const renderNav = () => {
     switch (true) {
-      case isMobileView &&
-        (currentPage === 'channel' || currentPage === 'stream_manager'):
+      case isMobileView && (isChannelPage || isStreamManagerPage):
         return null; // The mobile channel and stream manager pages have their own FloatingNav and/or MobileNavbar
       case isMobileView && isSessionValid:
         return <FloatingNav />;
@@ -34,7 +36,6 @@ const AppLayoutWithNavbar = () => {
 
   return (
     <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
-      {renderNav()}
       <main
         ref={mainRef}
         id={`main-app-container${isDefaultResponsiveView ? '' : '-scrollable'}`}
@@ -69,11 +70,16 @@ const AppLayoutWithNavbar = () => {
               ]
         )}
       >
-        {currentPage !== 'channel' && <Notification />}
-        {shouldRenderFloatingPlayer && <FloatingPlayer />}
         <ConfirmationModal />
+        {!isChannelPage && (
+          <Notification
+            {...(isStreamHealthPage ? { className: 'top-24' } : {})}
+          />
+        )}
+        {shouldRenderFloatingPlayer && <FloatingPlayer />}
         <Outlet />
       </main>
+      {renderNav()}
     </div>
   );
 };

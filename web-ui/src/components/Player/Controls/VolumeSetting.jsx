@@ -112,8 +112,7 @@ const VolumeSetting = ({
             'space-y-2',
             'p-4',
             'rounded-3xl',
-            '-rotate-90',
-            'z-20'
+            '-rotate-90'
           ])}
           id="volume-range-container"
           ref={volumeContainerRef}

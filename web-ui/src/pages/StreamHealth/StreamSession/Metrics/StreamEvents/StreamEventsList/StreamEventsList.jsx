@@ -24,7 +24,7 @@ const StreamEventsList = ({
   streamEvents,
   toggleLearnMore
 }) => {
-  const { isDefaultResponsiveView, isMobileView } = useResponsiveDevice();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const { activeStreamSession = {}, isLoadingStreamData } = useStreams();
   const wrapperRef = useRef();
   const selectedEventRef = useRef();
@@ -75,11 +75,7 @@ const StreamEventsList = ({
   }, []);
 
   const hasEvents = !!streamEvents.length;
-  const metricPanelWrapperClasses = [
-    'stream-events-list',
-    'space-y-4',
-    isStreamEventsListVisible && isMobileView && 'pb-20'
-  ];
+  const metricPanelWrapperClasses = ['stream-events-list', 'space-y-4'];
   if (!hasEvents) metricPanelWrapperClasses.push('no-stream-events-wrapper');
 
   return (

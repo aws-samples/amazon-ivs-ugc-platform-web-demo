@@ -2,16 +2,16 @@ import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 
 import './FloatingPlayer.css';
-import { app as $appContent } from '../../../content';
-import { Sensors } from '../../../assets/icons';
-import { useStreams } from '../../../contexts/Streams';
-import { useUser } from '../../../contexts/User';
-import { VOLUME_MIN } from '../../../constants';
-import Button from '../../../components/Button';
-import LivePill from '../../../components/LivePill';
-import Spinner from '../../../components/Spinner';
-import useCurrentPage from '../../../hooks/useCurrentPage';
-import usePlayer from '../../../hooks/usePlayer';
+import { app as $appContent } from '../../content';
+import { Sensors } from '../../assets/icons';
+import { useStreams } from '../../contexts/Streams';
+import { useUser } from '../../contexts/User';
+import { VOLUME_MIN } from '../../constants';
+import Button from '../Button';
+import LivePill from '../LivePill';
+import Spinner from '../Spinner';
+import useCurrentPage from '../../hooks/useCurrentPage';
+import usePlayer from '../../hooks/usePlayer';
 
 const $content = $appContent.floating_player;
 

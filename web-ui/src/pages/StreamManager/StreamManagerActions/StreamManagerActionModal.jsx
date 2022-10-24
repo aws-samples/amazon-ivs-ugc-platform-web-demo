@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { forwardRef, useRef, useState } from 'react';
 
 import { BREAKPOINTS } from '../../../constants';
 import { Close } from '../../../assets/icons';
@@ -16,7 +16,7 @@ import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const $content = $streamManagerContent.stream_manager_actions;
 
-const StreamManagerActionModal = () => {
+const StreamManagerActionModal = forwardRef((_, ref) => {
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
   const { title, confirmText, streamManagerActionContent } = content || {};
@@ -84,6 +84,7 @@ const StreamManagerActionModal = () => {
     !!content &&
     renderStreamManagerAction(
       <form
+        ref={ref}
         onSubmit={send}
         className={clsm(
           [
@@ -106,25 +107,6 @@ const StreamManagerActionModal = () => {
           ]
         )}
       >
-        <Button
-          ariaLabel={`Close the modal for the stream action named ${title}`}
-          className={clsm([
-            '[&>svg]:dark:fill-white',
-            '[&>svg]:fill-darkMode-gray-dark',
-            '[&>svg]:h-6',
-            '[&>svg]:w-6',
-            'absolute',
-            'bg-white',
-            'dark:bg-darkMode-gray-medium',
-            'right-4',
-            'top-4',
-            'z-10'
-          ])}
-          onClick={() => closeModal()}
-          variant="icon"
-        >
-          <Close />
-        </Button>
         <div
           ref={mainContentRef}
           className={clsm(
@@ -166,6 +148,24 @@ const StreamManagerActionModal = () => {
             {streamManagerActionContent}
           </div>
         </div>
+        <Button
+          ariaLabel={`Close the modal for the stream action named ${title}`}
+          className={clsm([
+            '[&>svg]:dark:fill-white',
+            '[&>svg]:fill-darkMode-gray-dark',
+            '[&>svg]:h-6',
+            '[&>svg]:w-6',
+            'absolute',
+            'bg-white',
+            'dark:bg-darkMode-gray-medium',
+            'right-4',
+            'top-4'
+          ])}
+          onClick={() => closeModal()}
+          variant="icon"
+        >
+          <Close />
+        </Button>
         <footer
           className={clsm(
             ['flex', 'items-center', 'justify-between', 'p-12', 'md:p-4'],
@@ -214,6 +214,6 @@ const StreamManagerActionModal = () => {
       </form>
     )
   );
-};
+});
 
 export default StreamManagerActionModal;

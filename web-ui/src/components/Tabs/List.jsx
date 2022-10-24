@@ -47,8 +47,7 @@ const List = ({ selectedIndex, setSelectedIndex, tabs }) => {
         'pt-4',
         'px-5',
         'space-x-3',
-        'w-full',
-        'z-[60]'
+        'w-full'
       ])}
       role="tablist"
     >

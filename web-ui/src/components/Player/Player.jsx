@@ -1,26 +1,18 @@
-import { AnimatePresence, m } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import './Controls/Controls.css';
 import { clsm } from '../../utils';
-import {
-  defaultViewerStreamActionAnimationProps,
-  defaultViewerStreamActionTransition,
-  defaultViewerStreamActionVariants
-} from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
+import { defaultViewerStreamActionTransition } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { NoSignal as NoSignalSvg } from '../../assets/icons';
 import { player as $content } from '../../content';
-import { PLAYER_OVERLAY_CLASSES } from './PlayerTheme';
-import { STREAM_ACTION_NAME } from '../../constants';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import Controls from './Controls';
 import Notification from '../Notification';
 import PlayerHeader from './PlayerHeader';
-import ProductViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Product';
-import QuizCard from '../../pages/Channel/ViewerStreamActions/QuizCard';
+import PlayerOverlay from './PlayerOverlay';
+import PlayerViewerStreamActions from './PlayerViewerStreamActions';
 import Spinner from '../Spinner';
 import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
@@ -42,12 +34,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
     playbackUrl,
     username
   } = channelData || {};
-  const {
-    currentViewerStreamActionData,
-    currentViewerStreamActionName,
-    setCurrentViewerAction,
-    shouldRenderActionInTab
-  } = useViewerStreamActions();
+  const { setCurrentViewerAction } = useViewerStreamActions();
   const playerElementRef = useRef();
   const [isLive, setIsLive] = useState();
   const onTimedMetadataHandler = useCallback(
@@ -115,7 +102,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const isSplitView = isMobileView && isLandscape;
   const shouldShowLoader = isLoading && !hasError && !isViewerBanned;
   const shouldShowPlayerOverlay = hasError || isControlsOpen;
-  const showStream = isLive || isLive === undefined || hasFinalBuffer;
+  const shouldShowStream = isLive || isLive === undefined || hasFinalBuffer;
 
   const onClickPlayerHandler = useCallback(
     (event) => {
@@ -193,29 +180,22 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         'overflow-hidden',
         'relative',
         'w-full',
+        'z-[100]',
         isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerElementRef}
       onMouseMove={onMouseMoveHandler}
     >
-      <Notification />
       <PlayerHeader
         avatar={avatar}
         color={color}
         shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
         username={username}
       />
-      {showStream ? (
+      {shouldShowStream ? (
         <>
           {shouldShowLoader && (
-            <div
-              className={clsm([
-                'absolute',
-                'top-1/2',
-                '-translate-y-1/2',
-                'z-10'
-              ])}
-            >
+            <div className={clsm(['absolute', 'top-1/2', '-translate-y-1/2'])}>
               <Spinner size="large" variant="light" />
             </div>
           )}
@@ -223,7 +203,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
           <div
             className={clsm([
-              'absolute',
               'top-0',
               'w-full',
               'h-full',
@@ -242,25 +221,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
               playsInline
               ref={videoRef}
             />
-            <m.div
-              animate={shouldShowPlayerOverlay ? 'visible' : 'hidden'}
-              initial="hidden"
-              exit="hidden"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1 }
-              }}
-              className={clsm([
-                PLAYER_OVERLAY_CLASSES,
-                'player-controls-container',
-                'px-8',
-                'pb-8',
-                'lg:px-4',
-                'lg:pb-4',
-                'bottom-0'
-              ])}
-              transition={{ duration: 0.25, type: 'tween' }}
-            >
+            <PlayerOverlay isVisible={shouldShowPlayerOverlay}>
               <Controls
                 handleControlsVisibility={handleControlsVisibility}
                 isChatVisible={isChatVisible}
@@ -275,7 +236,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
                 stopPropagAndResetTimeout={stopPropagAndResetTimeout}
                 toggleChat={toggleChat}
               />
-            </m.div>
+            </PlayerOverlay>
             {!isControlsOpen && (
               <div
                 className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}
@@ -296,8 +257,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
             'w-full',
             'h-full',
             'left-0',
-            'bottom-0',
-            'z-10'
+            'bottom-0'
           ])}
         >
           <NoSignalSvg
@@ -316,42 +276,11 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           </h2>
         </div>
       )}
-      <AnimatePresence>
-        {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
-          !shouldRenderActionInTab && (
-            <QuizCard
-              {...currentViewerStreamActionData}
-              isControlsOpen={isControlsOpen && showStream}
-              setCurrentViewerAction={setCurrentViewerAction}
-              shouldRenderActionInTab={shouldRenderActionInTab}
-            />
-          )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {currentViewerStreamActionName === STREAM_ACTION_NAME.PRODUCT &&
-          !shouldRenderActionInTab && (
-            <m.div
-              {...defaultViewerStreamActionAnimationProps}
-              variants={defaultViewerStreamActionVariants}
-              className={clsm([
-                'absolute',
-                'bg-white',
-                'bottom-4',
-                'dark:bg-[#161616F2]',
-                'max-w-[256px]',
-                'right-4',
-                'rounded-3xl',
-                'transition-[margin]',
-                'w-full',
-                'z-[500]',
-                'mb-4',
-                isControlsOpen && showStream && 'mb-20'
-              ])}
-            >
-              <ProductViewerStreamAction {...currentViewerStreamActionData} />
-            </m.div>
-          )}
-      </AnimatePresence>
+      <PlayerViewerStreamActions
+        isControlsOpen={isControlsOpen}
+        shouldShowStream={shouldShowStream}
+      />
+      <Notification />
     </section>
   );
 };

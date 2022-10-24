@@ -22,7 +22,6 @@ const MobileNavbar = ({ className }) => {
             'bottom-0',
             'left-1/2',
             'w-full',
-            'z-[100]',
             'py-5',
             'px-4',
             'max-w-[calc(440px_+_32px)]',
