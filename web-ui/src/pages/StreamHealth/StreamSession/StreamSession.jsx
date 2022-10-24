@@ -70,6 +70,7 @@ const StreamSession = () => {
     <article
       className={clsm([
         'bg-white',
+        'box-content',
         'dark:bg-black',
         'flex-col',
         'flex',
@@ -80,8 +81,7 @@ const StreamSession = () => {
         'mx-auto',
         'px-8',
         'relative',
-        'sm:px-4',
-        'w-full'
+        'sm:px-4'
       ])}
     >
       {(shouldShowFailedToLoadNotif || shouldShowNewUserNotif) && (

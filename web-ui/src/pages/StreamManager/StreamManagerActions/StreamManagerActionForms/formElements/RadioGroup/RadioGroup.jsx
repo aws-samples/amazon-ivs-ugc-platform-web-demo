@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../../utils';
@@ -34,9 +34,21 @@ const StreamManagerActionRadioGroup = ({
     !!selectedDataKey &&
     typeof selectedOptionIndex === 'number' &&
     selectedOptionIndex >= 0;
+  const [hasFocusOnInput, setHasFocusOnInput] = useState(false);
 
   useEffect(() => {
-    // Focus on newly added option input field
+    // On focusin, if the previous focused element id string includes the radio group name
+    const handleFocusIn = (event) =>
+      setHasFocusOnInput(event.relatedTarget?.id.includes(name));
+
+    document.addEventListener('focusin', handleFocusIn);
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+    };
+  }, [name]);
+
+  useEffect(() => {
+    // Focus on newly added option input field only if any option field is already in focus
     if (options.length > previousOptionLength) {
       radioInputRefs.current[previousOptionLength].focus();
     }
@@ -77,7 +89,8 @@ const StreamManagerActionRadioGroup = ({
       [dataKey]: options.filter((_, i) => i !== index),
       [selectedDataKey]: newSelectedOptionIndex
     });
-    radioInputRefs.current[index === 0 ? 0 : index - 1].focus();
+    if (hasFocusOnInput)
+      radioInputRefs.current[index === 0 ? 0 : index - 1].focus();
   };
 
   return (

@@ -137,7 +137,9 @@ const Popup = forwardRef(
   }
 );
 
-const PortalPopup = withPortal(Popup, 'profile-menu-popup');
+const PortalPopup = withPortal(Popup, 'profile-menu-popup', {
+  baseContainerClasses: 'absolute'
+});
 
 const MenuPopup = forwardRef(
   ({ asPortal, isOpen, siblingRef, ...restProps }, ref) =>
