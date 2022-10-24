@@ -39,7 +39,7 @@ const handler = async (
   // Check input
   if (!avatar || !color || !email || !password || !username) {
     console.error(
-      `Incorrect input:\n- avatar:${avatar}\n- color:${color}\n- email:${email}\n- password:${password}\n- username:${username}`
+      `Incorrect input:\n- avatar:${avatar}\n- color:${color}\n- email:${email}\n- username:${username}`
     );
 
     reply.statusCode = 400;
