@@ -1,3 +1,5 @@
+import path from 'path';
+
 import {
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins as origins,
@@ -5,12 +7,13 @@ import {
   aws_ecr_assets as ecrAssets,
   aws_ecs as ecs,
   aws_iam as iam,
+  aws_s3 as s3,
   CfnOutput,
+  RemovalPolicy,
   Stack,
   StackProps
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import path from 'path';
 
 import {
   defaultTargetProps,
@@ -23,21 +26,74 @@ import Service from './Constructs/Service';
 
 interface UGCDashboardStackProps extends StackProps {
   resourceConfig: UGCResourceWithUserManagementConfig;
+  shouldPublish: string;
 }
 
 export class UGCStack extends Stack {
   constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
-    const { resourceConfig } = props;
-    const {
-      allowedOrigin,
-      ivsChannelType,
-      maxAzs,
-      natGateways,
-      deploySeparateContainers
-    } = resourceConfig;
+    const { resourceConfig, shouldPublish } = props;
+    const { ivsChannelType, maxAzs, natGateways, deploySeparateContainers } =
+      resourceConfig;
+    let { allowedOrigins } = resourceConfig;
     const stackNamePrefix = Stack.of(this).stackName;
+
+    let frontendAppDistribution;
+    let frontendAppBaseUrl = '';
+
+    if (shouldPublish) {
+      // Frontend App S3 Bucket
+      const frontendAppS3Bucket = new s3.Bucket(
+        this,
+        `${stackNamePrefix}-FE-Bucket`,
+        {
+          autoDeleteObjects: true,
+          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+          removalPolicy: RemovalPolicy.DESTROY
+        }
+      );
+
+      // Frontend App Cloudfront Distribution
+      frontendAppDistribution = new cloudfront.Distribution(
+        this,
+        `${stackNamePrefix}-FE-CFDistribution`,
+        {
+          defaultBehavior: {
+            origin: new origins.S3Origin(frontendAppS3Bucket),
+            viewerProtocolPolicy:
+              cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+          },
+          defaultRootObject: 'index.html',
+          errorResponses: [
+            {
+              httpStatus: 403,
+              responseHttpStatus: 200,
+              responsePagePath: '/index.html'
+            }
+          ]
+        }
+      );
+
+      frontendAppBaseUrl = `https://${frontendAppDistribution.domainName}`;
+
+      allowedOrigins.push(frontendAppBaseUrl);
+      resourceConfig.clientBaseUrl = frontendAppBaseUrl; // Override the clientBaseUrl
+
+      // Export the bucket name, distribution ID and domain name for reference in the deployment stack
+      new CfnOutput(this, `${stackNamePrefix}-FE-Bucket-Name`, {
+        value: frontendAppS3Bucket.bucketName,
+        exportName: `${id}-FE-Bucket-Name`
+      });
+      new CfnOutput(this, `${stackNamePrefix}-FE-CFDistribution-ID`, {
+        value: frontendAppDistribution.distributionId,
+        exportName: `${id}-FE-CFDistribution-ID`
+      });
+      new CfnOutput(this, `${stackNamePrefix}-FE-CFDistribution-Domain-Name`, {
+        value: frontendAppDistribution.distributionDomainName,
+        exportName: `${id}-FE-CFDistribution-Domain-Name`
+      });
+    }
 
     // VPC
     const vpc = new ec2.Vpc(this, `${stackNamePrefix}-VPC`, {
@@ -93,7 +149,7 @@ export class UGCStack extends Stack {
 
     // This environment is required for any container that exposes authenticated endpoints
     const baseContainerEnv = {
-      ALLOWED_ORIGIN: allowedOrigin,
+      ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
       USER_POOL_CLIENT_ID: userPoolClientId,
       USER_POOL_ID: userPoolId
     };
@@ -233,19 +289,26 @@ export class UGCStack extends Stack {
       }
     );
 
-    new CfnOutput(this, 'containerEnvStr', {
-      value: `${Object.entries({
-        ...sharedContainerEnv,
-        SERVICE_NAME: 'all'
-      })
-        .map(([key, val]) => `${key}=${val}`)
-        .join(' \\\n')}`
-    });
-    new CfnOutput(this, 'apiBaseUrl', {
-      value: `https://${distribution.domainName}`
-    });
+    const containerEnvStr = `${Object.entries({
+      ...sharedContainerEnv,
+      SERVICE_NAME: 'all'
+    })
+      .map(([key, val]) => `${key}=${JSON.stringify(val)}`)
+      .join(' \\\n')}`;
+    const apiBaseUrl = `https://${distribution.domainName}`;
+    const region = Stack.of(this).region;
+
+    new CfnOutput(this, 'containerEnvStr', { value: containerEnvStr });
+    new CfnOutput(this, 'apiBaseUrl', { value: apiBaseUrl });
     new CfnOutput(this, 'userPoolId', { value: userPoolId });
     new CfnOutput(this, 'userPoolClientId', { value: userPoolClientId });
-    new CfnOutput(this, 'region', { value: Stack.of(this).region });
+    new CfnOutput(this, 'region', { value: region });
+
+    if (frontendAppBaseUrl) {
+      new CfnOutput(this, 'frontendAppBaseUrl', {
+        value: frontendAppBaseUrl,
+        exportName: `${id}-frontendAppBaseUrl`
+      });
+    }
   }
 }

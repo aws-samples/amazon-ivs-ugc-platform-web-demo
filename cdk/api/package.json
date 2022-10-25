@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "watch": "nodemon index.ts",
-    "test": "ALLOWED_ORIGIN=* SERVICE_NAME=all jest",
+    "test": "ALLOWED_ORIGINS=\"[\\\"*\\\"]\" SERVICE_NAME=all jest",
     "lint": "prettier --check .",
     "format": "prettier --write ."
   },

@@ -13,7 +13,7 @@ export interface UGCResourceWithUserManagementConfig
 }
 
 export interface UserManagementResourceConfig {
-  allowedOrigin: string;
+  allowedOrigins: string[];
   clientBaseUrl: string;
   enableUserAutoVerify: boolean;
   ivsChannelType: ChannelType;

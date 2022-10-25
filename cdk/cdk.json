@@ -25,7 +25,7 @@
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
     "dev": {
       "resourceConfig": {
-        "allowedOrigin": "*",
+        "allowedOrigins": ["*"],
         "clientBaseUrl": "http://localhost:3000",
         "deploySeparateContainers": false,
         "enableUserAutoVerify": true,
@@ -40,7 +40,7 @@
     },
     "prod": {
       "resourceConfig": {
-        "allowedOrigin": "http://localhost:3000",
+        "allowedOrigins": ["http://localhost:3000"],
         "clientBaseUrl": "http://localhost:3000",
         "deploySeparateContainers": true,
         "enableUserAutoVerify": false,

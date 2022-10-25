@@ -7,8 +7,10 @@ import metricsRouter from './metrics/';
 const buildServer = () => {
   const server = fastify();
 
+  const origin = JSON.parse(process.env.ALLOWED_ORIGINS || 'false');
+
   // CORS
-  server.register(fastifyCors, { origin: process.env.ALLOWED_ORIGIN });
+  server.register(fastifyCors, { origin });
 
   const { SERVICE_NAME: serviceName = '' } = process.env;
 

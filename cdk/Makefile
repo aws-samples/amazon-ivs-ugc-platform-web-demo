@@ -2,10 +2,12 @@
 
 .PHONY: help app install bootstrap deploy destroy clean
 
-AWS_PROFILE_FLAG = --profile $(AWS_PROFILE)
-STAGE				    ?= dev
-CDK_OPTIONS 		:= $(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE)
-STACK 				  ?= UGC-$(STAGE)
+AWS_PROFILE_FLAG	=	--profile $(AWS_PROFILE)
+STAGE				?=	dev
+PUBLISH				?=	false
+CDK_OPTIONS 		=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH)
+STACK 				?=	UGC-$(STAGE)
+FE_DEPLOYMENT_STACK	=	UGC-Frontend-Deployment-$(STAGE)
 
 help: ## Shows this help message
 	@echo "\n$$(tput bold)Available Rules:$$(tput sgr0)\n"
@@ -37,6 +39,15 @@ deploy: ## Deploys the stack
 	node sanitize-output $(STAGE)
 	rm temp_out.json
 	@echo "\n$$(tput bold) ✅ $(STACK) Deployed Successfully $$(tput sgr0)\n"
+	@if [ $(PUBLISH) = true ]; then\
+		echo "Publishing Frontend App...";\
+		npm install --prefix ../web-ui;\
+		npm run build --prefix ../web-ui;\
+		npx cdk deploy $(FE_DEPLOYMENT_STACK) $(CDK_OPTIONS) &&\
+		echo "Frontend Published. Cleaning up the deployment stack..." &&\
+		npx cdk destroy $(FE_DEPLOYMENT_STACK) $(CDK_OPTIONS) --force &&\
+		echo "\n$$(tput bold) ✅ Frontend App Published Successfully $$(tput sgr0)\n";\
+	fi
 
 destroy: clean ## Destroys the stack and cleans up
 	@echo "Destroying $(STACK)..."

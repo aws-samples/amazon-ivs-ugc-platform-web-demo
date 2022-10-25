@@ -37,7 +37,7 @@ Deploying the CDK stack will:
 
 The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage is set with sensible defaults but can be edited prior to deploying the stack:
 
-- `allowedOrigin` is the origin (domain name) that the backend uses as the value for the `Access-Control-Allow-Origin` HTTP response header. This property is required in order for browsers to allow the requesting code (frontend application) running at the allowedOrigin domain to access our backend resources. You can use a custom domain, or specify `"*"` to allow all origins.
+- `allowedOrigins` is a list of origins (domain names) that the backend uses as the value for the `Access-Control-Allow-Origin` HTTP response header. This property is required in order for browsers to allow the requesting code (frontend application) running at the allowedOrigins domain to access our backend resources. You can use custom domains, or specify `["*"]` to allow all origins.
 - `clientBaseUrl` should be set to the base URL of the frontend application. This URL is used for sending verification emails with links that redirect the user back to the frontend application to complete the verification process.
 - `deploySeparateContainers`, setting this to `true` will deploy the backend in two separate services, each one with the minimal required permissions. While being more costly, this option will scale better and is recommended for production.
 - `enableUserAutoVerify`, setting this to `true` is not recommended for production. It will skip the email verification when a new user signs up in the app.
@@ -49,6 +49,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 - `signUpAllowedDomains` is a list of email domains that are allowed to be used when creating a new account in the app. An attempt to create an account with an email containing a domain that is not in this allowlist will be rejected. Setting this property to an empty list will allow all email domains to be used for account creation.
 
   Example:
+
   ```json
   "signUpAllowedDomains": ["example.com"]
   ```
@@ -75,7 +76,15 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    make app AWS_PROFILE=user1
    ```
 
-   ***NOTE:** the deployment might take up to 15 minutes.*
+   Additionally, you can also build and publish the frontend application to an S3 bucket with a CloudFront distribution as part of the same deployment by setting the `PUBLISH` flag to `true`:
+
+   ```shell
+   make app PUBLISH=true
+   ```
+
+   Deploying with the `PUBLISH` flag set to `true` will also append the CloudFront distribution URL to the list of `allowedOrigins` defined in your `cdk.json` config. It will also override the value of `clientBaseUrl`.
+
+   ***NOTE:** the deployment might take up to 20 minutes or more if you are also publishing the frontend application.*
 
 2. Go to the `web-ui` directory and run the following commands to start the React frontend host:
 
@@ -89,6 +98,8 @@ Running `make app` is only required when you deploy the stack for the first time
 ```shell
 make deploy STAGE=<stage>
 ```
+
+If you have initially deployed the stack with the `PUBLISH` flag set to `true`, make sure to set it again, every time you re-deploy. If you don't, the stack will take down the existing deployment.
 
 Additionally, if you want to make changes to any of the stage configuration options after the stack has been deployed, you will need to re-deploy the stack in order for the changes to take effect. For instance, say that you deployed the stack under the `prod` stage and then decided to update the `allowedOrigins` value in the configuration options. After updating the `cdk.json` file, you will then need to run the following command to re-deploy the `prod` stack with the new changes:
 
@@ -160,19 +171,14 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
 
   ```typescript
-  new UGCStack(new App(), `UGC-${stage}`, {
-  env: {
-     account: process.env.CDK_DEFAULT_ACCOUNT,
-     region: <your-region-here>
-  },
-  resourceConfig
-  });
+  const region = <your-region-here>
   ```
 
   Alternatively, you may also choose to [request a quota increase](https://console.aws.amazon.com/servicequotas/home/services/vpc/quotas) for "NAT gateways per Availability Zone" and "VPCs per Region."
 
 - iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as we do on desktop devices. The current workaround that has been implemented is to initiate the default WebKit fullscreen mode, which uses the native iOS video player UI.
 - Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
+- Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 
 ## Estimated costs
 
