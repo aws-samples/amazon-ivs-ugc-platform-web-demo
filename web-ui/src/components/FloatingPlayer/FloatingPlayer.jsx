@@ -1,5 +1,5 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
 
 import './FloatingPlayer.css';
 import { app as $appContent } from '../../content';
@@ -12,6 +12,7 @@ import LivePill from '../LivePill';
 import Spinner from '../Spinner';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import usePlayer from '../../hooks/usePlayer';
+import useStreamSessionData from '../../contexts/Streams/useStreamSessionData';
 
 const $content = $appContent.floating_player;
 
@@ -20,13 +21,21 @@ const FloatingPlayer = () => {
     activeStreamSession,
     hasStreamSessions,
     isLive,
+    setStreamSessions,
     streamSessions,
     updateActiveStreamSession
   } = useStreams();
-  const { userData } = useUser();
-  const liveSession = streamSessions?.find(
-    (streamSession) => streamSession.isLive
+  const liveSession = useMemo(
+    () => streamSessions?.find((streamSession) => streamSession.isLive),
+    [streamSessions]
   );
+  const { updateStreamSessionDataFetchKey } = useStreamSessionData({
+    isLive,
+    isRevalidationEnabled: !liveSession?.ingestConfiguration,
+    setStreamSessions,
+    streamSessions
+  });
+  const { userData } = useUser();
   const {
     canvasRef,
     isBlurReady,
@@ -66,6 +75,11 @@ const FloatingPlayer = () => {
     }
   }, [isLive, isLoading, playerRef]);
 
+  // Try to get the ingest configuration to determine if we need to blur the sides of the player (portrait stream)
+  useEffect(() => {
+    if (liveSession) updateStreamSessionDataFetchKey(liveSession);
+  }, [liveSession, updateStreamSessionDataFetchKey]);
+
   const classNames = ['mini-player-container'];
   if (isLive) classNames.push('is-live');
   if (isExpanded) classNames.push('is-expanded');
@@ -86,6 +100,7 @@ const FloatingPlayer = () => {
           style={isLive ? {} : { display: 'none' }}
         >
           {shouldShowSpinner && <Spinner variant="light" />}
+          <canvas {...hidePlayerStyles} ref={canvasRef} />
           <video
             {...hidePlayerStyles}
             ref={videoRef}
@@ -93,7 +108,6 @@ const FloatingPlayer = () => {
             playsInline
             muted
           ></video>
-          <canvas {...hidePlayerStyles} ref={canvasRef} />
           <LivePill />
         </div>
         {isExpanded &&

@@ -65,7 +65,6 @@ const useStreamSessionData = ({
                 ? {
                     ...prevStreamSession,
                     ...streamSessionMetadata,
-                    isLive: !prevStreamSession.endTime, // Attach a live indicator to the stream session for convenience
                     isMetadataFetched: true,
                     streamId: streamSessionMetadata.streamId,
                     setStale: setStale(streamSessionMetadata.streamId)

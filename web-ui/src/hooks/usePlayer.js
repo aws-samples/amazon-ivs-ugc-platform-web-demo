@@ -1,9 +1,10 @@
-import { unpack } from '../utils/streamActionHelpers';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { noop } from '../utils';
+import { unpack } from '../utils/streamActionHelpers';
 import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';
-import { noop } from '../utils';
 
 const { IVSPlayer } = window;
 
@@ -169,9 +170,10 @@ const usePlayer = ({
       if (!playerRef.current) create();
 
       playerRef.current.load(playbackUrl);
+      play();
       updateVolume(defaultVolumeLevel);
     },
-    [create, defaultVolumeLevel, updateVolume]
+    [create, defaultVolumeLevel, play, updateVolume]
   );
   const reset = useCallback(() => {
     setError(null);

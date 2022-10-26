@@ -17,7 +17,6 @@ const StreamEventsList = ({
   isHidden,
   isLearnMoreVisible,
   isPreview,
-  isStreamEventsListVisible,
   selectedEventId,
   setIsStreamEventsListVisible,
   setSelectedEventId,
@@ -127,7 +126,6 @@ StreamEventsList.defaultProps = {
   isHidden: false,
   isLearnMoreVisible: false,
   isPreview: false,
-  isStreamEventsListVisible: false,
   selectedEventId: null,
   setIsStreamEventsListVisible: noop,
   streamEvents: []
@@ -137,7 +135,6 @@ StreamEventsList.propTypes = {
   isHidden: PropTypes.bool,
   isLearnMoreVisible: PropTypes.bool,
   isPreview: PropTypes.bool,
-  isStreamEventsListVisible: PropTypes.bool,
   selectedEventId: PropTypes.string,
   setIsStreamEventsListVisible: PropTypes.func,
   setSelectedEventId: PropTypes.func.isRequired,

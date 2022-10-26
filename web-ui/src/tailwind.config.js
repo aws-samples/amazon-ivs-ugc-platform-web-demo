@@ -111,7 +111,6 @@ module.exports = {
           }
         },
         lightMode: {
-          loadingOverlay: 'hsl(0 100% 100% / 0.3)',
           gray: {
             DEFAULT: 'hsl(var(--base-color-white), 80%)',
             hover: 'hsl(var(--base-color-white), 70%)',

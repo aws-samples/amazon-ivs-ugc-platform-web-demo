@@ -156,3 +156,12 @@ export const updateIngestConfiguration = async ({
 
   return isIngestConfigurationComplete ? ingestConfiguration : undefined;
 };
+
+export const getIsLive = (
+  endTime: Date | string | undefined,
+  truncatedEvents: StreamEvent[] | undefined
+) =>
+  !endTime &&
+  !!truncatedEvents?.find(
+    (truncatedEvent) => truncatedEvent.name === 'Stream Start'
+  );

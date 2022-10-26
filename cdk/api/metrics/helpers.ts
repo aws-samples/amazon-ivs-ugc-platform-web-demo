@@ -34,12 +34,10 @@ export const getStreamSessionDbRecord = async (
     ...unmarshalledData,
     endTime: endTime ? new Date(endTime) : undefined,
     startTime: startTime ? new Date(startTime) : undefined,
-    truncatedEvents: truncatedEvents
-      ? truncatedEvents.map((truncatedEvent: DbStreamEvent) => ({
-          ...truncatedEvent,
-          eventTime: new Date(truncatedEvent.eventTime)
-        }))
-      : undefined
+    truncatedEvents: truncatedEvents?.map((truncatedEvent: DbStreamEvent) => ({
+      ...truncatedEvent,
+      eventTime: new Date(truncatedEvent.eventTime)
+    }))
   };
 };
 
@@ -55,7 +53,8 @@ export const getStreamsByChannelArn = (
     IndexName: 'startTimeIndex',
     KeyConditionExpression: 'channelArn=:userChannelArn',
     Limit: limit,
-    ProjectionExpression: 'endTime, hasErrorEvent, startTime, id, userSub',
+    ProjectionExpression:
+      'endTime, hasErrorEvent, startTime, id, userSub, truncatedEvents',
     TableName: process.env.STREAM_TABLE_NAME
   });
 

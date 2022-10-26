@@ -50,11 +50,8 @@ const ConnectingOverlay = ({ isLoading }) => {
               'top-0',
               'w-full',
               'h-full',
-              'bg-darkMode-loadingOverlay',
               'dark:bg-darkMode-loadingOverlay',
-              isStreamManagerPage
-                ? 'rounded-3xl'
-                : 'bg-lightMode-loadingOverlay'
+              isStreamManagerPage && 'rounded-3xl'
             ])}
           ></m.div>
           <m.div

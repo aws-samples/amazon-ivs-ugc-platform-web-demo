@@ -29,8 +29,8 @@ export const Provider = ({ children }) => {
    * is associated with a unique user. Doing so ensures that the channel data is reset
    * whenever the user logs out or a new user logs in. This is essential as we need to
    * make sure that the value of isViewerBanned is always accurate for the user who is
-   * signed in, and this can only be guranteed if the SWR key is updated appropriately.
-   * The SWR key is filterd to remove duplicate usernames so that duplicate data isn't
+   * signed in, and this can only be guaranteed if the SWR key is updated appropriately.
+   * The SWR key is filtered to remove duplicate usernames so that duplicate data isn't
    * fetched by SWR.
    */
   let swrKey = null;

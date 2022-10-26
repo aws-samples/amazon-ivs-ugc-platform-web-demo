@@ -24,6 +24,7 @@ const creatorGradientTransition = {
 
 const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
   const [isIconOpen, setIsIconOpen] = useState(false);
+  const [hasBannerEntered, setHasBannerEntered] = useState(false);
   const animationIntervalIdRef = useRef();
   const profileColors = useMemo(
     () =>
@@ -59,12 +60,13 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
     };
 
     if (shouldRun) {
-      animationIntervalIdRef.current = setInterval(
-        () => setIsIconOpen((prev) => !prev),
-        500
-      );
+      animationIntervalIdRef.current = setInterval(() => {
+        setIsIconOpen((prev) => !prev);
+        setHasBannerEntered(true);
+      }, 500);
     } else {
       setIsIconOpen(false);
+      setHasBannerEntered(false);
       clearAnimationIntervalId();
     }
 
@@ -77,8 +79,9 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
         <Confetti
           {...chatContainerDimensions}
           colors={Object.values(profileColors)}
-          numberOfPieces={shouldRun ? 200 : 0}
+          gravity={0.05}
           initialVelocityY={35}
+          numberOfPieces={shouldRun && hasBannerEntered ? 200 : 0}
           style={{ zIndex: 'auto' }}
         />
       ) : null}

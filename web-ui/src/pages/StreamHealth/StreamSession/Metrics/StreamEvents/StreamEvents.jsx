@@ -63,7 +63,7 @@ const StreamEvents = () => {
   }, [activeStreamSession.streamId, isDefaultResponsiveView]);
 
   return (
-    <div className="stream-events">
+    <div className={clsm(['stream-events', 'rounded-3xl', 'md:space-y-4'])}>
       <ResponsivePanel
         containerClasses={DEFAULT_RESPONSIVE_PANEL_CONTAINER_CLASSES}
         isOpen={!isDefaultResponsiveView || isStreamEventsListVisible}
@@ -72,7 +72,6 @@ const StreamEvents = () => {
         <StreamEventsList
           isHidden={!isStreamEventsListVisible}
           isLearnMoreVisible={isLearnMoreVisible}
-          isStreamEventsListVisible={isStreamEventsListVisible}
           selectedEventId={selectedEventId}
           setIsStreamEventsListVisible={setIsStreamEventsListVisible}
           setSelectedEventId={setSelectedEventId}
@@ -94,7 +93,6 @@ const StreamEvents = () => {
         <>
           <StreamEventsList
             isPreview
-            isStreamEventsListVisible={isStreamEventsListVisible}
             selectedEventId={selectedEventId}
             setSelectedEventId={setSelectedEventId}
             streamEvents={streamEvents.slice(0, EVENT_PREVIEW_COUNT)}
@@ -103,7 +101,7 @@ const StreamEvents = () => {
           {streamEvents.length > EVENT_PREVIEW_COUNT && (
             <Button
               onClick={() => setIsStreamEventsListVisible(true)}
-              className={clsm('mx-auto', 'my-4')}
+              className="mx-auto"
               variant="secondary"
             >
               {$content.view_all_events}

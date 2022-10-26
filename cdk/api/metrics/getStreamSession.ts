@@ -19,6 +19,7 @@ import { SEC_PER_HOUR, UNEXPECTED_EXCEPTION } from '../shared/constants';
 import {
   cloudwatchClient,
   FormattedMetricData,
+  getIsLive,
   updateDynamoItemAttributes,
   updateIngestConfiguration
 } from '../shared/helpers';
@@ -64,7 +65,7 @@ const handler = async (
       truncatedEvents,
       userSub
     } = streamSession;
-    const isLive = !endTime;
+    const isLive = getIsLive(endTime, truncatedEvents);
 
     if (sub !== userSub)
       throw new Error('User trying to access session from a different channel');

@@ -11,6 +11,7 @@ import {
 } from '../../shared/constants';
 import {
   dynamoDbClient,
+  getIsLive,
   ResponseBody,
   updateIngestConfiguration
 } from '../../shared/helpers';
@@ -30,8 +31,6 @@ interface GetChannelDataResponseBody extends ResponseBody {
 interface GetChannelDataParams {
   channelOwnerUsername: string;
 }
-
-const STREAM_START = 'Stream Start';
 
 const handler = async (
   request: FastifyRequest<{ Params: GetChannelDataParams }>,
@@ -113,11 +112,7 @@ const handler = async (
       let { ingestConfiguration } = unmarshalledItem;
 
       // isLive is true only when playback is available, i.e. after the 'Stream Start' event is dispatched
-      isLive =
-        !endTime &&
-        !!truncatedEvents?.find(
-          (truncatedEvent) => truncatedEvent.name === STREAM_START
-        );
+      isLive = getIsLive(endTime, truncatedEvents);
 
       if (isLive) {
         if (!ingestConfiguration && streamSessionId) {

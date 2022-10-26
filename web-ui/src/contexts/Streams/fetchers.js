@@ -12,12 +12,7 @@ export const streamSessionsFetcher = async (channelResourceId, nextToken) => {
 
   if (error) throw error;
 
-  // Supplement the data to each stream session object
-  let nextSessions =
-    data.streamSessions?.map((session) => ({
-      ...session,
-      isLive: !session.endTime
-    })) || [];
+  let nextSessions = data.streamSessions || [];
 
   // Mix in the mock data
   nextSessions = USE_MOCKS

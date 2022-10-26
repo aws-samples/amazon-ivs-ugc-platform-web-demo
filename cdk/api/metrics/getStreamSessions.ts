@@ -8,6 +8,7 @@ import {
   encryptNextToken,
   getStreamsByChannelArn
 } from './helpers';
+import { getIsLive, StreamSessionDbRecord } from '../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../shared/constants';
 import { UserContext } from '../userManagement/authorizer';
 
@@ -48,8 +49,14 @@ const handler = async (
     responseBody = {
       maxResults,
       streamSessions: streamSessions.reduce((acc, streamSession) => {
-        const { userSub, endTime, startTime, id, ...rest } =
-          unmarshall(streamSession);
+        const {
+          userSub,
+          endTime,
+          startTime,
+          id,
+          truncatedEvents,
+          ...rest
+        }: Partial<StreamSessionDbRecord> = unmarshall(streamSession);
 
         if (userSub !== sub) return acc;
 
@@ -59,7 +66,8 @@ const handler = async (
             ...rest,
             streamId: id,
             endTime: endTime ? new Date(endTime) : undefined,
-            startTime: startTime ? new Date(startTime) : undefined
+            startTime: startTime ? new Date(startTime) : undefined,
+            isLive: getIsLive(endTime, truncatedEvents)
           }
         ];
       }, [] as StreamSessionSummary[])

@@ -62,7 +62,6 @@
   .metrics-section {
     flex-direction: column;
     height: auto;
-    padding-top: 15px;
   }
 
   .metrics-panel {

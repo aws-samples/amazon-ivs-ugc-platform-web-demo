@@ -9,7 +9,6 @@ const usePlayerBlur = ({
   const canvasRef = useRef();
   const isBlurring = useRef(false);
   const shouldBlurPlayer = useMemo(() => {
-    //TODO: make sure we get ingest configuration for unauthenticated users
     if (ingestConfiguration) {
       const videoWidth = ingestConfiguration?.video?.videoWidth;
       const videoHeight = ingestConfiguration?.video?.videoHeight;
@@ -20,7 +19,7 @@ const usePlayerBlur = ({
       }
     }
 
-    return true;
+    return false;
   }, [ingestConfiguration]);
   const [isBlurReady, setIsBlurReady] = useState(false);
 
