@@ -19,7 +19,7 @@ const Product = () => {
 
   const updateStreamManagerActionProductData = (data) => {
     updateStreamManagerActionData({
-      newData: data,
+      dataOrFn: data,
       actionName: STREAM_ACTION_NAME.PRODUCT
     });
   };

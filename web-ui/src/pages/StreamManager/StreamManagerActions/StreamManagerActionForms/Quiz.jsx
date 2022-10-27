@@ -23,7 +23,7 @@ const Quiz = () => {
 
   const updateStreamManagerActionQuizData = (data) => {
     updateStreamManagerActionData({
-      newData: data,
+      dataOrFn: data,
       actionName: STREAM_ACTION_NAME.QUIZ
     });
   };

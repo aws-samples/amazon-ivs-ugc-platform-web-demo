@@ -1,83 +1,29 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { channelAPI } from '../../api';
+import { DEFAULT_STREAM_MANAGER_ACTIONS_STATE } from './utils';
 import { MODAL_TYPE, useModal } from '../Modal';
-import { pack, unpack } from '../../utils/streamActionHelpers';
-import {
-  DEFAULT_CELEBRATION_DURATION,
-  PRODUCT_DATA_KEYS,
-  QUIZ_DATA_KEYS,
-  STREAM_ACTION_NAME,
-  STREAM_MANAGER_ACTION_LIMITS
-} from '../../constants';
+import { pack } from '../../utils/streamActionHelpers';
 import { streamManager as $content } from '../../content';
-import { useChannel } from '../Channel';
 import { useNotif } from '../Notification';
-import { useUser } from '../User';
 import useContextHook from '../useContextHook';
-import useLocalStorage from '../../hooks/useLocalStorage';
+import useStreamManagerActionsLocalStorage from './useStreamManagerActionsLocalStorage';
 import useStreamManagerActionValidation from './useStreamManagerActionValidation';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
 
-const DEFAULT_STATE = {
-  [STREAM_ACTION_NAME.QUIZ]: {
-    [QUIZ_DATA_KEYS.QUESTION]: '',
-    [QUIZ_DATA_KEYS.ANSWERS]: Array(
-      STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.QUIZ][
-        QUIZ_DATA_KEYS.ANSWERS
-      ].min
-    ).fill(''),
-    [QUIZ_DATA_KEYS.CORRECT_ANSWER_INDEX]: 0,
-    [QUIZ_DATA_KEYS.DURATION]: 15
-  },
-  [STREAM_ACTION_NAME.PRODUCT]: {
-    [PRODUCT_DATA_KEYS.TITLE]: '',
-    [PRODUCT_DATA_KEYS.PRICE]: '',
-    [PRODUCT_DATA_KEYS.IMAGE_URL]: '',
-    [PRODUCT_DATA_KEYS.DESCRIPTION]: ''
-  },
-  [STREAM_ACTION_NAME.NOTICE]: {},
-  [STREAM_ACTION_NAME.CELEBRATION]: { duration: DEFAULT_CELEBRATION_DURATION }
-};
-
 /**
  * The StreamManagerActions context is the orchestrator of stream manager action data.
  * The Provider takes
  */
 export const Provider = ({ children }) => {
-  const { openModal } = useModal();
-  const { userData } = useUser();
-  const { channelData } = useChannel();
-  const { isLive } = channelData || {};
-  const { notifyError, notifySuccess, dismissNotif } = useNotif();
-  const {
-    value: storedStreamManagerActionData,
-    set: setStoredStreamManagerActionData
-  } = useLocalStorage({
-    key: userData?.username,
-    initialValue: DEFAULT_STATE,
-    options: {
-      keyPrefix: 'user',
-      path: ['streamActions'],
-      serialize: pack,
-      deserialize: unpack
-    }
-  });
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
-  const [hasLoadedInitialStoredData, setHasLoadedInitialStoredData] =
-    useState(false);
-  const [streamManagerActionData, setStreamManagerActionData] =
-    useState(DEFAULT_STATE);
+  const [streamManagerActionData, setStreamManagerActionData] = useState(
+    DEFAULT_STREAM_MANAGER_ACTIONS_STATE
+  );
   const activeStreamManagerActionData = useMemo(
     () => streamManagerActionData?._active || null,
     [streamManagerActionData?._active]
@@ -88,6 +34,9 @@ export const Provider = ({ children }) => {
     throttledValidateStreamManagerActionData,
     validateStreamManagerActionData
   } = useStreamManagerActionValidation();
+
+  const { openModal } = useModal();
+  const { notifyError, notifySuccess, dismissNotif } = useNotif();
   const notifySuccessPortal = useCallback(
     (msg) => notifySuccess(msg, { asPortal: true }),
     [notifySuccess]
@@ -96,6 +45,40 @@ export const Provider = ({ children }) => {
     (msg) => notifyError(msg, { asPortal: true }),
     [notifyError]
   );
+
+  /**
+   * Updates the current form state data for the given stream action name
+   * by merging in the provided dataOrFn object/function
+   */
+  const updateStreamManagerActionData = useCallback(
+    ({ dataOrFn, actionName, shouldValidate = true }) => {
+      let newData;
+
+      setStreamManagerActionData((prevData) => {
+        newData = dataOrFn instanceof Function ? dataOrFn(prevData) : dataOrFn;
+
+        return actionName
+          ? {
+              ...prevData,
+              [actionName]: { ...prevData[actionName], ...newData }
+            }
+          : newData;
+      });
+
+      if (shouldValidate && newData) {
+        throttledValidateStreamManagerActionData(newData, actionName, {
+          disableFormatValidation: true
+        });
+      }
+    },
+    [throttledValidateStreamManagerActionData]
+  );
+
+  const {
+    latestStoredStreamManagerActionData,
+    saveStreamManagerActionData,
+    storedStreamManagerActionData
+  } = useStreamManagerActionsLocalStorage({ updateStreamManagerActionData });
 
   /**
    * Gets the current form state data for the given stream action name,
@@ -110,54 +93,6 @@ export const Provider = ({ children }) => {
   );
 
   /**
-   * Updates the current form state data for the given stream action name
-   * by merging in the provided newData object
-   */
-  const updateStreamManagerActionData = useCallback(
-    ({ newData, actionName, shouldValidate = true }) => {
-      setStreamManagerActionData((prevData) =>
-        actionName
-          ? {
-              ...prevData,
-              [actionName]: {
-                ...prevData[actionName],
-                ...newData
-              }
-            }
-          : newData
-      );
-
-      if (shouldValidate) {
-        throttledValidateStreamManagerActionData(newData, actionName, {
-          disableFormatValidation: true
-        });
-      }
-    },
-    [throttledValidateStreamManagerActionData]
-  );
-
-  /**
-   * Saves the form data in local storage
-   */
-  const saveStreamManagerActionData = useCallback(
-    (dataOrFn) =>
-      setStoredStreamManagerActionData((prevStoredData) => {
-        const data =
-          dataOrFn instanceof Function ? dataOrFn(prevStoredData) : dataOrFn;
-        const shouldUpdate =
-          JSON.stringify(prevStoredData) !== JSON.stringify(data);
-        const dataToSave = shouldUpdate ? data : prevStoredData;
-        updateStreamManagerActionData({
-          newData: dataToSave,
-          shouldValidate: false
-        });
-
-        return dataToSave;
-      }),
-    [setStoredStreamManagerActionData, updateStreamManagerActionData]
-  );
-
-  /**
    * Sends a timed metadata event to all stream viewers
    */
   const sendStreamAction = useThrottledCallback(
@@ -167,10 +102,8 @@ export const Provider = ({ children }) => {
       hasModalSource = true
     ) => {
       // Send a timed metadata event
-      const actionData = data[actionName];
-
       setIsSendingStreamAction(true);
-
+      const actionData = data[actionName];
       const metadata = pack({ data: actionData, name: actionName });
       const { result, error } = await channelAPI.sendStreamAction(metadata);
 
@@ -238,8 +171,11 @@ export const Provider = ({ children }) => {
    * Resets the form data to the last data saved in local storage
    */
   const resetStreamManagerActionData = useCallback(() => {
-    setStreamManagerActionData(storedStreamManagerActionData);
-  }, [storedStreamManagerActionData]);
+    updateStreamManagerActionData({
+      dataOrFn: latestStoredStreamManagerActionData.current,
+      shouldValidate: false
+    });
+  }, [latestStoredStreamManagerActionData, updateStreamManagerActionData]);
 
   /**
    * Opens a Stream Manager Action modal for a specific action name,
@@ -299,45 +235,6 @@ export const Provider = ({ children }) => {
       validateStreamManagerActionData
     ]
   );
-
-  /**
-   * Removes any expired stream manager action data and initializes
-   * streamManagerActionData with the stored value in local storage
-   */
-  useEffect(() => {
-    if (!storedStreamManagerActionData || hasLoadedInitialStoredData) return;
-
-    // Remove active stream manager action data from local storage if it has expired
-    saveStreamManagerActionData((prevStoredData) => {
-      const { expiry } = prevStoredData?._active || {};
-      const hasExpired = new Date().toISOString() > expiry;
-
-      return hasExpired
-        ? { ...prevStoredData, _active: undefined }
-        : prevStoredData;
-    });
-    setHasLoadedInitialStoredData(true);
-  }, [
-    hasLoadedInitialStoredData,
-    saveStreamManagerActionData,
-    storedStreamManagerActionData
-  ]);
-
-  // Clears the active action when a stream goes offline
-  useEffect(() => {
-    const updateActiveAction = (setter) => {
-      setter((prevData) => {
-        const isOffline = isLive === false;
-
-        return isOffline ? { ...prevData, _active: undefined } : prevData;
-      });
-    };
-
-    if (hasLoadedInitialStoredData) {
-      updateActiveAction(setStoredStreamManagerActionData);
-      updateActiveAction(setStreamManagerActionData);
-    }
-  }, [hasLoadedInitialStoredData, isLive, setStoredStreamManagerActionData]);
 
   const value = useMemo(
     () => ({

@@ -44,13 +44,7 @@ export const Provider = ({ children }) => {
     onSave = noop,
     type
   } = modal || {};
-  const { refocus } = usePreviousFocus({
-    isActive: isModalOpen,
-    onRefocus: () => {
-      setIsModalOpen(false);
-      onCancel();
-    }
-  });
+  const { refocus } = usePreviousFocus({ isActive: isModalOpen });
 
   const openModal = useCallback(
     (modalData) => {
