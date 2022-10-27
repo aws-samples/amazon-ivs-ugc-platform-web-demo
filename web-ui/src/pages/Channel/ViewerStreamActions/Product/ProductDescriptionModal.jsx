@@ -17,7 +17,7 @@ const ProductDescriptionModal = () => {
   const { isLandscape, currentBreakpoint } = useResponsiveDevice();
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const mainContentRef = useRef();
-  const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
+  const isSmallBreakpoint = currentBreakpoint <= BREAKPOINTS.sm;
 
   useResizeObserver(
     mainContentRef,
@@ -54,7 +54,7 @@ const ProductDescriptionModal = () => {
           'relative',
           'p-0',
           'w-full',
-          'max-w-[592px]',
+          'max-w-[654px]',
           'bg-white',
           'dark:bg-darkMode-gray-medium'
         ])}
@@ -78,14 +78,14 @@ const ProductDescriptionModal = () => {
             'max-h-[calc(100vh_-_2*24px)]',
             'bg-white',
             'dark:bg-darkMode-gray-medium',
-            'sm:h-full',
-            'sm:max-h-screen',
-            'sm:rounded-none'
+            'md:h-full',
+            'md:max-h-screen',
+            'md:rounded-none'
           ],
           isLandscape && [
-            'touch-screen-device:sm:h-full',
-            'touch-screen-device:sm:max-h-screen',
-            'touch-screen-device:sm:rounded-none',
+            'touch-screen-device:md:h-full',
+            'touch-screen-device:md:max-h-screen',
+            'touch-screen-device:md:rounded-none',
             'max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_32px)]'
           ]
         )}
@@ -97,8 +97,8 @@ const ProductDescriptionModal = () => {
               'py-7',
               'px-8',
               'h-auto',
-              'sm:px-4',
-              'sm:pt-[100px]',
+              'md:px-4',
+              'md:pt-[100px]',
               'overflow-x-hidden',
               'overflow-y-auto',
               'supports-overlay:overflow-y-overlay',

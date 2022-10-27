@@ -10,13 +10,13 @@ import { useEffect, useRef } from 'react';
 const ProductDescription = ({ color, title, description, price, imageUrl }) => {
   const { currentBreakpoint, isLandscape } = useResponsiveDevice();
   const productDescriptionRef = useRef();
-  const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
+  const isSmallBreakpoint = currentBreakpoint <= BREAKPOINTS.sm;
   const customProductImageClasses = [
     'w-[320px]',
     'h-[320px]',
-    'sm:w-full',
-    'sm:max-w-none',
-    'sm:h-[calc(100vw_-_32px)]'
+    'md:w-full',
+    'md:max-w-none',
+    'md:h-[calc(100vw_-_32px)]'
   ];
 
   /*
@@ -34,10 +34,10 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
     <div
       className={clsm([
         'flex',
-        'sm:flex-col',
+        'md:flex-col',
         'w-full',
         'justify-between',
-        'sm:h-full'
+        'md:h-full'
       ])}
     >
       <ProductCardImage
@@ -52,11 +52,11 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
           'flex',
           'flex-col',
           'justify-end',
-          'w-[180px]',
+          'w-[244px]',
           'md:pl-2',
-          'sm:pl-0',
-          'sm:pt-8',
-          'sm:w-full'
+          'md:pl-0',
+          'md:pt-8',
+          'md:w-full'
         ])}
       >
         <div
@@ -65,19 +65,29 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
             'flex',
             'flex-col',
             'justify-center',
-            'sm:pb-8',
+            'md:pb-8',
             'md:pr-2'
           ])}
         >
-          <h2 className={clsm(['text-black', 'dark:text-white'])}>{title}</h2>
+          <h2
+            className={clsm([
+              'break-words',
+              'dark:text-white',
+              'text-black',
+              'mr-6'
+            ])}
+          >
+            {title}
+          </h2>
           <p
             ref={productDescriptionRef}
             className={clsm([
               'break-anywhere',
-              'py-2.5',
-              'sm:pb-0',
-              'sm:pt-2',
-              'sm:text-md',
+              'pt-2',
+              'pb-5',
+              'md:pb-0',
+              'md:pt-2',
+              'md:text-md',
               'text-[#A0A0A0]',
               'text-sm'
             ])}

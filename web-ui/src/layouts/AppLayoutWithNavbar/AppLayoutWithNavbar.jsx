@@ -35,20 +35,21 @@ const AppLayoutWithNavbar = () => {
   };
 
   return (
-    <div className={clsm(['relative', 'flex', 'min-h-screen'])}>
+    <div
+      className={clsm([
+        'flex',
+        'min-h-screen',
+        'overflow-auto',
+        'relative',
+        'scroll-smooth',
+        'supports-overlay:overflow-overlay'
+      ])}
+    >
       <main
         ref={mainRef}
         id={`main-app-container${isDefaultResponsiveView ? '' : '-scrollable'}`}
         className={clsm(
-          [
-            'absolute',
-            'dark:bg-black',
-            'bg-white',
-            'overflow-auto',
-            'right-0',
-            'scroll-smooth',
-            'supports-overlay:overflow-overlay'
-          ],
+          ['absolute', 'dark:bg-black', 'bg-white', 'right-0'],
           isSessionValid
             ? [
                 // Authenticated Sidebar is visible

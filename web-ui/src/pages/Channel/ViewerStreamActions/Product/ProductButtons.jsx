@@ -44,7 +44,7 @@ const ProductButtons = forwardRef(({ openProductDetails, variant }, ref) => {
             'text-white',
             'dark:text-white'
           ],
-          'sm:w-full',
+          'md:w-full',
           isModal && 'w-full'
         ])}
       >
@@ -56,7 +56,7 @@ const ProductButtons = forwardRef(({ openProductDetails, variant }, ref) => {
         className={clsm([
           `dark:${getSecondaryTextColorClass(color)}`,
           getSecondaryBgColorClasses(color),
-          'sm:w-full',
+          'md:w-full',
           buttonVariantClasses[variant]
         ])}
         onClick={isModal ? noop : openProductDetails}
