@@ -40,7 +40,9 @@ const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => {
           'right-3.5',
           'rounded-3xl',
           'top-3.5',
+          'font-medium',
           'text-black',
+          'text-sm',
           shouldForceWhiteTextLightMode(color) && [
             'text-white',
             'dark:text-black'

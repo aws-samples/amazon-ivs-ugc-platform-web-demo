@@ -16,7 +16,6 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
     'h-[320px]',
     'sm:w-full',
     'sm:max-w-none',
-    'sm:max-h-fit',
     'sm:h-[calc(100vw_-_32px)]'
   ];
 
@@ -74,13 +73,13 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
           <p
             ref={productDescriptionRef}
             className={clsm([
+              'break-anywhere',
               'py-2.5',
               'sm:pb-0',
               'sm:pt-2',
-              'text-[#A0A0A0]',
-              'text-sm',
               'sm:text-md',
-              'break-anywhere'
+              'text-[#A0A0A0]',
+              'text-sm'
             ])}
           >
             {description}

@@ -158,12 +158,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-default), 48%)',
             hover: 'hsl(var(--base-profile-color-default), 58%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-default), 15%)',
-              hover: 'hsl(var(--base-profile-color-default), 25%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-default), 63%)',
+                hover: 'hsl(var(--base-profile-color-default), 73%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-default), 15%)',
+                hover: 'hsl(var(--base-profile-color-default), 25%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-default), 94%)',
-              hover: 'hsl(var(--base-profile-color-default), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-default), 63%)',
+                hover: 'hsl(var(--base-profile-color-default), 53%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-default), 94%)',
+                hover: 'hsl(var(--base-profile-color-default), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-default), 38%)'
@@ -180,12 +192,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-green), 42%)',
             hover: 'hsl(var(--base-profile-color-green), 52%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-green), 14%)',
-              hover: 'hsl(var(--base-profile-color-green), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-green), 42%)',
+                hover: 'hsl(var(--base-profile-color-green), 52%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-green), 14%)',
+                hover: 'hsl(var(--base-profile-color-green), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-green), 94%)',
-              hover: 'hsl(var(--base-profile-color-green), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-green), 42%)',
+                hover: 'hsl(var(--base-profile-color-green), 32%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-green), 94%)',
+                hover: 'hsl(var(--base-profile-color-green), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-green), 32%)'
@@ -202,12 +226,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-yellow), 64%)',
             hover: 'hsl(var(--base-profile-color-yellow), 74%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-yellow), 14%)',
-              hover: 'hsl(var(--base-profile-color-yellow), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-yellow), 64%)',
+                hover: 'hsl(var(--base-profile-color-yellow), 74%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-yellow), 14%)',
+                hover: 'hsl(var(--base-profile-color-yellow), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-yellow), 94%)',
-              hover: 'hsl(var(--base-profile-color-yellow), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-yellow), 64%)',
+                hover: 'hsl(var(--base-profile-color-yellow), 54%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-yellow), 94%)',
+                hover: 'hsl(var(--base-profile-color-yellow), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-yellow), 38%)'
@@ -224,12 +260,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-blue), 64%)',
             hover: 'hsl(var(--base-profile-color-blue), 74%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-blue), 14%)',
-              hover: 'hsl(var(--base-profile-color-blue), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-blue), 64%)',
+                hover: 'hsl(var(--base-profile-color-blue), 74%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-blue), 14%)',
+                hover: 'hsl(var(--base-profile-color-blue), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-blue), 94%)',
-              hover: 'hsl(var(--base-profile-color-blue), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-blue), 64%)',
+                hover: 'hsl(var(--base-profile-color-blue), 54%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-blue), 94%)',
+                hover: 'hsl(var(--base-profile-color-blue), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-blue), 59%)'
@@ -246,12 +294,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-salmon), 71%)',
             hover: 'hsl(var(--base-profile-color-salmon), 81%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-salmon), 14%)',
-              hover: 'hsl(var(--base-profile-color-salmon), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-salmon), 71%)',
+                hover: 'hsl(var(--base-profile-color-salmon), 81%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-salmon), 14%)',
+                hover: 'hsl(var(--base-profile-color-salmon), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-salmon), 94%)',
-              hover: 'hsl(var(--base-profile-color-salmon), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-salmon), 71%)',
+                hover: 'hsl(var(--base-profile-color-salmon), 61%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-salmon), 94%)',
+                hover: 'hsl(var(--base-profile-color-salmon), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-salmon), 61%)'
@@ -268,12 +328,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-purple), 54%)',
             hover: 'hsl(var(--base-profile-color-purple), 64%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-purple), 14%)',
-              hover: 'hsl(var(--base-profile-color-purple), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-purple), 54%)',
+                hover: 'hsl(var(--base-profile-color-purple), 64%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-purple), 14%)',
+                hover: 'hsl(var(--base-profile-color-purple), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-purple), 94%)',
-              hover: 'hsl(var(--base-profile-color-purple), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-purple), 54%)',
+                hover: 'hsl(var(--base-profile-color-purple), 44%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-purple), 94%)',
+                hover: 'hsl(var(--base-profile-color-purple), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-purple), 44%)'
@@ -290,12 +362,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-turquoise), 67%)',
             hover: 'hsl(var(--base-profile-color-turquoise), 77%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-turquoise), 14%)',
-              hover: 'hsl(var(--base-profile-color-turquoise), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-turquoise), 67%)',
+                hover: 'hsl(var(--base-profile-color-turquoise), 77%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-turquoise), 14%)',
+                hover: 'hsl(var(--base-profile-color-turquoise), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-turquoise), 94%)',
-              hover: 'hsl(var(--base-profile-color-turquoise), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-turquoise), 67%)',
+                hover: 'hsl(var(--base-profile-color-turquoise), 57%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-turquoise), 94%)',
+                hover: 'hsl(var(--base-profile-color-turquoise), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-turquoise), 42%)'
@@ -312,12 +396,24 @@ module.exports = {
             DEFAULT: 'hsl(var(--base-profile-color-lavender), 86%)',
             hover: 'hsl(var(--base-profile-color-lavender), 96%)',
             darkMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-lavender), 14%)',
-              hover: 'hsl(var(--base-profile-color-lavender), 24%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-lavender), 86%)',
+                hover: 'hsl(var(--base-profile-color-lavender), 96%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-lavender), 14%)',
+                hover: 'hsl(var(--base-profile-color-lavender), 24%)'
+              }
             },
             lightMode: {
-              DEFAULT: 'hsl(var(--base-profile-color-lavender), 94%)',
-              hover: 'hsl(var(--base-profile-color-lavender), 84%)'
+              primary: {
+                DEFAULT: 'hsl(var(--base-profile-color-lavender), 86%)',
+                hover: 'hsl(var(--base-profile-color-lavender), 76%)'
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--base-profile-color-lavender), 94%)',
+                hover: 'hsl(var(--base-profile-color-lavender), 84%)'
+              }
             },
             dark: {
               DEFAULT: 'hsl(var(--base-profile-color-lavender), 76%)'

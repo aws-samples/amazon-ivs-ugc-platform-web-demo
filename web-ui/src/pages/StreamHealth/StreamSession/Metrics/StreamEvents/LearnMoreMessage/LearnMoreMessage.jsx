@@ -31,7 +31,7 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
           className={clsm([
             'absolute',
             'right-[15px]',
-            '-top-[7px]',
+            '-top-[10px]',
             'w-11',
             'h-11'
           ])}

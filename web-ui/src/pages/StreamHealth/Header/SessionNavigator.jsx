@@ -80,6 +80,7 @@ const SessionNavigator = forwardRef(
     return (
       <div
         className={clsm([
+          'xs:space-x-0',
           'col-start-2',
           'flex',
           'justify-center',

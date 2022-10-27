@@ -14,8 +14,8 @@ import { useStreamManagerActions } from '../../../contexts/StreamManagerActions'
 import StreamManagerActionButton from './StreamManagerActionButton';
 
 const STREAM_MANAGER_ACTION_ICONS = {
-  [STREAM_ACTION_NAME.QUIZ]: ShoppingBag,
-  [STREAM_ACTION_NAME.PRODUCT]: FactCheck,
+  [STREAM_ACTION_NAME.QUIZ]: FactCheck,
+  [STREAM_ACTION_NAME.PRODUCT]: ShoppingBag,
   [STREAM_ACTION_NAME.CELEBRATION]: Celebration,
   [STREAM_ACTION_NAME.NOTICE]: CallToAction
 };

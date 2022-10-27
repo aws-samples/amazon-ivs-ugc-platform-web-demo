@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  getPrimaryBgColorClass,
+  getPrimaryButtonBgColorClass,
   getSecondaryBgColorClasses,
   getSecondaryTextColorClass,
   shouldForceWhiteTextLightDark,
@@ -35,9 +35,7 @@ const ProductButtons = forwardRef(({ openProductDetails, variant }, ref) => {
         ariaLabel={`${$productPopupContent.buy_now}`}
         onClick={noop}
         className={clsm([
-          `hover:${getPrimaryBgColorClass(color)}-hover`,
-          `focus:${getPrimaryBgColorClass(color)}`,
-          getPrimaryBgColorClass(color),
+          getPrimaryButtonBgColorClass(color),
           shouldForceWhiteTextLightMode(color) && [
             'text-white',
             'dark:text-black'

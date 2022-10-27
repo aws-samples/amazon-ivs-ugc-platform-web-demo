@@ -44,6 +44,7 @@
   list-style-position: outside;
   padding: 0 15px;
   margin-left: 9px;
+  list-style: disc;
 }
 
 .learn-more-message ul li:not(:last-child) {
