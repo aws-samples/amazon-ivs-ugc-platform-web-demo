@@ -47,8 +47,7 @@ export const Provider = ({ children }) => {
   } = useSWR(swrKey, channelDataFetcher, {
     refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL
   });
-  const isChannelLoading =
-    currentPage === 'channel' && !channelData && !channelError;
+  const isChannelLoading = !channelData && !channelError;
 
   const value = useMemo(
     () => ({

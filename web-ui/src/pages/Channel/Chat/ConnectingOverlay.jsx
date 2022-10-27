@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import Spinner from '../../../components/Spinner';
 import useCurrentPage from '../../../hooks/useCurrentPage';
-import usePrevious from '../../../hooks/usePrevious';
 
 const defaultTransition = { duration: 0.25, type: 'tween' };
 const defaultAnimationProps = {
@@ -18,7 +17,6 @@ const defaultAnimationProps = {
 const ConnectingOverlay = ({ isLoading }) => {
   const currentPage = useCurrentPage();
   const isStreamManagerPage = currentPage === 'stream_manager';
-  const previousIsLoading = usePrevious(isLoading);
   const [shouldShowConnectingOverlay, setShouldShowConnectingOverlay] =
     useState(true);
 
@@ -27,15 +25,14 @@ const ConnectingOverlay = ({ isLoading }) => {
   useEffect(() => {
     if (isLoading) {
       setShouldShowConnectingOverlay(true);
-    } else if (!isLoading && previousIsLoading) {
-      loaderTimeoutId.current = setTimeout(
-        () => setShouldShowConnectingOverlay(false),
-        (defaultTransition.duration / 2) * 1000
-      );
+    } else {
+      loaderTimeoutId.current = setTimeout(() => {
+        setShouldShowConnectingOverlay(false);
+      }, (defaultTransition.duration / 2) * 1000);
     }
 
     return () => clearTimeout(loaderTimeoutId.current);
-  }, [isLoading, previousIsLoading]);
+  }, [isLoading]);
 
   return (
     <AnimatePresence initial={false}>

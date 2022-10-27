@@ -83,7 +83,7 @@ const ChatLine = ({
 
 const ChatLineWrapper = forwardRef(
   ({ children, chatLineVariant, isStaticChatLine, ...restProps }, ref) => {
-    if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE)
+    if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE && !isStaticChatLine)
       return (
         <m.button ref={ref} {...restProps}>
           {children}
