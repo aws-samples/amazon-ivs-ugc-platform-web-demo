@@ -4,13 +4,24 @@ import fastifyCors from '@fastify/cors';
 import userManagementRouters from './userManagement/';
 import metricsRouter from './metrics/';
 
+export const getOrigin = () => {
+  // By default, disable CORS
+  let origin: string[] | string | boolean = false;
+  const parsedOrigins: string[] = JSON.parse(
+    process.env.ALLOWED_ORIGINS || '[]'
+  );
+
+  if (parsedOrigins.length) origin = parsedOrigins;
+  if (parsedOrigins.find((parsedOrigin) => parsedOrigin === '*')) origin = '*';
+
+  return origin;
+};
+
 const buildServer = () => {
   const server = fastify();
 
-  const origin = JSON.parse(process.env.ALLOWED_ORIGINS || 'false');
-
-  // CORS
-  server.register(fastifyCors, { origin });
+  // Register CORS
+  server.register(fastifyCors, { origin: getOrigin() });
 
   const { SERVICE_NAME: serviceName = '' } = process.env;
 

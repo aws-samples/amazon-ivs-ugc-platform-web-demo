@@ -30,6 +30,7 @@ export interface GetStreamSessionResponseBody {
   endTime?: Date;
   ingestConfiguration?: IngestConfiguration;
   isHealthy?: boolean;
+  isLive: boolean;
   metrics: FormattedMetricData[];
   startTime?: Date;
   streamId?: string;
@@ -199,6 +200,7 @@ const handler = async (
       endTime,
       ingestConfiguration,
       isHealthy,
+      isLive,
       metrics: formattedMetricsData,
       startTime,
       streamId,
