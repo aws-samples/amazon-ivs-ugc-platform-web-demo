@@ -19,9 +19,12 @@ export const SEND_ERRORS = {
   MAX_LENGTH_EXCEEDED: 'Message exceeds maximum length'
 };
 
-export const requestChatToken = async (chatRoomOwnerUsername) => {
+export const requestChatToken = async (
+  chatRoomOwnerUsername,
+  abortControllerSignal
+) => {
   const { result: { token, sessionExpirationTime, capabilities } = {}, error } =
-    await getChatToken(chatRoomOwnerUsername);
+    await getChatToken(chatRoomOwnerUsername, abortControllerSignal);
 
   if (error) {
     console.error('Error requesting chat token:', error);
@@ -74,7 +77,7 @@ export const closeSocket = (socket) => {
 
   // Check if the current state of the connection is CONNECTING (0).
   // In that case wait before closing the connection.
-  if (socket.readyState === 0) {
+  if (socket.readyState === WebSocket.CONNECTING) {
     setTimeout(() => closeSocket(socket), 1000);
   } else {
     socket.close(1000, 'Work complete');

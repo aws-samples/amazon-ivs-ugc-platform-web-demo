@@ -88,7 +88,8 @@ export const authFetch = async ({
   url,
   method = 'GET',
   body = {},
-  includeUserData = false
+  includeUserData = false,
+  signal
 }) => {
   let result, error;
 
@@ -113,7 +114,8 @@ export const authFetch = async ({
         Authorization: accessToken,
         'Content-Type': 'application/json'
       },
-      method
+      method,
+      signal
     });
     const data = await response.json();
 
@@ -131,14 +133,15 @@ export const authFetch = async ({
   return { result, error };
 };
 
-export const unauthFetch = async ({ url, method = 'GET', body }) => {
+export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
   let result, error;
 
   try {
     const response = await fetch(url, {
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
-      method
+      method,
+      signal
     });
 
     const data = await response.json();

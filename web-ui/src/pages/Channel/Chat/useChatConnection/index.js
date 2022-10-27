@@ -49,6 +49,7 @@ const useChatConnection = (eventHandlers) => {
   const cancelConnectionRetry = useRef(false);
   const refreshTokenTimeoutId = useRef();
   const connection = useRef();
+  const abortControllerRef = useRef();
   const isConnecting =
     isInitializingConnection.current || connectionReadyState === 0;
 
@@ -187,10 +188,12 @@ const useChatConnection = (eventHandlers) => {
   }, []);
 
   const disconnect = useCallback(() => {
+    abortControllerRef.current?.abort();
     closeSocket(connection.current);
     clearTimeout(refreshTokenTimeoutId.current);
     refreshChannelData();
     connection.current = null;
+    isInitializingConnection.current = false;
     refreshTokenTimeoutId.current = null;
   }, [refreshChannelData]);
 
@@ -204,14 +207,23 @@ const useChatConnection = (eventHandlers) => {
       return;
 
     // Clean up previous connection resources
+    abortControllerRef.current = new AbortController();
     if (connection.current) disconnect();
     isInitializingConnection.current = true;
     setDidConnectionCloseCleanly(undefined);
     setHasConnectionError(false);
 
     // Request a new chat token
+    const { signal } = abortControllerRef.current;
     const { token, sessionExpirationTime, error, capabilities } =
-      await requestChatToken(chatRoomOwnerUsername);
+      await requestChatToken(chatRoomOwnerUsername, signal);
+
+    // Cancel the connection if disconnect was called at this point
+    if (signal.aborted) {
+      isInitializingConnection.current = false;
+
+      return;
+    }
     if (error)
       return retryConnectionWithBackoff(connect, error, 'token request');
 

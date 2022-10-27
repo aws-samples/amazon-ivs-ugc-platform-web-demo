@@ -30,7 +30,10 @@ export const getUserChannelData = async (username) => {
  * @param {string} chatRoomOwnerUsername username of the owner for the chat room to which access is being requested
  * @returns {ChatTokenResponse}
  */
-export const getChatToken = async (chatRoomOwnerUsername) => {
+export const getChatToken = async (
+  chatRoomOwnerUsername,
+  abortControllerSignal
+) => {
   const { result: session } = await getCurrentSession();
   const isSessionValid = !!session;
   const _fetch = isSessionValid ? authFetch : unauthFetch;
@@ -38,7 +41,8 @@ export const getChatToken = async (chatRoomOwnerUsername) => {
   return await _fetch({
     method: 'POST',
     url: `${apiBaseUrl}/user/chatToken/create`,
-    body: { chatRoomOwnerUsername }
+    body: { chatRoomOwnerUsername },
+    signal: abortControllerSignal
   });
 };
 
