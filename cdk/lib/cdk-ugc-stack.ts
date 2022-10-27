@@ -34,8 +34,13 @@ export class UGCStack extends Stack {
     super(scope, id, props);
 
     const { resourceConfig, shouldPublish } = props;
-    const { ivsChannelType, maxAzs, natGateways, deploySeparateContainers } =
-      resourceConfig;
+    const {
+      deploySeparateContainers,
+      ivsChannelType,
+      maxAzs,
+      natGateways,
+      stageName
+    } = resourceConfig;
     let { allowedOrigins } = resourceConfig;
     const stackNamePrefix = Stack.of(this).stackName;
 
@@ -303,6 +308,7 @@ export class UGCStack extends Stack {
     new CfnOutput(this, 'userPoolId', { value: userPoolId });
     new CfnOutput(this, 'userPoolClientId', { value: userPoolClientId });
     new CfnOutput(this, 'region', { value: region });
+    new CfnOutput(this, 'stage', { value: stageName });
 
     if (frontendAppBaseUrl) {
       new CfnOutput(this, 'frontendAppBaseUrl', {

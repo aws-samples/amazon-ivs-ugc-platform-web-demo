@@ -23,6 +23,8 @@ export const USE_MOCKS = false;
 
 export const ENABLE_CHAT_DEBUG_MESSAGES = false;
 
+export const RESTRICTED_PROD_CONSOLE_TYPES = ['log', 'info'];
+
 /**
  * EXCEPTIONS
  */
