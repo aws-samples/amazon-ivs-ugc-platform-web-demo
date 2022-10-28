@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useRef } from 'react';
 
-import './Form.css';
 import { BREAKPOINTS } from '../../constants';
-import { noop, throttle } from '../../utils';
+import { clsm, noop, throttle } from '../../utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
+import { BUTTON_VARIANT_CLASSES as variantClasses } from './FormTheme';
 
 const Form = ({
   'data-test-id': dataTestId,
@@ -40,10 +40,19 @@ const Form = ({
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
   const { currentBreakpoint } = useResponsiveDevice();
   const isMobileView = currentBreakpoint < BREAKPOINTS.sm;
+  const classes = clsm(variantClasses[formVariant]);
 
   const SubmitButton = useCallback(
     () => (
-      <div className="submit-container">
+      <div
+        className={clsm([
+          'flex',
+          'flex-col',
+          'space-y-8',
+          'text-center',
+          'self-stretch'
+        ])}
+      >
         <Button
           type="submit"
           ariaDisabled={!isFormComplete || disableSubmit(formProps)}
@@ -102,7 +111,7 @@ const Form = ({
   return (
     <form
       data-test-id={dataTestId}
-      className={`form ${formVariant}`}
+      className={classes}
       onSubmit={(e) => onSubmit(e, clearFormOnSuccess)}
     >
       {title && <h1 className={isMobileView ? 'h2' : ''}>{title}</h1>}
@@ -113,8 +122,8 @@ const Form = ({
               {...inputProps}
               key={inputProps.name}
               onBlur={disableValidation ? undefined : onBlur}
-              onFocus={disableValidation ? undefined : onFocus}
               onChange={onChange}
+              onFocus={disableValidation ? undefined : onFocus}
               variant={inputVariant}
             />
           );
@@ -124,9 +133,13 @@ const Form = ({
           i === arr.length - 1 && formVariant === 'horizontal';
         return (
           <div
-            className={`input-format-container ${
-              !hasSubmitButton ? 'with-spacing' : ''
-            }`}
+            className={clsm([
+              'flex',
+              'input-format-container',
+              'space-x-2.5',
+              formVariant === 'horizontal' && 'items-end',
+              !hasSubmitButton && ['mr-[108px]', 'xs:m-0']
+            ])}
             key={inputProps.name}
           >
             <Input

@@ -24,7 +24,7 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
     'items-center',
     'justify-center',
     'px-0',
-    'py-3',
+    'py-[13px]',
     'right-5',
     'top-0'
   ]);

@@ -53,7 +53,7 @@ class ResetPageModel extends BasePageModel {
   resetPassword = async (code, username, newPassword) => {
     await this.navigate(`/reset?code=${code}&username=${username}`);
 
-    const headerLoc = this.page.locator('.form.vertical h1');
+    const headerLoc = this.page.locator('form h1');
     await expect(headerLoc).toHaveText('Reset your password');
 
     // Click and fill the new password input field

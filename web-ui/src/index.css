@@ -36,6 +36,135 @@
     --base-profile-color-turquoise: 169, 100%;
     --base-profile-color-lavender: 243, 100%;
   }
+
+  *,
+  *::before,
+  *::after {
+    @apply m-0 p-0 box-border;
+  }
+  html {
+    @apply scroll-smooth;
+    text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    /* Firefox scrollbar */
+    scrollbar-width: auto;
+    scrollbar-color: theme('colors.darkMode.gray.DEFAULT') transparent;
+  }
+  body {
+    @apply bg-black text-white;
+    @apply font-body text-[15px] not-italic antialiased;
+    @apply overflow-hidden relative;
+    text-rendering: optimizeSpeed;
+  }
+
+  /* WebKit scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-[17px];
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-transparent;
+    @apply border-solid border-[5px] border-transparent rounded-[100px];
+    box-shadow: inset 0 0 10px 10px var(--palette-color-gray);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    box-shadow: inset 0 0 10px 10px var(--palette-color-gray-hover);
+  }
+
+  /* Typography */
+  h1.display {
+    @apply text-[46px] leading-[52px] font-black;
+  }
+  h1 {
+    @apply text-[32px] leading-[38.73px] font-black;
+  }
+  h2,
+  .h2 {
+    @apply text-2xl leading-[29.05px] font-bold;
+  }
+  h3 {
+    @apply text-lg leading-[21.78px] font-bold;
+  }
+  h4,
+  .h4 {
+    @apply text-[15px] leading-[18.15px] font-medium text-white;
+  }
+  .p1 {
+    @apply text-[15px] leading-[22.5px] font-normal;
+  }
+  .p2 {
+    @apply text-[13px] leading-[19.5px] font-normal;
+  }
+  .p3 {
+    @apply text-xs leading-[15px] font-medium;
+  }
+  a,
+  button,
+  .button-link {
+    @apply font-[Inter] text-[15px] leading-[18px] font-bold not-italic;
+  }
+
+  button,
+  .button-link {
+    @apply text-white;
+  }
+
+  a {
+    @apply text-darkMode-blue no-underline w-fit;
+  }
+
+  a:not([class]) {
+    text-decoration-skip-ink: auto;
+  }
+
+  img {
+    @apply w-full h-full object-cover;
+  }
+  @media (max-width: 989px) {
+    h1 {
+      @apply text-[32px] font-black;
+    }
+    h2 {
+      @apply text-[24px] font-bold;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      @apply !duration-[0.01ms] !scroll-auto;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    body {
+      @apply bg-white text-black;
+    }
+    h4,
+    .h4 {
+      @apply text-lightMode-gray-dark;
+    }
+    button,
+    .button-link {
+      @apply text-lightMode-gray-dark;
+    }
+
+    a {
+      @apply text-lightMode-blue-medium;
+    }
+
+    a:not(.button):focus,
+    a:not(.button):hover {
+      @apply border-b-2 border-solid border-lightMode-blue-medium;
+    }
+  }
+
+  /*
+  * Hide Microsoft Edge password reveal button
+  * https://learn.microsoft.com/en-us/microsoft-edge/web-platform/password-reveal
+  */
+  ::-ms-reveal {
+    @apply hidden;
+  }
 }
 
 :root {
@@ -136,170 +265,5 @@
     --base-color-medium-blue: 205, 79%;
     --palette-color-medium-blue: hsl(var(--base-color-medium-blue), 37%);
     --palette-color-medium-blue-hover: hsl(var(--base-color-medium-blue), 27%);
-  }
-}
-
-@layer base {
-  *,
-  *::before,
-  *::after {
-    @apply m-0 p-0 box-border;
-  }
-  html {
-    @apply scroll-smooth;
-    text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
-    -webkit-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    /* Firefox scrollbar */
-    scrollbar-width: auto;
-    scrollbar-color: theme('colors.darkMode.gray.DEFAULT') transparent;
-  }
-  body {
-    @apply bg-black text-white;
-    @apply font-body;
-    font-size: 15px;
-    font-style: normal;
-    overflow: hidden;
-    position: relative;
-    text-rendering: optimizeSpeed;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
-  }
-  /* WebKit scrollbar */
-  ::-webkit-scrollbar {
-    width: 17px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 100px;
-    box-shadow: inset 0 0 10px 10px var(--palette-color-gray);
-    border: solid 5px transparent;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    box-shadow: inset 0 0 10px 10px var(--palette-color-gray-hover);
-  }
-
-  /* Typography */
-  h1.display {
-    font-size: 46px;
-    font-weight: 900;
-    line-height: 52px;
-  }
-  h1 {
-    font-size: 32px;
-    font-weight: 900;
-    line-height: 38.73px;
-  }
-
-  h2 {
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 29.05px;
-  }
-  h3 {
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 21.78px;
-  }
-  h4,
-  .h4 {
-    @apply text-white;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 18.15px;
-  }
-  .p1 {
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 22.5px;
-  }
-  .p2 {
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 19.5px;
-  }
-  .p3 {
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 15px;
-  }
-  a,
-  button,
-  .button-link {
-    font-family: Inter;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 18px;
-  }
-
-  button,
-  .button-link {
-    @apply text-white;
-  }
-
-  a {
-    @apply text-darkMode-blue;
-    text-decoration: none;
-    width: fit-content;
-  }
-
-  a:not([class]) {
-    text-decoration-skip-ink: auto;
-  }
-
-  a:not(.button):focus,
-  a:not(.button):hover {
-    @apply border-b-2 border-solid border-darkMode-blue;
-    margin-bottom: -5px;
-    outline: none;
-    padding-bottom: 3px;
-    position: relative;
-  }
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  @media (max-width: 989px) {
-    h1 {
-      font-size: 32px;
-      font-weight: 900;
-    }
-    h2 {
-      font-size: 24px;
-      font-weight: 700;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-  @media (prefers-color-scheme: light) {
-    body {
-      @apply bg-white text-black;
-    }
-    h4,
-    .h4 {
-      @apply text-lightMode-gray-dark;
-    }
-    button,
-    .button-link {
-      @apply text-lightMode-gray-dark;
-    }
-
-    a {
-      @apply text-lightMode-blue-medium;
-    }
-
-    a:not(.button):focus,
-    a:not(.button):hover {
-      @apply border-b-2 border-solid border-lightMode-blue-medium;
-    }
   }
 }
