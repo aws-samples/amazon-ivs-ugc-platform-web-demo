@@ -110,8 +110,8 @@ export const BUTTON_VARIANT_CLASSES = {
   ],
   secondaryText: [
     ...TEXT_BASE_CLASSES,
-    'dark:[&]:text-white',
-    '[&]:text-black',
+    'dark:text-white',
+    'text-black',
     '[&>.spinner]:text-white',
     '[&>svg]:fill-white',
     'dark:text-white'

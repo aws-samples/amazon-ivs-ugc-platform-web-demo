@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
-import { clsm } from '../../utils';
 
-import './Spinner.css';
+import { clsm } from '../utils';
 
 const DIAMETER = { small: '24px', medium: '30px', large: '36px' };
 
@@ -12,7 +11,7 @@ const Spinner = ({ variant, size, className }) => {
       variant,
       size,
       'inline-block',
-      'animate-[1.4s_linear_0s_infinite_normal_none_running_rotate-anim]'
+      'animate-[spin_1.4s_linear_infinite]'
     ],
     variant === 'white' && ['text-white'],
     variant === 'light' && ['text-black', 'dark:text-white'],
@@ -32,10 +31,7 @@ const Spinner = ({ variant, size, className }) => {
     >
       <svg viewBox="22 22 44 44">
         <circle
-          className={clsm([
-            'stroke-current',
-            'animate-[stroke-anim_1.4s_ease-in-out_infinite]'
-          ])}
+          className={clsm(['stroke-current', 'animate-spinnerStroke'])}
           cx="44"
           cy="44"
           r="20.2"

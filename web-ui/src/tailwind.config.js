@@ -4,6 +4,8 @@ const {
   default: flattenColorPalette
 } = require('tailwindcss/lib/util/flattenColorPalette');
 
+const { animation, keyframes } = require('./animations');
+
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
@@ -33,6 +35,8 @@ module.exports = {
       ]
     },
     extend: {
+      animation,
+      keyframes,
       boxShadow: {
         focus: `inset 0 0 0 2px var(--tw-shadow-color)`,
         focusOuter: ` 0 0 0 2px var(--tw-shadow-color)`,
@@ -426,14 +430,6 @@ module.exports = {
               DEFAULT: 'hsl(var(--base-profile-color-lavender), 98%)'
             }
           }
-        }
-      },
-      animation: {
-        blink: 'blink 0.45s infinite'
-      },
-      keyframes: {
-        blink: {
-          '50%': { opacity: '0.8' }
         }
       }
     }
