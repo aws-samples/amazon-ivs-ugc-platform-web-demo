@@ -13,8 +13,13 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import withSessionLoader from '../../components/withSessionLoader';
 
 const AppLayoutWithNavbar = () => {
-  const { isDefaultResponsiveView, isLandscape, isMobileView, mainRef } =
-    useResponsiveDevice();
+  const {
+    isDefaultResponsiveView,
+    isLandscape,
+    isMobileView,
+    mainRef,
+    isTouchscreenDevice
+  } = useResponsiveDevice();
   const { isSessionValid } = useUser();
   const currentPage = useCurrentPage();
   const isChannelPage = currentPage === 'channel';
@@ -42,7 +47,8 @@ const AppLayoutWithNavbar = () => {
         'overflow-auto',
         'relative',
         'scroll-smooth',
-        'supports-overlay:overflow-overlay'
+        'supports-overlay:overflow-overlay',
+        isChannelPage && !isTouchscreenDevice && 'lg:no-scrollbar'
       ])}
     >
       <main
