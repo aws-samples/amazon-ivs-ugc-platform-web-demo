@@ -33,7 +33,7 @@ const EncoderConfiguration = () => {
   }, [activeStreamSession]);
 
   return (
-    <section className="encoder-config-section sm:px-4">
+    <section className="encoder-config-section md:px-4">
       <h3>{$content.title}</h3>
       <div className="config-grid">
         {encoderConfigValues.map(({ id, ...configData }) => (
