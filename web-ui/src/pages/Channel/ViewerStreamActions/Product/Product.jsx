@@ -54,6 +54,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
         color={color}
       />
       <h2
+        style={{ overflowWrap: 'anywhere' }}
         className={clsm([
           'dark:text-white',
           'font-bold',

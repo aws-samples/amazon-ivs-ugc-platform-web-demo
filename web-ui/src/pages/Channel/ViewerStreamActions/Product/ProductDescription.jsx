@@ -1,15 +1,13 @@
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../../../../constants';
-import { clsm, isiOS } from '../../../../utils';
+import { clsm } from '../../../../utils';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
-import { useEffect, useRef } from 'react';
 
 const ProductDescription = ({ color, title, description, price, imageUrl }) => {
-  const { currentBreakpoint, isLandscape } = useResponsiveDevice();
-  const productDescriptionRef = useRef();
+  const { currentBreakpoint } = useResponsiveDevice();
   const isSmallBreakpoint = currentBreakpoint <= BREAKPOINTS.sm;
   const customProductImageClasses = [
     'w-[320px]',
@@ -18,17 +16,6 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
     'md:max-w-none',
     'md:h-[calc(100vw_-_32px)]'
   ];
-
-  /*
-  We've found that on iOS devices, some of the existing CSS styles weren't applied correctly after an orientation change. 
-  Forcing the browser to repaint the element by updating the style attribute seems to solve the issue.
-  */
-
-  useEffect(() => {
-    if (isiOS()) {
-      productDescriptionRef.current.style.overflowWrap = 'anywhere';
-    }
-  }, [isLandscape]);
 
   return (
     <div
@@ -76,11 +63,12 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
               'text-black',
               'mr-6'
             ])}
+            style={{ overflowWrap: 'anywhere' }}
           >
             {title}
           </h2>
           <p
-            ref={productDescriptionRef}
+            style={{ overflowWrap: 'anywhere' }}
             className={clsm([
               'break-anywhere',
               'pt-2',

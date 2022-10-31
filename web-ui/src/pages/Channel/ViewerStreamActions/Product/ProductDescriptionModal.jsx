@@ -94,8 +94,7 @@ const ProductDescriptionModal = () => {
           ref={mainContentRef}
           className={clsm(
             [
-              'py-7',
-              'px-8',
+              'p-8',
               'h-auto',
               'md:px-4',
               'md:pt-[100px]',
@@ -110,22 +109,6 @@ const ProductDescriptionModal = () => {
             ]
           )}
         >
-          <Button
-            ariaLabel={`Close the modal for the product description`}
-            className={clsm([
-              'absolute',
-              'top-2',
-              'right-2',
-              '[&>svg]:w-6',
-              '[&>svg]:h-6',
-              '[&>svg]:dark:fill-white',
-              '[&>svg]:fill-darkMode-gray-dark'
-            ])}
-            onClick={closeModal}
-            variant="icon"
-          >
-            <Close />
-          </Button>
           <div
             className={clsm([
               'flex',
@@ -135,6 +118,24 @@ const ProductDescriptionModal = () => {
           >
             {productDescriptionContent}
           </div>
+          <Button
+            ariaLabel={`Close the modal for the product description`}
+            className={clsm([
+              'absolute',
+              'top-2',
+              'right-2',
+              '[&>svg]:w-6',
+              '[&>svg]:h-6',
+              '[&>svg]:dark:fill-white',
+              '[&>svg]:fill-darkMode-gray-dark',
+              'bg-white',
+              'dark:bg-darkMode-gray-medium'
+            ])}
+            onClick={closeModal}
+            variant="icon"
+          >
+            <Close />
+          </Button>
         </div>
         {isSmallBreakpoint && (
           <footer
