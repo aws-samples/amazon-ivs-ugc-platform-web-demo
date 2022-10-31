@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import './Tooltip.css';
+import { clsm } from '../../utils';
 import { keepWithinViewport } from './utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useTooltips } from '../../contexts/Tooltips';
@@ -117,7 +117,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
       {...(isTouchscreenDevice
         ? { onClick: showTooltip }
         : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
-      className="with-tooltip"
+      className={clsm(['min-w-0', 'relative'])}
       ref={parentRef}
     >
       {children}

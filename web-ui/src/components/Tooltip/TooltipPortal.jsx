@@ -1,14 +1,20 @@
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
-
-import './Tooltip.css';
 import { clsm } from '../../utils';
+
 import withPortal from '../withPortal';
 
 const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => (
   <span
     ref={ref}
-    className={`tooltip p3 ${hasFixedWidth ? 'fixed-width' : ''}`}
+    className={clsm([
+      'dark:bg-darkMode-gray',
+      'bg-lightMode-gray',
+      'rounded-xl',
+      'p-2.5',
+      'p3',
+      hasFixedWidth && 'max-w-[200px]'
+    ])}
   >
     {message}
   </span>

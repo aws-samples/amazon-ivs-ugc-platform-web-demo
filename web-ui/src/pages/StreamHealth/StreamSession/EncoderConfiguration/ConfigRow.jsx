@@ -28,7 +28,7 @@ const ConfigRow = ({ label, value, error }) => {
       <>
         {$content.errors[error].split(valueRegex).map((strPart) =>
           !!strPart.match(valueRegex) ? (
-            <span className="error-value" key={strPart}>
+            <span className="text-darkMode-red" key={strPart}>
               {substitutePlaceholders(strPart, activeStreamSession)}
             </span>
           ) : (
