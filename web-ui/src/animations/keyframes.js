@@ -1,4 +1,34 @@
+const colors = require('../colors');
+
 module.exports = {
+  'pulse-first-waves-light': {
+    '0%': { fill: colors.lightMode.gray.medium.DEFAULT },
+    '7%': { fill: colors.lightMode.gray.medium.DEFAULT },
+    '21%': { fill: colors.black.DEFAULT },
+    '78%': { fill: colors.black.DEFAULT },
+    '100%': { fill: colors.lightMode.gray.medium.DEFAULT }
+  },
+  'pulse-first-waves-dark': {
+    '0%': { fill: colors.darkMode.gray.dark.DEFAULT },
+    '7%': { fill: colors.darkMode.gray.dark.DEFAULT },
+    '21%': { fill: colors.white.DEFAULT },
+    '78%': { fill: colors.white.DEFAULT },
+    '100%': { fill: colors.darkMode.gray.dark.DEFAULT }
+  },
+  'pulse-second-waves-light': {
+    '0%': { fill: colors.lightMode.gray.medium.DEFAULT },
+    '28%': { fill: colors.lightMode.gray.medium.DEFAULT },
+    '42%': { fill: colors.black.DEFAULT },
+    '78%': { fill: colors.black.DEFAULT },
+    '100%': { fill: colors.lightMode.gray.medium.DEFAULT }
+  },
+  'pulse-second-waves-dark': {
+    '0%': { fill: colors.darkMode.gray.dark.DEFAULT },
+    '28%': { fill: colors.darkMode.gray.dark.DEFAULT },
+    '42%': { fill: colors.white.DEFAULT },
+    '78%': { fill: colors.white.DEFAULT },
+    '100%': { fill: colors.darkMode.gray.dark.DEFAULT }
+  },
   blink: { '50%': { opacity: '0.8' } },
   spinnerStroke: {
     '0%': {
