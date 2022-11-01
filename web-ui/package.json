@@ -41,9 +41,8 @@
     "build": "react-scripts build",
     "pretest:e2e:ci": "dotenv -e .env.test -- npm run build",
     "test:e2e:ci": "PORT=4000 npx playwright test",
-    "test:e2e": "npx playwright install && npm run test:e2e:ci",
-    "test:purge": "rimraf e2e/test-results/* e2e/screenshots/*",
-    "test:clean": "npm run test:purge && npm run test:e2e",
+    "test:e2e": "npx playwright install && npm run test:clean && npm run test:e2e:ci --",
+    "test:clean": "rimraf e2e/test-results/* e2e/screenshots/*",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write ."
   },

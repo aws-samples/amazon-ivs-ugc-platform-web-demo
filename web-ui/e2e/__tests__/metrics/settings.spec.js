@@ -1,24 +1,12 @@
 // @ts-check
-const { expect } = require('@playwright/test');
-
 const { extendTestFixtures } = require('../../utils');
 const { SettingsPageModel } = require('../../models');
 
-const test = extendTestFixtures({
-  settingsPage: async ({ page, baseURL }, use) => {
-    const settingsPage = await SettingsPageModel.create(page, baseURL);
-    await use(settingsPage);
-  }
-});
+const test = extendTestFixtures([
+  { name: 'settingsPage', PageModel: SettingsPageModel }
+]);
 
 test.describe('Settings Page', () => {
-  test.beforeEach(({ page }) => {
-    page.addAPIResponseEventListener();
-  });
-  test.afterEach(({ page }) => {
-    page.removeAPIResponseEventListener();
-  });
-
   test('should reset a stream key', async ({
     settingsPage: { resetStreamKey },
     page
@@ -28,9 +16,11 @@ test.describe('Settings Page', () => {
       await page.waitForSelector('.notification')
     ).waitForElementState('stable');
     await page.takeScreenshot('reset-stream-key-success');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(3);
+    await page.assertResponses([
+      ['/user', 200], // Get user data
+      ['/user/streamKey/reset', 200], // Reset stream key
+      ['/user', 200] // Get user data
+    ]);
   });
 
   test('should copy the stream key and ingest server URL', async ({

@@ -1,27 +1,13 @@
 // @ts-check
-const { expect } = require('@playwright/test');
-
 const { ResetPageModel } = require('../../models');
 const { extendTestFixtures } = require('../../utils');
 
 const test = extendTestFixtures(
-  {
-    resetPage: async ({ page, baseURL }, use) => {
-      const resetPage = await ResetPageModel.create(page, baseURL);
-      await use(resetPage);
-    }
-  },
+  [{ name: 'resetPage', PageModel: ResetPageModel }],
   { isAuthenticated: false }
 );
 
 test.describe('Reset Page', () => {
-  test.beforeEach(({ page }) => {
-    page.addAPIResponseEventListener();
-  });
-  test.afterEach(({ page }) => {
-    page.removeAPIResponseEventListener();
-  });
-
   test('should reset a forgotten password', async ({
     resetPage: {
       sendPasswordResetRequest,
@@ -31,11 +17,12 @@ test.describe('Reset Page', () => {
     },
     page
   }) => {
+    const expectedResponses = [];
+
     await sendPasswordResetRequest('testuser@ugc.com');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(1);
     await page.takeScreenshot('reset-password-request-sent');
+    expectedResponses.push(['/user/password/reset', 200]); // Send password reset request email
+    await page.assertResponses(expectedResponses);
 
     // On the password reset confirmation page, attempt to resend the password reset email
     await resendPasswordRequest();
@@ -44,15 +31,13 @@ test.describe('Reset Page', () => {
       await page.waitForSelector('.notification')
     ).waitForElementState('stable');
     await page.takeScreenshot('resend-password-reset-email-success');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(2);
+    expectedResponses.push(['/user/password/reset', 200]); // Re-send password reset request email
+    await page.assertResponses(expectedResponses);
 
     // Navigate to the link found in the verification email to set a new password
     await resetPassword(123456, 'testUser', 'NewPassword0!');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(3);
+    expectedResponses.push(['/', 200]); // Cognito confirm password
+    await page.assertResponses(expectedResponses);
   });
 
   test('should return a user to the login page', async ({

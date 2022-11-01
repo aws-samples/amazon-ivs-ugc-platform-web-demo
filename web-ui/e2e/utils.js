@@ -1,5 +1,5 @@
 // @ts-check
-const { test: baseTest } = require('@playwright/test');
+const { test: baseTest, expect } = require('@playwright/test');
 const {
   CognitoAccessToken,
   CognitoIdToken,
@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 
 const defaultExtentedTestFixtureOptions = { isAuthenticated: true };
 
-const extendTestFixtures = (fixtures = {}, options = {}) => {
+const extendTestFixtures = (pageModels = [], options = {}) => {
   const { isAuthenticated } = {
     ...defaultExtentedTestFixtureOptions,
     ...options
@@ -40,7 +40,7 @@ const extendTestFixtures = (fixtures = {}, options = {}) => {
       /**
        * "fetchResponses" is a list that contains all the API fetch responses received in that test,
        * updated throughout the test's execution. An assertion should use asynchornous polling to
-       * ensure that the expected response was recevied at the time of assertion:
+       * ensure that the expected response was recevied at the time of assertion.
        *
        * @example
        * await expect
@@ -55,12 +55,22 @@ const extendTestFixtures = (fixtures = {}, options = {}) => {
           page.fetchResponses.push(response);
         }
       };
-      page.addAPIResponseEventListener = () => {
-        page.on('response', onResponse);
-      };
+      page.addAPIResponseEventListener = () => page.on('response', onResponse);
       page.removeAPIResponseEventListener = () => {
         page.off('response', onResponse);
         page.fetchResponses = [];
+      };
+      page.assertResponses = async (expected = []) => {
+        await expect
+          .poll(() => page.fetchResponses.length, { timeout: 2000 })
+          .toEqual(expected.length);
+
+        await expect(
+          page.fetchResponses.map((response) => [
+            new URL(response.url()).pathname,
+            response.status()
+          ])
+        ).toEqual(expected);
       };
 
       // Read the current text value stored in the clipboard
@@ -88,7 +98,22 @@ const extendTestFixtures = (fixtures = {}, options = {}) => {
         await use(storageState);
       }
     }),
-    ...fixtures
+    ...pageModels.reduce(
+      (pageFixtures, { name, PageModel }) => ({
+        ...pageFixtures,
+        [name]: async ({ page, baseURL }, use) => {
+          // Set-up the API response event listener
+          page.addAPIResponseEventListener();
+
+          // Use page model fixture
+          await use(await PageModel.create(page, baseURL));
+
+          // Remove the API response event listener
+          page.removeAPIResponseEventListener();
+        }
+      }),
+      {}
+    )
   });
 };
 

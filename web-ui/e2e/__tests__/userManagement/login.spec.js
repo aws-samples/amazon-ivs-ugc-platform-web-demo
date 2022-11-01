@@ -5,29 +5,20 @@ const { LoginPageModel } = require('../../models');
 const { extendTestFixtures } = require('../../utils');
 
 const test = extendTestFixtures(
-  {
-    loginPage: async ({ page, baseURL }, use) => {
-      const loginPage = await LoginPageModel.create(page, baseURL);
-      await use(loginPage);
-    }
-  },
+  [{ name: 'loginPage', PageModel: LoginPageModel }],
   { isAuthenticated: false }
 );
 
 test.describe('Login Page', () => {
-  test.beforeEach(({ page }) => {
-    page.addAPIResponseEventListener();
-  });
-  test.afterEach(({ page }) => {
-    page.removeAPIResponseEventListener();
-  });
-
   test('should login a new user', async ({ loginPage: { login }, page }) => {
     await login('testUser', 'Passw0rd!');
     await page.takeScreenshot('user-login');
-    await expect
-      .poll(() => page.fetchResponses?.length, { timeout: 2000 })
-      .toEqual(4);
+    await page.assertResponses([
+      ['/', 200], // Cognito authenticate user
+      ['/user', 500], // Get user data (first call fails as user resources have not been created)
+      ['/user/resources/create', 200], // Create user resources
+      ['/user', 200] // Get user data
+    ]);
 
     // Ensure that navigating back after logging in does not redirect the user back to the login page
     await page.goBack();
