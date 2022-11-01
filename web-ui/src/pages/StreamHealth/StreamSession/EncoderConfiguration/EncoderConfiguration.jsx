@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 
+import './EncoderConfiguration.css';
+import { clsm } from '../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../content';
 import { KEYFRAME_INTERVAL } from '../../../../constants';
 import { processEncoderConfigData } from './utils';
 import { useStreams } from '../../../../contexts/Streams';
 import ConfigRow from './ConfigRow';
-import './EncoderConfiguration.css';
 
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
@@ -33,8 +34,8 @@ const EncoderConfiguration = () => {
   }, [activeStreamSession]);
 
   return (
-    <section className="encoder-config-section md:px-4">
-      <h3>{$content.title}</h3>
+    <section className={clsm(['w-full', 'p-[30px]', 'md:px-4'])}>
+      <h3 className="mb-[30px]">{$content.title}</h3>
       <div className="config-grid">
         {encoderConfigValues.map(({ id, ...configData }) => (
           <ConfigRow key={id} {...configData} />
