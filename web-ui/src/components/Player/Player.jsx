@@ -192,6 +192,11 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
         username={username}
       />
+      <PlayerViewerStreamActions
+        isControlsOpen={isControlsOpen}
+        onClickPlayerHandler={onClickPlayerHandler}
+        shouldShowStream={shouldShowStream}
+      />
       {shouldShowStream ? (
         <>
           {shouldShowLoader && (
@@ -276,10 +281,6 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           </h2>
         </div>
       )}
-      <PlayerViewerStreamActions
-        isControlsOpen={isControlsOpen}
-        shouldShowStream={shouldShowStream}
-      />
       <Notification />
     </section>
   );

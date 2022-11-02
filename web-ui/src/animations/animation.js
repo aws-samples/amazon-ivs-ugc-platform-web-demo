@@ -1,4 +1,6 @@
 module.exports = {
+  'marquee-first-part': 'marquee-first-part 5s linear infinite',
+  'marquee-second-part': 'marquee-second-part 5s linear infinite',
   'pulse-first-waves-light':
     'pulse-first-waves-light 3.5s ease-in-out infinite',
   'pulse-first-waves-dark': 'pulse-first-waves-dark 3.5s ease-in-out infinite',

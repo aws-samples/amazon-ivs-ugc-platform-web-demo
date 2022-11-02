@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bound, clsm } from '../../../utils';
 import { useEffect, useRef, useCallback } from 'react';
 
-const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
+const ProgressBar = ({ color, duration, startTime }) => {
   const durationInMs = duration * 1000;
   const remainingTimeRef = useRef(null);
   const intervalIdRef = useRef();
@@ -25,10 +25,7 @@ const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
       const differenceInMs = now - startTime;
       const remainingTimeInMs = durationInMs - differenceInMs;
 
-      if (differenceInMs >= durationInMs) {
-        clearInterval(intervalIdRef.current);
-        setTimeout(() => onCompletion(), 2000);
-      }
+      if (differenceInMs >= durationInMs) clearInterval(intervalIdRef.current);
 
       remainingTimeRef.current.style.width = updateWidth(
         bound(remainingTimeInMs, 0)
@@ -38,7 +35,7 @@ const ProgressBar = ({ color, duration, onCompletion, startTime }) => {
     intervalIdRef.current = setInterval(updateRemainingTime, 50);
 
     return () => clearInterval(intervalIdRef.current);
-  }, [durationInMs, onCompletion, startTime, updateWidth]);
+  }, [durationInMs, startTime, updateWidth]);
 
   return (
     <div
@@ -68,7 +65,6 @@ ProgressBar.defaultProps = {
 ProgressBar.propTypes = {
   color: PropTypes.string,
   duration: PropTypes.number,
-  onCompletion: PropTypes.func.isRequired,
   startTime: PropTypes.number.isRequired
 };
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../../../constants';
 import { BUTTON_OUTLINE_CLASSES } from '../../../components/Button/ButtonTheme';
-import { clsm } from '../../../utils';
+import { clsm, isTextColorInverted } from '../../../utils';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useStreamManagerActions } from '../../../contexts/StreamManagerActions';
@@ -65,7 +65,7 @@ const StreamManagerActionButton = forwardRef(
 
     if (!isActive) statusLabel = $content.off;
 
-    const isTextColorInverted = ['green', 'blue'].includes(color);
+    const shouldInvertColors = isTextColorInverted(color);
 
     if (!hasFetchedInitialUserData) return null;
 
@@ -91,7 +91,7 @@ const StreamManagerActionButton = forwardRef(
           ],
           BUTTON_OUTLINE_CLASSES,
           DEFAULT_TRANSITION_CLASSES,
-          isTextColorInverted && 'text-white'
+          shouldInvertColors && 'text-white'
         )}
       >
         <div
@@ -118,7 +118,7 @@ const StreamManagerActionButton = forwardRef(
                 'w-10',
                 `bg-profile-${color}-dark`,
                 DEFAULT_TRANSITION_CLASSES,
-                isActive && ['bg-black', isTextColorInverted && 'bg-white']
+                isActive && ['bg-black', shouldInvertColors && 'bg-white']
               ])}
             >
               <Icon
@@ -129,7 +129,7 @@ const StreamManagerActionButton = forwardRef(
                   'w-full',
                   DEFAULT_TRANSITION_CLASSES,
                   isActive && ['opacity-100', `fill-profile-${color}`],
-                  !isActive && isTextColorInverted && 'fill-white'
+                  !isActive && shouldInvertColors && 'fill-white'
                 ])}
               />
             </div>
@@ -142,7 +142,7 @@ const StreamManagerActionButton = forwardRef(
                 'ring-2',
                 'ring-black',
                 'rounded-full',
-                isTextColorInverted && 'ring-white'
+                shouldInvertColors && 'ring-white'
               ])}
             >
               <svg
@@ -155,7 +155,7 @@ const StreamManagerActionButton = forwardRef(
                     `group-hover:stroke-profile-${color}-hover`,
                     `stroke-profile-${color}`,
                     DEFAULT_TRANSITION_CLASSES,
-                    isTextColorInverted && 'fill-white'
+                    shouldInvertColors && 'fill-white'
                   ])}
                   r={PROGRESS_PIE_RADIUS}
                   cx={PROGRESS_PIE_RADIUS}

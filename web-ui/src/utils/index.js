@@ -323,3 +323,5 @@ export const deconstructObjectPath = (path = [], value) => {
 };
 
 export const range = (length) => Array.from({ length }, (_, i) => i);
+
+export const isTextColorInverted = (color) => ['green', 'blue'].includes(color);

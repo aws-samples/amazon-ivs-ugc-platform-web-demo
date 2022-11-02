@@ -1,6 +1,14 @@
 const colors = require('../colors');
 
 module.exports = {
+  'marquee-first-part': {
+    '0%': { transform: 'translateX(0%)' },
+    '100%': { transform: 'translateX(-100%)' }
+  },
+  'marquee-second-part': {
+    '0%': { transform: 'translateX(100%)' },
+    '100%': { transform: 'translateX(0%)' }
+  },
   'pulse-first-waves-light': {
     '0%': { fill: colors.lightMode.gray.medium.DEFAULT },
     '7%': { fill: colors.lightMode.gray.medium.DEFAULT },

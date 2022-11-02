@@ -30,7 +30,10 @@
       "confirm_text": "Show notice",
       "default_label": "Show",
       "active_label": "Showing",
-      "modal_form_title": "Show a notice"
+      "modal_form_title": "Show a notice",
+      "title": "Title",
+      "message": "Message",
+      "duration": "Duration"
     },
     "celebration": {
       "default_label": "Trigger",

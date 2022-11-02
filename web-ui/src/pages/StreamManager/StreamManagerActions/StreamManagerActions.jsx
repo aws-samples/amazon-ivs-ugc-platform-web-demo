@@ -26,8 +26,6 @@ export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
   [STREAM_ACTION_NAME.NOTICE]: <Notice />
 };
 
-const WIP_STREAM_MANAGER_ACTIONS = [STREAM_ACTION_NAME.NOTICE];
-
 const StreamManagerActions = () => {
   const { openStreamManagerActionModal, sendStreamAction } =
     useStreamManagerActions();
@@ -57,8 +55,6 @@ const StreamManagerActions = () => {
       ])}
     >
       {Object.values(STREAM_ACTION_NAME).map((actionName) => {
-        if (WIP_STREAM_MANAGER_ACTIONS.includes(actionName)) return null;
-
         const hasModal = actionName in STREAM_MANAGER_ACTION_MODAL_FORMS;
         const $content =
           $streamManagerContent.stream_manager_actions[actionName];

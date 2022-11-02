@@ -152,6 +152,12 @@ export const PRODUCT_DATA_KEYS = {
   DESCRIPTION: 'description'
 };
 
+export const NOTICE_DATA_KEYS = {
+  TITLE: 'title',
+  MESSAGE: 'message',
+  DURATION: 'duration'
+};
+
 export const DEFAULT_CELEBRATION_DURATION = 10; // seconds
 
 export const STREAM_MANAGER_ACTION_LIMITS = {
@@ -170,6 +176,10 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
     [PRODUCT_DATA_KEYS.IMAGE_URL]: { maxCharLength: 256 }, // TENTATIVE
     [PRODUCT_DATA_KEYS.DESCRIPTION]: { maxCharLength: 256 }
   },
-  [STREAM_ACTION_NAME.NOTICE]: {},
+  [STREAM_ACTION_NAME.NOTICE]: {
+    [NOTICE_DATA_KEYS.TITLE]: { maxCharLength: 24 },
+    [NOTICE_DATA_KEYS.MESSAGE]: { maxCharLength: 256 },
+    [NOTICE_DATA_KEYS.DURATION]: { min: 5, max: 30 } // seconds
+  },
   [STREAM_ACTION_NAME.CELEBRATION]: {}
 };

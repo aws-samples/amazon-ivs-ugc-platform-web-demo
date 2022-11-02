@@ -8,9 +8,16 @@ import {
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
-import { useResponsiveDevice } from './ResponsiveDevice';
 import { useChannel } from './Channel';
+import { useResponsiveDevice } from './ResponsiveDevice';
 import useContextHook from './useContextHook';
+import useCountdown from '../hooks/useCountdown';
+
+const TIME_BASED_VIEWER_ACTIONS = [
+  STREAM_ACTION_NAME.CELEBRATION,
+  STREAM_ACTION_NAME.NOTICE,
+  STREAM_ACTION_NAME.QUIZ
+];
 
 const Context = createContext(null);
 Context.displayName = 'ViewerStreamActions';
@@ -27,11 +34,49 @@ export const Provider = ({ children }) => {
   const currentViewerStreamActionTitle = `${currentViewerStreamActionName
     ?.charAt(0)
     ?.toUpperCase()}${currentViewerStreamActionName?.slice(1)}`;
+  const augmentedCurrentViewerStreamActionData = useMemo(
+    () => ({
+      ...currentViewerStreamActionData,
+      color,
+      startTime: currentViewerStreamActionStartTime
+    }),
+    [color, currentViewerStreamActionData, currentViewerStreamActionStartTime]
+  );
+  const { duration: viewerActionDuration, startTime: viewerActionStartTime } =
+    augmentedCurrentViewerStreamActionData;
+  const viewerActionExpiry =
+    typeof viewerActionDuration === 'number' &&
+    typeof viewerActionStartTime === 'number'
+      ? viewerActionStartTime + viewerActionDuration * 1000
+      : null;
 
   const clearCurrentViewerAction = useCallback(
     () => setCurrentViewerAction(null),
     []
   );
+  const clearCurrentViewerActionWithDelay = useCallback(() => {
+    setTimeout(
+      () =>
+        setCurrentViewerAction((prev) => {
+          if (prev?.name === STREAM_ACTION_NAME.QUIZ) return null;
+
+          // Don't cancel the current action if it changed to something other than a quiz
+          return prev;
+        }),
+      2000
+    );
+  }, [setCurrentViewerAction]);
+
+  useCountdown({
+    expiry: viewerActionExpiry,
+    isEnabled:
+      TIME_BASED_VIEWER_ACTIONS.includes(currentViewerStreamActionName) &&
+      viewerActionExpiry,
+    onExpiry:
+      currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ
+        ? clearCurrentViewerActionWithDelay
+        : clearCurrentViewerAction
+  });
 
   useEffect(() => {
     if (!isLive) clearCurrentViewerAction();
@@ -43,14 +88,6 @@ export const Provider = ({ children }) => {
         currentViewerStreamActionName
       ) && isChannelPageStackedView,
     [currentViewerStreamActionName, isChannelPageStackedView]
-  );
-  const augmentedCurrentViewerStreamActionData = useMemo(
-    () => ({
-      ...currentViewerStreamActionData,
-      color,
-      startTime: currentViewerStreamActionStartTime
-    }),
-    [color, currentViewerStreamActionData, currentViewerStreamActionStartTime]
   );
 
   const value = useMemo(

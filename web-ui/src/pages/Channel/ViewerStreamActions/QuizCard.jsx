@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useCallback, useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -8,8 +8,8 @@ import {
   incorrectAnswerClasses,
   defaultViewerStreamActionVariants
 } from './viewerStreamActionsTheme';
-import { clsm } from '../../../utils';
-import { STREAM_ACTION_NAME } from '../../../constants';
+import { clsm, isTextColorInverted } from '../../../utils';
+import { PROFILE_COLORS } from '../../../constants';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
 import FloatingNav from '../../../components/FloatingNav';
@@ -33,42 +33,27 @@ const QuizCard = ({
   const [chosenAnswerIndex, setChosenAnswerIndex] = useState();
   const quizButtonArrRef = useRef([]);
   const { isMobileView } = useResponsiveDevice();
+  const shouldInvertColors = isTextColorInverted(color);
 
   const profileColorButtonClassNames = clsm([
-    color
-      ? [
-          `bg-profile-${color}-light`,
-          `hover:bg-profile-${color}-light-hover`,
-          `focus:bg-profile-${color}-light`
-        ]
-      : [
-          'bg-profile-default-light',
-          'hover:bg-profile-default-light-hover',
-          'focus:bg-profile-default-light'
-        ],
-    color && ['green', 'blue'].includes(color)
-      ? ['focus:shadow-white', 'text-white', 'disabled:text-white']
-      : ['focus:shadow-black', 'text-black', 'disabled:text-black']
+    'disabled:text-black',
+    'focus:shadow-black',
+    'text-black',
+    `bg-profile-${color}-light`,
+    `focus:bg-profile-${color}-light`,
+    `hover:bg-profile-${color}-light-hover`,
+    shouldInvertColors && [
+      'disabled:text-white',
+      'focus:shadow-white',
+      'text-white'
+    ]
   ]);
-
-  const quizContainerClasses = !shouldRenderActionInTab
-    ? ['max-w-[640px]', 'min-w-[482px]', 'h-screen', 'justify-end']
-    : '';
 
   const selectAnswer = (index) => {
     setIsAnswerSelected(true);
     setChosenAnswerIndex(index);
     setTimeout(() => setCurrentViewerAction(null), 2000);
   };
-
-  const onCompletionHandler = useCallback(() => {
-    setCurrentViewerAction((prev) => {
-      if (prev?.name === STREAM_ACTION_NAME.QUIZ) return null;
-
-      // Don't cancel the current action if it changed to something other than a quiz
-      return prev;
-    });
-  }, [setCurrentViewerAction]);
 
   useLayoutEffect(() => {
     quizButtonArrRef.current.forEach((quizButton) => {
@@ -81,7 +66,12 @@ const QuizCard = ({
   return (
     <div
       className={clsm([
-        quizContainerClasses,
+        !shouldRenderActionInTab && [
+          'max-w-[640px]',
+          'min-w-[482px]',
+          'h-screen',
+          'justify-end'
+        ],
         'absolute',
         'flex-col',
         'flex',
@@ -104,7 +94,7 @@ const QuizCard = ({
           : {})}
         variants={defaultViewerStreamActionVariants}
         className={clsm([
-          `bg-profile-${color ? color : 'default'}`,
+          `bg-profile-${color}`,
           'flex-col',
           'flex',
           'items-start',
@@ -119,11 +109,8 @@ const QuizCard = ({
             'w-full',
             'justify-center',
             'break-word',
-            `${
-              color && ['green', 'blue'].includes(color)
-                ? 'text-white'
-                : 'text-black'
-            }`
+            'text-black',
+            shouldInvertColors && 'text-white'
           ])}
         >
           {question}
@@ -169,7 +156,6 @@ const QuizCard = ({
               color={color}
               duration={duration}
               startTime={startTime}
-              onCompletion={onCompletionHandler}
             />
           </div>
         </div>
@@ -181,7 +167,7 @@ const QuizCard = ({
 
 QuizCard.defaultProps = {
   answers: [],
-  color: '',
+  color: 'default',
   correctAnswerIndex: 0,
   duration: 10,
   isControlsOpen: false,
@@ -190,7 +176,7 @@ QuizCard.defaultProps = {
 
 QuizCard.propTypes = {
   answers: PropTypes.arrayOf(PropTypes.string),
-  color: PropTypes.string,
+  color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   correctAnswerIndex: PropTypes.number,
   duration: PropTypes.number,
   isControlsOpen: PropTypes.bool,
