@@ -134,8 +134,8 @@ export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
   PRODUCT: 'product',
-  CELEBRATION: 'celebration',
-  NOTICE: 'notice'
+  NOTICE: 'notice',
+  CELEBRATION: 'celebration'
 };
 
 export const QUIZ_DATA_KEYS = {

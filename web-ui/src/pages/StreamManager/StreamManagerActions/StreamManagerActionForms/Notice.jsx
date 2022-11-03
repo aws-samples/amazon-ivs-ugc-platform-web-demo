@@ -8,6 +8,7 @@ import { streamManager as $streamManagerContent } from '../../../../content';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import Input from './formElements/Input';
 import RangeSelector from './formElements/RangeSelector';
+import TextArea from './formElements/TextArea';
 
 const $content = $streamManagerContent.stream_manager_actions.notice;
 const LIMITS = STREAM_MANAGER_ACTION_LIMITS[STREAM_ACTION_NAME.NOTICE];
@@ -46,14 +47,13 @@ const Notice = () => {
         error={currentStreamManagerActionErrors[NOTICE_DATA_KEYS.TITLE]}
         value={title}
       />
-      <Input
-        className={clsm(INPUT_BASE_CLASSES)}
+      <TextArea
         dataKey={NOTICE_DATA_KEYS.MESSAGE}
+        error={currentStreamManagerActionErrors[NOTICE_DATA_KEYS.MESSAGE]}
         label={$content.message}
         name="streamManagerActionFormMessage"
         onChange={updateStreamManagerActionNoticeData}
         placeholder={$content.message}
-        error={currentStreamManagerActionErrors[NOTICE_DATA_KEYS.MESSAGE]}
         value={message}
       />
       <RangeSelector

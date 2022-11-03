@@ -54,11 +54,12 @@ const Notice = ({
       className={clsm([
         'absolute',
         'bottom-7',
-        'max-w-[856px]',
+        'max-w-[70%]',
+        'lg:max-w-full',
         'px-2',
         'transition-[margin]',
         'w-full',
-        isControlsOpen && 'mb-20'
+        isControlsOpen && ['mb-20', 'lg:mb-[52px]']
       ])}
       onClick={onClickPlayerHandler}
     >
