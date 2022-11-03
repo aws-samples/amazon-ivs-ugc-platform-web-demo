@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../../../../content';
@@ -17,6 +17,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
   const { messages, initMessages } = useChatMessages();
+  const [hasInitMessages, setHasInitMessages] = useState(false);
   const { isSticky, scrollToBottom } = useStickyScroll(chatRef, messages);
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
@@ -24,7 +25,10 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   useEffect(() => {
     if (chatRoomOwnerUsername) {
       initMessages(chatRoomOwnerUsername);
+      setHasInitMessages(true);
     }
+
+    return () => setHasInitMessages(false);
   }, [chatRoomOwnerUsername, initMessages]);
 
   useEffect(() => {
@@ -63,12 +67,13 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
         role="log"
         ref={chatRef}
       >
-        {messages.map(
+        {(hasInitMessages ? messages : []).map(
           ({
             Content: message,
             Id: messageId,
             isDeleted,
             isOwnMessage,
+            isPreloaded,
             Sender: { Attributes: senderAttributes },
             wasDeletedByUser
           }) => {
@@ -98,6 +103,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
                 isFocusable={isModerator && !isChatPopupOpen}
                 key={messageId}
                 message={message}
+                shouldAnimateIn={!isPreloaded}
               />
             );
           }

@@ -45,13 +45,13 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       exit="hidden"
       variants={
         !isDefaultResponsiveView && {
-          hidden: { y: '-25%' },
+          hidden: { y: '-12.5%' },
           visible: { y: 0 }
         }
       }
       transition={{
         damping: 25,
-        duration: 0.25,
+        duration: 0.15,
         stiffness: 350,
         type: 'spring'
       }}
@@ -103,16 +103,17 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
     renderPopup()
   ) : (
     <m.div
-      initial="hidden"
-      animate={isNavOpen ? 'visible' : 'hidden'}
-      exit="hidden"
+      initial="hidden-initial"
+      animate={isNavOpen ? 'visible' : 'hidden-initial'}
+      exit="hidden-exit"
       variants={
         !isDefaultResponsiveView && {
-          hidden: { opacity: 0 },
+          'hidden-exit': { opacity: 0 },
+          'hidden-initial': { opacity: 0.5 },
           visible: { opacity: 1 }
         }
       }
-      transition={{ duration: 0.25, type: 'tween' }}
+      transition={{ duration: 0.15 }}
       className="nav-popup-container"
     >
       {renderPopup()}

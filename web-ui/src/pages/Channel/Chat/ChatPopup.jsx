@@ -17,13 +17,6 @@ import withPortal from '../../../components/withPortal';
 
 const $content = $channelContent.chat.popup;
 const $modalContent = $channelContent.chat.modal.ban_user_modal;
-const defaultTransition = { duration: 0.5, type: 'tween' };
-const defaultAnimationProps = {
-  animate: 'visible',
-  exit: 'hidden',
-  initial: 'hidden',
-  transition: defaultTransition
-};
 
 const ChatPopup = ({
   banUser,
@@ -101,8 +94,11 @@ const ChatPopup = ({
       ])}
     >
       <m.div
-        {...defaultAnimationProps}
+        animate="visible"
+        exit="hidden"
+        initial="hidden"
         variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
+        transition={{ duration: 0.15 }}
         className={clsm([
           'absolute',
           'bg-modalOverlay',
@@ -113,8 +109,15 @@ const ChatPopup = ({
         ])}
       ></m.div>
       <m.div
-        {...defaultAnimationProps}
-        variants={{ visible: { y: 0 }, hidden: { y: '150%' } }}
+        animate="visible"
+        exit="hidden-exit"
+        initial="hidden-initial"
+        transition={{ duration: 0.15, type: 'tween' }}
+        variants={{
+          visible: { opacity: 1, y: 0 },
+          'hidden-initial': { opacity: 0.5, y: '75%' },
+          'hidden-exit': { opacity: 0, y: '75%' }
+        }}
         className={clsm([
           'bg-lightMode-gray-light',
           'dark:bg-darkMode-gray-medium',
@@ -130,10 +133,12 @@ const ChatPopup = ({
         ref={popupRef}
       >
         <ChatLine
-          message={message}
           avatar={avatar}
           color={color}
           displayName={displayName}
+          message={message}
+          shouldAnimateIn={false}
+          shouldAnimateOut={false}
           variant={CHAT_LINE_VARIANT.POPUP}
         />
         <div className={clsm(['flex', 'p-4', 'pt-[14px]', 'w-full'])}>

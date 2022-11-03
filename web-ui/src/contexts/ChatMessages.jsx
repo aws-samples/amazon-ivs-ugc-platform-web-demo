@@ -142,7 +142,10 @@ export const Provider = ({ children }) => {
         chatRoomOwnerUsername.current &&
         chatRoomOwnerUsername.current === ownUsername
       ) {
-        savedMessages.current[ownUsername] = messages;
+        savedMessages.current[ownUsername] = messages.map((message) => ({
+          ...message,
+          isPreloaded: true
+        }));
       }
     } else {
       savedMessages.current = {};
@@ -159,14 +162,7 @@ export const Provider = ({ children }) => {
       removeMessageByUserId,
       sentMessageIds
     }),
-    [
-      addMessage,
-      initMessages,
-      messages,
-      removeMessage,
-      removeMessageByUserId,
-      sentMessageIds
-    ]
+    [addMessage, initMessages, messages, removeMessage, removeMessageByUserId]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

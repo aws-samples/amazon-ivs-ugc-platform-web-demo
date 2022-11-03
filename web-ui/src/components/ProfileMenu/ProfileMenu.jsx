@@ -7,8 +7,6 @@ import { clsm } from '../../utils';
 import MenuPopup from './MenuPopup';
 import useClickAway from '../../hooks/useClickAway';
 
-const defaultTransition = { duration: 0.25, type: 'tween' };
-
 const ProfileMenu = ({
   asPortal,
   children: ToggleBtn,
@@ -40,6 +38,15 @@ const ProfileMenu = ({
       <AnimatePresence>
         {fadeBackground && isOpen && (
           <m.div
+            animate="visible"
+            exit="hidden-exit"
+            initial="hidden-initial"
+            variants={{
+              'hidden-exit': { opacity: 0 },
+              'hidden-initial': { opacity: 0.5 },
+              visible: { opacity: 1 }
+            }}
+            transition={{ duration: 0.15, type: 'tween' }}
             className={clsm([
               'fixed',
               'top-0',
@@ -49,11 +56,6 @@ const ProfileMenu = ({
               'h-screen',
               'bg-modalOverlay'
             ])}
-            animate="visible"
-            exit="hidden"
-            initial="hidden"
-            transition={defaultTransition}
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
           ></m.div>
         )}
       </AnimatePresence>

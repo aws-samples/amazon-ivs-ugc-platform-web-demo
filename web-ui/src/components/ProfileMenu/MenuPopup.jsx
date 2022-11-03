@@ -17,7 +17,6 @@ import UserAvatar from '../UserAvatar';
 import withPortal from '../withPortal';
 
 const $content = $appContent.navbar;
-const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const Popup = forwardRef(
   ({ navData, toggleProfileMenu, menuClassName }, ref) => {
@@ -41,13 +40,12 @@ const Popup = forwardRef(
     return (
       <m.div
         animate="visible"
-        exit="hidden"
         initial="hidden"
         variants={{
-          hidden: { opacity: 0, scale: 0.75 },
+          hidden: { opacity: 0.5, scale: 0.9 },
           visible: { opacity: 1, scale: 1 }
         }}
-        transition={defaultTransition}
+        transition={{ duration: 0.15, type: 'tween' }}
         className={clsm([
           'px-1',
           'rounded-3xl',

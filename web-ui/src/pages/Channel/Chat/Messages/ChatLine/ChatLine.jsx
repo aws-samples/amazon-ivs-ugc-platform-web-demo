@@ -14,7 +14,6 @@ import { clsm } from '../../../../../utils';
 import { useLastFocusedElement } from '../../../../../contexts/LastFocusedElement';
 import UserAvatar from '../../../../../components/UserAvatar';
 
-const defaultTransition = { duration: 0.25, type: 'tween' };
 export const CHAT_LINE_VARIANT = { MESSAGE: 'message', POPUP: 'popup' };
 
 const ChatLine = ({
@@ -24,6 +23,8 @@ const ChatLine = ({
   isFocusable,
   message,
   onClick,
+  shouldAnimateIn,
+  shouldAnimateOut,
   variant
 }) => {
   const isStaticChatLine = !onClick;
@@ -50,13 +51,13 @@ const ChatLine = ({
   return (
     <ChatLineWrapper
       animate="visible"
-      initial="hidden"
-      exit="hidden"
+      initial={shouldAnimateIn ? 'hidden' : 'visible'}
+      exit={shouldAnimateOut ? 'hidden' : 'visible'}
       variants={{
         visible: { opacity: 1, scale: 1 },
-        hidden: { opacity: 0, scale: 0.9 }
+        hidden: { opacity: 0, scale: 0.75 }
       }}
-      transition={defaultTransition}
+      transition={{ duration: 0.15, type: 'tween' }}
       className={chatLineClasses}
       chatLineVariant={variant}
       isStaticChatLine={isStaticChatLine}
@@ -104,6 +105,8 @@ ChatLineWrapper.propTypes = {
 ChatLine.defaultProps = {
   isFocusable: true,
   onClick: null,
+  shouldAnimateIn: true,
+  shouldAnimateOut: true,
   variant: CHAT_LINE_VARIANT.MESSAGE
 };
 
@@ -114,6 +117,8 @@ ChatLine.propTypes = {
   isFocusable: PropTypes.bool,
   message: PropTypes.string.isRequired,
   onClick: PropTypes.func,
+  shouldAnimateIn: PropTypes.bool,
+  shouldAnimateOut: PropTypes.bool,
   variant: PropTypes.oneOf(Object.values(CHAT_LINE_VARIANT))
 };
 

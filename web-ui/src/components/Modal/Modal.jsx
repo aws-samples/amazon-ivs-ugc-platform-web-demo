@@ -39,11 +39,11 @@ const Modal = ({ children, className }) => {
       ])}
       ref={modalRef}
       animate="visible"
-      exit="hidden"
       initial="hidden"
+      transition={{ duration: 0.15, type: 'tween' }}
       variants={{
-        hidden: { opacity: 0, y: -50 },
-        visible: { opacity: 1, y: 0 }
+        visible: { opacity: 1, y: 0 },
+        hidden: { opacity: 0.5, y: 25 }
       }}
       data-test-id="modal"
     >
