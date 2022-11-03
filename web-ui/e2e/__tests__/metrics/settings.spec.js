@@ -7,38 +7,40 @@ const test = extendTestFixtures([
 ]);
 
 test.describe('Settings Page', () => {
-  test('should reset a stream key', async ({
-    settingsPage: { resetStreamKey },
-    page
-  }) => {
-    await resetStreamKey();
-    await (
-      await page.waitForSelector('.notification')
-    ).waitForElementState('stable');
-    await page.takeScreenshot('reset-stream-key-success');
-    await page.assertResponses([
-      ['/user', 200], // Get user data
-      ['/user/streamKey/reset', 200], // Reset stream key
-      ['/user', 200] // Get user data
-    ]);
-  });
+  test.describe('General Cases', () => {
+    test('should reset a stream key', async ({
+      settingsPage: { resetStreamKey },
+      page
+    }) => {
+      await resetStreamKey();
+      await (
+        await page.waitForSelector('.notification')
+      ).waitForElementState('stable');
+      await page.takeScreenshot('reset-stream-key-success');
+      await page.assertResponses([
+        ['/user', 200], // Get user data
+        ['/user/streamKey/reset', 200], // Reset stream key
+        ['/user', 200] // Get user data
+      ]);
+    });
 
-  test('should copy the stream key and ingest server URL', async ({
-    settingsPage: { copyStreamConfiguration },
-    page
-  }) => {
-    await copyStreamConfiguration();
-    await (
-      await page.waitForSelector('.notification')
-    ).waitForElementState('stable');
-    await page.takeScreenshot('copy-stream-config-values-success');
-  });
+    test('should copy the stream key and ingest server URL', async ({
+      settingsPage: { copyStreamConfiguration },
+      page
+    }) => {
+      await copyStreamConfiguration();
+      await (
+        await page.waitForSelector('.notification')
+      ).waitForElementState('stable');
+      await page.takeScreenshot('copy-stream-config-values-success');
+    });
 
-  test('should navigate a user to the dashboard stream monitoring page', async ({
-    settingsPage: { returnToStreamHealth },
-    page
-  }) => {
-    await returnToStreamHealth();
-    await page.takeScreenshot('return-to-session');
+    test('should navigate a user to the stream health monitoring page', async ({
+      settingsPage: { returnToStreamHealth },
+      page
+    }) => {
+      await returnToStreamHealth();
+      await page.takeScreenshot('return-to-session');
+    });
   });
 });
