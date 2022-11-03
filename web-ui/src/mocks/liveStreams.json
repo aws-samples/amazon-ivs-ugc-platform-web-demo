@@ -1,0 +1,37 @@
+[
+  {
+    "avatar": "dog",
+    "color": "blue",
+    "username": "Doge1"
+  },
+  {
+    "avatar": "dog",
+    "color": "green",
+    "username": "Doge2"
+  },
+  {
+    "avatar": "dog",
+    "color": "lavender",
+    "username": "Doge3"
+  },
+  {
+    "avatar": "dog",
+    "color": "purple",
+    "username": "Doge4"
+  },
+  {
+    "avatar": "dog",
+    "color": "salmon",
+    "username": "Doge5"
+  },
+  {
+    "avatar": "dog",
+    "color": "turquoise",
+    "username": "Doge6"
+  },
+  {
+    "avatar": "dog",
+    "color": "yellow",
+    "username": "Doge7"
+  }
+]

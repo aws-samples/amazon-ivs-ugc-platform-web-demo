@@ -62,7 +62,23 @@ module.exports = {
       pattern: /^(stroke|ring)-profile-([a-z]+)-hover$/,
       variants: ['group-hover']
     },
-    { pattern: /^text-profile-([a-z]+)$/, variants: ['dark'] }
+    { pattern: /^text-profile-([a-z]+)$/, variants: ['dark'] },
+    {
+      pattern: /^bg-profile-([a-z]+)-lightMode-primary-hover$/, // Used in ChannelCard.jsx
+      variants: ['group-hover']
+    },
+    {
+      pattern: /^bg-profile-([a-z]+)-darkMode-primary-hover$/, // Used in ChannelCard.jsx
+      variants: ['dark:group-hover']
+    },
+    {
+      pattern: /^bg-profile-([a-z]+)-(lightMode)-dark-hover$/, // Used in ChannelCard.jsx
+      variants: ['group-hover']
+    },
+    {
+      pattern: /^bg-profile-([a-z]+)-(darkMode)-dark-hover$/, // Used in ChannelCard.jsx
+      variants: ['dark:group-hover']
+    }
   ],
   corePlugins: { aspectRatio: false },
   plugins: [
