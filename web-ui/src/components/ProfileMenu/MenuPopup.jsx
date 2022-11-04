@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 
 import {
   HAIRLINE_DIVIDER_CLASSES,
-  MENU_BUTTON_CLASSES
+  MENU_BUTTON_CLASSES,
+  MENU_BUTTON_TEXT_CLASSES
 } from './ProfileMenuTheme';
 import { app as $appContent } from '../../content';
 import { clsm } from '../../utils';
@@ -95,7 +96,9 @@ const Popup = forwardRef(
             data-test-id="profileMenu-avatar"
           >
             <UserAvatar avatarName={avatarName} profileColor={profileColor} />
-            <p className="truncate">{username || $content.profile}</p>
+            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>
+              {username || $content.profile}
+            </p>
           </Button>
           <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />
 
@@ -109,7 +112,7 @@ const Popup = forwardRef(
                 data-test-id={`${pageName}-button`}
               >
                 {icon}
-                <p className="truncate">{label}</p>
+                <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{label}</p>
               </Button>
               {hasDivider && (
                 <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />
@@ -124,7 +127,7 @@ const Popup = forwardRef(
             data-test-id="profileMenu-logout"
           >
             <Logout />
-            <p className="truncate">{$content.log_out}</p>
+            <p className={clsm(MENU_BUTTON_TEXT_CLASSES)}>{$content.log_out}</p>
           </Button>
         </div>
       </m.div>

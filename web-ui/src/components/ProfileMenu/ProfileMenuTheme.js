@@ -10,6 +10,12 @@ export const MENU_BUTTON_CLASSES = [
   '[&>svg]:flex-shrink-0'
 ];
 
+export const MENU_BUTTON_TEXT_CLASSES = [
+  'overflow-hidden',
+  'whitespace-nowrap',
+  'overflow-ellipsis'
+];
+
 export const HAIRLINE_DIVIDER_CLASSES = [
   'w-full',
   'h-0.5',

@@ -30,7 +30,16 @@ const PlayerHeader = ({ avatar, color, shouldShowPlayerOverlay, username }) => (
             'pl-16'
           )}
         >
-          <h3 className={clsm(['truncate', 'text-white'])}>{username}</h3>
+          <h3
+            className={clsm([
+              'overflow-ellipsis',
+              'overflow-hidden',
+              'text-white',
+              'whitespace-nowrap'
+            ])}
+          >
+            {username}
+          </h3>
         </div>
       )}
     </PlayerOverlay>

@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 
 import { clsm } from '../utils';
-import { PROFILE_COLORS } from '../constants';
 import * as avatars from '../assets/avatars';
 
 const UserAvatar = ({ avatarName, profileColor, size }) => {
@@ -20,9 +19,8 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
       'rounded-[22px]',
       'transition-all'
     ],
-    `ring-profile-${profileColor}`,
-    profileColor === 'white' && 'ring-white',
-    dimensions
+    dimensions,
+    profileColor ? `ring-profile-${profileColor}` : 'ring-profile'
   ]);
 
   return hasAvatar ? (
@@ -40,12 +38,12 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
 UserAvatar.defaultProps = {
   size: 'lg',
   avatarName: '',
-  profileColor: 'default'
+  profileColor: ''
 };
 
 UserAvatar.propTypes = {
   avatarName: PropTypes.string,
-  profileColor: PropTypes.oneOf([...PROFILE_COLORS, 'default', 'white']),
+  profileColor: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg'])
 };
 
