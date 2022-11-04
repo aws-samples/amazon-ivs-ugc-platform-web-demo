@@ -5,7 +5,7 @@ const json = readFileSync(inputPath);
 const output = JSON.parse(json);
 
 const { apiBaseUrl, region, stage, userPoolClientId, userPoolId } =
-  output[`UGC-${process.argv[2]}`];
+  output[process.argv[2]];
 
 const outputPath = '../web-ui/.env';
 writeFileSync(
