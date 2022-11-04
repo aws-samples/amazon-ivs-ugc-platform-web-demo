@@ -5,8 +5,8 @@
 AWS_PROFILE_FLAG	=	--profile $(AWS_PROFILE)
 STAGE				?=	dev
 PUBLISH				?=	false
-CDK_OPTIONS 		=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH)
 STACK 				?=	UGC-$(STAGE)
+CDK_OPTIONS 		=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK)
 FE_DEPLOYMENT_STACK	=	UGC-Frontend-Deployment-$(STAGE)
 
 help: ## Shows this help message

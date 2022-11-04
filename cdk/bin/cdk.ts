@@ -10,6 +10,7 @@ const app = new App();
 
 // Get the value of the current stage "dev" or "prod"
 const stage = app.node.tryGetContext('stage');
+const stackName = app.node.tryGetContext('stackName');
 let shouldPublish = app.node.tryGetContext('publish');
 shouldPublish = shouldPublish === 'true';
 // Get the config for the current stage
@@ -17,11 +18,10 @@ const {
   resourceConfig
 }: { resourceConfig: UGCResourceWithUserManagementConfig } =
   app.node.tryGetContext(stage);
-const ugcStackId = `UGC-${stage}`;
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION;
 
-new UGCStack(app, ugcStackId, {
+new UGCStack(app, stackName, {
   env: { account, region },
   resourceConfig,
   shouldPublish
@@ -29,5 +29,5 @@ new UGCStack(app, ugcStackId, {
 
 new UGCFrontendDeploymentStack(app, `UGC-Frontend-Deployment-${stage}`, {
   env: { account, region },
-  ugcStackId
+  ugcStackId: stackName
 });
