@@ -45,8 +45,8 @@ export const validateForm = (formProps, inputNameToValidate) => {
 
   const validationErrors = Object.values(formPropsToValidate).reduce(
     (errors, { value, name, confirms, confirmedBy, skipValidation }) => {
-      if (skipValidation || value === '') return errors;
       errors[name] = null;
+      if (skipValidation || value === '') return errors;
 
       const confirmWith = confirms || confirmedBy;
       const confirmWithValue = formProps[confirmWith]?.value;
