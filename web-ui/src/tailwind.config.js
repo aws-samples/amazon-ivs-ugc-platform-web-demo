@@ -3,8 +3,10 @@ const plugin = require('tailwindcss/plugin');
 const {
   default: flattenColorPalette
 } = require('tailwindcss/lib/util/flattenColorPalette');
-const colors = require('./colors');
-const { animation, keyframes } = require('./animations');
+
+const { animation, keyframes } = require('./tailwind/animations');
+const colors = require('./tailwind/colors');
+const safelist = require('./tailwind/safelist');
 
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
@@ -52,18 +54,7 @@ module.exports = {
       width: { screen: 'calc(var(--mobile-vw,1vw) * 100)' }
     }
   },
-  safelist: [
-    { pattern: /^(ring|fill|stroke)-profile-([a-z]+)$/ },
-    {
-      pattern: /^bg-profile([-a-zA-Z]+)$/,
-      variants: ['hover', 'focus', 'dark', 'dark:hover', 'dark:focus']
-    },
-    {
-      pattern: /^(stroke|ring)-profile-([a-z]+)-hover$/,
-      variants: ['group-hover']
-    },
-    { pattern: /^text-profile-([a-z]+)$/, variants: ['dark'] }
-  ],
+  safelist,
   corePlugins: { aspectRatio: false },
   plugins: [
     /**
