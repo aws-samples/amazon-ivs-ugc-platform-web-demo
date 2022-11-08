@@ -56,5 +56,24 @@ module.exports = [
     pattern: /^(stroke|ring)-profile-([a-z]+)-hover$/,
     variants: ['group-hover']
   },
-  { pattern: /^(ring|fill|stroke)-profile-([a-z]+)$/ } // Also used in UserAvatar.jsx
+  { pattern: /^(ring|fill|stroke)-profile-([a-z]+)$/ }, // Also used in UserAvatar.jsx
+  /**
+   * Used in the ChannelCard component (ChannelCard.jsx)
+   */
+  {
+    pattern: /^bg-profile-([a-z]+)-lightMode-primary-hover$/,
+    variants: ['group-hover']
+  },
+  {
+    pattern: /^bg-profile-([a-z]+)-darkMode-primary-hover$/,
+    variants: ['dark:group-hover']
+  },
+  {
+    pattern: /^bg-profile-([a-z]+)-lightMode-dark-hover$/,
+    variants: ['group-hover']
+  },
+  {
+    pattern: /^bg-profile-([a-z]+)-darkMode-dark-hover$/,
+    variants: ['dark:group-hover']
+  }
 ];
