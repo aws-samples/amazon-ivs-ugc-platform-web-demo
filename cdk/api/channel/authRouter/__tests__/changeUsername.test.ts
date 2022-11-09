@@ -16,7 +16,7 @@ import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
-const url = '/user/username/update';
+const url = '/channel/username/update';
 const defaultRequestParams = { method: 'PUT' as const, url };
 
 const defaultValidPayload = {

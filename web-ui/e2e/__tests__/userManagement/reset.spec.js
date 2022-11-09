@@ -22,7 +22,7 @@ test.describe('Reset Page', () => {
 
       await sendPasswordResetRequest('testuser@ugc.com');
       await page.takeScreenshot('reset-password-request-sent');
-      expectedResponses.push(['/user/password/reset', 200]); // Send password reset request email
+      expectedResponses.push(['/channel/password/reset', 200]); // Send password reset request email
       await page.assertResponses(expectedResponses);
 
       // On the password reset confirmation page, attempt to resend the password reset email
@@ -32,7 +32,7 @@ test.describe('Reset Page', () => {
         await page.waitForSelector('.notification')
       ).waitForElementState('stable');
       await page.takeScreenshot('resend-password-reset-email-success');
-      expectedResponses.push(['/user/password/reset', 200]); // Re-send password reset request email
+      expectedResponses.push(['/channel/password/reset', 200]); // Re-send password reset request email
       await page.assertResponses(expectedResponses);
 
       // Navigate to the link found in the verification email to set a new password

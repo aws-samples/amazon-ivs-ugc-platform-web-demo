@@ -8,57 +8,61 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import { UserManagementResourceConfig } from '../constants';
-import UserManagementCognitoTriggers from './Constructs/UserManagementCognitoTriggers';
+import { ChannelsResourceConfig } from '../constants';
+import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 
-interface UserManagementStackProps extends NestedStackProps {
-  resourceConfig: UserManagementResourceConfig;
+interface ChannelsStackProps extends NestedStackProps {
+  resourceConfig: ChannelsResourceConfig;
 }
 
-export class UserManagementStack extends NestedStack {
+export class ChannelsStack extends NestedStack {
   public readonly containerEnv: { [key: string]: string };
   public readonly outputs: {
     userPoolClientId: string;
     userPoolId: string;
-    userTable: dynamodb.Table;
+    channelsTable: dynamodb.Table;
   };
   public readonly policies: iam.PolicyStatement[];
 
-  constructor(scope: Construct, id: string, props: UserManagementStackProps) {
+  constructor(scope: Construct, id: string, props: ChannelsStackProps) {
     super(scope, id, props);
 
-    const stackNamePrefix = 'UserManagement';
+    const stackNamePrefix = 'Channels';
     const { resourceConfig } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const { enableUserAutoVerify, ivsChannelType, signUpAllowedDomains } =
       resourceConfig;
 
-    // Dynamo DB User Table
-    const userTable = new dynamodb.Table(this, `${stackNamePrefix}-UserTable`, {
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      removalPolicy: RemovalPolicy.DESTROY
-    });
+    // Dynamo DB Channels Table
+    const channelsTable = new dynamodb.Table(
+      this,
+      `${stackNamePrefix}-ChannelsTable`,
+      {
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+        removalPolicy: RemovalPolicy.DESTROY
+      }
+    );
 
-    userTable.addGlobalSecondaryIndex({
+    channelsTable.addGlobalSecondaryIndex({
       indexName: 'emailIndex',
       partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING }
     });
-    userTable.addGlobalSecondaryIndex({
+    channelsTable.addGlobalSecondaryIndex({
       indexName: 'channelArnIndex',
       partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING }
     });
-    userTable.addGlobalSecondaryIndex({
+    channelsTable.addGlobalSecondaryIndex({
       indexName: 'usernameIndex',
       partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING }
     });
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
-      new UserManagementCognitoTriggers(
+      new ChannelsCognitoTriggers(
         this,
-        `${stackNamePrefix}-UserManagementCognitoTriggers`,
+        `${stackNamePrefix}-ChannelsCognitoTriggers`,
         { ...resourceConfig }
       );
 
@@ -99,7 +103,7 @@ export class UserManagementStack extends NestedStack {
 
     // IAM Policies
     const policies = [];
-    const userTablePolicyStatement = new iam.PolicyStatement({
+    const channelsTablePolicyStatement = new iam.PolicyStatement({
       actions: [
         'dynamodb:Query',
         'dynamodb:GetItem',
@@ -109,9 +113,9 @@ export class UserManagementStack extends NestedStack {
       ],
       effect: iam.Effect.ALLOW,
       resources: [
-        userTable.tableArn,
-        `${userTable.tableArn}/index/emailIndex`,
-        `${userTable.tableArn}/index/usernameIndex`
+        channelsTable.tableArn,
+        `${channelsTable.tableArn}/index/emailIndex`,
+        `${channelsTable.tableArn}/index/usernameIndex`
       ]
     });
     const forgotPasswordPolicyStatement = new iam.PolicyStatement({
@@ -154,7 +158,7 @@ export class UserManagementStack extends NestedStack {
       resources: [userPool.userPoolArn]
     });
     policies.push(
-      userTablePolicyStatement,
+      channelsTablePolicyStatement,
       forgotPasswordPolicyStatement,
       ivsPolicyStatement,
       ivsChatPolicyStatement,
@@ -167,7 +171,7 @@ export class UserManagementStack extends NestedStack {
       IVS_CHANNEL_TYPE: ivsChannelType,
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,
-      USER_TABLE_NAME: userTable.tableName
+      CHANNELS_TABLE_NAME: channelsTable.tableName
     };
     this.containerEnv = containerEnv;
 
@@ -175,7 +179,7 @@ export class UserManagementStack extends NestedStack {
     this.outputs = {
       userPoolClientId: userPoolClient.userPoolClientId,
       userPoolId: userPool.userPoolId,
-      userTable
+      channelsTable
     };
   }
 }

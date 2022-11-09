@@ -80,7 +80,7 @@ export const KEY_MAP_REGEX = new RegExp(
 );
 
 /**
- * USER MANAGEMENT
+ * Channels
  */
 export const USER_MANAGEMENT_THEME_COLOR = '#000000';
 

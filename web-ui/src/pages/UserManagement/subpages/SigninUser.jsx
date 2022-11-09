@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 
 import { AcmeLrg } from '../../../assets/icons';
 import { useNotif } from '../../../contexts/Notification';
-import { userManagementAPI } from '../../../api';
+import { channelAPI } from '../../../api';
 import { userManagement as $content } from '../../../content';
 import { useUser } from '../../../contexts/User';
 import Form from '../../../components/Form';
@@ -22,7 +22,7 @@ const SigninUser = () => {
 
   useEffect(() => {
     const confirmUser = async () => {
-      const { result, error } = await userManagementAPI.verifyUserEmail(
+      const { result, error } = await channelAPI.verifyUserEmail(
         username,
         verificationCode
       );
@@ -67,7 +67,7 @@ const SigninUser = () => {
       <AcmeLrg className="fill-lightMode-gray-dark dark:fill-darkMode-gray" />
       <Form
         disableValidation
-        submitHandler={userManagementAPI.signIn}
+        submitHandler={channelAPI.signIn}
         submitText={$content.sign_in}
         title={$content.login_page.title}
         onSuccess={onSuccess}

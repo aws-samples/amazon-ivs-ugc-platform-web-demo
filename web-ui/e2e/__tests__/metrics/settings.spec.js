@@ -18,9 +18,9 @@ test.describe('Settings Page', () => {
       ).waitForElementState('stable');
       await page.takeScreenshot('reset-stream-key-success');
       await page.assertResponses([
-        ['/user', 200], // Get user data
-        ['/user/streamKey/reset', 200], // Reset stream key
-        ['/user', 200] // Get user data
+        ['/channel', 200], // Get user data
+        ['/channel/streamKey/reset', 200], // Reset stream key
+        ['/channel', 200] // Get user data
       ]);
     });
 

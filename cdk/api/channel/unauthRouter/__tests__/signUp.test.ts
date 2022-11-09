@@ -14,7 +14,7 @@ import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
-const url = '/user/register';
+const url = '/channel/register';
 const defaultRequestParams = { method: 'POST' as const, url };
 
 const defaultValidPayload = {

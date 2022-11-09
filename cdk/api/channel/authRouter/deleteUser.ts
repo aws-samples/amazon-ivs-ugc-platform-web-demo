@@ -20,7 +20,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
 
   try {
-    // Get user from userTable
+    // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
     const { channelArn, chatRoomArn } = unmarshall(Item);
 

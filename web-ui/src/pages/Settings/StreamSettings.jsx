@@ -6,7 +6,7 @@ import { dashboard as $content } from '../../content';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { userManagementAPI } from '../../api';
+import { channelAPI } from '../../api';
 import { useUser } from '../../contexts/User';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -35,7 +35,7 @@ const StreamSettings = () => {
 
     const resetStreamKey = async () => {
       setIsResetStreamKeyLoading(true);
-      const { result, error } = await userManagementAPI.resetStreamKey();
+      const { result, error } = await channelAPI.resetStreamKey();
 
       if (result) {
         await fetchUserData();

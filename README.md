@@ -23,7 +23,7 @@ Deploying the CDK stack will:
 
 - create a Cognito User Pool to handle user sign-up and authentication
 - create three Cognito triggers implemented with Lambda functions that are required for the user management flows
-- create two DynamoDB tables to hold user and stream metrics data
+- create two DynamoDB tables to hold channels and stream metrics data
 - create an Application Load Balancer and ECS Service that will act as the backend for the frontend application
 - create a CloudFront distribution that sits in front of the backend service to handle incoming traffic from clients
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
@@ -145,7 +145,7 @@ Unit testing is run on the backend API using [Jest](https://jestjs.io/).
    npm run test
    ```
 
-Currently, the backend unit testing suite covers only the metrics API and the `buildServer.ts` file, while the user management API is only partially covered.
+Currently, the backend unit testing suite covers only the metrics API and the `buildServer.ts` file, while the channels API is only partially covered.
 
 ### End-to-end Testing
 
@@ -179,7 +179,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as we do on desktop devices. The current workaround that has been implemented is to initiate the default WebKit fullscreen mode, which uses the native iOS video player UI.
 - Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
-- The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB user table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB user table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
+- The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 
 ## Estimated costs
 

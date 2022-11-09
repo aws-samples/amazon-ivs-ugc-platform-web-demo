@@ -19,7 +19,7 @@ import { dynamoDbClient, ivsChatClient } from '../shared/helpers';
 export const getUser = (sub: string) => {
   const getItemCommand = new GetItemCommand({
     Key: { id: { S: sub } },
-    TableName: process.env.USER_TABLE_NAME
+    TableName: process.env.CHANNELS_TABLE_NAME
   });
 
   return dynamoDbClient.send(getItemCommand);
@@ -28,7 +28,7 @@ export const getUser = (sub: string) => {
 export const getUserByEmail = (userEmail: string) => {
   const queryCommand = new QueryCommand({
     IndexName: 'emailIndex',
-    TableName: process.env.USER_TABLE_NAME,
+    TableName: process.env.CHANNELS_TABLE_NAME,
     Limit: 1,
     KeyConditionExpression: 'email = :userEmail',
     ExpressionAttributeValues: { ':userEmail': convertToAttr(userEmail) }
@@ -47,7 +47,7 @@ export const getUserByEmail = (userEmail: string) => {
 export const getUserByUsername = (username: string) => {
   const queryCommand = new QueryCommand({
     IndexName: 'usernameIndex',
-    TableName: process.env.USER_TABLE_NAME,
+    TableName: process.env.CHANNELS_TABLE_NAME,
     Limit: 1,
     KeyConditionExpression: 'username = :username',
     ExpressionAttributeValues: { ':username': convertToAttr(username) }
@@ -59,7 +59,7 @@ export const getUserByUsername = (username: string) => {
 export const deleteUser = (sub: string) => {
   const deleteItemCommand = new DeleteItemCommand({
     Key: { id: { S: sub } },
-    TableName: process.env.USER_TABLE_NAME
+    TableName: process.env.CHANNELS_TABLE_NAME
   });
 
   return dynamoDbClient.send(deleteItemCommand);

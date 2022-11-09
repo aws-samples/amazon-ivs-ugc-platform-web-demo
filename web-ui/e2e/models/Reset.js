@@ -98,7 +98,7 @@ class ResetPageModel extends BasePageModel {
 
   #mockPasswordResetRequest = async () => {
     await this.page.route(
-      getCloudfrontURLRegex('/user/password/reset'),
+      getCloudfrontURLRegex('/channel/password/reset'),
       (route, request) => {
         if (request.method() === 'POST') {
           route.fulfill({

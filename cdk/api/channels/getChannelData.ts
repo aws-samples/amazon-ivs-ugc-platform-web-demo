@@ -3,20 +3,20 @@ import { IngestConfiguration } from '@aws-sdk/client-ivs';
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall, convertToAttr } from '@aws-sdk/util-dynamodb';
 
-import { getUserByUsername } from '../helpers';
 import {
   UNAUTHORIZED_EXCEPTION,
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
-} from '../../shared/constants';
+} from '../shared/constants';
 import {
   dynamoDbClient,
   getIsLive,
   ResponseBody,
   updateIngestConfiguration
-} from '../../shared/helpers';
-import { StreamSessionDbRecord } from '../../shared/helpers';
-import authorizer from '../authorizer';
+} from '../shared/helpers';
+import { getUserByUsername } from '../channel/helpers';
+import { StreamSessionDbRecord } from '../shared/helpers';
+import authorizer from '../channel/authorizer';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
@@ -60,7 +60,7 @@ const handler = async (
       throw new Error(`Missing channelOwnerUsername: ${channelOwnerUsername}`);
     }
 
-    // Get the user data for the channel owner from the userTable
+    // Get the user data for the channel owner from the channelsTable
     const { Items: UserItems } = await getUserByUsername(channelOwnerUsername);
 
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);

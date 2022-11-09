@@ -22,7 +22,7 @@ describe('buildServer', () => {
       expect(response.statusCode).toBe(404);
 
       response = await injectAuthorizedRequest(server, {
-        url: '/user'
+        url: '/channel'
       });
 
       expect(response.statusCode).toBe(404);

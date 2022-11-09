@@ -9,7 +9,7 @@ import { PROFILE_COLORS } from '../../constants';
 import { useModal } from '../../contexts/Modal';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { userManagementAPI } from '../../api';
+import { channelAPI } from '../../api';
 import { useUser } from '../../contexts/User';
 import * as userAvatars from '../../assets/avatars';
 import Button from '../../components/Button';
@@ -46,7 +46,7 @@ const AccountSettings = () => {
 
     const deleteAccount = async () => {
       setIsDeleteAccountLoading(true);
-      const { result, error } = await userManagementAPI.deleteAccount();
+      const { result, error } = await channelAPI.deleteAccount();
 
       if (result) {
         logOut('accountDeletion');
@@ -105,7 +105,7 @@ const AccountSettings = () => {
       setIsChangeAvatarLoading(true);
 
       const userPreferences = { avatar: newAvatar };
-      const { result, error } = await userManagementAPI.changeUserPreferences(
+      const { result, error } = await channelAPI.changeUserPreferences(
         userPreferences
       );
 
@@ -132,7 +132,7 @@ const AccountSettings = () => {
       setIsChangeColorLoading(true);
 
       const userPreferences = { color: newColor };
-      const { result, error } = await userManagementAPI.changeUserPreferences(
+      const { result, error } = await channelAPI.changeUserPreferences(
         userPreferences
       );
 
@@ -167,7 +167,7 @@ const AccountSettings = () => {
             await fetchUserData();
             notifySuccess($content.notification.success.username_saved);
           }}
-          submitHandler={userManagementAPI.changeUsername}
+          submitHandler={channelAPI.changeUsername}
         />
         <Form
           {...defaultFormProps(inputVariant)}
@@ -193,7 +193,7 @@ const AccountSettings = () => {
               }
             });
           }}
-          submitHandler={userManagementAPI.changePassword}
+          submitHandler={channelAPI.changePassword}
           validationCheck={({ currentPassword, newPassword }) => {
             if (currentPassword.value === newPassword.value) {
               return {

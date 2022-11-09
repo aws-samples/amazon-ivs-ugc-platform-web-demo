@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { AcmeLrg } from '../../../../assets/icons';
 import { PROFILE_COLORS } from '../../../../constants';
-import { userManagementAPI } from '../../../../api';
+import { channelAPI } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 import { useState } from 'react';
 import { useUser } from '../../../../contexts/User';
@@ -26,14 +26,12 @@ const RegisterUser = () => {
 
     const userData = { ...formValues, avatar, color };
 
-    return await userManagementAPI.register(userData);
+    return await channelAPI.register(userData);
   };
 
   const onRequestSuccess = async (result, formValues) => {
     if (result.userConfirmed) {
-      const { result: signInResult } = await userManagementAPI.signIn(
-        formValues
-      );
+      const { result: signInResult } = await channelAPI.signIn(formValues);
 
       if (signInResult) {
         await initUserResources();

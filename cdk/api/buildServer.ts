@@ -1,7 +1,8 @@
 import fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 
-import userManagementRouters from './userManagement/';
+import channelRouters from './channel';
+import channelsRouters from './channels';
 import metricsRouter from './metrics/';
 
 export const getOrigin = () => {
@@ -25,9 +26,12 @@ const buildServer = () => {
 
   const { SERVICE_NAME: serviceName = '' } = process.env;
 
-  if (['all', 'userManagement'].includes(serviceName)) {
-    // Create /user authenticated and unauthenticated resources
-    server.register(userManagementRouters, { prefix: 'user' });
+  if (['all', 'channels'].includes(serviceName)) {
+    // Create /channel authenticated and unauthenticated resources
+    server.register(channelRouters, { prefix: 'channel' });
+
+    // Create /channels authenticated and unauthenticated resources
+    server.register(channelsRouters, { prefix: 'channels' });
   }
 
   if (['all', 'metrics'].includes(serviceName)) {

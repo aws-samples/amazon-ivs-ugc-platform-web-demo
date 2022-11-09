@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import useSWR from 'swr';
 
 import { CHANNEL_DATA_REFRESH_INTERVAL } from '../constants';
-import { channelAPI } from '../api';
+import { channelsAPI } from '../api';
 import { useUser } from './User';
 import useContextHook from './useContextHook';
 import useCurrentPage from '../hooks/useCurrentPage';
@@ -13,7 +13,9 @@ const Context = createContext(null);
 Context.displayName = 'Channel';
 
 const channelDataFetcher = async (username) => {
-  const { result: data, error } = await channelAPI.getUserChannelData(username);
+  const { result: data, error } = await channelsAPI.getUserChannelData(
+    username
+  );
 
   if (error) throw error;
 

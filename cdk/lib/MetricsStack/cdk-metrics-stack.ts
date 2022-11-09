@@ -21,7 +21,7 @@ import Service from '../Constructs/Service';
 interface MetricsStackProps extends NestedStackProps {
   cluster: ecs.Cluster;
   ivsChannelType: ChannelType;
-  userTable: dynamodb.Table;
+  channelsTable: dynamodb.Table;
   vpc: ec2.Vpc;
 }
 
@@ -34,7 +34,7 @@ export class MetricsStack extends NestedStack {
     super(scope, id, props);
 
     const stackNamePrefix = 'Metrics';
-    const { cluster, ivsChannelType, userTable, vpc } = props;
+    const { cluster, ivsChannelType, channelsTable, vpc } = props;
 
     // Dynamo DB Stream Table
     const streamTable = new dynamodb.Table(
@@ -99,12 +99,12 @@ export class MetricsStack extends NestedStack {
     );
 
     // Stream Events Service
-    const userTablePolicyStatement = new iam.PolicyStatement({
+    const channelsTablePolicyStatement = new iam.PolicyStatement({
       actions: ['dynamodb:Query'],
       effect: iam.Effect.ALLOW,
       resources: [
-        userTable.tableArn,
-        `${userTable.tableArn}/index/channelArnIndex`
+        channelsTable.tableArn,
+        `${channelsTable.tableArn}/index/channelArnIndex`
       ]
     });
     const { service: streamEventsService } = new Service(
@@ -115,10 +115,10 @@ export class MetricsStack extends NestedStack {
         containerImage,
         environment: {
           STREAM_TABLE_NAME: streamTable.tableName,
-          USER_TABLE_NAME: userTable.tableName
+          CHANNELS_TABLE_NAME: channelsTable.tableName
         },
         minScalingCapacity: 1,
-        policies: [...policies, userTablePolicyStatement],
+        policies: [...policies, channelsTablePolicyStatement],
         prefix: 'StreamEvents',
         securityGroups: [streamEventsSecurityGroup]
       }

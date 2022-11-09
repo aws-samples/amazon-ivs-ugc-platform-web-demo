@@ -73,16 +73,16 @@ class SettingsPageModel extends BasePageModel {
       'button.destructive:has-text("Reset stream key")'
     );
     await Promise.all([
-      // Waits for a response from the GET /user/streamKey/reset endpoint
+      // Waits for a response from the GET /channel/streamKey/reset endpoint
       this.page.waitForResponse(
         (response) =>
-          new URL(response.url()).pathname === '/user/streamKey/reset' &&
+          new URL(response.url()).pathname === '/channel/streamKey/reset' &&
           response.status() === 200
       ),
-      // Waits for a response from the GET /user key endpoint
+      // Waits for a response from the GET /channel key endpoint
       this.page.waitForResponse(
         (response) =>
-          new URL(response.url()).pathname === '/user' &&
+          new URL(response.url()).pathname === '/channel' &&
           response.status() === 200
       ),
       modalResetStreamKeyButtonLoc.click()
@@ -148,7 +148,7 @@ class SettingsPageModel extends BasePageModel {
 
   #mockResetStreamKey = async () => {
     await this.page.route(
-      getCloudfrontURLRegex('/user/streamKey/reset'),
+      getCloudfrontURLRegex('/channel/streamKey/reset'),
       (route, request) => {
         if (request.method() === 'GET') {
           const newStreamKeyValue = `sk_mock-region_mock-stream-key_NEW_${new Date().toISOString()}`;

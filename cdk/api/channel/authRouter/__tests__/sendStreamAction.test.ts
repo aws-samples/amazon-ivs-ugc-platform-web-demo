@@ -24,7 +24,7 @@ import buildServer from '../../../buildServer';
 
 const mockIvsClient = mockClient(ivsClient);
 const mockDynamoDbClient = mockClient(dynamoDbClient);
-const url = '/user/channel/actions/send';
+const url = '/channel/actions/send';
 const defaultRequestParams = { method: 'POST' as const, url };
 const defaultValidPayload = { metadata: 'N4XyAA==' };
 const defaultUserData = {

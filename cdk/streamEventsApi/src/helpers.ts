@@ -24,7 +24,7 @@ export type StreamEvent = {
 export const getUserByChannelArn = (eventChannelArn: string) => {
   const queryCommand = new QueryCommand({
     IndexName: 'channelArnIndex',
-    TableName: process.env.USER_TABLE_NAME,
+    TableName: process.env.CHANNELS_TABLE_NAME,
     Limit: 1,
     KeyConditionExpression: 'channelArn=:eventChannelArn',
     ExpressionAttributeValues: {

@@ -52,34 +52,37 @@ class BasePageModel {
   /* MOCK API HELPERS */
 
   #mockGetUser = async () => {
-    await this.page.route(getCloudfrontURLRegex('/user'), (route, request) => {
-      if (request.method() === 'GET') {
-        if (this.#resourcesCreated) {
-          route.fulfill({
-            status: 200,
-            body: JSON.stringify({
-              channelResourceId: 'mockChannelId',
-              ingestEndpoint:
-                'rtmps://mockChannelId.global-contribute.live-video.net:443/app/',
-              playbackUrl:
-                'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
-              streamKeyValue: this.#streamKeyValue,
-              username: 'testUser'
-            })
-          });
-        } else {
-          route.fulfill({
-            status: 500,
-            body: JSON.stringify({ __type: 'UnexpectedException' })
-          });
-        }
-      } else route.continue();
-    });
+    await this.page.route(
+      getCloudfrontURLRegex('/channel'),
+      (route, request) => {
+        if (request.method() === 'GET') {
+          if (this.#resourcesCreated) {
+            route.fulfill({
+              status: 200,
+              body: JSON.stringify({
+                channelResourceId: 'mockChannelId',
+                ingestEndpoint:
+                  'rtmps://mockChannelId.global-contribute.live-video.net:443/app/',
+                playbackUrl:
+                  'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
+                streamKeyValue: this.#streamKeyValue,
+                username: 'testUser'
+              })
+            });
+          } else {
+            route.fulfill({
+              status: 500,
+              body: JSON.stringify({ __type: 'UnexpectedException' })
+            });
+          }
+        } else route.continue();
+      }
+    );
   };
 
   #mockCreateResources = async () => {
     await this.page.route(
-      getCloudfrontURLRegex('/user/resources/create'),
+      getCloudfrontURLRegex('/channel/resources/create'),
       (route, request) => {
         if (request.method() === 'POST') {
           this.#resourcesCreated = true;

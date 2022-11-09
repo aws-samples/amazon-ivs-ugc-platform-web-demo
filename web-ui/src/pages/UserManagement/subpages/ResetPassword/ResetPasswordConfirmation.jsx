@@ -2,18 +2,14 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
 import Form from '../../../../components/Form';
-import { userManagementAPI } from '../../../../api';
+import { channelAPI } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 
 const ResetPasswordConfirmation = ({ username, verificationCode }) => {
   const navigate = useNavigate();
 
   const submitHandler = ({ newPassword }) => {
-    return userManagementAPI.resetPassword(
-      username,
-      verificationCode,
-      newPassword
-    );
+    return channelAPI.resetPassword(username, verificationCode, newPassword);
   };
 
   return (

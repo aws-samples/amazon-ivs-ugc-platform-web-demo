@@ -85,7 +85,7 @@ const handler = async (
         },
         Key: { id: convertToAttr(sub) },
         UpdateExpression: 'ADD bannedUserSubs :bannedUserSub',
-        TableName: process.env.USER_TABLE_NAME
+        TableName: process.env.CHANNELS_TABLE_NAME
       })
     );
   } catch (error) {

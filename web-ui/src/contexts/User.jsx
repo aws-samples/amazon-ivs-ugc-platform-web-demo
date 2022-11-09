@@ -9,7 +9,7 @@ import {
 import useSWR from 'swr';
 
 import { getCurrentSession } from '../api/utils';
-import { userManagementAPI } from '../api';
+import { channelAPI } from '../api';
 import { pack, unpack } from '../utils/streamActionHelpers';
 import useContextHook from './useContextHook';
 import useLocalStorage from '../hooks/useLocalStorage';
@@ -48,7 +48,7 @@ export const Provider = ({ children }) => {
   } = useSWR('getCurrentSession', getCurrentSessionFetcher);
 
   const fetchUserData = useCallback(async () => {
-    const { result } = await userManagementAPI.getUserData();
+    const { result } = await channelAPI.getUserData();
     setHasFetchedInitialUserData(true);
 
     if (result) {
@@ -69,7 +69,7 @@ export const Provider = ({ children }) => {
 
     setIsCreatingResources(true);
     setHasErrorCreatingResources(false);
-    const { result, error } = await userManagementAPI.createResources();
+    const { result, error } = await channelAPI.createResources();
 
     if (result) await fetchUserData();
     if (error) setHasErrorCreatingResources(true);
@@ -80,7 +80,7 @@ export const Provider = ({ children }) => {
   const logOut = useCallback(
     (action) => {
       setLogOutAction(action);
-      userManagementAPI.signOut();
+      channelAPI.signOut();
       checkSessionStatus();
       setUserData(null);
       setHasFetchedInitialUserData(false);

@@ -4,15 +4,14 @@ import {
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 
-export interface UGCResourceWithUserManagementConfig
-  extends UserManagementResourceConfig {
+export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   deploySeparateContainers: boolean;
   maxAzs: number;
   natGateways: number;
   stageName: string;
 }
 
-export interface UserManagementResourceConfig {
+export interface ChannelsResourceConfig {
   allowedOrigins: string[];
   clientBaseUrl: string;
   enableUserAutoVerify: boolean;

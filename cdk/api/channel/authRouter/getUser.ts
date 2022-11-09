@@ -21,7 +21,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const responseBody: GetUserResponseBody = {};
 
   try {
-    // Get user from userTable
+    // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
     const {
       avatar,

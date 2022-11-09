@@ -19,9 +19,9 @@ test.describe('Login Page', () => {
       await page.takeScreenshot('user-login');
       await page.assertResponses([
         ['/', 200], // Cognito authenticate user
-        ['/user', 500], // Get user data (first call fails as user resources have not been created)
-        ['/user/resources/create', 200], // Create user resources
-        ['/user', 200] // Get user data
+        ['/channel', 500], // Get user data (first call fails as user resources have not been created)
+        ['/channel/resources/create', 200], // Create user resources
+        ['/channel', 200] // Get user data
       ]);
 
       // Ensure that navigating back after logging in does not redirect the user back to the login page

@@ -1,5 +1,5 @@
-import * as userManagementAPI from './userManagement';
-import * as metricsAPI from './metrics';
 import * as channelAPI from './channel';
+import * as metricsAPI from './metrics';
+import * as channelsAPI from './channels';
 
-export { userManagementAPI, metricsAPI, channelAPI };
+export { channelAPI, metricsAPI, channelsAPI };

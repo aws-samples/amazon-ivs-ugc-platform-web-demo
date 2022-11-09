@@ -26,7 +26,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   let newStreamKeyValue;
 
   try {
-    // Get user from userTable
+    // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
     const {
       channelArn: { S: channelArn },
@@ -72,7 +72,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         { key: 'streamKeyValue', value: newStreamKeyValue }
       ],
       primaryKey: { key: 'id', value: sub },
-      tableName: process.env.USER_TABLE_NAME as string
+      tableName: process.env.CHANNELS_TABLE_NAME as string
     });
 
     responseBody.streamKeyValue = newStreamKeyValue;

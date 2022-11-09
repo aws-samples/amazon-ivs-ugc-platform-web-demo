@@ -23,7 +23,7 @@ test.describe('Register Page', () => {
       // Create a new account by clicking and filling all the inputs in the registration form
       await createAccount('testUser', 'testuser@ugc.com', 'Passw0rd!');
       await page.takeScreenshot('new-user-registration-complete');
-      expectedResponses.push(['/user/register', 200]); // Register a new user account
+      expectedResponses.push(['/channel/register', 200]); // Register a new user account
       await page.assertResponses(expectedResponses);
 
       // Resend the account verification email to the new user

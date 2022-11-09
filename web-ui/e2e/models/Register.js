@@ -106,7 +106,7 @@ class RegisterPageModel extends BasePageModel {
   /* MOCK API HELPERS (INTERNAL) */
   #mockRegisterUser = async (userConfirmed = false) => {
     await this.page.route(
-      getCloudfrontURLRegex('/user/register'),
+      getCloudfrontURLRegex('/channel/register'),
       (route, request) => {
         if (request.method() === 'POST') {
           route.fulfill({

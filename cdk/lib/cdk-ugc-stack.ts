@@ -15,17 +15,14 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import {
-  defaultTargetProps,
-  UGCResourceWithUserManagementConfig
-} from './constants';
+import { ChannelsStack } from './ChannelsStack/cdk-channels-stack';
+import { defaultTargetProps, UGCResourceWithChannelsConfig } from './constants';
 import { MetricsStack } from './MetricsStack/cdk-metrics-stack';
-import { UserManagementStack } from './UserManagementStack/cdk-user-management-stack';
 import LoadBalancer from './Constructs/LoadBalancer';
 import Service from './Constructs/Service';
 
 interface UGCDashboardStackProps extends StackProps {
-  resourceConfig: UGCResourceWithUserManagementConfig;
+  resourceConfig: UGCResourceWithChannelsConfig;
   shouldPublish: string;
 }
 
@@ -117,12 +114,12 @@ export class UGCStack extends Stack {
       { platform: ecrAssets.Platform.LINUX_AMD64 } // Allows for ARM architectures to build docker images for AMD architectures
     );
 
-    // User Management Stack
+    // Channels Stack
     const {
-      containerEnv: userManagementContainerEnv,
-      outputs: { userPoolId, userPoolClientId, userTable },
-      policies: userManagementPolicies
-    } = new UserManagementStack(this, 'UserManagement', {
+      containerEnv: channelsContainerEnv,
+      outputs: { userPoolId, userPoolClientId, channelsTable },
+      policies: channelsPolicies
+    } = new ChannelsStack(this, 'Channels', {
       resourceConfig
     });
 
@@ -134,13 +131,13 @@ export class UGCStack extends Stack {
     } = new MetricsStack(this, 'Metrics', {
       cluster,
       ivsChannelType,
-      userTable,
+      channelsTable,
       vpc
     });
 
-    // Attach extra policies and env variables to the User Management stack
+    // Attach extra policies and env variables to the Channels stack
     const { streamTable } = metricsOutputs;
-    userManagementPolicies.push(
+    channelsPolicies.push(
       new iam.PolicyStatement({
         actions: ['dynamodb:Query', 'dynamodb:UpdateItem'],
         effect: iam.Effect.ALLOW,
@@ -150,7 +147,7 @@ export class UGCStack extends Stack {
         ]
       })
     );
-    userManagementContainerEnv.STREAM_TABLE_NAME = streamTable.tableName;
+    channelsContainerEnv.STREAM_TABLE_NAME = streamTable.tableName;
 
     // This environment is required for any container that exposes authenticated endpoints
     const baseContainerEnv = {
@@ -160,7 +157,7 @@ export class UGCStack extends Stack {
     };
     const sharedContainerEnv = {
       ...baseContainerEnv,
-      ...userManagementContainerEnv,
+      ...channelsContainerEnv,
       ...metricsContainerEnv
     };
 
@@ -174,36 +171,34 @@ export class UGCStack extends Stack {
     let metricsLoadBalancer;
 
     /**
-     * If deploySeparateContainers is set to true, we'll deploy two services, one for User Management and one for Metrics
-     * If the value is false, we'll deploy the entire backend inside the User Management container to save on resources
+     * If deploySeparateContainers is set to true, we'll deploy two services, one for Channels and one for Metrics
+     * If the value is false, we'll deploy the entire backend inside the Channels container to save on resources
      */
     if (deploySeparateContainers) {
-      const {
-        listener: userManagementListener,
-        loadBalancer: userManagementLoadBalancer
-      } = new LoadBalancer(this, 'UserManagementLoadBalancer', {
-        prefix: 'UserManagement',
-        vpc
-      });
-      const { service: userManagementService } = new Service(
+      const { listener: channelsListener, loadBalancer: channelsLoadBalancer } =
+        new LoadBalancer(this, 'ChannelsLoadBalancer', {
+          prefix: 'Channels',
+          vpc
+        });
+      const { service: channelsService } = new Service(
         this,
-        `${stackNamePrefix}-UserManagement-Service`,
+        `${stackNamePrefix}-Channels-Service`,
         {
           ...defaultServiceProps,
           environment: {
             ...baseContainerEnv,
-            ...userManagementContainerEnv,
-            SERVICE_NAME: 'userManagement'
+            ...channelsContainerEnv,
+            SERVICE_NAME: 'channels'
           },
-          policies: userManagementPolicies,
-          prefix: 'UserManagement'
+          policies: channelsPolicies,
+          prefix: 'Channels'
         }
       );
-      defaultLoadBalancer = userManagementLoadBalancer;
+      defaultLoadBalancer = channelsLoadBalancer;
 
-      userManagementListener.addTargets('userManagement-target', {
+      channelsListener.addTargets('channels-target', {
         ...defaultTargetProps,
-        targets: [userManagementService]
+        targets: [channelsService]
       });
 
       let metricsListener;
@@ -246,7 +241,7 @@ export class UGCStack extends Stack {
             ...sharedContainerEnv,
             SERVICE_NAME: 'all'
           },
-          policies: [...userManagementPolicies, ...metricsPolicies],
+          policies: [...channelsPolicies, ...metricsPolicies],
           prefix: 'Shared'
         }
       );

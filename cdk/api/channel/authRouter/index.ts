@@ -25,9 +25,9 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.get('/', getUser);
   resource.get('/streamKey/reset', resetStreamKey);
 
-  resource.post('/channel/actions/send', sendStreamAction);
-  resource.post('/channel/ban', banUser);
-  resource.post('/channel/unban', unbanUser);
+  resource.post('/actions/send', sendStreamAction);
+  resource.post('/ban', banUser);
+  resource.post('/unban', unbanUser);
   resource.post('/resources/create', createResources);
 
   resource.put('/username/update', changeUsername);

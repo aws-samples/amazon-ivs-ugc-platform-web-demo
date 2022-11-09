@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import Button from '../../../../components/Button';
-import { userManagementAPI } from '../../../../api';
+import { channelAPI } from '../../../../api';
 import { userManagement as $content } from '../../../../content';
 import { useNotif } from '../../../../contexts/Notification';
 
@@ -11,7 +11,7 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
 
   const resend = async () => {
     const userData = { email };
-    const { result, error } = await userManagementAPI.sendResetPasswordRequest(
+    const { result, error } = await channelAPI.sendResetPasswordRequest(
       userData
     );
 

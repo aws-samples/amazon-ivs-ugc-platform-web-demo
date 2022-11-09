@@ -2,19 +2,19 @@
 	"info": {
 		"_postman_id": "853b6969-a93a-4d62-b2d5-b41e30de5385",
 		"name": "UGC",
-		"description": "The UGC backend is divided into two individual APIs:\n\n- User Management (incl. Chat and Channel endpoints)\n- Metrics",
+		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20287494"
 	},
 	"item": [
 		{
-			"name": "User Management",
+			"name": "Channels",
 			"item": [
 				{
 					"name": "Chat",
 					"item": [
 						{
-							"name": "/user/chatToken/create",
+							"name": "/channel/chatToken/create",
 							"event": [
 								{
 									"listen": "test",
@@ -50,12 +50,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{apiBaseUrl}}/user/chatToken/create",
+									"raw": "{{apiBaseUrl}}/channel/chatToken/create",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
 									"path": [
-										"user",
+										"channel",
 										"chatToken",
 										"create"
 									]
@@ -71,43 +71,17 @@
 					"name": "Channel",
 					"item": [
 						{
-							"name": "/user/channel/:channelOwnerUsername",
+							"name": "/channel/streamKey/reset",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{apiBaseUrl}}/user/channel/:channelOwnerUsername",
+									"raw": "{{apiBaseUrl}}/channel/streamKey/reset",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
 									"path": [
-										"user",
 										"channel",
-										":channelOwnerUsername"
-									],
-									"variable": [
-										{
-											"key": "channelOwnerUsername",
-											"value": "{{username}}"
-										}
-									]
-								},
-								"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
-							},
-							"response": []
-						},
-						{
-							"name": "/user/streamKey/reset",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{apiBaseUrl}}/user/streamKey/reset",
-									"host": [
-										"{{apiBaseUrl}}"
-									],
-									"path": [
-										"user",
 										"streamKey",
 										"reset"
 									]
@@ -117,7 +91,7 @@
 							"response": []
 						},
 						{
-							"name": "/user/channel/ban",
+							"name": "/channel/ban",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -131,12 +105,11 @@
 									}
 								},
 								"url": {
-									"raw": "{{apiBaseUrl}}/user/channel/ban",
+									"raw": "{{apiBaseUrl}}/channel/ban",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
 									"path": [
-										"user",
 										"channel",
 										"ban"
 									]
@@ -146,7 +119,7 @@
 							"response": []
 						},
 						{
-							"name": "/user/channel/unban",
+							"name": "/channel/unban",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -160,12 +133,11 @@
 									}
 								},
 								"url": {
-									"raw": "{{apiBaseUrl}}/user/channel/unban",
+									"raw": "{{apiBaseUrl}}/channel/unban",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
 									"path": [
-										"user",
 										"channel",
 										"unban"
 									]
@@ -175,7 +147,7 @@
 							"response": []
 						},
 						{
-							"name": "/user/channel/actions/send",
+							"name": "/channel/actions/send",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -189,12 +161,11 @@
 									}
 								},
 								"url": {
-									"raw": "{{apiBaseUrl}}/user/channel/actions/send",
+									"raw": "{{apiBaseUrl}}/channel/actions/send",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
 									"path": [
-										"user",
 										"channel",
 										"actions",
 										"send"
@@ -208,7 +179,118 @@
 					"description": "This folder provides operations used to manage the user's IVS channel resource."
 				},
 				{
-					"name": "/user/register",
+					"name": "Profile",
+					"item": [
+						{
+							"name": "/channel/preferences/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { avatar, color } = JSON.parse(responseBody);",
+											"",
+											"if (avatar) {",
+											"    pm.environment.set('avatar', avatar);",
+											"}",
+											"",
+											"if (color) {",
+											"    pm.environment.set('color', color);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/preferences/update",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"preferences",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/username/update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"newUsername\": \"not{{username}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/username/update",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"username",
+										"update"
+									]
+								},
+								"description": "This endpoint will update the username for a user."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Channels",
+					"item": [
+						{
+							"name": "/channels/:channelOwnerUsername",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channels/:channelOwnerUsername",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channels",
+										":channelOwnerUsername"
+									],
+									"variable": [
+										{
+											"key": "channelOwnerUsername",
+											"value": "{{username}}"
+										}
+									]
+								},
+								"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/channel/register",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -225,12 +307,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiBaseUrl}}/user/register",
+							"raw": "{{apiBaseUrl}}/channel/register",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
-								"user",
+								"channel",
 								"register"
 							]
 						},
@@ -239,7 +321,7 @@
 					"response": []
 				},
 				{
-					"name": "/user/resources/create",
+					"name": "/channel/resources/create",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -253,12 +335,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiBaseUrl}}/user/resources/create",
+							"raw": "{{apiBaseUrl}}/channel/resources/create",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
-								"user",
+								"channel",
 								"resources",
 								"create"
 							]
@@ -268,7 +350,7 @@
 					"response": []
 				},
 				{
-					"name": "/user",
+					"name": "/channel",
 					"event": [
 						{
 							"listen": "test",
@@ -289,12 +371,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiBaseUrl}}/user",
+							"raw": "{{apiBaseUrl}}/channel",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
-								"user"
+								"channel"
 							]
 						},
 						"description": "This endpoint fetches a set of fields stored in the DynamoDB table for the authenticated user.\n\nThe response will contain the `channelResourceId` which is required for other endpoints. Alternatively, Postman will set this variable to your environment after a successful response."
@@ -302,83 +384,7 @@
 					"response": []
 				},
 				{
-					"name": "/user/username/update",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"newUsername\": \"not{{username}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/username/update",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"username",
-								"update"
-							]
-						},
-						"description": "This endpoint will update the username for a user."
-					},
-					"response": []
-				},
-				{
-					"name": "/user/preferences/update",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { avatar, color } = JSON.parse(responseBody);",
-									"",
-									"if (avatar) {",
-									"    pm.environment.set('avatar', avatar);",
-									"}",
-									"",
-									"if (color) {",
-									"    pm.environment.set('color', color);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/user/preferences/update",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"user",
-								"preferences",
-								"update"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/user/password/reset",
+					"name": "/channel/password/reset",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -395,12 +401,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiBaseUrl}}/user/password/reset",
+							"raw": "{{apiBaseUrl}}/channel/password/reset",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
-								"user",
+								"channel",
 								"password",
 								"reset"
 							]
@@ -410,17 +416,17 @@
 					"response": []
 				},
 				{
-					"name": "/user",
+					"name": "/channel",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{apiBaseUrl}}/user",
+							"raw": "{{apiBaseUrl}}/channel",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
-								"user"
+								"channel"
 							]
 						},
 						"description": "This endpoint will delete all of the resources associated with the corresponding user account, along with the Cognito user account itself."
@@ -538,7 +544,7 @@
 					"response": []
 				}
 			],
-			"description": "This API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated User Management endpoints.",
+			"description": "This API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated Channel endpoints.",
 			"event": [
 				{
 					"listen": "prerequest",

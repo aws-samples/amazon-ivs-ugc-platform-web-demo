@@ -16,25 +16,25 @@
       "functions": 100,
       "lines": 100
     },
-    "userManagement/unauthUserRouter/signUp.ts": {
+    "channel/unauthRouter/signUp.ts": {
       "statements": 100,
       "branches": 100,
       "functions": 100,
       "lines": 100
     },
-    "userManagement/authUserRouter/changeUsername.ts": {
+    "channel/authRouter/changeUsername.ts": {
       "statements": 100,
       "branches": 100,
       "functions": 100,
       "lines": 100
     },
-    "userManagement/authUserRouter/deleteUser.ts": {
+    "channel/authRouter/deleteUser.ts": {
       "statements": 100,
       "branches": 100,
       "functions": 100,
       "lines": 100
     },
-    "userManagement/authUserRouter/sendStreamAction.ts": {
+    "channel/authRouter/sendStreamAction.ts": {
       "statements": 100,
       "branches": 100,
       "functions": 100,

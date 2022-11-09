@@ -125,7 +125,7 @@ const handler = async (
           id: UserSub,
           username
         }),
-        TableName: process.env.USER_TABLE_NAME
+        TableName: process.env.CHANNELS_TABLE_NAME
       });
 
       await dynamoDbClient.send(putItemCommand);

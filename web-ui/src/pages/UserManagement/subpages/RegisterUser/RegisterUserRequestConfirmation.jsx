@@ -5,14 +5,14 @@ import { clsm } from '../../../../utils';
 import { LIMIT_EXCEEDED_EXCEPTION } from '../../../../constants';
 import { useNotif } from '../../../../contexts/Notification';
 import { userManagement as $content } from '../../../../content';
-import { userManagementAPI } from '../../../../api';
+import { channelAPI } from '../../../../api';
 import Button from '../../../../components/Button';
 
 const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
 
   const resend = async () => {
-    const { result, error } = await userManagementAPI.resendVerificationRequest(
+    const { result, error } = await channelAPI.resendVerificationRequest(
       username
     );
 

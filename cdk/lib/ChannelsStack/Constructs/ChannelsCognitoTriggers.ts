@@ -2,12 +2,11 @@ import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { getLambdaEntryPath } from '../utils';
-import { UserManagementResourceConfig } from '../../constants';
+import { ChannelsResourceConfig } from '../../constants';
 
-interface UserManagementCognitoTriggersProps
-  extends UserManagementResourceConfig {}
+interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {}
 
-export default class UserManagementCognitoTriggers extends Construct {
+export default class ChannelsCognitoTriggers extends Construct {
   public readonly customMessageLambda: lambda.NodejsFunction;
   public readonly preAuthenticationLambda: lambda.NodejsFunction;
   public readonly preSignUpLambda: lambda.NodejsFunction | undefined;
@@ -15,7 +14,7 @@ export default class UserManagementCognitoTriggers extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    props: UserManagementCognitoTriggersProps
+    props: ChannelsCognitoTriggersProps
   ) {
     super(scope, id);
 

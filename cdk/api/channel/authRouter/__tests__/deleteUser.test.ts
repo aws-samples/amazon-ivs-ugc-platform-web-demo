@@ -29,7 +29,7 @@ const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
 const mockIvsClient = mockClient(ivsClient);
 const mockIvsChatClient = mockClient(ivsChatClient);
-const url = '/user';
+const url = '/channel';
 const defaultRequestParams = { method: 'DELETE' as const, url };
 
 describe('deleteUser controller', () => {

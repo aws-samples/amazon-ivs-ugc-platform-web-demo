@@ -85,7 +85,7 @@ const handler = async (
         { key: 'chatRoomArn', value: chatRoomArn }
       ],
       primaryKey: { key: 'id', value: sub },
-      tableName: process.env.USER_TABLE_NAME as string
+      tableName: process.env.CHANNELS_TABLE_NAME as string
     });
   } catch (error) {
     console.error(error);
