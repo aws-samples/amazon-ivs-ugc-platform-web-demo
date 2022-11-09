@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 
 import {
@@ -51,12 +52,13 @@ export class UGCFrontendDeploymentStack extends Stack {
     );
 
     // Deployment
+    const buildPath = path.join(__dirname, '../../web-ui/build');
+    const hasBuild = fs.existsSync(buildPath);
+    const sources = hasBuild ? [s3Deployment.Source.asset(buildPath)] : [];
     new s3Deployment.BucketDeployment(this, `${stackNamePrefix}-Deployment`, {
-      sources: [
-        s3Deployment.Source.asset(path.join(__dirname, '../../web-ui/build'))
-      ],
       destinationBucket: frontendAppS3Bucket,
-      distribution
+      distribution,
+      sources
     });
 
     const importedFrontendAppBaseUrl = Fn.importValue(
