@@ -39,10 +39,6 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "pretest:e2e:ci": "dotenv -e .env.test -- npm run build",
-    "test:e2e:ci": "PORT=4000 npx playwright test",
-    "test:e2e": "npx playwright install && npm run test:clean && npm run test:e2e:ci --",
-    "test:clean": "rimraf e2e/test-results/* e2e/screenshots/*",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write ."
   },
@@ -58,11 +54,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@playwright/test": "^1.27.1",
     "@tailwindcss/line-clamp": "^0.4.2",
     "autoprefixer": "^10.4.12",
-    "dotenv-cli": "^6.0.0",
-    "jsonwebtoken": "^8.5.1",
     "postcss": "^8.4.18",
     "prettier": "^2.7.1",
     "serve": "^14.0.1",

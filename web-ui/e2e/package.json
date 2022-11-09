@@ -1,0 +1,27 @@
+{
+  "name": "e2e",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@playwright/test": "^1.27.1",
+    "amazon-cognito-identity-js": "^5.2.12",
+    "jsonwebtoken": "^8.5.1",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "npm": ">=8.3.0"
+  },
+  "scripts": {
+    "test:e2e:clean": "rimraf test-results/* screenshots/*",
+    "test:e2e:build": "BUILD_PATH='./e2e/build' dotenv -e .env.test -- npm run build --prefix ../",
+    "pretest:e2e": "npm run test:e2e:clean && npm run test:e2e:build",
+    "test:e2e": "sh run-tests.sh",
+    "test:e2e:update": "npm run test:e2e -- --update-snapshots",
+    "pretest:e2e:ci": "npm run test:e2e:build",
+    "test:e2e:ci": "npx playwright test"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^6.0.0",
+    "serve": "^14.1.0"
+  }
+}

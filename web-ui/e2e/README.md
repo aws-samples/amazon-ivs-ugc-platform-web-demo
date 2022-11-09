@@ -276,19 +276,23 @@ const test = extendTestFixtures(
 
 ## Running the Tests
 
-To run the tests locally, navigate into the `web-ui` directory and run the following command:
+In addition to the regular testing practices and assertions that we have seen thus far, Playwright Test also includes the ability to produce and visually compare screenshots using `await expect(page).toHaveScreenshot()`. Due to differences in how different architectures render fonts and other assets, the tests are run inside a Docker container in order to generate consistent screenshots on any machine. To run the tests locally, navigate into the `web-ui/e2e` directory and run the following command:
 
 ```shell
 npm run test:e2e
 ```
 
-This command will install the latest browser binaries, load the mock environment variables from `.env.test`, create an optimized production build, and finally run the testing suite against the served production build of the application.
+This command will install the latest browser binaries, load the mock environment variables from `.env.test`, and create an optimized production build of the application. Subsequently, a new Docker image is created and used to run a Docker container as an executable that runs the `docker-entrypoint.sh` script, which means that once the Docker container has finished executing the entrypoint script, it will immediately clean up and exit. Within this entrypoint script, the tests are run against the served production build of the application.
 
-You may pass additional Playwright options to the command by appending a `--` delimiter and following it with the appropriate Playwright flags. For instance, the following command will run the tests in headed mode and only on the "chromium" project:
+When a UI change occurs, you will need to update the screenshots to reflect the new changes. To do so, run the following command to pass an `--update-snapshots` flag to Playwright Test:
 
 ```shell
-npm run test:e2e -- --headed --project=chromium
+npm run test:e2e:update
 ```
+
+This command will run the tests following the same procedure as above, but will also update any screenshots that have changed. These new screenshots will need to be checked in to your version control to ensure that everyone has the most up-to-date screenshots.
+
+Note that on the very first test run, the tests that include a screenshot assertion will fail since Playwright Test has to generate reference screenshots, called "golden files." To generate a golden file, during the first test run, Playwright Test takes multiple screenshots until two consecutive screenshots are matched and saves the last screenshot to the file system. Subsequent test runs will compare new screenshots against the golden files.
 
 ## Debugging
 

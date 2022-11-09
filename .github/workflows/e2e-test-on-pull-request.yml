@@ -31,7 +31,9 @@ jobs:
           cache-dependency-path: ./web-ui/package-lock.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix ./e2e
 
       - name: Lint
         run: npm run lint
@@ -59,7 +61,7 @@ jobs:
         id: e2e-tests
         run: |
           npx playwright install-deps
-          npm run test:e2e:ci
+          npm run test:e2e:ci --prefix ./e2e
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0

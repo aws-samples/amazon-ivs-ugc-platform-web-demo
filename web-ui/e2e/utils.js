@@ -8,11 +8,11 @@ const {
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 
-const defaultExtentedTestFixtureOptions = { isAuthenticated: true };
+const defaultExtendedTestFixtureOptions = { isAuthenticated: true };
 
 const extendTestFixtures = (pageModels = [], options = {}) => {
   const { isAuthenticated } = {
-    ...defaultExtentedTestFixtureOptions,
+    ...defaultExtendedTestFixtureOptions,
     ...options
   };
 
@@ -29,18 +29,32 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
         return localStorage;
       };
 
-      // "takeScreenshot" will save screenshots to the ./e2e/screenshots directory
+      /**
+       * "takeScreenshot" is a wrapper around Playwright's "toHaveScreenshot" assertion, which generates a
+       * descriptive filename composed of the `name` argument and the test title. When the `name` argument
+       * is omitted, an auto-generated screenshot name is used instead. Playwright then appends the browser
+       * name and the platform to this filename and uses that as the name of the screenshot file.
+       *
+       * On the first execution, Playwright Test will generate reference screenshots, or "golden images."
+       * Subsequent runs will compare against the golden images.
+       *
+       * @param {string} [name] An optional screenshot name.
+       */
       page.takeScreenshot = async (name) => {
-        const testTitle = testInfo?.titlePath[1].replace(/\s/g, '') || '';
-        const filename = [testTitle, name].join('-');
-        const path = `./e2e/screenshots/${filename}.png`;
-        await page.screenshot({ path });
+        const testTitle = testInfo?.titlePath[1].replace(/\s/g, '');
+        const filename =
+          testTitle && name ? `${[testTitle, name].join('-')}.png` : undefined;
+
+        // Temporary check to ensure we don't run screenshot assertions on the CI
+        if (!process.env.CI) {
+          await expect.soft(page).toHaveScreenshot(filename);
+        }
       };
 
       /**
        * "fetchResponses" is a list that contains all the API fetch responses received in that test,
-       * updated throughout the test's execution. An assertion should use asynchornous polling to
-       * ensure that the expected response was recevied at the time of assertion.
+       * updated throughout the test's execution. An assertion should use asynchronous polling to
+       * ensure that the expected response was received at the time of assertion.
        *
        * @example
        * await expect
@@ -84,6 +98,9 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
             return null;
           }
         }, testInfo.project.name);
+
+      // Resets the mouse cursor position to
+      page.resetCursorPosition = async () => await page.mouse.move(0, 0);
 
       await use(page);
     },
@@ -193,10 +210,13 @@ const isValidUrl = (url) => {
   return true;
 };
 
+const noop = () => {};
+
 module.exports = {
   COGNITO_IDP_URL_REGEX,
   extendTestFixtures,
   getCloudfrontURLRegex,
   getMockCognitoSessionTokens,
-  isValidUrl
+  isValidUrl,
+  noop
 };

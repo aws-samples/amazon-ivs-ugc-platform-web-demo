@@ -1,5 +1,6 @@
 // @ts-check
 const { devices } = require('@playwright/test');
+const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 
@@ -8,7 +9,7 @@ const PORT = process.env.PORT || 3000;
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
 const config = {
-  testDir: './e2e/__tests__',
+  testDir: path.join(__dirname, '__tests__'),
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
@@ -28,7 +29,11 @@ const config = {
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html', { open: 'on-failure', outputFolder: 'e2e/playwright-report' }]
+    ['list'],
+    [
+      'html',
+      { open: 'never', outputFolder: path.join(__dirname, 'playwright-report') }
+    ]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -40,10 +45,10 @@ const config = {
     screenshot: 'on',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
-    /* Tell all tests to load signed-in state from './e2e/storageState.json'. */
-    storageState: './e2e/storageState.json'
+    /* Tell all tests to load signed-in state from 'storageState.json'. */
+    storageState: path.join(__dirname, 'storageState.json')
   },
-  globalSetup: require.resolve('./e2e/global-setup'),
+  globalSetup: path.join(__dirname, 'global-setup'),
 
   /* Configure projects for major browsers */
   projects: [
@@ -99,7 +104,7 @@ const config = {
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  outputDir: 'e2e/test-results/',
+  outputDir: path.join(__dirname, 'test-results'),
 
   /* Serve the production build locally before starting the tests */
   webServer: {
