@@ -17,6 +17,7 @@ If they're not obvious, please provide the steps to test this PR, otherwise, del
 - [ ] General - I have tested my changes on Chrome, Firefox and Safari
 - [ ] General - I have deleted anything that is unrelated to my change (e.g.: debug logs, IDE config files...)
 - [ ] General - I have ensured that my changes have not created a regression
+- [ ] General - I have successfully run all the E2E tests locally
 - [ ] A11y - I have set the correct aria attributes (e.g.: label on icon buttons)
 - [ ] Responsiveness - I have tested my changes on both iOS and Android on Chrome, Firefox and Safari
 - [ ] Responsiveness - I have tested my changes at different viewport sizes

@@ -4,11 +4,17 @@ const BasePageModel = require('./BasePageModel');
 const { getCloudfrontURLRegex, COGNITO_IDP_URL_REGEX } = require('../utils');
 
 class ResetPageModel extends BasePageModel {
+  static #isInternalConstructing = false;
+
   /**
    * @param {import('@playwright/test').Page} page
    * @param {string} baseURL
    */
   constructor(page, baseURL) {
+    if (!ResetPageModel.#isInternalConstructing) {
+      throw new TypeError('ResetPageModel is not constructable');
+    }
+
     super(page, baseURL, '/reset');
 
     // Locators
@@ -24,7 +30,9 @@ class ResetPageModel extends BasePageModel {
   }
 
   static create = async (page, baseURL) => {
+    ResetPageModel.#isInternalConstructing = true;
     const resetPage = new ResetPageModel(page, baseURL);
+    ResetPageModel.#isInternalConstructing = false;
 
     await resetPage.init();
     await resetPage.#mockPasswordResetRequest();

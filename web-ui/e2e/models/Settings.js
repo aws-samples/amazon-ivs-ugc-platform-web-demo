@@ -4,11 +4,17 @@ const BasePageModel = require('./BasePageModel');
 const { getCloudfrontURLRegex } = require('../utils');
 
 class SettingsPageModel extends BasePageModel {
+  static #isInternalConstructing = false;
+
   /**
    * @param {import('@playwright/test').Page} page
    * @param {string} baseURL
    */
   constructor(page, baseURL) {
+    if (!SettingsPageModel.#isInternalConstructing) {
+      throw new TypeError('SettingsPageModel is not constructable');
+    }
+
     super(page, baseURL, '/settings');
 
     /* Stream Settings Locators */
@@ -38,7 +44,9 @@ class SettingsPageModel extends BasePageModel {
   }
 
   static create = async (page, baseURL) => {
+    SettingsPageModel.#isInternalConstructing = true;
     const settingsPage = new SettingsPageModel(page, baseURL);
+    SettingsPageModel.#isInternalConstructing = false;
 
     await settingsPage.init();
     await settingsPage.#mockResetStreamKey();

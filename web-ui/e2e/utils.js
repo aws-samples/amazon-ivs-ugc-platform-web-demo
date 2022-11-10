@@ -9,6 +9,16 @@ const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 
 const defaultExtendedTestFixtureOptions = { isAuthenticated: true };
+const noop = () => {};
+
+/**
+ * Executes the specified "heavy" function only when the E2E tests are run locally;
+ * otherwise, when the E2E tests are run on CI, the "heavy" function execution is
+ * replaced with a "no-op" execution.
+ *
+ * @param {Function} heavyFn
+ */
+const heavy = (heavyFn) => (process.env.CI ? noop() : heavyFn());
 
 const extendTestFixtures = (pageModels = [], options = {}) => {
   const { isAuthenticated } = {
@@ -41,14 +51,15 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
        * @param {string} [name] An optional screenshot name.
        */
       page.takeScreenshot = async (name) => {
-        const testTitle = testInfo?.titlePath[1].replace(/\s/g, '');
-        const filename =
-          testTitle && name ? `${[testTitle, name].join('-')}.png` : undefined;
+        await heavy(async () => {
+          const testTitle = testInfo?.titlePath[1].replace(/\s/g, '');
+          const filename =
+            testTitle && name
+              ? `${[testTitle, name].join('-')}.png`
+              : undefined;
 
-        // Temporary check to ensure we don't run screenshot assertions on the CI
-        if (!process.env.CI) {
           await expect.soft(page).toHaveScreenshot(filename);
-        }
+        });
       };
 
       /**
@@ -69,16 +80,20 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
           page.fetchResponses.push(response);
         }
       };
-      page.addAPIResponseEventListener = () => page.on('response', onResponse);
-      page.removeAPIResponseEventListener = () => {
-        page.off('response', onResponse);
-        page.fetchResponses = [];
-      };
+      page.on('response', onResponse);
       page.assertResponses = async (expected = []) => {
+        /**
+         * Assert the expected number of responses against the actual number of fetch responses.
+         * Assertion must be polled in order to wait for all currently live requests to finish.
+         */
         await expect
           .poll(() => page.fetchResponses.length, { timeout: 2000 })
           .toEqual(expected.length);
 
+        /**
+         * Assert the pathname and status of each response, in the correct order that they occurred in.
+         * No need to poll the assertion here as we have already received all the responses from the previous step.
+         */
         await expect(
           page.fetchResponses.map((response) => [
             new URL(response.url()).pathname,
@@ -103,6 +118,9 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
       page.resetCursorPosition = async () => await page.mouse.move(0, 0);
 
       await use(page);
+
+      // Remove the API response event listener
+      page.off('response', onResponse);
     },
     /**
      * storageState fixture override (optional)
@@ -115,18 +133,15 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
         await use(storageState);
       }
     }),
+    /**
+     * Page Model fixtures setup
+     */
     ...pageModels.reduce(
       (pageFixtures, { name, PageModel }) => ({
         ...pageFixtures,
         [name]: async ({ page, baseURL }, use) => {
-          // Set-up the API response event listener
-          page.addAPIResponseEventListener();
-
           // Use page model fixture
           await use(await PageModel.create(page, baseURL));
-
-          // Remove the API response event listener
-          page.removeAPIResponseEventListener();
         }
       }),
       {}
@@ -210,13 +225,12 @@ const isValidUrl = (url) => {
   return true;
 };
 
-const noop = () => {};
-
 module.exports = {
   COGNITO_IDP_URL_REGEX,
   extendTestFixtures,
   getCloudfrontURLRegex,
   getMockCognitoSessionTokens,
+  heavy,
   isValidUrl,
   noop
 };

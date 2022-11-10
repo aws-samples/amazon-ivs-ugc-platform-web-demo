@@ -4,11 +4,17 @@ const BasePageModel = require('./BasePageModel');
 const { COGNITO_IDP_URL_REGEX, getCloudfrontURLRegex } = require('../utils');
 
 class RegisterPageModel extends BasePageModel {
+  static #isInternalConstructing = false;
+
   /**
    * @param {import('@playwright/test').Page} page
    * @param {string} baseURL
    */
   constructor(page, baseURL) {
+    if (!RegisterPageModel.#isInternalConstructing) {
+      throw new TypeError('RegisterPageModel is not constructable');
+    }
+
     super(page, baseURL, '/register');
 
     // Locators
@@ -26,7 +32,9 @@ class RegisterPageModel extends BasePageModel {
   }
 
   static create = async (page, baseURL) => {
+    RegisterPageModel.#isInternalConstructing = true;
     const registerPage = new RegisterPageModel(page, baseURL);
+    RegisterPageModel.#isInternalConstructing = false;
 
     await registerPage.init();
     await registerPage.#mockRegisterUser();

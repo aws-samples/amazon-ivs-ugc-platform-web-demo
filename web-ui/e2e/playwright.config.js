@@ -3,6 +3,20 @@ const { devices } = require('@playwright/test');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const CI_PROJECTS = ['chromium', 'Mobile Safari'];
+
+const getRunnableProjects = (projects) => {
+  const shouldRunProject = (project) =>
+    !process.env.CI || (process.env.CI && CI_PROJECTS.includes(project.name));
+
+  return projects.reduce(
+    (runnableProjects, project) =>
+      shouldRunProject(project)
+        ? [...runnableProjects, project]
+        : runnableProjects,
+    []
+  );
+};
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -51,7 +65,7 @@ const config = {
   globalSetup: path.join(__dirname, 'global-setup'),
 
   /* Configure projects for major browsers */
-  projects: [
+  projects: getRunnableProjects([
     {
       name: 'chromium',
       use: {
@@ -101,7 +115,7 @@ const config = {
       },
       retries: 2
     }
-  ],
+  ]),
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   outputDir: path.join(__dirname, 'test-results'),

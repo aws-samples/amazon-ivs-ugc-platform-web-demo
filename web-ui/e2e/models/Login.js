@@ -7,11 +7,17 @@ const {
 } = require('../utils');
 
 class LoginPageModel extends BasePageModel {
+  static #isInternalConstructing = false;
+
   /**
    * @param {import('@playwright/test').Page} page
    * @param {string} baseURL
    */
   constructor(page, baseURL) {
+    if (!LoginPageModel.#isInternalConstructing) {
+      throw new TypeError('LoginPageModel is not constructable');
+    }
+
     super(page, baseURL, '/login');
 
     // Locators
@@ -38,7 +44,9 @@ class LoginPageModel extends BasePageModel {
   }
 
   static create = async (page, baseURL) => {
+    LoginPageModel.#isInternalConstructing = true;
     const loginPage = new LoginPageModel(page, baseURL);
+    LoginPageModel.#isInternalConstructing = false;
 
     await loginPage.init();
     await loginPage.#mockSignIn();
