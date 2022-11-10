@@ -1,0 +1,50 @@
+[
+  {
+    "channelArn": "channelArn-user1",
+    "startTime": "2022-06-08T20:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T20:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T20:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "channelArn-user2",
+    "startTime": "2022-06-08T22:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T22:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T22:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "channelArn-user3",
+    "startTime": "2022-06-08T18:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T18:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T18:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  }
+]

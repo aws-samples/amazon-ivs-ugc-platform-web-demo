@@ -19,6 +19,7 @@ export const UNAUTHORIZED_EXCEPTION = 'UnauthorizedException';
 export const UNBAN_USER_EXCEPTION = 'UnbanUserException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
+export const BAD_REQUEST_EXCEPTION = 'BadRequestException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';

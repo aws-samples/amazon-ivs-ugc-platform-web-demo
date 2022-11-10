@@ -286,6 +286,30 @@
 								"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
 							},
 							"response": []
+						},
+						{
+							"name": "/channels",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channels?isLive=true",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channels"
+									],
+									"query": [
+										{
+											"key": "isLive",
+											"value": "true"
+										}
+									]
+								},
+								"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
+							},
+							"response": []
 						}
 					]
 				},

@@ -118,6 +118,16 @@ export class ChannelsStack extends NestedStack {
         `${channelsTable.tableArn}/index/usernameIndex`
       ]
     });
+    const channelsTableChannelArnIndexPolicyStatement = new iam.PolicyStatement(
+      {
+        actions: ['dynamodb:Scan'],
+        effect: iam.Effect.ALLOW,
+        resources: [
+          channelsTable.tableArn,
+          `${channelsTable.tableArn}/index/channelArnIndex`
+        ]
+      }
+    );
     const forgotPasswordPolicyStatement = new iam.PolicyStatement({
       actions: ['cognito-idp:ForgotPassword'],
       effect: iam.Effect.ALLOW,
@@ -159,6 +169,7 @@ export class ChannelsStack extends NestedStack {
     });
     policies.push(
       channelsTablePolicyStatement,
+      channelsTableChannelArnIndexPolicyStatement,
       forgotPasswordPolicyStatement,
       ivsPolicyStatement,
       ivsChatPolicyStatement,

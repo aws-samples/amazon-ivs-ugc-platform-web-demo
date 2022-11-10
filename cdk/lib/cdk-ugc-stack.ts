@@ -145,6 +145,14 @@ export class UGCStack extends Stack {
           streamTable.tableArn,
           `${streamTable.tableArn}/index/startTimeIndex`
         ]
+      }),
+      new iam.PolicyStatement({
+        actions: ['dynamodb:Scan'],
+        effect: iam.Effect.ALLOW,
+        resources: [
+          streamTable.tableArn,
+          `${streamTable.tableArn}/index/isOpenIndex`
+        ]
       })
     );
     channelsContainerEnv.STREAM_TABLE_NAME = streamTable.tableName;

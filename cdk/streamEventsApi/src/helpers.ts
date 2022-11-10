@@ -10,6 +10,7 @@ export const dynamoDbClient = new DynamoDBClient({});
 
 export type AdditionalStreamAttributes = {
   isHealthy?: boolean;
+  isOpen?: string;
   hasErrorEvent?: boolean;
   startTime?: string;
   endTime?: string;
@@ -72,12 +73,14 @@ export const getStreamEvents = async (
 
 export const updateStreamEvents = ({
   additionalAttributes = {},
+  attributesToRemove = [],
   channelArn,
   streamEvents,
   streamId,
   userSub
 }: {
   additionalAttributes?: AdditionalStreamAttributes;
+  attributesToRemove?: string[];
   channelArn: string;
   streamEvents: StreamEvent[];
   streamId: string;
@@ -88,11 +91,14 @@ export const updateStreamEvents = ({
   const additionalAttributesExpression = `${Object.keys(additionalAttributes)
     .map((key) => `${key}=:${key}`)
     .join(', ')}`;
-  const updateExpression = [
+  const removeClause = attributesToRemove.length
+    ? `REMOVE ${attributesToRemove.join(',')}`
+    : '';
+  const setClause = `SET ${[
     userSubUpdateExpression,
     truncatedEventsUpdateExpression,
     additionalAttributesExpression
-  ].join(', ');
+  ].join(', ')}`;
 
   const updateItemCommand = new UpdateItemCommand({
     ExpressionAttributeValues: {
@@ -104,7 +110,7 @@ export const updateStreamEvents = ({
       ':truncatedEvents': convertToAttr(streamEvents)
     },
     Key: { channelArn: convertToAttr(channelArn), id: convertToAttr(streamId) },
-    UpdateExpression: `SET ${updateExpression}`,
+    UpdateExpression: [setClause, removeClause].join(' '),
     TableName: process.env.STREAM_TABLE_NAME
   });
 

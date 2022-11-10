@@ -16,6 +16,12 @@
       "functions": 100,
       "lines": 100
     },
+    "channels/getChannels.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
     "channel/unauthRouter/signUp.ts": {
       "statements": 100,
       "branches": 100,

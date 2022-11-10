@@ -56,23 +56,38 @@ export class MetricsStack extends NestedStack {
       indexName: 'startTimeIndex',
       sortKey: { name: 'startTime', type: dynamodb.AttributeType.STRING }
     });
+    // This is required to get all open sessions
+    streamTable.addGlobalSecondaryIndex({
+      indexName: 'isOpenIndex',
+      partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'isOpen', type: dynamodb.AttributeType.STRING }
+    });
 
     // IAM Policies
     const policies = [];
     const streamTablePolicyStatement = new iam.PolicyStatement({
-      actions: ['dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:UpdateItem'],
+      actions: ['dynamodb:Query', 'dynamodb:GetItem', 'dynamodb:UpdateItem'],
       effect: iam.Effect.ALLOW,
       resources: [
         streamTable.tableArn,
         `${streamTable.tableArn}/index/startTimeIndex`
       ]
     });
-    const metricsIvsPolicyStatement = new iam.PolicyStatement({
-      actions: ['cloudwatch:GetMetricData', 'ivs:GetStreamSession'],
+    const metricsCloudWatchPolicyStatement = new iam.PolicyStatement({
+      actions: ['cloudwatch:GetMetricData'],
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
-    policies.push(streamTablePolicyStatement, metricsIvsPolicyStatement);
+    const metricsIvsPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:GetStreamSession'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    policies.push(
+      streamTablePolicyStatement,
+      metricsCloudWatchPolicyStatement,
+      metricsIvsPolicyStatement
+    );
     this.policies = policies;
 
     // Stream Events Container Image
@@ -118,7 +133,7 @@ export class MetricsStack extends NestedStack {
           CHANNELS_TABLE_NAME: channelsTable.tableName
         },
         minScalingCapacity: 1,
-        policies: [...policies, channelsTablePolicyStatement],
+        policies: [streamTablePolicyStatement, channelsTablePolicyStatement],
         prefix: 'StreamEvents',
         securityGroups: [streamEventsSecurityGroup]
       }

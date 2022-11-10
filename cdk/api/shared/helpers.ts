@@ -51,6 +51,7 @@ export type DbStreamEvent = StreamEvent & {
   eventTime: string;
 };
 export interface StreamSessionDbRecord {
+  channelArn?: string;
   endTime?: string;
   id?: string;
   ingestConfiguration?: IngestConfiguration;
@@ -59,6 +60,20 @@ export interface StreamSessionDbRecord {
   startTime?: string;
   truncatedEvents?: DbStreamEvent[];
   userSub?: string;
+}
+
+export interface ChannelDbRecord {
+  avatar?: string;
+  channelArn?: string;
+  chatRoomArn?: string;
+  color?: string;
+  email?: string;
+  id?: string;
+  ingestEndpoint?: string;
+  playbackUrl?: string;
+  streamKeyArn?: string;
+  streamKeyValue?: string;
+  username?: string;
 }
 
 export const isCognitoError = (

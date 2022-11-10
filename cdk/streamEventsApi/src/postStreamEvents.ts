@@ -65,9 +65,7 @@ const handler = async (
       const streamSession = streamSessions.find((streamSession) => {
         const { startTime } = unmarshall(streamSession);
 
-        if (startTime <= eventTime) return true;
-
-        return false;
+        return startTime <= eventTime;
       });
 
       if (!streamSession) {
@@ -98,20 +96,32 @@ const handler = async (
       .pop();
 
     const additionalAttributes: AdditionalStreamAttributes = {};
+    const attributesToRemove: string[] = [];
 
     additionalAttributes.isHealthy =
       latestStreamHealthChangeEvent?.name !== STARVATION_START;
 
     if (eventName === SESSION_CREATED) {
-      additionalAttributes.hasErrorEvent = false;
       additionalAttributes.startTime = eventTime;
+
+      if (
+        // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED event
+        !streamEvents.find((streamEvent) => streamEvent.name === SESSION_ENDED)
+      ) {
+        additionalAttributes.hasErrorEvent = false;
+        additionalAttributes.isOpen = 'true';
+      }
     }
-    if (eventName === SESSION_ENDED) additionalAttributes.endTime = eventTime;
+    if (eventName === SESSION_ENDED) {
+      additionalAttributes.endTime = eventTime;
+      attributesToRemove.push('isOpen');
+    }
     if (eventType === LIMIT_BREACH_EVENT_TYPE)
       additionalAttributes.hasErrorEvent = true;
 
     await updateStreamEvents({
       additionalAttributes,
+      attributesToRemove,
       channelArn,
       streamEvents,
       streamId,
