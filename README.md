@@ -107,6 +107,35 @@ Additionally, if you want to make changes to any of the stage configuration opti
 make deploy STAGE=prod
 ```
 
+#### Summary
+
+The following recaps all the most common commands that you can run to easily deploy the app to AWS.  
+***NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.*
+
+Deploy the backend with the "dev" config:
+
+```shell
+make deploy
+```
+
+Deploy the backend and the frontend app with the "dev" config:
+
+```shell
+make deploy PUBLISH=true
+```
+
+Deploy the backend with the "prod" config:
+
+```shell
+make deploy STAGE=prod
+```
+
+Deploy the backend and the frontend app with the "prod" config:
+
+```shell
+make deploy STAGE=prod PUBLISH=true
+```
+
 ## Backend Specification
 
 An in-depth specification of the backend API can be found in the Postman collection ([cdk/postman](./cdk/postman)), along with instructions on how to call each individual endpoint.
