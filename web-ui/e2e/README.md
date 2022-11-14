@@ -98,7 +98,7 @@ class LoginPageModel extends BasePageModel {
             }
           })
         });
-      }
+      } else route.fallback();
     });
   };
 }
@@ -205,7 +205,7 @@ Here is the login user flow from earlier. This is almost identical to the code w
             }
           })
         });
-      }
+      } else route.fallback()
     });
   };
 ```

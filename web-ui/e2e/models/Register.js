@@ -121,14 +121,17 @@ class RegisterPageModel extends BasePageModel {
             status: 200,
             body: JSON.stringify({ userConfirmed })
           });
-        } else route.continue();
+        } else route.fallback();
       }
     );
   };
 
   #mockResendEmailVerification = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
-      if (request.method() === 'POST') {
+      if (
+        request.headers()['x-amz-target'] ===
+        'AWSCognitoIdentityProviderService.ResendConfirmationCode'
+      ) {
         route.fulfill({
           status: 200,
           body: JSON.stringify({
@@ -139,18 +142,21 @@ class RegisterPageModel extends BasePageModel {
             }
           })
         });
-      } else route.continue();
+      } else route.fallback();
     });
   };
 
   #mockConfirmUser = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
-      if (request.method() === 'POST') {
+      if (
+        request.headers()['x-amz-target'] ===
+        'AWSCognitoIdentityProviderService.ConfirmSignUp'
+      ) {
         route.fulfill({
           status: 200,
           body: JSON.stringify({})
         });
-      } else route.continue();
+      } else route.fallback();
     });
   };
 }

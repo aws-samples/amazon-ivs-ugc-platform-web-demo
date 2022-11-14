@@ -12,9 +12,8 @@
     "npm": ">=8.3.0"
   },
   "scripts": {
-    "test:e2e:clean": "rimraf test-results/* screenshots/*",
     "test:e2e:build": "BUILD_PATH='./e2e/build' dotenv -e .env.test -- npm run build --prefix ../",
-    "pretest:e2e": "npm run test:e2e:clean && npm run test:e2e:build",
+    "pretest:e2e": "npm run test:e2e:build",
     "test:e2e": "sh run-tests.sh",
     "test:e2e:update": "npm run test:e2e -- --update-snapshots",
     "pretest:e2e:ci": "npm run test:e2e:build",

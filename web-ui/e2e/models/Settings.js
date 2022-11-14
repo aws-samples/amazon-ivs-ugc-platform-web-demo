@@ -166,7 +166,7 @@ class SettingsPageModel extends BasePageModel {
             status: 200,
             body: JSON.stringify({ streamKeyValue: newStreamKeyValue })
           });
-        } else route.continue();
+        } else route.fallback();
       }
     );
   };

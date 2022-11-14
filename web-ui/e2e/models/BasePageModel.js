@@ -18,6 +18,14 @@ class BasePageModel {
     this.route = route;
   }
 
+  get userResourcesCreated() {
+    return this.#resourcesCreated;
+  }
+
+  set streamKeyValue(newStreamKeyValue) {
+    this.#streamKeyValue = newStreamKeyValue;
+  }
+
   init = async () => {
     await this.#mockGetUser();
     await this.#mockCreateResources();
@@ -29,14 +37,6 @@ class BasePageModel {
 
     await this.navigate();
   };
-
-  get userResourcesCreated() {
-    return this.#resourcesCreated;
-  }
-
-  set streamKeyValue(newStreamKeyValue) {
-    this.#streamKeyValue = newStreamKeyValue;
-  }
 
   navigate = async (path) => {
     let url = path || this.route;
@@ -75,7 +75,7 @@ class BasePageModel {
               body: JSON.stringify({ __type: 'UnexpectedException' })
             });
           }
-        } else route.continue();
+        } else route.fallback();
       }
     );
   };
@@ -90,7 +90,7 @@ class BasePageModel {
             status: 200,
             body: JSON.stringify({})
           });
-        } else route.continue();
+        } else route.fallback();
       }
     );
   };

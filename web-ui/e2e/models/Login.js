@@ -73,7 +73,8 @@ class LoginPageModel extends BasePageModel {
     // Note: Promise.all prevents a race condition between clicking and waiting for the main frame to navigate
     await Promise.all([
       this.page.waitForNavigation(),
-      this.signInButtonLoc.click()
+      this.signInButtonLoc.click(),
+      this.page.resetCursorPosition()
     ]);
     await expect(this.page).toHaveURL(new RegExp(`${this.baseURL}/`));
   };
@@ -113,7 +114,10 @@ class LoginPageModel extends BasePageModel {
 
   #mockSignIn = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
-      if (request.method() === 'POST') {
+      if (
+        request.headers()['x-amz-target'] ===
+        'AWSCognitoIdentityProviderService.InitiateAuth'
+      ) {
         const { accessToken, idToken, refreshToken } =
           getMockCognitoSessionTokens();
 
@@ -130,7 +134,7 @@ class LoginPageModel extends BasePageModel {
             ChallengeParameters: {}
           })
         });
-      }
+      } else route.fallback();
     });
   };
 }

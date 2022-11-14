@@ -1,6 +1,6 @@
 // @ts-check
-const { RegisterPageModel } = require('../../models');
-const { extendTestFixtures } = require('../../utils');
+const { RegisterPageModel } = require('../models');
+const { extendTestFixtures } = require('../utils');
 
 const test = extendTestFixtures(
   [{ name: 'registerPage', PageModel: RegisterPageModel }],

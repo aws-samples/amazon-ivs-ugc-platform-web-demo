@@ -1,6 +1,6 @@
 // @ts-check
-const { ResetPageModel } = require('../../models');
-const { extendTestFixtures } = require('../../utils');
+const { ResetPageModel } = require('../models');
+const { extendTestFixtures } = require('../utils');
 
 const test = extendTestFixtures(
   [{ name: 'resetPage', PageModel: ResetPageModel }],

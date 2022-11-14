@@ -1,8 +1,8 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
-const { LoginPageModel } = require('../../models');
-const { extendTestFixtures } = require('../../utils');
+const { LoginPageModel } = require('../models');
+const { extendTestFixtures } = require('../utils');
 
 const test = extendTestFixtures(
   [{ name: 'loginPage', PageModel: LoginPageModel }],

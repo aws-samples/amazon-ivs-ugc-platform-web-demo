@@ -114,7 +114,7 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
           }
         }, testInfo.project.name);
 
-      // Resets the mouse cursor position to
+      // Resets the mouse cursor position to (0,0)
       page.resetCursorPosition = async () => await page.mouse.move(0, 0);
 
       await use(page);

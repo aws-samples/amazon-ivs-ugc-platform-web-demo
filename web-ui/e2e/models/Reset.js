@@ -113,19 +113,22 @@ class ResetPageModel extends BasePageModel {
             status: 200,
             body: JSON.stringify({})
           });
-        } else route.continue();
+        } else route.fallback();
       }
     );
   };
 
   #mockPasswordReset = async () => {
     await this.page.route(COGNITO_IDP_URL_REGEX, (route, request) => {
-      if (request.method() === 'POST') {
+      if (
+        request.headers()['x-amz-target'] ===
+        'AWSCognitoIdentityProviderService.ConfirmForgotPassword'
+      ) {
         route.fulfill({
           status: 200,
           body: JSON.stringify({})
         });
-      }
+      } else route.fallback();
     });
   };
 }
