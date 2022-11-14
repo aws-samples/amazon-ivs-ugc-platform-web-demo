@@ -1,5 +1,5 @@
 *.js
-!sanitize-output.js
+!/scripts/*
 !.prettierrc.js
 *.d.ts
 node_modules
@@ -8,6 +8,7 @@ cdk.context.json
 
 # temp
 temp_out.json
+seed_temp_out.txt
 
 # CDK asset staging directory
 .cdk.staging

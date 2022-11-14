@@ -8,6 +8,7 @@ PUBLISH				?=	false
 STACK 				?=	UGC-$(STAGE)
 CDK_OPTIONS 		=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK)
 FE_DEPLOYMENT_STACK	=	UGC-Frontend-Deployment-$(STAGE)
+SEED_COUNT ?= 50
 
 help: ## Shows this help message
 	@echo "\n$$(tput bold)Available Rules:$$(tput sgr0)\n"
@@ -21,6 +22,8 @@ help: ## Shows this help message
 	@echo "   Option 1: export AWS_PROFILE=user1\n"
 	@echo "   Option 2: make <target> AWS_PROFILE=user1\n"
 	@echo "2. Set the STAGE value to \"dev\" or \"prod\" to use the corresponding configuration. The default value is \"dev\". \n" | fold -s
+	@echo "3. AWS CLI is required to run the seed command (https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html). \n"
+	@echo "4. Add JSON=<file_path> as an argument for the seed command to use a JSON file to create data. Furthermore, the script will create randomly generated data to match the SEED_COUNT. \n"
 
 app: install bootstrap deploy ## Installs NPM dependencies, bootstraps, and deploys the stack
 
@@ -56,3 +59,15 @@ destroy: clean ## Destroys the stack and cleans up
 clean: ## Deletes the cloud assembly directory (cdk.out)
 	@echo "Cleaning..."
 	rm -rf cdk.out
+
+seed: ## Seed users and stream sessions.
+	@echo "Seeding ${SEED_COUNT} Items..."
+	aws cloudformation describe-stacks --stack-name ${STACK} $(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) --query "Stacks[0].Outputs[?OutputKey=='containerEnvStr'].OutputValue" --output text > seed_temp_out.txt
+	node scripts/run-seeder ${SEED_COUNT} ${JSON}
+	rm seed_temp_out.txt
+
+deleteSeed: ## Delete all seeded users and stream sessions.
+	@echo "Deleting Seeds..."
+	aws cloudformation describe-stacks --stack-name ${STACK} $(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) --query "Stacks[0].Outputs[?OutputKey=='containerEnvStr'].OutputValue" --output text > seed_temp_out.txt
+	node scripts/delete-seeder
+	rm seed_temp_out.txt
