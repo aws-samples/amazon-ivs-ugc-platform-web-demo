@@ -9,6 +9,7 @@ import {
   aws_iam as iam,
   aws_s3 as s3,
   CfnOutput,
+  Duration,
   RemovalPolicy,
   Stack,
   StackProps
@@ -262,39 +263,51 @@ export class UGCStack extends Stack {
     }
 
     // Cloudfront Distribution
-    const defaultDistributionProps = {
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER
-    };
     const defaultOriginProps = {
       protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY
+    };
+    const defaultLoadBalancerOrigin = new origins.LoadBalancerV2Origin(
+      defaultLoadBalancer,
+      defaultOriginProps
+    );
+    const defaultBehavior = {
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      origin: defaultLoadBalancerOrigin
+    };
+    const additionalBehaviors = {
+      // When the stack is deployed in separate containers, link the metrics endpoints to the correct load balancer
+      ...(metricsLoadBalancer
+        ? {
+            '/metrics/*': {
+              ...defaultBehavior,
+              origin: new origins.LoadBalancerV2Origin(
+                metricsLoadBalancer,
+                defaultOriginProps
+              )
+            }
+          }
+        : {}),
+      '/channels': {
+        ...defaultBehavior,
+        cachePolicy: new cloudfront.CachePolicy(
+          this,
+          `${stackNamePrefix}-channelsResource-CachePolicy`,
+          {
+            defaultTtl: Duration.seconds(1),
+            enableAcceptEncodingBrotli: true,
+            enableAcceptEncodingGzip: true,
+            queryStringBehavior:
+              cloudfront.CacheQueryStringBehavior.allowList('isLive')
+          }
+        )
+      }
     };
     const distribution = new cloudfront.Distribution(
       this,
       `${stackNamePrefix}-CFDistribution`,
-      {
-        ...(metricsLoadBalancer
-          ? {
-              additionalBehaviors: {
-                '/metrics/*': {
-                  ...defaultDistributionProps,
-                  origin: new origins.LoadBalancerV2Origin(
-                    metricsLoadBalancer,
-                    defaultOriginProps
-                  )
-                }
-              }
-            }
-          : {}),
-        defaultBehavior: {
-          ...defaultDistributionProps,
-          origin: new origins.LoadBalancerV2Origin(
-            defaultLoadBalancer,
-            defaultOriginProps
-          )
-        }
-      }
+      { additionalBehaviors, defaultBehavior }
     );
 
     const containerEnvStr = `${Object.entries({

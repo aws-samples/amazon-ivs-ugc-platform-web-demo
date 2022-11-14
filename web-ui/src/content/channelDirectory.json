@@ -1,5 +1,12 @@
 {
   "live_streams_section": {
-    "title": "Live streams"
+    "title": "Live streams",
+    "no_streams_available": "No live streams available",
+    "try_again": "Try again"
+  },
+  "notification": {
+    "error": {
+      "error_loading_streams": "Error loading streams"
+    }
   }
 }

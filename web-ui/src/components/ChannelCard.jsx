@@ -20,9 +20,14 @@ const ChannelCard = ({ avatar, color, username }) => {
     <Link
       className={clsm([
         'button',
+        'dark:focus:ring-white',
         'flex-col',
         'flex',
+        'focus:outline-none',
+        'focus:ring-2',
+        'focus:ring-black',
         'group',
+        'rounded-xl',
         'transition-transform',
         'w-auto',
         !isTouchscreenDevice && 'hover:scale-110',

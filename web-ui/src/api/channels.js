@@ -7,3 +7,6 @@ export const getUserChannelData = async (username) => {
 
   return await _fetch({ url: `${apiBaseUrl}/channels/${username}` });
 };
+
+export const getLiveChannels = (username) =>
+  unauthFetch({ url: `${apiBaseUrl}/channels?isLive=true` });
