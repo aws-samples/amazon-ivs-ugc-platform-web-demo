@@ -21,7 +21,8 @@ test.describe('Login Page', () => {
         ['/', 200], // Cognito authenticate user
         ['/channel', 500], // Get user data (first call fails as user resources have not been created)
         ['/channel/resources/create', 200], // Create user resources
-        ['/channel', 200] // Get user data
+        ['/channel', 200], // Get user data
+        ['/channels', 200] // Get live channels
       ]);
 
       // Ensure that navigating back after logging in does not redirect the user back to the login page

@@ -2,12 +2,6 @@
   "name": "e2e",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@playwright/test": "^1.27.1",
-    "amazon-cognito-identity-js": "^5.2.12",
-    "jsonwebtoken": "^8.5.1",
-    "uuid": "^9.0.0"
-  },
   "engines": {
     "npm": ">=8.3.0"
   },
@@ -20,7 +14,11 @@
     "test:e2e:ci": "npx playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.27.1",
+    "amazon-cognito-identity-js": "^5.2.12",
     "dotenv-cli": "^6.0.0",
-    "serve": "^14.1.0"
+    "jsonwebtoken": "^8.5.1",
+    "serve": "^14.1.0",
+    "uuid": "^9.0.0"
   }
 }

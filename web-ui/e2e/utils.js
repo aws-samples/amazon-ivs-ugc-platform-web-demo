@@ -208,8 +208,15 @@ const getMockCognitoSessionTokens = (
   return { accessToken, idToken, refreshToken };
 };
 
-const getCloudfrontURLRegex = (endpoint) =>
-  new RegExp(`^https://([A-Za-z0-9-]+).cloudfront.net${endpoint}$`);
+const getCloudfrontURLRegex = (endpoint, queryParams = {}) => {
+  const urlSearchParams = new URLSearchParams(queryParams);
+  const urlSearchParamsStr = urlSearchParams.toString();
+  const queryString = urlSearchParamsStr ? `\\?${urlSearchParamsStr}` : '';
+
+  return new RegExp(
+    `^https://([A-Za-z0-9-]+).cloudfront.net${endpoint}${queryString}$`
+  );
+};
 
 const COGNITO_IDP_URL_REGEX = new RegExp(
   '^https://cognito-idp.([A-Za-z0-9-]+).amazonaws.com/$'

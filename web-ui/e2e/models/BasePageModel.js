@@ -28,6 +28,7 @@ class BasePageModel {
 
   init = async () => {
     await this.#mockGetUser();
+    await this.#mockGetChannels();
     await this.#mockCreateResources();
 
     const localStorage = await this.page.getLocalStorage();
@@ -66,7 +67,9 @@ class BasePageModel {
                 playbackUrl:
                   'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
                 streamKeyValue: this.#streamKeyValue,
-                username: 'testUser'
+                username: 'testUser',
+                color: 'salmon',
+                avatar: 'bird'
               })
             });
           } else {
@@ -75,6 +78,23 @@ class BasePageModel {
               body: JSON.stringify({ __type: 'UnexpectedException' })
             });
           }
+        } else route.fallback();
+      }
+    );
+  };
+
+  #mockGetChannels = async () => {
+    await this.page.route(
+      getCloudfrontURLRegex('/channels', { isLive: true }),
+      (route, request) => {
+        if (request.method() === 'GET') {
+          route.fulfill({
+            status: 200,
+            body: JSON.stringify({
+              channels: [],
+              maxResults: 50
+            })
+          });
         } else route.fallback();
       }
     );
