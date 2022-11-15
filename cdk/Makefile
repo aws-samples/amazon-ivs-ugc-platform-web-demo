@@ -39,7 +39,7 @@ deploy: ## Deploys the stack
 	@echo "Deploying $(STACK)..."
 	npx cdk deploy $(STACK) --outputs-file temp_out.json $(CDK_OPTIONS)
 	@echo "Sanitizing CDK output..."
-	node sanitize-output $(STACK)
+	node scripts/sanitize-output $(STACK)
 	rm temp_out.json
 	@echo "\n$$(tput bold) ✅ $(STACK) Deployed Successfully $$(tput sgr0)\n"
 	@if [ $(PUBLISH) = true ]; then\
