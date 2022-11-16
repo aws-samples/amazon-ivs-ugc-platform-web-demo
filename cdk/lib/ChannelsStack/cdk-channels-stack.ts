@@ -13,6 +13,7 @@ import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
+  tags: { [key: string]: string };
 }
 
 export class ChannelsStack extends NestedStack {
@@ -28,7 +29,7 @@ export class ChannelsStack extends NestedStack {
     super(scope, id, props);
 
     const stackNamePrefix = 'Channels';
-    const { resourceConfig } = props;
+    const { resourceConfig, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const { enableUserAutoVerify, ivsChannelType, signUpAllowedDomains } =
@@ -140,7 +141,8 @@ export class ChannelsStack extends NestedStack {
         'ivs:DeleteChannel',
         'ivs:DeleteStreamKey',
         'ivs:StopStream',
-        'ivs:PutMetadata'
+        'ivs:PutMetadata',
+        'ivs:TagResource'
       ],
       effect: iam.Effect.ALLOW,
       resources: ['*']
@@ -152,7 +154,8 @@ export class ChannelsStack extends NestedStack {
         'ivschat:DeleteMessage',
         'ivschat:DeleteRoom',
         'ivschat:DisconnectUser',
-        'ivschat:SendEvent'
+        'ivschat:SendEvent',
+        'ivschat:TagResource'
       ],
       effect: iam.Effect.ALLOW,
       resources: ['*']
@@ -182,7 +185,8 @@ export class ChannelsStack extends NestedStack {
       IVS_CHANNEL_TYPE: ivsChannelType,
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,
-      CHANNELS_TABLE_NAME: channelsTable.tableName
+      CHANNELS_TABLE_NAME: channelsTable.tableName,
+      PROJECT_TAG: tags.project
     };
     this.containerEnv = containerEnv;
 

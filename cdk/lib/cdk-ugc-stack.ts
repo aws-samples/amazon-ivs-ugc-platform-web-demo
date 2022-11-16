@@ -12,7 +12,8 @@ import {
   Duration,
   RemovalPolicy,
   Stack,
-  StackProps
+  StackProps,
+  Tags
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -24,14 +25,14 @@ import Service from './Constructs/Service';
 
 interface UGCDashboardStackProps extends StackProps {
   resourceConfig: UGCResourceWithChannelsConfig;
-  shouldPublish: string;
+  shouldPublish: boolean;
 }
 
 export class UGCStack extends Stack {
   constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
-    const { resourceConfig, shouldPublish } = props;
+    const { resourceConfig, shouldPublish, tags = {} } = props;
     const {
       deploySeparateContainers,
       ivsChannelType,
@@ -116,25 +117,30 @@ export class UGCStack extends Stack {
     );
 
     // Channels Stack
+    const channelsStack = new ChannelsStack(this, 'Channels', {
+      resourceConfig,
+      tags
+    });
     const {
       containerEnv: channelsContainerEnv,
       outputs: { userPoolId, userPoolClientId, channelsTable },
       policies: channelsPolicies
-    } = new ChannelsStack(this, 'Channels', {
-      resourceConfig
-    });
+    } = channelsStack;
+    Tags.of(channelsStack).add('nestedStack', 'channels');
 
     // Metrics Stack
-    const {
-      containerEnv: metricsContainerEnv,
-      policies: metricsPolicies,
-      outputs: metricsOutputs
-    } = new MetricsStack(this, 'Metrics', {
+    const metricsStack = new MetricsStack(this, 'Metrics', {
       cluster,
       ivsChannelType,
       channelsTable,
       vpc
     });
+    const {
+      containerEnv: metricsContainerEnv,
+      policies: metricsPolicies,
+      outputs: metricsOutputs
+    } = metricsStack;
+    Tags.of(metricsStack).add('nestedStack', 'metrics');
 
     // Attach extra policies and env variables to the Channels stack
     const { streamTable } = metricsOutputs;

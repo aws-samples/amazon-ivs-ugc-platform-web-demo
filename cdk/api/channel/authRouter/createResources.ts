@@ -37,12 +37,14 @@ const handler = async (
     const channelName = `${cleanedUserName}s-channel`;
     const createChannelCommand = new CreateChannelCommand({
       name: channelName,
-      type: process.env.IVS_CHANNEL_TYPE as ChannelType
+      type: process.env.IVS_CHANNEL_TYPE as ChannelType,
+      tags: { project: process.env.PROJECT_TAG as string }
     });
 
     // Create IVS chat room
     const createRoomCommand = new CreateRoomCommand({
-      name: `${cleanedUserName}s-room`
+      name: `${cleanedUserName}s-room`,
+      tags: { project: process.env.PROJECT_TAG as string }
     });
 
     let channelArn,
