@@ -71,6 +71,7 @@ const StreamManagerActionButton = forwardRef(
 
     return (
       <button
+        data-testid={`stream-manager-${name}-action-button`}
         ref={ref}
         onClick={handleClick}
         aria-label={ariaLabel}

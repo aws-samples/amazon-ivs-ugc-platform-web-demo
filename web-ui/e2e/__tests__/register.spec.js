@@ -14,14 +14,15 @@ test.describe('Register Page', () => {
         navigate,
         createAccount,
         resendEmailVerification,
-        confirmUser
+        confirmUser,
+        username
       },
       page
     }) => {
       const expectedResponses = [];
 
       // Create a new account by clicking and filling all the inputs in the registration form
-      await createAccount('testUser', 'testuser@ugc.com', 'Passw0rd!');
+      await createAccount(username, 'testuser@ugc.com', 'Passw0rd!');
       await page.takeScreenshot('new-user-registration-complete');
       expectedResponses.push(['/channel/register', 200]); // Register a new user account
       await page.assertResponses(expectedResponses);
@@ -37,7 +38,7 @@ test.describe('Register Page', () => {
       await page.assertResponses(expectedResponses);
 
       // Navigate to the link found in the verification email to confirm the new user account
-      await confirmUser(123456, 'testUser');
+      await confirmUser(123456, username);
       expectedResponses.push(['/', 200]); // Cognito confirm registration
       await page.assertResponses(expectedResponses);
 

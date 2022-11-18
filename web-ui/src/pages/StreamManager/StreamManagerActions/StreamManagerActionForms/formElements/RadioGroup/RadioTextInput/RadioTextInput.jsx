@@ -39,6 +39,7 @@ const StreamManagerRadioTextInput = forwardRef(
             aria-label={value}
             checked={isChecked}
             className={clsm(['radio', hasRadioError && 'error'])}
+            data-testid={`${name}-${value}-radio-button`}
             name={name}
             onChange={onClick}
             type="radio"
@@ -56,6 +57,7 @@ const StreamManagerRadioTextInput = forwardRef(
         </div>
         {onDelete && (
           <Button
+            data-testid={`delete-${value || name}-item-button`}
             variant="icon"
             onClick={onDelete}
             className={clsm([

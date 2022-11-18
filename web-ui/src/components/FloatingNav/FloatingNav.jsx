@@ -69,7 +69,7 @@ const FloatingNav = ({ siblingRef }) => {
     >
       {({ isOpen, toggle, toggleRef }) => (
         <Button
-          data-test-id="floating-menu-toggle"
+          data-testid="floating-menu-toggle"
           className={clsm([
             'w-12',
             'h-12',

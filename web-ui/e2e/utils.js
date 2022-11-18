@@ -88,7 +88,7 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
          */
         await expect
           .poll(() => page.fetchResponses.length, { timeout: 2000 })
-          .toEqual(expected.length);
+          .toBeGreaterThanOrEqual(expected.length);
 
         /**
          * Assert the pathname and status of each response, in the correct order that they occurred in.
@@ -99,7 +99,7 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
             new URL(response.url()).pathname,
             response.status()
           ])
-        ).toEqual(expected);
+        ).toEqual(expect.arrayContaining(expected));
       };
 
       // Read the current text value stored in the clipboard

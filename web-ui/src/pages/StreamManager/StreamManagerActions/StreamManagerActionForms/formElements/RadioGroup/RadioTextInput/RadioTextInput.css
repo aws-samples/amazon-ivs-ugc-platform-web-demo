@@ -1,10 +1,10 @@
 .radio[type='radio'] {
-  @apply appearance-none inline-block cursor-pointer leading-4 outline-none align-top;
+  @apply appearance-none inline-block cursor-pointer leading-4 outline-none align-top absolute left-0 w-5 h-5 top-[22px];
 }
 
 .radio[type='radio']:before,
 .radio[type='radio']:after {
-  @apply absolute left-0 w-5 h-5 rounded-full top-[22px] -translate-y-1/2 content-[''];
+  @apply absolute left-0 top-0 w-5 h-5 rounded-full -translate-y-1/2 content-[''];
 }
 
 .radio[type='radio']:before {

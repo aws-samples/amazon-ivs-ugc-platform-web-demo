@@ -12,13 +12,17 @@ const {
   REACT_APP_API_BASE_URL,
   REACT_APP_COGNITO_USER_POOL_ID,
   REACT_APP_COGNITO_USER_POOL_CLIENT_ID,
-  REACT_APP_REGION
+  REACT_APP_REGION,
+  REACT_APP_E2E_TEST,
+  REACT_APP_WEB_SOCKET_SERVER_PORT = 8081
 } = process.env;
 
 export const apiBaseUrl = REACT_APP_API_BASE_URL;
 const userPoolId = REACT_APP_COGNITO_USER_POOL_ID;
 const userPoolClientId = REACT_APP_COGNITO_USER_POOL_CLIENT_ID;
 const region = REACT_APP_REGION;
+const isE2eTestBuild = REACT_APP_E2E_TEST;
+const webSocketServerPort = REACT_APP_WEB_SOCKET_SERVER_PORT;
 
 if (!apiBaseUrl || !userPoolId || !userPoolClientId || !region)
   console.error(
@@ -28,7 +32,10 @@ if (!apiBaseUrl || !userPoolId || !userPoolClientId || !region)
     )
   );
 
-export const ivsChatWebSocketEndpoint = `wss://edge.ivschat.${region}.amazonaws.com`;
+export const ivsChatWebSocketEndpoint =
+  isE2eTestBuild === 'true'
+    ? `ws://localhost:${webSocketServerPort}/ws`
+    : `wss://edge.ivschat.${region}.amazonaws.com`;
 
 const COGNITO_PARAMS = { UserPoolId: userPoolId, ClientId: userPoolClientId };
 export const userPool = new CognitoUserPool(COGNITO_PARAMS);

@@ -93,6 +93,7 @@ const Sidebar = () => {
                   {renderWithTooltip(
                     <Button
                       ariaLabel={`Go to the ${displayName} page`}
+                      data-testid={`${pageName}-button`}
                       type="nav"
                       to={route}
                       variant="tertiaryText"
@@ -100,7 +101,6 @@ const Sidebar = () => {
                         ['w-auto', 'min-w-full', 'py-1.5'], // Default styles
                         isSessionValid ? 'px-1.5' : 'px-3'
                       )}
-                      data-test-id={`${pageName}-button`}
                     >
                       <span
                         className={clsm(
@@ -177,10 +177,10 @@ const Sidebar = () => {
                   'hover:bg-lightMode-gray-light-hover'
                 ]
               )}
+              data-testid="sidebar-avatar"
               onClick={() => toggle()}
               variant="icon"
               ref={toggleRef}
-              data-test-id="sidebar-avatar"
             >
               {hasAvatar && (
                 <img
@@ -210,7 +210,6 @@ const Sidebar = () => {
             variant="secondary"
             to="/login"
             saveLocationFromState
-            data-test-id="sidebar-login"
           >
             {$content.log_in}
           </Button>

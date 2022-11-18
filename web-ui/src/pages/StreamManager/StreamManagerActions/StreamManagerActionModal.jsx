@@ -19,7 +19,8 @@ const $content = $streamManagerContent.stream_manager_actions;
 const StreamManagerActionModal = forwardRef((_, ref) => {
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
-  const { title, confirmText, streamManagerActionContent } = content || {};
+  const { actionName, title, confirmText, streamManagerActionContent } =
+    content || {};
   const { getStreamManagerActionData, isSendingStreamAction } =
     useStreamManagerActions();
   const { isMobileView, isLandscape } = useResponsiveDevice();
@@ -84,6 +85,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
     !!content &&
     renderStreamManagerAction(
       <form
+        data-testid={`${actionName}-stream-action-form`}
         ref={ref}
         onSubmit={send}
         className={clsm(
@@ -149,7 +151,8 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
           </div>
         </div>
         <Button
-          ariaLabel={`Close the modal for the stream action named ${title}`}
+          ariaLabel="Close the modal"
+          data-testid="stream-action-modal-close-button"
           className={clsm([
             '[&>svg]:dark:fill-white',
             '[&>svg]:fill-darkMode-gray-dark',

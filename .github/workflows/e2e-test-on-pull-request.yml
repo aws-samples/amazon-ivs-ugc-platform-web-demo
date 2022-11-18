@@ -40,7 +40,7 @@ jobs:
 
       - name: Retrieve Playwright Version
         id: playwright-version
-        run: echo "::set-output name=version::`npm list @playwright/test | grep -m1 @playwright/test | awk -F'@' '{ print $NF }' | tr -d '"'`"
+        run: echo "version=`npm list @playwright/test | grep -m1 @playwright/test | awk -F'@' '{ print $NF }' | tr -d '"'`" >> $GITHUB_OUTPUT
 
       # The cache key is automatically updated any time the Playwright package version
       # is updated in the package.json file, which will invalidate the cache, download

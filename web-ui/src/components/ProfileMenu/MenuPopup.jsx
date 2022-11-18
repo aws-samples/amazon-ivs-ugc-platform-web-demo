@@ -90,9 +90,9 @@ const Popup = forwardRef(
                 'dark:[&>div]:hover:bg-darkMode-gray-hover'
               ]
             )}
+            data-testid="profileMenu-avatar"
             to={`/${username}`}
             type="nav"
-            data-test-id="profileMenu-avatar"
           >
             <UserAvatar avatarName={avatarName} profileColor={profileColor} />
             <p className="truncate">{username || $content.profile}</p>
@@ -104,9 +104,9 @@ const Popup = forwardRef(
             <Fragment key={label}>
               <Button
                 {...commonMenuButtonProps}
+                data-testid={`${pageName}-button`}
                 type="nav"
                 to={to}
-                data-test-id={`${pageName}-button`}
               >
                 {icon}
                 <p className="truncate">{label}</p>
@@ -118,11 +118,7 @@ const Popup = forwardRef(
           ))}
 
           {/* LOGOUT BUTTON */}
-          <Button
-            {...commonMenuButtonProps}
-            onClick={() => logOut('logOut')}
-            data-test-id="profileMenu-logout"
-          >
+          <Button {...commonMenuButtonProps} onClick={() => logOut('logOut')}>
             <Logout />
             <p className="truncate">{$content.log_out}</p>
           </Button>

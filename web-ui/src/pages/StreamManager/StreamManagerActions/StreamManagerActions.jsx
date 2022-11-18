@@ -73,6 +73,7 @@ const StreamManagerActions = () => {
 
             openStreamManagerActionModal(actionName, {
               content: {
+                actionName,
                 confirmText: $content.confirm_text,
                 streamManagerActionContent:
                   STREAM_MANAGER_ACTION_MODAL_FORMS[actionName],

@@ -12,17 +12,16 @@ const test = extendTestFixtures(
 test.describe('Login Page', () => {
   test.describe('General Cases', () => {
     test('should login a user and check that an authenticated user cannot navigate to the login page', async ({
-      loginPage: { login },
+      loginPage: { login, username },
       page
     }) => {
-      await login('testUser', 'Passw0rd!');
+      await login(username, 'Passw0rd!');
       await page.takeScreenshot('user-login');
       await page.assertResponses([
         ['/', 200], // Cognito authenticate user
         ['/channel', 500], // Get user data (first call fails as user resources have not been created)
         ['/channel/resources/create', 200], // Create user resources
-        ['/channel', 200], // Get user data
-        ['/channels', 200] // Get live channels
+        ['/channel', 200] // Get user data
       ]);
 
       // Ensure that navigating back after logging in does not redirect the user back to the login page

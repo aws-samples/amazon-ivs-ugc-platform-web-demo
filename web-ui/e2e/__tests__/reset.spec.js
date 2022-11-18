@@ -14,7 +14,8 @@ test.describe('Reset Page', () => {
         sendPasswordResetRequest,
         resendPasswordRequest,
         resetPassword,
-        mockPasswordResetRequest
+        mockPasswordResetRequest,
+        username
       },
       page
     }) => {
@@ -36,7 +37,7 @@ test.describe('Reset Page', () => {
       await page.assertResponses(expectedResponses);
 
       // Navigate to the link found in the verification email to set a new password
-      await resetPassword(123456, 'testUser', 'NewPassword0!');
+      await resetPassword(123456, username, 'NewPassword0!');
       expectedResponses.push(['/', 200]); // Cognito confirm password
       await page.assertResponses(expectedResponses);
     });

@@ -30,16 +30,14 @@ class LoginPageModel extends BasePageModel {
     );
 
     this.sidebarAvatarButtonLoc = page.locator(
-      'button[data-test-id="sidebar-avatar"]'
+      'button[data-testid="sidebar-avatar"]'
     );
-    this.logoutButtonLoc = page.locator(
-      'button[data-test-id="profileMenu-logout"]'
-    );
+    this.logoutButtonLoc = page.getByText('Log out');
     this.floatingMenuToggleLoc = page.locator(
-      'data-test-id=floating-menu-toggle'
+      'data-testid=floating-menu-toggle'
     );
     this.logoutFloatingMenuButtonLoc = page.locator(
-      'data-test-id=logout-action'
+      'data-testid=logout-action'
     );
   }
 
@@ -81,7 +79,7 @@ class LoginPageModel extends BasePageModel {
 
   logout = async (hasHamburgerBtn) => {
     // Login a new test user
-    await this.login('testUser', 'Passw0rd!');
+    await this.login(this.username, 'Passw0rd!');
     let profileMenuBtn;
     if (hasHamburgerBtn) {
       profileMenuBtn = this.floatingMenuToggleLoc;

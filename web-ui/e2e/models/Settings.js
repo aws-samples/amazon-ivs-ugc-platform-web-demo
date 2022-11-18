@@ -33,13 +33,13 @@ class SettingsPageModel extends BasePageModel {
       .locator('button:has-text("Copy")');
 
     /* Other Locators */
-    this.currentModalLoc = this.page.locator('div[data-test-id="modal"]');
+    this.currentModalLoc = this.page.locator('div[data-testid="modal"]');
     this.returnToStreamHealthButtonLoc = page.locator(
-      'a[data-test-id="stream_health-button"]'
+      'a[data-testid="stream_health-button"]'
     );
     this.notifLoc = this.page.locator('.notification');
     this.hamburgerButtonLoc = page.locator(
-      'button[data-test-id="floating-menu-toggle"]'
+      'button[data-testid="floating-menu-toggle"]'
     );
   }
 
@@ -48,8 +48,9 @@ class SettingsPageModel extends BasePageModel {
     const settingsPage = new SettingsPageModel(page, baseURL);
     SettingsPageModel.#isInternalConstructing = false;
 
-    await settingsPage.init();
     await settingsPage.#mockResetStreamKey();
+
+    await settingsPage.init();
 
     return settingsPage;
   };
@@ -64,9 +65,6 @@ class SettingsPageModel extends BasePageModel {
 
     // Click the 'Reset' button in the Reset Stream Key form
     await this.resetStreamKeyButtonLoc.click();
-    await (
-      await this.page.waitForSelector('div[data-test-id="modal"]')
-    ).waitForElementState('stable');
     await this.page.takeScreenshot('reset-stream-key-confirmation');
 
     // Check that a modal has popped up containing the proper message
@@ -143,7 +141,7 @@ class SettingsPageModel extends BasePageModel {
      * When hamburger button is visible (Mobile), click it and wait for profile menu to click stream health button.
      */
     const hasHamburgerBtn = await this.page.$(
-      'button[data-test-id="floating-menu-toggle"]'
+      'button[data-testid="floating-menu-toggle"]'
     );
     if (!!hasHamburgerBtn) {
       await this.hamburgerButtonLoc.click();

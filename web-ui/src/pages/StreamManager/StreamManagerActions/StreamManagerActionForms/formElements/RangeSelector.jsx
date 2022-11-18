@@ -29,6 +29,7 @@ const RangeSelector = ({
       <div className={clsm(['flex', 'space-x-4', 'items-center'])}>
         <InputRange
           onChange={handleOnChange}
+          name={`${name}-range-input`}
           value={value || min}
           min={min}
           max={max}

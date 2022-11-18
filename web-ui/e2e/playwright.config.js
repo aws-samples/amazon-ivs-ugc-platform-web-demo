@@ -3,6 +3,7 @@ const { devices } = require('@playwright/test');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const WEB_SOCKET_SERVER_PORT = process.env.WEB_SOCKET_SERVER_PORT || 8081;
 const CI_PROJECTS = ['chromium', 'Mobile Safari'];
 
 const getRunnableProjects = (projects) => {
@@ -58,7 +59,7 @@ const config = {
     /* Capture a screenshot after each test */
     screenshot: 'on',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'retain-on-failure',
+    trace: process.env.CI ? 'retain-on-failure' : 'on',
     /* Tell all tests to load signed-in state from 'storageState.json'. */
     storageState: path.join(__dirname, 'storageState.json')
   },
@@ -121,12 +122,19 @@ const config = {
   outputDir: path.join(__dirname, 'test-results'),
 
   /* Serve the production build locally before starting the tests */
-  webServer: {
-    command: `serve -s build -l ${PORT}`,
-    port: PORT,
-    reuseExistingServer: !process.env.CI,
-    timeout: 10 * 1000
-  }
+  webServer: [
+    {
+      command: `serve -s build -l ${PORT}`,
+      port: PORT,
+      reuseExistingServer: !process.env.CI,
+      timeout: 10 * 1000
+    },
+    {
+      command: 'node ./__mocks__/webSocketServer.js',
+      port: WEB_SOCKET_SERVER_PORT,
+      reuseExistingServer: !process.env.CI
+    }
+  ]
 };
 
 module.exports = config;

@@ -30,7 +30,7 @@ const Modal = ({ children, className }) => {
     <m.div
       className={clsm([
         'p-8',
-        'm-[length:var(--mobile-x-spacing)]',
+        'm-[var(--mobile-x-spacing)]',
         'rounded-3xl',
         'bg-lightMode-gray-light',
         'dark:bg-darkMode-gray',
@@ -45,7 +45,7 @@ const Modal = ({ children, className }) => {
         visible: { opacity: 1, y: 0 },
         hidden: { opacity: 0.5, y: 25 }
       }}
-      data-test-id="modal"
+      data-testid="modal"
     >
       {children}
     </m.div>

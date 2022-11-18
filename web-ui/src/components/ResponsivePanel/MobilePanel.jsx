@@ -46,6 +46,7 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
 
   return (
     <m.div
+      data-testid={`mobile-panel-${panelId}`}
       ref={panelRef}
       className={clsm(['absolute', 'h-full', 'w-full', 'pointer-events-auto'])}
       transition={{ duration: 0.25, type: 'tween' }}

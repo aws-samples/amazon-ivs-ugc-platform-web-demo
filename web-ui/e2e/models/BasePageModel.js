@@ -6,6 +6,7 @@ const { isValidUrl, getCloudfrontURLRegex } = require('../utils');
 class BasePageModel {
   #resourcesCreated = false;
   #streamKeyValue = 'sk_mock-region_mock-stream-key';
+  #username = 'testUser';
 
   /**
    * @param {import('@playwright/test').Page} page
@@ -22,12 +23,17 @@ class BasePageModel {
     return this.#resourcesCreated;
   }
 
+  get username() {
+    return this.#username;
+  }
+
   set streamKeyValue(newStreamKeyValue) {
     this.#streamKeyValue = newStreamKeyValue;
   }
 
   init = async () => {
     await this.#mockGetUser();
+    await this.#mockGetUserChannelData();
     await this.#mockGetChannels();
     await this.#mockCreateResources();
 
@@ -35,6 +41,8 @@ class BasePageModel {
     const { value: resourcesCreated = 'false' } =
       localStorage?.find(({ name }) => name === 'resourcesCreated') || {};
     this.#resourcesCreated = resourcesCreated === 'true';
+
+    await this.page.emulateMedia({ colorScheme: 'light' });
 
     await this.navigate();
   };
@@ -67,7 +75,7 @@ class BasePageModel {
                 playbackUrl:
                   'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
                 streamKeyValue: this.#streamKeyValue,
-                username: 'testUser',
+                username: this.#username,
                 color: 'salmon',
                 avatar: 'bird'
               })
@@ -78,6 +86,23 @@ class BasePageModel {
               body: JSON.stringify({ __type: 'UnexpectedException' })
             });
           }
+        } else route.fallback();
+      }
+    );
+  };
+
+  #mockGetUserChannelData = async () => {
+    await this.page.route(
+      getCloudfrontURLRegex(`/channels/${this.#username}`),
+      (route, request) => {
+        if (request.method() === 'GET') {
+          route.fulfill({
+            status: 200,
+            body: JSON.stringify({
+              username: this.#username,
+              isViewerBanned: false
+            })
+          });
         } else route.fallback();
       }
     );

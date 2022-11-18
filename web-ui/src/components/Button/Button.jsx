@@ -13,7 +13,7 @@ import {
 const Button = forwardRef(
   (
     {
-      'data-test-id': dataTestId,
+      'data-testid': dataTestId,
       ariaControls,
       ariaDisabled,
       ariaLabel,
@@ -46,7 +46,7 @@ const Button = forwardRef(
       ...(ariaSelected !== null ? { 'aria-selected': ariaSelected } : {}),
       ...(tabIndex !== null ? { tabIndex } : {}),
       'aria-disabled': ariaDisabled,
-      'data-test-id': dataTestId,
+      'data-testid': dataTestId,
       id,
       name,
       ref,
@@ -96,7 +96,7 @@ const Button = forwardRef(
 );
 
 Button.defaultProps = {
-  'data-test-id': undefined,
+  'data-testid': undefined,
   ariaControls: '',
   ariaDisabled: false,
   ariaLabel: '',
@@ -122,7 +122,7 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
-  'data-test-id': PropTypes.string,
+  'data-testid': PropTypes.string,
   ariaControls: PropTypes.string,
   ariaDisabled: PropTypes.bool,
   ariaLabel: PropTypes.string,
