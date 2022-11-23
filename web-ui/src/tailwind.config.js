@@ -113,9 +113,12 @@ module.exports = {
         '.overflow-y-overlay': { overflowY: 'overlay' }
       });
     }),
-    // @media (hover:none)
+    // Used to detect touchscreen devices, mirrors the logic in the ResponsiveDevice context
     plugin(({ addVariant }) => {
-      addVariant('touch-screen-device', '@media (hover:none)');
+      addVariant(
+        'touch-screen-device',
+        '@media not all and (hover: hover) and (pointer: fine)'
+      );
     }),
 
     // remove scrollbar

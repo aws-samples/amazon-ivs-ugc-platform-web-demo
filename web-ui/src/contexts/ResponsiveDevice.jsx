@@ -26,7 +26,7 @@ export const Provider = ({ children }) => {
   const [isLandscape, setIsLandscape] = useState();
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
   const isTouchscreenDevice = !useMediaQuery(
-    '(hover:hover) and (pointer: fine)'
+    '(hover: hover) and (pointer: fine)'
   );
   const isMobileView =
     isDefaultResponsiveView ||
