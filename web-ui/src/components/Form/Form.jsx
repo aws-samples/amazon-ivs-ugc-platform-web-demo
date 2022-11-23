@@ -10,7 +10,7 @@ import useForm from './useForm';
 import { BUTTON_VARIANT_CLASSES as variantClasses } from './FormTheme';
 
 const Form = ({
-  'data-test-id': dataTestId,
+  'data-testid': dataTestId,
   clearFormOnSuccess,
   disableSubmit,
   disableValidation,
@@ -37,6 +37,7 @@ const Form = ({
       submitHandler,
       validationCheck
     });
+
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
   const { currentBreakpoint } = useResponsiveDevice();
   const isMobileView = currentBreakpoint < BREAKPOINTS.sm;
@@ -58,6 +59,7 @@ const Form = ({
           ariaDisabled={!isFormComplete || disableSubmit(formProps)}
           isLoading={isLoading}
           variant={submitBtnVariant}
+          data-testid={`${dataTestId}-submit-button`}
           customStyles={{
             marginTop:
               inputVariant === 'vertical' && formVariant === 'horizontal'
@@ -79,7 +81,8 @@ const Form = ({
       isFormComplete,
       isLoading,
       submitBtnVariant,
-      submitText
+      submitText,
+      dataTestId
     ]
   );
 
@@ -110,7 +113,7 @@ const Form = ({
 
   return (
     <form
-      data-test-id={dataTestId}
+      data-testid={dataTestId}
       className={classes}
       onSubmit={(e) => onSubmit(e, clearFormOnSuccess)}
     >
@@ -159,7 +162,7 @@ const Form = ({
 };
 
 Form.defaultProps = {
-  'data-test-id': undefined,
+  'data-testid': undefined,
   clearFormOnSuccess: true,
   disableSubmit: noop,
   disableValidation: false,
@@ -177,7 +180,7 @@ Form.defaultProps = {
 };
 
 Form.propTypes = {
-  'data-test-id': PropTypes.string,
+  'data-testid': PropTypes.string,
   clearFormOnSuccess: PropTypes.bool,
   disableSubmit: PropTypes.func,
   disableValidation: PropTypes.bool,

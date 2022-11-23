@@ -29,7 +29,7 @@ const InlineNotification = ({
       'z-[400]',
       className
     ])}
-    data-test-id={`${type}-notification`}
+    data-testid={`${type}-notification`}
     {...animationProps}
   >
     <div

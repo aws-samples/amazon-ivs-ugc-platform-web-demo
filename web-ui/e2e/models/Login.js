@@ -29,16 +29,10 @@ class LoginPageModel extends BasePageModel {
       'a:has-text("Create an account")'
     );
 
-    this.sidebarAvatarButtonLoc = page.locator(
-      'button[data-testid="sidebar-avatar"]'
-    );
+    this.sidebarAvatarButtonLoc = page.getByTestId('sidebar-avatar');
     this.logoutButtonLoc = page.getByText('Log out');
-    this.floatingMenuToggleLoc = page.locator(
-      'data-testid=floating-menu-toggle'
-    );
-    this.logoutFloatingMenuButtonLoc = page.locator(
-      'data-testid=logout-action'
-    );
+    this.floatingMenuToggleLoc = page.getByTestId('floating-menu-toggle');
+    this.logoutFloatingMenuButtonLoc = page.getByTestId('logout-action');
   }
 
   static create = async (page, baseURL) => {

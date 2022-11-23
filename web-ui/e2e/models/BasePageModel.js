@@ -7,6 +7,8 @@ class BasePageModel {
   #resourcesCreated = false;
   #streamKeyValue = 'sk_mock-region_mock-stream-key';
   #username = 'testUser';
+  #avatar = 'bird';
+  #color = 'salmon';
 
   /**
    * @param {import('@playwright/test').Page} page
@@ -25,6 +27,10 @@ class BasePageModel {
 
   get username() {
     return this.#username;
+  }
+
+  set username(newUsername) {
+    this.#username = newUsername;
   }
 
   set streamKeyValue(newStreamKeyValue) {
@@ -76,8 +82,8 @@ class BasePageModel {
                   'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
                 streamKeyValue: this.#streamKeyValue,
                 username: this.#username,
-                color: 'salmon',
-                avatar: 'bird'
+                color: this.#color,
+                avatar: this.#avatar
               })
             });
           } else {

@@ -158,7 +158,7 @@ const AccountSettings = () => {
         <h3>{$content.settings_page.account_settings}</h3>
         <Form
           {...defaultFormProps(inputVariant)}
-          data-test-id="change-username-form"
+          data-testid="change-username-form"
           clearFormOnSuccess={false}
           disableSubmit={({ username }) => username.value === userData.username}
           errorHandler={handleSaveUsernameError}
@@ -171,7 +171,7 @@ const AccountSettings = () => {
         />
         <Form
           {...defaultFormProps(inputVariant)}
-          data-test-id="change-password-form"
+          data-testid="change-password-form"
           errorHandler={handleSavePasswordError}
           inputsData={{
             'current password': { type: 'password', skipValidation: true },

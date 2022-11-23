@@ -86,7 +86,7 @@ class RegisterPageModel extends BasePageModel {
     await this.resendVerificationButtonLoc.click();
 
     const notifLoc = this.page.locator('.notification');
-    const notifTestId = await notifLoc.getAttribute('data-test-id');
+    const notifTestId = await notifLoc.getAttribute('data-testid');
     await expect(notifTestId).toBe('success-notification');
     await expect(notifLoc).toHaveText('Verification email has been resent');
   };
@@ -96,7 +96,7 @@ class RegisterPageModel extends BasePageModel {
     await this.navigate(`/login?code=${code}&username=${username}`);
 
     const notifLoc = this.page.locator('.notification');
-    const notifTestId = await notifLoc.getAttribute('data-test-id');
+    const notifTestId = await notifLoc.getAttribute('data-testid');
     await expect(notifTestId).toBe('success-notification');
     await expect(notifLoc).toHaveText('Your registration has been confirmed');
   };

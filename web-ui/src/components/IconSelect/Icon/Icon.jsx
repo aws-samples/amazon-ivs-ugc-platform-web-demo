@@ -37,6 +37,8 @@ const Icon = ({
       className={classes}
       aria-label={`Selectable ${name} ${type} icon`}
       aria-pressed={isSelected}
+      data-testid={`${type}-${isSelected ? 'selected' : 'unselected'}-icon`}
+      name={name}
     >
       {type === 'image' && (
         <img src={iconValue} alt={`${name} Icon`} draggable={false} />
