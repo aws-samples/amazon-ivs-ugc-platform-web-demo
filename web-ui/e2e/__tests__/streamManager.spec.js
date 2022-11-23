@@ -1,6 +1,12 @@
 // @ts-check
 const { expect } = require('@playwright/test');
-const { extendTestFixtures, noop } = require('../utils');
+
+const {
+  extendTestFixtures,
+  getCloudfrontURLRegex,
+  getTestTitleSlug,
+  noop
+} = require('../utils');
 const { StreamManagerPageModel } = require('../models');
 const expectedOutputStrMap = require('../__mocks__/encodedStreamManagerData.json');
 
@@ -15,7 +21,35 @@ const CELEBRATION = 'celebration';
 const MODAL_STREAM_ACTION_NAMES = [QUIZ, PRODUCT, NOTICE];
 const STREAM_ACTION_NAMES = [...MODAL_STREAM_ACTION_NAMES, CELEBRATION];
 
+const buildChatToken = (roomName, username) => [roomName, username].join('|');
+
 test.describe('Stream Manager Page', () => {
+  const createTokenRouteHandlers = {};
+  const createTokenRoute = getCloudfrontURLRegex('/channel/chatToken/create');
+
+  test.beforeEach(
+    async (
+      { streamManagerPage, page },
+      { title, project: { name: projectName } }
+    ) => {
+      const { createApiCreateTokenHandler, username } = streamManagerPage;
+      const testTitleSlug = getTestTitleSlug(title, projectName);
+      const createTokenRouteHandler =
+        // This ensures that every test gets its own independent chatroom
+        createApiCreateTokenHandler(buildChatToken(testTitleSlug, username));
+      createTokenRouteHandlers[testTitleSlug] = createApiCreateTokenHandler;
+
+      await page.route(createTokenRoute, createTokenRouteHandler);
+    }
+  );
+
+  test.afterEach(({ page }, { title, project: { name: projectName } }) => {
+    page.unroute(
+      createTokenRoute,
+      createTokenRouteHandlers[getTestTitleSlug(title, projectName)]
+    );
+  });
+
   test.describe('General Cases', () => {
     test('should have four stream actions buttons and the moderation pill', async ({
       streamManagerPage: { getActionButtonLocator, moderatingPillLoc },
@@ -139,6 +173,107 @@ test.describe('Stream Manager Page', () => {
           }
         });
       }
+    });
+
+    test.describe('Chat', () => {
+      const message = 'Hello world!';
+
+      test.describe('Single-user chat', () => {
+        test('a moderator sends a message and receives it', async ({
+          streamManagerPage: { moderatingPillLoc, sendChatMessage },
+          page
+        }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
+
+          await sendChatMessage(message);
+
+          await moderatingPillLoc.waitFor({ state: 'hidden' });
+          await expect(page.getByText(message)).toBeVisible();
+          await page.takeScreenshot(
+            'chat-moderator-sends-message-moderator-receives-message'
+          );
+        });
+
+        test('a moderator sends a message and then deletes it', async ({
+          streamManagerPage: {
+            deleteMessage,
+            moderatingPillLoc,
+            sendChatMessage
+          },
+          page
+        }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
+          await sendChatMessage(message);
+
+          await deleteMessage(message);
+
+          expect(
+            await page.getByTestId('chatline-message-removed').count()
+          ).toBe(1);
+          await page.takeScreenshot(
+            'chat-moderator-sends-message-moderator-deletes-message'
+          );
+        });
+      });
+
+      test.describe('Multi-user chat', () => {
+        test('a moderator deletes a message sent by a viewer', async ({
+          streamManagerPage: {
+            deleteMessage,
+            moderatingPillLoc,
+            populateChatMessage,
+            username
+          },
+          page
+        }, { title, project: { name: projectName } }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
+
+          const message = 'Hi, this is john!';
+
+          await populateChatMessage(
+            message,
+            buildChatToken(getTestTitleSlug(title, projectName), username)
+          );
+          await deleteMessage(message);
+
+          expect(
+            await page.getByTestId('chatline-message-removed').count()
+          ).toBe(1);
+          await page.takeScreenshot(
+            'chat-viewer-sends-message-moderator-deletes-message'
+          );
+        });
+
+        test('a moderator bans a viewer', async ({
+          streamManagerPage: {
+            banUser,
+            moderatingPillLoc,
+            populateChatMessage,
+            username
+          },
+          page
+        }, { title, project: { name: projectName } }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
+
+          const message = 'Hi, this is john!';
+          const viewerUsername = 'john';
+          const testTitleSlug = getTestTitleSlug(title, projectName);
+
+          await populateChatMessage(
+            message,
+            buildChatToken(testTitleSlug, viewerUsername)
+          );
+          await banUser(
+            viewerUsername,
+            buildChatToken(testTitleSlug, username)
+          );
+
+          expect(await page.getByText(message).count()).toBe(0);
+          await page.takeScreenshot(
+            'chat-viewer-sends-message-moderator-bans-viewer'
+          );
+        });
+      });
     });
   });
 });

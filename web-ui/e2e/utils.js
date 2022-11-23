@@ -6,6 +6,7 @@ const {
   CognitoRefreshToken
 } = require('amazon-cognito-identity-js');
 const { v4: uuidv4 } = require('uuid');
+const { WebSocket } = require('ws');
 const jwt = require('jsonwebtoken');
 
 const defaultExtendedTestFixtureOptions = { isAuthenticated: true };
@@ -232,11 +233,26 @@ const isValidUrl = (url) => {
   return true;
 };
 
+const connectToWss = (token) =>
+  new Promise((resolve, reject) => {
+    const socket = new WebSocket(
+      `ws://localhost:${process.env.WEB_SOCKET_SERVER_PORT || 8081}/ws`,
+      token
+    );
+    socket.onopen = () => resolve(socket);
+    socket.onerror = reject;
+  });
+
+const getTestTitleSlug = (testTitle, projectName) =>
+  [testTitle, projectName].join('-').toLowerCase().replace(/\s/g, '-');
+
 module.exports = {
   COGNITO_IDP_URL_REGEX,
+  connectToWss,
   extendTestFixtures,
   getCloudfrontURLRegex,
   getMockCognitoSessionTokens,
+  getTestTitleSlug,
   heavy,
   isValidUrl,
   noop

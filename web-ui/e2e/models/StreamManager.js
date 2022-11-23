@@ -1,7 +1,8 @@
 // @ts-check
 const { expect } = require('@playwright/test');
+const { v4: uuidv4 } = require('uuid');
 
-const { getCloudfrontURLRegex } = require('../utils');
+const { getCloudfrontURLRegex, connectToWss } = require('../utils');
 const BasePageModel = require('./BasePageModel');
 
 const getStreamActionFormLocatorsVisibilityStatuses = (page) =>
@@ -32,6 +33,8 @@ class StreamManagerPageModel extends BasePageModel {
     );
     this.saveFormDataBtnLoc = page.getByText('Save');
     this.moderatingPillLoc = page.getByText('Moderating');
+    this.chatPopupContainerLoc = page.getByTestId('chat-popup-container');
+    this.successNotifLoc = page.getByTestId('success-notification');
   }
 
   static create = async (page, baseURL) => {
@@ -39,14 +42,14 @@ class StreamManagerPageModel extends BasePageModel {
     const streamManagerPage = new StreamManagerPageModel(page, baseURL);
     StreamManagerPageModel.#isInternalConstructing = false;
 
-    await streamManagerPage.#mockCreateToken();
+    await streamManagerPage.#mockBanUser();
 
     await streamManagerPage.init();
 
     return streamManagerPage;
   };
 
-  /* Stream Actions Interactions */
+  /* Stream Actions Interactions - START */
   openStreamActionModal = async (actionName) => {
     // Click the action button
     await this.getActionButtonLocator(actionName).click();
@@ -248,22 +251,115 @@ class StreamManagerPageModel extends BasePageModel {
     // Set the duration
     await this.setActionDuration({ isPreFilled });
   };
+  /* Stream Actions Interactions - END */
 
-  #mockCreateToken = async () => {
+  /* Chat Interactions - START */
+  sendChatMessage = async (message) => {
+    const composerLoc = await this.page.getByPlaceholder('Say something');
+
+    await composerLoc.fill(message);
+    await this.page.keyboard.press('Enter');
+
+    const messageLoc = this.page.getByText(message);
+    await expect(messageLoc).toBeVisible();
+  };
+
+  /**
+   * Sends a message on behalf of a user. Can be used to simulate multiple clients connected to a chat room and sending messages.
+   * @param {string} message
+   * @param {string} token
+   */
+  populateChatMessage = async (message, token) => {
+    const socket = await connectToWss(token);
+
+    socket.send(
+      JSON.stringify({
+        Action: 'SEND_MESSAGE',
+        RequestId: uuidv4(),
+        Content: message
+      })
+    );
+
+    const messageLoc = this.page.getByText(message);
+    await expect(messageLoc).toBeVisible();
+  };
+
+  openChatMessagePopup = async (messageOrUsername) => {
+    const messageLoc = this.page.getByText(messageOrUsername);
+
+    await messageLoc.click();
+    await this.chatPopupContainerLoc.waitFor({ state: 'visible' });
+  };
+
+  deleteMessage = async (message) => {
+    await this.openChatMessagePopup(message);
+    await this.page.getByText('Delete message').click();
+
+    await expect(this.page.getByText(message)).toBeHidden();
+
+    await expect(this.successNotifLoc).toBeVisible();
+    await expect(this.successNotifLoc).toHaveText('Message removed');
+  };
+
+  banUser = async (username, token) => {
+    await this.openChatMessagePopup(username);
+    await this.page.getByText('Ban user').click();
+
+    await this.page.getByTestId('modal').getByText('Ban user').click();
+
+    const socket = await connectToWss(token);
+
+    // Mock the IVS backend which normally broadcasts the message
+    socket.send(
+      JSON.stringify({
+        Action: 'BAN_USER',
+        RequestId: uuidv4(),
+        Content: username
+      })
+    );
+
+    await expect(this.successNotifLoc).toBeVisible();
+    expect(await this.successNotifLoc.textContent()).toBe(
+      'User banned from channel'
+    );
+  };
+  /* Chat Interactions - END */
+
+  /**
+   * This function creates an API handler which will return the provided token as part of the response body.
+   * It should be used for the `/channel/token/create` route.
+   *
+   * It can be used to create isolated chat rooms for each tests. See example usage in [streamManager.spec.js](../__tests__/streamManager.spec.js).
+   * @param {string} token - Composed of the room name and the username, separated by the '|' character
+   * @returns {Function} Create token API handler
+   */
+  createApiCreateTokenHandler = (token) => (route, request) => {
+    if (request.method() === 'POST') {
+      const sessionExpirationTime = new Date(
+        Date.now() + 3600 * 1000 // One hour from now
+      ).toISOString();
+      const tokenExpirationTime = new Date(
+        Date.now() + 60 * 1000 // One minute from now
+      ).toISOString();
+
+      route.fulfill({
+        status: 200,
+        body: JSON.stringify({
+          token,
+          capabilities: ['DELETE_MESSAGE', 'DISCONNECT_USER', 'SEND_MESSAGE'],
+          sessionExpirationTime,
+          tokenExpirationTime
+        })
+      });
+    } else route.fallback();
+  };
+
+  #mockBanUser = async () => {
     await this.page.route(
-      getCloudfrontURLRegex('/channel/chatToken/create'),
+      getCloudfrontURLRegex('/channel/ban'),
       (route, request) => {
         if (request.method() === 'POST') {
-          route.fulfill({
-            status: 200,
-            body: JSON.stringify({
-              capabilities: [
-                'DELETE_MESSAGE',
-                'DISCONNECT_USER',
-                'SEND_MESSAGE'
-              ]
-            })
-          });
+          route.fulfill({ status: 200, body: JSON.stringify({}) });
         } else route.fallback();
       }
     );

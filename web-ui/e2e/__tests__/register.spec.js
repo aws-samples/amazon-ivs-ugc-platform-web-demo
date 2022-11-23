@@ -29,10 +29,6 @@ test.describe('Register Page', () => {
 
       // Resend the account verification email to the new user
       await resendEmailVerification();
-      // Wait for the success notification to render and stabilize before taking a screenshot
-      await (
-        await page.waitForSelector('.notification')
-      ).waitForElementState('stable');
       await page.takeScreenshot('resend-email-verification-success');
       expectedResponses.push(['/', 200]); // Cognito resend confirmation code
       await page.assertResponses(expectedResponses);
@@ -42,10 +38,6 @@ test.describe('Register Page', () => {
       expectedResponses.push(['/', 200]); // Cognito confirm registration
       await page.assertResponses(expectedResponses);
 
-      // Wait for the success notification to render and stabilize before taking a screenshot
-      await (
-        await page.waitForSelector('.notification')
-      ).waitForElementState('stable');
       await page.takeScreenshot('new-user-account-confirmed');
     });
 

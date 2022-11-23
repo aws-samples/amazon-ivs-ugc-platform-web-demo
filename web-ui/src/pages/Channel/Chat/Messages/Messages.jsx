@@ -83,6 +83,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
             if (isDeleted && (isOwnMessage || wasDeletedByUser))
               return (
                 <p
+                  data-testid="chatline-message-removed"
                   className={clsm([
                     'dark:text-darkMode-gray-light',
                     'text-lightMode-gray-dark',

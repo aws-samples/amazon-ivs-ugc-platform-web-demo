@@ -92,6 +92,7 @@ const ChatPopup = ({
         'z-[200]',
         isMobileView && ['fixed', 'w-screen']
       ])}
+      data-testid="chat-popup-container"
     >
       <m.div
         animate="visible"

@@ -28,10 +28,6 @@ test.describe('Reset Page', () => {
 
       // On the password reset confirmation page, attempt to resend the password reset email
       await resendPasswordRequest();
-      // Wait for the success notification to render and stabilize before taking a screenshot
-      await (
-        await page.waitForSelector('.notification')
-      ).waitForElementState('stable');
       await page.takeScreenshot('resend-password-reset-email-success');
       expectedResponses.push(['/channel/password/reset', 200]); // Re-send password reset request email
       await page.assertResponses(expectedResponses);

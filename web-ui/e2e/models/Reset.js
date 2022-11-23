@@ -90,9 +90,8 @@ class ResetPageModel extends BasePageModel {
     // Click the "Resend" (password reset request) button
     await this.resendPasswordRequestLoc.click();
 
-    const notifLoc = this.page.locator('.notification');
-    const notifTestId = await notifLoc.getAttribute('data-testid');
-    await expect(notifTestId).toBe('success-notification');
+    const notifLoc = this.page.getByTestId('success-notification');
+    await expect(notifLoc).toBeVisible();
     await expect(notifLoc).toHaveText('Verification email has been resent');
   };
 

@@ -29,6 +29,7 @@ class RegisterPageModel extends BasePageModel {
       'button:has-text("Resend")'
     );
     this.signInLinkLoc = page.locator('a:has-text("Sign in")');
+    this.successNotifLoc = page.getByTestId('success-notification');
   }
 
   static create = async (page, baseURL) => {
@@ -85,20 +86,20 @@ class RegisterPageModel extends BasePageModel {
     // Click the "Resend" button to resend an account verification email
     await this.resendVerificationButtonLoc.click();
 
-    const notifLoc = this.page.locator('.notification');
-    const notifTestId = await notifLoc.getAttribute('data-testid');
-    await expect(notifTestId).toBe('success-notification');
-    await expect(notifLoc).toHaveText('Verification email has been resent');
+    await expect(this.successNotifLoc).toBeVisible();
+    await expect(this.successNotifLoc).toHaveText(
+      'Verification email has been resent'
+    );
   };
 
   confirmUser = async (code, username) => {
     // Navigate to the link sent in the account verification email
     await this.navigate(`/login?code=${code}&username=${username}`);
 
-    const notifLoc = this.page.locator('.notification');
-    const notifTestId = await notifLoc.getAttribute('data-testid');
-    await expect(notifTestId).toBe('success-notification');
-    await expect(notifLoc).toHaveText('Your registration has been confirmed');
+    await expect(this.successNotifLoc).toBeVisible();
+    await expect(this.successNotifLoc).toHaveText(
+      'Your registration has been confirmed'
+    );
   };
 
   gotoSignIn = async () => {
