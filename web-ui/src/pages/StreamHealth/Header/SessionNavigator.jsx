@@ -111,6 +111,7 @@ const SessionNavigator = forwardRef(
           onClick={handleSessionNavigator}
           ref={navButtonRef}
           variant="secondary"
+          data-testid="stream-session-navigator-button"
         >
           <span className={clsm(['flex', 'flex-col'])}>
             {isNavOpen || !activeStreamSession ? (

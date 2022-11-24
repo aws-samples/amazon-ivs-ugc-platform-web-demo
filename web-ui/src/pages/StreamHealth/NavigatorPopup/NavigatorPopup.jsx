@@ -90,7 +90,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
             )}
           </>
         ) : (
-          <span className="no-streams">
+          <span className="no-streams" data-testid="no-streams">
             <b>{$content.no_stream_sessions}</b>
             <p>{$content.no_stream_sessions_message}</p>
           </span>

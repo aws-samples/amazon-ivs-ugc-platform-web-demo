@@ -38,10 +38,10 @@ class BasePageModel {
   }
 
   init = async () => {
+    await this.#mockCreateResources();
+    await this.#mockGetChannels();
     await this.#mockGetUser();
     await this.#mockGetUserChannelData();
-    await this.#mockGetChannels();
-    await this.#mockCreateResources();
 
     const localStorage = await this.page.getLocalStorage();
     const { value: resourcesCreated = 'false' } =
