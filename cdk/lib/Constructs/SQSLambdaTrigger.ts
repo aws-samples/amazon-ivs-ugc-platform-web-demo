@@ -22,7 +22,7 @@ interface SQSLambdaTriggerProps {
 }
 
 export const getLambdaEntryPath = (functionName: string) =>
-  join(__dirname, '../../../lambdas', `${functionName}.ts`);
+  join(__dirname, '../../lambdas', `${functionName}.ts`);
 
 /**
  * A construct that uses a Lambda function to process messages in an
