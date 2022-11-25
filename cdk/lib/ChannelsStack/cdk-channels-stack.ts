@@ -1,15 +1,22 @@
 import {
+  aws_cloudfront as cloudfront,
+  aws_cloudfront_origins as origins,
   aws_cognito as cognito,
   aws_dynamodb as dynamodb,
   aws_iam as iam,
+  aws_s3 as s3,
+  aws_s3_notifications as s3n,
+  Duration,
   NestedStack,
   NestedStackProps,
-  RemovalPolicy
+  RemovalPolicy,
+  Stack
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { ChannelsResourceConfig } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
+import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
@@ -28,36 +35,17 @@ export class ChannelsStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ChannelsStackProps) {
     super(scope, id, props);
 
-    const stackNamePrefix = 'Channels';
+    const parentStackName = Stack.of(this.nestedStackParent!).stackName;
+    const stackNamePrefix = `${parentStackName}-Channels`;
     const { resourceConfig, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
-    const { enableUserAutoVerify, ivsChannelType, signUpAllowedDomains } =
-      resourceConfig;
-
-    // Dynamo DB Channels Table
-    const channelsTable = new dynamodb.Table(
-      this,
-      `${stackNamePrefix}-ChannelsTable`,
-      {
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-        removalPolicy: RemovalPolicy.DESTROY
-      }
-    );
-
-    channelsTable.addGlobalSecondaryIndex({
-      indexName: 'emailIndex',
-      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING }
-    });
-    channelsTable.addGlobalSecondaryIndex({
-      indexName: 'channelArnIndex',
-      partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING }
-    });
-    channelsTable.addGlobalSecondaryIndex({
-      indexName: 'usernameIndex',
-      partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING }
-    });
+    const {
+      allowedOrigins,
+      enableUserAutoVerify,
+      ivsChannelType,
+      signUpAllowedDomains
+    } = resourceConfig;
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
@@ -101,6 +89,145 @@ export class ChannelsStack extends NestedStack {
         userPool
       }
     );
+
+    // Dynamo DB Channels Table
+    const channelsTable = new dynamodb.Table(
+      this,
+      `${stackNamePrefix}-ChannelsTable`,
+      {
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+        removalPolicy: RemovalPolicy.DESTROY
+      }
+    );
+
+    channelsTable.addGlobalSecondaryIndex({
+      indexName: 'emailIndex',
+      partitionKey: { name: 'email', type: dynamodb.AttributeType.STRING }
+    });
+    channelsTable.addGlobalSecondaryIndex({
+      indexName: 'channelArnIndex',
+      partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING }
+    });
+    channelsTable.addGlobalSecondaryIndex({
+      indexName: 'usernameIndex',
+      partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING }
+    });
+
+    // S3 Channel Assets Bucket
+    const channelAssetsBucket = new s3.Bucket(
+      this,
+      `${stackNamePrefix}-ChannelAssets-Bucket`,
+      {
+        bucketName: `${stackNamePrefix}-channelassets`.toLowerCase(),
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        versioned: true,
+        lifecycleRules: [{ noncurrentVersionExpiration: Duration.days(1) }],
+        blockPublicAccess: new s3.BlockPublicAccess({
+          blockPublicAcls: false,
+          ignorePublicAcls: false,
+          blockPublicPolicy: true,
+          restrictPublicBuckets: true
+        }),
+        cors: [
+          {
+            allowedOrigins,
+            allowedHeaders: ['*'],
+            allowedMethods: [
+              s3.HttpMethods.GET,
+              s3.HttpMethods.PUT,
+              s3.HttpMethods.POST
+            ]
+          }
+        ]
+      }
+    );
+
+    // Channel Assets Distribution
+    const {
+      AllowedMethods,
+      CachedMethods,
+      CachePolicy,
+      CacheQueryStringBehavior,
+      Distribution,
+      OriginRequestPolicy,
+      ResponseHeadersPolicy,
+      ViewerProtocolPolicy
+    } = cloudfront;
+    const defaultBehavior = {
+      origin: new origins.S3Origin(channelAssetsBucket),
+      allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+      cachedMethods: CachedMethods.CACHE_GET_HEAD,
+      originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+      responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+    };
+    const versionIdQueryStringCachePolicy = new CachePolicy(
+      this,
+      `${stackNamePrefix}-VersionId-CachePolicy`,
+      {
+        cachePolicyName: `${stackNamePrefix}-VersionId-QueryStringCacheBehavior`,
+        comment: 'Only includes the versionId queryString in the cache key',
+        queryStringBehavior: CacheQueryStringBehavior.allowList('versionId')
+      }
+    );
+    const additionalBehaviors = ['/*/banner', '/*/avatar'].reduce(
+      (behaviors, pathPattern) => ({
+        ...behaviors,
+        [pathPattern]: {
+          ...defaultBehavior,
+          cachePolicy: versionIdQueryStringCachePolicy
+        }
+      }),
+      {}
+    );
+    const channelAssetsDistribution = new Distribution(
+      this,
+      `${stackNamePrefix}-ChannelAssets-Distribution`,
+      { defaultBehavior, additionalBehaviors }
+    );
+    const channelAssetsDistributionURL = `https://${channelAssetsDistribution.domainName}`;
+
+    const { srcQueue: channelAssetsUpdateVersionIdQueue } =
+      new SQSLambdaTrigger(
+        this,
+        `${stackNamePrefix}-ChannelAssets-UpdateVersionId-SQSLambdaTrigger`,
+        {
+          name: `${stackNamePrefix}-ChannelAssetsUpdateVersionId`,
+          srcHandler: {
+            entryFunctionName: 'updateVersionId',
+            description:
+              'Triggered by Amazon SQS when new S3 event messages arrive in the queue to update channel asset versionIds',
+            environment: {
+              CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
+              CHANNEL_ASSETS_BASE_URL: channelAssetsDistributionURL
+            },
+            initialPolicy: [
+              new iam.PolicyStatement({
+                actions: ['dynamodb:BatchGetItem', 'dynamodb:UpdateItem'],
+                effect: iam.Effect.ALLOW,
+                resources: [channelsTable.tableArn]
+              })
+            ]
+          },
+          dlqHandler: {
+            entryFunctionName: 'updateVersionIdDlq',
+            description:
+              'Triggered by an Amazon SQS DLQ to handle S3 event message consumption failures when updating the channel asset versionIds, and to manage the life cycle of unconsumed messages'
+          }
+        }
+      );
+
+    // Add an S3 Event Notification that publishes an s3:ObjectCreated:* event to the SQS
+    // channelAssetsUpdateVersionIdQueue for object keys matching the 'avatar' and 'banner' suffixes
+    ['avatar', 'banner'].forEach((suffix) => {
+      channelAssetsBucket.addEventNotification(
+        s3.EventType.OBJECT_CREATED,
+        new s3n.SqsDestination(channelAssetsUpdateVersionIdQueue),
+        { suffix }
+      );
+    });
 
     // IAM Policies
     const policies = [];

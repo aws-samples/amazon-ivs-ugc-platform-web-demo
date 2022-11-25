@@ -10,7 +10,8 @@ import {
   aws_iam as iam,
   NestedStack,
   NestedStackProps,
-  RemovalPolicy
+  RemovalPolicy,
+  Stack
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 import { Construct } from 'constructs';
@@ -33,7 +34,8 @@ export class MetricsStack extends NestedStack {
   constructor(scope: Construct, id: string, props: MetricsStackProps) {
     super(scope, id, props);
 
-    const stackNamePrefix = 'Metrics';
+    const parentStackName = Stack.of(this.nestedStackParent!).stackName;
+    const stackNamePrefix = `${parentStackName}-Metrics`;
     const { cluster, ivsChannelType, channelsTable, vpc } = props;
 
     // Dynamo DB Stream Table

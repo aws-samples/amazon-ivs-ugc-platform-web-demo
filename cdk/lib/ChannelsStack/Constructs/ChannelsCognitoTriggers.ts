@@ -1,10 +1,13 @@
 import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { join } from 'path';
 
-import { getLambdaEntryPath } from '../utils';
 import { ChannelsResourceConfig } from '../../constants';
 
 interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {}
+
+const getCognitoLambdaTriggersEntryPath = (functionName: string) =>
+  join(__dirname, '../../../lambdas', 'cognitoTriggers', `${functionName}.ts`);
 
 export default class ChannelsCognitoTriggers extends Construct {
   public readonly customMessageLambda: lambda.NodejsFunction;
@@ -32,7 +35,7 @@ export default class ChannelsCognitoTriggers extends Construct {
     if (enableUserAutoVerify) {
       preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
         ...defaultLambdaParams,
-        entry: getLambdaEntryPath('cognitoTriggers/preSignUp'),
+        entry: getCognitoLambdaTriggersEntryPath('preSignUp'),
         environment: { ENABLE_USER_AUTO_VERIFY: `${enableUserAutoVerify}` }
       });
     }
@@ -44,7 +47,7 @@ export default class ChannelsCognitoTriggers extends Construct {
       'CustomMessageLambda',
       {
         ...defaultLambdaParams,
-        entry: getLambdaEntryPath('cognitoTriggers/customMessage'),
+        entry: getCognitoLambdaTriggersEntryPath('customMessage'),
         environment: {
           CLIENT_BASE_URL: clientBaseUrl
         }
@@ -58,7 +61,7 @@ export default class ChannelsCognitoTriggers extends Construct {
       'PreAuthenticationLambda',
       {
         ...defaultLambdaParams,
-        entry: getLambdaEntryPath('cognitoTriggers/preAuthentication')
+        entry: getCognitoLambdaTriggersEntryPath('preAuthentication')
       }
     );
 
