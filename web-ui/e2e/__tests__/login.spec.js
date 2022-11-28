@@ -5,7 +5,7 @@ const { LoginPageModel } = require('../models');
 const { extendTestFixtures } = require('../utils');
 
 const test = extendTestFixtures(
-  [{ name: 'loginPage', PageModel: LoginPageModel }],
+  { name: 'loginPage', PageModel: LoginPageModel },
   { isAuthenticated: false }
 );
 

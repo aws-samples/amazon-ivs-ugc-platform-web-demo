@@ -26,6 +26,7 @@ const Spinner = ({ variant, size, className }) => {
   return (
     <span
       className={classes}
+      data-testid="loading-spinner"
       role="progressbar"
       style={{ width: DIAMETER[size], height: DIAMETER[size] }}
     >

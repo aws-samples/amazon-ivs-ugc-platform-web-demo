@@ -21,7 +21,14 @@ const noop = () => {};
  */
 const heavy = (heavyFn) => (process.env.CI ? noop() : heavyFn());
 
-const extendTestFixtures = (pageModels = [], options = {}) => {
+/**
+ * @param {Object} pageModel
+ * @param {string} pageModel.name
+ * @param {import('@playwright/test').Page} pageModel.PageModel
+ * @param {Object} options
+ * @param {boolean} options.isAuthenticated
+ */
+const extendTestFixtures = (pageModel = {}, options = {}) => {
   const { isAuthenticated } = {
     ...defaultExtendedTestFixtureOptions,
     ...options
@@ -103,6 +110,17 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
         ).toEqual(expect.arrayContaining(expected));
       };
 
+      /**
+       * `wsFramesReceived` is a list that contains all the WebSocket messages received in that test,
+       * updated throughout the test's execution.
+       */
+      page.wsFramesReceived = [];
+      page.on('websocket', (ws) => {
+        ws.on('framereceived', (event) =>
+          page.wsFramesReceived.push(JSON.parse(event.payload))
+        );
+      });
+
       // Read the current text value stored in the clipboard
       page.readClipboard = async () =>
         await page.evaluate((projectName) => {
@@ -137,16 +155,10 @@ const extendTestFixtures = (pageModels = [], options = {}) => {
     /**
      * Page Model fixtures setup
      */
-    ...pageModels.reduce(
-      (pageFixtures, { name, PageModel }) => ({
-        ...pageFixtures,
-        [name]: async ({ page, baseURL }, use) => {
-          // Use page model fixture
-          await use(await PageModel.create(page, baseURL));
-        }
-      }),
-      {}
-    )
+    [pageModel.name]: async ({ page, baseURL }, use) => {
+      // Use page model fixture
+      await use(await pageModel.PageModel.create(page, baseURL));
+    }
   });
 };
 

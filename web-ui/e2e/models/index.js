@@ -1,6 +1,7 @@
 module.exports = {
-  RegisterPageModel: require('./Register'),
+  ChannelPageModel: require('./Channel'),
   LoginPageModel: require('./Login'),
+  RegisterPageModel: require('./Register'),
   ResetPageModel: require('./Reset'),
   SettingsPageModel: require('./Settings'),
   StreamHealthPageModel: require('./StreamHealth'),

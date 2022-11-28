@@ -2,9 +2,10 @@
 const { extendTestFixtures } = require('../utils');
 const { StreamHealthPageModel } = require('../models');
 
-const test = extendTestFixtures([
-  { name: 'streamHealthPage', PageModel: StreamHealthPageModel }
-]);
+const test = extendTestFixtures({
+  name: 'streamHealthPage',
+  PageModel: StreamHealthPageModel
+});
 
 test.describe('Stream Health Page', () => {
   test.describe('General Cases', () => {

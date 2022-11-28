@@ -235,7 +235,7 @@ First, we created a new fixture called "loginPage" and attached it to our base t
 
 ```javascript
 const test = extendTestFixtures(
-  [{ name: 'loginPage', PageModel: LoginPageModel }],
+  { name: 'loginPage', PageModel: LoginPageModel },
   { isAuthenticated: false }
 );
 ```
@@ -269,7 +269,7 @@ To disable global authentication for a specific set of tests, we set the `isAuth
 
 ```javascript
 const test = extendTestFixtures(
-  [{ name: 'loginPage', PageModel: LoginPageModel }],
+  { name: 'loginPage', PageModel: LoginPageModel },
   { isAuthenticated: false }
 );
 ```

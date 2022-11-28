@@ -2,9 +2,10 @@
 const { extendTestFixtures } = require('../utils');
 const { SettingsPageModel } = require('../models');
 
-const test = extendTestFixtures([
-  { name: 'settingsPage', PageModel: SettingsPageModel }
-]);
+const test = extendTestFixtures({
+  name: 'settingsPage',
+  PageModel: SettingsPageModel
+});
 
 test.describe('Settings Page', () => {
   test.describe('General Cases', () => {

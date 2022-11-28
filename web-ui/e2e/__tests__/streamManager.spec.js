@@ -10,9 +10,10 @@ const {
 const { StreamManagerPageModel } = require('../models');
 const expectedOutputStrMap = require('../__mocks__/encodedStreamManagerData.json');
 
-const test = extendTestFixtures([
-  { name: 'streamManagerPage', PageModel: StreamManagerPageModel }
-]);
+const test = extendTestFixtures({
+  name: 'streamManagerPage',
+  PageModel: StreamManagerPageModel
+});
 
 const QUIZ = 'quiz';
 const PRODUCT = 'product';
@@ -32,7 +33,10 @@ test.describe('Stream Manager Page', () => {
       { streamManagerPage, page },
       { title, project: { name: projectName } }
     ) => {
-      const { createApiCreateTokenHandler, username } = streamManagerPage;
+      const {
+        chatComponent: { createApiCreateTokenHandler },
+        username
+      } = streamManagerPage;
       const testTitleSlug = getTestTitleSlug(title, projectName);
       const createTokenRouteHandler =
         // This ensures that every test gets its own independent chatroom
@@ -52,7 +56,10 @@ test.describe('Stream Manager Page', () => {
 
   test.describe('General Cases', () => {
     test('should have four stream actions buttons and the moderation pill', async ({
-      streamManagerPage: { getActionButtonLocator, moderatingPillLoc },
+      streamManagerPage: {
+        chatComponent: { moderatingPillLoc },
+        getActionButtonLocator
+      },
       page
     }) => {
       for (const streamActionName of STREAM_ACTION_NAMES) {
@@ -72,8 +79,8 @@ test.describe('Stream Manager Page', () => {
         test.describe('Shared tests', () => {
           test(`should open and close the ${streamActionName} modal`, async ({
             streamManagerPage: {
+              chatComponent: { moderatingPillLoc },
               closeStreamActionModal,
-              moderatingPillLoc,
               openStreamActionModal
             },
             page
@@ -180,7 +187,9 @@ test.describe('Stream Manager Page', () => {
 
       test.describe('Single-user chat', () => {
         test('a moderator sends a message and receives it', async ({
-          streamManagerPage: { moderatingPillLoc, sendChatMessage },
+          streamManagerPage: {
+            chatComponent: { moderatingPillLoc, sendChatMessage }
+          },
           page
         }) => {
           await moderatingPillLoc.waitFor({ state: 'visible' });
@@ -196,9 +205,7 @@ test.describe('Stream Manager Page', () => {
 
         test('a moderator sends a message and then deletes it', async ({
           streamManagerPage: {
-            deleteMessage,
-            moderatingPillLoc,
-            sendChatMessage
+            chatComponent: { deleteMessage, moderatingPillLoc, sendChatMessage }
           },
           page
         }) => {
@@ -219,9 +226,11 @@ test.describe('Stream Manager Page', () => {
       test.describe('Multi-user chat', () => {
         test('a moderator deletes a message sent by a viewer', async ({
           streamManagerPage: {
-            deleteMessage,
-            moderatingPillLoc,
-            populateChatMessage,
+            chatComponent: {
+              deleteMessage,
+              moderatingPillLoc,
+              populateChatMessage
+            },
             username
           },
           page
@@ -246,9 +255,7 @@ test.describe('Stream Manager Page', () => {
 
         test('a moderator bans a viewer', async ({
           streamManagerPage: {
-            banUser,
-            moderatingPillLoc,
-            populateChatMessage,
+            chatComponent: { banUser, moderatingPillLoc, populateChatMessage },
             username
           },
           page

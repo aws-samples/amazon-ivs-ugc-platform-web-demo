@@ -15,7 +15,7 @@ wss.on('connection', (ws) => {
 
   // Upon receiving a message, send the corresponding action to all connected clients
   ws.on('message', (data) => {
-    const { Action, Content, Id, RequestId } = JSON.parse(data);
+    const { Action, Content, Id, Reason, RequestId } = JSON.parse(data);
     const messagesToBroadcast = [];
     const SendTime = new Date().toISOString();
 
@@ -40,7 +40,7 @@ wss.on('connection', (ws) => {
           EventName: 'aws:DELETE_MESSAGE',
           Attributes: {
             MessageID: Id,
-            Reason: 'Deleted by moderator'
+            Reason
           },
           SendTime
         })
@@ -53,7 +53,7 @@ wss.on('connection', (ws) => {
           RequestId,
           EventName: 'aws:DISCONNECT_USER',
           Attributes: {
-            Reason: 'Kicked by moderator',
+            Reason,
             UserId: Content
           },
           SendTime

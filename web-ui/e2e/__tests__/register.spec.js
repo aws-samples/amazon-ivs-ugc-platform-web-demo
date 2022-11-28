@@ -3,7 +3,7 @@ const { RegisterPageModel } = require('../models');
 const { extendTestFixtures } = require('../utils');
 
 const test = extendTestFixtures(
-  [{ name: 'registerPage', PageModel: RegisterPageModel }],
+  { name: 'registerPage', PageModel: RegisterPageModel },
   { isAuthenticated: false }
 );
 
