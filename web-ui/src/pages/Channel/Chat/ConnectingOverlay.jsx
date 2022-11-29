@@ -3,16 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
+import {
+  createAnimationProps,
+  defaultTransition
+} from '../../../utils/animationPropsHelper';
 import Spinner from '../../../components/Spinner';
 import useCurrentPage from '../../../hooks/useCurrentPage';
-
-const defaultTransition = { duration: 0.25, type: 'tween' };
-const defaultAnimationProps = {
-  animate: 'visible',
-  exit: 'hidden',
-  initial: 'hidden',
-  transition: defaultTransition
-};
 
 const ConnectingOverlay = ({ isLoading }) => {
   const currentPage = useCurrentPage();
@@ -39,8 +35,7 @@ const ConnectingOverlay = ({ isLoading }) => {
       {shouldShowConnectingOverlay && (
         <div className={clsm(['absolute', 'w-full', 'h-full'])}>
           <m.div
-            {...defaultAnimationProps}
-            variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
+            {...createAnimationProps({ animations: ['fadeIn-full'] })}
             className={clsm([
               'absolute',
               'left-0',
@@ -52,8 +47,9 @@ const ConnectingOverlay = ({ isLoading }) => {
             ])}
           ></m.div>
           <m.div
-            {...defaultAnimationProps}
-            variants={{ visible: { y: 0 }, hidden: { y: '-150%' } }}
+            {...createAnimationProps({
+              animations: ['fadeIn-full', 'slideIn-top']
+            })}
             className={clsm([
               'absolute',
               'top-4',

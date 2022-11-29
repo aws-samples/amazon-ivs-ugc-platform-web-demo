@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../constants';
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
@@ -17,8 +18,6 @@ import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescri
 import ProductViewerStreamAction from './ViewerStreamActions/Product';
 import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
-
-const chatDefaultTransition = { duration: 0.25, type: 'tween' };
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
@@ -53,7 +52,7 @@ const Channel = () => {
       setIsChatVisible((prev) => {
         const next = value || !prev;
 
-        transitionFn(next ? 'visible' : 'hidden');
+        transitionFn(next ? 'visible' : 'hidden-initial');
 
         return next;
       });
@@ -103,18 +102,18 @@ const Channel = () => {
       <ProductDescriptionModal />
       <m.section
         ref={chatContainerRef}
-        animate={chatAnimationControls}
-        initial="visible"
-        exit="hidden"
-        variants={{
-          visible: {
-            x: 0,
-            width: isSplitView ? 308 : isStackedView ? '100%' : 360,
-            transitionEnd: { x: 0 }
+        {...createAnimationProps({
+          animations: ['slideIn-right'],
+          customVariants: {
+            visible: {
+              width: isSplitView ? 308 : isStackedView ? '100%' : 360,
+              transitionEnd: { x: 0 }
+            },
+            hidden: { width: 0 }
           },
-          hidden: { x: '100%', width: 0 }
-        }}
-        transition={chatDefaultTransition}
+          controls: chatAnimationControls,
+          options: { shouldAnimateIn: false }
+        })}
         className={clsm([
           'relative',
           'flex',

@@ -4,23 +4,22 @@ import PropTypes from 'prop-types';
 import { BUTTON_BASE_CLASSES } from '../../../../components/Button/ButtonTheme';
 import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
+import { createAnimationProps } from '../../../../utils/animationPropsHelper';
 import { DownArrow } from '../../../../assets/icons';
 
 const $content = $channelContent.chat;
-const defaultTransition = { duration: 0.25, type: 'tween' };
 
 const StickScrollButton = ({ isSticky, scrollToBottom }) => (
   <AnimatePresence>
     {!isSticky && (
       <m.div
-        animate="visible"
-        initial="hidden"
-        exit="hidden"
-        variants={{
-          visible: { opacity: 1, y: 0, scale: 1 },
-          hidden: { opacity: 0, y: '25%', scale: 0.75 }
-        }}
-        transition={defaultTransition}
+        {...createAnimationProps({
+          animations: ['fadeIn-full', 'scale'],
+          customVariants: {
+            hidden: { y: '25%' },
+            visible: { y: 0 }
+          }
+        })}
         className={clsm(['bottom-2', 'flex', 'justify-center', 'pb-3'])}
       >
         <button

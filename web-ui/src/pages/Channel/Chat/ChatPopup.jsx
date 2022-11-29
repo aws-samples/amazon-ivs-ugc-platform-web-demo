@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
+import { createAnimationProps } from '../../../utils/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useModal } from '../../../contexts/Modal';
@@ -95,11 +96,7 @@ const ChatPopup = ({
       data-testid="chat-popup-container"
     >
       <m.div
-        animate="visible"
-        exit="hidden"
-        initial="hidden"
-        variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 } }}
-        transition={{ duration: 0.15 }}
+        {...createAnimationProps({ animations: ['fadeIn-full'] })}
         className={clsm([
           'absolute',
           'bg-modalOverlay',
@@ -110,15 +107,13 @@ const ChatPopup = ({
         ])}
       ></m.div>
       <m.div
-        animate="visible"
-        exit="hidden-exit"
-        initial="hidden-initial"
-        transition={{ duration: 0.15, type: 'tween' }}
-        variants={{
-          visible: { opacity: 1, y: 0 },
-          'hidden-initial': { opacity: 0.5, y: '75%' },
-          'hidden-exit': { opacity: 0, y: '75%' }
-        }}
+        {...createAnimationProps({
+          animations: ['fadeIn-half'],
+          customVariants: {
+            hidden: { y: '75%' },
+            visible: { y: 0 }
+          }
+        })}
         className={clsm([
           'bg-lightMode-gray-light',
           'dark:bg-darkMode-gray-medium',

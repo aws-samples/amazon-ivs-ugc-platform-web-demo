@@ -11,6 +11,7 @@ import {
   TEXT_VARIANT_CLASSES as chatTextVariantClasses
 } from './ChatLineTheme';
 import { clsm } from '../../../../../utils';
+import { createAnimationProps } from '../../../../../utils/animationPropsHelper';
 import { useLastFocusedElement } from '../../../../../contexts/LastFocusedElement';
 import UserAvatar from '../../../../../components/UserAvatar';
 
@@ -50,14 +51,11 @@ const ChatLine = ({
 
   return (
     <ChatLineWrapper
-      animate="visible"
-      initial={shouldAnimateIn ? 'hidden' : 'visible'}
-      exit={shouldAnimateOut ? 'hidden' : 'visible'}
-      variants={{
-        visible: { opacity: 1, scale: 1 },
-        hidden: { opacity: 0, scale: 0.75 }
-      }}
-      transition={{ duration: 0.15, type: 'tween' }}
+      {...createAnimationProps({
+        animations: ['fadeIn-full', 'scale'],
+        transition: { duration: 0.075, type: 'tween' },
+        options: { shouldAnimateIn, shouldAnimateOut }
+      })}
       className={chatLineClasses}
       chatLineVariant={variant}
       isStaticChatLine={isStaticChatLine}

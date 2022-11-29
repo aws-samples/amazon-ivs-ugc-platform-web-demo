@@ -11,12 +11,12 @@ import PropTypes from 'prop-types';
 import { Close, Settings as SettingsSvg } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { createAnimationProps } from '../../../utils/animationPropsHelper';
 import { player as $content } from '../../../content';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../Button';
 import useClickAway from '../../../hooks/useClickAway';
 
-const defaultTransition = { duration: 0.25, type: 'tween' };
 export const POPUP_ID = 'rendition';
 
 const RenditionSetting = ({
@@ -121,11 +121,7 @@ const RenditionSetting = ({
               'top-0',
               'w-screen'
             ])}
-            animate="visible"
-            exit="hidden"
-            initial="hidden"
-            transition={defaultTransition}
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+            {...createAnimationProps({ animations: ['fadeIn-full'] })}
           ></m.div>
         )}
       </AnimatePresence>
@@ -158,13 +154,10 @@ const RenditionSetting = ({
                 top: `${qualitiesContainerPos.top}px`
               }
             }
-            animate="visible"
-            exit="hidden"
-            initial="hidden"
-            transition={defaultTransition}
-            variants={
-              isMobileView && { hidden: { y: '100%' }, visible: { y: 0 } }
-            }
+            {...createAnimationProps({
+              animations: ['slideIn-bottom'],
+              options: { shouldAnimate: isMobileView }
+            })}
           >
             {isMobileView && (
               <div className={clsm(['relative'])}>

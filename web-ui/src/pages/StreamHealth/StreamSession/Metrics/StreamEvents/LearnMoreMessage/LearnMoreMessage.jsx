@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 
 import './LearnMoreMessage.css';
 import { Close } from '../../../../../../assets/icons';
+import { createAnimationProps } from '../../../../../../utils/animationPropsHelper';
 import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
@@ -16,13 +17,10 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
 
   return (
     <m.div
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      variants={
-        !isDefaultResponsiveView && { hidden: { x: '100%' }, visible: { x: 0 } }
-      }
-      transition={{ duration: 0.25, type: 'tween' }}
+      {...createAnimationProps({
+        animations: ['slideIn-right'],
+        options: { shouldAnimate: !isDefaultResponsiveView }
+      })}
       className="learn-more"
     >
       <span className="learn-more-header">

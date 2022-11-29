@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
 import './StreamEventsList.css';
+import { createAnimationProps } from '../../../../../../utils/animationPropsHelper';
 import { clsm } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { ErrorIcon, Check } from '../../../../../../assets/icons';
@@ -65,7 +66,7 @@ const StreamEventItem = ({
   }, [isExpandable, isLearnMoreVisible, isSelected, prevIsLearnMoreVisible]);
 
   useEffect(() => {
-    const variant = isSelected ? 'open' : 'collapsed';
+    const variant = isSelected ? 'visible' : 'hidden-initial';
 
     if (shouldReduceMotion) {
       controls.set(variant);
@@ -105,13 +106,15 @@ const StreamEventItem = ({
           <m.div
             className="event-description-container"
             key="event-content"
-            initial="collapsed"
-            animate={controls}
-            exit="collapsed"
-            variants={{
-              open: { opacity: 1, height: 'auto' },
-              collapsed: { opacity: 0, height: 0 }
-            }}
+            {...createAnimationProps({
+              animations: ['fadeIn-full'],
+              customVariants: {
+                hidden: { height: 0 },
+                visible: { height: 'auto' }
+              },
+              controls,
+              transition: 'bounce'
+            })}
           >
             <p className="event-description p1">{shortMsg}</p>
             {hasLearnMore && isSelected && (

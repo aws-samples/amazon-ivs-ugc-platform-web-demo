@@ -1,8 +1,9 @@
 import { m, usePresence } from 'framer-motion';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import withPortal from '../withPortal';
@@ -11,20 +12,6 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   const { addMobileOverlay, removeMobileOverlay } = useResponsiveDevice();
   const headerRef = useRef();
   const panelRef = useRef();
-  const variants = useMemo(() => {
-    switch (slideInDirection) {
-      case 'top':
-        return { hidden: { y: '-100%' }, visible: { y: 0 } };
-      case 'right':
-        return { hidden: { x: '100%' }, visible: { x: 0 } };
-      case 'bottom':
-        return { hidden: { y: '100%' }, visible: { y: 0 } };
-      case 'left':
-        return { hidden: { x: '-100%' }, visible: { x: 0 } };
-      default:
-        return;
-    }
-  }, [slideInDirection]);
   const [isPresent, safeToRemove] = usePresence();
 
   useEffect(() => {
@@ -49,11 +36,10 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
       data-testid={`mobile-panel-${panelId}`}
       ref={panelRef}
       className={clsm(['absolute', 'h-full', 'w-full', 'pointer-events-auto'])}
-      transition={{ duration: 0.25, type: 'tween' }}
-      variants={variants}
-      initial="hidden"
-      animate={controls}
-      exit="hidden"
+      {...createAnimationProps({
+        animations: [`slideIn-${slideInDirection}`],
+        controls
+      })}
     >
       {children}
     </m.div>
@@ -64,7 +50,8 @@ MobilePanel.propTypes = {
   children: PropTypes.node.isRequired,
   controls: PropTypes.object.isRequired,
   panelId: PropTypes.string.isRequired,
-  slideInDirection: PropTypes.string.isRequired
+  slideInDirection: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
+    .isRequired
 };
 
 export default withPortal(MobilePanel, 'mobile-panel', {

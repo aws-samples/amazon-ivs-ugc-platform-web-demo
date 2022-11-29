@@ -2,10 +2,11 @@ import { AnimatePresence, m } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import {
-  defaultViewerStreamActionAnimationProps,
-  defaultViewerStreamActionVariants
+  defaultSlideUpVariant,
+  defaultViewerStreamActionTransition
 } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import { STREAM_ACTION_NAME } from '../../constants';
 import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import NoticeViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Notice';
@@ -38,8 +39,11 @@ const PlayerViewerStreamActions = ({
       {currentViewerStreamActionName === STREAM_ACTION_NAME.PRODUCT &&
         !shouldRenderActionInTab && (
           <m.div
-            {...defaultViewerStreamActionAnimationProps}
-            variants={defaultViewerStreamActionVariants}
+            {...createAnimationProps({
+              animations: ['fadeIn-full'],
+              customVariants: defaultSlideUpVariant,
+              transition: defaultViewerStreamActionTransition
+            })}
             className={clsm([
               'absolute',
               'bg-white',

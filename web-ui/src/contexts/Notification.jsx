@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { DEFAULT_NOTIF_TIMEOUT } from '../constants';
+import { defaultTransition } from '../utils/animationPropsHelper';
 import useContextHook from './useContextHook';
 import useStateWithCallback from '../hooks/useStateWithCallback';
 
@@ -19,8 +20,6 @@ const defaultNotifOptions = {
   timeout: DEFAULT_NOTIF_TIMEOUT,
   withTimeout: true
 };
-
-export const NOTIF_ANIMATION_DURATION_MS = 250; // ms
 
 export const Provider = ({ children }) => {
   const [notif, setNotif] = useStateWithCallback(null);
@@ -58,10 +57,7 @@ export const Provider = ({ children }) => {
         () => {
           if (shouldDismissNotif) {
             if (withTimeout)
-              setTimeout(
-                () => setNotif(notifProps),
-                NOTIF_ANIMATION_DURATION_MS
-              );
+              setTimeout(() => setNotif(notifProps), defaultTransition * 1000);
             else setNotif(notifProps);
           }
         }

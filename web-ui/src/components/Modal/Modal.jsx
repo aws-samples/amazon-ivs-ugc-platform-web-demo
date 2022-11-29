@@ -4,10 +4,11 @@ import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import { useModal } from '../../contexts/Modal';
 import useClickAway from '../../hooks/useClickAway';
-import usePrevious from '../../hooks/usePrevious';
 import useFocusTrap from '../../hooks/useFocusTrap';
+import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
 
 const Modal = ({ children, className }) => {
@@ -38,13 +39,10 @@ const Modal = ({ children, className }) => {
         className
       ])}
       ref={modalRef}
-      animate="visible"
-      initial="hidden"
-      transition={{ duration: 0.15, type: 'tween' }}
-      variants={{
-        visible: { opacity: 1, y: 0 },
-        hidden: { opacity: 0.5, y: 25 }
-      }}
+      {...createAnimationProps({
+        animations: ['fadeIn-half'],
+        customVariants: { visible: { y: 0 }, hidden: { y: '25px' } }
+      })}
       data-testid="modal"
     >
       {children}

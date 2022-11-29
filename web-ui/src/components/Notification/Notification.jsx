@@ -3,36 +3,18 @@ import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Check, ErrorIcon } from '../../assets/icons';
-import {
-  NOTIF_ANIMATION_DURATION_MS,
-  NOTIF_TYPES,
-  useNotif
-} from '../../contexts/Notification';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { NOTIF_TYPES, useNotif } from '../../contexts/Notification';
+import InlineNotification from './InlineNotification';
+import PortalNotification from './PortalNotification';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import usePrevious from '../../hooks/usePrevious';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
-import InlineNotification from './InlineNotification';
-import PortalNotification from './PortalNotification';
-
-const getNotificationAnimationProps = (shouldSkipExitAnimation, type) => ({
-  animate: 'visible',
-  initial: 'hidden',
-  exit: shouldSkipExitAnimation ? '' : 'hidden',
-  transition: {
-    duration: NOTIF_ANIMATION_DURATION_MS / 1000,
-    type: 'tween'
-  },
-  variants: {
-    hidden: { opacity: 0, y: -25 },
-    visible: { opacity: 1, y: 0 }
-  }
-});
 
 const Notification = ({ className }) => {
   const { notif, dismissNotif } = useNotif();
   const { asPortal, message, type } = notif || {};
-  const [shouldSkipExitAnimation, setShouldSkipExitAnimation] =
-    useStateWithCallback(false);
+  const [shouldAnimateOut, setShouldAnimateOut] = useStateWithCallback(true);
   const currPage = useCurrentPage();
   const prevPage = usePrevious(currPage);
   const isOpen = !!notif;
@@ -40,27 +22,33 @@ const Notification = ({ className }) => {
   let NotifIcon = null;
   if (type === NOTIF_TYPES.ERROR) NotifIcon = ErrorIcon;
   if (type === NOTIF_TYPES.SUCCESS) NotifIcon = Check;
-
   const props = {
     type,
     message,
     className,
     key: `${type}-${message}`,
     Icon: NotifIcon,
-    animationProps: getNotificationAnimationProps(shouldSkipExitAnimation)
+    animationProps: createAnimationProps({
+      animations: ['fadeIn-full'],
+      customVariants: {
+        hidden: { y: '-25px' },
+        visible: { y: 0 }
+      },
+      options: { shouldAnimateOut }
+    })
   };
 
   // Skip the exit animation if the dismissal is triggered by a page change
   useEffect(() => {
     if (notif && currPage && prevPage && currPage !== prevPage) {
-      setShouldSkipExitAnimation(true, dismissNotif);
+      setShouldAnimateOut(false, dismissNotif);
     }
-  }, [dismissNotif, currPage, prevPage, setShouldSkipExitAnimation, notif]);
+  }, [dismissNotif, currPage, prevPage, setShouldAnimateOut, notif]);
 
   return (
     <AnimatePresence
       mode="wait"
-      onExitComplete={() => setShouldSkipExitAnimation(false)}
+      onExitComplete={() => setShouldAnimateOut(true)}
     >
       {asPortal ? (
         <PortalNotification isOpen={isOpen} {...props} />

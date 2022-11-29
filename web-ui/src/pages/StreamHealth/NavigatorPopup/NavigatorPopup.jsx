@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
 import './NavigatorPopup.css';
+import { createAnimationProps } from '../../../utils/animationPropsHelper';
 import { dashboard as $dashboardContent } from '../../../content';
 import { groupStreamSessions } from '../Header/utils';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
@@ -40,21 +41,22 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
 
   const renderPopup = () => (
     <m.div
-      initial="hidden"
-      animate={isNavOpen ? 'visible' : 'hidden'}
-      exit="hidden"
-      variants={
-        !isDefaultResponsiveView && {
+      {...createAnimationProps({
+        customVariants: {
           hidden: { y: '-12.5%' },
           visible: { y: 0 }
+        },
+        transition: {
+          damping: 25,
+          duration: 0.15,
+          stiffness: 350,
+          type: 'spring'
+        },
+        options: {
+          isVisible: isNavOpen,
+          shouldAnimate: !isDefaultResponsiveView
         }
-      }
-      transition={{
-        damping: 25,
-        duration: 0.15,
-        stiffness: 350,
-        type: 'spring'
-      }}
+      })}
       className="nav-popup-wrapper"
     >
       <div className="nav-popup" ref={ref}>
@@ -103,17 +105,12 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
     renderPopup()
   ) : (
     <m.div
-      initial="hidden-initial"
-      animate={isNavOpen ? 'visible' : 'hidden-initial'}
-      exit="hidden-exit"
-      variants={
-        !isDefaultResponsiveView && {
-          'hidden-exit': { opacity: 0 },
-          'hidden-initial': { opacity: 0.5 },
-          visible: { opacity: 1 }
+      {...createAnimationProps({
+        animations: ['fadeIn-half'],
+        options: {
+          isVisible: isNavOpen
         }
-      }
-      transition={{ duration: 0.15 }}
+      })}
       className="nav-popup-container"
     >
       {renderPopup()}

@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import MenuPopup from './MenuPopup';
 import useClickAway from '../../hooks/useClickAway';
 
@@ -38,15 +39,7 @@ const ProfileMenu = ({
       <AnimatePresence>
         {fadeBackground && isOpen && (
           <m.div
-            animate="visible"
-            exit="hidden-exit"
-            initial="hidden-initial"
-            variants={{
-              'hidden-exit': { opacity: 0 },
-              'hidden-initial': { opacity: 0.5 },
-              visible: { opacity: 1 }
-            }}
-            transition={{ duration: 0.15, type: 'tween' }}
+            {...createAnimationProps({ animations: ['fadeIn-half'] })}
             className={clsm([
               'fixed',
               'top-0',

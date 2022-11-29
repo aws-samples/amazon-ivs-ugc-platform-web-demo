@@ -3,10 +3,11 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  defaultViewerStreamActionAnimationProps,
-  defaultViewerStreamActionVariants
+  defaultViewerStreamActionTransition,
+  defaultSlideUpVariant
 } from '../../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { clsm, isTextColorInverted, range } from '../../../utils';
+import { createAnimationProps } from '../../../utils/animationPropsHelper';
 import { PROFILE_COLORS } from '../../../constants';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
@@ -49,8 +50,11 @@ const Notice = ({
 
   return (
     <m.div
-      {...defaultViewerStreamActionAnimationProps}
-      variants={defaultViewerStreamActionVariants}
+      {...createAnimationProps({
+        animations: ['fadeIn-full'],
+        customVariants: defaultSlideUpVariant,
+        transition: defaultViewerStreamActionTransition
+      })}
       className={clsm([
         'absolute',
         'bottom-7',

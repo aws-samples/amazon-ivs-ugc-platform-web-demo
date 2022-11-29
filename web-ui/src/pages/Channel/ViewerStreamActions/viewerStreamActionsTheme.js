@@ -5,7 +5,12 @@ export const defaultViewerStreamActionTransition = {
   transition: { ease: 'easeInOut' }
 };
 
-export const defaultViewerStreamActionVariants = {
+export const defaultSlideUpVariant = {
+  visible: { y: 0 },
+  hidden: { y: 15 }
+};
+
+const defaultViewerStreamActionVariants = {
   visible: {
     y: 0,
     opacity: 1,

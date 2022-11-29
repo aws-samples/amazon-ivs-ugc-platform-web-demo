@@ -8,6 +8,7 @@ import {
 } from './ProfileMenuTheme';
 import { app as $appContent } from '../../content';
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 import { Logout } from '../../assets/icons';
 import { useUser } from '../../contexts/User';
 import * as avatars from '../../assets/avatars';
@@ -38,13 +39,7 @@ const Popup = forwardRef(
 
     return (
       <m.div
-        animate="visible"
-        initial="hidden"
-        variants={{
-          hidden: { opacity: 0.5, scale: 0.9 },
-          visible: { opacity: 1, scale: 1 }
-        }}
-        transition={{ duration: 0.15, type: 'tween' }}
+        {...createAnimationProps({ animations: ['fadeIn-half', 'scale'] })}
         className={clsm([
           'px-1',
           'rounded-3xl',

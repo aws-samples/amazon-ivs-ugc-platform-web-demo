@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 import {
   correctAnswerClasses,
-  defaultViewerStreamActionAnimationProps,
   incorrectAnswerClasses,
-  defaultViewerStreamActionVariants
+  defaultSlideUpVariant,
+  defaultViewerStreamActionTransition
 } from './viewerStreamActionsTheme';
 import { clsm, isTextColorInverted } from '../../../utils';
 import { PROFILE_COLORS } from '../../../constants';
@@ -14,6 +14,7 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
 import FloatingNav from '../../../components/FloatingNav';
 import ProgressBar from './ProgressBar';
+import { createAnimationProps } from '../../../utils/animationPropsHelper';
 
 const defaultQuizAnswerHeight = 42;
 
@@ -89,10 +90,12 @@ const QuizCard = ({
       ])}
     >
       <m.div
-        {...(!shouldRenderActionInTab
-          ? defaultViewerStreamActionAnimationProps
-          : {})}
-        variants={defaultViewerStreamActionVariants}
+        {...createAnimationProps({
+          animations: ['fadeIn-full'],
+          customVariants: defaultSlideUpVariant,
+          transition: defaultViewerStreamActionTransition,
+          options: { shouldAnimate: !shouldRenderActionInTab }
+        })}
         className={clsm([
           `bg-profile-${color}`,
           'flex-col',

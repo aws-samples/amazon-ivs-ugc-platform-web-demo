@@ -2,16 +2,16 @@ import { m } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
+import { createAnimationProps } from '../../utils/animationPropsHelper';
 
 const POSITION = { TOP: 'top', BOTTOM: 'bottom' };
 
 const PlayerOverlay = ({ children, className, isVisible, position }) => (
   <m.div
-    animate={isVisible ? 'visible' : 'hidden'}
-    initial="hidden"
-    exit="hidden"
-    variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-    transition={{ duration: 0.25, type: 'tween' }}
+    {...createAnimationProps({
+      animations: ['fadeIn-full'],
+      options: { isVisible }
+    })}
     className={clsm([
       'absolute',
       'flex',
