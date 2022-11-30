@@ -29,14 +29,18 @@ class ResetPageModel extends BasePageModel {
     this.resendPasswordRequestLoc = page.locator('button:has-text("Resend")');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     ResetPageModel.#isInternalConstructing = true;
     const resetPage = new ResetPageModel(page, baseURL);
     ResetPageModel.#isInternalConstructing = false;
 
-    await resetPage.init();
     await resetPage.#mockPasswordResetRequest();
     await resetPage.#mockPasswordReset();
+    await resetPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await resetPage.navigate();
 
     return resetPage;
   };

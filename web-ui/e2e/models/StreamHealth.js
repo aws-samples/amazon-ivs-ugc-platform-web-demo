@@ -1,7 +1,8 @@
+// @ts-check
 const { expect } = require('@playwright/test');
 
 const BasePageModel = require('./BasePageModel');
-const { getCloudfrontURLRegex } = require('../utils');
+const StreamSessionsComponent = require('./StreamSessionsComponent');
 
 class StreamHealthPageModel extends BasePageModel {
   static #isInternalConstructing = false;
@@ -10,10 +11,11 @@ class StreamHealthPageModel extends BasePageModel {
    * @param {string} baseURL
    */
   constructor(page, baseURL) {
-    super(page, baseURL, '/health');
     if (!StreamHealthPageModel.#isInternalConstructing) {
       throw new TypeError('StreamHealthPageModel is not constructable');
     }
+
+    super(page, baseURL, '/health');
 
     /* Locators */
     this.sessionNavigatorButtonLoc = page.getByTestId(
@@ -26,13 +28,18 @@ class StreamHealthPageModel extends BasePageModel {
       .getByRole('link', { name: 'Settings' });
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     StreamHealthPageModel.#isInternalConstructing = true;
     const streamHealthPage = new StreamHealthPageModel(page, baseURL);
     StreamHealthPageModel.#isInternalConstructing = false;
 
-    await streamHealthPage.#mockGetStreamSessions();
+    streamHealthPage.streamSessionsComponent =
+      await StreamSessionsComponent.create(page);
     await streamHealthPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await streamHealthPage.navigate();
 
     return streamHealthPage;
   };
@@ -87,27 +94,6 @@ class StreamHealthPageModel extends BasePageModel {
       default:
         return;
     }
-  };
-
-  /* MOCK API HELPERS (INTERNAL) */
-
-  #mockGetStreamSessions = async () => {
-    await this.page.route(
-      getCloudfrontURLRegex(`/metrics/mockChannelId/streamSessions`, {
-        nextToken: ''
-      }),
-      (route, request) => {
-        if (request.method() === 'GET') {
-          route.fulfill({
-            status: 200,
-            body: JSON.stringify({
-              maxResults: 50,
-              streamSessions: []
-            })
-          });
-        } else route.fallback();
-      }
-    );
   };
 }
 

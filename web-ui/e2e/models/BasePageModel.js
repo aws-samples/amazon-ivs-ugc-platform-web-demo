@@ -49,8 +49,6 @@ class BasePageModel {
     this.#resourcesCreated = resourcesCreated === 'true';
 
     await this.page.emulateMedia({ colorScheme: 'light' });
-
-    await this.navigate();
   };
 
   navigate = async (path) => {

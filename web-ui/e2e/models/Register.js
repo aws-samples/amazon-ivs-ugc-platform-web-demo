@@ -32,15 +32,19 @@ class RegisterPageModel extends BasePageModel {
     this.successNotifLoc = page.getByTestId('success-notification');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     RegisterPageModel.#isInternalConstructing = true;
     const registerPage = new RegisterPageModel(page, baseURL);
     RegisterPageModel.#isInternalConstructing = false;
 
-    await registerPage.init();
     await registerPage.#mockRegisterUser();
     await registerPage.#mockResendEmailVerification();
     await registerPage.#mockConfirmUser();
+    await registerPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await registerPage.navigate();
 
     return registerPage;
   };

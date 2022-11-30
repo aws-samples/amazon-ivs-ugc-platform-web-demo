@@ -34,13 +34,17 @@ class StreamManagerPageModel extends BasePageModel {
     this.chatPopupContainerLoc = page.getByTestId('chat-popup-container');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     StreamManagerPageModel.#isInternalConstructing = true;
     const streamManagerPage = new StreamManagerPageModel(page, baseURL);
     StreamManagerPageModel.#isInternalConstructing = false;
 
     streamManagerPage.chatComponent = await ChatComponent.create(page);
     await streamManagerPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await streamManagerPage.navigate();
 
     return streamManagerPage;
   };

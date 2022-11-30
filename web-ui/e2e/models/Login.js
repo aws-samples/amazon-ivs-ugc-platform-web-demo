@@ -35,13 +35,17 @@ class LoginPageModel extends BasePageModel {
     this.logoutFloatingMenuButtonLoc = page.getByTestId('logout-action');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     LoginPageModel.#isInternalConstructing = true;
     const loginPage = new LoginPageModel(page, baseURL);
     LoginPageModel.#isInternalConstructing = false;
 
-    await loginPage.init();
     await loginPage.#mockSignIn();
+    await loginPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await loginPage.navigate();
 
     return loginPage;
   };

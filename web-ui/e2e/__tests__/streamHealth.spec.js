@@ -1,11 +1,16 @@
 // @ts-check
-const { extendTestFixtures } = require('../utils');
+const { extendTestFixtures, getCloudfrontURLRegex } = require('../utils');
 const { StreamHealthPageModel } = require('../models');
 
 const test = extendTestFixtures({
   name: 'streamHealthPage',
   PageModel: StreamHealthPageModel
 });
+
+const testWithoutNavigation = extendTestFixtures(
+  { name: 'streamHealthPage', PageModel: StreamHealthPageModel },
+  { shouldNavigateAfterCreate: false }
+);
 
 test.describe('Stream Health Page', () => {
   test.describe('General Cases', () => {
@@ -37,5 +42,57 @@ test.describe('Stream Health Page', () => {
         await goToSettings('floating-player');
       }
     });
+  });
+
+  testWithoutNavigation.describe('Offline State', () => {
+    testWithoutNavigation.beforeEach(
+      async ({
+        streamHealthPage: {
+          navigate,
+          streamSessionsComponent: { updateStreamSessions }
+        }
+      }) => {
+        // Populate the stream sessions before page load
+        updateStreamSessions(1);
+
+        await navigate();
+      }
+    );
+
+    testWithoutNavigation(
+      'should load the first offline session',
+      async ({ page }) => {
+        await page.waitForResponse(
+          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions', {
+            nextToken: ''
+          })
+        );
+      }
+    );
+  });
+
+  testWithoutNavigation.describe('Live State', () => {
+    testWithoutNavigation.beforeEach(
+      async ({
+        streamHealthPage: {
+          navigate,
+          streamSessionsComponent: { updateStreamSessions }
+        }
+      }) => {
+        // Populate the stream sessions before page load
+        updateStreamSessions(3, true);
+
+        await navigate();
+      }
+    );
+
+    testWithoutNavigation(
+      'should load the currently live session',
+      async ({ page }) => {
+        await page.waitForResponse(
+          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions/(.+)')
+        );
+      }
+    );
   });
 });

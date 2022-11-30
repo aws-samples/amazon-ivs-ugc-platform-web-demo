@@ -70,7 +70,7 @@ class SettingsPageModel extends BasePageModel {
     this.hamburgerButtonLoc = page.getByTestId('floating-menu-toggle');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     SettingsPageModel.#isInternalConstructing = true;
     const settingsPage = new SettingsPageModel(page, baseURL);
     SettingsPageModel.#isInternalConstructing = false;
@@ -80,8 +80,11 @@ class SettingsPageModel extends BasePageModel {
     await settingsPage.#mockChangeUsername();
     await settingsPage.#mockChangePassword();
     await settingsPage.#mockDeleteUser();
-
     await settingsPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await settingsPage.navigate();
 
     return settingsPage;
   };

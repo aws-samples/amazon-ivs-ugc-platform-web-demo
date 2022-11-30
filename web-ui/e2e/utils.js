@@ -9,7 +9,10 @@ const { v4: uuidv4 } = require('uuid');
 const { WebSocket } = require('ws');
 const jwt = require('jsonwebtoken');
 
-const defaultExtendedTestFixtureOptions = { isAuthenticated: true };
+const defaultExtendedTestFixtureOptions = {
+  isAuthenticated: true,
+  shouldNavigateAfterCreate: true
+};
 const noop = () => {};
 
 /**
@@ -29,7 +32,7 @@ const heavy = (heavyFn) => (process.env.CI ? noop() : heavyFn());
  * @param {boolean} options.isAuthenticated
  */
 const extendTestFixtures = (pageModel = {}, options = {}) => {
-  const { isAuthenticated } = {
+  const { isAuthenticated, shouldNavigateAfterCreate } = {
     ...defaultExtendedTestFixtureOptions,
     ...options
   };
@@ -157,7 +160,11 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
      */
     [pageModel.name]: async ({ page, baseURL }, use) => {
       // Use page model fixture
-      await use(await pageModel.PageModel.create(page, baseURL));
+      await use(
+        await pageModel.PageModel.create(page, baseURL, {
+          shouldNavigateAfterCreate
+        })
+      );
     }
   });
 };

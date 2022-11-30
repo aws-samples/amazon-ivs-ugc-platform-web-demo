@@ -53,7 +53,7 @@ class LoginPageModel extends BasePageModel {
     this.signInButtonLoc = page.locator('button:has-text("Sign in")');
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     const loginPage = new LoginPageModel(page, baseURL);
 
     await loginPage.init();
@@ -142,11 +142,11 @@ The Page Class constructor is where we locate all of the web elements that a use
   <br />
 
 ```javascript
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     const loginPage = new LoginPageModel(page, baseURL);
 
-    await loginPage.init();
     await loginPage.#mockSignIn();
+    await loginPage.init();
 
     return loginPage;
   };

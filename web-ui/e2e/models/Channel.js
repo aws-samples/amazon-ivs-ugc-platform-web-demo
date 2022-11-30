@@ -34,7 +34,7 @@ class ChannelPageModel extends BasePageModel {
     this.#isViewerBanned = newIsViewerBanned;
   }
 
-  static create = async (page, baseURL) => {
+  static create = async (page, baseURL, options = {}) => {
     ChannelPageModel.#isInternalConstructing = true;
     const channelPage = new ChannelPageModel(page, baseURL);
     ChannelPageModel.#isInternalConstructing = false;
@@ -42,6 +42,10 @@ class ChannelPageModel extends BasePageModel {
     channelPage.chatComponent = await ChatComponent.create(page);
     await channelPage.#mockGetUserChannelData();
     await channelPage.init();
+
+    const { shouldNavigateAfterCreate = true } = options;
+
+    if (shouldNavigateAfterCreate) await channelPage.navigate();
 
     return channelPage;
   };
