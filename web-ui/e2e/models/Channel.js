@@ -23,7 +23,9 @@ class ChannelPageModel extends BasePageModel {
 
     super(page, baseURL, `/${DEFAULT_STREAMER_USERNAME}`);
 
-    this.loadingSpinnerLoc = page.getByTestId('loading-spinner');
+    this.chatLoadingSpinnerLoc = page
+      .getByTestId('chat-component')
+      .getByTestId('loading-spinner');
   }
 
   get streamerUsername() {

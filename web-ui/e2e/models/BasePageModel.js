@@ -60,6 +60,10 @@ class BasePageModel {
 
     await this.page.goto(url);
     await expect(this.page).toHaveURL(url);
+
+    // This ensures that we wait for the fonts to be downloaded before testing anything.
+    // It helps keeping screenshots consistent.
+    await this.page.waitForFunction(async () => await document.fonts.ready);
   };
 
   /* MOCK API HELPERS */

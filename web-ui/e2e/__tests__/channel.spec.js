@@ -52,12 +52,12 @@ test.describe('Channel Page', () => {
     test('a viewer sends a message and receives it', async ({
       channelPage: {
         chatComponent: { chatPopupContainerLoc, sendChatMessage },
-        loadingSpinnerLoc
+        chatLoadingSpinnerLoc
       },
       page
     }) => {
       // Wait for chat connection
-      await loadingSpinnerLoc.waitFor({ state: 'hidden' });
+      await chatLoadingSpinnerLoc.waitFor({ state: 'hidden' });
       await page.takeScreenshot('initial-page-load');
 
       await sendChatMessage(message);
@@ -81,14 +81,13 @@ test.describe('Channel Page', () => {
           sendChatMessage,
           sendDeleteMessageAction
         },
-
-        loadingSpinnerLoc,
+        chatLoadingSpinnerLoc,
         username
       },
       page
     }, { title, project: { name: projectName } }) => {
       // Wait for chat connection
-      await loadingSpinnerLoc.waitFor({ state: 'hidden' });
+      await chatLoadingSpinnerLoc.waitFor({ state: 'hidden' });
       await sendChatMessage(message);
 
       // Gets the message ID corresponding to the message
@@ -119,12 +118,12 @@ test.describe('Channel Page', () => {
     }, { title, project: { name: projectName } }) => {
       const {
         chatComponent: { errorNotifLoc, sendChatMessage, sendBanUserAction },
-        loadingSpinnerLoc,
+        chatLoadingSpinnerLoc,
         streamerUsername,
         username
       } = channelPage;
       // Wait for chat connection
-      await loadingSpinnerLoc.waitFor({ state: 'hidden' });
+      await chatLoadingSpinnerLoc.waitFor({ state: 'hidden' });
       await sendChatMessage(message);
 
       const moderatorToken = buildChatToken(

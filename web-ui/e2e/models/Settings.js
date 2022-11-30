@@ -114,27 +114,28 @@ class SettingsPageModel extends BasePageModel {
     );
 
     await Promise.all([
+      modalResetStreamKeyButtonLoc.click(),
       // Waits for a response from the GET /channel/streamKey/reset endpoint
       this.page.waitForResponse(
         (response) =>
           new URL(response.url()).pathname === '/channel/streamKey/reset' &&
           response.status() === 200
-      ),
-      // Waits for a response from the GET /channel key endpoint
-      this.page.waitForResponse(
-        (response) =>
-          new URL(response.url()).pathname === '/channel' &&
-          response.status() === 200
-      ),
-      modalResetStreamKeyButtonLoc.click()
+      )
     ]);
 
-    // Save the new stream key value and compare it against the previous stream key vlaue
+    // Waits for a response from the GET /channel key endpoint
+    await this.page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === '/channel' &&
+        response.status() === 200
+    );
+
+    // Save the new stream key value and compare it against the previous stream key value
     const newStreamKeyValue = await this.streamKeyFieldLoc.getAttribute(
       'value'
     );
 
-    expect(initialStreamKeyValue).not.toBe(newStreamKeyValue);
+    expect(newStreamKeyValue).not.toBe(initialStreamKeyValue);
     expect(newStreamKeyValue).toMatch(/sk_mock-region_mock-stream-key_NEW_.+/);
   };
 

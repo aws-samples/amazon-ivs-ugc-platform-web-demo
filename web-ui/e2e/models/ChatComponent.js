@@ -99,7 +99,7 @@ class ChatComponent {
   };
 
   sendChatMessage = async (message) => {
-    const composerLoc = await this.page.getByPlaceholder('Say something');
+    const composerLoc = this.page.getByPlaceholder('Say something');
 
     await composerLoc.fill(message);
     await this.page.keyboard.press('Enter');
@@ -119,6 +119,7 @@ class ChatComponent {
     await this.openChatMessagePopup(message);
     await this.page.getByText('Delete message').click();
 
+    await expect(this.chatPopupContainerLoc).toBeHidden();
     await expect(this.page.getByText(message)).toBeHidden();
 
     await expect(this.successNotifLoc).toBeVisible();

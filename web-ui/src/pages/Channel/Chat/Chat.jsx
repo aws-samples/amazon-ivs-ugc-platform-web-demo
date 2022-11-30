@@ -145,6 +145,7 @@ const Chat = ({
           'justify-between',
           'px-0.5'
         ])}
+        data-testid="chat-component"
       >
         <Messages
           isChatPopupOpen={isChatPopupOpen}
