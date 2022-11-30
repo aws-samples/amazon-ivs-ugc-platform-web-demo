@@ -21,7 +21,7 @@ interface SQSLambdaTriggerProps {
   dlqQueueProps?: sqs.QueueProps;
 }
 
-export const getLambdaEntryPath = (functionName: string) =>
+const getLambdaEntryPath = (functionName: string) =>
   join(__dirname, '../../lambdas', `${functionName}.ts`);
 
 /**

@@ -2,7 +2,7 @@ import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
 import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getUser } from '../helpers';
+import { generateDeterministicId, getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import {
   ivsChatClient,
@@ -40,28 +40,21 @@ const handler = async (
       type: process.env.IVS_CHANNEL_TYPE as ChannelType,
       tags: { project: process.env.PROJECT_TAG as string }
     });
+    const { channel, streamKey } = await ivsClient.send(createChannelCommand);
 
     // Create IVS chat room
     const createRoomCommand = new CreateRoomCommand({
       name: `${cleanedUserName}s-room`,
       tags: { project: process.env.PROJECT_TAG as string }
     });
-
-    let channelArn,
-      ingestEndpoint,
-      streamKeyArn,
-      streamKeyValue,
-      playbackUrl,
-      chatRoomArn;
-
-    const { channel, streamKey } = await ivsClient.send(createChannelCommand);
     const chatRoom = await ivsChatClient.send(createRoomCommand);
-    channelArn = channel?.arn;
-    ingestEndpoint = channel?.ingestEndpoint;
-    streamKeyValue = streamKey?.value;
-    streamKeyArn = streamKey?.arn;
-    playbackUrl = channel?.playbackUrl;
-    chatRoomArn = chatRoom.arn;
+
+    const channelArn = channel?.arn;
+    const ingestEndpoint = channel?.ingestEndpoint;
+    const streamKeyValue = streamKey?.value;
+    const streamKeyArn = streamKey?.arn;
+    const playbackUrl = channel?.playbackUrl;
+    const chatRoomArn = chatRoom.arn;
 
     if (
       !channelArn ||
@@ -80,11 +73,12 @@ const handler = async (
     await updateDynamoItemAttributes({
       attributes: [
         { key: 'channelArn', value: channelArn },
+        { key: 'channelAssetId', value: generateDeterministicId(sub) },
+        { key: 'chatRoomArn', value: chatRoomArn },
         { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
         { key: 'playbackUrl', value: playbackUrl },
         { key: 'streamKeyArn', value: streamKeyArn },
-        { key: 'streamKeyValue', value: streamKeyValue },
-        { key: 'chatRoomArn', value: chatRoomArn }
+        { key: 'streamKeyValue', value: streamKeyValue }
       ],
       primaryKey: { key: 'id', value: sub },
       tableName: process.env.CHANNELS_TABLE_NAME as string

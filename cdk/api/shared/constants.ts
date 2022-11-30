@@ -20,6 +20,8 @@ export const UNBAN_USER_EXCEPTION = 'UnbanUserException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 export const BAD_REQUEST_EXCEPTION = 'BadRequestException';
+export const INVALID_PRESIGNED_POST_INPUT_EXCEPTION =
+  'InvalidPresignedPostInputException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
@@ -50,3 +52,19 @@ export const RESTRICTED_USERNAMES = [
 
 export const TIMED_METADATA_MAXIMUM_REQUEST_RETRIES = 3;
 export const TIMED_METADATA_CONSTANT_BACKOFF_RETRY_DELAY = 1000; // ms
+
+export const ASSET_TYPE = {
+  AVATAR: 'avatar',
+  BANNER: 'banner'
+};
+export const MAXIMUM_IMAGE_FILE_SIZE = {
+  // Sizes are in MB
+  [ASSET_TYPE.AVATAR]: 5,
+  [ASSET_TYPE.BANNER]: 5
+};
+export const ALLOWED_ASSET_TYPES = Object.values(ASSET_TYPE);
+export const ALLOWED_IMAGE_CONTENT_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png'
+];

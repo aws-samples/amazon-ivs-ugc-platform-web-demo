@@ -35,14 +35,16 @@ export class MetricsStack extends NestedStack {
     super(scope, id, props);
 
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
-    const stackNamePrefix = `${parentStackName}-Metrics`;
+    const nestedStackName = 'Metrics';
+    const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
     const { cluster, ivsChannelType, channelsTable, vpc } = props;
 
     // Dynamo DB Stream Table
     const streamTable = new dynamodb.Table(
       this,
-      `${stackNamePrefix}-StreamTable`,
+      `${nestedStackName}-StreamsTable`,
       {
+        tableName: `${stackNamePrefix}-StreamsTable`,
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         partitionKey: {
           name: 'channelArn',
@@ -126,7 +128,7 @@ export class MetricsStack extends NestedStack {
     });
     const { service: streamEventsService } = new Service(
       this,
-      `${stackNamePrefix}-StreamEvents-Service`,
+      `${nestedStackName}-StreamEvents-Service`,
       {
         cluster,
         containerImage,
@@ -163,7 +165,7 @@ export class MetricsStack extends NestedStack {
     // Stream Events API Gateway
     const streamEventsApiGateway = new apigateway.RestApi(
       this,
-      `${stackNamePrefix}-StreamEvents-API-Gateway`,
+      `${nestedStackName}-StreamEvents-API-Gateway`,
       {}
     );
     const link = new apigateway.VpcLink(this, 'link', {
@@ -182,7 +184,7 @@ export class MetricsStack extends NestedStack {
       .addMethod('POST', integration);
 
     // Integration with EventBridge
-    new events.Rule(this, `${stackNamePrefix}-StreamEvents-Rule`, {
+    new events.Rule(this, `${nestedStackName}-StreamEvents-Rule`, {
       eventPattern: {
         source: ['aws.ivs']
       },

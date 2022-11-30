@@ -48,17 +48,13 @@ describe('sendStreamAction controller', () => {
   const server = buildServer();
   const mockConsoleError = jest.fn();
   const realConsoleError = console.error;
-  const mockConsoleWarn = jest.fn();
-  const realConsoleWarn = console.warn;
 
   beforeAll(() => {
     console.error = mockConsoleError;
-    console.warn = mockConsoleWarn;
   });
 
   afterAll(() => {
     console.error = realConsoleError;
-    console.warn = realConsoleWarn;
   });
 
   beforeEach(() => {
@@ -73,7 +69,7 @@ describe('sendStreamAction controller', () => {
   createRouteAuthenticationTests({ server, ...defaultRequestParams });
 
   describe('error handling', () => {
-    it('should retry sending a timed metadata event when receving a throttling exception and fail', async () => {
+    it('should retry sending a timed metadata event when receiving a throttling exception and fail', async () => {
       mockIvsClient.on(PutMetadataCommand).rejects(throttlingExceptionResponse);
 
       const response = await injectAuthorizedRequest(server, {
@@ -242,7 +238,7 @@ describe('sendStreamAction controller', () => {
       expect(response.statusCode).toBe(200);
     });
 
-    it('should retry sending a timed metadata event when receving a throttling exception and succeed', async () => {
+    it('should retry sending a timed metadata event when receiving a throttling exception and succeed', async () => {
       mockIvsClient
         .on(PutMetadataCommand)
         .rejectsOnce(throttlingExceptionResponse)

@@ -4,6 +4,7 @@ import { AuthenticationDetails } from 'amazon-cognito-identity-js';
 import {
   apiBaseUrl,
   authFetch,
+  generatePresignedPost,
   getCognitoUser,
   getCurrentSession,
   unauthFetch,
@@ -311,3 +312,53 @@ export const sendStreamAction = async (metadataString) =>
     url: `${apiBaseUrl}/channel/actions/send`,
     body: { metadata: metadataString }
   });
+
+export const uploadFileToS3 = async ({
+  assetType,
+  contentType,
+  fileContents,
+  isPrivate = false
+}) => {
+  let result, error;
+
+  try {
+    const { result: presignedPost, error: presignedPostError } =
+      await generatePresignedPost({
+        assetType,
+        contentType,
+        isPrivate
+      });
+
+    if (presignedPostError) throw presignedPostError;
+
+    const formData = new FormData();
+    Object.entries(presignedPost.fields).forEach(([key, value]) =>
+      formData.append(key, value)
+    );
+    formData.append('Content-Type', contentType);
+    formData.append('file', fileContents); // The file has to be the last element
+
+    const response = await fetch(presignedPost.url, {
+      body: formData,
+      method: 'POST'
+    });
+
+    if (response.ok) {
+      const location = new URL(response.headers.get('Location'));
+      const versionId = response.headers.get('x-amz-version-id');
+      location.searchParams.append('versionId', versionId); // handles the case where the browser caches the image URL with a previous upload
+
+      result = location.toString();
+    } else {
+      // POST Errors
+      throw new Error('A Presigned Post fetch error occurred');
+    }
+  } catch (err) {
+    // Other Errors
+    error = err;
+  }
+
+  if (error) console.error(error);
+
+  return { result, error };
+};

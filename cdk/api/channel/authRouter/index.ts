@@ -7,6 +7,7 @@ import changeUsername from './changeUsername';
 import changeUserPreferences from './changeUserPreferences';
 import createResources from './createResources';
 import deleteUser from './deleteUser';
+import generateImagePresignedPost from './generateImagePresignedPost';
 import getUser from './getUser';
 import resetStreamKey from './resetStreamKey';
 import sendStreamAction from './sendStreamAction';
@@ -29,6 +30,7 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.post('/ban', banUser);
   resource.post('/unban', unbanUser);
   resource.post('/resources/create', createResources);
+  resource.post('/imagePresignedPost/create', generateImagePresignedPost);
 
   resource.put('/username/update', changeUsername);
   resource.put('/preferences/update', changeUserPreferences);

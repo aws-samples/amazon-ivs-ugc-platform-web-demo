@@ -94,6 +94,8 @@ export const PROFILE_COLORS = [
   'yellow'
 ];
 
+export const USE_SETTINGS_IMAGE_UPLOAD_TEST = false; // TEMPORARY
+
 /**
  * STREAM HEALTH
  */

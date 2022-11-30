@@ -1,20 +1,22 @@
 import {
+  ChatTokenCapability,
+  CreateChatTokenCommand
+} from '@aws-sdk/client-ivschat';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
+import {
   DeleteItemCommand,
   GetItemCommand,
   QueryCommand
 } from '@aws-sdk/client-dynamodb';
-import {
-  ChatTokenCapability,
-  CreateChatTokenCommand
-} from '@aws-sdk/client-ivschat';
+import { v5 as uuidv5 } from 'uuid';
 
 import {
   CHATROOM_ARN_NOT_FOUND_EXCEPTION,
   FORBIDDEN_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../shared/constants';
-import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
-import { dynamoDbClient, ivsChatClient } from '../shared/helpers';
+import { dynamoDbClient, ivsChatClient, s3Client } from '../shared/helpers';
 
 export const getUser = (sub: string) => {
   const getItemCommand = new GetItemCommand({
@@ -41,7 +43,7 @@ export const getUserByEmail = (userEmail: string) => {
  * Important Note: the username is case sensitive!
  * When using this function, ensure that you are using the case sensitive
  * username that the account was most recently updated to. The access token
- * is not guranteed to contain the case sensitive username as a user is allowed
+ * is not guaranteed to contain the case sensitive username as a user is allowed
  * to sign in with a case insensitive username.
  */
 export const getUserByUsername = (username: string) => {
@@ -188,3 +190,50 @@ export const createChatRoomToken = async (
     })
   );
 };
+
+type EqualCondition = ['eq', string, string] | Record<string, string>;
+type StartsWithCondition = ['starts-with', string, string];
+type ContentLengthRangeCondition = ['content-length-range', number, number];
+type Conditions =
+  | EqualCondition
+  | StartsWithCondition
+  | ContentLengthRangeCondition;
+
+export const generatePresignedPost = ({
+  acl,
+  bucketName,
+  contentType,
+  key,
+  maximumFileSize,
+  expiry = 5,
+  additionalConditions = []
+}: {
+  acl: string;
+  bucketName: string;
+  contentType: string;
+  key: string;
+  maximumFileSize: number;
+  expiry?: number;
+  additionalConditions?: Conditions[];
+}) => {
+  const contentLengthRangeInBytes = maximumFileSize * Math.pow(10, 6);
+
+  return createPresignedPost(s3Client, {
+    Bucket: bucketName,
+    Key: key,
+    Fields: { acl },
+    Expires: expiry,
+    Conditions: [
+      { bucket: bucketName }, // bucket condition
+      ['starts-with', '$key', key], // key condition
+      ['eq', '$Content-Type', contentType], // content type condition
+      ['content-length-range', 0, contentLengthRangeInBytes], // content type condition
+      ...additionalConditions
+    ]
+  });
+};
+
+const NameSpace_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
+const namespaceUUID = process.env.NAMESPACE_UUID || NameSpace_OID;
+export const generateDeterministicId = (value: string) =>
+  uuidv5(value, namespaceUUID);

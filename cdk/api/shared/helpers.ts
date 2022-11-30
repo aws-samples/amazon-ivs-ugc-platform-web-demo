@@ -19,6 +19,7 @@ import {
   IvschatClient,
   IvschatServiceException
 } from '@aws-sdk/client-ivschat';
+import { S3Client } from '@aws-sdk/client-s3';
 
 type DynamoKey = { key: string; value: string };
 
@@ -27,6 +28,7 @@ export const cognitoClient = new CognitoIdentityProviderClient({});
 export const dynamoDbClient = new DynamoDBClient({});
 export const ivsChatClient = new IvschatClient({});
 export const ivsClient = new IvsClient({});
+export const s3Client = new S3Client({});
 
 export interface ResponseBody {
   [key: string]: any;

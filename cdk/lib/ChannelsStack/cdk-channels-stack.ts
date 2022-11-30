@@ -36,7 +36,8 @@ export class ChannelsStack extends NestedStack {
     super(scope, id, props);
 
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
-    const stackNamePrefix = `${parentStackName}-Channels`;
+    const nestedStackName = 'Channels';
+    const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
     const { resourceConfig, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
@@ -51,12 +52,12 @@ export class ChannelsStack extends NestedStack {
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
       new ChannelsCognitoTriggers(
         this,
-        `${stackNamePrefix}-ChannelsCognitoTriggers`,
+        `${nestedStackName}-ChannelsCognitoTriggers`,
         { ...resourceConfig }
       );
 
     // Cognito User Pool
-    const userPool = new cognito.UserPool(this, `${stackNamePrefix}-UserPool`, {
+    const userPool = new cognito.UserPool(this, `${nestedStackName}-UserPool`, {
       ...(!enableUserAutoVerify
         ? {
             // autoVerify is used to set the attribute that Cognito will use to verify users, but will not actually verify the email automatically (the user will still need to verify it upon sign-up)
@@ -83,7 +84,7 @@ export class ChannelsStack extends NestedStack {
     // User Pool Client
     const userPoolClient = new cognito.UserPoolClient(
       this,
-      `${stackNamePrefix}-UserPoolClient`,
+      `${nestedStackName}-UserPoolClient`,
       {
         authFlows: { userPassword: true },
         userPool
@@ -91,15 +92,11 @@ export class ChannelsStack extends NestedStack {
     );
 
     // Dynamo DB Channels Table
-    const channelsTable = new dynamodb.Table(
-      this,
-      `${stackNamePrefix}-ChannelsTable`,
-      {
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-        removalPolicy: RemovalPolicy.DESTROY
-      }
-    );
+    const channelsTable = new dynamodb.Table(this, `${nestedStackName}-Table`, {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY
+    });
 
     channelsTable.addGlobalSecondaryIndex({
       indexName: 'emailIndex',
@@ -117,7 +114,7 @@ export class ChannelsStack extends NestedStack {
     // S3 Channel Assets Bucket
     const channelAssetsBucket = new s3.Bucket(
       this,
-      `${stackNamePrefix}-ChannelAssets-Bucket`,
+      `${nestedStackName}-ChannelAssets-Bucket`,
       {
         bucketName: `${stackNamePrefix}-channelassets`.toLowerCase(),
         removalPolicy: RemovalPolicy.DESTROY,
@@ -138,7 +135,8 @@ export class ChannelsStack extends NestedStack {
               s3.HttpMethods.GET,
               s3.HttpMethods.PUT,
               s3.HttpMethods.POST
-            ]
+            ],
+            exposedHeaders: ['Location', 'x-amz-version-id']
           }
         ]
       }
@@ -165,14 +163,14 @@ export class ChannelsStack extends NestedStack {
     };
     const versionIdQueryStringCachePolicy = new CachePolicy(
       this,
-      `${stackNamePrefix}-VersionId-CachePolicy`,
+      `${nestedStackName}-VersionId-CachePolicy`,
       {
         cachePolicyName: `${stackNamePrefix}-VersionId-QueryStringCacheBehavior`,
         comment: 'Only includes the versionId queryString in the cache key',
         queryStringBehavior: CacheQueryStringBehavior.allowList('versionId')
       }
     );
-    const additionalBehaviors = ['/*/banner', '/*/avatar'].reduce(
+    const additionalBehaviors = ['/*/avatar', '/*/banner'].reduce(
       (behaviors, pathPattern) => ({
         ...behaviors,
         [pathPattern]: {
@@ -184,7 +182,7 @@ export class ChannelsStack extends NestedStack {
     );
     const channelAssetsDistribution = new Distribution(
       this,
-      `${stackNamePrefix}-ChannelAssets-Distribution`,
+      `${nestedStackName}-ChannelAssets-Distribution`,
       { defaultBehavior, additionalBehaviors }
     );
     const channelAssetsDistributionURL = `https://${channelAssetsDistribution.domainName}`;
@@ -192,7 +190,7 @@ export class ChannelsStack extends NestedStack {
     const { srcQueue: channelAssetsUpdateVersionIdQueue } =
       new SQSLambdaTrigger(
         this,
-        `${stackNamePrefix}-ChannelAssets-UpdateVersionId-SQSLambdaTrigger`,
+        `${nestedStackName}-ChannelAssets-UpdateVersionId-SQSLambdaTrigger`,
         {
           name: `${stackNamePrefix}-ChannelAssetsUpdateVersionId`,
           srcHandler: {
@@ -231,6 +229,14 @@ export class ChannelsStack extends NestedStack {
 
     // IAM Policies
     const policies = [];
+    const channelAssetsObjectPolicyStatement = new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:PutObjectAcl'],
+      effect: iam.Effect.ALLOW,
+      resources: [
+        `${channelAssetsBucket.bucketArn}/*/avatar`,
+        `${channelAssetsBucket.bucketArn}/*/banner`
+      ]
+    });
     const channelsTablePolicyStatement = new iam.PolicyStatement({
       actions: [
         'dynamodb:Query',
@@ -298,22 +304,24 @@ export class ChannelsStack extends NestedStack {
       resources: [userPool.userPoolArn]
     });
     policies.push(
-      channelsTablePolicyStatement,
+      channelAssetsObjectPolicyStatement,
       channelsTableChannelArnIndexPolicyStatement,
+      channelsTablePolicyStatement,
+      deleteUserPolicyStatement,
       forgotPasswordPolicyStatement,
-      ivsPolicyStatement,
       ivsChatPolicyStatement,
-      deleteUserPolicyStatement
+      ivsPolicyStatement
     );
     this.policies = policies;
 
     const containerEnv = {
-      SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
-      IVS_CHANNEL_TYPE: ivsChannelType,
-      USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-      USER_POOL_ID: userPool.userPoolId,
+      CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
       CHANNELS_TABLE_NAME: channelsTable.tableName,
-      PROJECT_TAG: tags.project
+      IVS_CHANNEL_TYPE: ivsChannelType,
+      PROJECT_TAG: tags.project,
+      SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
+      USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      USER_POOL_ID: userPool.userPoolId
     };
     this.containerEnv = containerEnv;
 
