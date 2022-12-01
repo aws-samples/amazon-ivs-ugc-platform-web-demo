@@ -200,40 +200,33 @@ describe('generatePresignedPost controller', () => {
   });
 
   describe('general cases', () => {
-    ['public-read', 'private'].forEach((acl) => {
-      it(`should successfully generate a Presigned Post with ${acl} access`, async () => {
-        let isPrivate;
-        if (acl === 'private') isPrivate = true;
-        if (acl === 'public-read') isPrivate = false;
-
-        const response = await injectAuthorizedRequest(server, {
-          ...defaultRequestParams,
-          payload: { ...defaultValidPayload, isPrivate }
-        });
-
-        const { url, fields } = JSON.parse(response.payload);
-        const [urlBucketName] = new URL(url).host.split('.');
-        const [channelAssetId] = fields.key.split('/');
-
-        expect(urlBucketName).toBe(channelAssetsBucketName);
-        expect(channelAssetId).toBe(defaultUserData.channelAssetId);
-        expect(Object.keys(fields)).toEqual(
-          expect.arrayContaining([
-            'acl',
-            'bucket',
-            'key',
-            'Policy',
-            'X-Amz-Algorithm',
-            'X-Amz-Credential',
-            'X-Amz-Date',
-            'X-Amz-Security-Token',
-            'X-Amz-Signature'
-          ])
-        );
-        expect(fields.acl).toBe(acl);
-        expect(mockConsoleError).toHaveBeenCalledTimes(0);
-        expect(response.statusCode).toBe(200);
+    it('should successfully generate an image Presigned Post', async () => {
+      const response = await injectAuthorizedRequest(server, {
+        ...defaultRequestParams,
+        payload: defaultValidPayload
       });
+
+      const { url, fields } = JSON.parse(response.payload);
+      const [urlBucketName] = new URL(url).host.split('.');
+      const [channelAssetId] = fields.key.split('/');
+
+      expect(urlBucketName).toBe(channelAssetsBucketName);
+      expect(channelAssetId).toBe(defaultUserData.channelAssetId);
+      expect(Object.keys(fields)).toEqual(
+        expect.arrayContaining([
+          'acl',
+          'bucket',
+          'key',
+          'Policy',
+          'X-Amz-Algorithm',
+          'X-Amz-Credential',
+          'X-Amz-Date',
+          'X-Amz-Security-Token',
+          'X-Amz-Signature'
+        ])
+      );
+      expect(mockConsoleError).toHaveBeenCalledTimes(0);
+      expect(response.statusCode).toBe(200);
     });
   });
 });

@@ -200,20 +200,20 @@ type Conditions =
   | ContentLengthRangeCondition;
 
 export const generatePresignedPost = ({
-  acl,
   bucketName,
   contentType,
   key,
   maximumFileSize,
   expiry = 5,
+  acl = 'public-read', // By default, uploads will be public for read-access only
   additionalConditions = []
 }: {
-  acl: string;
   bucketName: string;
   contentType: string;
   key: string;
   maximumFileSize: number;
   expiry?: number;
+  acl?: string;
   additionalConditions?: Conditions[];
 }) => {
   const contentLengthRangeInBytes = maximumFileSize * Math.pow(10, 6);

@@ -26,3 +26,11 @@ export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
   port: 8080,
   protocol: elbv2.ApplicationProtocol.HTTP
 };
+
+/**
+ * When adding a new asset type, be sure to add it to the following places:
+ * - ALLOWED_CHANNEL_ASSET_TYPES
+ * - [cdk/api/shared/constants.ts](../api/shared/constants.ts) -> MAXIMUM_IMAGE_FILE_SIZE
+ * - [cdk/api/shared/constants.ts](../api/shared/constants.ts) -> ALLOWED_CHANNEL_ASSET_TYPES
+ */
+export const ALLOWED_CHANNEL_ASSET_TYPES = ['avatar', 'banner'] as const;

@@ -2,12 +2,17 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { getChannelArnParams, getUser } from '../helpers';
-import { ResponseBody } from '../../shared/helpers';
+import {
+  ChannelAssetURLs,
+  getChannelAssetUrls,
+  ResponseBody
+} from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   avatar?: string;
+  channelAssetUrls?: ChannelAssetURLs;
   channelResourceId?: string;
   color?: string;
   ingestEndpoint?: string;
@@ -26,6 +31,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const {
       avatar,
       channelArn,
+      channelAssets,
       color,
       ingestEndpoint,
       playbackUrl,
@@ -47,6 +53,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody.playbackUrl = playbackUrl;
     responseBody.streamKeyValue = streamKeyValue;
     responseBody.username = username;
+    responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
   } catch (error) {
     console.error(error);
 

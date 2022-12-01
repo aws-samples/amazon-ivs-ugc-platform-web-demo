@@ -316,18 +316,13 @@ export const sendStreamAction = async (metadataString) =>
 export const uploadFileToS3 = async ({
   assetType,
   contentType,
-  fileContents,
-  isPrivate = false
+  fileContents
 }) => {
   let result, error;
 
   try {
     const { result: presignedPost, error: presignedPostError } =
-      await generatePresignedPost({
-        assetType,
-        contentType,
-        isPrivate
-      });
+      await generatePresignedPost({ assetType, contentType });
 
     if (presignedPostError) throw presignedPostError;
 

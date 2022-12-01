@@ -6,11 +6,21 @@ import {
   BAD_REQUEST_EXCEPTION,
   UNEXPECTED_EXCEPTION
 } from '../shared/constants';
-import { ChannelDbRecord, dynamoDbClient, getIsLive } from '../shared/helpers';
+import {
+  ChannelAssetURLs,
+  ChannelDbRecord,
+  dynamoDbClient,
+  getChannelAssetUrls,
+  getIsLive
+} from '../shared/helpers';
 import { StreamSessionDbRecord } from '../shared/helpers';
 
+type ChannelData = Omit<ChannelDbRecord, 'channelAssets'> & {
+  channelAssetUrls?: ChannelAssetURLs;
+};
+
 interface GetChannelsResponseBody {
-  channels?: Partial<ChannelDbRecord>[];
+  channels?: ChannelData[];
   maxResults: number;
 }
 
@@ -58,7 +68,7 @@ const handler = async (
         scanCommand
       );
 
-      const unmarshalledStreamSessions: Partial<StreamSessionDbRecord>[] =
+      const unmarshalledStreamSessions: StreamSessionDbRecord[] =
         openStreamSessions.map((openStreamSession) =>
           unmarshall(openStreamSession)
         );
@@ -121,13 +131,14 @@ const handler = async (
             } else return 0;
           }
         );
-        responseBody.channels = sortedLiveChannels.reduce(
+        responseBody.channels = sortedLiveChannels.reduce<ChannelData[]>(
           (acc, liveChannel) => {
-            const { avatar, color, username } = liveChannel;
+            const { avatar, color, username, channelAssets } = liveChannel;
+            const channelAssetUrls = getChannelAssetUrls(channelAssets!);
 
-            return [...acc, { avatar, color, username }];
+            return [...acc, { avatar, color, username, channelAssetUrls }];
           },
-          [] as Partial<ChannelDbRecord>[]
+          []
         );
       }
     } catch (error) {

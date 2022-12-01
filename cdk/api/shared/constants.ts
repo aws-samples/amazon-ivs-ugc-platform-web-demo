@@ -53,18 +53,16 @@ export const RESTRICTED_USERNAMES = [
 export const TIMED_METADATA_MAXIMUM_REQUEST_RETRIES = 3;
 export const TIMED_METADATA_CONSTANT_BACKOFF_RETRY_DELAY = 1000; // ms
 
-export const ASSET_TYPE = {
-  AVATAR: 'avatar',
-  BANNER: 'banner'
-};
-export const MAXIMUM_IMAGE_FILE_SIZE = {
-  // Sizes are in MB
-  [ASSET_TYPE.AVATAR]: 5,
-  [ASSET_TYPE.BANNER]: 5
-};
-export const ALLOWED_ASSET_TYPES = Object.values(ASSET_TYPE);
+/**
+ * When adding a new asset type, be sure to add it to the following places:
+ * - MAXIMUM_IMAGE_FILE_SIZE
+ * - ALLOWED_CHANNEL_ASSET_TYPES
+ * - [cdk/lib/constants.ts](../../lib/constants.ts) -> ALLOWED_CHANNEL_ASSET_TYPES
+ */
+export const MAXIMUM_IMAGE_FILE_SIZE = { avatar: 5, banner: 5 }; // Sizes are in MB
+export const ALLOWED_CHANNEL_ASSET_TYPES = ['avatar', 'banner'] as const;
 export const ALLOWED_IMAGE_CONTENT_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png'
-];
+] as const;

@@ -169,9 +169,9 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
   return { result, error };
 };
 
-export const generatePresignedPost = ({ assetType, contentType, isPrivate }) =>
+export const generatePresignedPost = ({ assetType, contentType }) =>
   authFetch({
     method: 'POST',
     url: `${apiBaseUrl}/channel/imagePresignedPost/create`,
-    body: { assetType, contentType, isPrivate }
+    body: { assetType, contentType }
   });

@@ -7,6 +7,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 type FunctionProps = lambda.NodejsFunctionProps & {
   entryFunctionName: string;
@@ -73,13 +74,15 @@ export default class SQSLambdaTrigger extends Construct {
      * Lambda Triggers
      */
 
-    const defaultLambdaProps = { bundling: { minify: true } };
+    const defaultLambdaProps = {
+      bundling: { minify: true },
+      runtime: Runtime.NODEJS_16_X
+    };
     // Source Queue Lambda Trigger
     this.srcLambda = new lambda.NodejsFunction(this, `${srcId}-Lambda`, {
       ...defaultLambdaProps,
       functionName: `${srcId}-handler`,
       entry: srcHandlerEntry || getLambdaEntryPath(srcHandlerEntryFunctionName),
-      timeout: Duration.seconds(20),
       description:
         'Triggered by Amazon SQS when new messages arrive in the queue',
       logRetention: 7,
@@ -90,7 +93,6 @@ export default class SQSLambdaTrigger extends Construct {
       ...defaultLambdaProps,
       functionName: `${dlqId}-handler`,
       entry: dlqHandlerEntry || getLambdaEntryPath(dlqHandlerEntryFunctionName),
-      timeout: Duration.seconds(10),
       description:
         'Triggered by Amazon SQS to handle message consumption failures and gracefully manage the life cycle of unconsumed messages',
       logRetention: 14,
@@ -106,10 +108,31 @@ export default class SQSLambdaTrigger extends Construct {
      * - SQS sends an empty response only if the polling wait time expires
      */
 
+    /**
+     * Compute recommended queue and batching durations.
+     *
+     * These values are sensitive to changes as there are certain conditions that must be met between them.
+     * For example, if the retention period of an SQS event is less than the visibility timeout, then the
+     * event will expire before it can be received again by a consumer. This is because if a consumer has
+     * indicated it wants to retry processing the event by reporting it as a batchItemFailure, then the
+     * visibility timeout must first run out before it can receive it again.
+     */
+    const srcLambdaTimeoutInSeconds = this.srcLambda.timeout?.toSeconds() || 3;
+    const maxBatchingWindowInSeconds = 0; // Invoke immediately with the SQS messages that are available
+    const visibilityTimeoutInSeconds =
+      6 * srcLambdaTimeoutInSeconds + maxBatchingWindowInSeconds;
+    const maxReceiveCount = 5;
+    const retentionPeriodInSeconds =
+      maxReceiveCount * visibilityTimeoutInSeconds + 5; // message expiration + 5-second overhead
+
+    const maxBatchingWindow = Duration.seconds(maxBatchingWindowInSeconds);
+    const visibilityTimeout = Duration.seconds(visibilityTimeoutInSeconds);
+    const retentionPeriod = Duration.seconds(retentionPeriodInSeconds);
+
     const defaultQueueProps = {
       receiveMessageWaitTime: Duration.seconds(20),
       removalPolicy: RemovalPolicy.DESTROY,
-      retentionPeriod: Duration.minutes(1)
+      retentionPeriod
     };
     // Dead-letter Queue
     this.dlqQueue = new sqs.Queue(this, `${dlqId}-Queue`, {
@@ -121,9 +144,7 @@ export default class SQSLambdaTrigger extends Construct {
     this.srcQueue = new sqs.Queue(this, `${srcId}-Queue`, {
       ...defaultQueueProps,
       queueName: srcId,
-      visibilityTimeout: Duration.seconds(
-        6 * (this.srcLambda.timeout?.toSeconds() || 5)
-      ),
+      visibilityTimeout,
       deadLetterQueue: {
         maxReceiveCount: 5, // maxReceiveCount allows for throttled messages to get processed after a burst of messages
         queue: this.dlqQueue
@@ -134,7 +155,7 @@ export default class SQSLambdaTrigger extends Construct {
     // Add the Source Queue and DLQ as Event Sources to the Lambda function handlers
     const defaultEventSourceProps = {
       batchSize: 10, // Process SQS messages in batches of 10
-      maxBatchingWindow: Duration.minutes(0) // Invoke immediately with the SQS messages that are available
+      maxBatchingWindow
     };
     this.srcLambda.addEventSource(
       new eventSources.SqsEventSource(this.srcQueue, {

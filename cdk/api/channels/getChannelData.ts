@@ -9,7 +9,9 @@ import {
   USER_NOT_FOUND_EXCEPTION
 } from '../shared/constants';
 import {
+  ChannelAssetURLs,
   dynamoDbClient,
+  getChannelAssetUrls,
   getIsLive,
   ResponseBody,
   updateIngestConfiguration
@@ -26,6 +28,7 @@ interface GetChannelDataResponseBody extends ResponseBody {
   username?: string;
   ingestConfiguration?: IngestConfiguration;
   isViewerBanned?: boolean;
+  channelAssetUrls?: ChannelAssetURLs;
 }
 
 interface GetChannelDataParams {
@@ -65,13 +68,21 @@ const handler = async (
 
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
 
-    const { avatar, bannedUserSubs, channelArn, color, playbackUrl, username } =
-      unmarshall(UserItems[0]);
+    const {
+      avatar,
+      bannedUserSubs,
+      channelArn,
+      channelAssets,
+      color,
+      playbackUrl,
+      username
+    } = unmarshall(UserItems[0]);
 
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.username = username;
     responseBody.isViewerBanned = false;
+    responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
 
     // If the viewer is banned, then only return a subset of the channel data
     if (viewerSub && bannedUserSubs) {

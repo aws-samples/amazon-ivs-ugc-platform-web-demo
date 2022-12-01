@@ -16,7 +16,17 @@ const url = '/channels';
 const channelObject = {
   avatar: 'avatar',
   color: 'color',
-  username: 'username'
+  username: 'username',
+  channelAssets: {
+    avatar: {
+      url: 'https://d2rjmx7smzf4q7.cloudfront.net/0be3553d-9cde-5568-8e1c-d2b8ad1ad007/avatar?versionId=AfVhOqaUkzyjN0Fe1KsX2who34eloa45',
+      sequencer: '006388DBA29BB82E37'
+    },
+    banner: {
+      url: 'https://d2rjmx7smzf4q7.cloudfront.net/0be3553d-9cde-5568-8e1c-d2b8ad1ad007/banner?versionId=7tBpTPc3.b9Y.rAUdkP5TggAJDggTntL',
+      sequencer: '006388DC03961B2663'
+    }
+  }
 };
 
 describe('getChannels controller', () => {
@@ -169,10 +179,17 @@ describe('getChannels controller', () => {
 
       const response = await server.inject({ url, query: { isLive: 'true' } });
       const { channels, maxResults } = JSON.parse(response.payload);
+      const { channelAssets, ...expectedChannelData } = channelObject;
 
       expect(maxResults).toBe(50);
       expect(channels.length).toBe(1);
-      expect(channels[0]).toEqual(channelObject);
+      expect(channels[0]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls: {
+          avatar: channelAssets.avatar.url,
+          banner: channelAssets.banner.url
+        }
+      });
     });
 
     it('should return a list with channels sorted by stream start time', async () => {
@@ -205,12 +222,29 @@ describe('getChannels controller', () => {
 
       const response = await server.inject({ url, query: { isLive: 'true' } });
       const { channels, maxResults } = JSON.parse(response.payload);
+      const { channelAssets, ...expectedChannelData } = channelObject;
+      const channelAssetUrls = {
+        avatar: channelAssets.avatar.url,
+        banner: channelAssets.banner.url
+      };
 
       expect(maxResults).toBe(50);
       expect(channels.length).toBe(3);
-      expect(channels[0]).toEqual({ ...channelObject, username: 'user2' });
-      expect(channels[1]).toEqual({ ...channelObject, username: 'user1' });
-      expect(channels[2]).toEqual({ ...channelObject, username: 'user3' });
+      expect(channels[0]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls,
+        username: 'user2'
+      });
+      expect(channels[1]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls,
+        username: 'user1'
+      });
+      expect(channels[2]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls,
+        username: 'user3'
+      });
     });
   });
 });

@@ -1,6 +1,7 @@
 import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 import { ChannelsResourceConfig } from '../../constants';
 
@@ -26,7 +27,8 @@ export default class ChannelsCognitoTriggers extends Construct {
     // Default lambda parameters
     const defaultLambdaParams = {
       ...(logRetention ? { logRetention } : {}),
-      bundling: { minify: true }
+      bundling: { minify: true },
+      runtime: Runtime.NODEJS_16_X
     };
 
     // Lambda to auto verify new users, not suitable for production

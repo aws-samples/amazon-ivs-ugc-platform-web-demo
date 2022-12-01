@@ -21,6 +21,8 @@ import {
 } from '@aws-sdk/client-ivschat';
 import { S3Client } from '@aws-sdk/client-s3';
 
+import { ALLOWED_CHANNEL_ASSET_TYPES } from './constants';
+
 type DynamoKey = { key: string; value: string };
 
 export const cloudwatchClient = new CloudWatchClient({});
@@ -67,6 +69,7 @@ export interface StreamSessionDbRecord {
 export interface ChannelDbRecord {
   avatar?: string;
   channelArn?: string;
+  channelAssets?: ChannelAssets;
   chatRoomArn?: string;
   color?: string;
   email?: string;
@@ -181,4 +184,24 @@ export const getIsLive = (
   !endTime &&
   !!truncatedEvents?.find(
     (truncatedEvent) => truncatedEvent.name === 'Stream Start'
+  );
+
+type ChannelAssets = Partial<
+  Record<
+    typeof ALLOWED_CHANNEL_ASSET_TYPES[number],
+    {
+      sequencer: string;
+      url: string;
+    }
+  >
+>;
+export type ChannelAssetURLs = Partial<Record<keyof ChannelAssets, string>>;
+
+export const getChannelAssetUrls = (channelAssets: ChannelAssets = {}) =>
+  Object.entries(channelAssets).reduce<ChannelAssetURLs>(
+    (channelAssetUrls, [assetType, { url }]) => ({
+      ...channelAssetUrls,
+      [assetType]: url
+    }),
+    {}
   );

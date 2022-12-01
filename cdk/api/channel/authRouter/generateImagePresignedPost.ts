@@ -3,7 +3,7 @@ import { PresignedPost } from '@aws-sdk/s3-presigned-post';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import {
-  ALLOWED_ASSET_TYPES,
+  ALLOWED_CHANNEL_ASSET_TYPES,
   ALLOWED_IMAGE_CONTENT_TYPES,
   INVALID_PRESIGNED_POST_INPUT_EXCEPTION,
   MAXIMUM_IMAGE_FILE_SIZE,
@@ -12,13 +12,12 @@ import {
 import { generatePresignedPost, getUser } from '../helpers';
 import { UserContext } from '../authorizer';
 
-type ASSET_TYPE = 'avatar' | 'banner';
-type CONTENT_TYPE = 'image/jpg' | 'image/jpeg' | 'image/png';
+type ASSET_TYPE = typeof ALLOWED_CHANNEL_ASSET_TYPES[number];
+type CONTENT_TYPE = typeof ALLOWED_IMAGE_CONTENT_TYPES[number];
 
 interface GenerateImagePresignedPostRequestBody {
   assetType: ASSET_TYPE;
   contentType: CONTENT_TYPE;
-  isPrivate: boolean;
 }
 
 const handler = async (
@@ -26,16 +25,15 @@ const handler = async (
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { assetType, contentType, isPrivate = false } = request.body;
-  const cannedAcl = isPrivate ? 'private' : 'public-read';
+  const { assetType, contentType } = request.body;
   const maximumFileSize = MAXIMUM_IMAGE_FILE_SIZE[assetType];
   let responseBody: PresignedPost;
 
   // Validate that an allowed asset type was provided
-  if (!ALLOWED_ASSET_TYPES.includes(assetType)) {
+  if (!ALLOWED_CHANNEL_ASSET_TYPES.includes(assetType)) {
     const errorMsg = `Invalid value provided for assetType: ${
       assetType || '--'
-    }. Acceptable asset types are ${ALLOWED_ASSET_TYPES.join(', ')}.`;
+    }. Acceptable asset types are ${ALLOWED_CHANNEL_ASSET_TYPES.join(', ')}.`;
     console.error(errorMsg);
     reply.statusCode = 400;
 
@@ -87,7 +85,6 @@ const handler = async (
     }
 
     responseBody = await generatePresignedPost({
-      acl: cannedAcl,
       key: `${channelAssetId}/${assetType}`,
       bucketName: process.env.CHANNEL_ASSETS_BUCKET_NAME!,
       contentType,

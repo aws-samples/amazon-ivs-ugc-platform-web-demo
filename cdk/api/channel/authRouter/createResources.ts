@@ -74,6 +74,7 @@ const handler = async (
       attributes: [
         { key: 'channelArn', value: channelArn },
         { key: 'channelAssetId', value: generateDeterministicId(sub) },
+        { key: 'channelAssets', value: {} },
         { key: 'chatRoomArn', value: chatRoomArn },
         { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
         { key: 'playbackUrl', value: playbackUrl },

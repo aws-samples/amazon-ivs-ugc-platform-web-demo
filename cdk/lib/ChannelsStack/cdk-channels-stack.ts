@@ -13,8 +13,12 @@ import {
   Stack
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 
-import { ChannelsResourceConfig } from '../constants';
+import {
+  ALLOWED_CHANNEL_ASSET_TYPES,
+  ChannelsResourceConfig
+} from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
 
@@ -110,6 +114,15 @@ export class ChannelsStack extends NestedStack {
       indexName: 'usernameIndex',
       partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING }
     });
+    channelsTable.addGlobalSecondaryIndex({
+      indexName: 'channelAssetIdIndex',
+      partitionKey: {
+        name: 'channelAssetId',
+        type: dynamodb.AttributeType.STRING
+      },
+      projectionType: ProjectionType.INCLUDE,
+      nonKeyAttributes: ['channelAssets']
+    });
 
     // S3 Channel Assets Bucket
     const channelAssetsBucket = new s3.Bucket(
@@ -170,7 +183,9 @@ export class ChannelsStack extends NestedStack {
         queryStringBehavior: CacheQueryStringBehavior.allowList('versionId')
       }
     );
-    const additionalBehaviors = ['/*/avatar', '/*/banner'].reduce(
+    const additionalBehaviors = ALLOWED_CHANNEL_ASSET_TYPES.map(
+      (assetType) => `/*/${assetType}`
+    ).reduce(
       (behaviors, pathPattern) => ({
         ...behaviors,
         [pathPattern]: {
@@ -198,12 +213,19 @@ export class ChannelsStack extends NestedStack {
             description:
               'Triggered by Amazon SQS when new S3 event messages arrive in the queue to update channel asset versionIds',
             environment: {
-              CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
-              CHANNEL_ASSETS_BASE_URL: channelAssetsDistributionURL
+              CHANNEL_ASSETS_BASE_URL: channelAssetsDistributionURL,
+              CHANNELS_TABLE_NAME: channelsTable.tableName
             },
             initialPolicy: [
               new iam.PolicyStatement({
-                actions: ['dynamodb:BatchGetItem', 'dynamodb:UpdateItem'],
+                actions: ['dynamodb:Query'],
+                effect: iam.Effect.ALLOW,
+                resources: [
+                  `${channelsTable.tableArn}/index/channelAssetIdIndex`
+                ]
+              }),
+              new iam.PolicyStatement({
+                actions: ['dynamodb:UpdateItem'],
                 effect: iam.Effect.ALLOW,
                 resources: [channelsTable.tableArn]
               })
@@ -218,8 +240,8 @@ export class ChannelsStack extends NestedStack {
       );
 
     // Add an S3 Event Notification that publishes an s3:ObjectCreated:* event to the SQS
-    // channelAssetsUpdateVersionIdQueue for object keys matching the 'avatar' and 'banner' suffixes
-    ['avatar', 'banner'].forEach((suffix) => {
+    // channelAssetsUpdateVersionIdQueue for object keys matching the ALLOWED_CHANNEL_ASSET_TYPES suffixes
+    ALLOWED_CHANNEL_ASSET_TYPES.forEach((suffix) => {
       channelAssetsBucket.addEventNotification(
         s3.EventType.OBJECT_CREATED,
         new s3n.SqsDestination(channelAssetsUpdateVersionIdQueue),
@@ -232,10 +254,9 @@ export class ChannelsStack extends NestedStack {
     const channelAssetsObjectPolicyStatement = new iam.PolicyStatement({
       actions: ['s3:PutObject', 's3:PutObjectAcl'],
       effect: iam.Effect.ALLOW,
-      resources: [
-        `${channelAssetsBucket.bucketArn}/*/avatar`,
-        `${channelAssetsBucket.bucketArn}/*/banner`
-      ]
+      resources: ALLOWED_CHANNEL_ASSET_TYPES.map(
+        (assetType) => `${channelAssetsBucket.bucketArn}/*/${assetType}`
+      )
     });
     const channelsTablePolicyStatement = new iam.PolicyStatement({
       actions: [
