@@ -106,6 +106,7 @@ const StatusBar = () => {
         'max-h-12',
         isStreamHealthPage && ['max-w-[240px]', 'mt-8', 'mb-2.5', 'md:mb-[2px]']
       ])}
+      role="status"
     >
       <StatusItem isLive={isLive} icon={<Hourglass />} value={elapsedTime} />
       <StatusItem

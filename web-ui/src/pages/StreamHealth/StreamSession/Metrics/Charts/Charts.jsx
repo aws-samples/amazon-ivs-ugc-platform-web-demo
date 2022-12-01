@@ -174,8 +174,12 @@ const Charts = () => {
         footerClassNames: ['chart-time-range-footer'],
         footer: (
           <>
-            <p className="p2">{zoomStart}</p>
-            <p className="p2">{zoomEnd}</p>
+            <p className="p2" data-testid="chart-zoom-start-time">
+              {zoomStart}
+            </p>
+            <p className="p2" data-testid="chart-zoom-end-time">
+              {zoomEnd}
+            </p>
           </>
         )
       };

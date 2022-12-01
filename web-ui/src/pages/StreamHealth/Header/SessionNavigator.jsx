@@ -94,6 +94,7 @@ const SessionNavigator = forwardRef(
           isDisabled={isNextDisabled}
           onClick={handleNextStream}
           variant="secondary"
+          ariaLabel="Go to previous session"
         >
           <ChevronLeft />
         </Button>
@@ -125,8 +126,13 @@ const SessionNavigator = forwardRef(
               </>
             ) : (
               <>
-                <p className="date">{date}</p>
-                <span className={clsm(['p3', TIME_CLASSES])}>
+                <p className="date" data-testid="session-navigator-date">
+                  {date}
+                </p>
+                <span
+                  className={clsm(['p3', TIME_CLASSES])}
+                  data-testid="session-navigator-time"
+                >
                   {isLive
                     ? `${$content.session_navigator.started} ${time}`
                     : time}
@@ -141,6 +147,7 @@ const SessionNavigator = forwardRef(
           isDisabled={isPrevDisabled}
           onClick={handlePreviousStream}
           variant="secondary"
+          ariaLabel="Go to next session"
         >
           <ChevronRight />
         </Button>

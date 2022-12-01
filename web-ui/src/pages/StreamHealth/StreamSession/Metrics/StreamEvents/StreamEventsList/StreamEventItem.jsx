@@ -100,7 +100,9 @@ const StreamEventItem = ({
             {error && <ErrorIcon className="error-icon" />}
             {success && <Check className="success-icon" />}
           </div>
-          <p className="event-time p2">{eventTimestamp}</p>
+          <p className="event-time p2" data-testid="stream-event-date-time">
+            {eventTimestamp}
+          </p>
         </div>
         {isExpandable && (
           <m.div

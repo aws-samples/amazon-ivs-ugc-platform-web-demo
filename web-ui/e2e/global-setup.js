@@ -7,7 +7,6 @@ const { noop } = require('./utils');
 const overridePageFixture = (page) => {
   page.getLocalStorage = noop;
   page.takeScreenshot = noop;
-  page.readClipboard = noop;
   page.resetCursorPosition = noop;
   page.fetchResponses = [];
 

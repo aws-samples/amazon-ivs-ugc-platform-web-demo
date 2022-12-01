@@ -61,7 +61,7 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
        *
        * @param {string} [name] An optional screenshot name.
        */
-      page.takeScreenshot = async (name) => {
+      page.takeScreenshot = async (name, options = {}) => {
         await heavy(async () => {
           const testTitle = testInfo?.titlePath[1].replace(/\s/g, '');
           const filename =
@@ -69,7 +69,7 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
               ? `${[testTitle, name].join('-')}.png`
               : undefined;
 
-          await expect.soft(page).toHaveScreenshot(filename);
+          await expect.soft(page).toHaveScreenshot(filename, options);
         });
       };
 
@@ -123,18 +123,6 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
           page.wsFramesReceived.push(JSON.parse(event.payload))
         );
       });
-
-      // Read the current text value stored in the clipboard
-      page.readClipboard = async () =>
-        await page.evaluate((projectName) => {
-          if (projectName === 'Mobile Safari') return null;
-
-          try {
-            return window.navigator?.clipboard?.readText();
-          } catch (error) {
-            return null;
-          }
-        }, testInfo.project.name);
 
       // Resets the mouse cursor position to (0,0)
       page.resetCursorPosition = async () => await page.mouse.move(0, 0);
@@ -262,8 +250,10 @@ const connectToWss = (token) =>
     socket.onerror = reject;
   });
 
+const slugify = (str) => str.toLowerCase().replace(/\s/g, '-');
+
 const getTestTitleSlug = (testTitle, projectName) =>
-  [testTitle, projectName].join('-').toLowerCase().replace(/\s/g, '-');
+  slugify([testTitle, projectName].join('-'));
 
 module.exports = {
   COGNITO_IDP_URL_REGEX,
@@ -274,5 +264,6 @@ module.exports = {
   getTestTitleSlug,
   heavy,
   isValidUrl,
-  noop
+  noop,
+  slugify
 };

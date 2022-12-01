@@ -51,15 +51,18 @@ class BasePageModel {
     await this.page.emulateMedia({ colorScheme: 'light' });
   };
 
-  navigate = async (path) => {
-    let url = path || this.route;
-
-    if (!isValidUrl(url)) {
-      url = this.baseURL + url;
-    }
+  navigate = async (path, assertionPath) => {
+    const getValidUrl = (url) => {
+      if (!isValidUrl(url)) {
+        url = this.baseURL + url;
+      }
+      return url;
+    };
+    const url = getValidUrl(path || this.route);
+    const assertionUrl = getValidUrl(assertionPath || url);
 
     await this.page.goto(url);
-    await expect(this.page).toHaveURL(url);
+    await expect(this.page).toHaveURL(assertionUrl);
 
     // This ensures that we wait for the fonts to be downloaded before testing anything.
     // It helps keeping screenshots consistent.

@@ -141,32 +141,10 @@ class SettingsPageModel extends BasePageModel {
 
   copyStreamConfiguration = async () => {
     await this.copyStreamKeyButtonLoc.click();
-    const copiedStreamKeyValue = await this.page.readClipboard();
-    if (copiedStreamKeyValue === null || copiedStreamKeyValue === undefined) {
-      /**
-       * Clipboard value could not be retrieved due to browser limitations or security reasons,
-       * (i.e. Safari requires a secure context, like https, when running in CI and Firefox does
-       * not provide support for reading the clipboard) so we check for a success notification
-       * instead as a fallback.
-       */
-      await expect(this.notifLoc).toHaveText('Stream key copied');
-    } else {
-      const streamKeyValue = await this.streamKeyFieldLoc.getAttribute('value');
-      expect(copiedStreamKeyValue).toEqual(streamKeyValue);
-    }
+    await expect(this.notifLoc).toHaveText('Stream key copied');
 
     await this.copyIngestEndpointButtonLoc.click();
-    const copiedIngestEndpointValue = await this.page.readClipboard();
-    if (
-      copiedIngestEndpointValue === null ||
-      copiedIngestEndpointValue === undefined
-    ) {
-      await expect(this.notifLoc).toHaveText('Ingest server URL copied');
-    } else {
-      const ingestEndpointValue =
-        await this.ingestEndpointFieldLoc.getAttribute('value');
-      expect(copiedIngestEndpointValue).toEqual(ingestEndpointValue);
-    }
+    await expect(this.notifLoc).toHaveText('Ingest server URL copied');
   };
 
   updateProfileAvatar = async () => {

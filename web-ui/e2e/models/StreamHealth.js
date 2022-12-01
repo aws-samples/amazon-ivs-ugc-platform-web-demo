@@ -1,6 +1,7 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
+const { slugify } = require('../utils');
 const BasePageModel = require('./BasePageModel');
 const StreamSessionsComponent = require('./StreamSessionsComponent');
 
@@ -23,9 +24,43 @@ class StreamHealthPageModel extends BasePageModel {
     );
     this.streamSessionDropdownLoc = page.getByTestId('no-streams');
     this.floatingPlayerFrameLoc = page.getByTestId('floating-player');
-    this.staticNotificationSettingsButton = page
+    this.staticNotificationSettingsButtonLoc = page
       .getByRole('article')
       .getByRole('link', { name: 'Settings' });
+
+    this.getEncoderConfigItemLoc = (encoderConfigLabel) =>
+      page.getByTestId(`${slugify(encoderConfigLabel)}-config-label`);
+
+    this.getEncoderConfigItemCopyBtnLoc = (encoderConfigLabel) =>
+      page.getByRole('button', {
+        name: `Copy the ${encoderConfigLabel.toLowerCase()} value`
+      });
+
+    this.notifLoc = this.page.getByTestId('success-notification');
+
+    /**
+     * Timestamp locators
+     * The following locators include all the timestamps present after page load.
+     */
+    this.sessionNavigatorBtnDateLoc = page.getByTestId(
+      'session-navigator-date'
+    );
+    this.sessionNavigatorBtnTimeLoc = page.getByTestId(
+      'session-navigator-time'
+    );
+    this.chartZoomStartTimeLoc = page.getByTestId('chart-zoom-start-time');
+    this.chartZoomEnTimeLoc = page.getByTestId('chart-zoom-end-time');
+    this.streamEventsDateTimeLoc = page.getByTestId('stream-event-date-time');
+    this.streamSessionDropdownDateTime = page.getByTestId('session-data');
+
+    this.timestampLocators = [
+      this.sessionNavigatorBtnDateLoc,
+      this.sessionNavigatorBtnTimeLoc,
+      this.chartZoomStartTimeLoc,
+      this.chartZoomEnTimeLoc,
+      this.streamEventsDateTimeLoc,
+      this.streamSessionDropdownDateTime
+    ];
   }
 
   static create = async (page, baseURL, options = {}) => {
@@ -88,12 +123,21 @@ class StreamHealthPageModel extends BasePageModel {
         break;
       case 'static-notification':
         // Click on the static notification settings button to redirect to the settings page
-        await this.staticNotificationSettingsButton.click();
+        await this.staticNotificationSettingsButtonLoc.click();
         await expect(this.page).toHaveURL(this.baseURL + '/settings');
         break;
       default:
         return;
     }
+  };
+
+  copyEncoderConfigItem = async (encoderConfigLabel) => {
+    // Click on the copy encoder config button
+    const encoderConfigLabelLoc =
+      this.getEncoderConfigItemCopyBtnLoc(encoderConfigLabel);
+    await encoderConfigLabelLoc.click();
+
+    await expect(this.notifLoc).toHaveText(`${encoderConfigLabel} copied`);
   };
 }
 

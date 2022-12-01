@@ -12,14 +12,14 @@ const $content = $dashboardContent.header.session_navigator;
 const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
   const { startTime, endTime, hasErrorEvent, isLive } = streamSession;
   const [date, time, dayDiff] = useDateTime(startTime, endTime, 5);
-
   return (
     <Button
       className="session-button"
       onClick={() => handleSessionClick(streamSession)}
       variant="secondary"
+      ariaLabel={`Navigate to stream session ${streamSession.streamId}`}
     >
-      <div className="session-data">
+      <div className="session-data" data-testid="session-data">
         <span className="session-date">
           <h3>{date}</h3>
           {isLive && <LivePill />}

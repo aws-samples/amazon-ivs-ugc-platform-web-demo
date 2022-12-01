@@ -44,6 +44,16 @@ const ConfigRow = ({ label, value, error }) => {
     notifySuccess(`${label} ${$content.copied}`);
   };
 
+  const getEncoderValueElement = () => (
+    <p
+      className="encoder-value p1"
+      data-testid={`${label.toLowerCase().replace(/\s/g, '-')}-config-label`}
+      ref={valueRef}
+    >
+      {renderedValue}
+    </p>
+  );
+
   return (
     <span className={`config-item ${hasError ? 'error' : ''}`}>
       {renderedValue !== NO_DATA_VALUE && !!ErrorMessage ? (
@@ -78,14 +88,10 @@ const ConfigRow = ({ label, value, error }) => {
             hasFixedWidth={!!ErrorMessage}
             message={ErrorMessage || renderedValue}
           >
-            <p className="encoder-value p1" ref={valueRef}>
-              {renderedValue}
-            </p>
+            {getEncoderValueElement()}
           </Tooltip>
         ) : (
-          <p className="encoder-value p1" ref={valueRef}>
-            {renderedValue}
-          </p>
+          getEncoderValueElement()
         )}
       </span>
     </span>

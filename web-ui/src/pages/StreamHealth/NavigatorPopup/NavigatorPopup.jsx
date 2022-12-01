@@ -59,7 +59,11 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       })}
       className="nav-popup-wrapper"
     >
-      <div className="nav-popup" ref={ref}>
+      <div
+        className="nav-popup"
+        ref={ref}
+        data-testid="stream-session-dropdown"
+      >
         {streamSessions?.length ? (
           <>
             {groupStreamSessions(streamSessions).map(
