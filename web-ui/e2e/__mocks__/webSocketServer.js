@@ -11,7 +11,18 @@ const protocolSplitChar = '|';
 
 wss.on('connection', (ws) => {
   const [roomName, username] = ws.protocol.split(protocolSplitChar);
-  const userData = webSocketTokens[username];
+  let userData = webSocketTokens[username];
+
+  // Fallback userData
+  if (!userData)
+    userData = {
+      UserId: username,
+      Attributes: {
+        avatar: 'ibex',
+        color: 'yellow',
+        displayName: username
+      }
+    };
 
   // Upon receiving a message, send the corresponding action to all connected clients
   ws.on('message', (data) => {

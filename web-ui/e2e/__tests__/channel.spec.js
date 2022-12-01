@@ -13,7 +13,8 @@ const test = extendTestFixtures({
   PageModel: ChannelPageModel
 });
 
-const buildChatToken = (roomName, username) => [roomName, username].join('|');
+const buildChatToken = (roomName = '', username = '') =>
+  [roomName, username].join('|');
 
 test.describe('Channel Page', () => {
   const createTokenRouteHandlers = {};
@@ -82,7 +83,7 @@ test.describe('Channel Page', () => {
           sendDeleteMessageAction
         },
         chatLoadingSpinnerLoc,
-        username
+        streamerUsername
       },
       page
     }, { title, project: { name: projectName } }) => {
@@ -97,7 +98,7 @@ test.describe('Channel Page', () => {
       ).Id;
       const moderatorToken = buildChatToken(
         getTestTitleSlug(title, projectName),
-        username
+        streamerUsername
       );
 
       // Simulate message deletion by a moderator
@@ -110,6 +111,51 @@ test.describe('Channel Page', () => {
       await page.takeScreenshot(
         'chat-viewer-sends-message-moderator-deletes-message'
       );
+    });
+
+    test('a viewer sends a message and another viewer sees it deleted by a moderator', async ({
+      channelPage: {
+        chatComponent: {
+          errorNotifLoc,
+          populateChatMessage,
+          sendDeleteMessageAction,
+          successNotifLoc
+        },
+        chatLoadingSpinnerLoc,
+        streamerUsername
+      },
+      page
+    }, { title, project: { name: projectName } }) => {
+      // Wait for chat connection
+      await chatLoadingSpinnerLoc.waitFor({ state: 'hidden' });
+      // Populate the chat with a message from another viewer
+      const viewerUsername = 'yet-another-viewer';
+      await populateChatMessage(
+        message,
+        buildChatToken(getTestTitleSlug(title, projectName), viewerUsername)
+      );
+
+      // Gets the message ID corresponding to the message
+      const { wsFramesReceived } = page;
+      const messageId = wsFramesReceived.find(
+        (wsFrameReceived) => wsFrameReceived.Content === message
+      ).Id;
+      const moderatorToken = buildChatToken(
+        getTestTitleSlug(title, projectName),
+        streamerUsername
+      );
+
+      // Simulate message deletion by a moderator
+      await sendDeleteMessageAction(message, messageId, moderatorToken);
+
+      await expect(errorNotifLoc).toBeHidden();
+      await expect(successNotifLoc).toBeHidden();
+      await expect(page.getByText(message)).toBeHidden();
+      expect(await page.getByTestId('chatline-message-removed').count()).toBe(
+        0
+      );
+      // Assert against initial state since we are back into this state
+      await page.takeScreenshot('initial-page-load');
     });
 
     test('a viewer sends a message and a moderator bans the viewer', async ({
