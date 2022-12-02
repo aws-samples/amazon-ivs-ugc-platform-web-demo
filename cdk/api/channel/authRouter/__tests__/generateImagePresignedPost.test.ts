@@ -15,7 +15,7 @@ import {
 import buildServer from '../../../buildServer';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
-const url = '/channel/imagePresignedPost/create';
+const url = '/channel/assets/imagePresignedPost/create';
 const defaultRequestParams = { method: 'POST' as const, url };
 const defaultValidPayload = {
   assetType: 'avatar',

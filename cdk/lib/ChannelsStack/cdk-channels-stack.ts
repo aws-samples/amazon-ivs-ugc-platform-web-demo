@@ -133,7 +133,12 @@ export class ChannelsStack extends NestedStack {
         removalPolicy: RemovalPolicy.DESTROY,
         autoDeleteObjects: true,
         versioned: true,
-        lifecycleRules: [{ noncurrentVersionExpiration: Duration.days(1) }],
+        lifecycleRules: [
+          {
+            expiredObjectDeleteMarker: true,
+            noncurrentVersionExpiration: Duration.days(1)
+          }
+        ],
         blockPublicAccess: new s3.BlockPublicAccess({
           blockPublicAcls: false,
           ignorePublicAcls: false,
@@ -252,11 +257,21 @@ export class ChannelsStack extends NestedStack {
     // IAM Policies
     const policies = [];
     const channelAssetsObjectPolicyStatement = new iam.PolicyStatement({
-      actions: ['s3:PutObject', 's3:PutObjectAcl'],
+      actions: [
+        's3:PutObject',
+        's3:PutObjectAcl',
+        's3:DeleteObject',
+        's3:DeleteObjects'
+      ],
       effect: iam.Effect.ALLOW,
       resources: ALLOWED_CHANNEL_ASSET_TYPES.map(
         (assetType) => `${channelAssetsBucket.bucketArn}/*/${assetType}`
       )
+    });
+    const channelAssetsBucketPolicyStatement = new iam.PolicyStatement({
+      actions: ['s3:ListBucket'],
+      effect: iam.Effect.ALLOW,
+      resources: [channelAssetsBucket.bucketArn]
     });
     const channelsTablePolicyStatement = new iam.PolicyStatement({
       actions: [
@@ -325,6 +340,7 @@ export class ChannelsStack extends NestedStack {
       resources: [userPool.userPoolArn]
     });
     policies.push(
+      channelAssetsBucketPolicyStatement,
       channelAssetsObjectPolicyStatement,
       channelsTableChannelArnIndexPolicyStatement,
       channelsTablePolicyStatement,

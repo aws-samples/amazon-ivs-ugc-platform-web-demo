@@ -9,6 +9,11 @@ import {
   GetItemCommand,
   QueryCommand
 } from '@aws-sdk/client-dynamodb';
+import {
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command
+} from '@aws-sdk/client-s3';
 import { v5 as uuidv5 } from 'uuid';
 
 import {
@@ -231,6 +236,39 @@ export const generatePresignedPost = ({
       ...additionalConditions
     ]
   });
+};
+
+export const deleteS3Object = ({
+  bucketName,
+  key
+}: {
+  bucketName: string;
+  key: string;
+}) => s3Client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: key }));
+
+export const deleteS3ObjectsWithPrefix = async ({
+  bucketName,
+  prefix
+}: {
+  bucketName: string;
+  prefix: string;
+}) => {
+  const { Contents = [] } = await s3Client.send(
+    new ListObjectsV2Command({ Bucket: bucketName, Prefix: prefix })
+  );
+  const keys = Contents.map(({ Key }) => Key!);
+
+  if (!keys.length) return;
+
+  return s3Client.send(
+    new DeleteObjectsCommand({
+      Bucket: process.env.CHANNEL_ASSETS_BUCKET_NAME,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+        Quiet: true
+      }
+    })
+  );
 };
 
 const NameSpace_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';

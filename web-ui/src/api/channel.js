@@ -357,3 +357,10 @@ export const uploadFileToS3 = async ({
 
   return { result, error };
 };
+
+export const deleteChannelAsset = async (assetType) =>
+  await authFetch({
+    method: 'DELETE',
+    url: `${apiBaseUrl}/channel/asset`,
+    body: { assetType }
+  });

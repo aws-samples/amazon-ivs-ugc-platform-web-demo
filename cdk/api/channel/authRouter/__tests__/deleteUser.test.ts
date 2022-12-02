@@ -17,20 +17,28 @@ import {
   cognitoClient,
   dynamoDbClient,
   ivsChatClient,
-  ivsClient
+  ivsClient,
+  s3Client
 } from '../../../shared/helpers';
 import {
   createRouteAuthenticationTests,
   injectAuthorizedRequest
 } from '../../../testUtils';
 import buildServer from '../../../buildServer';
+import { DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
-const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockCognitoClient = mockClient(cognitoClient);
-const mockIvsClient = mockClient(ivsClient);
+const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockIvsChatClient = mockClient(ivsChatClient);
+const mockIvsClient = mockClient(ivsClient);
+const mockS3Client = mockClient(s3Client);
 const url = '/channel';
 const defaultRequestParams = { method: 'DELETE' as const, url };
+const defaultUserData = {
+  channelArn: 'channelArn',
+  chatRoomArn: 'chatRoomArn',
+  channelAssetId: 'channelAssetId'
+};
 
 describe('deleteUser controller', () => {
   const server = buildServer();
@@ -48,15 +56,20 @@ describe('deleteUser controller', () => {
   beforeEach(() => {
     mockDynamoDbClient.reset();
     mockDynamoDbClient.on(GetItemCommand).resolves({
-      Item: marshall({
-        channelArn: 'channelArn',
-        chatRoomArn: 'chatRoomArn'
-      })
+      Item: marshall(defaultUserData)
     });
 
-    mockIvsClient.reset();
-    mockIvsChatClient.reset();
+    mockS3Client.reset();
+    mockS3Client.on(ListObjectsV2Command).resolves({
+      Contents: [
+        { Key: [defaultUserData.channelAssetId, 'avatar'].join('/') },
+        { Key: [defaultUserData.channelAssetId, 'banner'].join('/') }
+      ]
+    });
+
     mockCognitoClient.reset();
+    mockIvsChatClient.reset();
+    mockIvsClient.reset();
   });
 
   createRouteAuthenticationTests({ server, ...defaultRequestParams });
@@ -118,6 +131,20 @@ describe('deleteUser controller', () => {
       expect(__type).toBe(ACCOUNT_DELETION_EXCEPTION);
     });
 
+    it('should return an account deletion exception when deleting the channel asset S3 objects fails', async () => {
+      mockS3Client.on(DeleteObjectsCommand).rejectsOnce();
+
+      const response = await injectAuthorizedRequest(server, {
+        ...defaultRequestParams
+      });
+
+      const { __type } = JSON.parse(response.payload);
+
+      expect(mockConsoleError).toHaveBeenCalledTimes(1);
+      expect(response.statusCode).toBe(500);
+      expect(__type).toBe(ACCOUNT_DELETION_EXCEPTION);
+    });
+
     it('should return an account deletion exception when disabling the Cognito user fails', async () => {
       mockCognitoClient.on(AdminDisableUserCommand).rejects();
 
@@ -161,7 +188,7 @@ describe('deleteUser controller', () => {
       });
 
       expect(mockConsoleError).toHaveBeenCalledTimes(0);
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
     });
   });
 
@@ -171,7 +198,7 @@ describe('deleteUser controller', () => {
     });
 
     expect(mockConsoleError).toHaveBeenCalledTimes(0);
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(204);
   });
 
   it('should successfully delete the account even if the database entry is missing', async () => {
@@ -182,6 +209,17 @@ describe('deleteUser controller', () => {
     });
 
     expect(mockConsoleError).toHaveBeenCalledTimes(0);
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(204);
+  });
+
+  it('should successfully delete the account even if no channel assets were saved in the S3 bucket', async () => {
+    mockS3Client.on(ListObjectsV2Command).resolvesOnce({ Contents: [] });
+
+    const response = await injectAuthorizedRequest(server, {
+      ...defaultRequestParams
+    });
+
+    expect(mockConsoleError).toHaveBeenCalledTimes(0);
+    expect(response.statusCode).toBe(204);
   });
 });

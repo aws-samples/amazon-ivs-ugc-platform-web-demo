@@ -22,6 +22,7 @@ export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 export const BAD_REQUEST_EXCEPTION = 'BadRequestException';
 export const INVALID_PRESIGNED_POST_INPUT_EXCEPTION =
   'InvalidPresignedPostInputException';
+export const DELETE_CHANNEL_ASSET_EXCEPTION = 'DeleteChannelAssetException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';

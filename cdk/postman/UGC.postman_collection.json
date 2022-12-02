@@ -300,6 +300,161 @@
 								"description": "This endpoint will destroy the existing stream key and create a new one."
 							},
 							"response": []
+						},
+						{
+							"name": "/channel/assets/presignedPost/create",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { url, fields } = JSON.parse(responseBody);",
+											"",
+											"if (!url || !fields) return;",
+											"",
+											"pm.collectionVariables.set('presignedPostUrl', url);",
+											"Object.entries(fields).forEach(([key, val]) => {",
+											"    pm.collectionVariables.set(`presignedPost:${key}`, val);",
+											"})",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"assetType\": \"avatar\",\n    \"contentType\": \"image/jpeg\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/assets/imagePresignedPost/create",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"assets",
+										"imagePresignedPost",
+										"create"
+									]
+								},
+								"description": "This endpoint generates a new S3 Presigned Post object that can be used to upload files to the Channel Assets S3 bucket.\n\nThe Presigned Post expires 5 seconds after being generated, and the `Policy` attached to the Post restricts the upload to the provided content type and maximum file size in the request body.\n\nThe `assetType` value in the request body is used as part of the Object key in the Channel Assets bucket and describes the type of channel asset the user wishes to upload (i.e. avatar, banner, etc.). The key is formatted as follows: `/`.\n\nOnce the request returns with the generated Presigned Post, the returned url and forms fields are set to individual Postman collection variables. These collection variables are used in the `uploadToS3` request to pre-fill the form-data body."
+							},
+							"response": []
+						},
+						{
+							"name": "uploadToS3",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "acl",
+											"value": "{{presignedPost:acl}}",
+											"type": "text"
+										},
+										{
+											"key": "bucket",
+											"value": "{{presignedPost:bucket}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Algorithm",
+											"value": "{{presignedPost:X-Amz-Algorithm}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Credential",
+											"value": "{{presignedPost:X-Amz-Credential}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Date",
+											"value": "{{presignedPost:X-Amz-Date}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Security-Token",
+											"value": "{{presignedPost:X-Amz-Security-Token}}",
+											"type": "text"
+										},
+										{
+											"key": "key",
+											"value": "{{presignedPost:key}}",
+											"type": "text"
+										},
+										{
+											"key": "Policy",
+											"value": "{{presignedPost:Policy}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Signature",
+											"value": "{{presignedPost:X-Amz-Signature}}",
+											"type": "text"
+										},
+										{
+											"key": "Content-Type",
+											"value": "image/jpeg",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{presignedPostUrl}}",
+									"host": [
+										"{{presignedPostUrl}}"
+									]
+								},
+								"description": "This is a pre-filled Presigned Post request that uploads a file to an S3 bucket.\n\nBefore using this endpoint, the user must first run the `/channel/presignedPost/create` request in order to generate the Presigned Post request data (i.e. url and form-data fields). Then, a `Content-Type` form field must be added that matches the MIME type of the file you wish to upload. Finally, a `file` form field must be added as the last element to the form-data body containing the file contents to upload.\n\nSince the Presigned Post is only valid for 5 seconds, it is recommended that you fill out the `Content-Type` and `file` form-data fields prior to making the `/channel/presignedPost/create` request."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/asset",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"assetType\": \"avatar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/asset",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"asset"
+									]
+								},
+								"description": "This endpoint deletes a channel asset from the Channel Assets S3 bucket and removes the corresponding channel asset data from the DynamoDB Channels table.\n\nIf no upload exists with the provided `assetType`, then a `204` response is returned and no action is taken."
+							},
+							"response": []
 						}
 					]
 				},
@@ -394,133 +549,6 @@
 							]
 						},
 						"description": "This endpoint fetches a set of fields stored in the DynamoDB table for the authenticated user.\n\nThe response will contain the `channelResourceId` which is required for other endpoints. Alternatively, Postman will set this variable to your environment after a successful response."
-					},
-					"response": []
-				},
-				{
-					"name": "/channel/assets/presignedPost/create",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { url, fields } = JSON.parse(responseBody);",
-									"",
-									"if (!url || !fields) return;",
-									"",
-									"pm.collectionVariables.set('presignedPostUrl', url);",
-									"Object.entries(fields).forEach(([key, val]) => {",
-									"    pm.collectionVariables.set(`presignedPost:${key}`, val);",
-									"})",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"assetType\": \"avatar\",\n    \"contentType\": \"image/jpeg\",\n    \"isPrivate\": false\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/channel/imagePresignedPost/create",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"channel",
-								"imagePresignedPost",
-								"create"
-							]
-						},
-						"description": "This endpoint generates a new S3 Presigned Post object that can be used to upload files to the Channel Assets S3 bucket.\n\nThe Presigned Post expires 5 seconds after being generated, and the `Policy` attached to the Post restricts the upload to the provided content type and maximum file size in the request body.\n\nThe `assetType` value in the request body is used as part of the Object key in the Channel Assets bucket and describes the type of channel asset the user wishes to upload (i.e. avatar, banner, etc.). The key is formatted as follows: `/`.\n\nOnce the request returns with the generated Presigned Post, the returned url and forms fields are set to individual Postman collection variables. These collection variables are used in the `uploadToS3` request to pre-fill the form-data body."
-					},
-					"response": []
-				},
-				{
-					"name": "uploadToS3",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "acl",
-									"value": "{{presignedPost:acl}}",
-									"type": "text"
-								},
-								{
-									"key": "bucket",
-									"value": "{{presignedPost:bucket}}",
-									"type": "text"
-								},
-								{
-									"key": "X-Amz-Algorithm",
-									"value": "{{presignedPost:X-Amz-Algorithm}}",
-									"type": "text"
-								},
-								{
-									"key": "X-Amz-Credential",
-									"value": "{{presignedPost:X-Amz-Credential}}",
-									"type": "text"
-								},
-								{
-									"key": "X-Amz-Date",
-									"value": "{{presignedPost:X-Amz-Date}}",
-									"type": "text"
-								},
-								{
-									"key": "X-Amz-Security-Token",
-									"value": "{{presignedPost:X-Amz-Security-Token}}",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "key",
-									"value": "{{presignedPost:key}}",
-									"type": "text"
-								},
-								{
-									"key": "Policy",
-									"value": "{{presignedPost:Policy}}",
-									"type": "text"
-								},
-								{
-									"key": "X-Amz-Signature",
-									"value": "{{presignedPost:X-Amz-Signature}}",
-									"type": "text"
-								},
-								{
-									"key": "Content-Type",
-									"value": "image/jpeg",
-									"type": "text"
-								},
-								{
-									"key": "file",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{presignedPostUrl}}",
-							"host": [
-								"{{presignedPostUrl}}"
-							]
-						},
-						"description": "This is a pre-filled Presigned Post request that uploads a file to an S3 bucket.\n\nBefore using this endpoint, the user must first run the `/channel/presignedPost/create` request in order to generate the Presigned Post request data (i.e. url and form-data fields). Then, a `Content-Type` form field must be added that matches the MIME type of the file you wish to upload. Finally, a `file` form field must be added as the last element to the form-data body containing the file contents to upload.\n\nSince the Presigned Post is only valid for 5 seconds, it is recommended that you fill out the `Content-Type` and `file` form-data fields prior to making the `/channel/presignedPost/create` request."
 					},
 					"response": []
 				}

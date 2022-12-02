@@ -124,13 +124,17 @@ export const authFetch = async ({
       method,
       signal
     });
-    const data = await response.json();
+
+    let data;
+    if (response.status !== 204) {
+      data = await response.json();
+    }
 
     if (response.ok) {
-      result = data;
+      result = data || 'SUCCESS';
     } else {
       // API Errors
-      error = data;
+      error = data || 'ERROR';
     }
   } catch (err) {
     // Other Errors
@@ -151,13 +155,16 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
       signal
     });
 
-    const data = await response.json();
+    let data;
+    if (response.status !== 204) {
+      data = await response.json();
+    }
 
     if (response.ok) {
-      result = data;
+      result = data || 'SUCCESS';
     } else {
       // API Errors
-      error = data;
+      error = data || 'ERROR';
     }
   } catch (err) {
     // Other Errors
@@ -172,6 +179,6 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
 export const generatePresignedPost = ({ assetType, contentType }) =>
   authFetch({
     method: 'POST',
-    url: `${apiBaseUrl}/channel/imagePresignedPost/create`,
+    url: `${apiBaseUrl}/channel/assets/imagePresignedPost/create`,
     body: { assetType, contentType }
   });

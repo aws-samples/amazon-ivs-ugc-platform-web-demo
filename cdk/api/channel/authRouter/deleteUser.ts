@@ -13,7 +13,7 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { ACCOUNT_DELETION_EXCEPTION } from '../../shared/constants';
 import { cognitoClient, ivsChatClient, ivsClient } from '../../shared/helpers';
-import { deleteUser, getUser } from '../helpers';
+import { deleteS3ObjectsWithPrefix, deleteUser, getUser } from '../helpers';
 import { UserContext } from '../authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -22,7 +22,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
-    const { channelArn, chatRoomArn } = unmarshall(Item);
+    const { channelArn, chatRoomArn, channelAssetId } = unmarshall(Item);
 
     if (channelArn) {
       // First stop the stream if it's running
@@ -54,6 +54,13 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       await ivsChatClient.send(deleteChatRoomCommand);
     }
 
+    if (channelAssetId) {
+      await deleteS3ObjectsWithPrefix({
+        bucketName: process.env.CHANNEL_ASSETS_BUCKET_NAME!,
+        prefix: channelAssetId
+      });
+    }
+
     // Delete the Dynamo user entry
     await deleteUser(sub);
 
@@ -80,7 +87,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     return reply.send({ __type: ACCOUNT_DELETION_EXCEPTION });
   }
 
-  return reply.send({});
+  reply.statusCode = 204;
+
+  return reply.send();
 };
 
 export default handler;
