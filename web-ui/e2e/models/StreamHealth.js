@@ -3,6 +3,7 @@ const { expect } = require('@playwright/test');
 
 const { slugify } = require('../utils');
 const BasePageModel = require('./BasePageModel');
+const SharedUIComponents = require('./SharedUIComponents');
 const StreamSessionsComponent = require('./StreamSessionsComponent');
 
 class StreamHealthPageModel extends BasePageModel {
@@ -23,20 +24,40 @@ class StreamHealthPageModel extends BasePageModel {
       'stream-session-navigator-button'
     );
     this.streamSessionDropdownLoc = page.getByTestId('no-streams');
-    this.floatingPlayerFrameLoc = page.getByTestId('floating-player');
     this.staticNotificationSettingsButtonLoc = page
       .getByRole('article')
       .getByRole('link', { name: 'Settings' });
 
     this.getEncoderConfigItemLoc = (encoderConfigLabel) =>
       page.getByTestId(`${slugify(encoderConfigLabel)}-config-label`);
-
     this.getEncoderConfigItemCopyBtnLoc = (encoderConfigLabel) =>
       page.getByRole('button', {
         name: `Copy the ${encoderConfigLabel.toLowerCase()} value`
       });
+    this.getZoomWindowButtonLoc = (timeDurationString) =>
+      page.getByRole('button', {
+        name: `Show the latest ${timeDurationString} of data`
+      });
 
     this.notifLoc = this.page.getByTestId('success-notification');
+    this.streamSessionDropdownLoc = page.getByTestId('stream-session-dropdown');
+    this.streamEventsLoc = page.getByRole('button', {
+      name: /Show description for the ([a-z\s]+) stream event/
+    });
+
+    this.streamSessionNavigatorButtonLoc = page.getByTestId(
+      'stream-session-navigator-button'
+    );
+    this.navArrowNextSessionLoc = page.getByRole('button', {
+      name: 'Go to next session'
+    });
+    this.navArrowPrevSessionLoc = page.getByRole('button', {
+      name: 'Go to previous session'
+    });
+
+    this.selectedZoomWindowIndicationLoc = page.getByRole('button', {
+      pressed: true
+    });
 
     /**
      * Timestamp locators
@@ -70,6 +91,7 @@ class StreamHealthPageModel extends BasePageModel {
 
     streamHealthPage.streamSessionsComponent =
       await StreamSessionsComponent.create(page);
+    streamHealthPage.sharedUIComponents = SharedUIComponents.create(page);
     await streamHealthPage.init();
 
     const { shouldNavigateAfterCreate = true } = options;
@@ -104,17 +126,19 @@ class StreamHealthPageModel extends BasePageModel {
   goToSettings = async (location) => {
     switch (location) {
       case 'floating-player':
-        const floatingPlayerHeaderLoc = this.floatingPlayerFrameLoc.getByText(
-          'Your channel is offline'
-        );
-        const floatingPlayerMessageLoc = this.floatingPlayerFrameLoc.getByText(
-          'To start streaming, find your ingest server url and stream key in settings.'
-        );
+        const floatingPlayerMessageLoc =
+          this.sharedUIComponents.floatingPlayerLoc.getByText(
+            'To start streaming, find your ingest server url and stream key in settings.'
+          );
         const floatingPlayerGotoSettingsButtonLoc =
-          this.floatingPlayerFrameLoc.getByRole('link', { name: 'Settings' });
+          this.sharedUIComponents.floatingPlayerLoc.getByRole('link', {
+            name: 'Settings'
+          });
 
         // Confirming the appropriate text in the floating player is visible
-        await expect(floatingPlayerHeaderLoc).toBeVisible();
+        await expect(
+          this.sharedUIComponents.floatingPlayerOfflineHeaderLoc
+        ).toBeVisible();
         await expect(floatingPlayerMessageLoc).toBeVisible();
 
         // Click on the floating player settings button to redirect to the settings page

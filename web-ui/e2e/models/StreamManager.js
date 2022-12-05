@@ -3,6 +3,7 @@ const { expect } = require('@playwright/test');
 
 const BasePageModel = require('./BasePageModel');
 const ChatComponent = require('./ChatComponent');
+const SharedUIComponents = require('./SharedUIComponents');
 const StreamSessionsComponent = require('./StreamSessionsComponent');
 
 const getStreamActionFormLocatorsVisibilityStatuses = (page) =>
@@ -33,8 +34,6 @@ class StreamManagerPageModel extends BasePageModel {
     );
     this.saveFormDataBtnLoc = page.getByText('Save');
     this.chatPopupContainerLoc = page.getByTestId('chat-popup-container');
-    this.statusBarComponentLoc = page.getByRole('status');
-    this.floatingPlayerLoc = page.getByTestId('floating-player');
   }
 
   static create = async (page, baseURL, options = {}) => {
@@ -45,6 +44,7 @@ class StreamManagerPageModel extends BasePageModel {
     streamManagerPage.chatComponent = await ChatComponent.create(page);
     streamManagerPage.streamSessionsComponent =
       await StreamSessionsComponent.create(page);
+    streamManagerPage.sharedUIComponents = SharedUIComponents.create(page);
     await streamManagerPage.init();
 
     const { shouldNavigateAfterCreate = true } = options;

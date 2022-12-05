@@ -15,6 +15,7 @@ const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => (
       'p3',
       hasFixedWidth && 'max-w-[200px]'
     ])}
+    data-testid="tooltip-content"
   >
     {message}
   </span>

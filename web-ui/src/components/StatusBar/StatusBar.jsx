@@ -109,6 +109,7 @@ const StatusBar = () => {
       role="status"
     >
       <StatusItem
+        dataTestId="status-item-time-elapsed"
         icon={<Hourglass />}
         isLive={isLive}
         itemLabel="Stream elapsed time"
@@ -117,6 +118,7 @@ const StatusBar = () => {
       />
       <StatusItem
         concurrentViewsTooltipText={concurrentViewsTooltipText}
+        dataTestId="status-item-concurrent-views"
         hasError={hasErrorEvent && isLive && isStreamHealthPage}
         icon={<Visibility />}
         isLive={isLive}
@@ -135,6 +137,7 @@ const StatusBar = () => {
               }
             : {})}
           {...(currentBreakpoint < BREAKPOINTS.xs ? {} : { value: health })}
+          dataTestId="status-item-health-status"
           icon={<HealthIndicator health={health} />}
           itemLabel="Stream health status"
         />

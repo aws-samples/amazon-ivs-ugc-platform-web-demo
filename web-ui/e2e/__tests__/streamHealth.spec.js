@@ -1,7 +1,7 @@
 // @ts-check
 const { expect } = require('@playwright/test');
 
-const { extendTestFixtures } = require('../utils');
+const { extendTestFixtures, getCloudfrontURLRegex } = require('../utils');
 const { StreamHealthPageModel } = require('../models');
 
 const test = extendTestFixtures({
@@ -70,7 +70,22 @@ test.describe('Stream Health Page', () => {
 
     testWithoutNavigation(
       'should load the offline session state of the page with the correct information on the screen',
-      async ({ streamHealthPage: { timestampLocators }, page, isMobile }) => {
+      async ({
+        streamHealthPage: {
+          selectedZoomWindowIndicationLoc,
+          streamEventsLoc,
+          timestampLocators,
+          getZoomWindowButtonLoc,
+          sharedUIComponents: {
+            floatingPlayerOfflineHeaderLoc,
+            statusBarConcurrentViewsLoc,
+            statusBarHealthStatusLoc,
+            statusBarTimerLoc
+          }
+        },
+        page,
+        isMobile
+      }) => {
         await page.takeScreenshot('offline-page-load', {
           mask: timestampLocators
         });
@@ -89,10 +104,6 @@ test.describe('Stream Health Page', () => {
         await expect(chartAreaClosedLoc.last()).toBeVisible();
 
         // Assert stream events
-        const streamEventsLoc = page.getByRole('button', {
-          name: /Show description for the ([a-z\s]+) stream event/
-        });
-
         expect(await streamEventsLoc.count()).toBe(isMobile ? 2 : 4);
         await expect(streamEventsLoc.first().getByRole('heading')).toHaveText(
           'Session created'
@@ -110,30 +121,17 @@ test.describe('Stream Health Page', () => {
         }
 
         // Assert that the appropriate text exists inside of the status bar component
-        const statusBarComponentStatusLoc = page
-          .getByRole('status')
-          .getByText('Offline');
-        const concurrentViewsValueLoc = page.getByRole('status').getByText('1');
-
-        expect(statusBarComponentStatusLoc).toBeVisible();
-        expect(concurrentViewsValueLoc).toBeVisible();
+        await expect(statusBarTimerLoc).toHaveText('Offline');
+        await expect(statusBarConcurrentViewsLoc).toHaveText('1');
+        await expect(statusBarHealthStatusLoc).toBeHidden();
 
         // Assert that the text inside the floating player is correct
-        const floatingPlayerHeaderLoc = page
-          .getByTestId('floating-player')
-          .getByText('Your channel is offline');
-
         if (!isMobile) {
-          expect(floatingPlayerHeaderLoc).toBeVisible();
+          expect(floatingPlayerOfflineHeaderLoc).toBeVisible();
         }
 
         // Assert that the currently selected zoom window is "All" and that the appropriate indicator is selected when clicked
-        const selectedZoomWindowIndicationLoc = page.getByRole('button', {
-          pressed: true
-        });
-        const zoomWindow1hrIndicationLoc = page.getByRole('button', {
-          name: 'Show the latest 1 hour of data'
-        });
+        const zoomWindow1hrIndicationLoc = getZoomWindowButtonLoc('1 hour');
 
         await expect(selectedZoomWindowIndicationLoc).toHaveText('All');
         await zoomWindow1hrIndicationLoc.click();
@@ -152,44 +150,227 @@ test.describe('Stream Health Page', () => {
 
     testWithoutNavigation(
       'the user should be able to navigate between sessions using the left and right arrow buttons',
-      async ({ page, baseURL }) => {
-        const navArrowNextSessionLoc = page.getByRole('button', {
-          name: 'Go to next session'
-        });
-        const navArrowPrevSessionLoc = page.getByRole('button', {
-          name: 'Go to previous session'
-        });
-        await expect(navArrowPrevSessionLoc).toBeEnabled();
+      async ({
+        streamHealthPage: { navArrowNextSessionLoc, navArrowPrevSessionLoc },
+        page,
+        baseURL
+      }) => {
         await expect(navArrowNextSessionLoc).toBeDisabled();
+        await expect(navArrowPrevSessionLoc).toBeEnabled();
 
         await navArrowPrevSessionLoc.click();
-        await expect(navArrowPrevSessionLoc).toBeDisabled();
         await expect(navArrowNextSessionLoc).toBeEnabled();
+        await expect(navArrowPrevSessionLoc).toBeDisabled();
         expect(page.url()).toBe(`${baseURL}/health/streamId-0`);
       }
     );
+
     testWithoutNavigation(
       'the user should be able to navigate between sessions using the session dropdown',
-      async ({ streamHealthPage: { timestampLocators }, page, baseURL }) => {
-        const streamSessionNavigatorButton = page.getByTestId(
-          'stream-session-navigator-button'
-        );
-        const streamSessionDropdown = page.getByTestId(
-          'stream-session-dropdown'
-        );
+      async ({
+        streamHealthPage: {
+          streamSessionDropdownLoc,
+          streamSessionNavigatorButtonLoc,
+          timestampLocators
+        },
+        page,
+        baseURL
+      }) => {
         const streamSessionDropdownSessionsButton =
-          streamSessionDropdown.getByRole('button');
+          streamSessionDropdownLoc.getByRole('button');
         const navigateToStreamSessionBtnLoc = page.getByRole('button', {
           name: 'Navigate to stream session streamId-0'
         });
 
-        await streamSessionNavigatorButton.click();
+        await streamSessionNavigatorButtonLoc.click();
         await page.takeScreenshot('offline-navigator-dropdown', {
           mask: timestampLocators
         });
         expect(await streamSessionDropdownSessionsButton.count()).toBe(2);
         await navigateToStreamSessionBtnLoc.click();
         expect(page.url()).toBe(`${baseURL}/health/streamId-0`);
+      }
+    );
+  });
+
+  testWithoutNavigation.describe('Live State', () => {
+    testWithoutNavigation.beforeEach(
+      async ({
+        streamHealthPage: {
+          navigate,
+          streamSessionsComponent: { updateStreamSessions }
+        }
+      }) => {
+        // Populate the stream sessions before page load
+        updateStreamSessions(3, true);
+
+        // Make sure the url is updated to the most recent stream session
+        await navigate('/health', '/health/streamId-2');
+      }
+    );
+
+    testWithoutNavigation(
+      'should load the currently live session',
+      async ({
+        page,
+        streamHealthPage: {
+          sharedUIComponents: {
+            floatingPlayerVideoContainerLoc,
+            statusBarTimerLoc
+          }
+        }
+      }) => {
+        await page.waitForResponse(
+          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions/(.+)')
+        );
+        await page.takeScreenshot('initial-page-load-live', {
+          mask: [floatingPlayerVideoContainerLoc, statusBarTimerLoc]
+        });
+      }
+    );
+
+    testWithoutNavigation(
+      'should show online state in floating player',
+      async ({
+        streamHealthPage: {
+          sharedUIComponents: {
+            floatingPlayerVideoContainerLoc,
+            floatingPlayerOfflineHeaderLoc
+          }
+        },
+        page,
+        isMobile
+      }) => {
+        await page.waitForResponse(
+          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions/(.+)')
+        );
+        expect(floatingPlayerOfflineHeaderLoc).toBeHidden();
+
+        if (!isMobile) {
+          await expect(floatingPlayerOfflineHeaderLoc).toBeHidden();
+          // Assert that the live pill inside the floating player is present
+          await expect(
+            floatingPlayerVideoContainerLoc.getByText('live')
+          ).toBeVisible();
+        }
+      }
+    );
+
+    testWithoutNavigation(
+      'should show the appropriate values in the status bar component',
+      async ({
+        streamHealthPage: {
+          sharedUIComponents: {
+            statusBarTimerLoc,
+            statusBarConcurrentViewsLoc,
+            statusBarHealthStatusLoc
+          }
+        }
+      }) => {
+        // Assert the status bar content
+        await expect(statusBarTimerLoc).toHaveText(/00:\d{2}:\d{2}/);
+        await expect(statusBarConcurrentViewsLoc).toHaveText('1');
+        await expect(statusBarHealthStatusLoc).toBeHidden();
+      }
+    );
+
+    testWithoutNavigation(
+      'should have LIVE notification in stream session dropdown',
+      async ({
+        streamHealthPage: {
+          streamSessionNavigatorButtonLoc,
+          streamSessionDropdownLoc,
+          sharedUIComponents: {
+            floatingPlayerVideoContainerLoc,
+            statusBarTimerLoc
+          }
+        },
+        page
+      }) => {
+        await streamSessionNavigatorButtonLoc.click();
+        await page.takeScreenshot('stream-sessions-live-dropdown-open', {
+          mask: [floatingPlayerVideoContainerLoc, statusBarTimerLoc]
+        });
+        const liveSessionButtonLoc = streamSessionDropdownLoc
+          .getByRole('button')
+          .getByText('LIVE');
+        expect(liveSessionButtonLoc).toBeVisible();
+      }
+    );
+
+    testWithoutNavigation(
+      'should show the appropriate amount of stream session events',
+      async ({ streamHealthPage: { streamEventsLoc }, page }) => {
+        await page.waitForResponse(
+          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions/(.+)')
+        );
+        // Assert live stream events
+        expect(await streamEventsLoc.count()).toBe(2);
+        await expect(streamEventsLoc.nth(1).getByRole('heading')).toHaveText(
+          'Session created'
+        );
+        await expect(streamEventsLoc.first().getByRole('heading')).toHaveText(
+          'Stream started'
+        );
+      }
+    );
+
+    testWithoutNavigation(
+      'should be able to navigate between sessions using the left and right arrow buttons',
+      async ({
+        streamHealthPage: { navArrowNextSessionLoc, navArrowPrevSessionLoc },
+        page,
+        baseURL
+      }) => {
+        await expect(navArrowPrevSessionLoc).toBeEnabled();
+        await expect(navArrowNextSessionLoc).toBeDisabled();
+
+        await navArrowPrevSessionLoc.click();
+        await expect(navArrowPrevSessionLoc).toBeEnabled();
+        await expect(navArrowNextSessionLoc).toBeEnabled();
+
+        expect(page.url()).toBe(`${baseURL}/health/streamId-1`);
+
+        await navArrowPrevSessionLoc.click();
+        await expect(navArrowPrevSessionLoc).toBeDisabled();
+        await expect(navArrowNextSessionLoc).toBeEnabled();
+
+        expect(page.url()).toBe(`${baseURL}/health/streamId-0`);
+      }
+    );
+
+    testWithoutNavigation(
+      'should default zoom charts in to 5 min',
+      async ({
+        streamHealthPage: {
+          selectedZoomWindowIndicationLoc,
+          getZoomWindowButtonLoc
+        }
+      }) => {
+        const zoomWindow1hrIndicationLoc = getZoomWindowButtonLoc('1 hour');
+
+        await expect(selectedZoomWindowIndicationLoc).toHaveText('5 min');
+        await zoomWindow1hrIndicationLoc.click();
+        await expect(selectedZoomWindowIndicationLoc).toHaveText('1 hr');
+      }
+    );
+
+    // This test doesn't seem to be working with Firefox and will need to be investigated further.
+    testWithoutNavigation.fixme(
+      'should show tooltip for live session in session status bar',
+      async ({
+        streamHealthPage: {
+          sharedUIComponents: {
+            statusBarConcurrentViewsLoc,
+            statusBarTooltipLoc
+          }
+        },
+        isMobile
+      }) => {
+        isMobile
+          ? await statusBarConcurrentViewsLoc.click()
+          : await statusBarConcurrentViewsLoc.hover();
+        await expect(statusBarTooltipLoc).toBeVisible();
       }
     );
   });

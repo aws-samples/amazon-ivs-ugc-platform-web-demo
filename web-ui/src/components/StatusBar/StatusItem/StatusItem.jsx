@@ -6,6 +6,7 @@ import StatusItemWrapper from './StatusItemWrapper';
 
 const StatusItem = ({
   concurrentViewsTooltipText,
+  dataTestId,
   hasError,
   icon,
   isLive,
@@ -51,6 +52,7 @@ const StatusItem = ({
                   'dark:text-darkMode-red'
                 ]
             ])}
+            data-testid={dataTestId}
           >
             {value}
           </p>
@@ -71,6 +73,7 @@ StatusItem.defaultProps = {
 
 StatusItem.propTypes = {
   concurrentViewsTooltipText: PropTypes.string,
+  dataTestId: PropTypes.string.isRequired,
   hasError: PropTypes.bool,
   icon: PropTypes.node.isRequired,
   isLive: PropTypes.bool,

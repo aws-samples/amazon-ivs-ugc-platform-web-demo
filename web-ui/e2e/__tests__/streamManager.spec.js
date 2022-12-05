@@ -129,7 +129,6 @@ test.describe('Stream Manager Page', () => {
               completeNoticeForm,
               completeProductForm,
               completeQuizForm,
-              openStreamActionModal,
               saveFormData
             },
             page
@@ -311,7 +310,11 @@ test.describe('Stream Manager Page', () => {
         page,
         streamManagerPage: {
           chatComponent: { moderatingPillLoc },
-          statusBarComponentLoc
+          sharedUIComponents: {
+            statusBarConcurrentViewsLoc,
+            statusBarHealthStatusLoc,
+            statusBarTimerLoc
+          }
         }
       }) => {
         await moderatingPillLoc.waitFor({ state: 'visible' });
@@ -319,16 +322,9 @@ test.describe('Stream Manager Page', () => {
         await page.takeScreenshot('initial-page-load');
 
         // Assert the status bar content
-        await expect(statusBarComponentLoc.getByRole('timer')).toHaveAttribute(
-          'aria-label',
-          'Stream elapsed time'
-        );
-        await expect(
-          statusBarComponentLoc.getByText('------').first()
-        ).toHaveAttribute('aria-label', 'Stream concurrent views count');
-        await expect(
-          statusBarComponentLoc.getByText('------').last()
-        ).toHaveAttribute('aria-label', 'Stream health status');
+        await expect(statusBarTimerLoc).toHaveText('--:--:--');
+        await expect(statusBarConcurrentViewsLoc).toHaveText('------');
+        await expect(statusBarHealthStatusLoc).toHaveText('------');
 
         // Assert that the text inside the floating player is correct
         const floatingPlayerHeaderLoc = page
@@ -364,16 +360,19 @@ test.describe('Stream Manager Page', () => {
         page,
         streamManagerPage: {
           chatComponent: { moderatingPillLoc },
-          floatingPlayerLoc,
-          statusBarComponentLoc
+          sharedUIComponents: {
+            floatingPlayerLoc,
+            statusBarConcurrentViewsLoc,
+            statusBarHealthStatusLoc,
+            statusBarTimerLoc
+          }
         }
       }) => {
         await moderatingPillLoc.waitFor({ state: 'visible' });
         // Assert initial page load
-        const timerLocator = statusBarComponentLoc.getByRole('timer');
         await page.takeScreenshot('initial-page-load-live', {
           mask: [
-            timerLocator,
+            statusBarTimerLoc,
             page.getByTestId('floating-player-video-container')
           ]
         });
@@ -387,20 +386,22 @@ test.describe('Stream Manager Page', () => {
         }
 
         // Assert the status bar content
-        await expect(timerLocator).toHaveText(/00:\d{2}:\d{2}/);
-        await expect(
-          statusBarComponentLoc.getByText('1', { exact: true })
-        ).toHaveAttribute('aria-label', 'Stream concurrent views count');
+        await expect(statusBarTimerLoc).toHaveText(/00:\d{2}:\d{2}/);
+        await expect(statusBarConcurrentViewsLoc).toHaveText('1');
+        await expect(statusBarHealthStatusLoc).toHaveText('Stable');
       }
     );
 
     testWithoutNavigation(
       'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
-      async ({ page, streamManagerPage: { statusBarComponentLoc } }) => {
+      async ({
+        page,
+        streamManagerPage: {
+          sharedUIComponents: { statusBarHealthStatusBtnLoc }
+        }
+      }) => {
         // Assert that clicking on the button takes you to monitor the live session on Stream Health
-        await statusBarComponentLoc
-          .getByRole('button', { name: 'Monitor the latest stream session' })
-          .click();
+        await statusBarHealthStatusBtnLoc.click();
 
         await expect(page).toHaveURL('/health/streamId-0');
       }
@@ -408,7 +409,13 @@ test.describe('Stream Manager Page', () => {
 
     testWithoutNavigation(
       'after clicking the health status button in the floating player module, the user should be taken to the Stream Health page to monitor the live session',
-      async ({ isMobile, page, streamManagerPage: { floatingPlayerLoc } }) => {
+      async ({
+        isMobile,
+        page,
+        streamManagerPage: {
+          sharedUIComponents: { floatingPlayerLoc }
+        }
+      }) => {
         // There is no floating player module on mobile
         if (isMobile) return;
 
@@ -418,6 +425,25 @@ test.describe('Stream Manager Page', () => {
           .click();
 
         await expect(page).toHaveURL('/health/streamId-0');
+      }
+    );
+
+    // This test doesn't seem to be working with Firefox and will need to be investigated further.
+    testWithoutNavigation.fixme(
+      'should show tooltip for live session in session status bar',
+      async ({
+        streamManagerPage: {
+          sharedUIComponents: {
+            statusBarConcurrentViewsLoc,
+            statusBarTooltipLoc
+          }
+        },
+        isMobile
+      }) => {
+        isMobile
+          ? await statusBarConcurrentViewsLoc.click()
+          : await statusBarConcurrentViewsLoc.hover();
+        await expect(statusBarTooltipLoc).toBeVisible();
       }
     );
   });
