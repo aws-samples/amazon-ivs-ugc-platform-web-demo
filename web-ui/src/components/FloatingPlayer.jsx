@@ -88,6 +88,7 @@ const FloatingPlayer = () => {
         'right-6',
         'z-[300]'
       ])}
+      data-testid="floating-player"
     >
       <Button
         ariaLabel={isExpanded ? $content.collapse : $content.expand}
@@ -136,6 +137,7 @@ const FloatingPlayer = () => {
             'rounded-2xl',
             !isLive && 'hidden'
           ])}
+          data-testid="floating-player-video-container"
         >
           {shouldShowSpinner && (
             <Spinner
@@ -203,7 +205,6 @@ const FloatingPlayer = () => {
               'rounded-3xl',
               'space-y-2.5'
             ])}
-            data-testid="floating-player"
           >
             {hasStreamSessions ? (
               <p className={clsm(['p2', 'tracking-normal', 'text-center'])}>

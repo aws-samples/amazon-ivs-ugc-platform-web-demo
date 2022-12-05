@@ -108,24 +108,35 @@ const StatusBar = () => {
       ])}
       role="status"
     >
-      <StatusItem isLive={isLive} icon={<Hourglass />} value={elapsedTime} />
+      <StatusItem
+        icon={<Hourglass />}
+        isLive={isLive}
+        itemLabel="Stream elapsed time"
+        role="timer"
+        value={elapsedTime}
+      />
       <StatusItem
         concurrentViewsTooltipText={concurrentViewsTooltipText}
         hasError={hasErrorEvent && isLive && isStreamHealthPage}
         icon={<Visibility />}
         isLive={isLive}
+        itemLabel="Stream concurrent views count"
         value={concurrentViewsValue}
       />
       {!isStreamHealthPage && (
         <StatusItem
           {...(isLive
             ? {
-                onClick: handleHealthClick,
+                itemButtonProps: {
+                  'aria-label': 'Monitor the latest stream session',
+                  onClick: handleHealthClick
+                },
                 concurrentViewsTooltipText: $content.view_stream_health
               }
             : {})}
           {...(currentBreakpoint < BREAKPOINTS.xs ? {} : { value: health })}
           icon={<HealthIndicator health={health} />}
+          itemLabel="Stream health status"
         />
       )}
     </div>

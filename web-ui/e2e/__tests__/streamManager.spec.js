@@ -15,6 +15,11 @@ const test = extendTestFixtures({
   PageModel: StreamManagerPageModel
 });
 
+const testWithoutNavigation = extendTestFixtures(
+  { name: 'streamManagerPage', PageModel: StreamManagerPageModel },
+  { shouldNavigateAfterCreate: false }
+);
+
 const QUIZ = 'quiz';
 const PRODUCT = 'product';
 const NOTICE = 'notice';
@@ -55,7 +60,7 @@ test.describe('Stream Manager Page', () => {
   });
 
   test.describe('General Cases', () => {
-    test('should have four stream actions buttons and the moderation pill', async ({
+    test('should display four stream actions buttons and the moderation pill', async ({
       streamManagerPage: {
         chatComponent: { moderatingPillLoc },
         getActionButtonLocator
@@ -282,5 +287,138 @@ test.describe('Stream Manager Page', () => {
         });
       });
     });
+  });
+
+  testWithoutNavigation.describe('Offline State', () => {
+    testWithoutNavigation.beforeEach(
+      async ({
+        streamManagerPage: {
+          navigate,
+          streamSessionsComponent: { updateStreamSessions }
+        }
+      }) => {
+        // Populate one offline session
+        updateStreamSessions(1);
+
+        await navigate();
+      }
+    );
+
+    testWithoutNavigation(
+      'should display the empty status bar and offline floating player module',
+      async ({
+        isMobile,
+        page,
+        streamManagerPage: {
+          chatComponent: { moderatingPillLoc },
+          statusBarComponentLoc
+        }
+      }) => {
+        await moderatingPillLoc.waitFor({ state: 'visible' });
+        // Assert initial page load
+        await page.takeScreenshot('initial-page-load');
+
+        // Assert the status bar content
+        await expect(statusBarComponentLoc.getByRole('timer')).toHaveAttribute(
+          'aria-label',
+          'Stream elapsed time'
+        );
+        await expect(
+          statusBarComponentLoc.getByText('------').first()
+        ).toHaveAttribute('aria-label', 'Stream concurrent views count');
+        await expect(
+          statusBarComponentLoc.getByText('------').last()
+        ).toHaveAttribute('aria-label', 'Stream health status');
+
+        // Assert that the text inside the floating player is correct
+        const floatingPlayerHeaderLoc = page
+          .getByTestId('floating-player')
+          .getByText('Your channel is offline');
+
+        if (!isMobile) {
+          expect(floatingPlayerHeaderLoc).toBeVisible();
+        }
+      }
+    );
+  });
+
+  test.describe('Live State', () => {
+    testWithoutNavigation.beforeEach(
+      async ({
+        streamManagerPage: {
+          navigate,
+          streamSessionsComponent: { updateStreamSessions }
+        }
+      }) => {
+        // Populate one live session
+        updateStreamSessions(1, true);
+
+        await navigate();
+      }
+    );
+
+    testWithoutNavigation(
+      'should display the correct data inside the status bar and inside the floating player module',
+      async ({
+        isMobile,
+        page,
+        streamManagerPage: {
+          chatComponent: { moderatingPillLoc },
+          floatingPlayerLoc,
+          statusBarComponentLoc
+        }
+      }) => {
+        await moderatingPillLoc.waitFor({ state: 'visible' });
+        // Assert initial page load
+        const timerLocator = statusBarComponentLoc.getByRole('timer');
+        await page.takeScreenshot('initial-page-load-live', {
+          mask: [
+            timerLocator,
+            page.getByTestId('floating-player-video-container')
+          ]
+        });
+
+        if (!isMobile) {
+          await expect(
+            floatingPlayerLoc.getByText('Your channel is offline')
+          ).toBeHidden();
+          // Assert that the live pill inside the floating player is present
+          await expect(floatingPlayerLoc.getByText('live')).toBeVisible();
+        }
+
+        // Assert the status bar content
+        await expect(timerLocator).toHaveText(/00:\d{2}:\d{2}/);
+        await expect(
+          statusBarComponentLoc.getByText('1', { exact: true })
+        ).toHaveAttribute('aria-label', 'Stream concurrent views count');
+      }
+    );
+
+    testWithoutNavigation(
+      'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
+      async ({ page, streamManagerPage: { statusBarComponentLoc } }) => {
+        // Assert that clicking on the button takes you to monitor the live session on Stream Health
+        await statusBarComponentLoc
+          .getByRole('button', { name: 'Monitor the latest stream session' })
+          .click();
+
+        await expect(page).toHaveURL('/health/streamId-0');
+      }
+    );
+
+    testWithoutNavigation(
+      'after clicking the health status button in the floating player module, the user should be taken to the Stream Health page to monitor the live session',
+      async ({ isMobile, page, streamManagerPage: { floatingPlayerLoc } }) => {
+        // There is no floating player module on mobile
+        if (isMobile) return;
+
+        // Assert that clicking on the button takes you to monitor the live session on Stream Health
+        await floatingPlayerLoc
+          .getByRole('button', { name: 'View stream session' })
+          .click();
+
+        await expect(page).toHaveURL('/health/streamId-0');
+      }
+    );
   });
 });

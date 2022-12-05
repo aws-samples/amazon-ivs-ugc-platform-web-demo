@@ -72,7 +72,7 @@ const generateMockStreamSessions = (
   if (shouldIncludeLiveSession) {
     streamSessions.push({
       ...offlineStreamSession,
-      streamId: `streamId-${streamSessionsCount}`,
+      streamId: `streamId-${boundedStreamSessionCount}`,
       endTime: undefined,
       startTime: new Date(Date.now() - mockSessionDurationInMs).toISOString(),
       isLive: true
@@ -85,7 +85,7 @@ const generateMockStreamSessions = (
 const generateMockStreamSession = (options = offlineStreamSession) => {
   const { endTime, startTime, isLive } = options;
 
-  const truncatedEvents = mockTruncatedEvents.map((mockTruncatedEvent) => ({
+  let truncatedEvents = mockTruncatedEvents.map((mockTruncatedEvent) => ({
     ...mockTruncatedEvent,
     eventTime: ['Session Ended', 'Stream End'].includes(mockTruncatedEvent.name)
       ? endTime
@@ -93,13 +93,14 @@ const generateMockStreamSession = (options = offlineStreamSession) => {
   }));
 
   if (isLive) {
-    truncatedEvents.slice(0, 2).reverse();
+    truncatedEvents = truncatedEvents.slice(0, 2).reverse();
   }
 
   return {
     ...options,
     ingestConfiguration: mockIngestConfiguration,
     channel: mockChannel,
+    isHealthy: true,
     metrics: mockMetrics.map((mockMetric) => ({
       ...mockMetric,
       alignedStartTime: startTime

@@ -9,12 +9,17 @@ const StatusItem = ({
   hasError,
   icon,
   isLive,
-  onClick,
+  itemLabel,
+  itemButtonProps,
+  role,
   value
 }) => (
   <div className="flex">
     <StatusItemTooltip text={concurrentViewsTooltipText}>
-      <StatusItemWrapper isActionable={!!onClick} onClick={onClick}>
+      <StatusItemWrapper
+        isActionable={!!itemButtonProps}
+        itemButtonProps={itemButtonProps}
+      >
         <div
           className={clsm([
             'flex',
@@ -34,6 +39,8 @@ const StatusItem = ({
         </div>
         {value !== null && (
           <p
+            {...(role ? { role } : {})}
+            aria-label={itemLabel}
             className={clsm([
               'p2',
               'text-black',
@@ -57,7 +64,8 @@ StatusItem.defaultProps = {
   concurrentViewsTooltipText: '',
   hasError: false,
   isLive: false,
-  onClick: null,
+  itemButtonProps: null,
+  role: '',
   value: null
 };
 
@@ -66,7 +74,9 @@ StatusItem.propTypes = {
   hasError: PropTypes.bool,
   icon: PropTypes.node.isRequired,
   isLive: PropTypes.bool,
-  onClick: PropTypes.func,
+  itemLabel: PropTypes.string.isRequired,
+  itemButtonProps: PropTypes.shape({ onClick: PropTypes.func }),
+  role: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 export default StatusItem;

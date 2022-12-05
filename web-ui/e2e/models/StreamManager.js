@@ -3,6 +3,7 @@ const { expect } = require('@playwright/test');
 
 const BasePageModel = require('./BasePageModel');
 const ChatComponent = require('./ChatComponent');
+const StreamSessionsComponent = require('./StreamSessionsComponent');
 
 const getStreamActionFormLocatorsVisibilityStatuses = (page) =>
   Promise.all([
@@ -32,6 +33,8 @@ class StreamManagerPageModel extends BasePageModel {
     );
     this.saveFormDataBtnLoc = page.getByText('Save');
     this.chatPopupContainerLoc = page.getByTestId('chat-popup-container');
+    this.statusBarComponentLoc = page.getByRole('status');
+    this.floatingPlayerLoc = page.getByTestId('floating-player');
   }
 
   static create = async (page, baseURL, options = {}) => {
@@ -40,6 +43,8 @@ class StreamManagerPageModel extends BasePageModel {
     StreamManagerPageModel.#isInternalConstructing = false;
 
     streamManagerPage.chatComponent = await ChatComponent.create(page);
+    streamManagerPage.streamSessionsComponent =
+      await StreamSessionsComponent.create(page);
     await streamManagerPage.init();
 
     const { shouldNavigateAfterCreate = true } = options;
@@ -114,8 +119,8 @@ class StreamManagerPageModel extends BasePageModel {
 
   fillFormTextField = async ({
     isPreFilled = false,
-    label,
-    placeholder,
+    label = '',
+    placeholder = '',
     values = ['']
   } = {}) => {
     if (!label && !placeholder) return;

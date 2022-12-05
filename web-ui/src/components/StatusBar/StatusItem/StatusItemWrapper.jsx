@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 
-import { clsm, noop } from '../../../utils';
+import { clsm } from '../../../utils';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 
-const StatusItemWrapper = ({ isActionable, children, onClick }) => {
+const StatusItemWrapper = ({ isActionable, children, itemButtonProps }) => {
   const currentPage = useCurrentPage();
   const isStreamHealthPage = currentPage === 'stream_health';
 
@@ -35,7 +35,7 @@ const StatusItemWrapper = ({ isActionable, children, onClick }) => {
           'dark:hover:bg-darkMode-gray-dark-hover'
         ])}
         type="button"
-        onClick={onClick}
+        {...itemButtonProps}
       >
         {children}
       </button>
@@ -48,9 +48,9 @@ const StatusItemWrapper = ({ isActionable, children, onClick }) => {
 StatusItemWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   isActionable: PropTypes.bool.isRequired,
-  onClick: PropTypes.func
+  itemButtonProps: PropTypes.shape({ onClick: PropTypes.func })
 };
 
-StatusItemWrapper.defaultProps = { onClick: noop };
+StatusItemWrapper.defaultProps = { itemButtonProps: null };
 
 export default StatusItemWrapper;
