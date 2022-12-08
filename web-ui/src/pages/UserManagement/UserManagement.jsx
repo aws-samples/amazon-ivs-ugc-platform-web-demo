@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import './UserManagement.css';
 import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
 import { clsm, compose } from '../../utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
@@ -44,13 +43,22 @@ const UserManagement = () => {
   return (
     <main
       id={`main-user-container${isResponsiveView ? '' : '-scrollable'}`}
-      className={clsm(
-        'main-user-container',
+      className={clsm([
         'bg-lightMode-gray-extraLight',
         'dark:bg-black',
+        'flex-col',
         'flex',
-        'justify-center'
-      )}
+        'justify-center',
+        'min-h-screen',
+        'overflow-x-hidden',
+        'overflow-y-auto',
+        'supports-overlay:overflow-y-overlay',
+        'px-4',
+        'py-0',
+        'relative',
+        'scroll-smooth',
+        'w-full'
+      ])}
       ref={mainRef}
     >
       <Notification />
@@ -63,13 +71,16 @@ const UserManagement = () => {
       ) : (
         <div
           className={clsm(
-            'user-page-content',
+            '[&>svg]:h-8',
+            '[&>svg]:w-[130px]',
+            'flex-col',
             'flex',
             'items-center',
-            'flex-col',
-            'w-full',
+            'py-8',
+            'sm:mx-auto',
+            'sm:my-0',
             'space-y-8',
-            'py-8'
+            'w-full'
           )}
         >
           <Outlet />

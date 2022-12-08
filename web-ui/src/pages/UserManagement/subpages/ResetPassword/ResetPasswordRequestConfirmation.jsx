@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import Button from '../../../../components/Button';
 import { channelAPI } from '../../../../api';
-import { userManagement as $content } from '../../../../content';
+import { clsm } from '../../../../utils';
 import { useNotif } from '../../../../contexts/Notification';
+import { userManagement as $content } from '../../../../content';
+import Button from '../../../../components/Button';
 
 const ResetPasswordRequestConfirmation = ({ email }) => {
   const { notifySuccess, notifyError } = useNotif();
@@ -28,7 +29,7 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
     <div className="sub-page-container">
       <h2>{$content.reset_password_page.title}</h2>
       <p className="p1">{$content.reset_password_page.email_link_sent}</p>
-      <span className="resend-action-container">
+      <span className={clsm(['flex', 'items-center', 'space-x-5'])}>
         <b>{$content.did_not_receive_email}</b>
         <Button onClick={resend} type="button" variant="secondary">
           {$content.resend}

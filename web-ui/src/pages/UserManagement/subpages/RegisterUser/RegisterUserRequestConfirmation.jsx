@@ -45,7 +45,7 @@ const RegisterUserRequestConfirmation = ({ username }) => {
       <p className={clsm(['pt-[3px]', 'p1'])}>
         {$content.register_page.email_link_sent}
       </p>
-      <span className="resend-action-container">
+      <span className={clsm(['flex', 'items-center', 'space-x-5'])}>
         <b>{$content.did_not_receive_email}</b>
         <Button onClick={resend} type="button" variant="secondary">
           {$content.resend}
