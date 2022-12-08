@@ -69,14 +69,14 @@ const handler = async (
       );
     }
 
-    // Update the entry in the user table
+    // Update the entry in the channels table
     await updateDynamoItemAttributes({
       attributes: [
         { key: 'channelArn', value: channelArn },
         { key: 'channelAssetId', value: generateDeterministicId(sub) },
         { key: 'channelAssets', value: {} },
         { key: 'chatRoomArn', value: chatRoomArn },
-        { key: 'ingestEndpoint', value: `rtmps://${ingestEndpoint}:443/app/` },
+        { key: 'ingestEndpoint', value: ingestEndpoint },
         { key: 'playbackUrl', value: playbackUrl },
         { key: 'streamKeyArn', value: streamKeyArn },
         { key: 'streamKeyValue', value: streamKeyValue }

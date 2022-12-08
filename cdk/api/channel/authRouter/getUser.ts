@@ -16,6 +16,7 @@ interface GetUserResponseBody extends ResponseBody {
   channelResourceId?: string;
   color?: string;
   ingestEndpoint?: string;
+  ingestServerUrl?: string;
   playbackUrl?: string;
   streamKeyValue?: string;
   username?: string;
@@ -50,6 +51,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.ingestEndpoint = ingestEndpoint;
+    responseBody.ingestServerUrl = `rtmps://${ingestEndpoint}:443/app/`;
     responseBody.playbackUrl = playbackUrl;
     responseBody.streamKeyValue = streamKeyValue;
     responseBody.username = username;

@@ -13,6 +13,7 @@ import { useNotif } from '../../../contexts/Notification';
 import { useSettingsOrientation } from '../Settings';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
+import CopyTextInput from '../CopyTextInput';
 import Input from '../../../components/Input';
 
 const StreamSettings = () => {
@@ -26,11 +27,6 @@ const StreamSettings = () => {
   const copyStreamKey = () => {
     copyToClipboard(userData.streamKeyValue);
     notifySuccess($content.notification.success.stream_key_copied);
-  };
-
-  const copyIngestEndpoint = () => {
-    copyToClipboard(userData.ingestEndpoint);
-    notifySuccess($content.notification.success.ingest_endpoint_copied);
   };
 
   const handleResetStreamKey = () => {
@@ -72,7 +68,6 @@ const StreamSettings = () => {
           'xs:mb-[10px]',
           'xs:space-y-2.5'
         )}
-        data-testid="stream-key-settings"
       >
         <Input
           label={$content.settings_page.stream_key}
@@ -84,6 +79,7 @@ const StreamSettings = () => {
           variant={settingsFormOrientation}
         />
         <Button
+          ariaLabel={`Reset ${$content.settings_page.stream_key} value`}
           className="xs:order-1"
           isLoading={isResetStreamKeyLoading}
           onClick={handleResetStreamKey}
@@ -92,26 +88,32 @@ const StreamSettings = () => {
         >
           {$content.settings_page.reset}
         </Button>
-        <Button onClick={copyStreamKey} variant="tertiary">
+        <Button
+          ariaLabel={`Copy ${$content.settings_page.stream_key} value`}
+          onClick={copyStreamKey}
+          variant="tertiary"
+        >
           {$content.settings_page.copy}
         </Button>
       </span>
-      <span
-        className={clsm(INPUT_BUTTON_GROUP_CLASSES)}
-        data-testid="ingest-endpoint-settings"
-      >
-        <Input
-          label={$content.settings_page.ingest_server_url}
-          name="ingestEndpoint"
-          placeholder={$content.settings_page.ingest_server_url}
-          readOnly
-          value={userData.ingestEndpoint}
-          variant={settingsFormOrientation}
-        />
-        <Button onClick={copyIngestEndpoint} variant="tertiary">
-          {$content.settings_page.copy}
-        </Button>
-      </span>
+      <CopyTextInput
+        label={$content.settings_page.ingest_server_url}
+        name="ingestServerUrl"
+        value={userData.ingestServerUrl}
+        successMessage={$content.notification.success.ingest_server_url_copied}
+      />
+      <CopyTextInput
+        label={$content.settings_page.ingest_endpoint}
+        name="ingestEndpoint"
+        value={userData.ingestEndpoint}
+        successMessage={$content.notification.success.ingest_endpoint_copied}
+      />
+      <CopyTextInput
+        label={$content.settings_page.playback_url}
+        name="playbackUrl"
+        value={userData.playbackUrl}
+        successMessage={$content.notification.success.playback_url_copied}
+      />
     </section>
   );
 };

@@ -22,15 +22,8 @@ class SettingsPageModel extends BasePageModel {
     this.streamKeyFieldLoc = page.locator(
       'input:read-only[id="streamKeyValue"]'
     );
-    this.ingestEndpointFieldLoc = page.locator(
-      'input:read-only[id="ingestEndpoint"]'
-    );
-    this.copyStreamKeyButtonLoc = page
-      .getByTestId('stream-key-settings')
-      .locator('button:has-text("Copy")');
-    this.copyIngestEndpointButtonLoc = page
-      .getByTestId('ingest-endpoint-settings')
-      .locator('button:has-text("Copy")');
+    this.getCopyButtonLocator = (label) =>
+      page.getByRole('button', { name: `Copy ${label} value` });
 
     /* Account Settings Locators */
     this.deleteAccountButtonLoc = page.getByText('Delete my account');
@@ -140,11 +133,17 @@ class SettingsPageModel extends BasePageModel {
   };
 
   copyStreamConfiguration = async () => {
-    await this.copyStreamKeyButtonLoc.click();
+    await this.getCopyButtonLocator('Stream key').click();
     await expect(this.notifLoc).toHaveText('Stream key copied');
 
-    await this.copyIngestEndpointButtonLoc.click();
+    await this.getCopyButtonLocator('Ingest server URL').click();
     await expect(this.notifLoc).toHaveText('Ingest server URL copied');
+
+    await this.getCopyButtonLocator('Ingest endpoint').click();
+    await expect(this.notifLoc).toHaveText('Ingest endpoint copied');
+
+    await this.getCopyButtonLocator('Playback URL').click();
+    await expect(this.notifLoc).toHaveText('Playback URL copied');
   };
 
   updateProfileAvatar = async () => {

@@ -294,6 +294,14 @@ This command will run the tests following the same procedure as above, but will 
 
 Note that on the very first test run, the tests that include a screenshot assertion will fail since Playwright Test has to generate reference screenshots, called "golden files." To generate a golden file, during the first test run, Playwright Test takes multiple screenshots until two consecutive screenshots are matched and saves the last screenshot to the file system. Subsequent test runs will compare new screenshots against the golden files.
 
+To specify a single test file to be run, you need to add the test file path to the end of the test command:
+
+```shell
+npm run test:e2e ./__tests__/settings.spec.js
+```
+
+To run a set of test files, you can also provide multiple file paths separated by a space to the test command. Adding a file path after the `npm run test:e2e:update` command will also run the test and update any screenshots that have changed within the specified tests.
+
 ## Debugging
 
 ### Local

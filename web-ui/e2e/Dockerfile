@@ -14,4 +14,4 @@ RUN npm ci
 ENV PATH /e2e/node_modules/.bin:$PATH
 
 # Run the e2e test command
-ENTRYPOINT [ "sh", "./docker-entrypoint.sh" ]
+ENTRYPOINT echo "🧪 Running E2E Tests" && npx playwright test $ADDITIONAL_ARGS

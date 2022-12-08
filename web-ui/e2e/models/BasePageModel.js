@@ -72,6 +72,8 @@ class BasePageModel {
   /* MOCK API HELPERS */
 
   #mockGetUser = async () => {
+    const ingestEndpoint = 'mockChannelId.global-contribute.live-video.net';
+
     await this.page.route(
       getCloudfrontURLRegex('/channel'),
       (route, request) => {
@@ -81,8 +83,8 @@ class BasePageModel {
               status: 200,
               body: JSON.stringify({
                 channelResourceId: 'mockChannelId',
-                ingestEndpoint:
-                  'rtmps://mockChannelId.global-contribute.live-video.net:443/app/',
+                ingestServerUrl: `rtmps://${ingestEndpoint}:443/app/`,
+                ingestEndpoint,
                 playbackUrl:
                   'https://mockChannelId.mock-region.playback.live-video.net/api/video/v1/mock-region.mock-account-id.channel.mockChannelId.m3u8',
                 streamKeyValue: this.#streamKeyValue,
