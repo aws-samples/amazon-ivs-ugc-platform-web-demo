@@ -1,80 +1,52 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
 
-import './IconSelect.css';
-import { noop } from '../../utils';
-import Icon from './Icon';
-import InputLabel from '../Input/InputLabel';
+import { clsm, noop } from '../../utils';
+import Icon, { ICON_TYPE } from './Icon';
+import useThrottledCallback from '../../hooks/useThrottledCallback';
 
-const IconSelect = ({
-  isLoading,
-  name,
-  label,
-  type,
-  items,
-  selected,
-  onClick,
-  variant
-}) => {
-  const [selectedIcon, setSelectedIcon] = useState(selected);
-  const handleOnClickEvent = (iconSrcName) => {
-    // Eagerly set the selected icon
-    setSelectedIcon(iconSrcName);
-
-    onClick(iconSrcName, (nextIconSrcName) => setSelectedIcon(nextIconSrcName));
-  };
+const IconSelect = ({ selected, isLoading, items, onSelect, type }) => {
+  const throttledOnSelect = useThrottledCallback(onSelect, 250, [onSelect]);
 
   return (
-    <div className={`outer-select-container ${variant}`}>
-      <InputLabel label={label} htmlFor={name} />
-      <div
-        id={`${name}-icon-select-container`}
-        className={'inner-select-container'}
-      >
-        <div className="select-item-container">
-          <div className="select-items">
-            {Object.keys(items).map((iconName) => {
-              const isSelected = selectedIcon === iconName;
+    <div
+      className={clsm([
+        'grid',
+        'grid-cols-[repeat(auto-fill,minmax(3rem,48px))]',
+        'gap-x-3',
+        'gap-y-3',
+        'w-full'
+      ])}
+    >
+      {items.map(([name, value, { CustomMarker } = {}]) => {
+        const isSelected = selected === name;
+        const isIconLoading = isSelected && isLoading;
+        const onClick = () => throttledOnSelect(name);
 
-              return (
-                <Icon
-                  iconValue={items[iconName]}
-                  isHoverable
-                  isLoading={isSelected && isLoading}
-                  isSelected={isSelected}
-                  type={type}
-                  name={iconName}
-                  key={iconName}
-                  onClick={() => handleOnClickEvent(iconName)}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
+        return (
+          <Icon
+            CustomMarker={CustomMarker}
+            isLoading={isIconLoading}
+            isSelected={isSelected}
+            key={name}
+            name={name}
+            onClick={onClick}
+            type={type}
+            value={value}
+          />
+        );
+      })}
     </div>
   );
 };
 
-IconSelect.defaultProps = {
-  isLoading: false,
-  name: '',
-  label: '',
-  type: 'image',
-  selected: '',
-  onClick: noop,
-  variant: 'vertical'
-};
-
 IconSelect.propTypes = {
   isLoading: PropTypes.bool,
-  name: PropTypes.string,
-  label: PropTypes.string,
-  type: PropTypes.oneOf(['image', 'color']),
-  items: PropTypes.object.isRequired,
-  selected: PropTypes.string,
-  onClick: PropTypes.func,
-  variant: PropTypes.oneOf(['vertical', 'horizontal'])
+  items: PropTypes.array.isRequired,
+  onSelect: PropTypes.func,
+  selected: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(Object.values(ICON_TYPE)).isRequired
 };
+
+IconSelect.defaultProps = { isLoading: false, onSelect: noop };
 
 export default IconSelect;

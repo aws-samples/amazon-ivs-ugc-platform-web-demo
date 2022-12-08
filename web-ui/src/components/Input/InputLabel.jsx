@@ -18,12 +18,13 @@ const InputLabel = ({ label, htmlFor, variant }) => {
 };
 
 InputLabel.defaultProps = {
+  htmlFor: undefined,
   variant: 'vertical'
 };
 
 InputLabel.propTypes = {
   label: PropTypes.string.isRequired,
-  htmlFor: PropTypes.string.isRequired,
+  htmlFor: PropTypes.string,
   variant: PropTypes.oneOf(['vertical', 'horizontal'])
 };
 

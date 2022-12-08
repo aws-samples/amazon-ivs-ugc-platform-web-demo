@@ -313,14 +313,11 @@ export const sendStreamAction = async (metadataString) =>
     body: { metadata: metadataString }
   });
 
-export const uploadFileToS3 = async ({
-  assetType,
-  contentType,
-  fileContents
-}) => {
+export const uploadFileToS3 = async ({ assetType, file }) => {
   let result, error;
 
   try {
+    const contentType = file.type;
     const { result: presignedPost, error: presignedPostError } =
       await generatePresignedPost({ assetType, contentType });
 
@@ -331,7 +328,7 @@ export const uploadFileToS3 = async ({
       formData.append(key, value)
     );
     formData.append('Content-Type', contentType);
-    formData.append('file', fileContents); // The file has to be the last element
+    formData.append('file', file); // The file has to be the last element
 
     const response = await fetch(presignedPost.url, {
       body: formData,

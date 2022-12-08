@@ -11,6 +11,7 @@ import { BUTTON_VARIANT_CLASSES as variantClasses } from './FormTheme';
 
 const Form = ({
   'data-testid': dataTestId,
+  className,
   clearFormOnSuccess,
   disableSubmit,
   disableValidation,
@@ -41,7 +42,7 @@ const Form = ({
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
   const { currentBreakpoint } = useResponsiveDevice();
   const isMobileView = currentBreakpoint < BREAKPOINTS.sm;
-  const classes = clsm(variantClasses[formVariant]);
+  const classes = clsm(variantClasses[formVariant], className);
 
   const SubmitButton = useCallback(
     () => (
@@ -139,7 +140,7 @@ const Form = ({
             className={clsm([
               'flex',
               'input-format-container',
-              'space-x-2.5',
+              'space-x-2',
               formVariant === 'horizontal' && 'items-end',
               !hasSubmitButton && ['mr-[108px]', 'xs:m-0']
             ])}
@@ -163,6 +164,7 @@ const Form = ({
 
 Form.defaultProps = {
   'data-testid': undefined,
+  className: '',
   clearFormOnSuccess: true,
   disableSubmit: noop,
   disableValidation: false,
@@ -181,6 +183,7 @@ Form.defaultProps = {
 
 Form.propTypes = {
   'data-testid': PropTypes.string,
+  className: PropTypes.string,
   clearFormOnSuccess: PropTypes.bool,
   disableSubmit: PropTypes.func,
   disableValidation: PropTypes.bool,

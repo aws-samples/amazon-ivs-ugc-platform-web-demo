@@ -2,7 +2,12 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../utils';
 
-const DIAMETER = { small: '24px', medium: '30px', large: '36px' };
+const DIAMETER = {
+  small: '24px',
+  medium: '32px',
+  large: '36px',
+  xlarge: '40px'
+};
 
 const Spinner = ({ variant, size, className }) => {
   const classes = clsm(
@@ -55,7 +60,7 @@ Spinner.defaultProps = {
 Spinner.propTypes = {
   className: PropTypes.string,
   variant: PropTypes.oneOf(['white', 'light', 'semi-dark', 'dark']),
-  size: PropTypes.oneOf(['small', 'medium', 'large'])
+  size: PropTypes.oneOf(['small', 'medium', 'large', 'xlarge'])
 };
 
 export default Spinner;

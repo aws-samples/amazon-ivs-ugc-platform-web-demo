@@ -1,24 +1,27 @@
 import { useRef, useState } from 'react';
 import copyToClipboard from 'copy-to-clipboard';
 
-import './Settings.css';
-import { dashboard as $content } from '../../content';
-import { useModal } from '../../contexts/Modal';
-import { useNotif } from '../../contexts/Notification';
-import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { channelAPI } from '../../api';
-import { useUser } from '../../contexts/User';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
+import { channelAPI } from '../../../api';
+import { clsm } from '../../../utils';
+import { dashboard as $content } from '../../../content';
+import {
+  INPUT_BUTTON_GROUP_CLASSES,
+  SETTINGS_SECTION_CLASSES
+} from '../SettingsTheme';
+import { useModal } from '../../../contexts/Modal';
+import { useNotif } from '../../../contexts/Notification';
+import { useSettingsOrientation } from '../Settings';
+import { useUser } from '../../../contexts/User';
+import Button from '../../../components/Button';
+import Input from '../../../components/Input';
 
 const StreamSettings = () => {
   const resetStreamKeyButtonRef = useRef();
   const [isResetStreamKeyLoading, setIsResetStreamKeyLoading] = useState(false);
-  const { isDefaultResponsiveView } = useResponsiveDevice();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { userData, fetchUserData } = useUser();
-  const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
+  const settingsFormOrientation = useSettingsOrientation();
 
   const copyStreamKey = () => {
     copyToClipboard(userData.streamKeyValue);
@@ -60,9 +63,17 @@ const StreamSettings = () => {
   };
 
   return (
-    <section>
+    <section className={clsm(SETTINGS_SECTION_CLASSES)}>
       <h3>{$content.settings_page.stream_settings}</h3>
-      <span data-testid="stream-key-settings" className="input-btn-group">
+      <span
+        className={clsm(
+          INPUT_BUTTON_GROUP_CLASSES,
+          'xs:flex-wrap',
+          'xs:mb-[10px]',
+          'xs:space-y-2.5'
+        )}
+        data-testid="stream-key-settings"
+      >
         <Input
           label={$content.settings_page.stream_key}
           name="streamKeyValue"
@@ -70,10 +81,10 @@ const StreamSettings = () => {
           readOnly
           type="password"
           value={userData.streamKeyValue}
-          variant={inputVariant}
+          variant={settingsFormOrientation}
         />
         <Button
-          className="input-button"
+          className="xs:order-1"
           isLoading={isResetStreamKeyLoading}
           onClick={handleResetStreamKey}
           ref={resetStreamKeyButtonRef}
@@ -81,28 +92,23 @@ const StreamSettings = () => {
         >
           {$content.settings_page.reset}
         </Button>
-        <Button
-          className="input-button"
-          onClick={copyStreamKey}
-          variant="tertiary"
-        >
+        <Button onClick={copyStreamKey} variant="tertiary">
           {$content.settings_page.copy}
         </Button>
       </span>
-      <span data-testid="ingest-endpoint-settings" className="input-btn-group">
+      <span
+        className={clsm(INPUT_BUTTON_GROUP_CLASSES)}
+        data-testid="ingest-endpoint-settings"
+      >
         <Input
           label={$content.settings_page.ingest_server_url}
           name="ingestEndpoint"
           placeholder={$content.settings_page.ingest_server_url}
           readOnly
           value={userData.ingestEndpoint}
-          variant={inputVariant}
+          variant={settingsFormOrientation}
         />
-        <Button
-          className="input-button"
-          onClick={copyIngestEndpoint}
-          variant="tertiary"
-        >
+        <Button onClick={copyIngestEndpoint} variant="tertiary">
           {$content.settings_page.copy}
         </Button>
       </span>

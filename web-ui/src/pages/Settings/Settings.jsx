@@ -1,78 +1,64 @@
-import { useState } from 'react';
+import { createContext, useMemo } from 'react';
 
-import './Settings.css';
-import { channelAPI } from '../../api';
+import {
+  AccountSettings,
+  ChannelSettings,
+  StreamSettings
+} from './settingsSections';
 import { clsm } from '../../utils';
 import { dashboard as $content } from '../../content';
-import { uploadFileToS3 } from '../../api/channel';
-import { USE_SETTINGS_IMAGE_UPLOAD_TEST } from '../../constants';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
-import AccountSettings from './AccountSettings';
-import Button from '../../components/Button';
-import StreamSettings from './StreamSettings';
 import withVerticalScroller from '../../components/withVerticalScroller';
+import useContextHook from '../../contexts/useContextHook';
+
+const Context = createContext(null);
+Context.displayName = 'SettingsOrientation';
+export const useSettingsOrientation = () => useContextHook(Context);
+export const SETTINGS_ORIENTATION = {
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical'
+};
 
 const Settings = () => {
   const { userData } = useUser();
-  const [imageUrl, setImageUrl] = useState('');
-
-  // TEMPORARY
-  const handleUpload = async (assetType, event) => {
-    const file = event.target.files[0];
-
-    const { result } = await uploadFileToS3({
-      assetType,
-      contentType: file.type,
-      fileContents: file
-    });
-
-    if (result) setImageUrl(result);
-  };
-  const handleDeleteChannelAsset = async (assetType) => {
-    await channelAPI.deleteChannelAsset(assetType);
-  };
+  const { isDefaultResponsiveView } = useResponsiveDevice();
+  const settingsFormOrientation = useMemo(
+    () =>
+      isDefaultResponsiveView
+        ? SETTINGS_ORIENTATION.VERTICAL
+        : SETTINGS_ORIENTATION.HORIZONTAL,
+    [isDefaultResponsiveView]
+  );
 
   return (
     userData && (
-      <article className="settings-container">
+      <article
+        className={clsm([
+          'flex',
+          'flex-col',
+          'items-start',
+          'justify-center',
+          'mx-auto',
+          'mt-24',
+          'mb-10',
+          'max-w-[960px]',
+          'space-y-[60px]',
+          'px-[30px]',
+          'box-content',
+          'md:px-4',
+          'md:py-0',
+          'md:mx-auto',
+          'md:mt-8',
+          'md:mb-24'
+        ])}
+      >
         <h1>{$content.settings_page.title}</h1>
-
-        {/* TEMPORARY */}
-        {USE_SETTINGS_IMAGE_UPLOAD_TEST && (
-          <>
-            <div className={clsm(['flex', 'flex-col'])}>
-              <label htmlFor="avatar-upload">Upload Avatar</label>
-              <input
-                id="avatar-upload"
-                type="file"
-                onChange={(e) => handleUpload('avatar', e)}
-              />
-            </div>
-            <div className={clsm(['flex', 'flex-col'])}>
-              <label htmlFor="banner-upload">Upload Banner</label>
-              <input
-                id="banner-upload"
-                type="file"
-                onChange={(e) => handleUpload('banner', e)}
-              />
-            </div>
-            {imageUrl && <img alt="upload" className="w-60" src={imageUrl} />}
-            <div className={clsm(['flex', 'gap-x-4'])}>
-              <Button onClick={() => handleDeleteChannelAsset('avatar')}>
-                Delete Avatar
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => handleDeleteChannelAsset('banner')}
-              >
-                Delete Banner
-              </Button>
-            </div>
-          </>
-        )}
-
-        <StreamSettings />
-        <AccountSettings />
+        <Context.Provider value={settingsFormOrientation}>
+          <ChannelSettings />
+          <StreamSettings />
+          <AccountSettings />
+        </Context.Provider>
       </article>
     )
   );

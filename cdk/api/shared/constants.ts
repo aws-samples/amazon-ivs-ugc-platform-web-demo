@@ -60,7 +60,7 @@ export const TIMED_METADATA_CONSTANT_BACKOFF_RETRY_DELAY = 1000; // ms
  * - ALLOWED_CHANNEL_ASSET_TYPES
  * - [cdk/lib/constants.ts](../../lib/constants.ts) -> ALLOWED_CHANNEL_ASSET_TYPES
  */
-export const MAXIMUM_IMAGE_FILE_SIZE = { avatar: 5, banner: 5 }; // Sizes are in MB
+export const MAXIMUM_IMAGE_FILE_SIZE = { avatar: 1, banner: 5 }; // Sizes are in MB
 export const ALLOWED_CHANNEL_ASSET_TYPES = ['avatar', 'banner'] as const;
 export const ALLOWED_IMAGE_CONTENT_TYPES = [
   'image/jpeg',

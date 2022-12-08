@@ -10,13 +10,13 @@ const defaultVariants = {
 };
 
 export const defaultTransition = { duration: 0.15, type: 'tween' };
-const defaultBounceTransition = {
+const getDefaultBounceTransition = (isVisible) => ({
   type: 'spring',
-  bounce: 0.2,
+  bounce: isVisible ? 0.2 : 0,
   duration: 0.3,
   restSpeed: 10,
   velocity: 2
-};
+});
 
 const defaultOptions = {
   shouldAnimateIn: true,
@@ -48,8 +48,16 @@ export const createAnimationProps = ({
   if (!options.shouldAnimate) return;
 
   // Default transitions
+  const bounceVariants = {};
   if (transition === 'bounce') {
-    transition = defaultBounceTransition;
+    bounceVariants[VISIBLE_VARIANT] = {
+      transition: getDefaultBounceTransition(true)
+    };
+    bounceVariants[HIDDEN_INITIAL_VARIANT] = {
+      transition: getDefaultBounceTransition(false)
+    };
+    bounceVariants[HIDDEN_EXIT_VARIANT] =
+      bounceVariants[HIDDEN_INITIAL_VARIANT];
   }
 
   // Default animations
@@ -146,7 +154,7 @@ export const createAnimationProps = ({
       }
       return variants;
     },
-    { ...defaultVariants }
+    { ...defaultVariants, ...bounceVariants }
   );
 
   // Custom animations

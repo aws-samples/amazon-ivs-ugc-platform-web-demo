@@ -109,6 +109,12 @@
     "stream_key": "Stream key",
     "ingest_server_url": "Ingest server URL",
     "account_settings": "Account settings",
+    "channel_settings": "Channel settings",
+    "upload_restrictions": "File format: {FILE_FORMATS} (Max {MAXIMUM_FILE_SIZE} MB)",
+    "upload_image": "Upload image",
+    "replace_image": "Replace image",
+    "avatar": "Avatar",
+    "color": "Color",
     "create_your_new_password": "Create your new password",
     "account_deletion": "Account deletion",
     "delete_my_account": "Delete my account",
@@ -145,6 +151,10 @@
       "live_stream_ended": "Live stream ended",
       "live_stream_ended_message": "The live stream you were monitoring has ended. Reload the page to view the stream summary.",
       "reload": "Reload"
+    },
+    "channel_asset_deletion_modal": {
+      "delete_image": "Delete image",
+      "confirm_intent_message": "Are you sure you want to delete your {ASSET_TYPE} image?"
     }
   },
   "notification": {
@@ -155,7 +165,9 @@
       "username_saved": "Username saved",
       "password_saved": "Password saved",
       "avatar_saved": "Avatar saved",
-      "color_saved": "Color saved"
+      "color_saved": "Color saved",
+      "avatar_uploaded": "Image uploaded and avatar saved",
+      "avatar_deleted": "Avatar image deleted"
     },
     "error": {
       "reset_stream_key_failed": "Stream key failed to reset",
@@ -163,7 +175,11 @@
       "password_save_failed": "Password failed to save",
       "account_deletion_failed": "Account failed to delete",
       "avatar_failed_to_save": "Avatar failed to save",
-      "color_failed_to_save": "Color failed to save"
+      "color_failed_to_save": "Color failed to save",
+      "avatar_failed_to_upload": "Avatar failed to upload",
+      "avatar_failed_to_delete": "Avatar failed to delete",
+      "image_exceeded_max_size": "Image exceeded max file size",
+      "cant_select_file": "Can't select the file you chose"
     }
   }
 }

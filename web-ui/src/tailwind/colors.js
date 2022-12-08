@@ -1,5 +1,6 @@
 module.exports = {
-  modalOverlay: 'hsl(0 0% 0% / 0.5)',
+  modalOverlay: 'hsla(0, 0%, 0%, 0.5)',
+  lightOverlay: 'hsla(0, 0%, 100%, 0.5)',
   white: {
     DEFAULT: 'hsl(var(--base-color-white), 100%)',
     hover: 'hsl(var(--base-color-white), 90%)',

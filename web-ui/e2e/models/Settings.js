@@ -57,11 +57,11 @@ class SettingsPageModel extends BasePageModel {
     );
     this.unselectedProfileAvatarLoc = page
       .getByTestId('image-unselected-icon')
-      .first();
+      .last();
     this.selectedProfileAvatarLoc = page.getByTestId('image-selected-icon');
     this.unselectedProfileColorLoc = page
       .getByTestId('color-unselected-icon')
-      .first();
+      .last();
     this.selectedProfileColorLoc = page.getByTestId('color-selected-icon');
 
     /* Other Locators */

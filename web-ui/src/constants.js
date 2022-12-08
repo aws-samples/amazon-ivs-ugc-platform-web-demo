@@ -94,7 +94,8 @@ export const PROFILE_COLORS = [
   'yellow'
 ];
 
-export const USE_SETTINGS_IMAGE_UPLOAD_TEST = false; // TEMPORARY
+export const MAXIMUM_IMAGE_FILE_SIZE = { avatar: 1, banner: 5 }; // Sizes are in MB
+export const SUPPORTED_IMAGE_FILE_FORMATS = [['jpg', 'jpeg'], 'png'];
 
 /**
  * STREAM HEALTH
