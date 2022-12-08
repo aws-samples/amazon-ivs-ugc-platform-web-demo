@@ -46,5 +46,37 @@
         "type": "IVS Stream State Change"
       }
     ]
+  },
+  {
+    "channelArn": "channelArn-user4",
+    "startTime": "2022-06-08T18:39:28.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T18:39:28.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T18:39:28.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "channelArn-user5",
+    "startTime": "2022-06-09T18:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-09T18:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-09T18:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      }
+    ]
   }
 ]

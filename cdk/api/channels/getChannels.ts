@@ -1,6 +1,6 @@
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
+import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 
 import {
   BAD_REQUEST_EXCEPTION,
@@ -11,9 +11,10 @@ import {
   ChannelDbRecord,
   dynamoDbClient,
   getChannelAssetUrls,
-  getIsLive
+  getIsLive,
+  isFulfilled,
+  StreamSessionDbRecord
 } from '../shared/helpers';
-import { StreamSessionDbRecord } from '../shared/helpers';
 
 type ChannelData = Omit<ChannelDbRecord, 'channelAssets'> & {
   channelAssetUrls?: ChannelAssetURLs;
@@ -59,7 +60,6 @@ const handler = async (
     try {
       const scanCommand = new ScanCommand({
         IndexName: 'isOpenIndex',
-        Limit: maxResults,
         ProjectionExpression: 'endTime, truncatedEvents, channelArn, startTime',
         TableName: process.env.STREAM_TABLE_NAME
       });
@@ -72,14 +72,14 @@ const handler = async (
         openStreamSessions.map((openStreamSession) =>
           unmarshall(openStreamSession)
         );
-      const sortedStreamSessions = [...unmarshalledStreamSessions].sort(
-        ({ startTime: startTime1 }, { startTime: startTime2 }) => {
+      const sortedStreamSessions = [...unmarshalledStreamSessions]
+        .sort(({ startTime: startTime1 }, { startTime: startTime2 }) => {
           /* istanbul ignore else */
           if (startTime1 && startTime2) {
             return startTime1 < startTime2 ? 1 : -1; // Descending order
           } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
-        }
-      );
+        })
+        .slice(0, maxResults);
       const sortedLiveChannelArns = sortedStreamSessions.reduce(
         (acc, sortedStreamSession) => {
           const {
@@ -97,41 +97,38 @@ const handler = async (
       );
 
       if (sortedLiveChannelArns.length) {
-        const channelArnKeysObject = sortedLiveChannelArns.reduce(
-          (acc, channelArn, index) => ({
-            ...acc,
-            [`:channelArn${index}`]: convertToAttr(channelArn)
-          }),
-          {}
-        );
-        const scanCommand = new ScanCommand({
-          TableName: process.env.CHANNELS_TABLE_NAME,
-          IndexName: 'channelArnIndex',
-          Limit: maxResults,
-          FilterExpression: `channelArn IN (${Object.keys(
-            channelArnKeysObject
-          ).join(', ')})`,
-          ExpressionAttributeValues: channelArnKeysObject
-        });
-        const { Items: liveChannels = [] } = await dynamoDbClient.send(
-          scanCommand
-        );
+        const promises = sortedLiveChannelArns.map((liveChannelArn) => {
+          return new Promise<ChannelDbRecord>(async (resolve, rejects) => {
+            try {
+              const queryCommand = new QueryCommand({
+                TableName: process.env.CHANNELS_TABLE_NAME,
+                IndexName: 'channelArnIndex',
+                KeyConditionExpression: 'channelArn = :channelArn',
+                ExpressionAttributeValues: {
+                  ':channelArn': convertToAttr(liveChannelArn)
+                }
+              });
 
-        const unmarshalledLiveChannels: ChannelDbRecord[] = liveChannels.map(
-          (liveChannel) => unmarshall(liveChannel)
-        );
-        const sortedLiveChannels = [...unmarshalledLiveChannels].sort(
-          ({ channelArn: channelArn1 }, { channelArn: channelArn2 }) => {
-            /* istanbul ignore else */
-            if (channelArn1 && channelArn2) {
-              return (
-                sortedLiveChannelArns.indexOf(channelArn1) -
-                sortedLiveChannelArns.indexOf(channelArn2)
-              );
-            } else return 0;
+              const { Items = [] } = await dynamoDbClient.send(queryCommand);
+              resolve(unmarshall(Items[0]));
+            } catch (err) {
+              console.error(err);
+
+              rejects({});
+            }
+          });
+        });
+
+        const unmarshalledLiveChannels = (
+          await Promise.allSettled(promises)
+        ).reduce<ChannelDbRecord[]>((acc, promiseResult) => {
+          if (isFulfilled(promiseResult)) {
+            return [...acc, promiseResult.value];
           }
-        );
-        responseBody.channels = sortedLiveChannels.reduce<ChannelData[]>(
+          return acc;
+        }, []);
+
+        responseBody.channels = unmarshalledLiveChannels.reduce<ChannelData[]>(
           (acc, liveChannel) => {
             const { avatar, color, username, channelAssets } = liveChannel;
             const channelAssetUrls = getChannelAssetUrls(channelAssets!);

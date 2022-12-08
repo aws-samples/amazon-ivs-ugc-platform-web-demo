@@ -301,7 +301,7 @@ export class UGCStack extends Stack {
           this,
           `${stackNamePrefix}-channelsResource-CachePolicy`,
           {
-            defaultTtl: Duration.seconds(1),
+            defaultTtl: Duration.seconds(2),
             enableAcceptEncodingBrotli: true,
             enableAcceptEncodingGzip: true,
             queryStringBehavior:

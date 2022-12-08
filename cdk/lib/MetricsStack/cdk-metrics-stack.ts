@@ -15,6 +15,7 @@ import {
 } from 'aws-cdk-lib';
 import { ChannelType } from '@aws-sdk/client-ivs';
 import { Construct } from 'constructs';
+import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import path from 'path';
 
 import Service from '../Constructs/Service';
@@ -64,7 +65,14 @@ export class MetricsStack extends NestedStack {
     streamTable.addGlobalSecondaryIndex({
       indexName: 'isOpenIndex',
       partitionKey: { name: 'channelArn', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'isOpen', type: dynamodb.AttributeType.STRING }
+      sortKey: { name: 'isOpen', type: dynamodb.AttributeType.STRING },
+      projectionType: ProjectionType.INCLUDE,
+      nonKeyAttributes: [
+        'endTime',
+        'truncatedEvents',
+        'channelArn',
+        'startTime'
+      ]
     });
 
     // IAM Policies

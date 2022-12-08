@@ -55,9 +55,9 @@ const createRequests = (count = 1, json) => {
   const { userReqs, streamSessionReqs } = createRequestsFromJson(json);
   const randomSeedCount =
     count >= streamSessionReqs.length ? count - streamSessionReqs.length : 0;
-  const startTime = new Date();
 
   for (let i = 0; i < randomSeedCount; i += 1) {
+    const startTime = new Date(new Date() - i * 90000); // current time subtracted by i * 90 seconds
     const uuid = uuidv4();
     const timeLow = uuid.split('-')[0];
     const channelArn = `arn:aws:ivs:us-west-2:000000000000:channel/mock-${uuid}`;

@@ -1,6 +1,6 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
+import { ScanCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
 
 import {
   BAD_REQUEST_EXCEPTION,
@@ -54,7 +54,7 @@ describe('getChannels controller', () => {
       .on(ScanCommand, { TableName: 'streamTableName' })
       .resolves({ Items: [] });
     mockDynamoDbClient
-      .on(ScanCommand, { TableName: 'channelsTableName' })
+      .on(QueryCommand, { TableName: 'channelsTableName' })
       .resolves({ Items: [] });
   });
 
@@ -164,12 +164,8 @@ describe('getChannels controller', () => {
 
           throw new Error();
         })
-        .callsFakeOnce(({ TableName, ExpressionAttributeValues }) => {
-          if (
-            TableName === 'channelsTableName' &&
-            ExpressionAttributeValues[':channelArn0'].S ===
-              onlineStreamSessions[0].channelArn
-          )
+        .callsFakeOnce(({ TableName }) => {
+          if (TableName === 'channelsTableName')
             return {
               Items: [marshall({ ...channelObject, streamKey: 'streamKey' })] // Check that the endpoint strips out private data
             };
@@ -204,18 +200,24 @@ describe('getChannels controller', () => {
 
           throw new Error();
         })
-        .callsFakeOnce(({ TableName }) => {
-          if (TableName === 'channelsTableName')
-            return {
-              Items: onlineStreamSessions.map(({ channelArn }) =>
-                marshall({
-                  ...channelObject,
-                  channelArn,
-                  username: channelArn.split('channelArn-')[1],
-                  streamKey: 'streamKey'
-                })
-              )
-            };
+        .callsFake(({ TableName, ExpressionAttributeValues }) => {
+          for (let i = 0; i < onlineStreamSessions.length; i += 1) {
+            const { channelArn } = onlineStreamSessions[i];
+            if (
+              TableName === 'channelsTableName' &&
+              ExpressionAttributeValues[':channelArn'].S === channelArn
+            )
+              return {
+                Items: [
+                  marshall({
+                    ...channelObject,
+                    channelArn: channelArn,
+                    username: channelArn.split('channelArn-')[1],
+                    streamKey: 'streamKey'
+                  })
+                ]
+              };
+          }
 
           throw new Error();
         });
@@ -229,18 +231,28 @@ describe('getChannels controller', () => {
       };
 
       expect(maxResults).toBe(50);
-      expect(channels.length).toBe(3);
+      expect(channels.length).toBe(5);
       expect(channels[0]).toEqual({
         ...expectedChannelData,
         channelAssetUrls,
-        username: 'user2'
+        username: 'user5'
       });
       expect(channels[1]).toEqual({
         ...expectedChannelData,
         channelAssetUrls,
-        username: 'user1'
+        username: 'user2'
       });
       expect(channels[2]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls,
+        username: 'user1'
+      });
+      expect(channels[3]).toEqual({
+        ...expectedChannelData,
+        channelAssetUrls,
+        username: 'user4'
+      });
+      expect(channels[4]).toEqual({
         ...expectedChannelData,
         channelAssetUrls,
         username: 'user3'
