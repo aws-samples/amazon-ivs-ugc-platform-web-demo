@@ -27,7 +27,7 @@ const nonDoubleClickableIds = [
 
 const Player = ({ isChatVisible, toggleChat, channelData }) => {
   const {
-    avatar,
+    avatarSrc,
     color,
     isLive: isChannelLive,
     isViewerBanned,
@@ -187,7 +187,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
       onMouseMove={onMouseMoveHandler}
     >
       <PlayerHeader
-        avatar={avatar}
+        avatarSrc={avatarSrc}
         color={color}
         shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
         username={username}

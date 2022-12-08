@@ -6,7 +6,7 @@ import { clsm } from '../../../utils';
 import {
   createAnimationProps,
   defaultTransition
-} from '../../../utils/animationPropsHelper';
+} from '../../../helpers/animationPropsHelper';
 import Spinner from '../../../components/Spinner';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 

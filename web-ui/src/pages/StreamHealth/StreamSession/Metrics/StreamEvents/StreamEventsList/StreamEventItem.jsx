@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
 import './StreamEventsList.css';
-import { createAnimationProps } from '../../../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
 import { ErrorIcon, Check } from '../../../../../../assets/icons';

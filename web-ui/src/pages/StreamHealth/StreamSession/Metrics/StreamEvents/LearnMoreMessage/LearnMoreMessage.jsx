@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 
 import './LearnMoreMessage.css';
 import { Close } from '../../../../../../assets/icons';
-import { createAnimationProps } from '../../../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../../../helpers/animationPropsHelper';
 import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';

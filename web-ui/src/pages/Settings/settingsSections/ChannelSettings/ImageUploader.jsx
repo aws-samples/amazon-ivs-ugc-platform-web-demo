@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm, noop } from '../../../../utils';
-import { createAnimationProps } from '../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { dashboard as $content } from '../../../../content';
 import { Delete, Upload } from '../../../../assets/icons';
 import {

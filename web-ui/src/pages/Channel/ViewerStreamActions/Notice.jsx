@@ -7,7 +7,7 @@ import {
   defaultSlideUpVariant
 } from '../../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { clsm, isTextColorInverted, range } from '../../../utils';
-import { createAnimationProps } from '../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { PROFILE_COLORS } from '../../../constants';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 

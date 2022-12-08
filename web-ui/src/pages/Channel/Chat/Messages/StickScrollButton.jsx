@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { BUTTON_BASE_CLASSES } from '../../../../components/Button/ButtonTheme';
 import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
-import { createAnimationProps } from '../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { DownArrow } from '../../../../assets/icons';
 
 const $content = $channelContent.chat;

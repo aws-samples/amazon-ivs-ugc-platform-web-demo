@@ -8,10 +8,9 @@ import {
 } from './ProfileMenuTheme';
 import { app as $appContent } from '../../content';
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { Logout } from '../../assets/icons';
 import { useUser } from '../../contexts/User';
-import * as avatars from '../../assets/avatars';
 import Button from '../Button';
 import UserAvatar from '../UserAvatar';
 import withPortal from '../withPortal';
@@ -21,12 +20,8 @@ const $content = $appContent.navbar;
 const Popup = forwardRef(
   ({ navData, toggleProfileMenu, menuClassName }, ref) => {
     const { userData, logOut } = useUser();
-    const {
-      avatar: avatarName,
-      color: profileColor,
-      username
-    } = userData || {};
-    const hasAvatar = !!avatars[avatarName];
+    const { avatarSrc, color: profileColor, username } = userData || {};
+    const hasAvatar = !!avatarSrc;
 
     const commonMenuButtonProps = useMemo(
       () => ({
@@ -89,7 +84,7 @@ const Popup = forwardRef(
             to={`/${username}`}
             type="nav"
           >
-            <UserAvatar avatarName={avatarName} profileColor={profileColor} />
+            <UserAvatar avatarSrc={avatarSrc} profileColor={profileColor} />
             <p className="truncate">{username || $content.profile}</p>
           </Button>
           <span className={clsm(HAIRLINE_DIVIDER_CLASSES)} />

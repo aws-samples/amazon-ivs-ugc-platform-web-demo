@@ -1,7 +1,7 @@
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
-import { CHANNEL_TYPE } from '../constants';
+import { CHANNEL_TYPE } from './constants';
 
 export const noop = () => {};
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { noop } from '../utils';
-import { unpack } from '../utils/streamActionHelpers';
+import { unpack } from '../helpers/streamActionHelpers';
 import { VOLUME_MAX, VOLUME_MIN } from '../constants';
 import usePlayerBlur from './usePlayerBlur';
 import usePrevious from './usePrevious';

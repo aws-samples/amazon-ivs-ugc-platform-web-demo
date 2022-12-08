@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { useModal } from '../../contexts/Modal';
 import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';

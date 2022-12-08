@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import { Close, Settings as SettingsSvg } from '../../../assets/icons';
 import { clsm } from '../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { createAnimationProps } from '../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { player as $content } from '../../../content';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../Button';

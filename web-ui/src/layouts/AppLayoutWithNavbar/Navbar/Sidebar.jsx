@@ -5,7 +5,6 @@ import { app as $appContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { navPageData } from './utils';
 import { useUser } from '../../../contexts/User';
-import * as avatars from '../../../assets/avatars';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
 import useCurrentPage from '../../../hooks/useCurrentPage';
@@ -14,11 +13,11 @@ import ProfileMenu from '../../../components/ProfileMenu';
 const $content = $appContent.navbar;
 
 const Sidebar = () => {
-  const sidebarRef = useRef();
   const { userData, isSessionValid } = useUser();
-  const { avatar: avatarName } = userData || {};
-  const hasAvatar = !!avatars[avatarName];
+  const { avatar: avatarName, avatarSrc } = userData || {};
   const currentPage = useCurrentPage();
+  const sidebarRef = useRef();
+  const hasAvatar = !!avatarSrc;
 
   const renderWithTooltip = (component, message) =>
     isSessionValid ? (
@@ -184,7 +183,7 @@ const Sidebar = () => {
             >
               {hasAvatar && (
                 <img
-                  src={avatars[avatarName]}
+                  src={avatarSrc}
                   alt={`${avatarName || 'Profile'} avatar`}
                   draggable={false}
                 />

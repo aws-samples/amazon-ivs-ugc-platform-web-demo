@@ -2,10 +2,9 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../utils';
 import { PROFILE_COLORS } from '../constants';
-import * as avatars from '../assets/avatars';
 
-const UserAvatar = ({ avatarName, profileColor, size }) => {
-  const hasAvatar = !!avatars[avatarName];
+const UserAvatar = ({ avatarSrc, profileColor, size }) => {
+  const hasAvatar = !!avatarSrc;
   let dimensions = ['h-11', 'w-11'];
 
   if (size === 'md') dimensions = ['h-8', 'w-8'];
@@ -28,8 +27,8 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
   return hasAvatar ? (
     <img
       className={avatarClassNames}
-      src={avatars[avatarName]}
-      alt={`${avatarName || 'Profile'} avatar`}
+      src={avatarSrc}
+      alt=""
       draggable={false}
     />
   ) : (
@@ -38,13 +37,13 @@ const UserAvatar = ({ avatarName, profileColor, size }) => {
 };
 
 UserAvatar.defaultProps = {
-  size: 'lg',
-  avatarName: '',
-  profileColor: 'default'
+  avatarSrc: '',
+  profileColor: 'default',
+  size: 'lg'
 };
 
 UserAvatar.propTypes = {
-  avatarName: PropTypes.string,
+  avatarSrc: PropTypes.string,
   profileColor: PropTypes.oneOf([...PROFILE_COLORS, 'default', 'white']),
   size: PropTypes.oneOf(['sm', 'md', 'lg'])
 };

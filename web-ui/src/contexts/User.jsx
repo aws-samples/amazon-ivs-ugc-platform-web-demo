@@ -8,9 +8,10 @@ import {
 } from 'react';
 import useSWR from 'swr';
 
-import { getCurrentSession } from '../api/utils';
 import { channelAPI } from '../api';
-import { pack, unpack } from '../utils/streamActionHelpers';
+import { getAvatarSrc } from '../helpers';
+import { getCurrentSession } from '../api/utils';
+import { pack, unpack } from '../helpers/streamActionHelpers';
 import useContextHook from './useContextHook';
 import useLocalStorage from '../hooks/useLocalStorage';
 import usePrevious from '../hooks/usePrevious';
@@ -36,6 +37,8 @@ export const Provider = ({ children }) => {
   const [isSessionValid, setIsSessionValid] = useState();
   const [logOutAction, setLogOutAction] = useState('');
   const prevIsSessionValid = usePrevious(isSessionValid);
+  const avatarSrc = getAvatarSrc(userData);
+
   const { remove: removeStoredUserData } = useLocalStorage({
     key: userData?.username,
     options: { keyPrefix: 'user', serialize: pack, deserialize: unpack }
@@ -124,9 +127,10 @@ export const Provider = ({ children }) => {
       logOut,
       logOutAction,
       prevIsSessionValid,
-      userData
+      userData: userData && { ...userData, avatarSrc }
     }),
     [
+      avatarSrc,
       checkSessionStatus,
       fetchUserData,
       hasErrorCreatingResources,

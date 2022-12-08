@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { DEFAULT_STREAM_MANAGER_ACTIONS_STATE } from './utils';
-import { pack, unpack } from '../../utils/streamActionHelpers';
+import { pack, unpack } from '../../helpers/streamActionHelpers';
 import { useChannel } from '../Channel';
 import { useUser } from '../User';
 import useLatest from '../../hooks/useLatest';

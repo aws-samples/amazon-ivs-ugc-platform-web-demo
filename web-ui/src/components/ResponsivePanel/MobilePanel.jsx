@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import withPortal from '../withPortal';

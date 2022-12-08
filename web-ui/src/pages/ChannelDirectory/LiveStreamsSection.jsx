@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { channelDirectory as $channelDirectoryContent } from '../../content';
 import { clsm } from '../../utils';
+import { getAvatarSrc } from '../../helpers';
 import { getLiveChannels } from '../../api/channels';
 import { SmartToy } from '../../assets/icons';
 import { useNotif } from '../../contexts/Notification';
@@ -72,9 +73,18 @@ const LiveStreamsSection = () => {
             'sm:grid-cols-1'
           ])}
         >
-          {liveChannels.map((liveChannel) => (
-            <ChannelCard {...liveChannel} key={liveChannel.username} />
-          ))}
+          {liveChannels.map((liveChannel) => {
+            const { color, username } = liveChannel;
+
+            return (
+              <ChannelCard
+                avatarSrc={getAvatarSrc(liveChannel)}
+                color={color}
+                username={username}
+                key={liveChannel.username}
+              />
+            );
+          })}
         </div>
       )}
       {!isLoading && !hasLiveChannels && (

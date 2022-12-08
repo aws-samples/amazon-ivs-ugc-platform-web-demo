@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
 import './NavigatorPopup.css';
-import { createAnimationProps } from '../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { dashboard as $dashboardContent } from '../../../content';
 import { groupStreamSessions } from '../Header/utils';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';

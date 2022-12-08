@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { DEFAULT_NOTIF_TIMEOUT } from '../constants';
-import { defaultTransition } from '../utils/animationPropsHelper';
+import { defaultTransition } from '../helpers/animationPropsHelper';
 import useContextHook from './useContextHook';
 import useStateWithCallback from '../hooks/useStateWithCallback';
 

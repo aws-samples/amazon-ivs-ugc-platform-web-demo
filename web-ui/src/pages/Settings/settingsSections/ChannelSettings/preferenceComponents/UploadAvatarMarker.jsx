@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Close } from '../../../../../assets/icons';
 import { clsm } from '../../../../../utils';
-import { createAnimationProps } from '../../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 
 const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
   <>

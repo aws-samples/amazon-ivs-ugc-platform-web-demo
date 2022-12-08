@@ -14,7 +14,7 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
 import FloatingNav from '../../../components/FloatingNav';
 import ProgressBar from './ProgressBar';
-import { createAnimationProps } from '../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 
 const defaultQuizAnswerHeight = 42;
 

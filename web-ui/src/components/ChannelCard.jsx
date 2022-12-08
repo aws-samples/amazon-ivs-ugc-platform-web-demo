@@ -7,7 +7,7 @@ import { PROFILE_COLORS } from '../constants';
 import { useResponsiveDevice } from '../contexts/ResponsiveDevice';
 import UserAvatar from './UserAvatar';
 
-const ChannelCard = ({ avatar, color, username }) => {
+const ChannelCard = ({ avatarSrc, color, username }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const [shouldHavePointerEvents, setShouldHavePointerEvents] = useState(false);
 
@@ -59,7 +59,7 @@ const ChannelCard = ({ avatar, color, username }) => {
           `dark:group-hover:bg-profile-${color}-darkMode-primary-hover`
         ])}
       >
-        <UserAvatar avatarName={avatar} profileColor="white" />
+        <UserAvatar avatarSrc={avatarSrc} profileColor="white" />
         <h3
           className={clsm([
             'truncate',
@@ -75,13 +75,13 @@ const ChannelCard = ({ avatar, color, username }) => {
 };
 
 ChannelCard.propTypes = {
-  avatar: PropTypes.string,
+  avatarSrc: PropTypes.string,
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   username: PropTypes.string
 };
 
 ChannelCard.defaultProps = {
-  avatar: '',
+  avatarSrc: '',
   color: 'default',
   username: ''
 };

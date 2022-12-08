@@ -4,7 +4,12 @@ import { clsm } from '../../utils';
 import PlayerOverlay from './PlayerOverlay';
 import UserAvatar from '../UserAvatar';
 
-const PlayerHeader = ({ avatar, color, shouldShowPlayerOverlay, username }) => (
+const PlayerHeader = ({
+  avatarSrc,
+  color,
+  shouldShowPlayerOverlay,
+  username
+}) => (
   <div
     className={clsm(
       'absolute',
@@ -35,20 +40,20 @@ const PlayerHeader = ({ avatar, color, shouldShowPlayerOverlay, username }) => (
       )}
     </PlayerOverlay>
     <div className={clsm(['relative', 'flex-shrink-0'])}>
-      <UserAvatar avatarName={avatar} profileColor={color} />
+      <UserAvatar avatarSrc={avatarSrc} profileColor={color} />
     </div>
   </div>
 );
 
 PlayerHeader.defaultProps = {
-  avatar: '',
-  color: '',
+  avatarSrc: '',
+  color: 'default',
   shouldShowPlayerOverlay: true,
   username: ''
 };
 
 PlayerHeader.propTypes = {
-  avatar: PropTypes.string,
+  avatarSrc: PropTypes.string,
   color: PropTypes.string,
   shouldShowPlayerOverlay: PropTypes.bool,
   username: PropTypes.string

@@ -6,7 +6,7 @@ import {
   defaultViewerStreamActionTransition
 } from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { STREAM_ACTION_NAME } from '../../constants';
 import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import NoticeViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Notice';

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Check, ErrorIcon } from '../../assets/icons';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { NOTIF_TYPES, useNotif } from '../../contexts/Notification';
 import InlineNotification from './InlineNotification';
 import PortalNotification from './PortalNotification';

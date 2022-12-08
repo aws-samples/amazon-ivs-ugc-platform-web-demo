@@ -19,6 +19,7 @@ wss.on('connection', (ws) => {
       UserId: username,
       Attributes: {
         avatar: 'ibex',
+        channelAssetUrls: '{}',
         color: 'yellow',
         displayName: username
       }

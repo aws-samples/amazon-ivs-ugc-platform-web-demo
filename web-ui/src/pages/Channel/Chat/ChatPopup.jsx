@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
-import { createAnimationProps } from '../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useChatMessages } from '../../../contexts/ChatMessages';
 import { useModal } from '../../../contexts/Modal';
@@ -23,9 +23,7 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  isStackedView,
-  openChatPopup,
-  selectedMessage: { avatar, color, displayName, message, id },
+  selectedMessage: { avatarSrc, color, displayName, message, id },
   setIsChatPopupOpen
 }) => {
   const { isMobileView } = useResponsiveDevice();
@@ -129,7 +127,7 @@ const ChatPopup = ({
         ref={popupRef}
       >
         <ChatLine
-          avatar={avatar}
+          avatarSrc={avatarSrc}
           color={color}
           displayName={displayName}
           message={message}
@@ -213,19 +211,15 @@ const ChatPopup = ({
   );
 };
 
-ChatPopup.defaultProps = {
-  isOpen: false,
-  isStackedView: false
-};
+ChatPopup.defaultProps = { isOpen: false };
 
 ChatPopup.propTypes = {
   banUser: PropTypes.func.isRequired,
   deleteMessage: PropTypes.func.isRequired,
   isOpen: PropTypes.bool,
-  isStackedView: PropTypes.bool,
-  openChatPopup: PropTypes.func.isRequired,
   selectedMessage: PropTypes.shape({
     avatar: PropTypes.string,
+    avatarSrc: PropTypes.string,
     color: PropTypes.string,
     displayName: PropTypes.string,
     id: PropTypes.string,

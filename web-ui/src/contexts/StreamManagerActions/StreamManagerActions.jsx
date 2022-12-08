@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { channelAPI } from '../../api';
 import { DEFAULT_STREAM_MANAGER_ACTIONS_STATE } from './utils';
 import { MODAL_TYPE, useModal } from '../Modal';
-import { pack } from '../../utils/streamActionHelpers';
+import { pack } from '../../helpers/streamActionHelpers';
 import { streamManager as $content } from '../../content';
 import { useNotif } from '../Notification';
 import useContextHook from '../useContextHook';

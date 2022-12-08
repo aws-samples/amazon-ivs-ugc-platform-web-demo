@@ -11,14 +11,14 @@ import {
   TEXT_VARIANT_CLASSES as chatTextVariantClasses
 } from './ChatLineTheme';
 import { clsm } from '../../../../../utils';
-import { createAnimationProps } from '../../../../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useLastFocusedElement } from '../../../../../contexts/LastFocusedElement';
 import UserAvatar from '../../../../../components/UserAvatar';
 
 export const CHAT_LINE_VARIANT = { MESSAGE: 'message', POPUP: 'popup' };
 
 const ChatLine = ({
-  avatar,
+  avatarSrc,
   color,
   displayName,
   isFocusable,
@@ -69,7 +69,7 @@ const ChatLine = ({
         : {})}
     >
       <UserAvatar
-        avatarName={avatar}
+        avatarSrc={avatarSrc}
         profileColor={color}
         size={variant === CHAT_LINE_VARIANT.MESSAGE ? 'sm' : 'md'}
       />
@@ -109,7 +109,7 @@ ChatLine.defaultProps = {
 };
 
 ChatLine.propTypes = {
-  avatar: PropTypes.string.isRequired,
+  avatarSrc: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   displayName: PropTypes.string.isRequired,
   isFocusable: PropTypes.bool,

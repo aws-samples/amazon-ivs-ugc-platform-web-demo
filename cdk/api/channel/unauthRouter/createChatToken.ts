@@ -7,7 +7,7 @@ import {
   createChatRoomToken,
   getUser
 } from '../helpers';
-import { ResponseBody } from '../../shared/helpers';
+import { getChannelAssetUrls, ResponseBody } from '../../shared/helpers';
 import {
   UNAUTHORIZED_EXCEPTION,
   UNEXPECTED_EXCEPTION
@@ -63,8 +63,20 @@ const handler = async (
         await createChatRoomToken(chatRoomOwnerUsername));
     } else {
       const { Item = {} } = await getUser(viewerSub);
-      const { avatar, color, username: viewerUsername } = unmarshall(Item);
-      const viewerAttributes = { displayName: viewerUsername, avatar, color };
+      const {
+        avatar,
+        channelAssets,
+        color,
+        username: viewerUsername
+      } = unmarshall(Item);
+      const { avatar: avatarUrl } = getChannelAssetUrls(channelAssets);
+      const channelAssetUrls = { ...(avatarUrl ? { avatar: avatarUrl } : {}) };
+      const viewerAttributes = {
+        avatar,
+        channelAssetUrls: JSON.stringify(channelAssetUrls),
+        color,
+        displayName: viewerUsername
+      };
       const isModerator = viewerUsername === chatRoomOwnerUsername;
       capabilities.push(ChatTokenCapability.SEND_MESSAGE);
 

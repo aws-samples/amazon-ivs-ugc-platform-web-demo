@@ -5,6 +5,7 @@ import useSWR from 'swr';
 
 import { CHANNEL_DATA_REFRESH_INTERVAL } from '../constants';
 import { channelsAPI } from '../api';
+import { getAvatarSrc } from '../helpers';
 import { useUser } from './User';
 import useContextHook from './useContextHook';
 import useCurrentPage from '../hooks/useCurrentPage';
@@ -50,15 +51,16 @@ export const Provider = ({ children }) => {
     refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL
   });
   const isChannelLoading = !channelData && !channelError;
+  const avatarSrc = getAvatarSrc(channelData);
 
   const value = useMemo(
     () => ({
-      channelData,
+      channelData: { ...channelData, avatarSrc },
       channelError,
       isChannelLoading,
       refreshChannelData
     }),
-    [channelData, channelError, isChannelLoading, refreshChannelData]
+    [avatarSrc, channelData, channelError, isChannelLoading, refreshChannelData]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

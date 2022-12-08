@@ -139,7 +139,12 @@ export type ChatTokenCapabilityType =
  */
 export const createChatRoomToken = async (
   chatRoomOwnerUsername: string,
-  viewerAttributes?: { displayName?: string; avatar?: string; color?: string },
+  viewerAttributes?: {
+    avatar?: string;
+    channelAssetUrls?: string;
+    color?: string;
+    displayName?: string;
+  },
   capabilities?: (ChatTokenCapability | string)[]
 ) => {
   let chatRoomArn, bannedUserSubs;

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../constants';
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../utils/animationPropsHelper';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';

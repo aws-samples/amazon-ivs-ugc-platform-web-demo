@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
+import { getAvatarSrc } from '../../../../helpers';
 import { useChannel } from '../../../../contexts/Channel';
 import { useChatMessages } from '../../../../contexts/ChatMessages';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
@@ -77,8 +78,25 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
             Sender: { Attributes: senderAttributes },
             wasDeletedByUser
           }) => {
+            const {
+              channelAssetUrls: channelAssetUrlsStr,
+              avatar: avatarName,
+              ...restSenderAttributes
+            } = senderAttributes;
+            const avatarSrc = getAvatarSrc({
+              avatar: avatarName,
+              channelAssetUrls: channelAssetUrlsStr
+                ? JSON.parse(channelAssetUrlsStr)
+                : {}
+            });
+
             const selectMessageToModerate = () =>
-              openChatPopup({ message, id: messageId, ...senderAttributes });
+              openChatPopup({
+                id: messageId,
+                message,
+                avatarSrc,
+                ...restSenderAttributes
+              });
 
             if (isDeleted && (isOwnMessage || wasDeletedByUser))
               return (
@@ -101,6 +119,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
               <ChatLine
                 {...(isModerator ? { onClick: selectMessageToModerate } : {})}
                 {...senderAttributes}
+                avatarSrc={avatarSrc}
                 isFocusable={isModerator && !isChatPopupOpen}
                 key={messageId}
                 message={message}
