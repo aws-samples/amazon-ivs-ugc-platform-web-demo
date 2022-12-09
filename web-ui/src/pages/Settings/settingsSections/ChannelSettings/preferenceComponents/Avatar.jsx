@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { channelAPI } from '../../../../../api';
+import { CUSTOM_AVATAR_NAME } from '../../../../../helpers';
 import { dashboard as $content } from '../../../../../content';
 import {
   MaximumSizeExceededError,
@@ -15,8 +16,6 @@ import ImageUploader from '../ImageUploader';
 import SettingContainer from '../../SettingContainer';
 import UploadAvatarMarker from './UploadAvatarMarker';
 import useStateWithCallback from '../../../../../hooks/useStateWithCallback';
-
-const CUSTOM_AVATAR_NAME = 'custom';
 
 const Avatar = () => {
   const { userData, fetchUserData } = useUser();
@@ -49,32 +48,54 @@ const Avatar = () => {
     ],
     [avatarUrl, isAvatarUploaded, isAvatarUploaderOpen]
   );
+  const imageUploaderRef = useRef();
 
   const handleChangeAvatar = useCallback(
-    async (newAvatar, action = 'selection') => {
-      const isCustomAvatar = newAvatar === CUSTOM_AVATAR_NAME;
-      const isSameAvatarSelected = avatar === newAvatar;
+    async ({
+      newSelection,
+      previewUrl,
+      uploadDateTime,
+      action = 'selection'
+    }) => {
+      const isCustomAvatar = newSelection === CUSTOM_AVATAR_NAME;
+      const isSameAvatarSelected = avatar === newSelection;
 
       if (isAvatarLoading) return;
 
       setIsAvatarUploaderOpen((prev) => {
-        if (isCustomAvatar) return isAvatarUploaded.current || !prev;
+        let shouldOpen = false;
 
-        return false;
+        if (isCustomAvatar) shouldOpen = isAvatarUploaded.current || !prev;
+
+        if (shouldOpen) {
+          setTimeout(
+            () =>
+              imageUploaderRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+              }),
+            350
+          );
+        }
+
+        return shouldOpen;
       });
 
-      if (isSameAvatarSelected || (isCustomAvatar && !isAvatarUploaded.current))
+      if (
+        action !== 'upload' &&
+        (isSameAvatarSelected || (isCustomAvatar && !isAvatarUploaded.current))
+      )
         return;
 
-      setSelectedAvatar(newAvatar); // eagerly set the selected avatar
+      setSelectedAvatar(newSelection); // eagerly set the selected avatar
       setIsAvatarLoading(true);
       const { result, error } = await channelAPI.changeUserPreferences({
-        avatar: newAvatar
+        avatar: { name: newSelection, previewUrl, uploadDateTime }
       });
 
       if (result) {
         await fetchUserData();
-        setSelectedAvatar(result.avatar);
+        setSelectedAvatar(result.avatar.name);
         if (action === 'selection')
           notifySuccess($content.notification.success.avatar_saved);
       }
@@ -90,7 +111,22 @@ const Avatar = () => {
   );
 
   const onUpload = useCallback(
-    ({ result: previewUrl, error }) => {
+    ({ result, error }) => {
+      if (result) {
+        const { previewUrl, uploadDateTime } = result;
+
+        setAvatarUrl(previewUrl, () => {
+          isAvatarUploaded.current = true;
+          handleChangeAvatar({
+            action: 'upload',
+            newSelection: CUSTOM_AVATAR_NAME,
+            previewUrl,
+            uploadDateTime
+          });
+          notifySuccess($content.notification.success.avatar_uploaded);
+        });
+      }
+
       if (error) {
         switch (true) {
           case error instanceof UnsupportedFileFormatError:
@@ -105,12 +141,6 @@ const Avatar = () => {
             );
         }
       }
-
-      setAvatarUrl(previewUrl, () => {
-        isAvatarUploaded.current = true;
-        handleChangeAvatar('custom', 'upload');
-        notifySuccess($content.notification.success.avatar_uploaded);
-      });
     },
     [handleChangeAvatar, notifyError, notifySuccess, setAvatarUrl]
   );
@@ -126,7 +156,7 @@ const Avatar = () => {
         const randomAvatar =
           avatarNames[Math.floor(Math.random() * avatarNames.length)];
 
-        handleChangeAvatar(randomAvatar, 'deletion');
+        handleChangeAvatar({ newSelection: randomAvatar, action: 'deletion' });
         notifySuccess($content.notification.success.avatar_deleted);
       });
     },
@@ -145,6 +175,7 @@ const Avatar = () => {
       <AnimatePresence initial={false}>
         {isAvatarUploaderOpen && (
           <ImageUploader
+            ref={imageUploaderRef}
             assetType="avatar"
             className="mt-8"
             onDelete={onDelete}

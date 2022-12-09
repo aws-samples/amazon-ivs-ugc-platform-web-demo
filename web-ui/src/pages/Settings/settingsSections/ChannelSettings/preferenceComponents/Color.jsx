@@ -22,19 +22,19 @@ const Color = () => {
   );
 
   const handleChangeColor = useCallback(
-    async (newColor) => {
-      if (newColor === color) return;
+    async ({ newSelection }) => {
+      if (newSelection === color || isColorLoading) return;
 
-      setSelectedColor(newColor); // eagerly set the selected color
+      setSelectedColor(newSelection); // eagerly set the selected color
       setIsColorLoading(true);
       const { result, error } = await channelAPI.changeUserPreferences({
-        color: newColor
+        color: { name: newSelection }
       });
       setIsColorLoading(false);
 
       if (result) {
         await fetchUserData();
-        setSelectedColor(result.color);
+        setSelectedColor(result.color.name);
         notifySuccess($content.notification.success.color_saved);
       }
 
@@ -43,7 +43,7 @@ const Color = () => {
         notifyError($content.notification.error.color_failed_to_save);
       }
     },
-    [color, fetchUserData, notifyError, notifySuccess]
+    [color, fetchUserData, isColorLoading, notifyError, notifySuccess]
   );
 
   return (

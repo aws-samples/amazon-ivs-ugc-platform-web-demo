@@ -154,7 +154,7 @@ export class ChannelsStack extends NestedStack {
               s3.HttpMethods.PUT,
               s3.HttpMethods.POST
             ],
-            exposedHeaders: ['Location', 'x-amz-version-id']
+            exposedHeaders: ['Location', 'x-amz-version-id', 'Date']
           }
         ]
       }

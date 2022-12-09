@@ -336,11 +336,12 @@ export const uploadFileToS3 = async ({ assetType, file }) => {
     });
 
     if (response.ok) {
-      const location = new URL(response.headers.get('Location'));
       const versionId = response.headers.get('x-amz-version-id');
-      location.searchParams.append('versionId', versionId); // handles the case where the browser caches the image URL with a previous upload
+      const uploadDateTime = response.headers.get('Date');
+      const previewUrl = new URL(response.headers.get('Location'));
+      previewUrl.searchParams.append('versionId', versionId); // handles the case where the browser caches the image URL with a previous upload
 
-      result = location.toString();
+      result = { previewUrl: previewUrl.toString(), uploadDateTime };
     } else {
       // POST Errors
       throw new Error('A Presigned Post fetch error occurred');

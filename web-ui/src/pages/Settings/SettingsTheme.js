@@ -4,7 +4,7 @@ export const SETTINGS_SECTION_CLASSES = [
   'w-full',
   'space-y-8',
   '[&>h3]:mb-[10px]',
-  '[&_label]:min-w-[281px]',
+  '[&_label]:min-w-[280px]',
   '[&_label]:text-lightMode-gray-medium',
   'dark:[&_label]:text-darkMode-gray-light'
 ];

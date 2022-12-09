@@ -10,7 +10,6 @@ const useStreamSessionData = ({
   isLive,
   isRevalidationEnabled = true,
   setStreamSessions,
-  streamSessions,
   onSuccess = noop
 }) => {
   const { isSessionValid, userData } = useUser();

@@ -91,7 +91,11 @@ export const handler: SQSHandler = async (message) => {
     const { CHANNEL_ASSETS_BASE_URL, CHANNELS_TABLE_NAME } = process.env;
     const key = `${channelAssetId}/${assetType}`;
     const url = `${CHANNEL_ASSETS_BASE_URL}/${key}?versionId=${versionId}`;
-    const channelAssetValue = { url, sequencer: nextSequencer };
+    const channelAssetValue = {
+      url,
+      sequencer: nextSequencer,
+      lastModified: Date.now()
+    };
 
     return new Promise<UploadEvent>(async (resolve, reject) => {
       try {

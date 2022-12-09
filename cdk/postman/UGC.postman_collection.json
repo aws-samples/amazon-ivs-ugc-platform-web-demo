@@ -242,7 +242,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"avatar\": \"not{{avatar}}\",\n    \"color\": \"not{{color}}\"\n}",
+									"raw": "{\n    \"avatar\": {\n        \"name\": \"not{{avatar}}\"\n    },\n    \"color\": {\n        \"name\": \"not{{color}}\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -259,9 +259,42 @@
 										"preferences",
 										"update"
 									]
-								}
+								},
+								"description": "This endpoint is used to update the user's profile preferences, particularly the user's avatar and color values.\n\nWhen updating the user's avatar to a custom upload, the request must include the `previewUrl` and the `uploadDateTime`, which are returned in the response headers by S3 upon successful completion of the upload request.\n\n``` json\n{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": \"https://ugc-channels-channelassets.s3.us-west-2.amazonaws.com/93945bab-7da5-527a-943a-6e83bdedd104/avatar?versionId=GNLD5vkSsU5GPCkdRyfC9VUcZo5ASt7R\",\n        \"uploadDateTime\": \"Wed, 07 Dec 2022 22:27:57 GMT\"\n    }\n}\n\n```"
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Custom Avatar Example",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{apiBaseUrl}}/channel/preferences/update",
+											"host": [
+												"{{apiBaseUrl}}"
+											],
+											"path": [
+												"channel",
+												"preferences",
+												"update"
+											]
+										}
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
 						},
 						{
 							"name": "/channel",

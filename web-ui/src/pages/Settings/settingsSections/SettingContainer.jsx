@@ -13,8 +13,7 @@ const SettingContainer = ({ label, children }) => {
         'relative',
         'flex',
         'items-center',
-        'min-w-[90px]',
-        'pr-[108px]',
+        'min-w-[88px]',
         settingsFormOrientation === SETTINGS_ORIENTATION.VERTICAL && [
           'flex-col',
           'items-start'
@@ -28,6 +27,7 @@ const SettingContainer = ({ label, children }) => {
           'w-full',
           'min-h-[88px]',
           'rounded-3xl',
+          'max-w-[572px]',
           'bg-lightMode-gray-light',
           'dark:bg-darkMode-gray-medium'
         ])}

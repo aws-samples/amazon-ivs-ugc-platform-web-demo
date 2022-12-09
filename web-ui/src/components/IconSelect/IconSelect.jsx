@@ -9,18 +9,12 @@ const IconSelect = ({ selected, isLoading, items, onSelect, type }) => {
 
   return (
     <div
-      className={clsm([
-        'grid',
-        'grid-cols-[repeat(auto-fill,minmax(3rem,48px))]',
-        'gap-x-3',
-        'gap-y-3',
-        'w-full'
-      ])}
+      className={clsm(['flex', 'flex-wrap', 'gap-x-3', 'gap-y-3', 'w-full'])}
     >
       {items.map(([name, value, { CustomMarker } = {}]) => {
         const isSelected = selected === name;
         const isIconLoading = isSelected && isLoading;
-        const onClick = () => throttledOnSelect(name);
+        const onClick = () => throttledOnSelect({ newSelection: name });
 
         return (
           <Icon

@@ -139,7 +139,7 @@ const AccountSettings = () => {
       <span
         className={clsm(
           outerInputClasses[settingsFormOrientation],
-          'pt-[22px]'
+          'pt-[20px]'
         )}
       >
         <InputLabel

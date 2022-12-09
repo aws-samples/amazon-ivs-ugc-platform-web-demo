@@ -58,7 +58,8 @@ const handler = async (
       new UpdateItemCommand({
         TableName: process.env.CHANNELS_TABLE_NAME,
         Key: { id: convertToAttr(sub) },
-        UpdateExpression: `REMOVE channelAssets.#${assetType}`,
+        UpdateExpression: `SET channelAssets.#${assetType} = :emptyMap`,
+        ExpressionAttributeValues: { ':emptyMap': convertToAttr({}) },
         ExpressionAttributeNames: { [`#${assetType}`]: assetType }
       })
     );

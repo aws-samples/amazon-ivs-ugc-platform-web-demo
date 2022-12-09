@@ -1,41 +1,145 @@
+import {
+  UpdateItemCommand,
+  UpdateItemCommandOutput
+} from '@aws-sdk/client-dynamodb';
+import { convertToAttr } from '@aws-sdk/util-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { CHANGE_USER_PREFERENCES_EXCEPTION } from '../../shared/constants';
-import { ResponseBody, updateDynamoItemAttributes } from '../../shared/helpers';
+import {
+  dynamoDbClient,
+  updateDynamoItemAttributes
+} from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
-interface ChangeUserPreferencesRequestBody {
-  avatar?: string;
-  color?: string;
+interface Preference {
+  name: string;
+  [key: string]: any;
 }
 
-interface ChangeUserPreferencesResponseBody extends ResponseBody {
-  avatar?: string;
-  color?: string;
+interface AvatarPreference extends Preference {
+  previewUrl?: string;
+  uploadDateTime?: string;
 }
+interface ColorPreference extends Preference {}
+
+interface ChangeUserPreferencesRequestBody {
+  avatar?: AvatarPreference;
+  color?: ColorPreference;
+}
+
+const CUSTOM_AVATAR_NAME = 'custom';
 
 const handler = async (
   request: FastifyRequest<{ Body: ChangeUserPreferencesRequestBody }>,
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const preferencesToUpdate = Object.entries(request.body).reduce(
-    (preferences: { key: string; value: string }[], [key, value]) =>
-      !!value ? [...preferences, { key, value }] : preferences,
-    []
+
+  const preferencesToUpdate = Object.entries(request.body).reduce<
+    Record<string, Preference>
+  >(
+    (preferences, [key, value]) =>
+      !!value?.name ? { ...preferences, [key]: value } : preferences,
+    {}
   );
 
+  if (!Object.keys(preferencesToUpdate).length) {
+    throw new Error(`Missing new user preferences for user: ${username}`);
+  }
+
   try {
-    if (!preferencesToUpdate.length) {
-      throw new Error(`Missing new user preferences for user: ${username}`);
+    const promises: Promise<UpdateItemCommandOutput | undefined>[] = [];
+    const remainingPreferencesToUpdate = Object.entries(
+      preferencesToUpdate
+    ).reduce<{ key: string; value: any }[]>((acc, [key, value]) => {
+      if (!value) return acc;
+
+      switch (key) {
+        case 'avatar': {
+          const {
+            name: avatarName,
+            previewUrl,
+            uploadDateTime
+          } = value as AvatarPreference;
+
+          if (
+            avatarName === CUSTOM_AVATAR_NAME &&
+            previewUrl &&
+            uploadDateTime
+          ) {
+            promises.push(
+              new Promise<UpdateItemCommandOutput>(async (resolve, reject) => {
+                try {
+                  await dynamoDbClient.send(
+                    new UpdateItemCommand({
+                      UpdateExpression: `SET channelAssets.avatar = if_not_exists(channelAssets.avatar, :emptyMap)`,
+                      Key: { id: convertToAttr(sub) },
+                      ExpressionAttributeValues: {
+                        ':emptyMap': convertToAttr({})
+                      },
+                      TableName: process.env.CHANNELS_TABLE_NAME!
+                    })
+                  );
+
+                  const updateExpression = `SET ${[
+                    'avatar = :avatarName',
+                    'channelAssets.avatar.#url = :previewUrl',
+                    'channelAssets.avatar.#lastModified = :lastModified'
+                  ].join(', ')}`;
+
+                  const result = dynamoDbClient.send(
+                    new UpdateItemCommand({
+                      UpdateExpression: updateExpression,
+                      ConditionExpression:
+                        'attribute_not_exists(channelAssets.avatar.#lastModified) or (channelAssets.avatar.#lastModified < :lastModified)',
+                      Key: { id: convertToAttr(sub) },
+                      ExpressionAttributeValues: {
+                        ':avatarName': convertToAttr(avatarName),
+                        ':previewUrl': convertToAttr(previewUrl),
+                        ':lastModified': convertToAttr(
+                          new Date(uploadDateTime).getTime()
+                        )
+                      },
+                      ExpressionAttributeNames: {
+                        '#url': 'url',
+                        '#lastModified': 'lastModified'
+                      },
+                      TableName: process.env.CHANNELS_TABLE_NAME!
+                    })
+                  );
+
+                  resolve(result);
+                } catch (error) {
+                  reject(error);
+                }
+              })
+            );
+          } else {
+            return [...acc, { key, value: avatarName }];
+          }
+          break;
+        }
+        default: {
+          const { name: preferenceName } = value as Preference;
+
+          return [...acc, { key, value: preferenceName }];
+        }
+      }
+
+      return acc;
+    }, []);
+
+    if (remainingPreferencesToUpdate) {
+      // Update Dynamo user entry
+      await updateDynamoItemAttributes({
+        attributes: remainingPreferencesToUpdate,
+        primaryKey: { key: 'id', value: sub },
+        tableName: process.env.CHANNELS_TABLE_NAME!
+      });
     }
 
-    // Update Dynamo user entry
-    await updateDynamoItemAttributes({
-      attributes: preferencesToUpdate,
-      primaryKey: { key: 'id', value: sub },
-      tableName: process.env.CHANNELS_TABLE_NAME as string
-    });
+    await Promise.all(promises);
   } catch (error) {
     console.error(error);
 
@@ -44,13 +148,7 @@ const handler = async (
     return reply.send({ __type: CHANGE_USER_PREFERENCES_EXCEPTION });
   }
 
-  const responseBody: ChangeUserPreferencesResponseBody =
-    preferencesToUpdate.reduce(
-      (updatedPrefs, { key, value }) => ({ ...updatedPrefs, [key]: value }),
-      {}
-    );
-
-  return reply.send(responseBody);
+  return reply.send(preferencesToUpdate);
 };
 
 export default handler;

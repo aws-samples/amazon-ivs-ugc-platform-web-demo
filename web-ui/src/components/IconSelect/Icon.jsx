@@ -6,7 +6,7 @@ import NoImageSrcIcon from './NoImageSrcIcon';
 import Spinner from '../Spinner';
 
 export const ICON_TYPE = { IMAGE: 'image', COLOR: 'color' };
-const commonIconClasses = ['h-12', 'w-full', 'rounded-full'];
+const commonIconClasses = ['h-12', 'w-12', 'rounded-full'];
 
 const Icon = ({
   isLoading,
@@ -27,7 +27,7 @@ const Icon = ({
         src={value}
       />
     ) : (
-      <NoImageSrcIcon />
+      <NoImageSrcIcon className={commonIconClasses} />
     );
   } else if (type === ICON_TYPE.COLOR) {
     _Icon = <div className={clsm([...commonIconClasses, value])} />;
