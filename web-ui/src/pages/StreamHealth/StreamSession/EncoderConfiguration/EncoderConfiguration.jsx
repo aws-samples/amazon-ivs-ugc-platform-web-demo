@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 
-import './EncoderConfiguration.css';
 import { clsm } from '../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../content';
 import { KEYFRAME_INTERVAL } from '../../../../constants';
@@ -36,7 +35,18 @@ const EncoderConfiguration = () => {
   return (
     <section className={clsm(['w-full', 'p-[30px]', 'md:px-4'])}>
       <h3 className="mb-[30px]">{$content.title}</h3>
-      <div className="config-grid">
+      <div
+        className={clsm([
+          'grid',
+          'grid-cols-2',
+          'md:grid-cols-1',
+          'gap-y-8',
+          'gap-x-[60px]',
+          'h-[236px]',
+          'lg:flex-nowrap',
+          'lg:h-auto'
+        ])}
+      >
         {encoderConfigValues.map(({ id, ...configData }) => (
           <ConfigRow key={id} {...configData} />
         ))}
