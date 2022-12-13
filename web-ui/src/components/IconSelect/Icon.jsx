@@ -1,7 +1,9 @@
+import { m } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { Checkmark } from '../../assets/icons';
 import { clsm, noop } from '../../utils';
+import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import NoImageSrcIcon from './NoImageSrcIcon';
 import Spinner from '../Spinner';
 
@@ -38,15 +40,17 @@ const Icon = ({
     Marker = <Spinner className="absolute" variant="light" />;
   } else if (isSelected) {
     Marker = (
-      <Checkmark
-        className={clsm([
-          'absolute',
-          'w-6',
-          'h-6',
-          'fill-black',
-          'dark:fill-white'
-        ])}
-      />
+      <m.span
+        {...createAnimationProps({
+          animations: ['fadeIn-full'],
+          options: { shouldAnimateOut: false }
+        })}
+        className="absolute"
+      >
+        <Checkmark
+          className={clsm(['w-6', 'h-6', 'fill-black', 'dark:fill-white'])}
+        />
+      </m.span>
     );
   }
 
@@ -62,7 +66,7 @@ const Icon = ({
         'rounded-full',
         'select-none',
         'hover:ring-2',
-        'hover:outline-none',
+        'outline-none',
         'hover:ring-black',
         'hover:dark:ring-white',
         'focus:ring-2',
@@ -74,7 +78,6 @@ const Icon = ({
         'transition-all',
         isSelected && [
           'ring-2',
-          'outline-none',
           'ring-black',
           'dark:ring-white',
           type === ICON_TYPE.IMAGE && [
