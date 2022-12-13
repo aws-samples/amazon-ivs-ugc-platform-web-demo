@@ -192,11 +192,7 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
         shouldShowPlayerOverlay={shouldShowPlayerOverlay || isLive === false}
         username={username}
       />
-      <PlayerViewerStreamActions
-        isControlsOpen={isControlsOpen}
-        onClickPlayerHandler={onClickPlayerHandler}
-        shouldShowStream={shouldShowStream}
-      />
+
       {shouldShowStream ? (
         <>
           {shouldShowLoader && (
@@ -208,11 +204,11 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
           <div
             className={clsm([
-              'top-0',
-              'w-full',
               'h-full',
               'max-h-screen',
-              'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]'
+              'portrait:md:max-h-[calc(calc(var(--mobile-vh,1vh)_*_100)_-_112px)]',
+              'top-0',
+              'w-full'
             ])}
             onClick={onClickPlayerHandler}
             role="toolbar"
@@ -281,6 +277,11 @@ const Player = ({ isChatVisible, toggleChat, channelData }) => {
           </h2>
         </div>
       )}
+      <PlayerViewerStreamActions
+        isControlsOpen={isControlsOpen}
+        onClickPlayerHandler={onClickPlayerHandler}
+        shouldShowStream={shouldShowStream}
+      />
       <Notification />
     </section>
   );
