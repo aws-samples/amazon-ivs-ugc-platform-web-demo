@@ -159,19 +159,18 @@ const Sidebar = () => {
               ariaLabel={`${isOpen ? 'Close' : 'Open'} navigation menu`}
               className={clsm(
                 [
-                  'p-0',
-                  'h-8',
-                  'w-8',
-                  'shadow-black',
+                  'bg-lightMode-gray-light',
+                  'dark:bg-darkMode-gray',
                   'dark:shadow-white',
                   'focus:shadow-focusOuter',
+                  'h-8',
                   'hover:shadow-hoverOuter',
-                  '[&>img]:rounded-full'
+                  'p-0',
+                  'shadow-black',
+                  'w-8'
                 ],
                 isOpen && 'shadow-focusOuter',
                 !hasAvatar && [
-                  'bg-lightMode-gray-light',
-                  'dark:bg-darkMode-gray',
                   'dark:hover:bg-darkMode-gray-hover',
                   'hover:bg-lightMode-gray-light-hover'
                 ]
@@ -183,6 +182,7 @@ const Sidebar = () => {
             >
               {hasAvatar && (
                 <img
+                  className="rounded-full"
                   src={avatarSrc}
                   alt={`${avatarName || 'Profile'} avatar`}
                   draggable={false}

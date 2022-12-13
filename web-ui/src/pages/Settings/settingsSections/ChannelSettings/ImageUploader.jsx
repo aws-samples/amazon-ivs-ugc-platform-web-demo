@@ -57,7 +57,12 @@ const ImageUploader = forwardRef(
       .map((fileFormat) => `.${fileFormat}`)
       .join(',');
     const previewClasses = useMemo(() => {
-      const classes = ['w-auto', shouldStack ? 'h-full' : `h-[124px]`];
+      const classes = [
+        'bg-lightMode-gray-extraLight',
+        'dark:bg-darkMode-gray',
+        'w-auto',
+        shouldStack ? 'h-full' : `h-[124px]`
+      ];
 
       if (previewShape === 'round')
         return classes.concat(['aspect-square', 'rounded-full']);
