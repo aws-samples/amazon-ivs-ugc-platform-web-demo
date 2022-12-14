@@ -21,6 +21,7 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const prevalidateUpload = useCallback(
     (file) => {
@@ -71,9 +72,11 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
         }));
       }
 
-      setPreviewUrl(result?.previewUrl || previewUrl);
+      const newPreviewUrl = result?.previewUrl || previewUrl;
+      setPreviewUrl(newPreviewUrl);
       onUpload({ result, error });
       setIsUploading(false);
+      if (newPreviewUrl) setIsDownloading(true);
 
       return result;
     },
@@ -96,8 +99,10 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
   return {
     deleteChannelAsset,
     isDeleting,
+    isDownloading,
     isUploading,
     previewUrl,
+    setIsDownloading,
     uploadChannelAsset
   };
 };

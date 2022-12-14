@@ -22,10 +22,7 @@ const Banner = () => {
   const onUpload = useCallback(
     ({ result, error }) => {
       if (result) {
-        setBannerUrl(result.previewUrl, () => {
-          fetchUserData();
-          notifySuccess($content.notification.success.banner_uploaded);
-        });
+        setBannerUrl(result.previewUrl, fetchUserData);
       }
 
       if (error) {
@@ -43,7 +40,12 @@ const Banner = () => {
         }
       }
     },
-    [fetchUserData, notifyError, notifySuccess, setBannerUrl]
+    [fetchUserData, notifyError, setBannerUrl]
+  );
+
+  const onImageDownload = useCallback(
+    () => notifySuccess($content.notification.success.banner_uploaded),
+    [notifySuccess]
   );
 
   const onDelete = useCallback(
@@ -67,6 +69,7 @@ const Banner = () => {
         assetType="banner"
         shouldAnimate={false}
         onDelete={onDelete}
+        onImageDownload={onImageDownload}
         onUpload={onUpload}
         uploadUrl={bannerUrl}
       />

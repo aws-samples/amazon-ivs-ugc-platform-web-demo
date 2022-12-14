@@ -123,7 +123,6 @@ const Avatar = () => {
             previewUrl,
             uploadDateTime
           });
-          notifySuccess($content.notification.success.avatar_uploaded);
         });
       }
 
@@ -142,7 +141,12 @@ const Avatar = () => {
         }
       }
     },
-    [handleChangeAvatar, notifyError, notifySuccess, setAvatarUrl]
+    [handleChangeAvatar, notifyError, setAvatarUrl]
+  );
+
+  const onImageDownload = useCallback(
+    () => notifySuccess($content.notification.success.avatar_uploaded),
+    [notifySuccess]
   );
 
   const onDelete = useCallback(
@@ -179,6 +183,7 @@ const Avatar = () => {
             assetType="avatar"
             className="mt-8"
             onDelete={onDelete}
+            onImageDownload={onImageDownload}
             onUpload={onUpload}
             uploadUrl={avatarUrl}
           />

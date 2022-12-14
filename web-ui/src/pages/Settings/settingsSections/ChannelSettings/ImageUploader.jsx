@@ -4,8 +4,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
-  useEffect
+  useState
 } from 'react';
 import { m } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -23,7 +22,6 @@ import Button from '../../../../components/Button';
 import NoImageSrcIcon from '../../../../components/IconSelect/NoImageSrcIcon';
 import Spinner from '../../../../components/Spinner';
 import useImageUpload from '../../../../hooks/useImageUpload';
-import usePrevious from '../../../../hooks/usePrevious';
 
 const $channelAssetModalContent = $content.modal.channel_asset_deletion_modal;
 const STACKING_BREAKPOINT = 910; // px
@@ -35,10 +33,11 @@ const ImageUploader = forwardRef(
       assetType,
       className,
       onDelete,
+      onImageDownload,
       onUpload,
+      previewShape,
       shouldAnimate,
-      uploadUrl,
-      previewShape
+      uploadUrl
     },
     containerRef
   ) => {
@@ -46,22 +45,19 @@ const ImageUploader = forwardRef(
     const {
       deleteChannelAsset,
       isDeleting,
+      isDownloading,
       isUploading,
       previewUrl,
+      setIsDownloading,
       uploadChannelAsset
     } = useImageUpload({ assetType, onDelete, onUpload, maximumFileSize });
-    const prevIsUploading = usePrevious(isUploading);
     const { openModal } = useModal();
     const [shouldStack, setShouldStack] = useState(isStackingBreakpoint());
     const fileInputRef = useRef();
     const deleteButtonRef = useRef();
-    const [isDownloadingImage, setIsDownloadingImage] = useState(false);
 
     const hasUploadUrl = !!(previewUrl || uploadUrl);
-    const shouldRenderImage = isDownloadingImage || hasUploadUrl;
-    const hasCompletedUpload = prevIsUploading && !isUploading;
-    const isLoadingNewImage =
-      isUploading || isDownloadingImage || hasCompletedUpload;
+    const isLoadingNewImage = isUploading || isDownloading;
     const acceptedImageFileFormats = SUPPORTED_IMAGE_FILE_FORMATS.flat()
       .map((fileFormat) => `.${fileFormat}`)
       .join(',');
@@ -99,24 +95,22 @@ const ImageUploader = forwardRef(
       });
     };
 
-    useEffect(() => {
-      if (hasCompletedUpload) {
-        setIsDownloadingImage(true);
+    const handleImageFullyDownloaded = useCallback(() => {
+      // This condition prevents `onImageDownload` to be called on the initial render
+      if (isDownloading) {
+        onImageDownload();
       }
-    }, [hasCompletedUpload]);
 
-    const handleImgFullyDownloaded = useCallback(
-      () => setIsDownloadingImage(false),
-      []
-    );
+      setIsDownloading(false);
+    }, [isDownloading, onImageDownload, setIsDownloading]);
 
     const renderPreview = useCallback(() => {
-      if (isUploading || shouldRenderImage) {
+      if (isUploading || hasUploadUrl) {
         return (
           <>
             {/* If the image is done being uploaded we want to also wait for the the image 
           to completely download before replacing the spinner with the image tag. */}
-            {shouldRenderImage && (
+            {hasUploadUrl && (
               <img
                 className={clsm(
                   previewClasses,
@@ -125,7 +119,7 @@ const ImageUploader = forwardRef(
                 alt={`${assetType} upload preview`}
                 draggable={false}
                 src={previewUrl || uploadUrl}
-                onLoad={handleImgFullyDownloaded}
+                onLoad={handleImageFullyDownloaded}
               />
             )}
             {isLoadingNewImage && (
@@ -152,14 +146,14 @@ const ImageUploader = forwardRef(
       }
     }, [
       assetType,
-      previewClasses,
+      handleImageFullyDownloaded,
+      hasUploadUrl,
+      isLoadingNewImage,
       isUploading,
+      previewClasses,
       previewShape,
       previewUrl,
-      uploadUrl,
-      handleImgFullyDownloaded,
-      shouldRenderImage,
-      isLoadingNewImage
+      uploadUrl
     ]);
 
     useLayoutEffect(() => {
@@ -295,6 +289,7 @@ ImageUploader.propTypes = {
   assetType: PropTypes.string.isRequired,
   className: PropTypes.string,
   onDelete: PropTypes.func,
+  onImageDownload: PropTypes.func,
   onUpload: PropTypes.func,
   previewShape: PropTypes.oneOf(['round', '16/9']),
   shouldAnimate: PropTypes.bool,
@@ -304,6 +299,7 @@ ImageUploader.propTypes = {
 ImageUploader.defaultProps = {
   className: '',
   onDelete: noop,
+  onImageDownload: noop,
   onUpload: noop,
   previewShape: 'round',
   shouldAnimate: true,
