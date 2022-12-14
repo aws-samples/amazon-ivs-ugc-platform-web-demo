@@ -5,7 +5,7 @@ AWS services to create a full-featured web application with user authentication,
 
 This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
-![Amazon UGC Demo](amazon-ivs-ugc-web-demo.png)
+![Amazon UGC Demo](screenshots/features/channel-page.png)
 
 **This project is intended for educational purposes only and not for production usage.**
 
@@ -29,11 +29,113 @@ Deploying the CDK stack will:
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 
-### Architecture
+## Architecture
 
-![Amazon UGC Demo Architecture](ugc-architecture.png)
+![Amazon UGC Demo Architecture](screenshots/architecture/ugc-architecture.png)
 
-### Configuration
+## Features
+
+This section lists the different user flows and features that are available in this app. For each feature, there will be a screenshot from the user's point of view and an architecture diagram to explain the supporting backend flow in isolation.
+
+### User Registration, Login and Password Reset
+
+New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
+
+![User registration and login](screenshots/features/registration-login.png)
+
+On the first login, the required resources will be created on the backend and associated with the user account.
+
+![User registration and login architecture](screenshots/architecture/registration-login.png)
+
+### Channel Page
+
+![Channel page](screenshots/features/channel-page.png)
+
+Each registered user has a channel page where viewers can watch the stream and chat together. The route for a channel page is based on the username, like so: `/<username>`. Both authenticated and unauthenticated users can access a channel page.
+
+#### Get Channel Data
+
+The playback URL and the streamer information are retrieved directly from the database.
+
+![Get channel data architecture](screenshots/architecture/get-channel-data.png)
+
+#### Chat
+
+Each channel has a corresponding chatroom which is accessible from the channel page.
+
+![Chat moderation](screenshots/features/chat-moderation.png)
+
+Authenticated viewers are able to read and send messages. Unauthenticated users are only able to read messages. The owner of the channel can also delete messages and ban users from their channel.
+
+![Chat architecture](screenshots/architecture/chat.png)
+
+#### Receive Stream Actions
+
+Currently, streamers can send four different stream actions: host a quiz, feature a product, show a notice and trigger a celebration. More information on how actions are sent by streamers is available in the following section: [Send Stream Actions](#send-stream-actions).
+
+![Quiz action](screenshots/features/action-quiz.png)
+
+![Product action](screenshots/features/action-product.png)
+
+![Notice action](screenshots/features/action-notice.png)
+
+![Celebration action](screenshots/features/action-celebration.png)
+
+The stream actions are received by the viewers through the IVS Player using [Timed Metadata](https://docs.aws.amazon.com/ivs/latest/userguide/metadata.html).
+
+![Viewer stream actions architecture](screenshots/architecture/receive-stream-actions.png)
+
+### Stream Health Page
+
+The Stream Health page is only accessible to authenticated user, from the `/health` URL. It enables users to monitor live and past stream sessions. For each session, the page will show the stream events, the evolution of the video bitrate and frame rate in the form of charts and a summary of the encoder configuration that was used to stream.
+
+![Stream Health page](screenshots/features/stream-health-page.png)
+
+#### Stream Events
+
+Stream events are being sent by [EventBridge](https://docs.aws.amazon.com/ivs/latest/userguide/eventbridge.html) to a service that is responsible for storing them into the database. They are organized by stream session so they can easily be retrieved when a user monitors a specific stream session.
+
+![Stream events architecture](screenshots/architecture/post-and-get-stream-events.png)
+
+#### Metrics
+
+The video bitrate, frame rate, concurrent views and keyframe interval metrics come from CloudWatch. For live sessions, the metrics are polled from CloudWatch at regular intervals and are not cached to ensure only the latest data is served. When monitoring an offline session, the metrics are fetched from CloudWatch and stored in the database so they can be retrieved faster the next time.
+
+![Stream events architecture](screenshots/architecture/metrics.png)
+
+### Stream Manager Page
+
+The Stream Manager page is only accessible to authenticated user, from the `/manager` URL. On this page, users can send stream actions to their viewers and monitor their chatroom. Users can also save the content of a stream action for later use.
+
+![Stream Manager page](screenshots/features/stream-manager-page.png)
+
+#### Chat Monitoring
+
+The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#chat))
+
+#### Send Stream Actions
+
+Streamers can send any of the four stream actions supported on [the viewer side](#receive-stream-actions). Only one stream action can be active at any given moment. A stream action will remain active until the action expires or until it is stopped.
+
+![Send stream action](screenshots/features/send-stream-action.png)
+
+The stream actions are sent to viewers using the [PutMetadata Endpoint](https://docs.aws.amazon.com/ivs/latest/APIReference/API_PutMetadata.html).
+
+![Send stream actions architecture](screenshots/architecture/send-stream-actions.png)
+
+### Settings Page
+
+From the settings page (`/settings`), registered users can select a profile color, change their avatar and banner, get and update their account information or delete their account.
+
+![Settings page](screenshots/features/settings-page.png)
+
+#### Get and Update User Information
+
+All the user information is stored in the database. The data is retrieved or updated using the regular authenticated flow through the Cognito authorizer and then by a container calling the database.
+
+![Get user data architecture](screenshots/architecture/get-or-update-user-data.png)
+
+## Configuration
 
 The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage is set with sensible defaults but can be edited prior to deploying the stack:
 
@@ -54,7 +156,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   "signUpAllowedDomains": ["example.com"]
   ```
 
-### Deployment
+## Deployment
 
 ***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
 
@@ -107,7 +209,7 @@ Additionally, if you want to make changes to any of the stage configuration opti
 make deploy STAGE=prod
 ```
 
-#### Summary
+### Summary
 
 The following recaps all the most common commands that you can run to easily deploy the app to AWS.  
 ***NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.*
