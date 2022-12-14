@@ -52,9 +52,9 @@ export const TEXT_BASE_CLASSES = [
   'break-words',
   'dark:text-darkMode-gray-light',
   'min-w-0',
-  'p1',
   'text-left',
-  'text-lightMode-gray-dark'
+  'text-lightMode-gray-dark',
+  'text-p1'
 ];
 
 export const TEXT_VARIANT_CLASSES = {

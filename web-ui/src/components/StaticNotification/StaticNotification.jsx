@@ -30,9 +30,7 @@ const StaticNotification = ({ cta, message }) => (
         'space-y-4'
       ])}
     >
-      <p className={clsm(['text-[15px]', 'leading-[22.5px]', 'font-normal'])}>
-        {message}
-      </p>
+      <p className="text-p1">{message}</p>
     </div>
     {cta}
   </div>

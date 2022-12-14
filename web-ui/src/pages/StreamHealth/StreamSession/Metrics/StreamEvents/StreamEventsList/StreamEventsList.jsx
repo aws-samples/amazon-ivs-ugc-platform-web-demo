@@ -1,10 +1,9 @@
+import { forwardRef, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useRef } from 'react';
 
-import './StreamEventsList.css';
 import { Close } from '../../../../../../assets/icons';
-import { dashboard as $dashboardContent } from '../../../../../../content';
 import { clsm, noop } from '../../../../../../utils';
+import { dashboard as $dashboardContent } from '../../../../../../content';
 import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../../contexts/Streams';
 import Button from '../../../../../../components/Button';
@@ -13,114 +12,167 @@ import StreamEventItem from './StreamEventItem';
 
 const $content = $dashboardContent.stream_session_page.stream_events;
 
-const StreamEventsList = ({
-  isHidden,
-  isLearnMoreVisible,
-  isPreview,
-  selectedEventId,
-  setIsStreamEventsListVisible,
-  setSelectedEventId,
-  streamEvents,
-  toggleLearnMore
-}) => {
-  const { isDefaultResponsiveView } = useResponsiveDevice();
-  const { activeStreamSession = {}, isLoadingStreamData } = useStreams();
-  const wrapperRef = useRef();
-  const selectedEventRef = useRef();
-  const setSelectedEventRef = useCallback(
-    (eventEl) => {
-      const eventId = eventEl?.attributes['data-id'].value;
-      if (eventId === selectedEventId) selectedEventRef.current = eventEl;
+const StreamEventsList = forwardRef(
+  (
+    {
+      isHidden,
+      isLearnMoreVisible,
+      isPreview,
+      selectedEventId,
+      setIsStreamEventsListVisible,
+      setSelectedEventId,
+      streamEvents,
+      toggleLearnMore
     },
-    [selectedEventId]
-  );
-
-  const handleEventClick = (id) => {
-    setSelectedEventId((prevId) => {
-      if (prevId === id) {
-        selectedEventRef.current = null;
-        return null;
-      }
-
-      return id;
-    });
-  };
-
-  const handleCloseEventsList = () => {
-    setIsStreamEventsListVisible(false);
-    setSelectedEventId(null);
-  };
-
-  useEffect(() => {
-    setTimeout(
-      () =>
-        selectedEventRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
-        }),
-      300
+    wrapperRef
+  ) => {
+    const { isDefaultResponsiveView } = useResponsiveDevice();
+    const {
+      activeStreamSession = {},
+      isLoadingStreamData,
+      fetchActiveStreamSessionError
+    } = useStreams();
+    const selectedEventRef = useRef();
+    const setSelectedEventRef = useCallback(
+      (eventEl) => {
+        const eventId = eventEl?.attributes['data-id'].value;
+        if (eventId === selectedEventId) selectedEventRef.current = eventEl;
+      },
+      [selectedEventId]
     );
-  }, [selectedEventId]);
 
-  useEffect(() => {
-    const removeSpacebarScroll = (e) => {
-      if (e.keyCode === 32) e.preventDefault(); // keyCode 32 => Spacebar
+    const handleEventClick = (id) => {
+      setSelectedEventId((prevId) => {
+        if (prevId === id) {
+          selectedEventRef.current = null;
+          return null;
+        }
+
+        return id;
+      });
     };
 
-    const wrapper = wrapperRef.current;
-    wrapper?.addEventListener('keypress', removeSpacebarScroll);
+    const handleCloseEventsList = () => {
+      setIsStreamEventsListVisible(false);
+      setSelectedEventId(null);
+    };
 
-    return () => wrapper?.removeEventListener('keypress', removeSpacebarScroll);
-  }, []);
+    useEffect(() => {
+      setTimeout(
+        () =>
+          selectedEventRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          }),
+        300
+      );
+    }, [selectedEventId]);
 
-  const hasEvents = !!streamEvents.length;
-  const metricPanelWrapperClasses = ['stream-events-list', 'space-y-4'];
-  if (!hasEvents) metricPanelWrapperClasses.push('no-stream-events-wrapper');
+    useEffect(() => {
+      const removeSpacebarScroll = (e) => {
+        if (e.key === ' ') e.preventDefault();
+      };
 
-  return (
-    <MetricPanel
-      hasData={hasEvents && !isLoadingStreamData}
-      isLoading={isLoadingStreamData}
-      style={isHidden ? { display: 'none' } : {}}
-      title={$content.stream_events}
-      header={
-        isDefaultResponsiveView &&
-        !isPreview && (
-          <Button
-            className={clsm(['mr-[15px]', 'w-11', 'h-11'])}
-            onClick={handleCloseEventsList}
-            variant="icon"
+      const wrapper = wrapperRef.current;
+      wrapper?.addEventListener('keypress', removeSpacebarScroll);
+
+      return () =>
+        wrapper?.removeEventListener('keypress', removeSpacebarScroll);
+    }, [wrapperRef]);
+
+    const hasEvents = !!streamEvents.length;
+
+    return (
+      <MetricPanel
+        className={clsm(['h-full', isHidden && 'hidden'])}
+        hasData={!isLoadingStreamData}
+        header={
+          isDefaultResponsiveView &&
+          !isPreview && (
+            <Button
+              className={clsm(['mr-4', 'w-11', 'h-11'])}
+              onClick={handleCloseEventsList}
+              variant="icon"
+            >
+              <Close
+                className={clsm([
+                  'dark:fill-white',
+                  'fill-lightMode-gray-dark'
+                ])}
+              />
+            </Button>
+          )
+        }
+        headerClassName={clsm(['pl-4', 'pt-8'])}
+        isLoading={isLoadingStreamData}
+        ref={wrapperRef}
+        title={$content.stream_events}
+        wrapper={{
+          className: clsm([
+            'dark:scrollbar-color-darkMode-gray',
+            'h-full',
+            'md:p-0',
+            'md:pb-0',
+            'overflow-x-hidden',
+            'overflow-y-auto',
+            'pr-4',
+            'scrollbar-color-lightMode-gray',
+            'scrollbar-mb-4',
+            'scrollbar-mt-[-4px]',
+            'space-y-4',
+            'supports-overlay:overflow-y-overlay',
+            (!hasEvents ||
+              isLoadingStreamData ||
+              fetchActiveStreamSessionError) &&
+              'pb-20',
+            !hasEvents && ['md:mt-11', 'md:mr-0', 'md:mb-8']
+          ])
+        }}
+      >
+        {hasEvents ? (
+          streamEvents.map((streamEvent) => (
+            <StreamEventItem
+              key={streamEvent.id}
+              handleEventClick={handleEventClick}
+              isLive={activeStreamSession.isLive}
+              selectedEventId={selectedEventId}
+              setSelectedEventRef={setSelectedEventRef}
+              streamEvent={streamEvent}
+              toggleLearnMore={toggleLearnMore}
+              isLearnMoreVisible={isLearnMoreVisible}
+            />
+          ))
+        ) : (
+          <span
+            className={clsm([
+              'dark:text-darkMode-gray-light',
+              'flex-col',
+              'flex',
+              'h-full',
+              'items-center',
+              'justify-center',
+              'space-y-2.5',
+              'text-center',
+              'text-lightMode-gray-medium'
+            ])}
           >
-            <Close className="close-icon" />
-          </Button>
-        )
-      }
-      headerClassNames={['stream-events-header']}
-      ref={wrapperRef}
-      wrapper={{ classNames: metricPanelWrapperClasses }}
-    >
-      {hasEvents ? (
-        streamEvents.map((streamEvent) => (
-          <StreamEventItem
-            key={streamEvent.id}
-            handleEventClick={handleEventClick}
-            isLive={activeStreamSession.isLive}
-            selectedEventId={selectedEventId}
-            setSelectedEventRef={setSelectedEventRef}
-            streamEvent={streamEvent}
-            toggleLearnMore={toggleLearnMore}
-            isLearnMoreVisible={isLearnMoreVisible}
-          />
-        ))
-      ) : (
-        <span className="no-stream-events">
-          <h4>{$content.no_stream_events}</h4>
-          <p className="p2">{$content.no_stream_events_message}</p>
-        </span>
-      )}
-    </MetricPanel>
-  );
-};
+            <h4
+              className={clsm([
+                'dark:text-darkMode-gray-light',
+                'text-lightMode-gray-medium'
+              ])}
+            >
+              {$content.no_stream_events}
+            </h4>
+            <p className={clsm(['max-w-[200px]', 'text-p2'])}>
+              {$content.no_stream_events_message}
+            </p>
+          </span>
+        )}
+      </MetricPanel>
+    );
+  }
+);
 
 StreamEventsList.defaultProps = {
   isHidden: false,

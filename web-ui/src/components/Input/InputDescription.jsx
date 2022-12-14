@@ -6,7 +6,7 @@ const InputDescription = ({ isVisible, description }) => {
 
   return (
     <span className={clsm(['pt-1', 'text-[13px]', 'text-darkMode-gray-light'])}>
-      <p className="p3">{description}</p>
+      <p className="text-p3">{description}</p>
     </span>
   );
 };

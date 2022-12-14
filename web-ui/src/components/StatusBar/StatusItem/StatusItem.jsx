@@ -43,9 +43,9 @@ const StatusItem = ({
             {...(role ? { role } : {})}
             aria-label={itemLabel}
             className={clsm([
-              'p2',
-              'text-black',
               'dark:text-white',
+              'text-black',
+              'text-p2',
               hasError &&
                 typeof value === 'number' && [
                   'text-lightMode-red',

@@ -64,12 +64,10 @@ const ConfigRow = ({ label, value, error }) => {
   const getEncoderValueElement = () => (
     <p
       className={clsm([
-        'text-[15px]',
-        'leading-[22.5px]',
-        'font-normal',
-        'truncate',
         'dark:text-white',
         'text-lightMode-gray-dark',
+        'text-p1',
+        'truncate',
         hasError && commonErrorClasses
       ])}
       data-testid={`${label.toLowerCase().replace(/\s/g, '-')}-config-label`}

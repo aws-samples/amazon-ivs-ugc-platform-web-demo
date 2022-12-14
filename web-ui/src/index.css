@@ -89,15 +89,6 @@
   .h4 {
     @apply text-[15px] leading-[18.15px] font-medium text-white;
   }
-  .p1 {
-    @apply text-[15px] leading-[22.5px] font-normal;
-  }
-  .p2 {
-    @apply text-[13px] leading-[19.5px] font-normal;
-  }
-  .p3 {
-    @apply text-xs leading-[15px] font-medium;
-  }
   a,
   button,
   .button-link {

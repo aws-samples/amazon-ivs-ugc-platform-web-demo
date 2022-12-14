@@ -8,11 +8,11 @@ const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => (
   <span
     ref={ref}
     className={clsm([
-      'dark:bg-darkMode-gray',
       'bg-lightMode-gray',
-      'rounded-xl',
+      'dark:bg-darkMode-gray',
       'p-2.5',
-      'p3',
+      'rounded-xl',
+      'text-p3',
       hasFixedWidth && 'max-w-[200px]'
     ])}
     data-testid="tooltip-content"

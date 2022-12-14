@@ -20,10 +20,10 @@ const ConfirmationModal = () => {
         {subMessage && (
           <p
             className={clsm([
-              'p1',
+              'dark:text-darkMode-gray-extraLight',
               'mt-4',
               'text-black',
-              'dark:text-darkMode-gray-extraLight'
+              'text-p1'
             ])}
           >
             {subMessage}

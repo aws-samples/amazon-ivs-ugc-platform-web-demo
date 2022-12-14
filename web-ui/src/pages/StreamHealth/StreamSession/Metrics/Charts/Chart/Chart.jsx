@@ -329,7 +329,7 @@ const Chart = ({
       >
         <div ref={tooltipRef}>
           <h4>{tooltipData && getDataValue(tooltipData)}</h4>
-          <p className="p3">{tooltipData && getDate(tooltipData)}</p>
+          <p className="text-p3">{tooltipData && getDate(tooltipData)}</p>
         </div>
       </Tooltip>
     </div>

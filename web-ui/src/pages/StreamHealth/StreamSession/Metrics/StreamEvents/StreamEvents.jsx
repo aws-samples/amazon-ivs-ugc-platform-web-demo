@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import './StreamEvents.css';
+import { clsm, scrollToTop } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { processEvents } from './utils';
-import { clsm, scrollToTop } from '../../../../../utils';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../contexts/Streams';
 import Button from '../../../../../components/Button';
@@ -25,6 +24,7 @@ const StreamEvents = () => {
   const [isLearnMoreVisible, setIsLearnMoreVisible] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isStreamEventsListVisible, setIsStreamEventsListVisible] = useState();
+  const streamEventsListRef = useRef();
 
   const streamEvents = useMemo(
     () => processEvents(activeStreamSession.truncatedEvents),
@@ -59,11 +59,23 @@ const StreamEvents = () => {
     setIsStreamEventsListVisible(!isDefaultResponsiveView);
     setIsLearnMoreVisible(false);
     setSelectedEventId(null);
-    scrollToTop('.stream-events-list', 'auto');
+    scrollToTop(streamEventsListRef, 'auto');
   }, [activeStreamSession.streamId, isDefaultResponsiveView]);
 
   return (
-    <div className={clsm(['stream-events', 'rounded-3xl', 'md:space-y-4'])}>
+    <div
+      className={clsm([
+        'h-full',
+        'md:space-y-4',
+        'md:mb-8',
+        'md:w-full',
+        'overflow-hidden',
+        'relative',
+        'rounded-3xl',
+        'shrink-0',
+        'w-80'
+      ])}
+    >
       <ResponsivePanel
         containerClasses={DEFAULT_RESPONSIVE_PANEL_CONTAINER_CLASSES}
         isOpen={!isDefaultResponsiveView || isStreamEventsListVisible}
@@ -72,6 +84,7 @@ const StreamEvents = () => {
         <StreamEventsList
           isHidden={!isStreamEventsListVisible}
           isLearnMoreVisible={isLearnMoreVisible}
+          ref={{ current: undefined }}
           selectedEventId={selectedEventId}
           setIsStreamEventsListVisible={setIsStreamEventsListVisible}
           setSelectedEventId={setSelectedEventId}
@@ -93,6 +106,7 @@ const StreamEvents = () => {
         <>
           <StreamEventsList
             isPreview
+            ref={streamEventsListRef}
             selectedEventId={selectedEventId}
             setSelectedEventId={setSelectedEventId}
             streamEvents={streamEvents.slice(0, EVENT_PREVIEW_COUNT)}

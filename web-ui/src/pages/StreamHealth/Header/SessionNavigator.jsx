@@ -119,7 +119,7 @@ const SessionNavigator = forwardRef(
               <>
                 <p className="date">{$content.stream_session}</p>
                 {!fetchStreamSessionsError && !isInitialFetchingStreamData && (
-                  <p className={clsm(['p3', TIME_CLASSES])}>
+                  <p className={clsm(['text-p3', TIME_CLASSES])}>
                     {$content.select_stream_session}
                   </p>
                 )}
@@ -130,13 +130,15 @@ const SessionNavigator = forwardRef(
                   {date}
                 </p>
                 <span
-                  className={clsm(['p3', TIME_CLASSES])}
+                  className={clsm(['text-p3', TIME_CLASSES])}
                   data-testid="session-navigator-time"
                 >
                   {isLive
                     ? `${$content.session_navigator.started} ${time}`
                     : time}
-                  {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
+                  {dayDiff > 0 && (
+                    <p className="day-diff text-p3">+{dayDiff}d</p>
+                  )}
                 </span>
               </>
             )}

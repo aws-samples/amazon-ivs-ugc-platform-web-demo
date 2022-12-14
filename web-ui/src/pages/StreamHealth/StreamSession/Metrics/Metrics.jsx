@@ -1,4 +1,3 @@
-import './Metrics.css';
 import { clsm } from '../../../../utils';
 import { Provider as SynchronizedChartsProvider } from '../../../../contexts/SynchronizedCharts';
 import { useStreams } from '../../../../contexts/Streams';
@@ -10,7 +9,26 @@ const Metrics = () => {
   const { isLive } = activeStreamSession || {};
 
   return (
-    <section className={clsm(['metrics-section', 'md:py-4'])}>
+    <section
+      className={clsm([
+        'bg-lightMode-gray-extraLight',
+        'dark:bg-darkMode-gray-dark',
+        'flex',
+        'h-[552px]',
+        'items-start',
+        'justify-center',
+        'md:flex-col',
+        'md:h-auto',
+        'md:py-4',
+        'md:space-x-0',
+        'md:space-y-8',
+        'mx-0',
+        'my-4',
+        'rounded-3xl',
+        'space-x-5',
+        'w-full'
+      ])}
+    >
       <SynchronizedChartsProvider isLive={isLive}>
         <Charts />
       </SynchronizedChartsProvider>

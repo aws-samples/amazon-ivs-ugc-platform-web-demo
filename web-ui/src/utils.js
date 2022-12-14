@@ -38,12 +38,18 @@ export const copyToClipboard = (value) => {
 };
 
 export const scrollToTop = (
-  selector = '[id$=scrollable]',
+  selectorOrRef = '[id$=scrollable]',
   behavior = 'smooth'
 ) => {
-  const scrollableContainer = document.querySelector(selector) || window;
+  let scrollableContainer;
 
-  scrollableContainer.scrollTo({ top: 0, behavior });
+  if (typeof selectorOrRef === 'string') {
+    scrollableContainer = document.querySelector(selectorOrRef) || window;
+  } else {
+    scrollableContainer = selectorOrRef.current;
+  }
+
+  if (scrollableContainer) scrollableContainer.scrollTo({ top: 0, behavior });
 };
 
 export const bound = (value, min = null, max = null) => {

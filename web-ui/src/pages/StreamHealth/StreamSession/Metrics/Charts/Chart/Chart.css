@@ -21,7 +21,7 @@
   @apply space-y-[5px];
 }
 
-.chart-tooltip .p3 {
+.chart-tooltip .text-p3 {
   color: var(--palette-color-light-gray);
 }
 
@@ -94,7 +94,7 @@
     color: var(--palette-color-black);
   }
 
-  .chart-tooltip .p3 {
+  .chart-tooltip .text-p3 {
     color: var(--palette-color-medium-gray);
   }
 

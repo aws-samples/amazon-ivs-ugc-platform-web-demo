@@ -45,6 +45,29 @@ module.exports = {
         hoverOuter: ` 0 0 0 3px var(--tw-shadow-color)`
       },
       colors,
+      fontSize: {
+        p1: [
+          '15px',
+          {
+            lineHeight: '22.5px',
+            fontWeight: '400'
+          }
+        ],
+        p2: [
+          '13px',
+          {
+            lineHeight: '19.5px',
+            fontWeight: '400'
+          }
+        ],
+        p3: [
+          '0.75rem',
+          {
+            lineHeight: '15px',
+            fontWeight: '500'
+          }
+        ]
+      },
       height: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       keyframes,
       maxHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
@@ -170,6 +193,11 @@ module.exports = {
           'scrollbar-mt': (value) => ({
             '&::-webkit-scrollbar-track': {
               marginTop: value
+            }
+          }),
+          'scrollbar-mb': (value) => ({
+            '&::-webkit-scrollbar-track': {
+              marginBottom: value
             }
           })
         },

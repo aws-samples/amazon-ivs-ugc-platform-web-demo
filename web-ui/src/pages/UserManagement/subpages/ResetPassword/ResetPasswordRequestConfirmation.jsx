@@ -28,7 +28,7 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
   return (
     <div className="sub-page-container">
       <h2>{$content.reset_password_page.title}</h2>
-      <p className="p1">{$content.reset_password_page.email_link_sent}</p>
+      <p className="text-p1">{$content.reset_password_page.email_link_sent}</p>
       <span className={clsm(['flex', 'items-center', 'space-x-5'])}>
         <b>{$content.did_not_receive_email}</b>
         <Button onClick={resend} type="button" variant="secondary">

@@ -42,7 +42,7 @@ const RegisterUserRequestConfirmation = ({ username }) => {
       ])}
     >
       <h2>{$content.register_page.verify_your_account}</h2>
-      <p className={clsm(['pt-[3px]', 'p1'])}>
+      <p className={clsm(['pt-[3px]', 'text-p1'])}>
         {$content.register_page.email_link_sent}
       </p>
       <span className={clsm(['flex', 'items-center', 'space-x-5'])}>

@@ -17,7 +17,7 @@ import {
   useSynchronizedCharts,
   ZOOM_LEVELS
 } from '../../../../../contexts/SynchronizedCharts';
-import { bound } from '../../../../../utils';
+import { bound, clsm } from '../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../content';
 import { formatTime } from '../../../../../hooks/useDateTime';
 import { processEvents } from '../StreamEvents/utils';
@@ -165,23 +165,33 @@ const Charts = () => {
         // Ingest framerate data sometimes comes after video bitrate
         !hasData;
       const isChartLoading = isLoadingStreamData || isWaitingForData;
+      const footerZoomBoundsProps = [
+        { children: zoomStart, dataTestId: 'chart-zoom-start-time' },
+        { children: zoomEnd, dataTestId: 'chart-zoom-end-time' }
+      ];
 
       return {
         hasData,
         isLoading: isChartLoading,
-        wrapper: { classNames: ['chart'] },
-        header: <h2>{currentValue}</h2>,
-        footerClassNames: ['chart-time-range-footer'],
-        footer: (
-          <>
-            <p className="p2" data-testid="chart-zoom-start-time">
-              {zoomStart}
-            </p>
-            <p className="p2" data-testid="chart-zoom-end-time">
-              {zoomEnd}
-            </p>
-          </>
-        )
+        wrapper: { className: 'chart' },
+        header: (
+          <h2 className={clsm(['dark:text-white', 'text-lightMode-gray-dark'])}>
+            {currentValue}
+          </h2>
+        ),
+        footerClassName: 'chart-time-range-footer',
+        footer: footerZoomBoundsProps.map(({ children, dataTestId }) => (
+          <p
+            className={clsm([
+              'dark:text-darkMode-gray-light',
+              'text-lightMode-gray-medium',
+              'text-p2'
+            ])}
+            data-testid={dataTestId}
+          >
+            {children}
+          </p>
+        ))
       };
     },
     [
@@ -306,8 +316,9 @@ const Charts = () => {
   return (
     <div className="charts" ref={chartsRef}>
       <MetricPanel
-        title={$content.video_bitrate}
         {...getChartMetricPanelProps(ingestVideoBitrateData)}
+        title={$content.video_bitrate}
+        className={clsm(['mb-11', 'md:mb-8'])}
       >
         {renderChart(
           <ResponsiveChart
@@ -319,8 +330,9 @@ const Charts = () => {
         )}
       </MetricPanel>
       <MetricPanel
-        title={$content.frame_rate}
         {...getChartMetricPanelProps(ingestFramerateData)}
+        title={$content.frame_rate}
+        className={clsm(['mb-8', 'md:mb-4'])}
       >
         {renderChart(
           <ResponsiveChart

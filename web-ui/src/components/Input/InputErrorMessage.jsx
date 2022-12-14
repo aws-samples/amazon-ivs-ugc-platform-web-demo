@@ -19,7 +19,7 @@ const ErrorMessage = ({ error }) => {
       <ErrorIcon
         className={clsx(['fill-darkMode-red', 'h-4', 'min-w-[4px]', 'w-4'])}
       />
-      <p className="p3">{error}</p>
+      <p className="text-p3">{error}</p>
     </span>
   );
 };

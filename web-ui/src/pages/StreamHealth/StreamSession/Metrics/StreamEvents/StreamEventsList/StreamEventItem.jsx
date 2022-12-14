@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import { useEffect, useRef } from 'react';
 import { m, useAnimation, useReducedMotion } from 'framer-motion';
 
-import './StreamEventsList.css';
 import { createAnimationProps } from '../../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../../utils';
 import { dashboard as $dashboardContent } from '../../../../../../content';
@@ -40,14 +39,10 @@ const StreamEventItem = ({
   eventTimestamp =
     eventTimestamp.charAt(0).toUpperCase() + eventTimestamp.slice(1);
 
-  const eventItemClasses = ['event-item'];
-  if (isSelected) eventItemClasses.push('selected');
-  if (isExpandable) eventItemClasses.push('expandable');
-
   const handleEvent = (e) => {
     if (
       e.target.id !== 'learn-more-button' &&
-      (e.keyCode === 32 || e.keyCode === 13 || e.type === 'click') // keyCode 32 => Spacebar, keyCode 13 => Enter
+      (e.key === ' ' || e.key === 'Enter' || e.type === 'click')
     ) {
       handleEventClick(id);
     }
@@ -75,6 +70,20 @@ const StreamEventItem = ({
     }
   }, [controls, isSelected, shouldReduceMotion]);
 
+  const renderEventName = () => (
+    <h4
+      className={clsm([
+        'dark:text-white',
+        'text-lightMode-gray-dark',
+        'truncate',
+        error && ['dark:text-darkMode-red', 'text-lightMode-red']
+      ])}
+      ref={eventNameRef}
+    >
+      {name}
+    </h4>
+  );
+
   return (
     <div data-id={id} ref={setSelectedEventRef}>
       <div
@@ -82,31 +91,89 @@ const StreamEventItem = ({
         aria-label={`${
           isSelected ? 'Hide' : 'Show'
         } description for the ${name.toLowerCase()} stream event`}
-        className={eventItemClasses.join(' ')}
+        className={clsm([
+          'event-item',
+          'cursor-auto',
+          'flex-col',
+          'flex',
+          'justify-center',
+          'overflow-hidden',
+          'pointer-events-auto',
+          'rounded-3xl',
+          'transition-colors',
+          isExpandable && [
+            'cursor-pointer',
+            'dark:focus:bg-darkMode-gray-medium',
+            'dark:hover:bg-darkMode-gray-medium',
+            'dark:shadow-white',
+            'focus:bg-lightMode-gray-light',
+            'focus:outline-none',
+            'hover:bg-lightMode-gray-light',
+            'shadow-black',
+            'shadow-focus',
+            isSelected && [
+              'bg-lightMode-gray-light',
+              'dark:bg-darkMode-gray-medium'
+            ]
+          ]
+        ])}
         onClick={handleEvent}
         onKeyUp={handleEvent}
         role="button"
         tabIndex={isExpandable ? '0' : '-1'}
       >
-        <div className="event-header">
-          <div className={`event-name${error ? ' error' : ''}`}>
+        <div className={clsm(['text-left', 'p-4'])}>
+          <div
+            className={clsm([
+              'items-center',
+              'flex',
+              'justify-between',
+              'pb-1.5'
+            ])}
+          >
             {isNameOverflowing ? (
               <Tooltip position="above" message={name}>
-                <h4 ref={eventNameRef}>{name}</h4>
+                {renderEventName()}
               </Tooltip>
             ) : (
-              <h4 ref={eventNameRef}>{name}</h4>
+              renderEventName()
             )}
-            {error && <ErrorIcon className="error-icon" />}
-            {success && <Check className="success-icon" />}
+            {error && (
+              <ErrorIcon
+                className={clsm([
+                  'dark:fill-darkMode-red',
+                  'fill-lightMode-red',
+                  'h-5',
+                  'w-5',
+                  'ml-8'
+                ])}
+              />
+            )}
+            {success && (
+              <Check
+                className={clsm([
+                  'dark:fill-darkMode-green',
+                  'fill-lightMode-green',
+                  'h-5',
+                  'w-5',
+                  'ml-8'
+                ])}
+              />
+            )}
           </div>
-          <p className="event-time p2" data-testid="stream-event-date-time">
+          <p
+            className={clsm([
+              'dark:text-darkMode-gray-light',
+              'text-lightMode-gray-medium',
+              'text-p2'
+            ])}
+            data-testid="stream-event-date-time"
+          >
             {eventTimestamp}
           </p>
         </div>
         {isExpandable && (
           <m.div
-            className="event-description-container"
             key="event-content"
             {...createAnimationProps({
               animations: ['fadeIn-full'],
@@ -118,9 +185,19 @@ const StreamEventItem = ({
               transition: 'bounce'
             })}
           >
-            <p className="event-description p1">{shortMsg}</p>
+            <p
+              className={clsm([
+                'break-anywhere',
+                'text-p1',
+                'mx-4',
+                'my-0',
+                'pb-4'
+              ])}
+            >
+              {shortMsg}
+            </p>
             {hasLearnMore && isSelected && (
-              <div className="learn-more-button-container">
+              <div className="m-4">
                 <Button
                   className={clsm([
                     'pointer-events-auto',

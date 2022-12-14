@@ -207,13 +207,17 @@ const FloatingPlayer = () => {
             ])}
           >
             {hasStreamSessions ? (
-              <p className={clsm(['p2', 'tracking-normal', 'text-center'])}>
+              <p
+                className={clsm(['text-p2', 'tracking-normal', 'text-center'])}
+              >
                 {$content.your_channel_is_offline}
               </p>
             ) : (
               <>
                 <h4>{$content.your_channel_is_offline}</h4>
-                <p className={clsm(['p2', 'tracking-normal', 'text-left'])}>
+                <p
+                  className={clsm(['text-p2', 'tracking-normal', 'text-left'])}
+                >
                   {$content.offline_instructions}
                 </p>
                 {currentPage !== 'settings' && (

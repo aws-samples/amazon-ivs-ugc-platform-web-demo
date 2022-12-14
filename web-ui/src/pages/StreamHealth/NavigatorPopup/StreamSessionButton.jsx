@@ -25,8 +25,10 @@ const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
           {isLive && <LivePill />}
         </span>
         <span className="session-time">
-          <p className="p1">{isLive ? `${$content.started} ${time}` : time}</p>
-          {dayDiff > 0 && <p className="day-diff p3">+{dayDiff}d</p>}
+          <p className="text-p1">
+            {isLive ? `${$content.started} ${time}` : time}
+          </p>
+          {dayDiff > 0 && <p className="day-diff text-p3">+{dayDiff}d</p>}
         </span>
       </div>
       {hasErrorEvent ? (
