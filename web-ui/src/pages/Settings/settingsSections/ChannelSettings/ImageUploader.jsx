@@ -4,7 +4,8 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  useEffect
 } from 'react';
 import { m } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -22,6 +23,7 @@ import Button from '../../../../components/Button';
 import NoImageSrcIcon from '../../../../components/IconSelect/NoImageSrcIcon';
 import Spinner from '../../../../components/Spinner';
 import useImageUpload from '../../../../hooks/useImageUpload';
+import usePrevious from '../../../../hooks/usePrevious';
 
 const $channelAssetModalContent = $content.modal.channel_asset_deletion_modal;
 const STACKING_BREAKPOINT = 910; // px
@@ -48,11 +50,18 @@ const ImageUploader = forwardRef(
       previewUrl,
       uploadChannelAsset
     } = useImageUpload({ assetType, onDelete, onUpload, maximumFileSize });
+    const prevIsUploading = usePrevious(isUploading);
     const { openModal } = useModal();
     const [shouldStack, setShouldStack] = useState(isStackingBreakpoint());
     const fileInputRef = useRef();
     const deleteButtonRef = useRef();
+    const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+
     const hasUploadUrl = !!(previewUrl || uploadUrl);
+    const shouldRenderImage = isDownloadingImage || hasUploadUrl;
+    const hasCompletedUpload = prevIsUploading && !isUploading;
+    const isLoadingNewImage =
+      isUploading || isDownloadingImage || hasCompletedUpload;
     const acceptedImageFileFormats = SUPPORTED_IMAGE_FILE_FORMATS.flat()
       .map((fileFormat) => `.${fileFormat}`)
       .join(',');
@@ -90,30 +99,51 @@ const ImageUploader = forwardRef(
       });
     };
 
+    useEffect(() => {
+      if (hasCompletedUpload) {
+        setIsDownloadingImage(true);
+      }
+    }, [hasCompletedUpload]);
+
+    const handleImgFullyDownloaded = useCallback(
+      () => setIsDownloadingImage(false),
+      []
+    );
+
     const renderPreview = useCallback(() => {
-      if (isUploading) {
+      if (isUploading || shouldRenderImage) {
         return (
-          <div
-            className={clsm([
-              'flex',
-              'items-center',
-              'justify-center',
-              'bg-white',
-              'dark:bg-black',
-              previewClasses
-            ])}
-          >
-            <Spinner variant="light" size="xlarge" />
-          </div>
-        );
-      } else if (hasUploadUrl) {
-        return (
-          <img
-            className={clsm(previewClasses)}
-            alt={`${assetType} upload preview`}
-            draggable={false}
-            src={previewUrl || uploadUrl}
-          />
+          <>
+            {/* If the image is done being uploaded we want to also wait for the the image 
+          to completely download before replacing the spinner with the image tag. */}
+            {shouldRenderImage && (
+              <img
+                className={clsm(
+                  previewClasses,
+                  isLoadingNewImage && 'absolute'
+                )}
+                alt={`${assetType} upload preview`}
+                draggable={false}
+                src={previewUrl || uploadUrl}
+                onLoad={handleImgFullyDownloaded}
+              />
+            )}
+            {isLoadingNewImage && (
+              <div
+                className={clsm([
+                  'flex',
+                  'items-center',
+                  'justify-center',
+                  'bg-white',
+                  'dark:bg-black',
+                  'relative',
+                  previewClasses
+                ])}
+              >
+                <Spinner variant="light" size="xlarge" />
+              </div>
+            )}
+          </>
         );
       } else {
         return (
@@ -122,12 +152,14 @@ const ImageUploader = forwardRef(
       }
     }, [
       assetType,
-      hasUploadUrl,
       previewClasses,
       isUploading,
       previewShape,
       previewUrl,
-      uploadUrl
+      uploadUrl,
+      handleImgFullyDownloaded,
+      shouldRenderImage,
+      isLoadingNewImage
     ]);
 
     useLayoutEffect(() => {
