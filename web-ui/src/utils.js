@@ -237,6 +237,7 @@ export const substitutePlaceholders = (str = '', activeStreamSession) => {
 /**
  * Construct a className string using a list of classes and then merge classes without style conflicts. The last conflicting class will win.
  * This utility function will replace clsx or txMerge everywhere in the application.
+ * You might have to declare custom classes in the config extension to avoid collision with existing Tailwind classes.
  * extendTailwindMerge is a function provided by tailwind-merge that will extend the tailwind config.
  * A combination of the clsx (https://github.com/lukeed/clsx#readme)
  * and tailwind-merge (https://github.com/dcastil/tailwind-merge) packages.
@@ -265,7 +266,8 @@ const customTwMerge = extendTailwindMerge({
           }
         ]
       }
-    ]
+    ],
+    text: ['text-p1', 'text-p2', 'text-p3']
   }
 });
 

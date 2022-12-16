@@ -136,9 +136,7 @@ const SessionNavigator = forwardRef(
                   {isLive
                     ? `${$content.session_navigator.started} ${time}`
                     : time}
-                  {dayDiff > 0 && (
-                    <p className="day-diff text-p3">+{dayDiff}d</p>
-                  )}
+                  {dayDiff > 0 && <p className="text-p3">+{dayDiff}d</p>}
                 </span>
               </>
             )}

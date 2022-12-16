@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { forwardRef, useEffect, useRef } from 'react';
 import { m } from 'framer-motion';
 
-import './NavigatorPopup.css';
+import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { dashboard as $dashboardContent } from '../../../content';
 import { groupStreamSessions } from '../Header/utils';
@@ -57,10 +57,39 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
           shouldAnimate: !isDefaultResponsiveView
         }
       })}
-      className="nav-popup-wrapper"
+      className={clsm([
+        'dark:bg-darkMode-gray-dark',
+        'bg-lightMode-gray-extraLight',
+        'h-[calc(100%_-_16px)]',
+        'm-4',
+        'max-h-[812px]',
+        'max-w-[652px]',
+        'md:h-full',
+        'md:m-0',
+        'md:max-h-full',
+        'md:max-w-full',
+        'md:rounded-none',
+        'rounded-3xl',
+        'w-full'
+      ])}
     >
       <div
-        className="nav-popup"
+        className={clsm([
+          'bg-transparent',
+          'flex-col',
+          'flex',
+          'h-full',
+          'items-center',
+          'md:h-[calc(100%_-_64px)]',
+          'overflow-x-hidden',
+          'overflow-y-auto',
+          'p-8',
+          'scrollbar-mb-4',
+          'scrollbar-mt-4',
+          'space-y-8',
+          'supports-overlay:overflow-y-overlay',
+          'xs:p-4'
+        ])}
         ref={ref}
         data-testid="stream-session-dropdown"
       >
@@ -69,7 +98,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
             {groupStreamSessions(streamSessions).map(
               ({ groupLabel, sessionData }) => (
                 <div
-                  className="session-group"
+                  className={clsm(['flex-col', 'flex', 'space-y-4', 'w-full'])}
                   key={groupLabel.replace(/\s+/g, '-').toLowerCase()}
                 >
                   <h4>{groupLabel}</h4>
@@ -85,7 +114,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
             )}
             {canLoadMoreStreamSessions && (
               <Button
-                className="load-more-button"
+                className="w-48"
                 isLoading={isLoadingNextStreamSessionsPage}
                 onClick={handleLoadMoreStreamSessions}
                 ref={loadMoreSessionsBtnRef}
@@ -96,9 +125,20 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
             )}
           </>
         ) : (
-          <span className="no-streams" data-testid="no-streams">
-            <b>{$content.no_stream_sessions}</b>
-            <p>{$content.no_stream_sessions_message}</p>
+          <span
+            className={clsm([
+              'text-lightMode-gray-medium',
+              'mt-[calc(21%_-_30px)]',
+              'text-center',
+              'w-[200px]',
+              'dark:text-darkMode-gray-light'
+            ])}
+            data-testid="no-streams"
+          >
+            <b className="font-medium">{$content.no_stream_sessions}</b>
+            <p className={clsm(['mt-3', 'text-[13px]'])}>
+              {$content.no_stream_sessions_message}
+            </p>
           </span>
         )}
       </div>
@@ -115,7 +155,20 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
           isVisible: isNavOpen
         }
       })}
-      className="nav-popup-container"
+      className={clsm([
+        'absolute',
+        'bg-modalOverlay',
+        'flex',
+        'h-[calc(100%_-_64px)]',
+        'justify-center',
+        'md:absolute',
+        'md:bg-none',
+        'md:h-full',
+        'md:top-auto',
+        'top-16',
+        'w-full',
+        'z-[550]'
+      ])}
     >
       {renderPopup()}
     </m.div>
