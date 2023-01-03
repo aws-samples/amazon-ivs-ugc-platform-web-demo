@@ -1,6 +1,24 @@
 const colors = require('../colors');
 
 module.exports = {
+  'live-pulse-light': {
+    '0%': { 'box-shadow': '0 0 0 0px hsl(var(--base-color-white), 42%, 50%)' },
+    '70%': {
+      'box-shadow': '0 0 0 8px hsl(var(--base-color-white), 42%, 0%)'
+    },
+    '100%': {
+      'box-shadow': '0 0 0 0px hsl(var(--base-color-white), 42%, 0%)'
+    }
+  },
+  'live-pulse-dark': {
+    '0%': { 'box-shadow': '0 0 0 0px hsl(var(--base-color-white), 100%, 50%)' },
+    '70%': {
+      'box-shadow': '0 0 0 8px hsl(var(--base-color-white), 100%, 0%)'
+    },
+    '100%': {
+      'box-shadow': '0 0 0 0px hsl(var(--base-color-white), 100%, 0%)'
+    }
+  },
   'marquee-first-part': {
     '0%': { transform: 'translateX(0%)' },
     '100%': { transform: 'translateX(-100%)' }

@@ -30,7 +30,6 @@ const MetricPanel = forwardRef(
       children,
       className,
       footer,
-      footerClassName,
       hasData,
       header,
       headerClassName,
@@ -123,8 +122,7 @@ const MetricPanel = forwardRef(
               'h-5',
               'items-center',
               'justify-between',
-              'mt-4',
-              footerClassName
+              'mt-4'
             ])}
           >
             {footer}
@@ -139,7 +137,6 @@ MetricPanel.defaultProps = {
   children: null,
   className: '',
   footer: null,
-  footerClassName: '',
   hasData: false,
   header: null,
   headerClassName: '',
@@ -152,7 +149,6 @@ MetricPanel.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   footer: PropTypes.node,
-  footerClassName: PropTypes.string,
   hasData: PropTypes.bool,
   header: PropTypes.node,
   headerClassName: PropTypes.string,

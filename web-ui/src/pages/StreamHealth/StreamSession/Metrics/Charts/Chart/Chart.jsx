@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   Fragment,
   useCallback,
@@ -12,12 +11,13 @@ import { LinearGradient } from '@visx/gradient';
 import { max, bisector, extent } from 'd3-array';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, Tooltip } from '@visx/tooltip';
+import PropTypes from 'prop-types';
 
+import { clsm } from '../../../../../../utils';
 import { getDate, getDataValue, getXScale, getYScale } from '../utils';
 import { useStreams } from '../../../../../../contexts/Streams';
 import { useSynchronizedCharts } from '../../../../../../contexts/SynchronizedCharts';
 import usePrevious from '../../../../../../hooks/usePrevious';
-import './Chart.css';
 
 const bisectDate = bisector(getDate).left;
 
@@ -183,7 +183,7 @@ const Chart = ({
   return (
     <div
       aria-label="Click and drag an area to zoom in"
-      className="chart-container"
+      className="relative"
       ref={draggableChartRef}
     >
       <svg width="100%" height={height}>
@@ -215,7 +215,12 @@ const Chart = ({
               if (xPosLine > 0 && xPosLine < width) {
                 return (
                   <Line
-                    className="error-event-line"
+                    className={clsm([
+                      'dark:stroke-darkMode-red',
+                      'pointer-events-none',
+                      'stroke-[1px]',
+                      'stroke-lightMode-red'
+                    ])}
                     key={key}
                     from={{ x: xPosLine, y: 0 }}
                     to={{ x: xPosLine, y: height }}
@@ -279,12 +284,26 @@ const Chart = ({
         {hasTooltipRendered && (
           <g>
             <Line
-              className="tooltip-line"
+              className={clsm([
+                'dark:stroke-white',
+                'pointer-events-none',
+                'stroke-[1px]',
+                'stroke-lightMode-gray-medium'
+              ])}
               from={{ x: tooltipLeft, y: 0 }}
+              strokeDasharray="2, 3"
+              strokeLinecap="round"
               to={{ x: tooltipLeft, y: height }}
             />
             <circle
-              className="tooltip-circle"
+              className={clsm([
+                'dark:fill-white',
+                'dark:stroke-white',
+                'fill-lightMode-gray-medium',
+                'pointer-events-none',
+                'stroke-[2px]',
+                'stroke-lightMode-gray-medium'
+              ])}
               cx={tooltipLeft}
               cy={tooltipTop}
               r={4}
@@ -294,7 +313,22 @@ const Chart = ({
       </svg>
       {hasLiveIndicator && (
         <div
-          className="live-indicator"
+          className={clsm([
+            'absolute',
+            'animate-live-pulse-light',
+            'bg-lightMode-gray-medium',
+            'dark:animate-live-pulse-dark',
+            'dark:bg-white',
+            'dark:shadow-white',
+            'h-2.5',
+            'hidden',
+            'left-0',
+            'rounded-full',
+            'shadow-lightMode-gray-medium',
+            'shadow-none',
+            'top-0',
+            'w-2.5'
+          ])}
           style={
             Number.isFinite(lastPointCoords.x) &&
             Number.isFinite(lastPointCoords.y)
@@ -307,16 +341,26 @@ const Chart = ({
         />
       )}
       <div
-        className="zoom-area"
+        className={clsm([
+          'absolute',
+          'bg-lightMode-blue',
+          'dark:bg-darkMode-blue',
+          'h-full',
+          'opacity-20',
+          'pointer-events-none',
+          'top-0'
+        ])}
         style={{
           left: zoomAreaDx > 0 ? originX : originX + zoomAreaDx,
           width: Math.abs(zoomAreaDx)
         }}
       />
       <Tooltip
-        className={`chart-tooltip ${
-          hasTooltipRendered && isTooltipReady ? '' : 'hidden'
-        }`}
+        className={clsm([
+          'absolute',
+          'pointer-events-none',
+          (!hasTooltipRendered || !isTooltipReady) && 'invisible'
+        ])}
         left={0}
         top={0}
         style={{
@@ -327,9 +371,34 @@ const Chart = ({
           transition: isTooltipReady ? 'transform 100ms linear' : undefined
         }}
       >
-        <div ref={tooltipRef}>
+        <div
+          className={clsm([
+            'bg-lightMode-gray-light',
+            'dark:bg-darkMode-gray-medium',
+            'dark:text-white',
+            'flex-col',
+            'flex',
+            'h-full',
+            'items-center',
+            'p-3',
+            'pointer-events-none',
+            'rounded-xl',
+            'space-y-1.5',
+            'text-black',
+            'w-full'
+          ])}
+          ref={tooltipRef}
+        >
           <h4>{tooltipData && getDataValue(tooltipData)}</h4>
-          <p className="text-p3">{tooltipData && getDate(tooltipData)}</p>
+          <p
+            className={clsm([
+              'dark:text-darkMode-gray-light',
+              'text-lightMode-gray-medium',
+              'text-p3'
+            ])}
+          >
+            {tooltipData && getDate(tooltipData)}
+          </p>
         </div>
       </Tooltip>
     </div>

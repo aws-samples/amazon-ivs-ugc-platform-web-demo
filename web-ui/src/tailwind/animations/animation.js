@@ -1,4 +1,6 @@
 module.exports = {
+  'live-pulse-light': 'live-pulse-light 1s linear infinite',
+  'live-pulse-dark': 'live-pulse-dark 1s linear infinite',
   'marquee-first-part': 'marquee-first-part 5s linear infinite',
   'marquee-second-part': 'marquee-second-part 5s linear infinite',
   'pulse-first-waves-light':

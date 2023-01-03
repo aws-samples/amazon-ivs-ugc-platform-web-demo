@@ -203,6 +203,13 @@ module.exports = {
         },
         { values: theme('margin') }
       );
+    }),
+
+    // Support pointer-events all
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        '.pointer-events-all': { pointerEvents: 'all' }
+      });
     })
   ]
 };

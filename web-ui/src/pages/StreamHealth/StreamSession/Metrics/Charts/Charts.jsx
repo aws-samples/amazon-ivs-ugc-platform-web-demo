@@ -27,7 +27,6 @@ import ResponsiveChart from './Chart';
 import usePrevious from '../../../../../hooks/usePrevious';
 import ZoomButtons from './ZoomButtons';
 import ZoomSlider from './ZoomSlider';
-import './Charts.css';
 
 const $content = $dashboardContent.stream_session_page.charts;
 
@@ -173,13 +172,12 @@ const Charts = () => {
       return {
         hasData,
         isLoading: isChartLoading,
-        wrapper: { className: 'chart' },
+        wrapper: { className: 'h-[100px]' },
         header: (
           <h2 className={clsm(['dark:text-white', 'text-lightMode-gray-dark'])}>
             {currentValue}
           </h2>
         ),
-        footerClassName: 'chart-time-range-footer',
         footer: footerZoomBoundsProps.map(({ children, dataTestId }) => (
           <p
             className={clsm([
@@ -188,6 +186,7 @@ const Charts = () => {
               'text-p2'
             ])}
             data-testid={dataTestId}
+            key={dataTestId}
           >
             {children}
           </p>
@@ -314,7 +313,19 @@ const Charts = () => {
   ]);
 
   return (
-    <div className="charts" ref={chartsRef}>
+    <div
+      className={clsm([
+        'flex-col',
+        'flex',
+        'h-full',
+        'md:px-4',
+        'md:py-0',
+        'p-8',
+        'pr-0',
+        'w-full'
+      ])}
+      ref={chartsRef}
+    >
       <MetricPanel
         {...getChartMetricPanelProps(ingestVideoBitrateData)}
         title={$content.video_bitrate}
@@ -343,7 +354,15 @@ const Charts = () => {
           />
         )}
       </MetricPanel>
-      <div className="chart-controls">
+      <div
+        className={clsm([
+          'flex-col',
+          'flex',
+          'items-center',
+          'md:mr-0',
+          'space-y-8'
+        ])}
+      >
         <ZoomSlider
           chartsRef={chartsRef}
           dataLength={dataLength}

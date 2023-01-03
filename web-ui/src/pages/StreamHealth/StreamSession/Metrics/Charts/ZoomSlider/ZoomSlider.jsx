@@ -6,11 +6,16 @@ import {
   MIN_DISTANCE,
   ZOOM_LEVELS
 } from '../../../../../../contexts/SynchronizedCharts';
-import './ZoomSlider.css';
-import { bound, noop } from '../../../../../../utils';
+import { bound, clsm, noop } from '../../../../../../utils';
 import ThumbSlider from './ThumbSlider';
 
 const maxValue = 1000;
+
+const thumbHoverClasses = [
+  'dark:shadow-darkMode-sliderThumb-hover',
+  'shadow-[0_0_0_4px]',
+  'shadow-lightMode-sliderThumb-hover'
+];
 
 const ZoomSlider = ({
   chartsRef,
@@ -25,6 +30,7 @@ const ZoomSlider = ({
   const pointerDownEventData = useRef(null);
   const sliderRootRef = useRef();
   const trackRef = useRef();
+  const railRef = useRef();
 
   const zoomBoundToProportion = useCallback(
     (val) => (val / (dataLength - 1)) * maxValue,
@@ -47,7 +53,7 @@ const ZoomSlider = ({
   );
 
   const handleChange = useCallback(
-    (event, newValues, activeThumb) => {
+    (_, newValues, activeThumb) => {
       if (activeThumb === 0) {
         setZoomBounds((prevZoomBounds) => {
           const [newLowerProportion] = newValues;
@@ -190,29 +196,24 @@ const ZoomSlider = ({
   );
 
   useEffect(() => {
-    const chartsElement = chartsRef.current;
+    const chartsEl = chartsRef.current;
+    const trackEl = trackRef.current;
 
-    if (chartsElement && isEnabled) {
-      chartsElement.addEventListener('pointermove', pointerMoveTrackHandler);
+    if (chartsEl && isEnabled) {
+      chartsEl.addEventListener('pointermove', pointerMoveTrackHandler);
       document.addEventListener('pointerup', pointerUpTrackHandler);
 
       return () => {
-        chartsElement.removeEventListener(
-          'pointermove',
-          pointerMoveTrackHandler
-        );
+        chartsEl.removeEventListener('pointermove', pointerMoveTrackHandler);
         document.removeEventListener('pointerup', pointerUpTrackHandler);
-        trackRef.current.style.cursor = '';
+        trackEl.style.cursor = '';
       };
     }
   }, [chartsRef, isEnabled, pointerMoveTrackHandler, pointerUpTrackHandler]);
 
   useEffect(() => {
-    const sliderRootElement = sliderRootRef.current;
-
     if (sliderRootRef.current) {
-      const railEl = sliderRootElement.querySelector('.MuiSlider-rail');
-      trackRef.current = sliderRootElement.querySelector('.MuiSlider-track');
+      const railEl = railRef.current;
       const trackEl = trackRef.current;
 
       const disablePassiveTouchStart = (el) => {
@@ -233,20 +234,93 @@ const ZoomSlider = ({
 
   return (
     <SliderUnstyled
+      className={clsm([
+        'cursor-pointer',
+        'h-3',
+        'inline-flex',
+        'items-center',
+        'justify-center',
+        'relative',
+        'touch-none',
+        'w-[calc(100%_-_12px)]',
+        !isEnabled && 'cursor-auto'
+      ])}
       componentsProps={{
+        mark: {
+          className: clsm([
+            'absolute',
+            'bg-lightMode-red',
+            'dark:bg-darkMode-red',
+            'h-1',
+            'rounded-full',
+            'w-1'
+          ])
+        },
         rail: {
+          className: clsm([
+            'absolute',
+            'bg-clip-content',
+            'bg-lightMode-gray-light',
+            'block',
+            'border-4',
+            'border-transparent',
+            'dark:bg-darkMode-gray-medium',
+            'h-3',
+            'w-[calc(100%_+_20px)]'
+          ]),
           onMouseDown: isEnabled ? mouseDownTrackHandler : noop,
-          onPointerDown: isEnabled ? pointerDownRailHandler : noop
+          onPointerDown: isEnabled ? pointerDownRailHandler : noop,
+          ref: railRef
         },
         track: {
+          className: clsm([
+            'absolute',
+            'bg-clip-content',
+            'bg-lightMode-gray',
+            'block',
+            'border-transparent',
+            'border-y-4',
+            'cursor-grab',
+            'dark:bg-darkMode-gray',
+            'h-3',
+            !isEnabled && [
+              'bg-lightMode-gray',
+              'cursor-auto',
+              'dark:bg-darkMode-gray'
+            ]
+          ]),
           onMouseDown: isEnabled ? mouseDownTrackHandler : noop,
-          onPointerDown: isEnabled ? pointerDownTrackHandler : noop
+          onPointerDown: isEnabled ? pointerDownTrackHandler : noop,
+          ref: trackRef
         },
         thumb: {
+          className: clsm([
+            'absolute',
+            'bg-lightMode-gray-dark',
+            'box-border',
+            'dark:bg-darkMode-gray-extraLight',
+            'h-3',
+            'outline-0',
+            'rounded-full',
+            'shadow-none',
+            'shadow-transparent',
+            'transition-shadow',
+            'w-3',
+            !isEnabled && [
+              'bg-lightMode-gray',
+              'cursor-auto',
+              'dark:bg-darkMode-gray',
+              'dark:shadow-[#1f1f1f]',
+              'shadow-[0_0_0_4px]',
+              'shadow-lightMode-gray-extraLight'
+            ]
+          ]),
           onMouseEnter: ({ target }) =>
-            isEnabled && target.classList.add('hover'),
+            isEnabled &&
+            !target.className.includes('Mui-active') &&
+            target.classList.add(...thumbHoverClasses),
           onMouseOut: ({ target }) =>
-            isEnabled && target.classList.remove('hover')
+            isEnabled && target.classList.remove(...thumbHoverClasses)
         }
       }}
       components={{
