@@ -87,7 +87,7 @@ The stream actions are received by the viewers through the IVS Player using [Tim
 
 ### Stream Health Page
 
-The Stream Health page is only accessible to authenticated user, from the `/health` URL. It enables users to monitor live and past stream sessions. For each session, the page will show the stream events, the evolution of the video bitrate and frame rate in the form of charts and a summary of the encoder configuration that was used to stream.
+The Stream Health page is only accessible to authenticated users, from the `/health` URL. It enables users to monitor live and past stream sessions. For each session, the page will show the stream events, the video bitrate and frame rate in the form of charts and a summary of the encoder configuration that was used to stream.
 
 ![Stream Health page](screenshots/features/stream-health-page.png)
 
@@ -105,7 +105,7 @@ The video bitrate, frame rate, concurrent views and keyframe interval metrics co
 
 ### Stream Manager Page
 
-The Stream Manager page is only accessible to authenticated user, from the `/manager` URL. On this page, users can send stream actions to their viewers and monitor their chatroom. Users can also save the content of a stream action for later use.
+The Stream Manager page is only accessible to authenticated users, from the `/manager` URL. On this page, users can send stream actions to their viewers and monitor their chatroom. Users can also save the content of a stream action for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
 
@@ -115,7 +115,7 @@ The chat component on this page works exactly like the chat component from the C
 
 #### Send Stream Actions
 
-Streamers can send any of the four stream actions supported on [the viewer side](#receive-stream-actions). Only one stream action can be active at any given moment. A stream action will remain active until the action expires or until it is stopped.
+Streamers can send any of the four stream actions supported on [the viewer side](#receive-stream-actions). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
