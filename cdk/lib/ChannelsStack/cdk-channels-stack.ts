@@ -290,7 +290,7 @@ export class ChannelsStack extends NestedStack {
     });
     const channelsTableChannelArnIndexPolicyStatement = new iam.PolicyStatement(
       {
-        actions: ['dynamodb:Scan'],
+        actions: ['dynamodb:Query'],
         effect: iam.Effect.ALLOW,
         resources: [
           channelsTable.tableArn,
