@@ -7,7 +7,7 @@ import { PROFILE_COLORS } from '../constants';
 import { useResponsiveDevice } from '../contexts/ResponsiveDevice';
 import UserAvatar from './UserAvatar';
 
-const ChannelCard = ({ avatarSrc, color, username }) => {
+const ChannelCard = ({ avatarSrc, bannerSrc, color, username }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const [shouldHavePointerEvents, setShouldHavePointerEvents] = useState(false);
 
@@ -36,9 +36,14 @@ const ChannelCard = ({ avatarSrc, color, username }) => {
       to={`/${username}`}
     >
       <div
+        {...(bannerSrc
+          ? { style: { backgroundImage: `url("${bannerSrc}")` } }
+          : {})}
         className={clsm([
           '-mb-[1px]',
           'aspect-video',
+          'bg-center',
+          'bg-cover',
           'rounded-t-xl',
           'transition-colors',
           `bg-profile-${color}-dark`,
@@ -76,12 +81,14 @@ const ChannelCard = ({ avatarSrc, color, username }) => {
 
 ChannelCard.propTypes = {
   avatarSrc: PropTypes.string,
+  bannerSrc: PropTypes.string,
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   username: PropTypes.string
 };
 
 ChannelCard.defaultProps = {
   avatarSrc: '',
+  bannerSrc: '',
   color: 'default',
   username: ''
 };

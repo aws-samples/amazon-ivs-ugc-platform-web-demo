@@ -79,6 +79,7 @@ const LiveStreamsSection = () => {
             return (
               <ChannelCard
                 avatarSrc={getAvatarSrc(liveChannel)}
+                bannerSrc={liveChannel?.channelAssetUrls?.banner}
                 color={color}
                 username={username}
                 key={liveChannel.username}
