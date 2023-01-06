@@ -1,36 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { channelDirectory as $channelDirectoryContent } from '../../content';
-import { clsm } from '../../utils';
 import { getAvatarSrc } from '../../helpers';
 import { getLiveChannels } from '../../api/channels';
-import { SmartToy } from '../../assets/icons';
 import { useNotif } from '../../contexts/Notification';
-import Button from '../../components/Button';
 import ChannelCard from '../../components/ChannelCard';
-import Spinner from '../../components/Spinner';
+import GridLayout from '../../components/GridLayout';
 
-const $content = $channelDirectoryContent.live_streams_section;
-
-const FULL_PAGE_DIV_BASE_CLASSES = [
-  'absolute',
-  'flex-col',
-  'flex',
-  'h-screen',
-  'items-center',
-  'justify-center',
-  'left-0',
-  'top-0',
-  'w-full'
-];
+const $channelPageContent = $channelDirectoryContent.live_streams_section;
+const $channelPageNotifications = $channelDirectoryContent.notification;
 
 const LiveStreamsSection = () => {
-  const { notifyError } = useNotif();
   const [data, setData] = useState();
   const [error, setError] = useState();
-  const isLoading = !error && !data;
   const { channels: liveChannels } = data || {};
+  const { notifyError } = useNotif();
   const hasLiveChannels = !!liveChannels?.length;
+  const isLoading = !error && !data;
 
   const getSectionData = useCallback(async () => {
     setData(undefined);
@@ -52,77 +38,30 @@ const LiveStreamsSection = () => {
   }, [getSectionData]);
 
   return (
-    <section
-      className={clsm([
-        'max-w-[960px]',
-        'h-full',
-        'w-full',
-        hasLiveChannels && 'space-y-8'
-      ])}
+    <GridLayout
+      title={$channelPageContent.title}
+      noDataText={$channelPageContent.no_streams_available}
+      loadingError={$channelPageNotifications.error.error_loading_streams}
+      tryAgainText={$channelPageNotifications.tryAgain}
+      tryAgainFn={getSectionData}
+      hasData={hasLiveChannels}
+      isLoading={isLoading}
+      error={error}
     >
-      <h2 className={clsm(['text-black', 'dark:text-white'])}>
-        {$content.title}
-      </h2>
-      {!isLoading && hasLiveChannels && (
-        <div
-          className={clsm([
-            'gap-8',
-            'grid-cols-3',
-            'grid',
-            'lg:grid-cols-2',
-            'sm:grid-cols-1'
-          ])}
-        >
-          {liveChannels.map((liveChannel) => {
-            const { color, username } = liveChannel;
-
-            return (
-              <ChannelCard
-                avatarSrc={getAvatarSrc(liveChannel)}
-                bannerSrc={liveChannel?.channelAssetUrls?.banner}
-                color={color}
-                username={username}
-                key={liveChannel.username}
-              />
-            );
-          })}
-        </div>
-      )}
-      {!isLoading && !hasLiveChannels && (
-        <div className={clsm([FULL_PAGE_DIV_BASE_CLASSES, 'space-y-8'])}>
-          <div
-            className={clsm([
-              'flex',
-              'flex-col',
-              'items-center',
-              'justify-center',
-              'opacity-50',
-              'space-y-2'
-            ])}
-          >
-            <SmartToy
-              className={clsm([
-                '[&>path]:fill-black',
-                '[&>path]:dark:fill-white'
-              ])}
+      {hasLiveChannels &&
+        liveChannels.map((data) => {
+          const { color, username } = data;
+          return (
+            <ChannelCard
+              avatarSrc={getAvatarSrc(data)}
+              bannerSrc={data?.channelAssetUrls?.banner}
+              color={color}
+              key={data.username}
+              username={username}
             />
-            <h3 className={clsm(['text-black', 'dark:text-white'])}>
-              {$content.no_streams_available}
-            </h3>
-          </div>
-          {!!error && (
-            <Button onClick={getSectionData} variant="secondary">
-              {$content.try_again}
-            </Button>
-          )}
-        </div>
-      )}
-      {isLoading && (
-        <div className={clsm(FULL_PAGE_DIV_BASE_CLASSES)}>
-          <Spinner size="large" variant="light" />
-        </div>
-      )}
-    </section>
+          );
+        })}
+    </GridLayout>
   );
 };
 

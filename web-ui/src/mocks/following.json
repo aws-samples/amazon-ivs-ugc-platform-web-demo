@@ -1,0 +1,29 @@
+{
+  "channels": [
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "yellow",
+      "username": "michelle"
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "blue",
+      "username": "Allan"
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "yellow",
+      "username": "michelle2"
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "blue",
+      "username": "Allan2"
+    }
+  ],
+  "maxResults": 50
+}

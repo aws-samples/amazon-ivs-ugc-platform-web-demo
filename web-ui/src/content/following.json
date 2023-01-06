@@ -1,0 +1,12 @@
+{
+  "following_page": {
+    "title": "Following",
+    "no_followers_available": "No followed streams available"
+  },
+  "notification": {
+    "error": {
+      "error_loading_followers": "Error loading followers",
+      "try_again": "Try again"
+    }
+  }
+}

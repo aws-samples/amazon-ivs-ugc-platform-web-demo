@@ -5,4 +5,5 @@ export { default as dashboard } from './dashboard.json';
 export { default as player } from './player.json';
 export { default as streamManager } from './streamManager.json';
 export { default as userManagement } from './userManagement.json';
+export { default as following } from './following.json';
 export { shortEventMessages, longEventMessages } from './streamEventMessages';
