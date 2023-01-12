@@ -1,9 +1,8 @@
 # Amazon IVS UGC web demo
 
-A demo web application intended as an educational tool for demonstrating how customers can use Amazon IVS and other
-AWS services to create a full-featured web application with user authentication, live stream playback, live chat messaging, interactive virtual experiences, stream monitoring, and much more.
+A demo web application intended as an educational tool for demonstrating how you can use Amazon IVS, in conjunction with other AWS services, to create a full-featured web application with user authentication, live video playback, live chat messaging, interactive virtual experiences, stream monitoring, and more.
 
-This demo also uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
+This demo uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
 ![Amazon UGC Demo](screenshots/features/channel-page.png)
 
@@ -29,6 +28,11 @@ Deploying the CDK stack will:
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 
+## Quick links 🔗
+- [Configure the demo](#configuration)
+- [Deploy the demo](#deployment)
+- [Known limitations](#limitations)
+
 ## Architecture
 
 ![Amazon UGC Demo Architecture](screenshots/architecture/ugc-architecture.png)
@@ -43,17 +47,17 @@ New users can create an account from the `/register` route. Returning users can 
 
 ![User registration and login](screenshots/features/registration-login.png)
 
-On the first login, the required resources will be created on the backend and associated with the user account.
+On the first login, the required resources will be created on the backend and associated with the user account (each user gets their own IVS channel and IVS chatroom).
 
 ![User registration and login architecture](screenshots/architecture/registration-login.png)
 
-### Channel Page
+### Channel page
 
 ![Channel page](screenshots/features/channel-page.png)
 
-Each registered user has a channel page where viewers can watch the stream and chat together. The route for a channel page is based on the username, like so: `/<username>`. Both authenticated and unauthenticated users can access a channel page.
+Each registered user has a channel page where viewers can watch the stream and chat together. The route for a channel page is based on the username, e.g.: `/<username>`. Both authenticated and unauthenticated users can access a channel page.
 
-#### Get Channel Data
+#### GetChannelData
 
 The playback URL and the streamer information are retrieved directly from the database.
 
@@ -65,13 +69,13 @@ Each channel has a corresponding chatroom which is accessible from the channel p
 
 ![Chat moderation](screenshots/features/chat-moderation.png)
 
-Authenticated viewers are able to read and send messages. Unauthenticated users are only able to read messages. The owner of the channel can also delete messages and ban users from their channel.
+Authenticated viewers are able to read and send messages. Unauthenticated users are only able to read messages. The owner of the channel can moderate their chatroom and delete messages or ban users from their channel.
 
 ![Chat architecture](screenshots/architecture/chat.png)
 
-#### Receive Stream Actions
+#### Stream overlays
 
-Currently, streamers can send four different stream actions: host a quiz, feature a product, show a notice and trigger a celebration. More information on how actions are sent by streamers is available in the following section: [Send Stream Actions](#send-stream-actions).
+Currently, streamers can trigger four different stream overlays: host a quiz, feature a product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available in the following section: [Trigger overlays](#stream-overlay-configuration).
 
 ![Quiz action](screenshots/features/action-quiz.png)
 
@@ -85,37 +89,37 @@ The stream actions are received by the viewers through the IVS Player using [Tim
 
 ![Viewer stream actions architecture](screenshots/architecture/receive-stream-actions.png)
 
-### Stream Health Page
+### Stream health monitoring
 
-The Stream Health page is only accessible to authenticated users, from the `/health` URL. It enables users to monitor live and past stream sessions. For each session, the page will show the stream events, the video bitrate and frame rate in the form of charts and a summary of the encoder configuration that was used to stream.
+The Stream Health page is only accessible to authenticated users, from the `/health` URL. It enables streamers to monitor live and past stream sessions. For each session, the page will show the stream events, the video bitrate and frame rate in the form of charts and a summary of the encoder configuration at the time of go-live. [Learn more](https://docs.aws.amazon.com/ivs/latest/userguide/stream-health.html)
 
 ![Stream Health page](screenshots/features/stream-health-page.png)
 
-#### Stream Events
+#### Stream events
 
 Stream events are being sent by [EventBridge](https://docs.aws.amazon.com/ivs/latest/userguide/eventbridge.html) to a service that is responsible for storing them into the database. They are organized by stream session so they can easily be retrieved when a user monitors a specific stream session.
 
 ![Stream events architecture](screenshots/architecture/post-and-get-stream-events.png)
 
-#### Metrics
+#### Stream metrics
 
-The video bitrate, frame rate, concurrent views and keyframe interval metrics come from CloudWatch. For live sessions, the metrics are polled from CloudWatch at regular intervals and are not cached to ensure only the latest data is served. When monitoring an offline session, the metrics are fetched from CloudWatch and stored in the database so they can be retrieved faster the next time.
+The video bitrate, frame rate, concurrent views and keyframe interval metrics come from CloudWatch. For live sessions, the metrics are polled from CloudWatch at regular intervals and are not cached to ensure only the latest data is served. When monitoring an offline session, the metrics are fetched from CloudWatch and stored in the database so they can be retrieved faster.
 
 ![Stream events architecture](screenshots/architecture/metrics.png)
 
-### Stream Manager Page
+### Stream management
 
-The Stream Manager page is only accessible to authenticated users, from the `/manager` URL. On this page, users can send stream actions to their viewers and monitor their chatroom. Users can also save the content of a stream action for later use.
+The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can trigger stream overlays, as well as monitor and moderate their chatroom. Users can also prepare and save stream overlay configurations for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
 
-#### Chat Monitoring
+#### Chat monitoring
 
 The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#chat))
 
-#### Send Stream Actions
+#### Stream overlay configuration
 
-Streamers can send any of the four stream actions supported on [the viewer side](#receive-stream-actions). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
+Streamers can trigger any of the four stream overlays supported on [the viewer side](#stream-overlays). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
@@ -125,7 +129,7 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 ### Settings Page
 
-From the settings page (`/settings`), registered users can select a profile color, change their avatar and banner, get and update their account information or delete their account.
+From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chatroom).
 
 ![Settings page](screenshots/features/settings-page.png)
 
@@ -297,7 +301,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 ## Limitations
 
 - In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
-- While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved from the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the 5 TPS [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved from the Amazon IVS API.
+- While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved via the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved via the Amazon IVS API.
 - By default, Cognito will send user account-related emails using a Cognito-hosted domain, which are limited to 50 emails / day per account. If you wish to increase the email delivery volume, you will need to configure your Cognito user pool to use Amazon SES configured with your own domain. For more information, see [Email settings for Amazon Cognito user pools](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html).
 - The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
 
@@ -307,10 +311,10 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 
   Alternatively, you may also choose to [request a quota increase](https://console.aws.amazon.com/servicequotas/home/services/vpc/quotas) for "NAT gateways per Availability Zone" and "VPCs per Region."
 
-- iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as we do on desktop devices. The current workaround that has been implemented is to initiate the default WebKit fullscreen mode, which uses the native iOS video player UI.
+- iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as available on desktop devices. The current implemented workaround initiates the default WebKit fullscreen mode, which uses the native iOS video player UI.
 - Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
-- Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
+- Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 
 ## Estimated costs
 
