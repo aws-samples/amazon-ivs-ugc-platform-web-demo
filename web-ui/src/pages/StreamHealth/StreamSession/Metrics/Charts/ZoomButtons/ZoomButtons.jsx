@@ -77,7 +77,7 @@ const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => {
         className={clsm([
           BUTTON_BASE_CLASSES,
           isSelected(ZOOM_LEVELS.THIRTY_MIN) && BUTTON_SELECTED_CLASSES,
-          'w-16'
+          'w-[66px]'
         ])}
         value={ZOOM_LEVELS.THIRTY_MIN}
       >

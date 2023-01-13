@@ -58,8 +58,10 @@ class ResetPageModel extends BasePageModel {
     // Click the "Continue" button
     await this.continueButtonLoc.click();
 
-    const headerLoc = this.page.locator('.sub-page-container h2');
-    await expect(headerLoc).toHaveText('Reset your password');
+    const headerLoc = this.page.getByText('Reset your password', {
+      exact: true
+    });
+    await expect(headerLoc).toBeVisible();
   };
 
   resetPassword = async (code, username, newPassword) => {

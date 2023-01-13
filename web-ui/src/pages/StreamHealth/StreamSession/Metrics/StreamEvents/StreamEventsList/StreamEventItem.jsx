@@ -108,9 +108,9 @@ const StreamEventItem = ({
             'dark:shadow-white',
             'focus:bg-lightMode-gray-light',
             'focus:outline-none',
+            'focus:shadow-focus',
             'hover:bg-lightMode-gray-light',
             'shadow-black',
-            'shadow-focus',
             isSelected && [
               'bg-lightMode-gray-light',
               'dark:bg-darkMode-gray-medium'

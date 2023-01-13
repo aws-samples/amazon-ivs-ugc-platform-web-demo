@@ -26,16 +26,38 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
   };
 
   return (
-    <div className="sub-page-container">
+    <div
+      className={clsm([
+        'flex-col',
+        'flex',
+        'm-auto',
+        'max-w-md',
+        'space-y-12',
+        'text-center'
+      ])}
+    >
       <h2>{$content.reset_password_page.title}</h2>
-      <p className="text-p1">{$content.reset_password_page.email_link_sent}</p>
-      <span className={clsm(['flex', 'items-center', 'space-x-5'])}>
-        <b>{$content.did_not_receive_email}</b>
-        <Button onClick={resend} type="button" variant="secondary">
-          {$content.resend}
-        </Button>
-      </span>
-      <Link to="/login">{$content.return_to_login}</Link>
+      <div className={clsm(['flex-col', 'flex', 'text-center', 'space-y-8'])}>
+        <p className="text-p1">
+          {$content.reset_password_page.email_link_sent}
+        </p>
+        <span
+          className={clsm([
+            'flex',
+            'items-center',
+            'justify-center',
+            'space-x-5'
+          ])}
+        >
+          <b>{$content.did_not_receive_email}</b>
+          <Button onClick={resend} type="button" variant="secondary">
+            {$content.resend}
+          </Button>
+        </span>
+        <span>
+          <Link to="/login">{$content.return_to_login}</Link>
+        </span>
+      </div>
     </div>
   );
 };

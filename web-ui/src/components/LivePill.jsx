@@ -9,7 +9,6 @@ const LivePill = ({ className }) => (
       'bg-lightMode-red',
       'dark:bg-darkMode-red',
       'font-bold',
-      'leading-3',
       'px-2',
       'py-1',
       'rounded-3xl',

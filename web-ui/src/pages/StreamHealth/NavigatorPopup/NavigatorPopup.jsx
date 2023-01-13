@@ -86,9 +86,9 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
           'p-8',
           'scrollbar-mb-4',
           'scrollbar-mt-4',
+          'sm:px-4',
           'space-y-8',
-          'supports-overlay:overflow-y-overlay',
-          'xs:p-4'
+          'supports-overlay:overflow-y-overlay'
         ])}
         ref={ref}
         data-testid="stream-session-dropdown"

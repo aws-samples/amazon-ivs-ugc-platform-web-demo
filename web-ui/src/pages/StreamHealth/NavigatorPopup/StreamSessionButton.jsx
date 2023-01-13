@@ -49,7 +49,7 @@ const StreamSessionButton = ({ streamSession, handleSessionClick }) => {
           ])}
         >
           <h3 className="truncate">{date}</h3>
-          {isLive && <LivePill />}
+          {isLive && <LivePill className="leading-normal" />}
         </span>
         <span className={clsm(['flex', 'space-x-0.5', 'xs:max-w-[152px]'])}>
           <p

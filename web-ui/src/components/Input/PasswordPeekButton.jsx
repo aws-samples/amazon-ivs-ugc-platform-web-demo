@@ -20,13 +20,11 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
     'focus:rounded-3xl',
     'focus:shadow-focus',
     'focus:shadow-lightMode-gray-dark',
-    'focus:top-2',
+    'focus:top-[9px]',
     'items-center',
     'justify-center',
-    'px-0',
-    'py-[13px]',
     'right-5',
-    'top-0'
+    'top-[13px]'
   ]);
   const visibilityIconClasses = clsm([
     'dark:fill-white',
@@ -35,17 +33,18 @@ const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
     'w-[18px]'
   ]);
 
-  const passwordPeek = (event) => {
+  const onClickHandler = (event) => {
     event.preventDefault();
     setInputType((prev) => (prev === 'password' ? 'text' : 'password'));
   };
+
   return (
     <button
       aria-label={`${
         isPasswordHidden ? $content.show : $content.hide
       } ${label.toLowerCase()}`}
       className={buttonClasses}
-      onClick={passwordPeek}
+      onClick={onClickHandler}
       type="button"
     >
       {isPasswordHidden ? (
