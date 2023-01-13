@@ -5,9 +5,10 @@ import PropTypes from 'prop-types';
 import { clsm, isTextColorInverted } from '../utils';
 import { PROFILE_COLORS } from '../constants';
 import { useResponsiveDevice } from '../contexts/ResponsiveDevice';
+import LivePill from './LivePill';
 import UserAvatar from './UserAvatar';
 
-const ChannelCard = ({ avatarSrc, bannerSrc, color, username }) => {
+const ChannelCard = ({ avatarSrc, bannerSrc, color, username, variant }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const [shouldHavePointerEvents, setShouldHavePointerEvents] = useState(false);
 
@@ -31,7 +32,8 @@ const ChannelCard = ({ avatarSrc, bannerSrc, color, username }) => {
         'transition-transform',
         'w-auto',
         !isTouchscreenDevice && 'hover:scale-110',
-        shouldHavePointerEvents ? 'pointer-events-auto' : 'pointer-events-none'
+        shouldHavePointerEvents ? 'pointer-events-auto' : 'pointer-events-none',
+        variant === 'offline' && 'grayscale'
       ])}
       to={`/${username}`}
     >
@@ -50,7 +52,24 @@ const ChannelCard = ({ avatarSrc, bannerSrc, color, username }) => {
           `dark:group-hover:bg-profile-${color}-darkMode-dark-hover`,
           `group-hover:bg-profile-${color}-lightMode-dark-hover`
         ])}
-      ></div>
+      >
+        {variant === 'live' && (
+          <div
+            className={clsm([
+              'flex',
+              'justify-end',
+              'mt-5',
+              'mr-5',
+              'md:mt-4',
+              'md:mr-4'
+            ])}
+          >
+            <LivePill
+              className={clsm(['flex', 'items-center', 'w-[36px]', 'h-[16px]'])}
+            />
+          </div>
+        )}
+      </div>
       <div
         className={clsm([
           'flex',
@@ -83,6 +102,7 @@ ChannelCard.propTypes = {
   avatarSrc: PropTypes.string,
   bannerSrc: PropTypes.string,
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
+  variant: PropTypes.oneOf(['default', 'offline', 'live']),
   username: PropTypes.string
 };
 
@@ -90,6 +110,7 @@ ChannelCard.defaultProps = {
   avatarSrc: '',
   bannerSrc: '',
   color: 'default',
+  variant: 'default',
   username: ''
 };
 

@@ -43,6 +43,7 @@ const Following = () => {
               color={color}
               key={data.username}
               username={username}
+              variant={data.isLive ? 'live' : 'offline'}
             />
           );
         })}
