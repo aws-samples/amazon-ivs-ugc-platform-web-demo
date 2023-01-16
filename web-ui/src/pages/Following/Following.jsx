@@ -1,18 +1,20 @@
-import { following as $followPageContent } from '../../content';
-import GridLayout from '../../components/GridLayout';
-import withVerticalScroller from '../../components/withVerticalScroller';
 import { useCallback, useEffect, useState } from 'react';
-import mockFollowingData from '../../mocks/following.json';
-import ChannelCard from '../../components/ChannelCard';
+
+import { following as $followPageContent } from '../../content';
 import { getAvatarSrc } from '../../helpers';
+import ChannelCard from '../../components/ChannelCard';
+import GridLayout from '../ChannelDirectory/GridLayout';
+import mockFollowingData from '../../mocks/following.json';
+import PageLayout from '../ChannelDirectory/PageLayout';
+import withVerticalScroller from '../../components/withVerticalScroller';
 
 const $followPage = $followPageContent.following_page;
 const $followingNotifications = $followPageContent.notification;
 
 const Following = () => {
   const [data, setData] = useState();
-  const { channels: followingData } = data || {};
-  const hasData = !!followingData?.length;
+  const { channels: followedChannels } = data || {};
+  const hasData = !!followedChannels?.length;
   const isLoading = !data;
 
   const getSectionData = useCallback(() => setData(mockFollowingData), []);
@@ -24,30 +26,35 @@ const Following = () => {
   }, [getSectionData]);
 
   return (
-    <GridLayout
-      title={$followPage.title}
-      loadingError={$followingNotifications.error.error_loading_followers}
-      noDataText={$followPage.no_followers_available}
-      tryAgainText={$followingNotifications.error.try_again}
-      tryAgainFn={getSectionData}
-      hasData={hasData}
-      isLoading={isLoading}
-    >
-      {hasData &&
-        followingData.map((data) => {
-          const { color, username } = data;
-          return (
-            <ChannelCard
-              avatarSrc={getAvatarSrc(data)}
-              bannerSrc={data?.channelAssetUrls?.banner}
-              color={color}
-              key={data.username}
-              username={username}
-              variant={data.isLive ? 'live' : 'offline'}
-            />
-          );
-        })}
-    </GridLayout>
+    <PageLayout>
+      <GridLayout
+        className={hasData ? 'pb-24' : ''}
+        hasData={hasData}
+        isLoading={isLoading}
+        loadingError={$followingNotifications.error.error_loading_followers}
+        noDataText={$followPage.no_followers_available}
+        title={$followPage.title}
+        tryAgainFn={getSectionData}
+        tryAgainText={$followingNotifications.error.try_again}
+      >
+        {hasData &&
+          followedChannels.map((followedChannel) => {
+            const { channelAssetUrls, color, isLive, username } =
+              followedChannel;
+
+            return (
+              <ChannelCard
+                avatarSrc={getAvatarSrc(followedChannel)}
+                bannerSrc={channelAssetUrls?.banner}
+                color={color}
+                key={username}
+                username={username}
+                variant={isLive ? 'live' : 'offline'}
+              />
+            );
+          })}
+      </GridLayout>
+    </PageLayout>
   );
 };
 

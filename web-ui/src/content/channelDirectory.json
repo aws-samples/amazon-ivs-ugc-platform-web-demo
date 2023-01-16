@@ -4,6 +4,9 @@
     "no_streams_available": "No live streams available",
     "try_again": "Try again"
   },
+  "following_section": {
+    "title": "Following"
+  },
   "notification": {
     "error": {
       "error_loading_streams": "Error loading streams"

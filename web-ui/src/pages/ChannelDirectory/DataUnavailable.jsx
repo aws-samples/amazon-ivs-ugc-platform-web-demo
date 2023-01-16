@@ -1,17 +1,17 @@
 import PropTypes from 'prop-types';
 
-import { clsm, noop } from '../utils';
-import { SmartToy } from '../assets/icons';
-import Button from './Button';
+import { clsm, noop } from '../../utils';
+import { SmartToy } from '../../assets/icons';
+import Button from '../../components/Button';
 
 const DataUnavailable = ({
-  classNames,
+  className,
   noDataText,
   error,
   tryAgainFn,
   tryAgainText
 }) => (
-  <div className={clsm([classNames, 'space-y-8'])}>
+  <div className={clsm([className, 'space-y-8'])}>
     <div
       className={clsm([
         'flex',
@@ -36,19 +36,19 @@ const DataUnavailable = ({
 );
 
 DataUnavailable.defaultProps = {
+  className: '',
   error: '',
   noDataText: '',
   tryAgainFn: noop,
-  tryAgainText: '',
-  classNames: []
+  tryAgainText: ''
 };
 
 DataUnavailable.propTypes = {
+  className: PropTypes.string,
   error: PropTypes.string,
   noDataText: PropTypes.string,
   tryAgainFn: PropTypes.func,
-  tryAgainText: PropTypes.string,
-  classNames: PropTypes.array
+  tryAgainText: PropTypes.string
 };
 
 export default DataUnavailable;
