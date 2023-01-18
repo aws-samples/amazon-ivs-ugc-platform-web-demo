@@ -8,13 +8,17 @@ const LivePill = ({ className }) => (
     className={clsm([
       'bg-lightMode-red',
       'dark:bg-darkMode-red',
+      'flex',
       'font-bold',
-      'px-2',
-      'py-1',
+      'h-5',
+      'items-center',
+      'justify-center',
       'rounded-3xl',
       'text-[10px]',
       'text-white',
       'uppercase',
+      'w-10',
+      'leading-3',
       className
     ])}
   >

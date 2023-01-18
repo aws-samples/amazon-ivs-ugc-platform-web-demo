@@ -44,11 +44,9 @@ const FollowedUserButton = ({ avatarSrc, color, isLive, username }) => {
               className={clsm([
                 'absolute',
                 'bottom-2',
-                'px-1.5',
-                'py-0.5',
                 !isTouchscreenDevice && [
-                  'group-hover:translate-y-2',
-                  'transition-transform'
+                  'group-hover:bottom-[calc(0.5rem_-_5%)]',
+                  'transition-all'
                 ]
               ])}
             />
