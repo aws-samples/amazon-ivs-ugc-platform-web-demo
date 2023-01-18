@@ -2,9 +2,19 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../utils';
 import { PROFILE_COLORS } from '../constants';
+import { useCallback, useState } from 'react';
 
-const UserAvatar = ({ avatarSrc, className, profileColor, size }) => {
-  const hasAvatar = !!avatarSrc;
+const UserAvatar = ({
+  avatarSrc,
+  className,
+  profileColor,
+  size,
+  isOffline
+}) => {
+  const [isValidAvatar, setIsValidAvatar] = useState(true);
+  const onError = useCallback(() => {
+    setIsValidAvatar(false);
+  }, []);
   let dimensions = ['h-11', 'w-11'];
 
   if (size === 'md') dimensions = ['h-8', 'w-8'];
@@ -25,10 +35,11 @@ const UserAvatar = ({ avatarSrc, className, profileColor, size }) => {
     className
   ]);
 
-  return hasAvatar ? (
+  return isValidAvatar ? (
     <img
-      className={avatarClassNames}
+      className={clsm([avatarClassNames, isOffline && 'grayscale'])}
       src={avatarSrc}
+      onError={onError}
       alt=""
       draggable={false}
     />
@@ -41,14 +52,16 @@ UserAvatar.defaultProps = {
   avatarSrc: '',
   className: '',
   profileColor: 'default',
-  size: 'lg'
+  size: 'lg',
+  isOffline: false
 };
 
 UserAvatar.propTypes = {
   avatarSrc: PropTypes.string,
   className: PropTypes.string,
   profileColor: PropTypes.oneOf([...PROFILE_COLORS, 'default', 'white']),
-  size: PropTypes.oneOf(['sm', 'md', 'lg'])
+  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  isOffline: PropTypes.bool
 };
 
 export default UserAvatar;

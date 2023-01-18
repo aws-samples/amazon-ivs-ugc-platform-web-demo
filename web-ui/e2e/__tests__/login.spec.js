@@ -31,12 +31,9 @@ test.describe('Login Page', () => {
 
     test('should logout a user', async ({
       loginPage: { logout },
-      page,
-      isMobile,
-      browserName
+      isMobile
     }) => {
       await logout(isMobile);
-      await page.takeScreenshot('logout-success');
     });
 
     test('should navigate a user to the password reset page', async ({
