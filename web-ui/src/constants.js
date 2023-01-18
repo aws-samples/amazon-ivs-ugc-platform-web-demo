@@ -186,3 +186,8 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   },
   [STREAM_ACTION_NAME.CELEBRATION]: {}
 };
+
+/**
+ * Channel Directory page, Following section
+ */
+export const MAX_AVATAR_COUNT = 14;

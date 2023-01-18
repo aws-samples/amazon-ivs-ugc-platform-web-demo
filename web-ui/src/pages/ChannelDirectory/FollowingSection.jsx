@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { bound, clsm, range } from '../../utils';
-import { BREAKPOINTS } from '../../constants';
+import { BREAKPOINTS, MAX_AVATAR_COUNT } from '../../constants';
 import { channelDirectory as $channelDirectoryContent } from '../../content';
 import { ChevronLeft, ChevronRight } from '../../assets/icons';
 import { getAvatarSrc } from '../../helpers';
@@ -10,6 +10,7 @@ import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../../components/Button';
 import FollowedUserButton from './FollowedUserButton';
 import usePrevious from '../../hooks/usePrevious';
+import ViewAllButton from './ViewAllButton';
 
 const $content = $channelDirectoryContent.following_section;
 
@@ -26,7 +27,7 @@ const isNextFrame = (frameIndex, currentFrameIndex) =>
   frameIndex === currentFrameIndex + 1;
 
 // TEMP
-const MOCK_USER_COUNT = 12;
+const MOCK_USER_COUNT = 42;
 const MOCK_USER_DATA = {
   avatarSrc: getAvatarSrc({ avatar: 'bear' }),
   color: 'green',
@@ -38,6 +39,10 @@ const FollowingSection = ({ hasFollowingChannels }) => {
   const { avatarSrc, color, username } = MOCK_USER_DATA;
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
   const prevBreakpoint = usePrevious(currentBreakpoint);
+  let avatars = range(MOCK_USER_COUNT); // TEMP
+  const shouldShowViewAllButton = avatars.length > MAX_AVATAR_COUNT;
+
+  if (shouldShowViewAllButton) avatars = avatars.slice(0, MAX_AVATAR_COUNT);
 
   // Carousel parameters - START
   let avatarsPerFrame = 5;
@@ -46,7 +51,7 @@ const FollowingSection = ({ hasFollowingChannels }) => {
   if (currentBreakpoint < BREAKPOINTS.sm) avatarsPerFrame = 3;
   if (currentBreakpoint === BREAKPOINTS.xxs) avatarsPerFrame = 2;
 
-  const carouselFramesCount = Math.ceil(MOCK_USER_COUNT / avatarsPerFrame);
+  const carouselFramesCount = Math.ceil(avatars.length / avatarsPerFrame);
   const prevLeftMostAvatarIndex = usePrevious(
     selectedFrameIndex * avatarsPerFrame
   );
@@ -123,6 +128,8 @@ const FollowingSection = ({ hasFollowingChannels }) => {
       </div>
       <div className={clsm(['flex', 'h-full', 'relative'])}>
         {range(carouselFramesCount).map((frameIndex) => {
+          const leftMostAvatarIndex = frameIndex * avatarsPerFrame;
+          const rightMostAvatarIndex = leftMostAvatarIndex + avatarsPerFrame;
           let translateOffset = 0;
 
           if (isPreviousFrame(frameIndex, selectedFrameIndex))
@@ -151,14 +158,14 @@ const FollowingSection = ({ hasFollowingChannels }) => {
                 }%))`
               }}
             >
-              {range(MOCK_USER_COUNT)
-                .splice(frameIndex * avatarsPerFrame, avatarsPerFrame)
+              {avatars
+                .slice(leftMostAvatarIndex, rightMostAvatarIndex)
                 .map((avatarIndex) => (
                   <FollowedUserButton
                     avatarSrc={avatarSrc}
                     color={color}
                     isLive={
-                      avatarIndex < 0.2 * MOCK_USER_COUNT // TEMP
+                      avatarIndex < 0.2 * avatars.length // TEMP
                     }
                     key={`avatar-${avatarIndex}`}
                     username={`${username}${
@@ -166,6 +173,8 @@ const FollowingSection = ({ hasFollowingChannels }) => {
                     }`}
                   />
                 ))}
+              {frameIndex === carouselFramesCount - 1 &&
+                shouldShowViewAllButton && <ViewAllButton />}
             </div>
           );
         })}

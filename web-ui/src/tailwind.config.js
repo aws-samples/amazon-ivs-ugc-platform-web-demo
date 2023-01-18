@@ -66,6 +66,13 @@ module.exports = {
             lineHeight: '15px',
             fontWeight: '500'
           }
+        ],
+        h3: [
+          '1.125rem',
+          {
+            lineHeight: '21.78px',
+            fontWeight: '700'
+          }
         ]
       },
       height: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },

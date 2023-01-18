@@ -267,7 +267,7 @@ const customTwMerge = extendTailwindMerge({
         ]
       }
     ],
-    text: ['text-p1', 'text-p2', 'text-p3']
+    text: ['text-p1', 'text-p2', 'text-p3', 'text-h3']
   }
 });
 

@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
 
+import { useUser } from '../../contexts/User';
 import FollowingSection from './FollowingSection';
 import LiveStreamsSection from './LiveStreamsSection';
-import withVerticalScroller from '../../components/withVerticalScroller';
 import PageLayout from './PageLayout';
+import withVerticalScroller from '../../components/withVerticalScroller';
 
 const ChannelDirectory = () => {
   const [hasFollowingChannels, setHasFollowingChannels] = useState(false);
+  const { isSessionValid } = useUser();
 
   useEffect(() => {
-    setTimeout(() => setHasFollowingChannels(true), 1000); // TEMP - Simulate API call
-  }, [setHasFollowingChannels]);
+    if (isSessionValid)
+      setTimeout(
+        // TEMP - Simulate API call
+        () => setHasFollowingChannels(true),
+        1000
+      );
+    else setHasFollowingChannels(false);
+  }, [isSessionValid, setHasFollowingChannels]);
 
   return (
     <PageLayout>

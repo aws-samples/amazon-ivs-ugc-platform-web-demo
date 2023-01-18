@@ -5,7 +5,8 @@
     "try_again": "Try again"
   },
   "following_section": {
-    "title": "Following"
+    "title": "Following",
+    "view_all": "View all"
   },
   "notification": {
     "error": {
