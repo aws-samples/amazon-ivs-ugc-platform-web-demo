@@ -5,6 +5,7 @@ const textFile = readFileSync(inputPath, { encoding: 'utf8' });
 const getEnvVariable = (name) => textFile.split(`${name}="`)[1].split('"')[0];
 
 const REGION = getEnvVariable('REGION');
+const ACCOUNT_ID = getEnvVariable('ACCOUNT_ID');
 
 const TABLES_TO_SEED = {
   channel: getEnvVariable('CHANNELS_TABLE_NAME'),
@@ -60,6 +61,7 @@ const chunkifyRequests = (requests) => {
 };
 
 module.exports = {
+  ACCOUNT_ID,
   PLAYBACK_URLS,
   PROFILE_AVATARS,
   PROFILE_COLORS,

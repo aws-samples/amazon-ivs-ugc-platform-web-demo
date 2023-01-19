@@ -23,6 +23,8 @@ export const BAD_REQUEST_EXCEPTION = 'BadRequestException';
 export const INVALID_PRESIGNED_POST_INPUT_EXCEPTION =
   'InvalidPresignedPostInputException';
 export const DELETE_CHANNEL_ASSET_EXCEPTION = 'DeleteChannelAssetException';
+export const FOLLOWING_LIST_DUPLICATE_EXCEPTION =
+  'FollowingListDuplicateException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';

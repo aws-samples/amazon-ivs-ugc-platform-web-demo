@@ -81,6 +81,14 @@ export interface ChannelDbRecord {
   username?: string;
 }
 
+export type FollowUserRequestBody = {
+  followedUsername: string;
+};
+
+export interface ExtendedChannelDbRecord extends ChannelDbRecord {
+  isLive: boolean;
+}
+
 export const isCognitoError = (
   error: any
 ): error is CognitoIdentityProviderServiceException => {

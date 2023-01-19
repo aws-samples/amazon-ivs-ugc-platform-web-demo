@@ -13,6 +13,9 @@ import getUser from './getUser';
 import resetStreamKey from './resetStreamKey';
 import sendStreamAction from './sendStreamAction';
 import unbanUser from './unbanUser';
+import addToFollowingList from './addToFollowingList';
+import removeFromFollowingList from './removeFromFollowingList';
+import getFollowingChannels from './getFollowingChannels';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -26,6 +29,7 @@ const router: FastifyPluginAsync = async (resource) => {
 
   resource.get('/', getUser);
   resource.get('/streamKey/reset', resetStreamKey);
+  resource.get('/followingList', getFollowingChannels);
 
   resource.post('/actions/send', sendStreamAction);
   resource.post('/ban', banUser);
@@ -38,6 +42,8 @@ const router: FastifyPluginAsync = async (resource) => {
 
   resource.put('/username/update', changeUsername);
   resource.put('/preferences/update', changeUserPreferences);
+  resource.put('/followingList/add', addToFollowingList);
+  resource.put('/followingList/remove', removeFromFollowingList);
 
   resource.delete('/', deleteUser);
   resource.delete('/asset', deleteChannelAsset);

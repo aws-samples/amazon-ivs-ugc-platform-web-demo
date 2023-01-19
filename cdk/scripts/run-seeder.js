@@ -7,6 +7,7 @@ const { readFileSync } = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const {
+  ACCOUNT_ID,
   PLAYBACK_URLS,
   PROFILE_AVATARS,
   PROFILE_COLORS,
@@ -51,16 +52,36 @@ const createRequestsFromJson = (json) => {
   return { userReqs, streamSessionReqs };
 };
 
-const createRequests = (count = 1, json) => {
+const createRequests = ({ seedCount = 50, json, offlineSessionCount = 1 }) => {
   const { userReqs, streamSessionReqs } = createRequestsFromJson(json);
   const randomSeedCount =
-    count >= streamSessionReqs.length ? count - streamSessionReqs.length : 0;
+    seedCount >= streamSessionReqs.length
+      ? seedCount - streamSessionReqs.length
+      : 0;
 
   for (let i = 0; i < randomSeedCount; i += 1) {
     const startTime = new Date(new Date() - i * 90000); // current time subtracted by i * 90 seconds
+    const endTime = new Date(new Date() - i * 90000 + i);
     const uuid = uuidv4();
     const timeLow = uuid.split('-')[0];
-    const channelArn = `arn:aws:ivs:us-west-2:000000000000:channel/mock-${uuid}`;
+    const channelArn = `arn:aws:ivs:${REGION}:${ACCOUNT_ID}:channel/mock-${uuid}`;
+
+    const liveSessionAttributes = {
+      truncatedEvents: [
+        {
+          name: 'Stream Start'
+        }
+      ],
+      isOpen: 'true'
+    };
+    const offlineSessionAttributes = {
+      truncatedEvents: [
+        {
+          name: 'Stream End'
+        }
+      ],
+      endTime: endTime.toISOString()
+    };
 
     userReqs.push({
       PutRequest: {
@@ -92,12 +113,9 @@ const createRequests = (count = 1, json) => {
           isHealthy: true,
           startTime: startTime.toISOString(),
           userSub: uuid,
-          truncatedEvents: [
-            {
-              name: 'Stream Start'
-            }
-          ],
-          isOpen: 'true'
+          ...(offlineSessionCount > i
+            ? offlineSessionAttributes
+            : liveSessionAttributes)
         })
       }
     });
@@ -110,19 +128,23 @@ const createRequests = (count = 1, json) => {
   try {
     const dynamoDbClient = new DynamoDBClient({ region: REGION });
     let jsonOutput;
-    const jsonPath = process.argv[3];
-    let seedCount = parseInt(process.argv[2]);
+    const seedCount = parseInt(process.argv[2]);
+    const offlineSessionCount = parseInt(process.argv[3]);
+    const jsonPath = process.argv[4];
     if (isNaN(seedCount)) throw Error('Invalid value for SEED_COUNT.');
+    if (isNaN(offlineSessionCount))
+      throw Error('Invalid value for OFFLINE_SESSION_COUNT.');
 
     if (jsonPath) {
       const json = readFileSync(jsonPath);
       jsonOutput = JSON.parse(json);
     }
 
-    const { userReqs, streamSessionReqs } = createRequests(
+    const { userReqs, streamSessionReqs } = createRequests({
       seedCount,
-      jsonOutput
-    );
+      jsonOutput,
+      offlineSessionCount
+    });
 
     const timesToWrite = Math.ceil(
       (userReqs.length + streamSessionReqs.length) / 24

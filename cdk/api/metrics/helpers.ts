@@ -54,7 +54,7 @@ export const getStreamsByChannelArn = (
     KeyConditionExpression: 'channelArn=:userChannelArn',
     Limit: limit,
     ProjectionExpression:
-      'endTime, hasErrorEvent, startTime, id, userSub, truncatedEvents',
+      'endTime, hasErrorEvent, startTime, id, userSub, truncatedEvents, channelArn',
     TableName: process.env.STREAM_TABLE_NAME
   });
 

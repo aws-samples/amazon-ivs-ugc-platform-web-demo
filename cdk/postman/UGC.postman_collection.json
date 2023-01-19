@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "853b6969-a93a-4d62-b2d5-b41e30de5385",
+		"_postman_id": "d2d4b1bd-33df-4733-98ff-b8fe7384e058",
 		"name": "UGC",
 		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "9583492"
+		"_exporter_id": "2715579"
 	},
 	"item": [
 		{
@@ -289,10 +289,10 @@
 											]
 										}
 									},
-									"_postman_previewlanguage": null,
-									"header": null,
+									"_postman_previewlanguage": "Text",
+									"header": [],
 									"cookie": [],
-									"body": null
+									"body": ""
 								}
 							]
 						},
@@ -490,6 +490,89 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Following",
+					"item": [
+						{
+							"name": "/channel/followingList/add",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList/add",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList",
+										"add"
+									]
+								},
+								"description": "This endpoint will add a channel to the authorized user's following list.\n\nThe to be followed channel's username is used to add the channel to the following list."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/followingList/remove",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList/remove",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList",
+										"remove"
+									]
+								},
+								"description": "This endpoint will remove a channel from the authorized user's following list.\n\nThe to be followed channel's username is used to remove the channel from the following list."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/followingList",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList"
+									]
+								},
+								"description": "This endpoint will return the authorized user's following list channel data. Each item consist of the channel data and an `isLive` value that differentiates the live and offline channels.\n\nThe followed live channels are sorted by start time while the followed offline channels are in sorted in order of added time."
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to manage the authorized channel's following list records."
 				},
 				{
 					"name": "/channel/register",
