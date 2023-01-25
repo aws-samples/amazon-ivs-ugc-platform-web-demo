@@ -7,7 +7,7 @@ import Button from '../../components/Button';
 const DataUnavailable = ({
   className,
   noDataText,
-  error,
+  hasError,
   tryAgainFn,
   tryAgainText
 }) => (
@@ -27,7 +27,7 @@ const DataUnavailable = ({
       />
       <h3 className={clsm(['text-black', 'dark:text-white'])}>{noDataText}</h3>
     </div>
-    {!!error && (
+    {hasError && (
       <Button onClick={tryAgainFn} variant="secondary">
         {tryAgainText}
       </Button>
@@ -37,7 +37,7 @@ const DataUnavailable = ({
 
 DataUnavailable.defaultProps = {
   className: '',
-  error: '',
+  hasError: false,
   noDataText: '',
   tryAgainFn: noop,
   tryAgainText: ''
@@ -45,7 +45,7 @@ DataUnavailable.defaultProps = {
 
 DataUnavailable.propTypes = {
   className: PropTypes.string,
-  error: PropTypes.string,
+  hasError: PropTypes.bool,
   noDataText: PropTypes.string,
   tryAgainFn: PropTypes.func,
   tryAgainText: PropTypes.string

@@ -228,6 +228,9 @@ export const createResources = async () =>
 export const getUserData = async () =>
   await authFetch({ url: `${apiBaseUrl}/channel` });
 
+export const getUserFollowingListData = () =>
+  authFetch({ url: `${apiBaseUrl}/channel/followingList` });
+
 export const changeUsername = async ({ username: newUsername }) =>
   await authFetch({
     body: { newUsername },

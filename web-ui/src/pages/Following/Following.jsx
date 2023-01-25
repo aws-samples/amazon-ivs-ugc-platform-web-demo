@@ -1,44 +1,47 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { following as $followPageContent } from '../../content';
 import { getAvatarSrc } from '../../helpers';
+import { useNotif } from '../../contexts/Notification';
+import { useUser } from '../../contexts/User';
 import ChannelCard from '../../components/ChannelCard';
 import GridLayout from '../ChannelDirectory/GridLayout';
-import mockFollowingData from '../../mocks/following.json';
 import PageLayout from '../ChannelDirectory/PageLayout';
 import withVerticalScroller from '../../components/withVerticalScroller';
 
-const $followPage = $followPageContent.following_page;
-const $followingNotifications = $followPageContent.notification;
+const $followingNotificationsContent = $followPageContent.notification;
 
 const Following = () => {
-  const [data, setData] = useState();
-  const { channels: followedChannels } = data || {};
-  const hasData = !!followedChannels?.length;
-  const isLoading = !data;
-
-  const getSectionData = useCallback(() => setData(mockFollowingData), []);
+  const { notifyError } = useNotif();
+  const { fetchUserFollowingList, hasErrorFetchingFollowingList, userData } =
+    useUser();
+  const { followingList } = userData || {};
+  const hasFollowingListData = !!followingList?.length;
 
   useEffect(() => {
-    setTimeout(() => {
-      getSectionData();
-    }, 500);
-  }, [getSectionData]);
+    if (hasErrorFetchingFollowingList)
+      notifyError($followingNotificationsContent.error.error_loading_followers);
+  }, [hasErrorFetchingFollowingList, notifyError]);
 
   return (
     <PageLayout>
       <GridLayout
-        className={hasData ? 'pb-24' : ''}
-        hasData={hasData}
-        isLoading={isLoading}
-        loadingError={$followingNotifications.error.error_loading_followers}
-        noDataText={$followPage.no_followers_available}
-        title={$followPage.title}
-        tryAgainFn={getSectionData}
-        tryAgainText={$followingNotifications.error.try_again}
+        className={hasFollowingListData ? 'pb-24' : ''}
+        hasData={hasFollowingListData}
+        hasError={hasErrorFetchingFollowingList}
+        isLoading={
+          followingList === undefined && !hasErrorFetchingFollowingList
+        }
+        loadingError={
+          $followingNotificationsContent.error.error_loading_followers
+        }
+        noDataText={$followPageContent.no_followers_available}
+        title={$followPageContent.title}
+        tryAgainFn={fetchUserFollowingList}
+        tryAgainText={$followingNotificationsContent.error.try_again}
       >
-        {hasData &&
-          followedChannels.map((followedChannel) => {
+        {hasFollowingListData &&
+          followingList.map((followedChannel) => {
             const { channelAssetUrls, color, isLive, username } =
               followedChannel;
 

@@ -11,9 +11,9 @@ const UserAvatar = ({
   size,
   isOffline
 }) => {
-  const [isValidAvatar, setIsValidAvatar] = useState(true);
+  const [hasAvatarError, setHasAvatarError] = useState(false);
   const onError = useCallback(() => {
-    setIsValidAvatar(false);
+    setHasAvatarError(true);
   }, []);
   let dimensions = ['h-11', 'w-11'];
 
@@ -35,7 +35,7 @@ const UserAvatar = ({
     className
   ]);
 
-  return isValidAvatar ? (
+  return !hasAvatarError && avatarSrc ? (
     <img
       className={clsm([avatarClassNames, isOffline && 'grayscale'])}
       src={avatarSrc}

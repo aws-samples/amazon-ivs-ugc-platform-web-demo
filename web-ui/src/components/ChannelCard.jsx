@@ -21,6 +21,7 @@ const ChannelCard = ({ avatarSrc, bannerSrc, color, username, variant }) => {
   const [hasBannerError, setHasBannerError] = useState(false);
   const [shouldHavePointerEvents, setShouldHavePointerEvents] = useState(false);
   const { isTouchscreenDevice } = useResponsiveDevice();
+  const shouldShowBanner = !!(!hasBannerError && bannerSrc);
 
   const onError = useCallback(() => {
     setHasBannerError(true);
@@ -66,7 +67,7 @@ const ChannelCard = ({ avatarSrc, bannerSrc, color, username, variant }) => {
             `bg-profile-${color}-dark`,
             `dark:group-hover:bg-profile-${color}-darkMode-dark-hover`,
             `group-hover:bg-profile-${color}-lightMode-dark-hover`,
-            !hasBannerError && [
+            shouldShowBanner && [
               'bg-transparent',
               'dark:bg-transparent',
               `dark:group-hover:bg-transparent`,
@@ -80,7 +81,7 @@ const ChannelCard = ({ avatarSrc, bannerSrc, color, username, variant }) => {
             ]
           ])}
         >
-          {!hasBannerError && (
+          {shouldShowBanner && (
             <img
               alt=""
               src={bannerSrc}

@@ -13,6 +13,7 @@ import { getAvatarSrc } from '../helpers';
 import { getCurrentSession } from '../api/utils';
 import { pack, unpack } from '../helpers/streamActionHelpers';
 import useContextHook from './useContextHook';
+import useCurrentPage from '../hooks/useCurrentPage';
 import useLocalStorage from '../hooks/useLocalStorage';
 import usePrevious from '../hooks/usePrevious';
 
@@ -36,8 +37,13 @@ export const Provider = ({ children }) => {
     useState(false);
   const [isSessionValid, setIsSessionValid] = useState();
   const [logOutAction, setLogOutAction] = useState('');
+  const [hasErrorFetchingFollowingList, setHasErrorFetchingFollowingList] =
+    useState(false);
   const prevIsSessionValid = usePrevious(isSessionValid);
   const avatarSrc = getAvatarSrc(userData);
+
+  const currentPage = useCurrentPage();
+  const hasUserData = !!userData;
 
   const { remove: removeStoredUserData } = useLocalStorage({
     key: userData?.username,
@@ -64,6 +70,20 @@ export const Provider = ({ children }) => {
     }
 
     return result;
+  }, []);
+
+  const fetchUserFollowingList = useCallback(async () => {
+    setHasErrorFetchingFollowingList(false);
+
+    const { result, error } = await channelAPI.getUserFollowingListData();
+
+    if (result) {
+      setUserData((prevUserData) => ({
+        ...prevUserData,
+        followingList: result.channels
+      }));
+    }
+    if (error) setHasErrorFetchingFollowingList(true);
   }, []);
 
   // Initialize user resources
@@ -115,11 +135,22 @@ export const Provider = ({ children }) => {
     }
   }, [isSessionValid, removeStoredUserData]);
 
+  useEffect(() => {
+    if (
+      hasUserData &&
+      ['channel_directory', 'following'].includes(currentPage)
+    ) {
+      fetchUserFollowingList();
+    }
+  }, [currentPage, fetchUserFollowingList, hasUserData]);
+
   const value = useMemo(
     () => ({
       checkSessionStatus,
       fetchUserData,
+      fetchUserFollowingList,
       hasErrorCreatingResources,
+      hasErrorFetchingFollowingList,
       hasFetchedInitialUserData,
       initUserResources,
       isCreatingResources,
@@ -133,7 +164,9 @@ export const Provider = ({ children }) => {
       avatarSrc,
       checkSessionStatus,
       fetchUserData,
+      fetchUserFollowingList,
       hasErrorCreatingResources,
+      hasErrorFetchingFollowingList,
       hasFetchedInitialUserData,
       initUserResources,
       isCreatingResources,

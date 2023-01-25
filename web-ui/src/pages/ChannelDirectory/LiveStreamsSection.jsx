@@ -41,7 +41,7 @@ const LiveStreamsSection = ({ isContentSectionCentered }) => {
   return (
     <GridLayout
       className={hasLiveChannels ? 'pb-24' : ''}
-      error={error}
+      hasError={!!error}
       hasData={hasLiveChannels}
       isContentSectionCentered={isContentSectionCentered}
       isLoading={isLoading}

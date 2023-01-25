@@ -21,7 +21,7 @@ const SECTION_CENTERED_CONTENT_CLASSES = ['static', 'h-auto', 'grow'];
 const GridLayout = ({
   children,
   className,
-  error,
+  hasError,
   hasData,
   isContentSectionCentered,
   isLoading,
@@ -64,7 +64,7 @@ const GridLayout = ({
           isContentSectionCentered && SECTION_CENTERED_CONTENT_CLASSES
         ])}
         noDataText={noDataText}
-        error={error}
+        hasError={hasError}
         tryAgainFn={tryAgainFn}
         tryAgainText={tryAgainText}
       />
@@ -84,7 +84,7 @@ const GridLayout = ({
 
 GridLayout.defaultProps = {
   className: '',
-  error: '',
+  hasError: false,
   hasData: false,
   isContentSectionCentered: true,
   isLoading: false,
@@ -98,7 +98,7 @@ GridLayout.defaultProps = {
 GridLayout.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  error: PropTypes.string,
+  hasError: PropTypes.bool,
   hasData: PropTypes.bool,
   isContentSectionCentered: PropTypes.bool,
   isLoading: PropTypes.bool,
