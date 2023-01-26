@@ -1,4 +1,4 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Confetti from 'react-confetti';
 import PropTypes from 'prop-types';
@@ -87,7 +87,7 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
       ) : null}
       <AnimatePresence>
         {shouldRun && (
-          <m.div
+          <motion.div
             {...defaultViewerStreamActionAnimationProps}
             animate={[
               defaultViewerStreamActionAnimationProps.animate,
@@ -136,7 +136,7 @@ const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
                 </Fragment>
               ))}
             </div>
-          </m.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

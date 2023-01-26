@@ -1,6 +1,6 @@
 import { decode } from 'html-entities';
 import { forwardRef, useCallback, useRef } from 'react';
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import {
@@ -84,12 +84,12 @@ const ChatLineWrapper = forwardRef(
   ({ children, chatLineVariant, isStaticChatLine, ...restProps }, ref) => {
     if (chatLineVariant === CHAT_LINE_VARIANT.MESSAGE && !isStaticChatLine)
       return (
-        <m.button ref={ref} {...restProps}>
+        <motion.button ref={ref} {...restProps}>
           {children}
-        </m.button>
+        </motion.button>
       );
     if (chatLineVariant === CHAT_LINE_VARIANT.POPUP || isStaticChatLine)
-      return <m.div {...restProps}>{children}</m.div>;
+      return <motion.div {...restProps}>{children}</motion.div>;
     return null;
   }
 );

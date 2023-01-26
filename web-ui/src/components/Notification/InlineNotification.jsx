@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
@@ -11,7 +11,7 @@ const InlineNotification = ({
   message,
   type
 }) => (
-  <m.div
+  <motion.div
     aria-live="polite"
     className={clsm([
       'absolute',
@@ -63,7 +63,7 @@ const InlineNotification = ({
       )}
       <p>{message}</p>
     </div>
-  </m.div>
+  </motion.div>
 );
 
 InlineNotification.propTypes = {

@@ -93,6 +93,7 @@ export const PROFILE_COLORS = [
   'turquoise',
   'yellow'
 ];
+export const DEFAULT_PROFILE_VIEW_TRANSITION = { type: 'tween', duration: 0.4 };
 
 export const MAXIMUM_IMAGE_FILE_SIZE = { avatar: 1, banner: 5 }; // Sizes are in MB
 export const SUPPORTED_IMAGE_FILE_FORMATS = [['jpg', 'jpeg'], 'png'];

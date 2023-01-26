@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
@@ -93,7 +93,7 @@ const ChatPopup = ({
       ])}
       data-testid="chat-popup-container"
     >
-      <m.div
+      <motion.div
         {...createAnimationProps({ animations: ['fadeIn-full'] })}
         className={clsm([
           'absolute',
@@ -103,8 +103,8 @@ const ChatPopup = ({
           'top-0',
           'w-full'
         ])}
-      ></m.div>
-      <m.div
+      />
+      <motion.div
         {...createAnimationProps({
           animations: ['fadeIn-half'],
           customVariants: {
@@ -206,7 +206,7 @@ const ChatPopup = ({
             {$content.cancel}
           </Button>
         </div>
-      </m.div>
+      </motion.div>
     </div>
   );
 };

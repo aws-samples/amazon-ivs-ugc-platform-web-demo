@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
+import { motion, useAnimation, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import { m, useAnimation, useReducedMotion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { createAnimationProps } from '../../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../../utils';
@@ -173,7 +173,7 @@ const StreamEventItem = ({
           </p>
         </div>
         {isExpandable && (
-          <m.div
+          <motion.div
             key="event-content"
             {...createAnimationProps({
               animations: ['fadeIn-full'],
@@ -214,7 +214,7 @@ const StreamEventItem = ({
                 </Button>
               </div>
             )}
-          </m.div>
+          </motion.div>
         )}
       </div>
     </div>

@@ -25,6 +25,7 @@ export { ReactComponent as Home } from './home.svg';
 export { ReactComponent as Hourglass } from './hourglass.svg';
 export { ReactComponent as Lock } from './lock.svg';
 export { ReactComponent as Logout } from './logout.svg';
+export { ReactComponent as Menu } from './menu.svg';
 export { ReactComponent as Mute } from './mute.svg';
 export { ReactComponent as NoData } from './no-data.svg';
 export { ReactComponent as NoSignal } from './no-signal.svg';

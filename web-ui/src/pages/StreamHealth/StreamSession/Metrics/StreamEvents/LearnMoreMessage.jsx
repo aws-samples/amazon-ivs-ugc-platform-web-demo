@@ -1,5 +1,5 @@
 import { clsm, substitutePlaceholders } from '../../../../../utils';
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 
@@ -15,7 +15,7 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
 
   return (
-    <m.div
+    <motion.div
       {...createAnimationProps({
         animations: ['slideIn-right'],
         options: { shouldAnimate: !isDefaultResponsiveView }
@@ -130,7 +130,7 @@ const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
       >
         {subbedMsg}
       </ReactMarkdown>
-    </m.div>
+    </motion.div>
   );
 };
 

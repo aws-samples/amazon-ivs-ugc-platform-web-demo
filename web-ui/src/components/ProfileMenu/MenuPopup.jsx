@@ -1,5 +1,5 @@
 import { Fragment, forwardRef, useMemo } from 'react';
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import {
@@ -33,7 +33,7 @@ const Popup = forwardRef(
     );
 
     return (
-      <m.div
+      <motion.div
         {...createAnimationProps({ animations: ['fadeIn-half', 'scale'] })}
         className={clsm([
           'px-1',
@@ -113,7 +113,7 @@ const Popup = forwardRef(
             <p className="truncate">{$content.log_out}</p>
           </Button>
         </div>
-      </m.div>
+      </motion.div>
     );
   }
 );

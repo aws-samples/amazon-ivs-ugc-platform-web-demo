@@ -85,54 +85,12 @@ module.exports = {
     }
   },
   safelist,
-  corePlugins: { aspectRatio: false },
   plugins: [
     /**
      * A plugin that provides utilities for visually truncating text after a fixed number of lines.
      * https://github.com/tailwindlabs/tailwindcss-line-clamp
      */
     require('@tailwindcss/line-clamp'),
-
-    // aspect-ratio (modern and legacy support)
-    plugin(({ addUtilities }) => {
-      addUtilities({
-        '.aspect-video': {
-          aspectRatio: '16 / 9',
-          '@supports not (aspect-ratio: 16 / 9)': {
-            position: 'relative',
-            width: '100%',
-            height: 0,
-            paddingBottom: '56.25%' /* 16:9 */
-          }
-        },
-        '.aspect-auto': {
-          aspectRatio: 'auto',
-          '@supports not (aspect-ratio: auto)': {
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            paddingBottom: 0
-          }
-        },
-        '.aspect-square': {
-          aspectRatio: '1 / 1',
-          '@supports not (aspect-ratio: 1 / 1)': {
-            position: 'relative',
-            width: '100%',
-            height: 0,
-            paddingBottom: '100%' /* 1:1 */,
-            '& > div': {
-              /* Center align content */
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0
-            }
-          }
-        }
-      });
-    }),
 
     // @supports (overflow: overlay)
     plugin(({ addVariant, addUtilities }) => {

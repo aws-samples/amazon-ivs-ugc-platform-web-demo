@@ -1,12 +1,5 @@
-import {
-  forwardRef,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
-import { m } from 'framer-motion';
+import { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { clsm, noop } from '../../../../utils';
@@ -22,6 +15,7 @@ import Button from '../../../../components/Button';
 import NoImageSrcIcon from '../../../../components/IconSelect/NoImageSrcIcon';
 import Spinner from '../../../../components/Spinner';
 import useImageUpload from '../../../../hooks/useImageUpload';
+import useResize from '../../../../hooks/useResize';
 
 const $channelAssetModalContent = $content.modal.channel_asset_deletion_modal;
 const STACKING_BREAKPOINT = 910; // px
@@ -75,6 +69,8 @@ const ImageUploader = forwardRef(
       if (previewShape === '16/9')
         return classes.concat(['aspect-video', 'rounded-xl']);
     }, [previewShape, shouldStack]);
+
+    useResize(() => setShouldStack(isStackingBreakpoint()));
 
     const handleUpload = async (e) => {
       await uploadChannelAsset(e);
@@ -156,23 +152,8 @@ const ImageUploader = forwardRef(
       uploadUrl
     ]);
 
-    useLayoutEffect(() => {
-      const { orientation } = window.screen;
-      const onDimensionsChange = () => setShouldStack(isStackingBreakpoint());
-
-      window.addEventListener('resize', onDimensionsChange);
-      window.addEventListener('orientationchange', onDimensionsChange);
-      orientation?.addEventListener('change', onDimensionsChange);
-
-      return () => {
-        window.removeEventListener('resize', onDimensionsChange);
-        window.removeEventListener('orientationchange', onDimensionsChange);
-        orientation?.removeEventListener('change', onDimensionsChange);
-      };
-    }, []);
-
     return (
-      <m.div
+      <motion.div
         {...(shouldAnimate &&
           createAnimationProps({
             animations: ['fadeIn-full'],
@@ -280,7 +261,7 @@ const ImageUploader = forwardRef(
             </p>
           </div>
         </div>
-      </m.div>
+      </motion.div>
     );
   }
 );

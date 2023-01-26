@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { Close } from '../../../../../assets/icons';
@@ -7,7 +7,7 @@ import { createAnimationProps } from '../../../../../helpers/animationPropsHelpe
 
 const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
   <>
-    <m.span
+    <motion.span
       {...createAnimationProps({
         animations: ['fadeIn-full'],
         options: { isVisible: isOpen || isUploaded }
@@ -22,7 +22,7 @@ const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
           : ['bg-white', 'dark:bg-darkMode-gray-dark']
       ])}
     />
-    <m.span
+    <motion.span
       {...createAnimationProps({
         customVariants: {
           hidden: { rotate: 45 },
@@ -35,7 +35,7 @@ const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
       <Close
         className={clsm(['w-6', 'h-6', 'fill-black', 'dark:fill-white'])}
       />
-    </m.span>
+    </motion.span>
   </>
 );
 

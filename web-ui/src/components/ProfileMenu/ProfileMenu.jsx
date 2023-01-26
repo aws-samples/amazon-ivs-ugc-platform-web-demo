@@ -1,4 +1,4 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -38,7 +38,7 @@ const ProfileMenu = ({
     <div className={clsm([containerClassName, isOpen ? 'z-[1000]' : 'w-auto'])}>
       <AnimatePresence>
         {fadeBackground && isOpen && (
-          <m.div
+          <motion.div
             {...createAnimationProps({ animations: ['fadeIn-half'] })}
             className={clsm([
               'fixed',
@@ -49,7 +49,7 @@ const ProfileMenu = ({
               'h-screen',
               'bg-modalOverlay'
             ])}
-          ></m.div>
+          />
         )}
       </AnimatePresence>
       <MenuPopup

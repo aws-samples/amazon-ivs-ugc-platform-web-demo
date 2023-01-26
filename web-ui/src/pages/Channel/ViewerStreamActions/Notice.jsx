@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -49,7 +49,7 @@ const Notice = ({
   }, [updateMaxMessages]);
 
   return (
-    <m.div
+    <motion.div
       {...createAnimationProps({
         animations: ['fadeIn-full'],
         customVariants: defaultSlideUpVariant,
@@ -148,7 +148,7 @@ const Notice = ({
           </div>
         </div>
       </div>
-    </m.div>
+    </motion.div>
   );
 };
 

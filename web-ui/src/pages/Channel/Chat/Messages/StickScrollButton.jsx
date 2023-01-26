@@ -1,4 +1,4 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { BUTTON_BASE_CLASSES } from '../../../../components/Button/ButtonTheme';
@@ -12,7 +12,7 @@ const $content = $channelContent.chat;
 const StickScrollButton = ({ isSticky, scrollToBottom }) => (
   <AnimatePresence>
     {!isSticky && (
-      <m.div
+      <motion.div
         {...createAnimationProps({
           animations: ['fadeIn-full', 'scale'],
           customVariants: {
@@ -49,7 +49,7 @@ const StickScrollButton = ({ isSticky, scrollToBottom }) => (
           <DownArrow />
           {$content.new_messages}
         </button>
-      </m.div>
+      </motion.div>
     )}
   </AnimatePresence>
 );

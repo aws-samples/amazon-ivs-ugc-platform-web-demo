@@ -5,12 +5,12 @@ import {
   VolumeHigh as VolumeHighSvg,
   VolumeMedium as VolumeMediumSvg,
   VolumeLow as VolumeLowSvg
-} from '../../../assets/icons';
-import { clsm } from '../../../utils';
+} from '../../../../assets/icons';
+import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../constants';
-import InputRange from '../../../components/InputRange';
-import useClickAway from '../../../hooks/useClickAway';
+import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../../constants';
+import InputRange from '../../../../components/InputRange';
+import useClickAway from '../../../../hooks/useClickAway';
 
 const MOBILE_INPUT_RANGE_HEIGHT = 112;
 export const POPUP_ID = 'volume';

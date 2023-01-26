@@ -5,17 +5,17 @@ import {
   useRef,
   useState
 } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-import { Close, Settings as SettingsSvg } from '../../../assets/icons';
-import { clsm } from '../../../utils';
+import { Close, Settings as SettingsSvg } from '../../../../assets/icons';
+import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { createAnimationProps } from '../../../helpers/animationPropsHelper';
-import { player as $content } from '../../../content';
-import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
-import Button from '../../Button';
-import useClickAway from '../../../hooks/useClickAway';
+import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
+import { player as $content } from '../../../../content';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import Button from '../../../../components/Button';
+import useClickAway from '../../../../hooks/useClickAway';
 
 export const POPUP_ID = 'rendition';
 
@@ -112,7 +112,7 @@ const RenditionSetting = ({
       </button>
       <AnimatePresence>
         {isExpanded && isMobileView && (
-          <m.div
+          <motion.div
             className={clsm([
               'bg-modalOverlay',
               'fixed',
@@ -122,12 +122,12 @@ const RenditionSetting = ({
               'w-screen'
             ])}
             {...createAnimationProps({ animations: ['fadeIn-full'] })}
-          ></m.div>
+          />
         )}
       </AnimatePresence>
       <AnimatePresence>
         {isExpanded && (
-          <m.div
+          <motion.div
             className={clsm([
               'absolute',
               'bg-lightMode-gray-light',
@@ -233,7 +233,7 @@ const RenditionSetting = ({
                 ) : null
               )}
             </div>
-          </m.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

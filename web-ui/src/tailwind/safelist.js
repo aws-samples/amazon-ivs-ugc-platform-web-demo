@@ -75,5 +75,15 @@ module.exports = [
   {
     pattern: /^bg-profile-([a-z]+)-darkMode-dark-hover$/,
     variants: ['dark:group-hover']
+  },
+  /**
+   * Used in the useProfileViewPlayerAnimation hook
+   */
+  {
+    pattern: /^overflow-(hidden|y-auto|x-hidden)$/
+  },
+  {
+    pattern: /^overflow-y-overlay$/,
+    variants: ['supports-overlay']
   }
 ];

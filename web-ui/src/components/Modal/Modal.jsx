@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -28,7 +28,7 @@ const Modal = ({ children, className }) => {
   }, [closeModal, pathname, prevPathname]);
 
   return (
-    <m.div
+    <motion.div
       className={clsm([
         'p-8',
         'm-[var(--mobile-x-spacing)]',
@@ -46,7 +46,7 @@ const Modal = ({ children, className }) => {
       data-testid="modal"
     >
       {children}
-    </m.div>
+    </motion.div>
   );
 };
 

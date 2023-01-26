@@ -8,10 +8,10 @@ import {
   FullScreenExit as FullScreenExitSvg,
   Pause as PauseSvg,
   Play as PlaySvg
-} from '../../../assets/icons';
-import { clsm } from '../../../utils';
+} from '../../../../assets/icons';
+import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import RenditionSetting, {
   POPUP_ID as RENDITION_SETTING_POPUP_ID
 } from './RenditionSetting';
@@ -22,7 +22,6 @@ import VolumeSetting, {
 const Controls = ({
   handleControlsVisibility,
   isChatVisible,
-  isControlsOpen,
   isFullscreenEnabled,
   isViewerBanned,
   onClickFullscreenHandler,
@@ -110,11 +109,13 @@ const Controls = ({
   return (
     <div
       className={clsm([
+        'relative',
         'flex',
         'justify-between',
         'w-full',
         'items-center',
-        'space-x-4'
+        'space-x-4',
+        'z-10'
       ])}
     >
       <div className="flex space-x-4">
@@ -179,7 +180,6 @@ const Controls = ({
 
 Controls.defaultProps = {
   isChatVisible: true,
-  isControlsOpen: true,
   isFullscreenEnabled: false,
   isViewerBanned: false
 };
@@ -187,7 +187,6 @@ Controls.defaultProps = {
 Controls.propTypes = {
   handleControlsVisibility: PropTypes.func.isRequired,
   isChatVisible: PropTypes.bool,
-  isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
   isViewerBanned: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,

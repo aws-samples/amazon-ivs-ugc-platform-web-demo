@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import { forwardRef, useEffect, useRef } from 'react';
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
@@ -40,7 +40,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
   }, [isLoadingNextStreamSessionsPage]);
 
   const renderPopup = () => (
-    <m.div
+    <motion.div
       {...createAnimationProps({
         customVariants: {
           hidden: { y: '-12.5%' },
@@ -142,13 +142,13 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
           </span>
         )}
       </div>
-    </m.div>
+    </motion.div>
   );
 
   return isDefaultResponsiveView ? (
     renderPopup()
   ) : (
-    <m.div
+    <motion.div
       {...createAnimationProps({
         animations: ['fadeIn-half'],
         options: {
@@ -171,7 +171,7 @@ const NavigatorPopup = forwardRef(({ isNavOpen, toggleNavPopup }, ref) => {
       ])}
     >
       {renderPopup()}
-    </m.div>
+    </motion.div>
   );
 });
 

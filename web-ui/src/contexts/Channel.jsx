@@ -24,7 +24,7 @@ const channelDataFetcher = async (username) => {
 };
 
 export const Provider = ({ children }) => {
-  const { userData } = useUser();
+  const { isSessionValid, userData } = useUser();
   const { username: channelUsername } = useParams();
   const currentPage = useCurrentPage();
   /**
@@ -37,12 +37,15 @@ export const Provider = ({ children }) => {
    * fetched by SWR.
    */
   let swrKey = null;
-  if (currentPage === 'channel' && channelUsername) {
-    const keyArr = [channelUsername, userData?.username];
-    swrKey = keyArr.filter((item, i) => keyArr.indexOf(item) === i);
-  } else if (currentPage !== 'channel' && userData) {
-    swrKey = [userData?.username];
+  if ((isSessionValid && userData) || isSessionValid === false) {
+    if (currentPage === 'channel' && channelUsername) {
+      const keyArr = [channelUsername, userData?.username];
+      swrKey = keyArr.filter((item, i) => keyArr.indexOf(item) === i);
+    } else if (currentPage !== 'channel' && userData) {
+      swrKey = [userData?.username];
+    }
   }
+
   const {
     data: channelData,
     error: channelError,
@@ -52,15 +55,25 @@ export const Provider = ({ children }) => {
   });
   const isChannelLoading = !channelData && !channelError;
   const avatarSrc = getAvatarSrc(channelData);
+  const augmentedChannelData = useMemo(
+    () => ({ ...channelData, avatarSrc }),
+    [avatarSrc, channelData]
+  );
 
   const value = useMemo(
     () => ({
-      channelData: { ...channelData, avatarSrc },
+      channelData: !!channelData ? augmentedChannelData : undefined,
       channelError,
       isChannelLoading,
       refreshChannelData
     }),
-    [avatarSrc, channelData, channelError, isChannelLoading, refreshChannelData]
+    [
+      augmentedChannelData,
+      channelData,
+      channelError,
+      isChannelLoading,
+      refreshChannelData
+    ]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

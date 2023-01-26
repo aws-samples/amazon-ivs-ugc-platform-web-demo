@@ -1,4 +1,4 @@
-import { m, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -34,7 +34,7 @@ const ConnectingOverlay = ({ isLoading }) => {
     <AnimatePresence initial={false}>
       {shouldShowConnectingOverlay && (
         <div className={clsm(['absolute', 'w-full', 'h-full'])}>
-          <m.div
+          <motion.div
             {...createAnimationProps({ animations: ['fadeIn-full'] })}
             className={clsm([
               'absolute',
@@ -45,8 +45,8 @@ const ConnectingOverlay = ({ isLoading }) => {
               'dark:bg-darkMode-loadingOverlay',
               isStreamManagerPage && 'rounded-3xl'
             ])}
-          ></m.div>
-          <m.div
+          />
+          <motion.div
             {...createAnimationProps({
               animations: ['fadeIn-full', 'slideIn-top']
             })}
@@ -66,7 +66,7 @@ const ConnectingOverlay = ({ isLoading }) => {
             ])}
           >
             <Spinner variant="light" />
-          </m.div>
+          </motion.div>
         </div>
       )}
     </AnimatePresence>

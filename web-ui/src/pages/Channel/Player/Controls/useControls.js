@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const useControls = (isPaused, isViewerBanned) => {
-  const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const [isControlsOpen, setIsControlsOpen] = useState(true);
   const [isCoveringControlButton, setIsCoveringControlButton] = useState(false);
   const { isTouchscreenDevice } = useResponsiveDevice();
@@ -129,12 +128,10 @@ const useControls = (isPaused, isViewerBanned) => {
   return {
     handleControlsVisibility,
     isControlsOpen,
-    isFullscreenEnabled,
     isPopupOpen,
     mobileClickHandler,
     onMouseMoveHandler,
     openPopupIds,
-    setIsFullscreenEnabled,
     setOpenPopupIds,
     stopPropagAndResetTimeout
   };

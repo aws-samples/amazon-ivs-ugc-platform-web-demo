@@ -1,17 +1,17 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import {
   defaultSlideUpVariant,
   defaultViewerStreamActionTransition
-} from '../../pages/Channel/ViewerStreamActions/viewerStreamActionsTheme';
-import { clsm } from '../../utils';
-import { createAnimationProps } from '../../helpers/animationPropsHelper';
-import { STREAM_ACTION_NAME } from '../../constants';
-import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
-import NoticeViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Notice';
-import ProductViewerStreamAction from '../../pages/Channel/ViewerStreamActions/Product';
-import QuizViewerStreamAction from '../../pages/Channel/ViewerStreamActions/QuizCard';
+} from '../ViewerStreamActions/viewerStreamActionsTheme';
+import { clsm } from '../../../utils';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
+import { STREAM_ACTION_NAME } from '../../../constants';
+import { useViewerStreamActions } from '../../../contexts/ViewerStreamActions';
+import NoticeViewerStreamAction from '../ViewerStreamActions/Notice';
+import ProductViewerStreamAction from '../ViewerStreamActions/Product';
+import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
   isControlsOpen,
@@ -38,7 +38,7 @@ const PlayerViewerStreamActions = ({
         )}
       {currentViewerStreamActionName === STREAM_ACTION_NAME.PRODUCT &&
         !shouldRenderActionInTab && (
-          <m.div
+          <motion.div
             {...createAnimationProps({
               animations: ['fadeIn-full'],
               customVariants: defaultSlideUpVariant,
@@ -59,7 +59,7 @@ const PlayerViewerStreamActions = ({
             ])}
           >
             <ProductViewerStreamAction {...currentViewerStreamActionData} />
-          </m.div>
+          </motion.div>
         )}
       {currentViewerStreamActionName === STREAM_ACTION_NAME.NOTICE && (
         <NoticeViewerStreamAction

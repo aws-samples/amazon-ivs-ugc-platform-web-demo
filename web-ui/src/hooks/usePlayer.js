@@ -32,13 +32,13 @@ const usePlayer = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(true);
   const [volumeLevel, setVolumeLevel] = useState(defaultVolumeLevel);
-  const [hasEnded, setHasEnded] = useState(false);
-  const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState(false);
+  const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState();
   const [qualities, setQualities] = useState([{ name: 'Auto' }]);
   const [selectedQualityName, setSelectedQualityName] = useState(
     qualities[0].name
   );
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState(16 / 9);
   const hasError = !!error;
   const intervalId = useRef(null);
 
@@ -74,12 +74,12 @@ const usePlayer = ({
       );
 
       setHasLoaded(true);
+      setHasPlayedFinalBuffer(false);
     }
     if (newState === BUFFERING) setIsLoading(true);
     if (newState === PLAYING) setIsLoading(false);
     if (newState !== ENDED) resetIntervalId();
     setError(null);
-    setHasEnded(newState === ENDED);
 
     console.log(`Player State - ${newState}`);
   }, [resetIntervalId]);
@@ -100,7 +100,7 @@ const usePlayer = ({
 
       onTimedMetadataHandler({ ...metadata, startTime: Date.now() });
 
-      console.info(`Timed metadata: `, metadata);
+      console.info(`Timed metadata: ${metadata}`);
     },
     [onTimedMetadataHandler]
   );
@@ -179,9 +179,8 @@ const usePlayer = ({
     setError(null);
     setIsLoading(true);
     setIsPaused(false);
-    setHasEnded(false);
     setVolumeLevel(defaultVolumeLevel);
-    setHasPlayedFinalBuffer(false);
+    setHasPlayedFinalBuffer(undefined);
     setQualities([{ name: 'Auto' }]);
     setHasLoaded(false);
     resetIntervalId();
@@ -196,10 +195,9 @@ const usePlayer = ({
   });
 
   /**
+   * Update the state of the player based on local state.
    * Users can use the controls while the player is loading.
-   * We're always updating the player based on the local state.
    */
-  // UPDATE PLAYER START
   useEffect(() => {
     if (!playerRef.current) return;
 
@@ -247,11 +245,8 @@ const usePlayer = ({
     selectedQualityName,
     volumeLevel
   ]);
-  // UPDATE PLAYER END
 
-  /**
-   * Play the last buffer segment before closing the player
-   */
+  // Play the last buffer segment before closing the player
   useEffect(() => {
     if (prevIsChannelLive && !isLive && playerRef.current) {
       let bufferDuration = playerRef.current.getBufferDuration();
@@ -267,22 +262,46 @@ const usePlayer = ({
     return () => clearTimeout(timeoutId.current);
   }, [isLive, prevIsChannelLive]);
 
+  // Load the player
   useEffect(() => {
-    const loadPlayer = () => load(playbackUrl);
+    if (playbackUrl && isLive) load(playbackUrl);
+  }, [isLive, load, playbackUrl]);
 
-    if (playbackUrl && isLive) {
-      loadPlayer();
-      intervalId.current = setInterval(loadPlayer, 3000);
-    } else if ((!playbackUrl || !isLive) && hasPlayedFinalBuffer) reset();
+  // Clean-up the player
+  useEffect(() => reset, [reset]);
 
-    return reset;
-  }, [hasPlayedFinalBuffer, isLive, load, reset, playbackUrl]);
+  // Reset the player and aspect ratio to 16/9 once the livestream has ended
+  useEffect(() => {
+    if (hasPlayedFinalBuffer) {
+      reset();
+      setVideoAspectRatio(16 / 9);
+    }
+  }, [hasPlayedFinalBuffer, reset]);
+
+  // Update the video aspect ratio as soon as we are able to retrieve the video dimensions
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    const setAspectRatio = () => {
+      const { videoWidth: width, videoHeight: height } = videoEl;
+      const aspectRatio = parseFloat((width / height).toFixed(5));
+      setVideoAspectRatio((prev) => aspectRatio || prev);
+    };
+
+    // 'loadeddata' will not fire in mobile/tablet devices if data-saver is on in browser settings.
+    videoEl?.addEventListener('loadeddata', setAspectRatio);
+    // 'timeupdate' is used as a fallback.
+    videoEl?.addEventListener('timeupdate', setAspectRatio, { once: true });
+
+    return () => {
+      videoEl?.removeEventListener('loadeddata', setAspectRatio);
+      videoEl?.removeEventListener('timeupdate', setAspectRatio);
+    };
+  }, [videoRef, isLive]);
 
   return {
     canvasRef,
-    error,
-    hasEnded,
-    hasFinalBuffer: prevIsChannelLive && !hasPlayedFinalBuffer,
+    hasError: !!error,
+    hasPlayedFinalBuffer,
     instance: playerRef.current,
     isBlurReady,
     isLoading,
@@ -293,10 +312,10 @@ const usePlayer = ({
     qualities,
     reset,
     selectedQualityName,
-    setError,
     shouldBlurPlayer,
     updateQuality,
     updateVolume,
+    videoAspectRatio,
     videoRef,
     volumeLevel
   };

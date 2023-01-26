@@ -1,18 +1,12 @@
+import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
 
 import { BREAKPOINTS } from '../constants';
 import { isiOS } from '../utils';
 import useContextHook from './useContextHook';
-import useMediaQuery from '../hooks/useMediaQuery';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
+import useMediaQuery from '../hooks/useMediaQuery';
+import useResize from '../hooks/useResize';
 
 const Context = createContext(null);
 Context.displayName = 'ResponsiveDevice';
@@ -133,37 +127,14 @@ export const Provider = ({ children }) => {
     else setIsLandscape(isLandscapeMatches);
   }, [isLandscapeMatches, isTouchscreenDevice, supportsScreenOrientation]);
 
-  useEffect(() => {
-    const onDimensionsChange = () => {
+  useResize(
+    () => {
       updateMobileVh();
       updateCurrentBreakpoint();
       updateOrientation();
-    };
-
-    onDimensionsChange();
-
-    if (supportsScreenOrientation)
-      window.screen.orientation.addEventListener('change', onDimensionsChange);
-    window.addEventListener('resize', onDimensionsChange);
-    window.addEventListener('orientationchange', onDimensionsChange);
-
-    return () => {
-      if (supportsScreenOrientation) {
-        window.screen.orientation.removeEventListener(
-          'change',
-          onDimensionsChange
-        );
-      }
-
-      window.removeEventListener('resize', onDimensionsChange);
-      window.removeEventListener('orientationchange', onDimensionsChange);
-    };
-  }, [
-    supportsScreenOrientation,
-    updateCurrentBreakpoint,
-    updateMobileVh,
-    updateOrientation
-  ]);
+    },
+    { shouldCallOnMount: true }
+  );
 
   const value = useMemo(
     () => ({

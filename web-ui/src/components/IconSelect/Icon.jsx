@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { Checkmark } from '../../assets/icons';
@@ -40,7 +40,7 @@ const Icon = ({
     Marker = <Spinner className="absolute" variant="light" />;
   } else if (isSelected) {
     Marker = (
-      <m.span
+      <motion.span
         {...createAnimationProps({
           animations: ['fadeIn-full'],
           options: { shouldAnimateOut: false }
@@ -50,7 +50,7 @@ const Icon = ({
         <Checkmark
           className={clsm(['w-6', 'h-6', 'fill-black', 'dark:fill-white'])}
         />
-      </m.span>
+      </motion.span>
     );
   }
 

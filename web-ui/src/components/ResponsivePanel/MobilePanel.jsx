@@ -1,4 +1,4 @@
-import { m, usePresence } from 'framer-motion';
+import { motion, usePresence } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
@@ -32,7 +32,7 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   useFocusTrap([headerRef, panelRef]);
 
   return (
-    <m.div
+    <motion.div
       data-testid={`mobile-panel-${panelId}`}
       ref={panelRef}
       className={clsm(['absolute', 'h-full', 'w-full', 'pointer-events-auto'])}
@@ -42,7 +42,7 @@ const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
       })}
     >
       {children}
-    </m.div>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,5 @@
 import { encode } from 'html-entities';
-import { m } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
@@ -144,7 +144,7 @@ const Composer = ({
 
   return (
     <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
-      <m.div
+      <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
           shake: { x: [12, -12, 8, -8, 4, 0] },
@@ -235,7 +235,7 @@ const Composer = ({
             )}
           </div>
         </form>
-      </m.div>
+      </motion.div>
       {isMobileView && <FloatingNav siblingRef={menuPopupSiblingRef} />}
     </div>
   );
