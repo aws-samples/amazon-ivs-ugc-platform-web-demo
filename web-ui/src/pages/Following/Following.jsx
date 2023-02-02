@@ -20,7 +20,7 @@ const Following = () => {
 
   useEffect(() => {
     if (hasErrorFetchingFollowingList)
-      notifyError($followingNotificationsContent.error.error_loading_followers);
+      notifyError($followingNotificationsContent.error.error_loading_channels);
   }, [hasErrorFetchingFollowingList, notifyError]);
 
   return (
@@ -33,9 +33,13 @@ const Following = () => {
           followingList === undefined && !hasErrorFetchingFollowingList
         }
         loadingError={
-          $followingNotificationsContent.error.error_loading_followers
+          $followingNotificationsContent.error.error_loading_channels
         }
-        noDataText={$followPageContent.no_followers_available}
+        noDataText={
+          hasErrorFetchingFollowingList
+            ? $followPageContent.failed_to_load_channels
+            : $followPageContent.no_channels_followed
+        }
         title={$followPageContent.title}
         tryAgainFn={fetchUserFollowingList}
         tryAgainText={$followingNotificationsContent.error.try_again}

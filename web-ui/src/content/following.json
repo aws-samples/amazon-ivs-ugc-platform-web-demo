@@ -1,9 +1,10 @@
 {
   "title": "Following",
-  "no_followers_available": "No followed streams available",
+  "no_channels_followed": "No channels followed",
+  "failed_to_load_channels": "Failed to load channels",
   "notification": {
     "error": {
-      "error_loading_followers": "Error loading followers",
+      "error_loading_channels": "Error loading channels",
       "try_again": "Try again"
     }
   }

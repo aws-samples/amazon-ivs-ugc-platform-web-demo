@@ -28,7 +28,11 @@ const DataUnavailable = ({
       <h3 className={clsm(['text-black', 'dark:text-white'])}>{noDataText}</h3>
     </div>
     {hasError && (
-      <Button onClick={tryAgainFn} variant="secondary">
+      <Button
+        onClick={tryAgainFn}
+        variant="secondary"
+        className="bg-lightMode-gray"
+      >
         {tryAgainText}
       </Button>
     )}

@@ -102,7 +102,9 @@ class StreamManagerPageModel extends BasePageModel {
     duration = '25',
     isPreFilled = false
   } = {}) => {
-    const durationNumInputLoc = this.page.getByLabel('Duration');
+    const durationNumInputLoc = this.page.locator('label', {
+      hasText: 'Duration'
+    });
     const durationRangeInputLoc = this.page.getByTestId(
       'streamManagerActionFormDuration-range-input'
     );
@@ -128,7 +130,10 @@ class StreamManagerPageModel extends BasePageModel {
     const expectedCount = values.length;
     let locator;
     if (placeholder) locator = this.page.getByPlaceholder(placeholder);
-    else locator = this.page.getByLabel(label);
+    else
+      locator = this.page.locator('label', {
+        hasText: label
+      });
 
     expect(await locator.count()).toBe(expectedCount);
 

@@ -5,25 +5,22 @@ import DataUnavailable from './DataUnavailable';
 import Spinner from '../../components/Spinner';
 
 const PAGE_CENTERED_CONTENT_BASE_CLASSES = [
-  'absolute',
   'flex-col',
   'flex',
   'h-screen',
   'items-center',
   'justify-center',
   'left-0',
+  'text-center',
   'top-0',
   'w-full'
 ];
-
-const SECTION_CENTERED_CONTENT_CLASSES = ['static', 'h-auto', 'grow'];
 
 const GridLayout = ({
   children,
   className,
   hasError,
   hasData,
-  isContentSectionCentered,
   isLoading,
   noDataText,
   title,
@@ -58,11 +55,7 @@ const GridLayout = ({
     )}
     {!isLoading && !hasData && (
       <DataUnavailable
-        className={clsm([
-          PAGE_CENTERED_CONTENT_BASE_CLASSES,
-          'space-y-8',
-          isContentSectionCentered && SECTION_CENTERED_CONTENT_CLASSES
-        ])}
+        className={clsm([PAGE_CENTERED_CONTENT_BASE_CLASSES, 'space-y-8'])}
         noDataText={noDataText}
         hasError={hasError}
         tryAgainFn={tryAgainFn}
@@ -70,12 +63,7 @@ const GridLayout = ({
       />
     )}
     {isLoading && (
-      <div
-        className={clsm([
-          PAGE_CENTERED_CONTENT_BASE_CLASSES,
-          isContentSectionCentered && SECTION_CENTERED_CONTENT_CLASSES
-        ])}
-      >
+      <div className={clsm([PAGE_CENTERED_CONTENT_BASE_CLASSES])}>
         <Spinner size="large" variant="light" />
       </div>
     )}
@@ -86,7 +74,6 @@ GridLayout.defaultProps = {
   className: '',
   hasError: false,
   hasData: false,
-  isContentSectionCentered: true,
   isLoading: false,
   loadingError: '',
   noDataText: '',
@@ -100,7 +87,6 @@ GridLayout.propTypes = {
   className: PropTypes.string,
   hasError: PropTypes.bool,
   hasData: PropTypes.bool,
-  isContentSectionCentered: PropTypes.bool,
   isLoading: PropTypes.bool,
   noDataText: PropTypes.string,
   title: PropTypes.string,

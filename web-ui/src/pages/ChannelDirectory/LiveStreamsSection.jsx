@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import { channelDirectory as $channelDirectoryContent } from '../../content';
 import { getAvatarSrc } from '../../helpers';
@@ -11,7 +10,7 @@ import GridLayout from './GridLayout';
 const $content = $channelDirectoryContent.live_streams_section;
 const $channelPageNotifications = $channelDirectoryContent.notification;
 
-const LiveStreamsSection = ({ isContentSectionCentered }) => {
+const LiveStreamsSection = () => {
   const [data, setData] = useState();
   const [error, setError] = useState();
   const { channels: liveChannels } = data || {};
@@ -40,16 +39,15 @@ const LiveStreamsSection = ({ isContentSectionCentered }) => {
 
   return (
     <GridLayout
-      className={hasLiveChannels ? 'pb-24' : ''}
+      className={hasLiveChannels ? 'pb-24' : 'min-h-[280px]'}
       hasError={!!error}
       hasData={hasLiveChannels}
-      isContentSectionCentered={isContentSectionCentered}
       isLoading={isLoading}
       loadingError={$channelPageNotifications.error.error_loading_streams}
       noDataText={$content.no_streams_available}
       title={$content.title}
       tryAgainFn={getSectionData}
-      tryAgainText={$channelPageNotifications.tryAgain}
+      tryAgainText={$content.try_again}
     >
       {hasLiveChannels &&
         liveChannels.map((data) => {
@@ -67,14 +65,6 @@ const LiveStreamsSection = ({ isContentSectionCentered }) => {
         })}
     </GridLayout>
   );
-};
-
-LiveStreamsSection.defaultProps = {
-  isContentSectionCentered: true
-};
-
-LiveStreamsSection.propTypes = {
-  isContentSectionCentered: PropTypes.bool
 };
 
 export default LiveStreamsSection;

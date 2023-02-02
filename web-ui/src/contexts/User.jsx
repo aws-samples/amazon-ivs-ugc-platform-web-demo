@@ -74,7 +74,10 @@ export const Provider = ({ children }) => {
 
   const fetchUserFollowingList = useCallback(async () => {
     setHasErrorFetchingFollowingList(false);
-
+    setUserData((prevUserData) => ({
+      ...prevUserData,
+      followingList: undefined
+    }));
     const { result, error } = await channelAPI.getUserFollowingListData();
 
     if (result) {
