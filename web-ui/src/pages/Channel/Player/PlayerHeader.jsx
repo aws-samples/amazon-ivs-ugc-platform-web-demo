@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -12,6 +11,7 @@ import Button from '../../../components/Button';
 import PlayerOverlay from './PlayerOverlay';
 import UserAvatar from '../../../components/UserAvatar';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
+import FollowButton from '../../../components/FollowButton';
 
 const PlayerHeader = ({
   avatarSrc,
@@ -24,8 +24,6 @@ const PlayerHeader = ({
   username
 }) => {
   const { isSessionValid } = useUser();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   /**
    * We handle the layout animation duration separately in order to specifically
@@ -50,14 +48,6 @@ const PlayerHeader = ({
       }),
     [isProfileExpanded, layoutDuration]
   );
-
-  const handleFollow = () => {
-    if (isSessionValid) {
-      console.info('Following!'); // TEMPORARY
-    } else {
-      navigate('/login', { state: { from: location } });
-    }
-  };
 
   const handleProfileView = () =>
     setLayoutDuration(defaultAnimationDuration, toggleProfileView);
@@ -181,10 +171,17 @@ const PlayerHeader = ({
           collapsed: { top: 'auto' }
         })}
       >
-        {/* TEMPORARY - REPLACE WITH FOLLOW BUTTON */}
-        <Button className="w-28" onClick={handleFollow}>
-          Follow
-        </Button>
+        <AnimatePresence>
+          {shouldShowPlayerOverlay && (
+            <motion.div
+              {...createAnimationProps({
+                animations: ['fadeIn-full']
+              })}
+            >
+              <FollowButton isExpandedView={isProfileExpanded} />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {isSessionValid && (
             <motion.div

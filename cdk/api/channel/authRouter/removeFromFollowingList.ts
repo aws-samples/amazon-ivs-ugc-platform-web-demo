@@ -2,7 +2,11 @@ import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { dynamoDbClient, FollowUserRequestBody } from '../../shared/helpers';
+import {
+  dynamoDbClient,
+  FollowUserRequestBody,
+  getChannelId
+} from '../../shared/helpers';
 import { getFollowingChannelArn } from './addToFollowingList';
 import { getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
@@ -24,7 +28,7 @@ const handler = async (
       sub
     });
 
-    const channelId = followingChannelArn.split(':channel/')[1];
+    const channelId = getChannelId(followingChannelArn);
     const { Item: UserItem = {} } = await getUser(sub);
     const { followingList = [] } = unmarshall(UserItem);
 

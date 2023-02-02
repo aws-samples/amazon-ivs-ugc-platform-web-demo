@@ -1,19 +1,22 @@
 import PropTypes from 'prop-types';
+import { clsm } from '../../utils';
 import { forwardRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { clsm } from '../../utils';
+import { motion } from 'framer-motion';
 
 import Spinner from '../Spinner';
 import {
   BUTTON_BASE_CLASSES as baseClasses,
+  BUTTON_LINK_CLASSES as linkClasses,
   BUTTON_VARIANT_CLASSES as variantClasses,
-  BUTTON_LINK_CLASSES as linkClasses
+  BUTTON_HOVER_CLASSES as hoverClasses
 } from './ButtonTheme';
 
 const Button = forwardRef(
   (
     {
       'data-testid': dataTestId,
+      animationProps,
       ariaControls,
       ariaDisabled,
       ariaLabel,
@@ -21,6 +24,7 @@ const Button = forwardRef(
       children,
       className,
       customStyles,
+      disableHover,
       id,
       isDisabled,
       isLoading,
@@ -58,6 +62,7 @@ const Button = forwardRef(
       variant,
       ...baseClasses,
       ...variantClasses[variant],
+      ...(disableHover ? [] : hoverClasses[variant]),
       type === 'nav' && linkClasses,
       className
     ]);
@@ -80,8 +85,9 @@ const Button = forwardRef(
     }
 
     return (
-      <button
+      <motion.button
         {...commonProps}
+        {...animationProps}
         className={classes}
         disabled={isDisabled}
         onFocus={onFocus}
@@ -90,19 +96,21 @@ const Button = forwardRef(
         type={type}
       >
         {isLoading ? <Spinner /> : children}
-      </button>
+      </motion.button>
     );
   }
 );
 
 Button.defaultProps = {
   'data-testid': undefined,
+  animationProps: undefined,
   ariaControls: '',
   ariaDisabled: false,
   ariaLabel: '',
   ariaSelected: null,
   className: '',
   customStyles: {},
+  disableHover: false,
   id: undefined,
   isDisabled: false,
   isLoading: false,
@@ -123,6 +131,7 @@ Button.defaultProps = {
 
 Button.propTypes = {
   'data-testid': PropTypes.string,
+  animationProps: PropTypes.object,
   ariaControls: PropTypes.string,
   ariaDisabled: PropTypes.bool,
   ariaLabel: PropTypes.string,
@@ -130,6 +139,7 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   customStyles: PropTypes.object,
+  disableHover: PropTypes.bool,
   id: PropTypes.string,
   isDisabled: PropTypes.bool,
   isLoading: PropTypes.bool,

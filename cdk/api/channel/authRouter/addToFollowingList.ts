@@ -8,7 +8,11 @@ import {
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
-import { dynamoDbClient, FollowUserRequestBody } from '../../shared/helpers';
+import {
+  dynamoDbClient,
+  FollowUserRequestBody,
+  getChannelId
+} from '../../shared/helpers';
 import { getUser, getUserByUsername } from '../helpers';
 import { UserContext } from '../authorizer';
 
@@ -75,19 +79,19 @@ const handler = async (
       sub
     });
 
-    const channelId = followingChannelArn.split(':channel/')[1];
+    const channelId = getChannelId(followingChannelArn);
     const { Item: UserItem = {} } = await getUser(sub);
     const { followingList = [] } = unmarshall(UserItem);
 
     if (followingList.includes(channelId)) {
-      console.error('Channel already exists in following list');
+      console.info('Channel already exists in following list');
 
-      reply.statusCode = 400;
+      reply.statusCode = 204;
 
-      return reply.send({ __type: FOLLOWING_LIST_DUPLICATE_EXCEPTION });
+      return reply.send({});
     }
 
-    const newFollowingList = [].concat(channelId, followingList);
+    const newFollowingList = ([] as string[]).concat(channelId, followingList);
 
     await dynamoDbClient.send(
       new UpdateItemCommand({

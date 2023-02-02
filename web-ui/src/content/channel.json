@@ -44,5 +44,20 @@
       "learn_more": "Learn more",
       "popup": { "buy_now": "Buy now", "add_to_cart": "Add to cart" }
     }
+  },
+  "follow_button": {
+    "follow": "Follow",
+    "follow_channel": "Follow channel",
+    "unfollow_channel": "Unfollow channel",
+    "tooltip": {
+      "following": "Following",
+      "unfollow": "Unfollow"
+    },
+    "notifications": {
+      "error": {
+        "follow_user": "Failed to follow user",
+        "unfollow_user": "Failed to unfollow user"
+      }
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { BREAKPOINTS, USER_MANAGEMENT_THEME_COLOR } from '../../constants';
@@ -21,11 +22,15 @@ const UserManagement = () => {
   const { currentBreakpoint, mainRef } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < BREAKPOINTS.lg;
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
-  const focus = location.state?.focus;
+  const locationRef = useRef({});
+  const from = locationRef.current?.from?.pathname || '/';
 
   useScrollToTop({ isResponsiveView });
   useThemeColor(USER_MANAGEMENT_THEME_COLOR);
+
+  useEffect(() => {
+    locationRef.current = location.state;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (
     isSessionValid === true &&
@@ -37,7 +42,7 @@ const UserManagement = () => {
      * redirected to the login page, setting replace to "true" so we don't
      * create another entry in the history stack for the login page.
      */
-    return <Navigate to={from} state={focus ? { focus } : {}} replace />;
+    return <Navigate to={from} state={locationRef.current} replace />;
   }
 
   return (

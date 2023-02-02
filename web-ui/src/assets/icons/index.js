@@ -37,6 +37,7 @@ export { ReactComponent as SmartToy } from './mr-404.svg';
 export { ReactComponent as StreamHealth } from './stream-health.svg';
 export { ReactComponent as StreamManager } from './stream-manager.svg';
 export { ReactComponent as SyncError } from './sync-error.svg';
+export { ReactComponent as Unfollow } from './unfollow.svg';
 export { ReactComponent as Unmute } from './unmute.svg';
 export { ReactComponent as Upload } from './upload.svg';
 export { ReactComponent as Visibility } from './visibility.svg';

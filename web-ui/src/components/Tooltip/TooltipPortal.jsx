@@ -4,22 +4,26 @@ import { clsm } from '../../utils';
 
 import withPortal from '../withPortal';
 
-const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => (
-  <span
-    ref={ref}
-    className={clsm([
-      'bg-lightMode-gray',
-      'dark:bg-darkMode-gray',
-      'p-2.5',
-      'rounded-xl',
-      'text-p3',
-      hasFixedWidth && 'max-w-[200px]'
-    ])}
-    data-testid="tooltip-content"
-  >
-    {message}
-  </span>
-));
+const TooltipPortal = forwardRef(({ hasFixedWidth, message }, ref) => {
+  if (!message) return;
+
+  return (
+    <span
+      ref={ref}
+      className={clsm([
+        'bg-lightMode-gray',
+        'dark:bg-darkMode-gray',
+        'p-2.5',
+        'rounded-xl',
+        'text-p3',
+        hasFixedWidth && 'max-w-[200px]'
+      ])}
+      data-testid="tooltip-content"
+    >
+      {message}
+    </span>
+  );
+});
 
 TooltipPortal.defaultProps = { hasFixedWidth: false };
 

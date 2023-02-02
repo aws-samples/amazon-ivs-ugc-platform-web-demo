@@ -365,3 +365,17 @@ export const deleteChannelAsset = async (assetType) =>
     url: `${apiBaseUrl}/channel/asset`,
     body: { assetType }
   });
+
+export const followChannel = async (followedUsername) =>
+  await authFetch({
+    method: 'PUT',
+    url: `${apiBaseUrl}/channel/followingList/add`,
+    body: { followedUsername }
+  });
+
+export const unfollowChannel = async (followedUsername) =>
+  await authFetch({
+    method: 'PUT',
+    url: `${apiBaseUrl}/channel/followingList/remove`,
+    body: { followedUsername }
+  });

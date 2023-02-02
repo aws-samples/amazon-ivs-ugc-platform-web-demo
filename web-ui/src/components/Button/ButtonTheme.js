@@ -24,7 +24,7 @@ export const BUTTON_BASE_CLASSES = [
   'py-3',
   'rounded-3xl',
   'select-none',
-  'transition-all',
+  'transition',
   'w-auto',
   'whitespace-nowrap',
   ...BUTTON_OUTLINE_CLASSES
@@ -33,18 +33,44 @@ export const BUTTON_BASE_CLASSES = [
 const TEXT_BASE_CLASSES = [
   'bg-transparent',
   'dark:[&>.spinner]:text-white',
-  'dark:hover:bg-darkMode-gray-hover',
   'dark:text-darkMode-blue',
-  'hover:bg-lightMode-gray-light-hover',
   'text-lightMode-blue-medium'
 ];
+
+const TEXT_BASE_HOVER_CLASSES = [
+  'dark:hover:bg-darkMode-gray-hover',
+  'hover:bg-lightMode-gray-light-hover'
+];
+
+export const BUTTON_HOVER_CLASSES = {
+  primary: ['hover:bg-darkMode-blue-hover'],
+  secondary: ['dark:hover:bg-darkMode-gray-hover', 'hover:bg-white-hover'],
+  tertiary: [
+    'dark:hover:bg-darkMode-gray-extraLight-hover',
+    'hover:bg-lightMode-gray-hover'
+  ],
+  destructive: ['hover:bg-darkMode-red-hover'],
+  icon: [
+    'dark:hover:bg-darkMode-gray-hover',
+    'hover:bg-lightMode-gray-light-hover'
+  ],
+  primaryText: [
+    ...TEXT_BASE_HOVER_CLASSES,
+    'focus:bg-lightMode-gray-light-hover',
+    'hover:bg-lightMode-gray-light-hover'
+  ],
+  secondaryText: [],
+  tertiaryText: [
+    ...TEXT_BASE_HOVER_CLASSES,
+    'hover:bg-lightMode-gray-light-hover'
+  ]
+};
 
 export const BUTTON_VARIANT_CLASSES = {
   primary: [
     '[&>svg]:fill-black',
     'bg-darkMode-blue',
     'focus:bg-darkMode-blue',
-    'hover:bg-darkMode-blue-hover',
     'text-black'
   ],
   secondary: [
@@ -55,10 +81,8 @@ export const BUTTON_VARIANT_CLASSES = {
     'dark:[&>svg]:fill-white',
     'dark:bg-darkMode-gray',
     'dark:focus:bg-darkMode-gray',
-    'dark:hover:bg-darkMode-gray-hover',
     'dark:text-white',
     'focus:bg-white',
-    'hover:bg-white-hover',
     'text-black'
   ],
   tertiary: [
@@ -66,9 +90,7 @@ export const BUTTON_VARIANT_CLASSES = {
     'bg-lightMode-gray',
     'dark:bg-darkMode-gray-extraLight',
     'dark:focus:bg-darkMode-gray-extraLight',
-    'dark:hover:bg-darkMode-gray-extraLight-hover',
     'focus:bg-lightMode-gray',
-    'hover:bg-lightMode-gray-hover',
     'text-black'
   ],
   destructive: [
@@ -77,7 +99,6 @@ export const BUTTON_VARIANT_CLASSES = {
     'bg-darkMode-red',
     'dark:text-black',
     'focus:bg-darkMode-red',
-    'hover:bg-darkMode-red-hover',
     'text-white'
   ],
   icon: [
@@ -90,10 +111,8 @@ export const BUTTON_VARIANT_CLASSES = {
     'dark:[&>svg:focus]:fill-white',
     'dark:[&>svg]:fill-white',
     'dark:focus:bg-darkMode-gray-hover',
-    'dark:hover:bg-darkMode-gray-hover',
     'focus:bg-lightMode-gray-light-hover',
     'h-auto',
-    'hover:bg-lightMode-gray-light-hover',
     'min-w-[auto]',
     'p-2.5',
     'rounded-[50%]'
@@ -105,7 +124,6 @@ export const BUTTON_VARIANT_CLASSES = {
     'dark:[&>svg]:fill-darkMode-blue',
     'dark:text-darkMode-blue',
     'focus:bg-lightMode-gray-light-hover',
-    'hover:bg-lightMode-gray-light-hover',
     'text-lightMode-blue-medium'
   ],
   secondaryText: [
@@ -124,7 +142,6 @@ export const BUTTON_VARIANT_CLASSES = {
     'dark:text-darkMode-blue',
     'dark:text-white',
     'space-x-3',
-    'hover:bg-lightMode-gray-light-hover',
     '!justify-start',
     'px-3',
     'py-1.5',

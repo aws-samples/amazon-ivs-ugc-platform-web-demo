@@ -12,23 +12,25 @@ import {
   ChannelAssetURLs,
   dynamoDbClient,
   getChannelAssetUrls,
+  getChannelId,
   getIsLive,
   ResponseBody,
   updateIngestConfiguration
 } from '../shared/helpers';
-import { getUserByUsername } from '../channel/helpers';
+import { getUser, getUserByUsername } from '../channel/helpers';
 import { StreamSessionDbRecord } from '../shared/helpers';
 import authorizer from '../channel/authorizer';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
+  channelAssetUrls?: ChannelAssetURLs;
   color?: string;
+  ingestConfiguration?: IngestConfiguration;
   isLive?: boolean;
+  isViewerBanned?: boolean;
+  isViewerFollowing?: boolean;
   playbackUrl?: string;
   username?: string;
-  ingestConfiguration?: IngestConfiguration;
-  isViewerBanned?: boolean;
-  channelAssetUrls?: ChannelAssetURLs;
 }
 
 interface GetChannelDataParams {
@@ -82,6 +84,7 @@ const handler = async (
     responseBody.color = color;
     responseBody.username = username;
     responseBody.isViewerBanned = false;
+    responseBody.isViewerFollowing = false;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
 
     // If the viewer is banned, then only return a subset of the channel data
@@ -90,6 +93,22 @@ const handler = async (
         responseBody.isViewerBanned = true;
 
         return reply.send(responseBody);
+      }
+    }
+
+    // Check if channel is being followed by the viewer
+    if (viewerSub) {
+      try {
+        const channelId = getChannelId(channelArn);
+
+        const { Item: ViewerItem = {} } = await getUser(viewerSub);
+        const { followingList: viewerFollowingList = [] } =
+          unmarshall(ViewerItem);
+
+        responseBody.isViewerFollowing =
+          viewerFollowingList.includes(channelId);
+      } catch (error) {
+        // Failed attempts to retrieve the user data shouldn't stop the flow
       }
     }
 
