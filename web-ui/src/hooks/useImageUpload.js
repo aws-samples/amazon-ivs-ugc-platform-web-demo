@@ -71,7 +71,7 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
           file
         }));
       }
-      
+
       const newPreviewUrl = result?.previewUrl || previewUrl;
       setPreviewUrl(newPreviewUrl);
       onUpload({ result, error });
