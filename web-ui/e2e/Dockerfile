@@ -1,5 +1,5 @@
 FROM node:16-alpine
-FROM mcr.microsoft.com/playwright:v1.29.1-focal
+FROM mcr.microsoft.com/playwright:v1.30.0-focal
 
 # Set the work directory for the application
 WORKDIR /e2e
