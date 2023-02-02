@@ -187,6 +187,7 @@
       "avatar_failed_to_delete": "Avatar failed to delete",
       "banner_failed_to_upload": "Profile banner failed to upload",
       "banner_failed_to_delete": "Profile banner failed to delete",
+      "banner_failed_to_save": "Banner failed to save",
       "image_exceeded_max_size": "Image exceeded max file size",
       "cant_select_file": "Can't select the file you chose"
     }
