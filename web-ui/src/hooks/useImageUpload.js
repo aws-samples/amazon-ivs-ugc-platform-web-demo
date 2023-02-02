@@ -62,10 +62,10 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
       let result, error;
       const file = onFileChangeEvent.target.files[0];
 
-      setIsUploading(true);
       error = prevalidateUpload(file);
 
       if (!error) {
+        setIsUploading(true);
         ({ result, error } = await channelAPI.uploadFileToS3({
           assetType,
           file
@@ -76,7 +76,9 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
       setPreviewUrl(newPreviewUrl);
       onUpload({ result, error });
       setIsUploading(false);
-      if (newPreviewUrl) setIsDownloading(true);
+      if (newPreviewUrl && !error) {
+        setIsDownloading(true);
+      }
 
       return result;
     },
