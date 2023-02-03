@@ -35,9 +35,9 @@ const handler = async (
 
   try {
     const promises: Promise<UpdateItemCommandOutput | undefined>[] = [];
-    const nonAssetPreferences = Object.entries(
-      preferences
-    ).reduce<{ key: string; value: any }[]>((acc, [key, value]) => {
+    const nonAssetPreferences = Object.entries(preferences).reduce<
+      { key: string; value: any }[]
+    >((acc, [key, value]) => {
       if (!value) return acc;
 
       const { name, previewUrl, uploadDateTime } = value;
@@ -82,7 +82,7 @@ const handler = async (
                   ConditionExpression: `attribute_not_exists(channelAssets.#${key}.#lastModified) or (channelAssets.#${key}.#lastModified < :lastModified)`,
                   Key: { id: convertToAttr(sub) },
                   ExpressionAttributeValues: {
-                    ...name && { ':name': convertToAttr(name) },
+                    ...(name && { ':name': convertToAttr(name) }),
                     ':previewUrl': convertToAttr(previewUrl),
                     ':lastModified': convertToAttr(
                       new Date(uploadDateTime).getTime()
