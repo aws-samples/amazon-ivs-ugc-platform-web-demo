@@ -25,7 +25,6 @@ export const Provider = ({ children }) => {
   const isMobileView =
     isDefaultResponsiveView ||
     (isLandscape && isTouchscreenDevice && currentBreakpoint < BREAKPOINTS.lg);
-  const supportsScreenOrientation = !!window.screen?.orientation;
 
   const lockBody = useCallback(() => {
     if (isiOS()) {
@@ -100,39 +99,35 @@ export const Provider = ({ children }) => {
   }, []);
 
   // Set --mobile-vh and --mobile-vw CSS variables
-  const updateMobileVh = useDebouncedCallback(
-    () => {
-      if (!isDefaultResponsiveView && !isTouchscreenDevice) {
-        document.documentElement.style.removeProperty('--mobile-vh'); // Remove --mobile-vh on desktop devices
-        document.documentElement.style.removeProperty('--mobile-vw'); // Remove --mobile-vw on desktop devices
-        return;
-      }
+  const updateMobileVh = useDebouncedCallback(() => {
+    if (!isDefaultResponsiveView && !isTouchscreenDevice) {
+      document.documentElement.style.removeProperty('--mobile-vh'); // Remove --mobile-vh on desktop devices
+      document.documentElement.style.removeProperty('--mobile-vw'); // Remove --mobile-vw on desktop devices
+      return;
+    }
 
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
-      const vw = window.innerWidth * 0.01;
-      document.documentElement.style.setProperty('--mobile-vw', `${vw}px`);
-    },
-    10,
-    [isDefaultResponsiveView, isTouchscreenDevice]
-  );
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
+    const vw = window.innerWidth * 0.01;
+    document.documentElement.style.setProperty('--mobile-vw', `${vw}px`);
+  }, 10);
 
   const updateOrientation = useCallback(() => {
     /**
      * screen.orientation has proven to be more accurate than the CSS media query for touchscreen devices.
      * Most specifically on Firefox mobile, some devices are switch to landscape when the virtual keyboard is open when they're still technically in portrait mode.
      */
-    if (supportsScreenOrientation && isTouchscreenDevice)
+    if (window.screen?.orientation && isTouchscreenDevice)
       setIsLandscape(!!window.screen.orientation.type.includes('landscape'));
     else setIsLandscape(isLandscapeMatches);
-  }, [isLandscapeMatches, isTouchscreenDevice, supportsScreenOrientation]);
+  }, [isLandscapeMatches, isTouchscreenDevice]);
 
   useResize(
-    () => {
+    useCallback(() => {
       updateMobileVh();
       updateCurrentBreakpoint();
       updateOrientation();
-    },
+    }, [updateCurrentBreakpoint, updateMobileVh, updateOrientation]),
     { shouldCallOnMount: true }
   );
 

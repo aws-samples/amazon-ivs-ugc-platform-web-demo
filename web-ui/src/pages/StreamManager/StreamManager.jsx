@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
@@ -13,7 +13,6 @@ import useStreamSessionData from '../../contexts/Streams/useStreamSessionData';
 import withVerticalScroller from '../../components/withVerticalScroller';
 
 const StreamManager = () => {
-  const streamManagerRef = useRef();
   const { isLive, streamSessions, setStreamSessions } = useStreams();
   const { updateStreamSessionDataFetchKey } = useStreamSessionData({
     isLive,
@@ -50,7 +49,6 @@ const StreamManager = () => {
           <Notification />
           <StreamManagerActionModal />
           <div
-            ref={streamManagerRef}
             className={clsm([
               'gap-6',
               'grid-cols-[351px,auto]',
@@ -64,7 +62,7 @@ const StreamManager = () => {
             ])}
           >
             <StreamManagerActions />
-            <StreamManagerChat siblingRef={streamManagerRef} />
+            <StreamManagerChat />
           </div>
         </StreamManagerActionsProvider>
       </NotificationProvider>

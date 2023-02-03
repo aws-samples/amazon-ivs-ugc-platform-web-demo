@@ -111,129 +111,129 @@ const RenditionSetting = ({
         {<SettingsSvg />}
       </button>
       <AnimatePresence>
-        {isExpanded && isMobileView && (
-          <motion.div
-            className={clsm([
-              'bg-modalOverlay',
-              'fixed',
-              'h-screen',
-              'left-0',
-              'top-0',
-              'w-screen'
-            ])}
-            {...createAnimationProps({ animations: ['fadeIn-full'] })}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
         {isExpanded && (
-          <motion.div
-            className={clsm([
-              'absolute',
-              'bg-lightMode-gray-light',
-              'dark:bg-darkMode-gray',
-              'flex-col',
-              'flex',
-              'p-4',
-              'rounded-3xl',
-              isMobileView && [
-                'bottom-0',
-                'fixed',
-                'left-0',
-                'max-h-[65%]',
-                'rounded-b-none',
-                'w-screen'
-              ]
-            ])}
-            id="rendition-selector-container"
-            ref={qualitiesContainerRef}
-            style={
-              !isMobileView &&
-              qualitiesContainerPos && {
-                left: `${qualitiesContainerPos.left}px`,
-                top: `${qualitiesContainerPos.top}px`
-              }
-            }
-            {...createAnimationProps({
-              animations: ['slideIn-bottom'],
-              options: { shouldAnimate: isMobileView }
-            })}
+          <div
+            className={clsm(
+              isMobileView && ['fixed', 'bottom-0', 'left-0', 'z-20']
+            )}
           >
             {isMobileView && (
-              <div className={clsm(['relative'])}>
-                <p
-                  className={clsm(['text-center', 'font-bold', 'pt-3', 'pb-4'])}
-                >
-                  {$content.video_quality}
-                </p>
-                <Button
-                  className={clsm([
-                    'absolute',
-                    'top-0',
-                    'right-0',
-                    'text-lightMode-gray',
-                    '[&>svg]:h-6',
-                    '[&>svg]:w-6'
-                  ])}
-                  onClick={closeQualitiesContainer}
-                  variant="icon"
-                >
-                  <Close />
-                </Button>
-              </div>
+              <motion.div
+                className={clsm(['bg-modalOverlay', 'h-screen', 'w-screen'])}
+                {...createAnimationProps({ animations: ['fadeIn-full'] })}
+              />
             )}
-            <div
+            <motion.div
               className={clsm([
-                'flex',
+                'absolute',
+                'bg-lightMode-gray-light',
+                'dark:bg-darkMode-gray',
                 'flex-col',
-                'space-y-2',
-                'overflow-y-auto',
+                'flex',
+                'p-4',
+                'rounded-3xl',
                 isMobileView && [
-                  'border-lightMode-gray-light-hover',
-                  'border-t',
-                  'dark:border-darkMode-gray-hover',
-                  'pt-4',
-                  'dark:scrollbar-color-darkMode-gray-medium'
+                  'static',
+                  'max-h-[65%]',
+                  'rounded-b-none',
+                  'w-screen'
                 ]
               ])}
+              id="rendition-selector-container"
+              ref={qualitiesContainerRef}
+              style={
+                !isMobileView &&
+                qualitiesContainerPos && {
+                  left: `${qualitiesContainerPos.left}px`,
+                  top: `${qualitiesContainerPos.top}px`
+                }
+              }
+              {...createAnimationProps({
+                animations: ['slideIn-bottom'],
+                options: { shouldAnimate: isMobileView }
+              })}
             >
-              {qualities.map(({ name }) =>
-                name ? (
-                  <Button
-                    ariaLabel={`Select the ${name} video quality`}
+              {isMobileView && (
+                <div className={clsm(['relative'])}>
+                  <p
                     className={clsm([
-                      selectedQualityName === name
-                        ? [
-                            'bg-lightMode-gray-light-hover',
-                            'dark:bg-darkMode-gray-hover',
-                            'dark:!shadow-white',
-                            '!shadow-black',
-                            'shadow-focus'
-                          ]
-                        : [
-                            '[&:focus]:[&]:text-black',
-                            '[&:focus]:font-bold',
-                            '[&:hover]:[&]:text-black',
-                            '[&:hover]:font-bold',
-                            '[&]:text-lightMode-gray-medium',
-                            'dark:[&:focus]:[&]:text-white',
-                            'dark:[&:hover]:[&]:text-white',
-                            'dark:[&]:text-darkMode-gray-light',
-                            'font-normal',
-                            'transition-none'
-                          ]
+                      'text-center',
+                      'font-bold',
+                      'pt-3',
+                      'pb-4'
                     ])}
-                    key={name}
-                    name={name}
-                    onClick={onSelectQualityHandler}
-                    variant="secondaryText"
                   >
-                    {name}
+                    {$content.video_quality}
+                  </p>
+                  <Button
+                    className={clsm([
+                      'absolute',
+                      'top-0',
+                      'right-0',
+                      'text-lightMode-gray',
+                      '[&>svg]:h-6',
+                      '[&>svg]:w-6'
+                    ])}
+                    onClick={closeQualitiesContainer}
+                    variant="icon"
+                  >
+                    <Close />
                   </Button>
-                ) : null
+                </div>
               )}
-            </div>
-          </motion.div>
+              <div
+                className={clsm([
+                  'flex',
+                  'flex-col',
+                  'space-y-2',
+                  'overflow-y-auto',
+                  isMobileView && [
+                    'border-lightMode-gray-light-hover',
+                    'border-t',
+                    'dark:border-darkMode-gray-hover',
+                    'pt-4',
+                    'dark:scrollbar-color-darkMode-gray-medium'
+                  ]
+                ])}
+              >
+                {qualities.map(({ name }) =>
+                  name ? (
+                    <Button
+                      ariaLabel={`Select the ${name} video quality`}
+                      className={clsm([
+                        selectedQualityName === name
+                          ? [
+                              'bg-lightMode-gray-light-hover',
+                              'dark:bg-darkMode-gray-hover',
+                              'dark:!shadow-white',
+                              '!shadow-black',
+                              'shadow-focus'
+                            ]
+                          : [
+                              '[&:focus]:[&]:text-black',
+                              '[&:focus]:font-bold',
+                              '[&:hover]:[&]:text-black',
+                              '[&:hover]:font-bold',
+                              '[&]:text-lightMode-gray-medium',
+                              'dark:[&:focus]:[&]:text-white',
+                              'dark:[&:hover]:[&]:text-white',
+                              'dark:[&]:text-darkMode-gray-light',
+                              'font-normal',
+                              'transition-none'
+                            ]
+                      ])}
+                      key={name}
+                      name={name}
+                      onClick={onSelectQualityHandler}
+                      variant="secondaryText"
+                    >
+                      {name}
+                    </Button>
+                  ) : null
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

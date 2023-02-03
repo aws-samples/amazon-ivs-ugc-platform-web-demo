@@ -163,7 +163,7 @@ const QuizCard = ({
           </div>
         </div>
       </motion.div>
-      {isMobileView && <FloatingNav />}
+      <FloatingNav />
     </div>
   );
 };

@@ -93,14 +93,12 @@ export const Provider = ({ children }) => {
         refreshCurrentStreamSessions();
       }
     },
-    1000,
-    [refreshCurrentStreamSessions]
+    1000
   );
 
   const debouncedUpdateActiveStreamSession = useDebouncedCallback(
     updateActiveStreamSession,
-    500,
-    [updateActiveStreamSession]
+    500
   );
 
   const eagerUpdateActiveStreamSession = useCallback(
@@ -120,8 +118,7 @@ export const Provider = ({ children }) => {
 
   const throttledRefreshCurrentActiveStreamSession = useThrottledCallback(
     () => refreshCurrentActiveStreamSession(),
-    1000,
-    [refreshCurrentActiveStreamSession]
+    1000
   );
 
   // isLoadingStreamData logic

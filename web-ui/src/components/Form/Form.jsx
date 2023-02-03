@@ -1,13 +1,14 @@
+import { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { useCallback, useMemo, useRef } from 'react';
 
 import { BREAKPOINTS } from '../../constants';
-import { clsm, noop, throttle } from '../../utils';
+import { BUTTON_VARIANT_CLASSES as variantClasses } from './FormTheme';
+import { clsm, noop } from '../../utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import useForm from './useForm';
-import { BUTTON_VARIANT_CLASSES as variantClasses } from './FormTheme';
+import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const Form = ({
   'data-testid': dataTestId,
@@ -87,14 +88,10 @@ const Form = ({
     ]
   );
 
-  const throttledPresubmitValidation = useMemo(
-    () =>
-      throttle((name) => {
-        presubmitValidation(name);
-        initialFocusedInputValue.current = '';
-      }, 1000),
-    [presubmitValidation]
-  );
+  const throttledPresubmitValidation = useThrottledCallback((name) => {
+    presubmitValidation(name);
+    initialFocusedInputValue.current = '';
+  }, 1000);
 
   const initialFocusedInputValue = useRef('');
 

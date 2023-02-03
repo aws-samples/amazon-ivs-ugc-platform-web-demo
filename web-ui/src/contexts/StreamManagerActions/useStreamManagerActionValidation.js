@@ -45,8 +45,7 @@ const useStreamManagerActionValidation = () => {
   const throttledValidateStreamManagerActionData = useThrottledCallback(
     (inputData, actionName, options) =>
       validateStreamManagerActionData(inputData, actionName, options),
-    400,
-    []
+    400
   );
 
   /**

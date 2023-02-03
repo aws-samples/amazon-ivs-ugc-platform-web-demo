@@ -2,16 +2,23 @@ import { useCallback, useRef } from 'react';
 
 import useLatest from './useLatest';
 
-const useAnimationFrame = (callback) => {
+const linear = (progress) => progress;
+
+const useAnimationFrame = (callback, ease = linear) => {
   const startTime = useRef(0);
   const latestCallback = useLatest(callback);
+  const latestEase = useLatest(ease);
 
   const start = useCallback(
     (duration) =>
       new Promise((resolve) => {
         const animate = (timestamp) => {
           const elapsedTime = timestamp - startTime.current;
-          latestCallback.current(Math.min(elapsedTime / duration, 1));
+          const progress =
+            duration > 0 ? Math.min(elapsedTime / duration, 1) : 1;
+          const easedProgress = latestEase.current(progress);
+
+          latestCallback.current(easedProgress);
 
           if (elapsedTime >= duration) return resolve();
 
@@ -23,7 +30,7 @@ const useAnimationFrame = (callback) => {
           animate(timestamp);
         });
       }),
-    [latestCallback]
+    [latestCallback, latestEase]
   );
 
   return { start };

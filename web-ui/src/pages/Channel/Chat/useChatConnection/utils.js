@@ -26,8 +26,9 @@ export const requestChatToken = async (
   const { result: { token, sessionExpirationTime, capabilities } = {}, error } =
     await getChatToken(chatRoomOwnerUsername, abortControllerSignal);
 
-  if (error) {
+  if (error && error.name !== 'AbortError') {
     console.error('Error requesting chat token:', error);
+
     return { error };
   }
 

@@ -1,27 +1,22 @@
 import { useEffect } from 'react';
 
-import useLatest from './useLatest';
-
 const useResize = (
   callback,
   { shouldCallOnMount = false } = { shouldCallOnMount: false }
 ) => {
-  const latestCallback = useLatest(callback);
-
   useEffect(() => {
-    const handler = () => latestCallback.current();
-    if (shouldCallOnMount) handler();
+    if (shouldCallOnMount) callback();
 
-    window.addEventListener('resize', handler);
-    window.addEventListener('orientationchange', handler); // legacy
-    window.screen.orientation?.addEventListener('change', handler); // modern
+    window.addEventListener('resize', callback);
+    window.addEventListener('orientationchange', callback); // legacy
+    window.screen.orientation?.addEventListener('change', callback); // modern
 
     return () => {
-      window.removeEventListener('resize', handler);
-      window.removeEventListener('orientationchange', handler);
-      window.screen.orientation?.removeEventListener('change', handler);
+      window.removeEventListener('resize', callback);
+      window.removeEventListener('orientationchange', callback);
+      window.screen.orientation?.removeEventListener('change', callback);
     };
-  }, [latestCallback, shouldCallOnMount]);
+  }, [callback, shouldCallOnMount]);
 };
 
 export default useResize;

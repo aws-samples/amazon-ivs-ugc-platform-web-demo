@@ -136,13 +136,7 @@ export const Provider = ({ children }) => {
 
       return result;
     },
-    100,
-    [
-      notifyError,
-      notifySuccess,
-      saveStreamManagerActionData,
-      storedStreamManagerActionData
-    ]
+    100
   );
 
   /**

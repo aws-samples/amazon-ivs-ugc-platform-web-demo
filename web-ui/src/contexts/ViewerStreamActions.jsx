@@ -5,7 +5,7 @@ import {
   useMemo,
   useState
 } from 'react';
-import PropTypes from 'prop-types';
+import { Outlet, useOutletContext } from 'react-router-dom';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
 import { useChannel } from './Channel';
@@ -22,11 +22,12 @@ const TIME_BASED_VIEWER_ACTIONS = [
 const Context = createContext(null);
 Context.displayName = 'ViewerStreamActions';
 
-export const Provider = ({ children }) => {
+export const Provider = () => {
   const { channelData } = useChannel();
   const { color, isLive } = channelData || {};
   const { currentBreakpoint } = useResponsiveDevice();
   const [currentViewerAction, setCurrentViewerAction] = useState();
+  const outletCtx = useOutletContext();
   const isChannelPageStackedView = currentBreakpoint < BREAKPOINTS.lg;
   const currentViewerStreamActionData = currentViewerAction?.data;
   const currentViewerStreamActionStartTime = currentViewerAction?.startTime;
@@ -108,9 +109,11 @@ export const Provider = ({ children }) => {
     ]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>
+      {<Outlet context={outletCtx} />}
+    </Context.Provider>
+  );
 };
-
-Provider.propTypes = { children: PropTypes.node.isRequired };
 
 export const useViewerStreamActions = () => useContextHook(Context);

@@ -71,7 +71,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
         openProductDetails={openProductDetails}
         variant="popup"
       />
-      {isMobileView && <FloatingNav />}
+      <FloatingNav />
     </div>
   );
 };

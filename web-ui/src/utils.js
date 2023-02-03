@@ -62,76 +62,6 @@ export const bound = (value, min = null, max = null) => {
 };
 
 /**
- * Executes a callback function predictably, after a certain delay.
- * Throttling a function prevents excessive or repeated calling of the function,
- * but does not get reset in the process
- *  - i.e. acts as a rate limiter for execution of handlers
- * @param {func} callback function to throttle
- * @param {number} delay milliseconds to throttle invocations to
- * @param {boolean} debounceMode set to true to enable debounce instead of throttle
- */
-export const throttle = (callback, delay, debounceMode) => {
-  let timeoutID;
-  let cancelled = false;
-  let lastExec = 0;
-  const clearExistingTimeout = () => {
-    if (timeoutID) {
-      clearTimeout(timeoutID);
-    }
-  };
-
-  const wrapper = (...args) => {
-    const elapsed = Date.now() - lastExec;
-    const exec = () => {
-      lastExec = Date.now();
-
-      return callback(...args);
-    };
-    let result;
-
-    if (cancelled) {
-      return;
-    }
-    if (debounceMode && !timeoutID) {
-      result = exec();
-    }
-    clearExistingTimeout();
-    if (debounceMode === undefined && elapsed > delay) {
-      result = exec();
-    } else {
-      const clearTimeoutID = () => {
-        timeoutID = undefined;
-      };
-      timeoutID = setTimeout(
-        debounceMode ? clearTimeoutID : exec,
-        debounceMode === undefined ? delay - elapsed : delay
-      );
-    }
-
-    return result;
-  };
-
-  wrapper.cancel = () => {
-    clearExistingTimeout();
-    cancelled = true;
-  };
-
-  return wrapper;
-};
-
-/**
- * Stalls the execution of a callback function for a predetermined
- * amount of time, so long as it continues to be invoked
- * @param {func} callback function to debounce
- * @param {number} delay stall delay
- * @param {boolean} atBegin true if callback is to be executed before stalling
- *                    initiates, false if after stalling period ends
- */
-export const debounce = (callback, delay, atBegin = false) => {
-  return throttle(callback, delay, atBegin);
-};
-
-/**
  * A rate limiting mechanism that retries an asynchronous operation until a maximum
  * retry count has been reached. The exponential backoff algorithm waits for a
  * duration of time that increases exponentially between each retry attempt.
@@ -333,3 +263,14 @@ export const deconstructObjectPath = (path = [], value) => {
 export const range = (length) => Array.from({ length }, (_, i) => i);
 
 export const isTextColorInverted = (color) => ['green', 'blue'].includes(color);
+
+export const setElementStyles = (element, styles = {}) => {
+  if (!element) return;
+
+  const cssText = Object.entries(styles).reduce(
+    (cssTextAcc, [key, val]) => (cssTextAcc += `;${key}:${val}`),
+    ''
+  );
+
+  element.style.cssText += cssText;
+};

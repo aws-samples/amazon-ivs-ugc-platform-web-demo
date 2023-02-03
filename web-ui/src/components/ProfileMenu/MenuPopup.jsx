@@ -122,30 +122,22 @@ const PortalPopup = withPortal(Popup, 'profile-menu-popup', {
   baseContainerClasses: clsm(['absolute', 'z-[1000]'])
 });
 
-const MenuPopup = forwardRef(
-  ({ asPortal, isOpen, siblingRef, ...restProps }, ref) =>
-    asPortal ? (
-      <PortalPopup
-        isOpen={isOpen}
-        ref={ref}
-        prevSiblingEl={siblingRef.current}
-        {...restProps}
-      />
-    ) : (
-      isOpen && <Popup ref={ref} {...restProps} />
-    )
+const MenuPopup = forwardRef(({ asPortal, isOpen, ...restProps }, ref) =>
+  asPortal ? (
+    <PortalPopup isOpen={isOpen} ref={ref} {...restProps} />
+  ) : (
+    isOpen && <Popup ref={ref} {...restProps} />
+  )
 );
 
 MenuPopup.defaultProps = {
   asPortal: false,
-  isOpen: false,
-  siblingRef: { current: null }
+  isOpen: false
 };
 
 MenuPopup.propTypes = {
   asPortal: PropTypes.bool,
-  isOpen: PropTypes.bool,
-  siblingRef: PropTypes.object
+  isOpen: PropTypes.bool
 };
 
 Popup.defaultProps = {

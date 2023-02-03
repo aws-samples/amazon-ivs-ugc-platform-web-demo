@@ -1,49 +1,45 @@
-import PropTyps from 'prop-types';
+import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { app as $appContent } from '../../../content';
 import { clsm } from '../../../utils';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 
 const $content = $appContent.navbar;
 
-const MobileNavbar = ({ className }) => {
+const MobileNavbar = ({ className, motionProps }) => {
+  const { isMobileView } = useResponsiveDevice();
   const { isSessionValid } = useUser();
 
   return (
-    !isSessionValid && (
-      <nav
-        className={clsm(
-          [
-            'fixed',
-            'flex',
-            'items-center',
-            'justify-between',
-            'bottom-0',
-            'left-1/2',
-            'w-full',
-            'py-5',
-            'px-4',
-            'max-w-[calc(440px_+_32px)]',
-            'min-w-[calc(228px_+_32px)]',
-            '-translate-x-1/2'
-          ],
+    !isSessionValid &&
+    isMobileView && (
+      <motion.nav
+        {...motionProps}
+        className={clsm([
+          'fixed',
+          'bottom-5',
+          'left-1/2',
+          '-translate-x-1/2',
+          'rounded-[40px]',
+          'w-[calc(100vw_-_32px)]',
+          'max-w-[calc(440px_+_32px)]',
+          'min-w-[calc(228px_+_32px)]',
+          'dark:bg-darkMode-gray-medium',
+          'bg-lightMode-gray-extraLight',
           className
-        )}
+        ])}
       >
         <div
           className={clsm([
             'flex',
-            'flex-row',
-            'space-x-4',
             'px-4',
             'py-3.5',
-            'w-full',
-            'bg-lightMode-gray-extraLight',
-            'dark:bg-darkMode-gray-medium',
-            'rounded-[40px]',
-            'min-w-[244px]',
-            '[&>a]:flex-1',
+            'items-center',
+            'justify-between',
+            'space-x-4',
             '[&>a]:w-full'
           ])}
         >
@@ -64,13 +60,16 @@ const MobileNavbar = ({ className }) => {
             {$content.sign_up}
           </Button>
         </div>
-      </nav>
+      </motion.nav>
     )
   );
 };
 
-MobileNavbar.defaultProps = { className: '' };
+MobileNavbar.defaultProps = { className: '', motionProps: {} };
 
-MobileNavbar.propTypes = { className: PropTyps.string };
+MobileNavbar.propTypes = {
+  className: PropTypes.string,
+  motionProps: PropTypes.object
+};
 
 export default MobileNavbar;

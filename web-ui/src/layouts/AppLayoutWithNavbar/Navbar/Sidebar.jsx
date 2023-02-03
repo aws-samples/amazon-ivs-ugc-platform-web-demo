@@ -1,4 +1,4 @@
-import { Fragment, useRef } from 'react';
+import { Fragment } from 'react';
 
 import { AcmeSml, AcmeLrg, Settings } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
@@ -16,7 +16,6 @@ const Sidebar = () => {
   const { userData, isSessionValid } = useUser();
   const { avatar: avatarName, avatarSrc } = userData || {};
   const currentPage = useCurrentPage();
-  const sidebarRef = useRef();
   const hasAvatar = !!avatarSrc;
 
   const renderWithTooltip = (component, message) =>
@@ -54,7 +53,6 @@ const Sidebar = () => {
           ? ['w-16', 'pt-7', 'pb-4', 'px-2.5'] // Authenticated
           : ['w-60', 'pt-10', 'pb-6', 'px-4', 'lg:portrait:w-40'] // Unauthenticated
       )}
-      ref={sidebarRef}
     >
       {isSessionValid ? (
         <AcmeSml
@@ -152,7 +150,6 @@ const Sidebar = () => {
           navData={[
             { label: $content.settings, icon: <Settings />, to: '/settings' }
           ]}
-          siblingRef={sidebarRef}
         >
           {({ isOpen, toggle, toggleRef }) => (
             <Button

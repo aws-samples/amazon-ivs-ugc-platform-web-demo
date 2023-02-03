@@ -5,7 +5,7 @@ import Icon, { ICON_TYPE } from './Icon';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const IconSelect = ({ selected, isLoading, items, onSelect, type }) => {
-  const throttledOnSelect = useThrottledCallback(onSelect, 250, [onSelect]);
+  const throttledOnSelect = useThrottledCallback(onSelect, 250);
 
   return (
     <div

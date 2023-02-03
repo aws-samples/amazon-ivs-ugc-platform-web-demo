@@ -26,7 +26,6 @@ const Composer = ({
   isDisabled,
   isFocusable,
   isLoading,
-  menuPopupSiblingRef,
   sendAttemptError,
   sendMessage
 }) => {
@@ -35,7 +34,7 @@ const Composer = ({
   const composerFieldRef = useRef();
   const { channelData } = useChannel();
   const { isViewerBanned: isLocked } = channelData || {};
-  const { isLandscape, isMobileView } = useResponsiveDevice();
+  const { isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -236,7 +235,7 @@ const Composer = ({
           </div>
         </form>
       </motion.div>
-      {isMobileView && <FloatingNav siblingRef={menuPopupSiblingRef} />}
+      <FloatingNav />
     </div>
   );
 };
@@ -246,7 +245,6 @@ Composer.defaultProps = {
   isDisabled: false,
   isFocusable: true,
   isLoading: true,
-  menuPopupSiblingRef: null,
   sendAttemptError: null
 };
 
@@ -255,7 +253,6 @@ Composer.propTypes = {
   isDisabled: PropTypes.bool,
   isFocusable: PropTypes.bool,
   isLoading: PropTypes.bool,
-  menuPopupSiblingRef: PropTypes.object,
   sendAttemptError: PropTypes.shape({ message: PropTypes.string }),
   sendMessage: PropTypes.func.isRequired
 };

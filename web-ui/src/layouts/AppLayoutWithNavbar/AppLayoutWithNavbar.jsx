@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import { useRef } from 'react';
 
 import { clsm } from '../../utils';
 import { FLOATING_PLAYER_PAGES } from '../../constants';
@@ -22,6 +23,7 @@ const AppLayoutWithNavbar = () => {
   } = useResponsiveDevice();
   const { isSessionValid } = useUser();
   const currentPage = useCurrentPage();
+  const appLayoutRef = useRef();
   const isChannelPage = currentPage === 'channel';
   const isStreamManagerPage = currentPage === 'stream_manager';
   const isStreamHealthPage = currentPage === 'stream_health';
@@ -41,6 +43,7 @@ const AppLayoutWithNavbar = () => {
 
   return (
     <div
+      ref={appLayoutRef}
       className={clsm([
         'flex',
         'min-h-screen',
@@ -84,7 +87,7 @@ const AppLayoutWithNavbar = () => {
           />
         )}
         {shouldRenderFloatingPlayer && <FloatingPlayer />}
-        <Outlet />
+        <Outlet context={{ appLayoutRef }} />
       </main>
       {renderNav()}
     </div>

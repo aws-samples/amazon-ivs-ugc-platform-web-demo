@@ -70,7 +70,7 @@ const ImageUploader = forwardRef(
         return classes.concat(['aspect-video', 'rounded-xl']);
     }, [previewShape, shouldStack]);
 
-    useResize(() => setShouldStack(isStackingBreakpoint()));
+    useResize(useCallback(() => setShouldStack(isStackingBreakpoint()), []));
 
     const handleUpload = async (e) => {
       await uploadChannelAsset(e);

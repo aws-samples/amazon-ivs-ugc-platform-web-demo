@@ -16,18 +16,13 @@ import ChatPopup from './ChatPopup';
 import Composer from './Composer';
 import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
-import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
 import useChatConnection from './useChatConnection';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const $content = $channelContent.chat;
 
-const Chat = ({
-  chatContainerRef,
-  menuPopupSiblingRef,
-  shouldRunCelebration
-}) => {
+const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading, refreshChannelData } = useChannel();
   const { color: channelColor } = channelData || {};
@@ -37,7 +32,7 @@ const Chat = ({
     useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-  let chatPopupParentEl = chatContainerRef.current;
+  let chatPopupParentEl = chatSectionRef.current;
 
   if (isSplitView) chatPopupParentEl = document.body;
   else if (isStackedView) chatPopupParentEl = mainRef.current;
@@ -123,15 +118,15 @@ const Chat = ({
     setChatContainerDimensions({ width: clientWidth, height: clientHeight });
   }, []);
 
-  useResizeObserver(chatContainerRef, (entry) => {
+  useResizeObserver(chatSectionRef, (entry) => {
     if (entry) updateChatContainerDimensions(entry.target);
   });
 
   useEffect(() => {
-    if (chatContainerRef.current) {
-      updateChatContainerDimensions(chatContainerRef.current);
+    if (chatSectionRef.current) {
+      updateChatContainerDimensions(chatSectionRef.current);
     }
-  }, [chatContainerRef, updateChatContainerDimensions]);
+  }, [chatSectionRef, updateChatContainerDimensions]);
 
   return (
     <>
@@ -158,19 +153,8 @@ const Chat = ({
           shouldRun={shouldRunCelebration}
         />
         <ConnectingOverlay isLoading={isLoading} />
-        {isMobileView && !isSessionValid ? (
-          <MobileNavbar
-            className={clsm([
-              'pb-6',
-              'pt-5',
-              'px-5',
-              'static',
-              'translate-x-0'
-            ])}
-          />
-        ) : (
+        {(!isMobileView || isSessionValid) && (
           <Composer
-            menuPopupSiblingRef={menuPopupSiblingRef}
             chatUserRole={chatUserRole}
             isDisabled={hasConnectionError}
             isFocusable={!isChatPopupOpen}
@@ -186,7 +170,6 @@ const Chat = ({
             banUser={actions.banUser}
             deleteMessage={actions.deleteMessage}
             isOpen={isChatPopupOpen}
-            isStackedView={isStackedView}
             openChatPopup={openChatPopup}
             parentEl={chatPopupParentEl}
             selectedMessage={selectedMessage}
@@ -200,14 +183,12 @@ const Chat = ({
 };
 
 Chat.defaultProps = {
-  chatContainerRef: null,
-  menuPopupSiblingRef: null,
+  chatSectionRef: null,
   shouldRunCelebration: false
 };
 
 Chat.propTypes = {
-  chatContainerRef: PropTypes.object,
-  menuPopupSiblingRef: PropTypes.object,
+  chatSectionRef: PropTypes.object,
   shouldRunCelebration: PropTypes.bool
 };
 

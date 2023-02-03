@@ -1,36 +1,38 @@
-import { motion } from 'framer-motion';
 import { forwardRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
+import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Controls from './Controls';
 import PlayerOverlay from './PlayerOverlay';
 
 const StreamVideo = forwardRef(
   (
     {
+      playerProfileViewAnimationProps,
       handleControlsVisibility,
-      isChatVisible,
       isControlsOpen,
       isFullscreenEnabled,
-      isProfileExpanded,
       isLoading,
       isVisible,
       livePlayer,
       onClickFullscreenHandler,
       onClickPlayerHandler,
       openPopupIds,
-      playerAnimationControls,
       setOpenPopupIds,
       shouldShowPlayerOverlay,
-      stopPropagAndResetTimeout,
-      toggleChat
+      stopPropagAndResetTimeout
     },
     ref
   ) => {
     const { channelData: { isViewerBanned } = {} } = useChannel();
+    const { isProfileViewExpanded, shouldAnimateProfileView } =
+      useProfileViewAnimation();
     const { selectedQualityName } = livePlayer;
+    const { isMobileView } = useResponsiveDevice();
 
     // This function prevents click events to be triggered on the controls while the controls are hidden
     const onClickCaptureControlsHandler = useCallback(
@@ -57,16 +59,23 @@ const StreamVideo = forwardRef(
         role="toolbar"
       >
         <motion.video
-          animate={playerAnimationControls}
+          {...playerProfileViewAnimationProps}
           className={clsm(
             'absolute',
-            'transition-colors',
-            'duration-[400ms]',
             'w-full',
-            'h-full',
-            isProfileExpanded
-              ? ['bg-darkMode-gray-light', 'dark:bg-darkMode-gray-medium']
+            'aspect-auto',
+            'transition-colors',
+            '-z-10',
+            shouldAnimateProfileView.current
+              ? 'duration-[400ms]'
+              : 'duration-0',
+            isProfileViewExpanded
+              ? ['bg-lightMode-gray-light', 'dark:bg-darkMode-gray-medium']
               : 'bg-transparent',
+            isProfileViewExpanded && [
+              isMobileView ? 'w-[80%]' : 'w-[70%]',
+              'h-auto'
+            ], // ensures StreamVideo has the correct dimensions when it mounts in the expanded profile view state
             isLoading || isViewerBanned ? '!hidden' : 'block'
           )}
           muted
@@ -74,11 +83,10 @@ const StreamVideo = forwardRef(
           ref={ref}
         />
         <PlayerOverlay
-          isVisible={shouldShowPlayerOverlay && !isProfileExpanded}
+          isVisible={shouldShowPlayerOverlay && !isProfileViewExpanded}
         >
           <Controls
             handleControlsVisibility={handleControlsVisibility}
-            isChatVisible={isChatVisible}
             isFullscreenEnabled={isFullscreenEnabled}
             isViewerBanned={isViewerBanned}
             onClickFullscreenHandler={onClickFullscreenHandler}
@@ -87,7 +95,6 @@ const StreamVideo = forwardRef(
             selectedQualityName={selectedQualityName}
             setOpenPopupIds={setOpenPopupIds}
             stopPropagAndResetTimeout={stopPropagAndResetTimeout}
-            toggleChat={toggleChat}
           />
         </PlayerOverlay>
         {!isControlsOpen && (
@@ -103,28 +110,23 @@ const StreamVideo = forwardRef(
 
 StreamVideo.propTypes = {
   handleControlsVisibility: PropTypes.func.isRequired,
-  isChatVisible: PropTypes.bool,
   isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
-  isProfileExpanded: PropTypes.bool,
   isLoading: PropTypes.bool,
   isVisible: PropTypes.bool,
   livePlayer: PropTypes.object.isRequired,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  playerAnimationControls: PropTypes.object.isRequired,
+  playerProfileViewAnimationProps: PropTypes.object.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired,
   shouldShowPlayerOverlay: PropTypes.bool,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired,
-  toggleChat: PropTypes.func.isRequired
+  stopPropagAndResetTimeout: PropTypes.func.isRequired
 };
 
 StreamVideo.defaultProps = {
-  isChatVisible: true,
   isControlsOpen: false,
   isFullscreenEnabled: false,
-  isProfileExpanded: false,
   isLoading: false,
   isVisible: false,
   shouldShowPlayerOverlay: false

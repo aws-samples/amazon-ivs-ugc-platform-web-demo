@@ -40,6 +40,19 @@ import {
 // Page Layouts
 import { AppLayoutWithNavbar, RequireAuth } from './layouts';
 
+const updateTo = (to) => {
+  const { pathname } = new URL(window.location.href);
+  const params = pathname.split('/').filter((part) => part);
+
+  const replacedTo = to
+    .split('/')
+    .filter((part) => part)
+    .map((part, i) => (part.startsWith(':') ? params[i] : part))
+    .join('/');
+
+  return `/${replacedTo}`;
+};
+
 const App = () => (
   <Router>
     <MotionConfig reducedMotion="user">
@@ -63,14 +76,18 @@ const App = () => (
                     >
                       {/* PUBLIC PAGES - UGC */}
                       <Route index element={<ChannelDirectory />} />
-                      <Route
-                        path=":username"
-                        element={
-                          <ViewerStreamActionsProvider>
-                            <Channel />
-                          </ViewerStreamActionsProvider>
-                        }
-                      />
+                      <Route path=":username">
+                        <Route element={<ViewerStreamActionsProvider />}>
+                          <Route index element={<Channel />} />
+                          <Route path="profile" element={<Channel />} />
+                          <Route
+                            path="*"
+                            element={
+                              <Navigate replace to={updateTo('/:username')} />
+                            }
+                          />
+                        </Route>
+                      </Route>
                       <Route path="feed" element={<Feed />} />
 
                       {/* PRIVATE PAGES */}

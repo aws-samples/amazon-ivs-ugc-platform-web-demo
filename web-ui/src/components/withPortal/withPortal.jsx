@@ -10,7 +10,10 @@ const DEFAULT_PORTAL_OPTIONS = {
 
 /**
  * Creates and/or returns the container to attach the portal to.
- * When provided, `prevSiblingEl` takes precedence over `parentEl`.
+ *
+ * When prevSiblingEl is provided, the portal is rendered immediately
+ * after it in the DOM tree.
+ *  - note that prevSiblingEl takes precedence over parentEl
  */
 const initContainer = ({
   containerClassname = '',

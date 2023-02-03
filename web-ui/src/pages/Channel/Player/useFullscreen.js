@@ -5,7 +5,7 @@ import { VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 
 const useFullscreen = ({
   isLive,
-  isProfileExpanded,
+  isProfileViewExpanded,
   player,
   playerSectionRef,
   stopPropagAndResetTimeout
@@ -81,7 +81,7 @@ const useFullscreen = ({
       if (
         !playerSectionRef?.current ||
         isLive === undefined ||
-        isProfileExpanded
+        isProfileViewExpanded
       )
         return;
 
@@ -100,7 +100,7 @@ const useFullscreen = ({
       exitFullscreen,
       isFullscreenEnabled,
       isLive,
-      isProfileExpanded,
+      isProfileViewExpanded,
       playerSectionRef,
       stopPropagAndResetTimeout
     ]

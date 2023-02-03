@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -6,13 +7,17 @@ import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
 import { defaultViewerStreamActionTransition } from '../ViewerStreamActions/viewerStreamActionsTheme';
 import { player as $content } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
+import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
+import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useViewerStreamActions } from '../../../contexts/ViewerStreamActions';
+import FloatingNav from '../../../components/FloatingNav';
+import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
 import PlayerHeader from './PlayerHeader';
 import PlayerViewerStreamActions from './PlayerViewerStreamActions';
-import ProfileContent from './ProfileContent';
+import ProfileViewContent from './ProfileViewContent';
 import StreamOffline from './StreamOffline';
 import StreamSpinner from './StreamSpinner';
 import StreamVideo from './StreamVideo';
@@ -21,7 +26,6 @@ import useFullscreen from './useFullscreen';
 import usePlayer from '../../../hooks/usePlayer';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
-import useThrottledCallback from '../../../hooks/useThrottledCallback';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -29,18 +33,32 @@ const nonDoubleClickableIds = [
   'rendition-selector-container'
 ];
 
-const Player = ({ isChatVisible, toggleChat }) => {
+const Player = ({ chatSectionRef }) => {
+  const { setCurrentViewerAction } = useViewerStreamActions();
+  const { dismissNotif, notifyError } = useNotif();
+  const { isSplitView } = useChannelView();
+  const { isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
   const { avatarSrc, color, isLive, isViewerBanned, playbackUrl, username } =
     channelData || {};
-  const { dismissNotif, notifyError } = useNotif();
-  const { isLandscape, isMobileView } = useResponsiveDevice();
-  const { setCurrentViewerAction } = useViewerStreamActions();
-  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
+  const isChannelDataAvailable = !!channelData;
+
+  const mobileNavBarStyleVariants = {
+    default: {
+      width: isLandscape ? '50%' : 'calc(100vw - 32px)',
+      right: 'auto',
+      left: '50%',
+      x: '-50%'
+    },
+    splitChat: { width: 276, right: 16, left: 'auto', x: 0 }
+  };
+
+  /* Refs */
   const offlineRef = useRef();
   const playerSectionRef = useRef();
   const spinnerRef = useRef();
 
+  /* IVS Player */
   const onTimedMetadataHandler = useCallback(
     (metadata) => {
       setCurrentViewerAction((prevViewerAction) => {
@@ -74,20 +92,13 @@ const Player = ({ isChatVisible, toggleChat }) => {
   const [shouldShowStream, setShouldShowStream] = useState(
     isLive !== false || hasPlayedFinalBuffer === false
   );
+  const isStreamVideoVisible = shouldShowStream;
+  const isStreamSpinnerVisible =
+    shouldShowStream && isPlayerLoading && !isViewerBanned;
+  const isStreamOfflineVisible = !shouldShowStream;
+  const isVideoVisible = shouldShowStream && !isPlayerLoading;
 
-  let targetRef = videoRef;
-  if (shouldShowStream && isPlayerLoading) targetRef = spinnerRef;
-  else if (!shouldShowStream) targetRef = offlineRef;
-  const { isProfileViewAnimationRunning, playerAnimationControls } =
-    useProfileViewPlayerAnimation({
-      hasPlayedFinalBuffer,
-      isLoading: isPlayerLoading,
-      isProfileExpanded,
-      playerSectionRef,
-      shouldShowStream,
-      targetRef,
-      videoAspectRatio
-    });
+  /* Controls */
   const {
     handleControlsVisibility,
     isControlsOpen,
@@ -98,21 +109,59 @@ const Player = ({ isChatVisible, toggleChat }) => {
     setOpenPopupIds,
     stopPropagAndResetTimeout
   } = useControls(isPaused, isViewerBanned);
+  const prevIsPopupOpen = usePrevious(isPopupOpen);
+  const shouldShowPlayerOverlay = hasError || isControlsOpen;
+
+  /* Profile view player animation */
+  const {
+    chatAnimationControls,
+    disableProfileViewAnimation,
+    enableProfileViewAnimation,
+    getProfileViewAnimationProps,
+    isProfileViewAnimationRunning,
+    isProfileViewExpanded,
+    playerAnimationControls,
+    shouldAnimateProfileView,
+    toggleChat
+  } = useProfileViewAnimation();
+  const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
+  const visiblePlayerAspectRatio = isVideoVisible ? videoAspectRatio : 16 / 9;
+  const playerProfileViewAnimationProps = useMemo(
+    () =>
+      getProfileViewAnimationProps(playerAnimationControls, {
+        expanded: { borderRadius: 24, top: 340, y: 0 },
+        collapsed: {
+          borderRadius: 0,
+          top: '50%',
+          y: '-50%',
+          stacked: { top: 0, y: 0 }
+        }
+      }),
+    [getProfileViewAnimationProps, playerAnimationControls]
+  );
+
+  let targetPlayerRef = videoRef;
+  if (isStreamSpinnerVisible) targetPlayerRef = spinnerRef;
+  else if (isStreamOfflineVisible) targetPlayerRef = offlineRef;
+  useProfileViewPlayerAnimation({
+    chatSectionRef,
+    hasPlayedFinalBuffer,
+    isVideoVisible,
+    playerSectionRef,
+    targetPlayerRef,
+    visiblePlayerAspectRatio
+  });
+
+  /* Fullscreen */
   const { isFullscreenEnabled, onClickFullscreenHandler } = useFullscreen({
     isLive,
-    isProfileExpanded,
+    isProfileViewExpanded,
     player: livePlayer,
     playerSectionRef,
     stopPropagAndResetTimeout
   });
 
-  const isChannelDataAvailable = !!channelData;
-  const isProfileViewAnimationEnabled =
-    isChannelDataAvailable && !isFullscreenEnabled;
-  const isSplitView = isMobileView && isLandscape;
-  const prevIsPopupOpen = usePrevious(isPopupOpen);
-  const shouldShowPlayerOverlay = hasError || isControlsOpen;
-
+  /* Handlers */
   const onClickPlayerHandler = useCallback(
     (event) => {
       const { target } = event;
@@ -139,19 +188,21 @@ const Player = ({ isChatVisible, toggleChat }) => {
     ]
   );
 
-  const toggleProfileView = useThrottledCallback(
-    () => {
-      if (!isProfileViewAnimationEnabled) return;
+  /* Effects */
 
-      setIsProfileExpanded((prev) => {
-        toggleChat({ value: prev });
-
-        return !prev;
-      });
-    },
-    DEFAULT_PROFILE_VIEW_TRANSITION.duration * 1000 + 100,
-    [isProfileViewAnimationEnabled, toggleChat]
-  );
+  // Disable the animation if we have not yet fetched channel data or if fullscreen is enabled; enable otherwise
+  useEffect(() => {
+    if (isChannelDataAvailable && !isFullscreenEnabled) {
+      enableProfileViewAnimation();
+    } else {
+      disableProfileViewAnimation();
+    }
+  }, [
+    disableProfileViewAnimation,
+    enableProfileViewAnimation,
+    isChannelDataAvailable,
+    isFullscreenEnabled
+  ]);
 
   // Delay player state transitions until after the animation has finished
   useEffect(() => {
@@ -163,10 +214,21 @@ const Player = ({ isChatVisible, toggleChat }) => {
 
   // Show chat when stream goes offline in landscape split view
   useEffect(() => {
-    if (isSplitView && !isLive) {
-      toggleChat({ value: true, skipAnimation: true });
+    if (
+      isSplitView &&
+      !isProfileViewExpanded &&
+      !isProfileViewAnimationRunning &&
+      hasPlayedFinalBuffer
+    ) {
+      toggleChat({ isExpandedNext: false, skipAnimation: true });
     }
-  }, [isLive, isSplitView, toggleChat]);
+  }, [
+    hasPlayedFinalBuffer,
+    isProfileViewAnimationRunning,
+    isProfileViewExpanded,
+    isSplitView,
+    toggleChat
+  ]);
 
   // Trigger an error notification when there is an error loading the stream
   useEffect(() => {
@@ -178,23 +240,28 @@ const Player = ({ isChatVisible, toggleChat }) => {
   }, [dismissNotif, hasError, notifyError]);
 
   return (
-    <section
+    <motion.section
+      {...getProfileViewAnimationProps(chatAnimationControls, {
+        expanded: { height: '100%', stacked: { height: '100vh' } },
+        collapsed: { height: '100%' }
+      })}
       className={clsm([
+        'relative',
         'flex',
         'flex-col',
-        'h-full',
         'items-center',
         'justify-center',
-        'lg:aspect-video',
         'max-h-screen',
-        'relative',
         'w-full',
+        'h-full',
         'z-[100]',
         'transition-colors',
-        'duration-[400ms]',
-        'dark:bg-black',
         'overflow-hidden',
-        isProfileExpanded ? 'bg-white' : 'bg-lightMode-gray',
+        'dark:bg-black',
+        'lg:flex-grow',
+        'lg:aspect-video',
+        shouldAnimateProfileView.current ? 'duration-[400ms]' : 'duration-0',
+        isProfileViewExpanded ? 'bg-white' : 'bg-lightMode-gray',
         isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerSectionRef}
@@ -203,20 +270,16 @@ const Player = ({ isChatVisible, toggleChat }) => {
       <PlayerHeader
         avatarSrc={avatarSrc}
         color={color}
-        isProfileViewAnimationRunning={isProfileViewAnimationRunning}
-        isProfileViewAnimationEnabled={isProfileViewAnimationEnabled}
-        isProfileExpanded={isProfileExpanded}
         shouldShowPlayerOverlay={
-          shouldShowPlayerOverlay || isLive === false || isProfileExpanded
+          shouldShowPlayerOverlay || isLive === false || isProfileViewExpanded
         }
-        toggleProfileView={toggleProfileView}
         username={username}
       />
       <StreamVideo
         ref={videoRef}
         /* Player */
         isLoading={isPlayerLoading}
-        isVisible={shouldShowStream}
+        isVisible={isStreamVideoVisible}
         livePlayer={livePlayer}
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowPlayerOverlay={shouldShowPlayerOverlay}
@@ -229,30 +292,65 @@ const Player = ({ isChatVisible, toggleChat }) => {
         /* Fullscreen */
         isFullscreenEnabled={isFullscreenEnabled}
         onClickFullscreenHandler={onClickFullscreenHandler}
-        /* Chat */
-        isChatVisible={isChatVisible}
-        toggleChat={toggleChat}
-        /* Profile View */
-        isProfileExpanded={isProfileExpanded}
-        playerAnimationControls={playerAnimationControls}
+        /* Profile View Animation */
+        playerProfileViewAnimationProps={playerProfileViewAnimationProps}
       />
       <StreamSpinner
-        isProfileExpanded={isProfileExpanded}
-        isVisible={shouldShowStream && isPlayerLoading && !isViewerBanned}
-        playerAnimationControls={playerAnimationControls}
+        isVisible={isStreamSpinnerVisible}
+        playerProfileViewAnimationProps={playerProfileViewAnimationProps}
         ref={spinnerRef}
       />
       <StreamOffline
-        isProfileExpanded={isProfileExpanded}
-        isVisible={!shouldShowStream}
-        playerAnimationControls={playerAnimationControls}
+        isVisible={isStreamOfflineVisible}
+        playerProfileViewAnimationProps={playerProfileViewAnimationProps}
         ref={offlineRef}
       />
-      <ProfileContent
-        isProfileExpanded={isProfileExpanded}
-        offlineRef={offlineRef}
-        spinnerRef={spinnerRef}
-        videoRef={videoRef}
+      <ProfileViewContent targetPlayerRef={targetPlayerRef} />
+      <motion.div
+        className={clsm([
+          'fixed',
+          'bottom-0',
+          'right-0',
+          'z-[1000]' // z-index must match that of ProfileMenu
+        ])}
+        {...getProfileViewAnimationProps(chatAnimationControls, {
+          expanded: {
+            opacity: 1,
+            visibility: 'visible',
+            transition: {
+              delay: animationDuration,
+              duration: animationDuration / 2
+            }
+          },
+          collapsed: {
+            opacity: 0,
+            transition: { duration: animationDuration / 4 },
+            transitionEnd: { visibility: 'collapse' }
+          }
+        })}
+      >
+        <FloatingNav />
+      </motion.div>
+      <MobileNavbar
+        className="z-10"
+        motionProps={{
+          ...getProfileViewAnimationProps(
+            chatAnimationControls,
+            {
+              expanded: mobileNavBarStyleVariants.default,
+              collapsed: {
+                ...mobileNavBarStyleVariants.default,
+                split: mobileNavBarStyleVariants.splitChat
+              }
+            },
+            {
+              visible: isSplitView
+                ? mobileNavBarStyleVariants.splitChat
+                : mobileNavBarStyleVariants.default,
+              hidden: mobileNavBarStyleVariants.default
+            }
+          )
+        }}
       />
       <PlayerViewerStreamActions
         isControlsOpen={isControlsOpen}
@@ -260,15 +358,12 @@ const Player = ({ isChatVisible, toggleChat }) => {
         shouldShowStream={shouldShowStream}
       />
       <Notification />
-    </section>
+    </motion.section>
   );
 };
 
 Player.propTypes = {
-  isChatVisible: PropTypes.bool,
-  toggleChat: PropTypes.func.isRequired
+  chatSectionRef: PropTypes.shape({ current: PropTypes.object }).isRequired
 };
-
-Player.defaultProps = { isChatVisible: true };
 
 export default Player;

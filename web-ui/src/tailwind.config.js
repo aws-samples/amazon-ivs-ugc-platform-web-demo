@@ -38,6 +38,7 @@ module.exports = {
     },
     extend: {
       animation,
+      transitionDuration: { 0: '0ms' },
       boxShadow: {
         focus: `inset 0 0 0 2px var(--tw-shadow-color)`,
         focusOuter: ` 0 0 0 2px var(--tw-shadow-color)`,

@@ -1,37 +1,35 @@
-import { motion, useAnimationControls } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useCallback, useRef, useState } from 'react';
 
-import {
-  BREAKPOINTS,
-  DEFAULT_PROFILE_VIEW_TRANSITION,
-  STREAM_ACTION_NAME
-} from '../../constants';
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
-import { createAnimationProps } from '../../helpers/animationPropsHelper';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { STREAM_ACTION_NAME } from '../../constants';
 import { useChannel } from '../../contexts/Channel';
+import { useChannelView } from './contexts/ChannelView';
+import { useLayoutEffect } from 'react';
+import { useProfileViewAnimation } from './contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { useUser } from '../../contexts/User';
 import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import Chat from './Chat';
-import MobileNavbar from '../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from './Player';
 import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescriptionModal';
 import ProductViewerStreamAction from './ViewerStreamActions/Product';
 import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
+import useFirstMount from '../../hooks/useFirstMount';
+import useResize from '../../hooks/useResize';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
-  const [isChatVisible, setIsChatVisible] = useState(true);
-  const [selectedTabIndex, setSelectedTabIndex] = useState(
-    DEFAULT_SELECTED_TAB_INDEX
-  );
   const { channelError } = useChannel();
+  const { isLandscape, isMobileView } = useResponsiveDevice();
+  const { isStackedView, isSplitView } = useChannelView();
+  const { getProfileViewAnimationProps, chatAnimationControls } =
+    useProfileViewAnimation();
   const {
     currentViewerStreamActionData,
     currentViewerStreamActionName,
@@ -39,35 +37,41 @@ const Channel = () => {
     setCurrentViewerAction,
     shouldRenderActionInTab
   } = useViewerStreamActions();
-  const { isLandscape, isMobileView, currentBreakpoint } =
-    useResponsiveDevice();
-  const { isSessionValid } = useUser();
-  const chatAnimationControls = useAnimationControls();
-  const chatContainerRef = useRef();
-  const isSplitView = isMobileView && isLandscape;
-  const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
-
-  const toggleChat = useCallback(
-    ({ value, skipAnimation } = {}) => {
-      const transitionFn = skipAnimation
-        ? chatAnimationControls.set
-        : chatAnimationControls.start;
-
-      setIsChatVisible((prev) => {
-        const next = value !== undefined && value !== null ? value : !prev;
-
-        transitionFn(next ? 'visible' : 'hidden-initial');
-
-        return next;
-      });
-    },
-    [chatAnimationControls]
+  const [selectedTabIndex, setSelectedTabIndex] = useState(
+    DEFAULT_SELECTED_TAB_INDEX
   );
+  const channelRef = useRef();
+  const chatSectionRef = useRef();
+  const isFirstMount = useFirstMount();
 
-  // Show chat and skip animation when the layout changes
-  useEffect(() => {
-    toggleChat({ value: true, skipAnimation: true });
-  }, [isSplitView, isStackedView, toggleChat]);
+  let visibleChatWidth = 360;
+  if (isSplitView) visibleChatWidth = 308;
+  else if (isStackedView) visibleChatWidth = '100%';
+
+  const updateChatSectionHeight = useCallback(() => {
+    let chatSectionHeight = 200;
+
+    if (isStackedView) {
+      /**
+       * When switching between mobile landscape and portrait modes, channelWidth may not be accurate.
+       * Therefore, we use the window.innerHeight instead; otherwise, we use the channel width.
+       */
+      const { innerWidth, innerHeight } = window;
+      const { clientWidth: channelWidth } = channelRef.current;
+      const width = isMobileView ? innerWidth : channelWidth;
+
+      chatSectionHeight = Math.max(innerHeight - (width * 9) / 16, 200); // chat section should be no less than 200px in height
+    }
+
+    chatSectionRef.current.style.minHeight = `${chatSectionHeight}px`;
+  }, [isMobileView, isStackedView]);
+
+  useResize(updateChatSectionHeight, { shouldCallOnMount: true });
+
+  // Ensures we have computed and set the chat section min-height before the first render
+  useLayoutEffect(() => {
+    if (isFirstMount) updateChatSectionHeight();
+  }, [isFirstMount, updateChatSectionHeight]);
 
   if (channelError) return <PageUnavailable />;
 
@@ -77,7 +81,6 @@ const Channel = () => {
         'flex',
         'items-center',
         'justify-center',
-        'overflow-x-hidden',
         /* Default View */
         'w-full',
         'h-screen',
@@ -86,6 +89,7 @@ const Channel = () => {
         'lg:flex-col',
         'lg:h-full',
         'lg:min-h-screen',
+        'overflow-hidden',
         /* Split View */
         isLandscape && [
           'md:flex-row',
@@ -94,30 +98,29 @@ const Channel = () => {
           'touch-screen-device:lg:h-screen'
         ]
       ])}
+      ref={channelRef}
     >
       <NotificationProvider>
-        <Player isChatVisible={isChatVisible} toggleChat={toggleChat} />
+        <Player chatSectionRef={chatSectionRef} />
       </NotificationProvider>
       <ProductDescriptionModal />
       <motion.section
-        ref={chatContainerRef}
-        {...createAnimationProps({
-          customVariants: {
-            visible: {
-              width: isSplitView ? 308 : isStackedView ? '100%' : 360
-            },
-            hidden: { width: 0 }
+        {...getProfileViewAnimationProps(
+          chatAnimationControls,
+          {
+            desktop: { collapsed: { width: 360 }, expanded: { width: 0 } },
+            stacked: { width: '100%' },
+            split: { collapsed: { width: 308 }, expanded: { width: 0 } }
           },
-          controls: chatAnimationControls,
-          options: { shouldAnimateIn: false },
-          transition: DEFAULT_PROFILE_VIEW_TRANSITION
-        })}
+          {
+            visible: { width: visibleChatWidth },
+            hidden: { width: 0 }
+          }
+        )}
         className={clsm([
           'relative',
           'flex',
-          'flex-grow',
           'shrink-0',
-          'min-h-[200px]',
           'overflow-hidden',
           /* Default View */
           'h-screen',
@@ -134,7 +137,7 @@ const Channel = () => {
         ])}
       >
         <div
-          ref={chatContainerRef}
+          ref={chatSectionRef}
           className={clsm([
             'relative',
             'flex',
@@ -158,7 +161,10 @@ const Channel = () => {
                   selectedIndex={selectedTabIndex}
                   setSelectedIndex={setSelectedTabIndex}
                   tabs={[
-                    { label: currentViewerStreamActionTitle, panelIndex: 0 },
+                    {
+                      label: currentViewerStreamActionTitle,
+                      panelIndex: 0
+                    },
                     { label: $channelContent.tabs.chat, panelIndex: 1 }
                   ]}
                 />
@@ -204,7 +210,7 @@ const Channel = () => {
             >
               <NotificationProvider>
                 <Chat
-                  chatContainerRef={chatContainerRef}
+                  chatSectionRef={chatSectionRef}
                   shouldRunCelebration={
                     currentViewerStreamActionName ===
                     STREAM_ACTION_NAME.CELEBRATION
@@ -215,13 +221,6 @@ const Channel = () => {
           </Tabs>
         </div>
       </motion.section>
-      {isSplitView && !isSessionValid && !isChatVisible && (
-        <MobileNavbar
-          className={clsm(
-            isLandscape && 'lg:max-w-[calc(100vw_-_(352px_+_96px))]'
-          )}
-        />
-      )}
     </div>
   );
 };

@@ -9,19 +9,20 @@ import {
   Pause as PauseSvg,
   Play as PlaySvg
 } from '../../../../assets/icons';
-import { clsm } from '../../../../utils';
-import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import RenditionSetting, {
   POPUP_ID as RENDITION_SETTING_POPUP_ID
 } from './RenditionSetting';
 import VolumeSetting, {
   POPUP_ID as VOLUME_SETTING_POPUP_ID
 } from './VolumeSetting';
+import { clsm } from '../../../../utils';
+import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { useChannelView } from '../../contexts/ChannelView';
+import { useProfileViewAnimation } from '../../contexts/ProfileViewAnimation';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const Controls = ({
   handleControlsVisibility,
-  isChatVisible,
   isFullscreenEnabled,
   isViewerBanned,
   onClickFullscreenHandler,
@@ -29,8 +30,7 @@ const Controls = ({
   player,
   selectedQualityName,
   setOpenPopupIds,
-  stopPropagAndResetTimeout,
-  toggleChat
+  stopPropagAndResetTimeout
 }) => {
   const {
     isPaused,
@@ -41,10 +41,10 @@ const Controls = ({
     updateVolume,
     volumeLevel
   } = player;
-  const { isMobileView, isLandscape, isTouchscreenDevice } =
-    useResponsiveDevice();
+  const { isChatVisible, toggleChat } = useProfileViewAnimation();
+  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { isSplitView } = useChannelView();
   const mobileSVGOpacity = isTouchscreenDevice ? '[&>svg]:fill-white' : '';
-  const isSplitView = isMobileView && isLandscape;
   const controlsVisibilityProps = useMemo(
     () => ({
       onBlur: handleControlsVisibility,
@@ -74,13 +74,10 @@ const Controls = ({
     [isPaused, pause, play, stopPropagAndResetTimeout]
   );
 
-  const onClickToggleChat = useCallback(
-    (event) => {
-      stopPropagAndResetTimeout(event);
-      toggleChat();
-    },
-    [stopPropagAndResetTimeout, toggleChat]
-  );
+  const onClickToggleChat = (event) => {
+    stopPropagAndResetTimeout(event);
+    toggleChat({ variant: isChatVisible ? 'hidden' : 'visible' });
+  };
 
   useEffect(() => {
     /**
@@ -114,8 +111,7 @@ const Controls = ({
         'justify-between',
         'w-full',
         'items-center',
-        'space-x-4',
-        'z-10'
+        'space-x-4'
       ])}
     >
       <div className="flex space-x-4">
@@ -179,14 +175,12 @@ const Controls = ({
 };
 
 Controls.defaultProps = {
-  isChatVisible: true,
   isFullscreenEnabled: false,
   isViewerBanned: false
 };
 
 Controls.propTypes = {
   handleControlsVisibility: PropTypes.func.isRequired,
-  isChatVisible: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
   isViewerBanned: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
@@ -194,8 +188,7 @@ Controls.propTypes = {
   player: PropTypes.object.isRequired,
   selectedQualityName: PropTypes.string.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired,
-  toggleChat: PropTypes.func.isRequired
+  stopPropagAndResetTimeout: PropTypes.func.isRequired
 };
 
 export default Controls;

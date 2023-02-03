@@ -2,7 +2,11 @@ import { matchRoutes, useLocation } from 'react-router-dom';
 
 const ROUTES = [
   { path: '/', name: 'channel_directory' },
-  { path: ':username', name: 'channel' },
+  {
+    path: ':username',
+    name: 'channel',
+    children: [{ index: true }, { path: 'profile' }]
+  },
   { path: 'feed', name: 'feed' },
   { path: 'following', name: 'following' },
   { path: 'settings', name: 'settings' },
