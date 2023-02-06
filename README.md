@@ -29,6 +29,7 @@ Deploying the CDK stack will:
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 
 ## Quick links 🔗
+
 - [Configure the demo](#configuration)
 - [Deploy the demo](#deployment)
 - [Known limitations](#limitations)
@@ -62,6 +63,10 @@ Each registered user has a channel page where viewers can watch the stream and c
 The playback URL and the streamer information are retrieved directly from the database.
 
 ![Get channel data architecture](screenshots/architecture/get-channel-data.png)
+
+#### Follow channel button
+
+Authenticated users can add or remove a channel from their following list by clicking the follow/unfollow button on a user's channel of their choice. Unauthenticated users who click on the follow button are redirected to the login page to sign in or create a new account. Once logged in, the user is redirected back to the same channel page they were trying to follow earlier and the channel will be automatically followed for them on page load.
 
 #### Chat
 
@@ -138,6 +143,24 @@ From the settings page (`/settings`), registered users can select a profile colo
 All the user information is stored in the database. The data is retrieved or updated using the regular authenticated flow through the Cognito authorizer and then by a container calling the database.
 
 ![Get user data architecture](screenshots/architecture/get-or-update-user-data.png)
+
+### Directory page
+
+![Directory page](screenshots/features/directory-page.png)
+
+The directory page (`/`) is where all users can view the 50 most recent live streams, while authenticated users will also be able to see up to 14 of the channels they follow in a carousel at the top. Within the following list, the live channels appear first and are sorted in order of most recent start time. The offline channels follow after the live channels and are sorted in order of most recently added.
+
+### Following page
+
+[Following page](screenshots/features/following-page.png)
+
+Authenticated users have a following page (`/following`) where they can view the channels they are following, along with the live status of each channel.
+
+#### Get and update following list
+
+Each registered user has a following channels list that is stored in the database and contains the channel IDs of the channels the user follows. When a user follows or unfollows a channel, the database is updated to reflect the change by adding or removing the respective channel ID from the list. The data is retrieved or updated using the regular authenticated flow through the Cognito authorizer and then by a container calling the database.
+
+![Get or update following list data architecture](screenshots/architecture/get-or-update-following-list-data.png)
 
 ## Configuration
 
@@ -335,6 +358,7 @@ For this estimation, we considered the usage costs associated with 1, 10 and 100
 | [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)     |  $8.60 |   $86.00 |   $860.00 |
 | [Lambda](https://aws.amazon.com/lambda/pricing/)                     | <$0.01 |   <$0.01 |    <$0.01 |
 | Total cost                                                           |  $9.09 |   $89.18 |   $890.11 |
+
 
 ## About Amazon IVS
 
