@@ -46,7 +46,9 @@ const Banner = () => {
       if (result) {
         const { previewUrl } = result;
 
-        setBannerUrl(previewUrl, handleChangeBanner(result));
+        setBannerUrl(previewUrl, () => {
+          handleChangeBanner(result);
+        });
       }
 
       if (error) {
