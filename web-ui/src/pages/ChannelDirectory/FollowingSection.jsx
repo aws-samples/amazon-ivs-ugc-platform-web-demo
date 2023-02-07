@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-// import PropTypes from 'prop-types';
 
 import { bound, clsm, range } from '../../utils';
 import { BREAKPOINTS, MAX_AVATAR_COUNT } from '../../constants';
@@ -70,10 +69,10 @@ const FollowingSection = () => {
   const shouldShowFollowingListData = !isLoading && hasFollowingListData;
   const shouldShowTryAgainButton = hasFetchError && !isMobileView;
   const shouldShowViewAllButton = followingList?.length > MAX_AVATAR_COUNT;
-  let sectionList;
+  let sectionList = followingList;
 
   if (shouldShowViewAllButton)
-    sectionList = followingList.slice(0, MAX_AVATAR_COUNT);
+    sectionList = followingList?.slice(0, MAX_AVATAR_COUNT);
 
   // Carousel parameters - START
   let avatarsPerFrame = 5;
@@ -179,7 +178,6 @@ const FollowingSection = () => {
               translateOffset = -32;
             if (isNextFrame(frameIndex, selectedFrameIndex))
               translateOffset = 32;
-
             return (
               <div
                 className={clsm([
