@@ -7,7 +7,9 @@ import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import {
   DeleteItemCommand,
   GetItemCommand,
-  QueryCommand
+  QueryCommand,
+  UpdateItemCommand,
+  UpdateItemCommandOutput
 } from '@aws-sdk/client-dynamodb';
 import {
   DeleteObjectCommand,
@@ -280,3 +282,66 @@ const NameSpace_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 const namespaceUUID = process.env.NAMESPACE_UUID || NameSpace_OID;
 export const generateDeterministicId = (value: string) =>
   uuidv5(value, namespaceUUID);
+
+export interface Preference {
+  name?: string;
+  previewUrl?: string;
+  uploadDateTime?: string;
+}
+
+export const processAssetPreference = (
+  assetType: string,
+  assetData: Preference,
+  sub: string
+) => {
+  const { previewUrl, uploadDateTime, name } = assetData;
+  return new Promise<UpdateItemCommandOutput>(async (resolve, reject) => {
+    try {
+      await dynamoDbClient.send(
+        new UpdateItemCommand({
+          UpdateExpression: `SET channelAssets.#${assetType} = if_not_exists(channelAssets.#${assetType}, :emptyMap)`,
+          Key: { id: convertToAttr(sub) },
+          ExpressionAttributeValues: { ':emptyMap': convertToAttr({}) },
+          ExpressionAttributeNames: { [`#${assetType}`]: assetType },
+          TableName: process.env.CHANNELS_TABLE_NAME!
+        })
+      );
+
+      const updateExpressionArr = [
+        `channelAssets.#${assetType}.#url = :previewUrl`,
+        `channelAssets.#${assetType}.#lastModified = :lastModified`
+      ];
+
+      // For assets that contain a name (e.g. avatar), the corresponding attribute will also be updated
+      if (name) {
+        updateExpressionArr.push(`#${assetType} = :name`);
+      }
+
+      const updateExpression = `SET ${updateExpressionArr.join(', ')}`;
+      const result = dynamoDbClient.send(
+        new UpdateItemCommand({
+          UpdateExpression: updateExpression,
+          ConditionExpression: `attribute_not_exists(channelAssets.#${assetType}.#lastModified) or (channelAssets.#${assetType}.#lastModified < :lastModified)`,
+          Key: { id: convertToAttr(sub) },
+          ExpressionAttributeValues: {
+            ...(name && { ':name': convertToAttr(name) }),
+            ':previewUrl': convertToAttr(previewUrl),
+            ':lastModified': convertToAttr(
+              new Date(uploadDateTime ?? '').getTime()
+            )
+          },
+          ExpressionAttributeNames: {
+            '#url': 'url',
+            '#lastModified': 'lastModified',
+            [`#${assetType}`]: assetType
+          },
+          TableName: process.env.CHANNELS_TABLE_NAME!
+        })
+      );
+
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};

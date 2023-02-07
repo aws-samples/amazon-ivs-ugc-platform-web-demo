@@ -1,22 +1,10 @@
-import {
-  UpdateItemCommand,
-  UpdateItemCommandOutput
-} from '@aws-sdk/client-dynamodb';
-import { convertToAttr } from '@aws-sdk/util-dynamodb';
+import { UpdateItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { CHANGE_USER_PREFERENCES_EXCEPTION } from '../../shared/constants';
-import {
-  dynamoDbClient,
-  updateDynamoItemAttributes
-} from '../../shared/helpers';
+import { updateDynamoItemAttributes } from '../../shared/helpers';
+import { processAssetPreference, Preference } from '../helpers';
 import { UserContext } from '../authorizer';
-
-interface Preference {
-  name?: string;
-  previewUrl?: string;
-  uploadDateTime?: string;
-}
 
 interface ChangeUserPreferencesRequestBody {
   [key: string]: Preference;
@@ -40,7 +28,7 @@ const handler = async (
     >((acc, [key, value]) => {
       if (!value) return acc;
 
-      const { name, previewUrl, uploadDateTime } = value;
+      const { previewUrl, uploadDateTime } = value;
       const isAsset = !!previewUrl && !!uploadDateTime;
 
       if ((previewUrl && !uploadDateTime) || (!previewUrl && uploadDateTime)) {
@@ -52,57 +40,8 @@ const handler = async (
       }
 
       if (isAsset) {
-        promises.push(
-          new Promise<UpdateItemCommandOutput>(async (resolve, reject) => {
-            try {
-              await dynamoDbClient.send(
-                new UpdateItemCommand({
-                  UpdateExpression: `SET channelAssets.#${key} = if_not_exists(channelAssets.#${key}, :emptyMap)`,
-                  Key: { id: convertToAttr(sub) },
-                  ExpressionAttributeValues: { ':emptyMap': convertToAttr({}) },
-                  ExpressionAttributeNames: { [`#${key}`]: key },
-                  TableName: process.env.CHANNELS_TABLE_NAME!
-                })
-              );
-
-              const updateExpressionArr = [
-                `channelAssets.#${key}.#url = :previewUrl`,
-                `channelAssets.#${key}.#lastModified = :lastModified`
-              ];
-
-              // For assets that contain a name (e.g. avatar), the corresponding attribute will also be updated
-              if (value.name) {
-                updateExpressionArr.push(`#${key} = :name`);
-              }
-
-              const updateExpression = `SET ${updateExpressionArr.join(', ')}`;
-              const result = dynamoDbClient.send(
-                new UpdateItemCommand({
-                  UpdateExpression: updateExpression,
-                  ConditionExpression: `attribute_not_exists(channelAssets.#${key}.#lastModified) or (channelAssets.#${key}.#lastModified < :lastModified)`,
-                  Key: { id: convertToAttr(sub) },
-                  ExpressionAttributeValues: {
-                    ...(name && { ':name': convertToAttr(name) }),
-                    ':previewUrl': convertToAttr(previewUrl),
-                    ':lastModified': convertToAttr(
-                      new Date(uploadDateTime).getTime()
-                    )
-                  },
-                  ExpressionAttributeNames: {
-                    '#url': 'url',
-                    '#lastModified': 'lastModified',
-                    [`#${key}`]: key
-                  },
-                  TableName: process.env.CHANNELS_TABLE_NAME!
-                })
-              );
-
-              resolve(result);
-            } catch (error) {
-              reject(error);
-            }
-          })
-        );
+        const assetToProcess = processAssetPreference(key, value, sub);
+        promises.push(assetToProcess);
       } else {
         const { name: preferenceName } = value as Preference;
 
