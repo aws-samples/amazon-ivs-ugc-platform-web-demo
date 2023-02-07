@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { Provider as PlayerProvider } from './contexts/Player';
 import { STREAM_ACTION_NAME } from '../../constants';
 import { useChannel } from '../../contexts/Channel';
 import { useChannelView } from './contexts/ChannelView';
@@ -100,9 +101,11 @@ const Channel = () => {
       ])}
       ref={channelRef}
     >
-      <NotificationProvider>
-        <Player chatSectionRef={chatSectionRef} />
-      </NotificationProvider>
+      <PlayerProvider>
+        <NotificationProvider>
+          <Player chatSectionRef={chatSectionRef} />
+        </NotificationProvider>
+      </PlayerProvider>
       <ProductDescriptionModal />
       <motion.section
         {...getProfileViewAnimationProps(

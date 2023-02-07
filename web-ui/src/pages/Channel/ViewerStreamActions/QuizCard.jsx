@@ -9,12 +9,13 @@ import {
   defaultViewerStreamActionTransition
 } from './viewerStreamActionsTheme';
 import { clsm, isTextColorInverted } from '../../../utils';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { PROFILE_COLORS } from '../../../constants';
+import { usePlayerContext } from '../contexts/Player';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
 import FloatingNav from '../../../components/FloatingNav';
 import ProgressBar from './ProgressBar';
-import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 
 const defaultQuizAnswerHeight = 42;
 
@@ -24,16 +25,17 @@ const QuizCard = ({
   correctAnswerIndex,
   duration,
   question,
-  startTime,
-  isControlsOpen,
   setCurrentViewerAction,
-  shouldRenderActionInTab
+  shouldRenderActionInTab,
+  shouldShowStream,
+  startTime
 }) => {
   const [answerHeight, setAnswerHeight] = useState(defaultQuizAnswerHeight);
   const [isAnswerSelected, setIsAnswerSelected] = useState();
   const [chosenAnswerIndex, setChosenAnswerIndex] = useState();
-  const quizButtonArrRef = useRef([]);
   const { isMobileView } = useResponsiveDevice();
+  const { isOverlayVisible } = usePlayerContext();
+  const quizButtonArrRef = useRef([]);
   const shouldInvertColors = isTextColorInverted(color);
 
   const profileColorButtonClassNames = clsm([
@@ -85,7 +87,10 @@ const QuizCard = ({
         'transition-[margin]',
         'w-full',
         'mb-4',
-        isControlsOpen && !shouldRenderActionInTab && 'mb-40',
+        isOverlayVisible &&
+          shouldShowStream &&
+          !shouldRenderActionInTab &&
+          'mb-40',
         isMobileView && 'pb-20'
       ])}
     >
@@ -173,8 +178,8 @@ QuizCard.defaultProps = {
   color: 'default',
   correctAnswerIndex: 0,
   duration: 10,
-  isControlsOpen: false,
-  shouldRenderActionInTab: false
+  shouldRenderActionInTab: false,
+  shouldShowStream: false
 };
 
 QuizCard.propTypes = {
@@ -182,10 +187,10 @@ QuizCard.propTypes = {
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   correctAnswerIndex: PropTypes.number,
   duration: PropTypes.number,
-  isControlsOpen: PropTypes.bool,
   question: PropTypes.string.isRequired,
   setCurrentViewerAction: PropTypes.func.isRequired,
   shouldRenderActionInTab: PropTypes.bool,
+  shouldShowStream: PropTypes.bool,
   startTime: PropTypes.number.isRequired
 };
 

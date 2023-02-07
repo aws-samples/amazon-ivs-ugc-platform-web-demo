@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -17,48 +17,48 @@ import VolumeSetting, {
 } from './VolumeSetting';
 import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { useChannel } from '../../../../contexts/Channel';
 import { useChannelView } from '../../contexts/ChannelView';
+import { usePlayerContext } from '../../contexts/Player';
 import { useProfileViewAnimation } from '../../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const Controls = ({
-  handleControlsVisibility,
   isFullscreenEnabled,
-  isViewerBanned,
   onClickFullscreenHandler,
   openPopupIds,
-  player,
   selectedQualityName,
-  setOpenPopupIds,
-  stopPropagAndResetTimeout
+  setOpenPopupIds
 }) => {
-  const {
-    isPaused,
-    pause,
-    play,
-    qualities,
-    updateQuality,
-    updateVolume,
-    volumeLevel
-  } = player;
   const { isChatVisible, toggleChat } = useProfileViewAnimation();
-  const { isTouchscreenDevice } = useResponsiveDevice();
   const { isSplitView } = useChannelView();
+  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { channelData: { isViewerBanned } = {} } = useChannel();
+  const {
+    player: {
+      isPaused,
+      pause,
+      play,
+      qualities,
+      updateQuality,
+      updateVolume,
+      volumeLevel
+    },
+    subscribeOverlayElement,
+    stopPropagAndResetTimeout
+  } = usePlayerContext();
   const mobileSVGOpacity = isTouchscreenDevice ? '[&>svg]:fill-white' : '';
-  const controlsVisibilityProps = useMemo(
-    () => ({
-      onBlur: handleControlsVisibility,
-      onFocus: handleControlsVisibility,
-      onMouseEnter: handleControlsVisibility,
-      onMouseLeave: handleControlsVisibility
-    }),
-    [handleControlsVisibility]
-  );
+
   const isVolumeSettingPopupExpanded = !!openPopupIds.find(
     (openPopupId) => openPopupId === VOLUME_SETTING_POPUP_ID
   );
   const isRenditionSettingPopupExpanded = !!openPopupIds.find(
     (openPopupId) => openPopupId === RENDITION_SETTING_POPUP_ID
+  );
+
+  const subscribeOverlayControl = useCallback(
+    (element) => subscribeOverlayElement(element),
+    [subscribeOverlayElement]
   );
 
   const onClickPlayPauseHandler = useCallback(
@@ -116,7 +116,7 @@ const Controls = ({
     >
       <div className="flex space-x-4">
         <button
-          {...controlsVisibilityProps}
+          ref={subscribeOverlayControl}
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
           className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
           disabled={isViewerBanned}
@@ -126,11 +126,9 @@ const Controls = ({
         </button>
         <VolumeSetting
           className={clsm(mobileSVGOpacity)}
-          controlsVisibilityProps={controlsVisibilityProps}
           isDisabled={isViewerBanned}
           isExpanded={isVolumeSettingPopupExpanded}
           setOpenPopupIds={setOpenPopupIds}
-          stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateVolume={updateVolume}
           volumeLevel={volumeLevel}
         />
@@ -139,7 +137,7 @@ const Controls = ({
         {isSplitView && !isFullscreenEnabled && (
           // The split view toggle control remains enabled for banned viewers
           <button
-            {...controlsVisibilityProps}
+            ref={subscribeOverlayControl}
             aria-label={`${isChatVisible ? 'Hide' : 'Show'} chat`}
             className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
             onClick={onClickToggleChat}
@@ -149,17 +147,15 @@ const Controls = ({
         )}
         <RenditionSetting
           className={clsm(mobileSVGOpacity)}
-          controlsVisibilityProps={controlsVisibilityProps}
           isDisabled={isViewerBanned}
           isExpanded={isRenditionSettingPopupExpanded}
           qualities={qualities}
           selectedQualityName={selectedQualityName}
           setOpenPopupIds={setOpenPopupIds}
-          stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           updateQuality={updateQuality}
         />
         <button
-          {...controlsVisibilityProps}
+          ref={subscribeOverlayControl}
           aria-label={`${
             isFullscreenEnabled ? 'Disable' : 'Enable'
           } fullscreen mode`}
@@ -174,21 +170,14 @@ const Controls = ({
   );
 };
 
-Controls.defaultProps = {
-  isFullscreenEnabled: false,
-  isViewerBanned: false
-};
+Controls.defaultProps = { isFullscreenEnabled: false };
 
 Controls.propTypes = {
-  handleControlsVisibility: PropTypes.func.isRequired,
   isFullscreenEnabled: PropTypes.bool,
-  isViewerBanned: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  player: PropTypes.object.isRequired,
   selectedQualityName: PropTypes.string.isRequired,
-  setOpenPopupIds: PropTypes.func.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired
+  setOpenPopupIds: PropTypes.func.isRequired
 };
 
 export default Controls;

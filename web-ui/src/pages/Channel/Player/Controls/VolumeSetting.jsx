@@ -8,6 +8,7 @@ import {
 } from '../../../../assets/icons';
 import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
+import { usePlayerContext } from '../../contexts/Player';
 import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../../constants';
 import InputRange from '../../../../components/InputRange';
 import useClickAway from '../../../../hooks/useClickAway';
@@ -17,17 +18,25 @@ export const POPUP_ID = 'volume';
 
 const VolumeSetting = ({
   className,
-  controlsVisibilityProps,
   isDisabled,
   isExpanded,
   setOpenPopupIds,
-  stopPropagAndResetTimeout,
   updateVolume,
   volumeLevel
 }) => {
   const [volumeContainerPos, setVolumeContainerPos] = useState(null);
-  const volumeContainerRef = useRef();
+  const { subscribeOverlayElement, stopPropagAndResetTimeout } =
+    usePlayerContext();
   const settingsButtonRef = useRef();
+  const volumeContainerRef = useRef();
+
+  const subscribeOverlayControl = useCallback(
+    (element) => {
+      subscribeOverlayElement(element);
+      settingsButtonRef.current = element;
+    },
+    [subscribeOverlayElement]
+  );
 
   const closeVolumeContainer = useCallback(() => {
     setOpenPopupIds((prev) => {
@@ -85,7 +94,6 @@ const VolumeSetting = ({
   return (
     <div className={clsm(['flex', 'relative'])}>
       <button
-        {...controlsVisibilityProps}
         aria-label={`${
           isExpanded ? 'Close' : 'Open'
         } the video volume selector`}
@@ -97,7 +105,7 @@ const VolumeSetting = ({
         ])}
         disabled={isDisabled}
         onClick={onClickVolumeSettingHandler}
-        ref={settingsButtonRef}
+        ref={subscribeOverlayControl}
       >
         {getVolumeSVG()}
       </button>
@@ -144,11 +152,9 @@ VolumeSetting.defaultProps = {
 
 VolumeSetting.propTypes = {
   className: PropTypes.string,
-  controlsVisibilityProps: PropTypes.object.isRequired,
   isDisabled: PropTypes.bool,
   isExpanded: PropTypes.bool,
   setOpenPopupIds: PropTypes.func.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired,
   updateVolume: PropTypes.func.isRequired,
   volumeLevel: PropTypes.number
 };

@@ -9,6 +9,7 @@ import {
 import { clsm, isTextColorInverted, range } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { PROFILE_COLORS } from '../../../constants';
+import { usePlayerContext } from '../contexts/Player';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const PARAGRAPH_BASE_CLASSES = [
@@ -22,14 +23,15 @@ const DEFAULT_ANIMATION_DURATION = 5; // in seconds
 
 const Notice = ({
   color,
-  isControlsOpen,
-  onClickPlayerHandler,
   message,
+  onClickPlayerHandler,
+  shouldShowStream,
   title
 }) => {
   const messageRef = useRef();
   const marqueeRef = useRef();
   const [maxMessages, setMaxMessages] = useState(0);
+  const { isOverlayVisible } = usePlayerContext;
   const shouldInvertColors = isTextColorInverted(color);
   // The animation duration is calculated dynamically to allow for ~5s per message
   const animationDuration = `${DEFAULT_ANIMATION_DURATION * maxMessages}s`;
@@ -63,7 +65,7 @@ const Notice = ({
         'lg:w-full',
         'max-w-full',
         'transition-[margin]',
-        isControlsOpen && ['mb-20', 'lg:mb-[52px]']
+        isOverlayVisible && shouldShowStream && ['mb-20', 'lg:mb-[52px]']
       ])}
       onClick={onClickPlayerHandler}
     >
@@ -154,16 +156,16 @@ const Notice = ({
 
 Notice.propTypes = {
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
-  isControlsOpen: PropTypes.bool,
-  onClickPlayerHandler: PropTypes.func.isRequired,
   message: PropTypes.string,
+  onClickPlayerHandler: PropTypes.func.isRequired,
+  shouldShowStream: PropTypes.bool,
   title: PropTypes.string
 };
 
 Notice.defaultProps = {
   color: 'default',
-  isControlsOpen: false,
   message: '',
+  shouldShowStream: false,
   title: ''
 };
 

@@ -8,13 +8,13 @@ import {
 import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { STREAM_ACTION_NAME } from '../../../constants';
+import { usePlayerContext } from '../contexts/Player';
 import { useViewerStreamActions } from '../../../contexts/ViewerStreamActions';
 import NoticeViewerStreamAction from '../ViewerStreamActions/Notice';
 import ProductViewerStreamAction from '../ViewerStreamActions/Product';
 import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
-  isControlsOpen,
   onClickPlayerHandler,
   shouldShowStream
 }) => {
@@ -24,6 +24,7 @@ const PlayerViewerStreamActions = ({
     setCurrentViewerAction,
     shouldRenderActionInTab
   } = useViewerStreamActions();
+  const { isOverlayVisible } = usePlayerContext();
 
   return (
     <AnimatePresence>
@@ -31,7 +32,7 @@ const PlayerViewerStreamActions = ({
         !shouldRenderActionInTab && (
           <QuizViewerStreamAction
             {...currentViewerStreamActionData}
-            isControlsOpen={isControlsOpen && shouldShowStream}
+            shouldShowStream={shouldShowStream}
             setCurrentViewerAction={setCurrentViewerAction}
             shouldRenderActionInTab={shouldRenderActionInTab}
           />
@@ -55,7 +56,7 @@ const PlayerViewerStreamActions = ({
               'transition-[margin]',
               'w-full',
               'mb-4',
-              isControlsOpen && shouldShowStream && 'mb-20'
+              isOverlayVisible && shouldShowStream && 'mb-20'
             ])}
           >
             <ProductViewerStreamAction {...currentViewerStreamActionData} />
@@ -64,8 +65,8 @@ const PlayerViewerStreamActions = ({
       {currentViewerStreamActionName === STREAM_ACTION_NAME.NOTICE && (
         <NoticeViewerStreamAction
           {...currentViewerStreamActionData}
-          isControlsOpen={isControlsOpen && shouldShowStream}
           onClickPlayerHandler={onClickPlayerHandler}
+          shouldShowStream={shouldShowStream}
         />
       )}
     </AnimatePresence>
@@ -73,7 +74,6 @@ const PlayerViewerStreamActions = ({
 };
 
 PlayerViewerStreamActions.propTypes = {
-  isControlsOpen: PropTypes.bool.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool
 };

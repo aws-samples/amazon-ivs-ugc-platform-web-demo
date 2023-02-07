@@ -4,14 +4,13 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
-import { defaultViewerStreamActionTransition } from '../ViewerStreamActions/viewerStreamActionsTheme';
 import { player as $content } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
+import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
-import { useViewerStreamActions } from '../../../contexts/ViewerStreamActions';
 import FloatingNav from '../../../components/FloatingNav';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
@@ -21,9 +20,7 @@ import ProfileViewContent from './ProfileViewContent';
 import StreamOffline from './StreamOffline';
 import StreamSpinner from './StreamSpinner';
 import StreamVideo from './StreamVideo';
-import useControls from './Controls/useControls';
 import useFullscreen from './useFullscreen';
-import usePlayer from '../../../hooks/usePlayer';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
 
@@ -34,12 +31,11 @@ const nonDoubleClickableIds = [
 ];
 
 const Player = ({ chatSectionRef }) => {
-  const { setCurrentViewerAction } = useViewerStreamActions();
   const { dismissNotif, notifyError } = useNotif();
   const { isSplitView } = useChannelView();
   const { isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
-  const { avatarSrc, color, isLive, isViewerBanned, playbackUrl, username } =
+  const { avatarSrc, color, isLive, isViewerBanned, username } =
     channelData || {};
   const isChannelDataAvailable = !!channelData;
 
@@ -59,35 +55,19 @@ const Player = ({ chatSectionRef }) => {
   const spinnerRef = useRef();
 
   /* IVS Player */
-  const onTimedMetadataHandler = useCallback(
-    (metadata) => {
-      setCurrentViewerAction((prevViewerAction) => {
-        if (metadata && prevViewerAction?.name === metadata?.name) {
-          // This is done to ensure the animations are triggered when the same action is dispatched with new data
-          setTimeout(() => {
-            setCurrentViewerAction({
-              ...metadata,
-              startTime: Date.now()
-            });
-          }, defaultViewerStreamActionTransition.duration * 1000);
-
-          return null;
-        }
-
-        return { ...metadata, startTime: Date.now() };
-      });
-    },
-    [setCurrentViewerAction]
-  );
-  const livePlayer = usePlayer({ playbackUrl, isLive, onTimedMetadataHandler });
   const {
-    hasError,
-    hasPlayedFinalBuffer,
-    isLoading,
-    isPaused,
-    videoAspectRatio,
-    videoRef
-  } = livePlayer;
+    mobileClickHandler,
+    onMouseMoveHandler,
+    player: {
+      hasError,
+      hasPlayedFinalBuffer,
+      isLoading,
+      videoAspectRatio,
+      videoRef
+    },
+    setShouldKeepOverlaysVisible,
+    stopPropagAndResetTimeout
+  } = usePlayerContext();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
     isLive !== false || hasPlayedFinalBuffer === false
@@ -99,18 +79,9 @@ const Player = ({ chatSectionRef }) => {
   const isVideoVisible = shouldShowStream && !isPlayerLoading;
 
   /* Controls */
-  const {
-    handleControlsVisibility,
-    isControlsOpen,
-    isPopupOpen,
-    mobileClickHandler,
-    onMouseMoveHandler,
-    openPopupIds,
-    setOpenPopupIds,
-    stopPropagAndResetTimeout
-  } = useControls(isPaused, isViewerBanned);
+  const [openPopupIds, setOpenPopupIds] = useState([]);
+  const isPopupOpen = !!openPopupIds.length;
   const prevIsPopupOpen = usePrevious(isPopupOpen);
-  const shouldShowPlayerOverlay = hasError || isControlsOpen;
 
   /* Profile view player animation */
   const {
@@ -156,7 +127,6 @@ const Player = ({ chatSectionRef }) => {
   const { isFullscreenEnabled, onClickFullscreenHandler } = useFullscreen({
     isLive,
     isProfileViewExpanded,
-    player: livePlayer,
     playerSectionRef,
     stopPropagAndResetTimeout
   });
@@ -239,6 +209,11 @@ const Player = ({ chatSectionRef }) => {
     } else dismissNotif();
   }, [dismissNotif, hasError, notifyError]);
 
+  // Keep the player overlays visible if a popup is open (e.g. volume or rendition setting popup)
+  useEffect(() => {
+    setShouldKeepOverlaysVisible(isPopupOpen);
+  }, [setShouldKeepOverlaysVisible, isPopupOpen]);
+
   return (
     <motion.section
       {...getProfileViewAnimationProps(chatAnimationControls, {
@@ -267,28 +242,16 @@ const Player = ({ chatSectionRef }) => {
       ref={playerSectionRef}
       onMouseMove={onMouseMoveHandler}
     >
-      <PlayerHeader
-        avatarSrc={avatarSrc}
-        color={color}
-        shouldShowPlayerOverlay={
-          shouldShowPlayerOverlay || isLive === false || isProfileViewExpanded
-        }
-        username={username}
-      />
+      <PlayerHeader avatarSrc={avatarSrc} color={color} username={username} />
       <StreamVideo
         ref={videoRef}
         /* Player */
-        isLoading={isPlayerLoading}
+        isPlayerLoading={isPlayerLoading}
         isVisible={isStreamVideoVisible}
-        livePlayer={livePlayer}
         onClickPlayerHandler={onClickPlayerHandler}
-        shouldShowPlayerOverlay={shouldShowPlayerOverlay}
         /* Controls */
-        handleControlsVisibility={handleControlsVisibility}
-        isControlsOpen={isControlsOpen}
         openPopupIds={openPopupIds}
         setOpenPopupIds={setOpenPopupIds}
-        stopPropagAndResetTimeout={stopPropagAndResetTimeout}
         /* Fullscreen */
         isFullscreenEnabled={isFullscreenEnabled}
         onClickFullscreenHandler={onClickFullscreenHandler}
@@ -353,7 +316,6 @@ const Player = ({ chatSectionRef }) => {
         }}
       />
       <PlayerViewerStreamActions
-        isControlsOpen={isControlsOpen}
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowStream={shouldShowStream}
       />

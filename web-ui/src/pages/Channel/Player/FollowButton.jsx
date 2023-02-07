@@ -3,19 +3,20 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import Button from './Button';
-import Spinner from './Spinner';
-import Tooltip from './Tooltip';
-import useThrottledCallback from '../hooks/useThrottledCallback';
-import { channel as $channelContent } from '../content';
-import { channelAPI } from '../api';
-import { clsm, isTextColorInverted } from '../utils';
-import { createAnimationProps } from '../helpers/animationPropsHelper';
-import { Favorite, Unfollow } from '../assets/icons';
-import { useChannel } from '../contexts/Channel';
-import { useNotif } from '../contexts/Notification';
-import { useResponsiveDevice } from '../contexts/ResponsiveDevice';
-import { useUser } from '../contexts/User';
+import Button from '../../../components/Button';
+import Spinner from '../../../components/Spinner';
+import Tooltip from '../../../components/Tooltip';
+import useThrottledCallback from '../../../hooks/useThrottledCallback';
+import { channel as $channelContent } from '../../../content';
+import { channelAPI } from '../../../api';
+import { clsm, isTextColorInverted } from '../../../utils';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
+import { Favorite, Unfollow } from '../../../assets/icons';
+import { useChannel } from '../../../contexts/Channel';
+import { useNotif } from '../../../contexts/Notification';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import { useUser } from '../../../contexts/User';
+import { usePlayerContext } from '../contexts/Player';
 
 const $content = $channelContent.follow_button;
 
@@ -36,22 +37,25 @@ const FollowButton = ({ isExpandedView }) => {
   const { notifyError } = useNotif();
   const { userData, isSessionValid } = useUser();
   const { channelData, refreshChannelData } = useChannel();
-  const { username } = userData || {};
   const {
     color: channelColor,
     isViewerFollowing,
     username: channelUsername
   } = channelData || {};
-  const shouldInvertColors = isTextColorInverted(channelColor);
+  const { username: ownUsername } = userData || {};
   const { isMobileView, isTouchscreenDevice } = useResponsiveDevice();
-  const buttonRef = useRef();
-  const spinnerTimeoutId = useRef();
+  const { stopPropagAndResetTimeout, subscribeOverlayElement } =
+    usePlayerContext();
   const [isFollowing, setIsFollowing] = useState(isViewerFollowing);
   const [disableHover, setDisableHover] = useState(false);
-  const isLoading = useRef(false);
   const [shouldShowSpinner, setShouldShowSpinner] = useState(false);
+  const buttonRef = useRef();
+  const spinnerTimeoutId = useRef();
+  const isLoading = useRef(false);
+  const shouldInvertColors = isTextColorInverted(channelColor);
   const isFullWidthButton = !isMobileView || isExpandedView;
   const locationStoredUsername = location.state?.locationStoredUsername;
+  const isOwnChannel = ownUsername === channelUsername;
 
   let toolTipMessage = '';
   if (isViewerFollowing && !isTouchscreenDevice) {
@@ -78,6 +82,14 @@ const FollowButton = ({ isExpandedView }) => {
       isVisible: !isFullWidthButton || isFollowing
     }
   });
+
+  const subscribeOverlayControl = useCallback(
+    (element) => {
+      subscribeOverlayElement(element);
+      buttonRef.current = element;
+    },
+    [subscribeOverlayElement]
+  );
 
   const updateFollowingList = useCallback(async () => {
     isLoading.current = true;
@@ -117,18 +129,19 @@ const FollowButton = ({ isExpandedView }) => {
       locationStoredUsername === channelUsername &&
       !isFollowing
     ) {
-      updateFollowingList();
+      if (!isOwnChannel) updateFollowingList();
 
       // Clear react router state
       navigate(location.pathname, { replace: true });
     }
   }, [
-    locationStoredUsername,
     channelUsername,
     isFollowing,
-    updateFollowingList,
     location,
-    navigate
+    locationStoredUsername,
+    navigate,
+    updateFollowingList,
+    isOwnChannel
   ]);
 
   const navigateToLogin = useCallback(
@@ -139,7 +152,9 @@ const FollowButton = ({ isExpandedView }) => {
     [location, navigate, channelUsername]
   );
 
-  const handleButtonClick = useThrottledCallback(() => {
+  const handleButtonClick = useThrottledCallback((event) => {
+    stopPropagAndResetTimeout(event);
+
     if (isSessionValid) {
       if (isLoading.current) return;
       updateFollowingList();
@@ -153,7 +168,7 @@ const FollowButton = ({ isExpandedView }) => {
   }, 200);
 
   // Hide button on authorized user's channel and before isFollowing state is set by isViewerBanned channel data
-  if (isFollowing === undefined || username === channelUsername) return null;
+  if (isFollowing === undefined || ownUsername === channelUsername) return null;
 
   return (
     <AnimatePresence initial={false}>
@@ -201,7 +216,7 @@ const FollowButton = ({ isExpandedView }) => {
                   ]
               ]
             )}
-            ref={buttonRef}
+            ref={subscribeOverlayControl}
             onClick={handleButtonClick}
             disableHover={disableHover}
           >

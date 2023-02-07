@@ -57,7 +57,7 @@ const PlayerOverlay = ({
       className
     ])}
   >
-    {children}
+    <div className={clsm(['relative', 'w-full'])}>{children}</div>
   </motion.div>
 );
 

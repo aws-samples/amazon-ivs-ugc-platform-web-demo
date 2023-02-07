@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
+import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Controls from './Controls';
@@ -13,25 +14,21 @@ const StreamVideo = forwardRef(
   (
     {
       playerProfileViewAnimationProps,
-      handleControlsVisibility,
-      isControlsOpen,
       isFullscreenEnabled,
-      isLoading,
+      isPlayerLoading,
       isVisible,
-      livePlayer,
       onClickFullscreenHandler,
       onClickPlayerHandler,
       openPopupIds,
-      setOpenPopupIds,
-      shouldShowPlayerOverlay,
-      stopPropagAndResetTimeout
+      setOpenPopupIds
     },
     ref
   ) => {
     const { channelData: { isViewerBanned } = {} } = useChannel();
     const { isProfileViewExpanded, shouldAnimateProfileView } =
       useProfileViewAnimation();
-    const { selectedQualityName } = livePlayer;
+    const { isOverlayVisible, player } = usePlayerContext();
+    const { selectedQualityName } = player;
     const { isMobileView } = useResponsiveDevice();
 
     // This function prevents click events to be triggered on the controls while the controls are hidden
@@ -76,28 +73,22 @@ const StreamVideo = forwardRef(
               isMobileView ? 'w-[80%]' : 'w-[70%]',
               'h-auto'
             ], // ensures StreamVideo has the correct dimensions when it mounts in the expanded profile view state
-            isLoading || isViewerBanned ? '!hidden' : 'block'
+            isPlayerLoading || isViewerBanned ? '!hidden' : 'block'
           )}
           muted
           playsInline
           ref={ref}
         />
-        <PlayerOverlay
-          isVisible={shouldShowPlayerOverlay && !isProfileViewExpanded}
-        >
+        <PlayerOverlay isVisible={isOverlayVisible && !isProfileViewExpanded}>
           <Controls
-            handleControlsVisibility={handleControlsVisibility}
             isFullscreenEnabled={isFullscreenEnabled}
-            isViewerBanned={isViewerBanned}
             onClickFullscreenHandler={onClickFullscreenHandler}
             openPopupIds={openPopupIds}
-            player={livePlayer}
             selectedQualityName={selectedQualityName}
             setOpenPopupIds={setOpenPopupIds}
-            stopPropagAndResetTimeout={stopPropagAndResetTimeout}
           />
         </PlayerOverlay>
-        {!isControlsOpen && (
+        {(!isOverlayVisible || isProfileViewExpanded) && (
           <div
             className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}
             onClickCapture={onClickCaptureControlsHandler}
@@ -109,27 +100,20 @@ const StreamVideo = forwardRef(
 );
 
 StreamVideo.propTypes = {
-  handleControlsVisibility: PropTypes.func.isRequired,
-  isControlsOpen: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
-  isLoading: PropTypes.bool,
+  isPlayerLoading: PropTypes.bool,
   isVisible: PropTypes.bool,
-  livePlayer: PropTypes.object.isRequired,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   playerProfileViewAnimationProps: PropTypes.object.isRequired,
-  setOpenPopupIds: PropTypes.func.isRequired,
-  shouldShowPlayerOverlay: PropTypes.bool,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired
+  setOpenPopupIds: PropTypes.func.isRequired
 };
 
 StreamVideo.defaultProps = {
-  isControlsOpen: false,
   isFullscreenEnabled: false,
-  isLoading: false,
-  isVisible: false,
-  shouldShowPlayerOverlay: false
+  isPlayerLoading: false,
+  isVisible: false
 };
 
 export default StreamVideo;

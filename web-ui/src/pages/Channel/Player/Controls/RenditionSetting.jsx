@@ -13,6 +13,7 @@ import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { player as $content } from '../../../../content';
+import { usePlayerContext } from '../../contexts/Player';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
 import useClickAway from '../../../../hooks/useClickAway';
@@ -21,19 +22,27 @@ export const POPUP_ID = 'rendition';
 
 const RenditionSetting = ({
   className,
-  controlsVisibilityProps,
   isDisabled,
   isExpanded,
   qualities,
   selectedQualityName,
   setOpenPopupIds,
-  stopPropagAndResetTimeout,
   updateQuality
 }) => {
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
+  const { isMobileView } = useResponsiveDevice();
+  const { subscribeOverlayElement, stopPropagAndResetTimeout } =
+    usePlayerContext();
   const qualitiesContainerRef = useRef();
   const settingsButtonRef = useRef();
-  const { isMobileView } = useResponsiveDevice();
+
+  const subscribeOverlayControl = useCallback(
+    (element) => {
+      subscribeOverlayElement(element);
+      settingsButtonRef.current = element;
+    },
+    [subscribeOverlayElement]
+  );
 
   const closeQualitiesContainer = useCallback(() => {
     setOpenPopupIds((prev) => {
@@ -94,7 +103,6 @@ const RenditionSetting = ({
   return (
     <div className={clsm(['flex', 'relative'])}>
       <button
-        {...controlsVisibilityProps}
         aria-label={`${
           isExpanded ? 'Close' : 'Open'
         } the video quality selector`}
@@ -106,9 +114,9 @@ const RenditionSetting = ({
         ])}
         disabled={isDisabled}
         onClick={onClickRenditionSettingHandler}
-        ref={settingsButtonRef}
+        ref={subscribeOverlayControl}
       >
-        {<SettingsSvg />}
+        <SettingsSvg />
       </button>
       <AnimatePresence>
         {isExpanded && (
@@ -154,7 +162,7 @@ const RenditionSetting = ({
               })}
             >
               {isMobileView && (
-                <div className={clsm(['relative'])}>
+                <div className="relative">
                   <p
                     className={clsm([
                       'text-center',
@@ -249,13 +257,11 @@ RenditionSetting.defaultProps = {
 
 RenditionSetting.propTypes = {
   className: PropTypes.string,
-  controlsVisibilityProps: PropTypes.object.isRequired,
   isDisabled: PropTypes.bool,
   isExpanded: PropTypes.bool,
   qualities: PropTypes.arrayOf(PropTypes.object),
   selectedQualityName: PropTypes.string.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired,
-  stopPropagAndResetTimeout: PropTypes.func.isRequired,
   updateQuality: PropTypes.func.isRequired
 };
 
