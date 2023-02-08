@@ -152,7 +152,7 @@ The directory page (`/`) is where all users can view the 50 most recent live str
 
 ### Following page
 
-[Following page](screenshots/features/following-page.png)
+![Following page](screenshots/features/following-page.png)
 
 Authenticated users have a following page (`/following`) where they can view the channels they are following, along with the live status of each channel.
 
