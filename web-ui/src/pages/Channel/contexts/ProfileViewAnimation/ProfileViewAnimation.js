@@ -40,10 +40,12 @@ export const Provider = ({ children }) => {
   const navigationType = useNavigationType();
   const urlHasProfile = useLatest(pathname.split('/').includes('profile'));
 
+  const [isProfileViewAnimationEnabled, setIsProfileViewAnimationEnabled] =
+    useState(false);
+  const [runningAnimationIds, setRunningAnimationIds] = useState([]);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isProfileViewExpanded, setIsProfileViewExpanded] =
     useStateWithCallback(urlHasProfile.current);
-  const [runningAnimationIds, setRunningAnimationIds] = useState([]);
   const { currentView } = useChannelView();
   const didCurrentViewChange = useDidChange(currentView);
   const didProfileViewChange = useDidChange(isProfileViewExpanded);
@@ -51,7 +53,6 @@ export const Provider = ({ children }) => {
     getProfileViewVariant(isProfileViewExpanded, currentView)
   );
   const isFirstMount = useLatest(useFirstMount());
-  const isProfileViewAnimationEnabled = useRef(false);
   const shouldSkipProfileViewAnimation = useRef(false);
   const shouldAnimateProfileView = useLatest(
     didProfileViewChange && !shouldSkipProfileViewAnimation.current
@@ -160,10 +161,7 @@ export const Provider = ({ children }) => {
         action = 'user'
       } = options || { skipAnimation: false, action: 'user' };
 
-      if (
-        !isProfileViewAnimationEnabled.current ||
-        isProfileViewAnimationRunning
-      )
+      if (!isProfileViewAnimationEnabled || isProfileViewAnimationRunning)
         return;
 
       shouldSkipProfileViewAnimation.current = skipAnimation;
@@ -186,11 +184,19 @@ export const Provider = ({ children }) => {
             toggleHeader(options)
           ]);
 
-          if (action === 'user') updateProfilePath(_isExpandedNext);
-
           return _isExpandedNext;
         },
         async () => {
+          /**
+           * We update the profile path in the callback as this update will take place in a different
+           * Channel component path instance than the setState call above. Otherwise, if we updated
+           * the profile path before setting the next isProfileViewExpanded state value, we would
+           * likely see the following warning message:
+           *
+           *  | Cannot update a component (`BrowserRouter`) while rendering a different component (`Provider`).
+           */
+          if (action === 'user') updateProfilePath(_isExpandedNext);
+
           await animationPromise;
 
           if (urlHasProfile.current !== _isExpandedNext) {
@@ -201,6 +207,7 @@ export const Provider = ({ children }) => {
     },
     [
       appLayoutRef,
+      isProfileViewAnimationEnabled,
       isProfileViewAnimationRunning,
       setIsProfileViewExpanded,
       toggleChat,
@@ -213,7 +220,7 @@ export const Provider = ({ children }) => {
 
   const toggleProfileViewThrottled = useThrottledCallback(
     toggleProfileView,
-    DEFAULT_PROFILE_VIEW_TRANSITION.duration * 1000 + 200
+    DEFAULT_PROFILE_VIEW_TRANSITION.duration * 1000 + 400
   );
 
   const toggleProfileViewDebounced = useDebouncedCallback(
@@ -250,9 +257,9 @@ export const Provider = ({ children }) => {
 
   const value = useMemo(() => {
     const enableProfileViewAnimation = () =>
-      (isProfileViewAnimationEnabled.current = true);
+      setIsProfileViewAnimationEnabled(true);
     const disableProfileViewAnimation = () =>
-      (isProfileViewAnimationEnabled.current = false);
+      setIsProfileViewAnimationEnabled(false);
 
     return {
       // controls
@@ -271,6 +278,7 @@ export const Provider = ({ children }) => {
       isProfileViewAnimationEnabled,
       isProfileViewAnimationRunning,
       isProfileViewExpanded,
+      runningAnimationIds,
       shouldAnimateProfileView
     };
   }, [
@@ -278,9 +286,11 @@ export const Provider = ({ children }) => {
     getProfileViewAnimationProps,
     headerAnimationControls,
     isChatVisible,
+    isProfileViewAnimationEnabled,
     isProfileViewAnimationRunning,
     isProfileViewExpanded,
     playerAnimationControls,
+    runningAnimationIds,
     shouldAnimateProfileView,
     toggleChat,
     toggleProfileViewThrottled

@@ -212,7 +212,7 @@ export class ChannelsStack extends NestedStack {
         this,
         `${nestedStackName}-ChannelAssets-UpdateVersionId-SQSLambdaTrigger`,
         {
-          name: `${stackNamePrefix}-ChannelAssetsUpdateVersionId`,
+          name: `${stackNamePrefix}-ChnlAssetsUpdateVersionId`,
           srcHandler: {
             entryFunctionName: 'updateVersionId',
             description:

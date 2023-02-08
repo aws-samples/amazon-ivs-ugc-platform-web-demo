@@ -73,7 +73,6 @@ export const Provider = ({ children }) => {
     setIsOverlayVisible(false);
   }, [shouldKeepOverlaysVisible]);
 
-  // Cancels the current timeout and keeps the current
   const clearOverlayTimeout = useCallback(() => {
     clearTimeout(timeoutId.current);
     timeoutId.current = null;
@@ -228,6 +227,7 @@ export const Provider = ({ children }) => {
       isOverlayVisible: hasError || isOverlayVisible,
       mobileClickHandler,
       onMouseMoveHandler,
+      openOverlayAndResetTimeout,
       player,
       setShouldKeepOverlaysVisible,
       stopPropagAndResetTimeout,
@@ -238,6 +238,7 @@ export const Provider = ({ children }) => {
       isOverlayVisible,
       mobileClickHandler,
       onMouseMoveHandler,
+      openOverlayAndResetTimeout,
       player,
       setShouldKeepOverlaysVisible,
       stopPropagAndResetTimeout,

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
-import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
+import { NoSignal, Lock } from '../../../assets/icons';
 import { player as $content } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
@@ -11,14 +11,15 @@ import { useNotif } from '../../../contexts/Notification';
 import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
-import FloatingNav from '../../../components/FloatingNav';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
 import Notification from '../../../components/Notification';
 import PlayerHeader from './PlayerHeader';
 import PlayerViewerStreamActions from './PlayerViewerStreamActions';
 import ProfileViewContent from './ProfileViewContent';
-import StreamOffline from './StreamOffline';
-import StreamSpinner from './StreamSpinner';
+import ProfileViewFloatingNav from '../ProfileViewFloatingNav';
+import ProfileViewHeroBanner from './ProfileViewHeroBanner';
+import Spinner from '../../../components/Spinner';
+import StreamInfo from './StreamInfo';
 import StreamVideo from './StreamVideo';
 import useFullscreen from './useFullscreen';
 import usePrevious from '../../../hooks/usePrevious';
@@ -50,14 +51,14 @@ const Player = ({ chatSectionRef }) => {
   };
 
   /* Refs */
-  const offlineRef = useRef();
   const playerSectionRef = useRef();
+  const bannedRef = useRef();
+  const offlineRef = useRef();
   const spinnerRef = useRef();
 
   /* IVS Player */
   const {
     mobileClickHandler,
-    onMouseMoveHandler,
     player: {
       hasError,
       hasPlayedFinalBuffer,
@@ -65,8 +66,7 @@ const Player = ({ chatSectionRef }) => {
       videoAspectRatio,
       videoRef
     },
-    setShouldKeepOverlaysVisible,
-    stopPropagAndResetTimeout
+    setShouldKeepOverlaysVisible
   } = usePlayerContext();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
@@ -76,6 +76,7 @@ const Player = ({ chatSectionRef }) => {
   const isStreamSpinnerVisible =
     shouldShowStream && isPlayerLoading && !isViewerBanned;
   const isStreamOfflineVisible = !shouldShowStream;
+  const isStreamViewerBannedVisible = isViewerBanned;
   const isVideoVisible = shouldShowStream && !isPlayerLoading;
 
   /* Controls */
@@ -95,7 +96,6 @@ const Player = ({ chatSectionRef }) => {
     shouldAnimateProfileView,
     toggleChat
   } = useProfileViewAnimation();
-  const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
   const visiblePlayerAspectRatio = isVideoVisible ? videoAspectRatio : 16 / 9;
   const playerProfileViewAnimationProps = useMemo(
     () =>
@@ -113,6 +113,7 @@ const Player = ({ chatSectionRef }) => {
 
   let targetPlayerRef = videoRef;
   if (isStreamSpinnerVisible) targetPlayerRef = spinnerRef;
+  else if (isStreamViewerBannedVisible) targetPlayerRef = bannedRef;
   else if (isStreamOfflineVisible) targetPlayerRef = offlineRef;
   useProfileViewPlayerAnimation({
     chatSectionRef,
@@ -124,12 +125,8 @@ const Player = ({ chatSectionRef }) => {
   });
 
   /* Fullscreen */
-  const { isFullscreenEnabled, onClickFullscreenHandler } = useFullscreen({
-    isLive,
-    isProfileViewExpanded,
-    playerSectionRef,
-    stopPropagAndResetTimeout
-  });
+  const { isFullscreenEnabled, onClickFullscreenHandler } =
+    useFullscreen(playerSectionRef);
 
   /* Handlers */
   const onClickPlayerHandler = useCallback(
@@ -240,8 +237,8 @@ const Player = ({ chatSectionRef }) => {
         isLandscape && ['md:aspect-auto', 'touch-screen-device:lg:aspect-auto']
       ])}
       ref={playerSectionRef}
-      onMouseMove={onMouseMoveHandler}
     >
+      <ProfileViewHeroBanner />
       <PlayerHeader avatarSrc={avatarSrc} color={color} username={username} />
       <StreamVideo
         ref={videoRef}
@@ -258,42 +255,44 @@ const Player = ({ chatSectionRef }) => {
         /* Profile View Animation */
         playerProfileViewAnimationProps={playerProfileViewAnimationProps}
       />
-      <StreamSpinner
+      <StreamInfo
         isVisible={isStreamSpinnerVisible}
         playerProfileViewAnimationProps={playerProfileViewAnimationProps}
         ref={spinnerRef}
+        icon={<Spinner size="large" variant="light" />}
       />
-      <StreamOffline
+      <StreamInfo
+        ref={offlineRef}
         isVisible={isStreamOfflineVisible}
         playerProfileViewAnimationProps={playerProfileViewAnimationProps}
-        ref={offlineRef}
+        message={$content.stream_offline}
+        icon={
+          <NoSignal
+            className={clsm([
+              'fill-lightMode-gray-medium',
+              'dark:fill-darkMode-gray-light'
+            ])}
+          />
+        }
+      />
+      <StreamInfo
+        ref={bannedRef}
+        isVisible={isStreamViewerBannedVisible}
+        playerProfileViewAnimationProps={playerProfileViewAnimationProps}
+        message={$content.you_are_banned}
+        icon={
+          <Lock
+            className={clsm([
+              'fill-lightMode-gray-medium',
+              'dark:fill-darkMode-gray-light'
+            ])}
+          />
+        }
       />
       <ProfileViewContent targetPlayerRef={targetPlayerRef} />
-      <motion.div
-        className={clsm([
-          'fixed',
-          'bottom-0',
-          'right-0',
-          'z-[1000]' // z-index must match that of ProfileMenu
-        ])}
-        {...getProfileViewAnimationProps(chatAnimationControls, {
-          expanded: {
-            opacity: 1,
-            visibility: 'visible',
-            transition: {
-              delay: animationDuration,
-              duration: animationDuration / 2
-            }
-          },
-          collapsed: {
-            opacity: 0,
-            transition: { duration: animationDuration / 4 },
-            transitionEnd: { visibility: 'collapse' }
-          }
-        })}
-      >
-        <FloatingNav />
-      </motion.div>
+      <ProfileViewFloatingNav
+        className={clsm(['fixed', 'bottom-0', 'right-0'])}
+      />
       <MobileNavbar
         className="z-10"
         motionProps={{

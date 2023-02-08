@@ -30,7 +30,7 @@ const useProfileViewPlayerAnimation = ({
     shouldAnimateProfileView
   } = useProfileViewAnimation();
   const { isStackedView } = useChannelView();
-  const { isMobileView } = useResponsiveDevice();
+  const { isDefaultResponsiveView } = useResponsiveDevice();
   const didInitializeFirstVideoFrame = useRef(false);
   const initialPlayerDimensions = useRef();
   const initialPlayerSectionDimensions = useRef();
@@ -50,7 +50,7 @@ const useProfileViewPlayerAnimation = ({
       chatSectionRef,
       isChatVisible,
       isStackedView,
-      isMobileView,
+      isDefaultResponsiveView,
       isProfileViewExpanded,
       playerAnimationControls,
       visiblePlayerAspectRatio
@@ -98,7 +98,7 @@ const useProfileViewPlayerAnimation = ({
 
       if (isProfileViewExpanded) {
         // profile view is expanding
-        const widthFactor = isMobileView ? 0.8 : 0.7;
+        const widthFactor = isDefaultResponsiveView ? 0.9 : 0.7;
 
         finalAspectRatio = 16 / 9;
         finalPlayerWidth = widthFactor * expandedPlayerSectionWidth;

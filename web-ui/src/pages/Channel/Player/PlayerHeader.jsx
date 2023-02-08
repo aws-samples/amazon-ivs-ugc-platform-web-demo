@@ -6,13 +6,13 @@ import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
 import { Menu } from '../../../assets/icons';
+import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import FollowButton from './FollowButton';
 import PlayerOverlay from './PlayerOverlay';
 import UserAvatar from '../../../components/UserAvatar';
-import { usePlayerContext } from '../contexts/Player';
 
 const HEADER_BUTTON_CLASSES = clsm([
   'flex',
@@ -38,6 +38,8 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
   const { isSessionValid } = useUser();
   const layoutDependency = useRef(null);
   const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
+  const shouldShowHeaderOverlay =
+    isOverlayVisible || isLive === false || isProfileViewExpanded;
 
   if (shouldAnimateProfileView.current) layoutDependency.current = Date.now();
 
@@ -83,7 +85,7 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
             'focus:ring-2',
             'focus:ring-white'
           ])}
-          disabled={!isProfileViewAnimationEnabled.current}
+          disabled={!isProfileViewAnimationEnabled}
           aria-label={`${
             isProfileViewExpanded ? 'Close' : 'Open'
           } profile view`}
@@ -93,7 +95,7 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
             className={clsm([
               'duration-[400ms]',
               'group-focus:ring-0',
-              isProfileViewAnimationEnabled.current &&
+              isProfileViewAnimationEnabled &&
                 (isProfileViewExpanded
                   ? [
                       'group-focus:hover:ring-4',
@@ -114,9 +116,7 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
       </motion.div>
       <PlayerOverlay
         isGradientVisible={!isProfileViewExpanded}
-        isVisible={
-          isOverlayVisible || isLive === false || isProfileViewExpanded
-        }
+        isVisible={shouldShowHeaderOverlay}
         position="top"
       >
         <motion.div
@@ -134,11 +134,11 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
           )}
         >
           <motion.h3
-            layout="position"
             {...getPlayerHeaderProfileViewAnimationProps({
               expanded: { marginLeft: 0 },
               collapsed: { marginLeft: 64 }
             })}
+            layout="position"
             layoutDependency={layoutDependency.current}
             className={clsm(['truncate', 'text-black', 'dark:text-white'])}
           >
@@ -149,8 +149,8 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
             layoutDependency={layoutDependency.current}
             className={HEADER_BUTTON_CLASSES}
             {...getPlayerHeaderProfileViewAnimationProps({
-              expanded: { top: 124, marginTop: 24, desktop: { top: 108 } },
-              collapsed: { top: 'auto', marginTop: 0 }
+              expanded: { marginTop: 24 },
+              collapsed: { marginTop: 0 }
             })}
           >
             <motion.div

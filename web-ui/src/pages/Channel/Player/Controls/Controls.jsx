@@ -9,12 +9,6 @@ import {
   Pause as PauseSvg,
   Play as PlaySvg
 } from '../../../../assets/icons';
-import RenditionSetting, {
-  POPUP_ID as RENDITION_SETTING_POPUP_ID
-} from './RenditionSetting';
-import VolumeSetting, {
-  POPUP_ID as VOLUME_SETTING_POPUP_ID
-} from './VolumeSetting';
 import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { useChannel } from '../../../../contexts/Channel';
@@ -22,8 +16,15 @@ import { useChannelView } from '../../contexts/ChannelView';
 import { usePlayerContext } from '../../contexts/Player';
 import { useProfileViewAnimation } from '../../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import RenditionSetting, {
+  POPUP_ID as RENDITION_SETTING_POPUP_ID
+} from './RenditionSetting';
+import VolumeSetting, {
+  POPUP_ID as VOLUME_SETTING_POPUP_ID
+} from './VolumeSetting';
 
 const Controls = ({
+  areControlsContained,
   isFullscreenEnabled,
   onClickFullscreenHandler,
   openPopupIds,
@@ -134,7 +135,7 @@ const Controls = ({
         />
       </div>
       <div className="flex space-x-4">
-        {isSplitView && !isFullscreenEnabled && (
+        {isSplitView && !isFullscreenEnabled && !areControlsContained && (
           // The split view toggle control remains enabled for banned viewers
           <button
             ref={subscribeOverlayControl}
@@ -154,30 +155,36 @@ const Controls = ({
           setOpenPopupIds={setOpenPopupIds}
           updateQuality={updateQuality}
         />
-        <button
-          ref={subscribeOverlayControl}
-          aria-label={`${
-            isFullscreenEnabled ? 'Disable' : 'Enable'
-          } fullscreen mode`}
-          className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
-          disabled={isViewerBanned}
-          onClick={onClickFullscreenHandler}
-        >
-          {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
-        </button>
+        {!areControlsContained && (
+          <button
+            ref={subscribeOverlayControl}
+            aria-label={`${
+              isFullscreenEnabled ? 'Disable' : 'Enable'
+            } fullscreen mode`}
+            className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
+            disabled={isViewerBanned}
+            onClick={onClickFullscreenHandler}
+          >
+            {isFullscreenEnabled ? <FullScreenExitSvg /> : <FullScreenSvg />}
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
-Controls.defaultProps = { isFullscreenEnabled: false };
-
 Controls.propTypes = {
+  areControlsContained: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedQualityName: PropTypes.string.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired
+};
+
+Controls.defaultProps = {
+  areControlsContained: false,
+  isFullscreenEnabled: false
 };
 
 export default Controls;

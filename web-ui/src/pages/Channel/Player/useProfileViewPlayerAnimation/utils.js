@@ -79,7 +79,8 @@ export const createPlayerRelativeDimensionsSetter =
     chatSectionRef,
     isChatVisible,
     isStackedView,
-    isMobileView,
+
+    isDefaultResponsiveView,
     isProfileViewExpanded,
     playerAnimationControls,
     visiblePlayerAspectRatio
@@ -92,7 +93,7 @@ export const createPlayerRelativeDimensionsSetter =
       // as those dimensions will already give us a 16/9 aspect ratio for the current window size
       if (isCssAspectRatioSupported) {
         playerAnimationControls.set({
-          width: isMobileView ? '80%' : '70%',
+          width: isDefaultResponsiveView ? '90%' : '70%',
           height: 'auto'
         });
       }

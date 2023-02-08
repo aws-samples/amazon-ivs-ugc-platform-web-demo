@@ -14,7 +14,7 @@ import { PROFILE_COLORS } from '../../../constants';
 import { usePlayerContext } from '../contexts/Player';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import Button from '../../../components/Button';
-import FloatingNav from '../../../components/FloatingNav';
+import ProfileViewFloatingNav from '../ProfileViewFloatingNav';
 import ProgressBar from './ProgressBar';
 
 const defaultQuizAnswerHeight = 42;
@@ -168,7 +168,7 @@ const QuizCard = ({
           </div>
         </div>
       </motion.div>
-      <FloatingNav />
+      <ProfileViewFloatingNav containerClassName="fixed" reverseVisibility />
     </div>
   );
 };

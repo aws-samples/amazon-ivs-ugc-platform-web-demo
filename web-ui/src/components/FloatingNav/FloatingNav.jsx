@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 import { clsm } from '../../utils';
 import { navMenuButtonData } from './utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
@@ -7,7 +9,7 @@ import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
 import useCurrentPage from '../../hooks/useCurrentPage';
 
-const FloatingNav = () => {
+const FloatingNav = ({ containerClassName }) => {
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
 
@@ -54,7 +56,8 @@ const FloatingNav = () => {
                 'lg:right-5',
                 'bottom-6'
               ]
-            ]
+            ],
+            containerClassName
           ])
         }
         menuClassName={clsm(
@@ -98,5 +101,9 @@ const FloatingNav = () => {
     )
   );
 };
+
+FloatingNav.propTypes = { containerClassName: PropTypes.string };
+
+FloatingNav.defaultProps = { containerClassName: '' };
 
 export default FloatingNav;

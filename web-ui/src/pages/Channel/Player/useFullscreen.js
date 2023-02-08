@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { isiOS } from '../../../utils';
-import { VOLUME_MAX, VOLUME_MIN } from '../../../constants';
+import { useChannel } from '../../../contexts/Channel';
 import { usePlayerContext } from '../contexts/Player';
+import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
+import { VOLUME_MAX, VOLUME_MIN } from '../../../constants';
 
-const useFullscreen = ({
-  isLive,
-  isProfileViewExpanded,
-  playerSectionRef,
-  stopPropagAndResetTimeout
-}) => {
+const useFullscreen = (playerSectionRef) => {
   const {
     player: {
       hasPlayedFinalBuffer,
@@ -18,8 +15,12 @@ const useFullscreen = ({
       playerRef,
       updateVolume,
       videoRef
-    }
+    },
+    stopPropagAndResetTimeout
   } = usePlayerContext();
+  const { isProfileViewExpanded } = useProfileViewAnimation();
+  const { channelData } = useChannel();
+  const { isLive } = channelData || {};
   const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
   const iOsFullscreenIntervalId = useRef(null);
 

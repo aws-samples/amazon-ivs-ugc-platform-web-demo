@@ -4,15 +4,15 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../../utils';
 import { useModal, MODAL_TYPE } from '../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import FloatingNav from '../../../../components/FloatingNav';
+import ProfileViewFloatingNav from '../../ProfileViewFloatingNav';
 import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
 import ProductDescription from './ProductDescription';
 
 const Product = ({ color, description, imageUrl, price, title }) => {
-  const learnMoreButtonRef = useRef();
-  const { openModal } = useModal();
   const { isMobileView } = useResponsiveDevice();
+  const { openModal } = useModal();
+  const learnMoreButtonRef = useRef();
 
   const openProductDetails = () => {
     openModal({
@@ -71,7 +71,7 @@ const Product = ({ color, description, imageUrl, price, title }) => {
         openProductDetails={openProductDetails}
         variant="popup"
       />
-      <FloatingNav />
+      <ProfileViewFloatingNav containerClassName="fixed" reverseVisibility />
     </div>
   );
 };
