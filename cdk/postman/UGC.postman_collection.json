@@ -293,6 +293,37 @@
 									"header": [],
 									"cookie": [],
 									"body": ""
+								},
+								{
+									"name": "Custom Banner Example",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"banner\": {\n         \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{apiBaseUrl}}/channel/preferences/update",
+											"host": [
+												"{{apiBaseUrl}}"
+											],
+											"path": [
+												"channel",
+												"preferences",
+												"update"
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
 								}
 							]
 						},
