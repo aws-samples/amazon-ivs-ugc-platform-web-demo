@@ -168,7 +168,7 @@ const FollowButton = ({ isExpandedView }) => {
   }, 200);
 
   // Hide button on authorized user's channel and before isFollowing state is set by isViewerBanned channel data
-  if (isFollowing === undefined || ownUsername === channelUsername) return null;
+  if (isFollowing === undefined || isOwnChannel) return null;
 
   return (
     <AnimatePresence initial={false}>

@@ -8,7 +8,7 @@ const useStateWithCallback = (initialValue) => {
 
   useEffect(() => {
     if (callbackRef.current) {
-      callbackRef.current(prevValue);
+      callbackRef.current(prevValue, value);
 
       callbackRef.current = null;
     }

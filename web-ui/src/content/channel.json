@@ -1,4 +1,14 @@
 {
+  "notifications": {
+    "success": {
+      "user_banned": "User banned from channel",
+      "user_unbanned": "User unbanned from channel"
+    },
+    "error": {
+      "ban_user": "Failed to ban user",
+      "unban_user": "Failed to unban user"
+    }
+  },
   "chat": {
     "say_something": "Say something",
     "popup": {
@@ -10,6 +20,10 @@
       "ban_user_modal": {
         "confirm_ban_user": "Ban user",
         "ban_user_message": "Are you sure you would like to ban"
+      },
+      "unban_user_modal": {
+        "confirm_unban_user": "Unban user",
+        "unban_user_message": "Are you sure you would like to unban"
       }
     },
     "new_messages": "New messages",
@@ -17,13 +31,9 @@
     "message_removed": "Message removed",
     "notifications": {
       "success": {
-        "user_banned": "User banned from channel",
-        "user_unbanned": "User unbanned from channel",
         "message_removed": "Message removed"
       },
       "error": {
-        "ban_user": "Failed to ban user",
-        "unban_user": "Failed to unban user",
         "you_have_been_banned": "You have been banned",
         "error_loading_chat": "Error loading chat",
         "your_message_was_removed": "Your message was removed"
@@ -43,6 +53,16 @@
       "buy_now": "Buy now",
       "learn_more": "Learn more",
       "popup": { "buy_now": "Buy now", "add_to_cart": "Add to cart" }
+    }
+  },
+  "profileViewMenu": {
+    "copy_channel_link": "Copy channel link",
+    "unban_user": "Unban user",
+    "ban_user": "Ban user",
+    "notifications": {
+      "success": {
+        "channel_link_copied": "Channel link copied"
+      }
     }
   },
   "follow_button": {

@@ -26,6 +26,7 @@ interface GetChannelDataResponseBody extends ResponseBody {
   channelAssetUrls?: ChannelAssetURLs;
   color?: string;
   ingestConfiguration?: IngestConfiguration;
+  isChannelBanned?: boolean;
   isLive?: boolean;
   isViewerBanned?: boolean;
   isViewerFollowing?: boolean;
@@ -77,38 +78,46 @@ const handler = async (
       channelAssets,
       color,
       playbackUrl,
-      username
+      username,
+      id: channelSub
     } = unmarshall(UserItems[0]);
 
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.username = username;
     responseBody.isViewerBanned = false;
+    responseBody.isChannelBanned = false;
     responseBody.isViewerFollowing = false;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
 
-    // If the viewer is banned, then only return a subset of the channel data
-    if (viewerSub && bannedUserSubs) {
-      if (bannedUserSubs.has(viewerSub)) {
-        responseBody.isViewerBanned = true;
-
-        return reply.send(responseBody);
-      }
-    }
-
-    // Check if channel is being followed by the viewer
     if (viewerSub) {
       try {
         const channelId = getChannelId(channelArn);
-
         const { Item: ViewerItem = {} } = await getUser(viewerSub);
-        const { followingList: viewerFollowingList = [] } =
-          unmarshall(ViewerItem);
+        const {
+          followingList: viewerFollowingList = [],
+          bannedUserSubs: viewerBannedUserSubsSet = new Set([])
+        } = unmarshall(ViewerItem);
 
+        // Check if the channel is banned by the authorized user
+        responseBody.isChannelBanned = viewerBannedUserSubsSet?.has(channelSub);
+
+        // Check if the channel is being followed by the viewer
         responseBody.isViewerFollowing =
           viewerFollowingList.includes(channelId);
       } catch (error) {
-        // Failed attempts to retrieve the user data shouldn't stop the flow
+        /**
+         * If we cannot retrieve information about the channel being banned by the viewer,
+         * or about the viewer following the channel, then we will continue to serve the
+         * reamining data that can be retrieved.
+         */
+      }
+
+      // If the viewer is banned, then return early with only a subset of the channel data
+      if (bannedUserSubs?.has(viewerSub)) {
+        responseBody.isViewerBanned = true;
+
+        return reply.send(responseBody);
       }
     }
 

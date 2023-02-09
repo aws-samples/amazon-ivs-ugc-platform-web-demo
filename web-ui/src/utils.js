@@ -16,27 +16,6 @@ export const isiOS = () =>
   ].includes(navigator.platform) ||
   (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
 
-export const copyToClipboard = (value) => {
-  if (isiOS()) {
-    const textArea = document.createElement('textArea');
-    textArea.value = value;
-    textArea.readOnly = true;
-    document.body.appendChild(textArea);
-
-    const range = document.createRange();
-    range.selectNodeContents(textArea);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-    textArea.setSelectionRange(0, 999999);
-
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-  } else {
-    navigator.clipboard.writeText(value);
-  }
-};
-
 export const scrollToTop = (
   selectorOrRef = '[id$=scrollable]',
   behavior = 'smooth'

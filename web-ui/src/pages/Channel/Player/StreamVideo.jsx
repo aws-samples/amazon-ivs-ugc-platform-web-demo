@@ -29,14 +29,14 @@ const StreamVideo = forwardRef(
       runningAnimationIds,
       shouldAnimateProfileView
     } = useProfileViewAnimation();
-    const { channelData: { isViewerBanned } = {} } = useChannel();
-    const { isDefaultResponsiveView } = useResponsiveDevice();
     const {
       isOverlayVisible,
       onMouseMoveHandler,
       openOverlayAndResetTimeout,
       player: { selectedQualityName }
     } = usePlayerContext();
+    const { channelData: { isViewerBanned } = {} } = useChannel();
+    const { isDefaultResponsiveView } = useResponsiveDevice();
     const isPlayerAnimationRunning = runningAnimationIds.includes('player');
     const shouldShowControlsOverlay =
       isOverlayVisible && !isPlayerAnimationRunning && !isViewerBanned;
@@ -85,6 +85,7 @@ const StreamVideo = forwardRef(
           {...playerProfileViewAnimationProps}
           className={clsm([
             'absolute',
+            isProfileViewExpanded && '-z-10', // makes sure that the player header is stacked above the player controls
             !areControlsContained && ['!aspect-auto', '!w-full', '!h-full'],
             !isVisible && '!hidden'
           ])}

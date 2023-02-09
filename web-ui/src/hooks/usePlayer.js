@@ -124,6 +124,19 @@ const usePlayer = ({
     videoRef.current?.removeAttribute('src'); // remove possible stale src
   }, [onStateChange, onTimedMetadata, onAudioBlocked, onError]);
 
+  const reset = useCallback(() => {
+    setError(null);
+    setIsLoading(true);
+    setIsPaused(false);
+    setVolumeLevel(defaultVolumeLevel);
+    setHasPlayedFinalBuffer(undefined);
+    setQualities([{ name: 'Auto' }]);
+    setHasLoaded(false);
+    setVideoAspectRatio(16 / 9);
+    resetIntervalId();
+    destroy();
+  }, [defaultVolumeLevel, destroy, resetIntervalId]);
+
   const create = useCallback(() => {
     if (!isPlayerSupported) {
       console.warn(
@@ -133,8 +146,8 @@ const usePlayer = ({
       return;
     }
 
-    // If a player instance already exists, destroy it before creating a new one
-    if (playerRef.current) destroy();
+    // If a player instance already exists, reset it before creating a new one
+    if (playerRef.current) reset();
 
     playerRef.current = createMediaPlayer();
     playerRef.current.attachHTMLVideoElement(videoRef.current);
@@ -146,46 +159,23 @@ const usePlayer = ({
     playerRef.current.addEventListener(AUDIO_BLOCKED, onAudioBlocked);
     playerRef.current.addEventListener(ENDED, onStateChange);
     playerRef.current.addEventListener(ERROR, onError);
-  }, [destroy, onStateChange, onError, onTimedMetadata, onAudioBlocked]);
+  }, [reset, onStateChange, onError, onTimedMetadata, onAudioBlocked]);
 
-  const play = useCallback(() => {
-    setIsPaused(false);
-  }, []);
+  const play = useCallback(() => setIsPaused(false), []);
+
   const pause = useCallback(() => {
     resetIntervalId();
     setIsPaused(true);
     setIsLoading(false);
   }, [resetIntervalId]);
+
   const updateQuality = useCallback((name) => {
     setSelectedQualityName(name);
   }, []);
+
   const updateVolume = useCallback((newVolume) => {
     setVolumeLevel(newVolume);
   }, []);
-
-  const load = useCallback(
-    (playbackUrl) => {
-      if (!playbackUrl) return;
-
-      if (!playerRef.current) create();
-
-      playerRef.current.load(playbackUrl);
-      play();
-      updateVolume(defaultVolumeLevel);
-    },
-    [create, defaultVolumeLevel, play, updateVolume]
-  );
-  const reset = useCallback(() => {
-    setError(null);
-    setIsLoading(true);
-    setIsPaused(false);
-    setVolumeLevel(defaultVolumeLevel);
-    setHasPlayedFinalBuffer(undefined);
-    setQualities([{ name: 'Auto' }]);
-    setHasLoaded(false);
-    resetIntervalId();
-    destroy();
-  }, [defaultVolumeLevel, destroy, resetIntervalId]);
 
   const { shouldBlurPlayer, isBlurReady, canvasRef } = usePlayerBlur({
     ingestConfiguration,
@@ -264,18 +254,30 @@ const usePlayer = ({
 
   // Load the player
   useEffect(() => {
-    if (playbackUrl && isLive) load(playbackUrl);
-  }, [isLive, load, playbackUrl]);
+    if (playbackUrl && isLive) {
+      create();
+      playerRef.current.load(playbackUrl);
+      play();
+      updateVolume(defaultVolumeLevel);
+    } else {
+      reset();
+    }
+  }, [
+    reset,
+    isLive,
+    playbackUrl,
+    create,
+    defaultVolumeLevel,
+    play,
+    updateVolume
+  ]);
 
   // Clean-up the player
   useEffect(() => reset, [reset]);
 
   // Reset the player and aspect ratio to 16/9 once the livestream has ended
   useEffect(() => {
-    if (hasPlayedFinalBuffer) {
-      reset();
-      setVideoAspectRatio(16 / 9);
-    }
+    if (hasPlayedFinalBuffer) reset();
   }, [hasPlayedFinalBuffer, reset]);
 
   // Update the video aspect ratio as soon as we are able to retrieve the video dimensions
@@ -310,7 +312,6 @@ const usePlayer = ({
     play,
     playerRef,
     qualities,
-    reset,
     selectedQualityName,
     shouldBlurPlayer,
     updateQuality,

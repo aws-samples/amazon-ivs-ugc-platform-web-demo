@@ -5,18 +5,18 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
-import { Menu } from '../../../assets/icons';
 import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useUser } from '../../../contexts/User';
-import Button from '../../../components/Button';
 import FollowButton from './FollowButton';
 import PlayerOverlay from './PlayerOverlay';
 import UserAvatar from '../../../components/UserAvatar';
+import ProfileViewMenu from './ProfileViewMenu';
 
 const HEADER_BUTTON_CLASSES = clsm([
   'flex',
   'items-center',
+  'space-x-2',
   'shrink-0',
   'pointer-events-all',
   'z-10'
@@ -160,10 +160,12 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
             </motion.div>
             {isSessionValid && (
               <motion.div
+                className={clsm(['w-11', 'h-11'])}
                 {...getPlayerHeaderProfileViewAnimationProps({
                   expanded: {
                     width: 'auto',
                     opacity: 1,
+                    display: 'block',
                     transition: {
                       ...DEFAULT_PROFILE_VIEW_TRANSITION,
                       duration: animationDuration / 2,
@@ -176,20 +178,12 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
                     transition: {
                       ...DEFAULT_PROFILE_VIEW_TRANSITION,
                       opacity: { duration: animationDuration / 4 }
-                    }
+                    },
+                    transitionEnd: { display: 'none' }
                   }
                 })}
               >
-                <Button className="ml-2" variant="icon">
-                  <Menu
-                    className={clsm([
-                      'w-6',
-                      'h-6',
-                      'dark:fill-white',
-                      'fill-white-player'
-                    ])}
-                  />
-                </Button>
+                <ProfileViewMenu channelUsername={username} />
               </motion.div>
             )}
           </motion.div>

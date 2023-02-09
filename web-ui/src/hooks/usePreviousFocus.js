@@ -19,7 +19,7 @@ const usePreviousFocus = ({ isActive, onRefocus = noop }) => {
         getLastFocusedElement()?.focus();
         setLastFocusedElement(null);
       });
-      onRefocus();
+      onRefocus(event instanceof KeyboardEvent);
     },
     [getLastFocusedElement, onRefocus, setLastFocusedElement]
   );

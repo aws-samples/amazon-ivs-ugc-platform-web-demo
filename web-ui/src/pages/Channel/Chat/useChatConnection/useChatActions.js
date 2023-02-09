@@ -7,7 +7,7 @@ import { channelAPI } from '../../../../api';
 import { CHAT_CAPABILITY, CHAT_USER_ROLE } from './utils';
 import { useNotif } from '../../../../contexts/Notification';
 
-const $content = $channelContent.chat;
+const $content = $channelContent.notifications;
 
 /**
  * @typedef {('VIEWER'|'SENDER'|'MODERATOR'|undefined)} ChatUserRole
@@ -119,8 +119,8 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
 
       const { result, error } = await channelAPI.banUser(bannedUsername);
 
-      if (result) notifySuccess($content.notifications.success.user_banned);
-      if (error) notifyError($content.notifications.error.ban_user);
+      if (result) notifySuccess($content.success.user_banned);
+      if (error) notifyError($content.error.ban_user);
     },
     [chatUserRole, notifyError, notifySuccess]
   );
@@ -136,8 +136,8 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
 
       const { result, error } = await channelAPI.unbanUser(bannedUsername);
 
-      if (result) notifySuccess($content.notifications.success.user_unbanned);
-      if (error) notifyError($content.notifications.error.unban_user);
+      if (result) notifySuccess($content.success.user_unbanned);
+      if (error) notifyError($content.error.unban_user);
     },
     [chatUserRole, notifyError, notifySuccess]
   );

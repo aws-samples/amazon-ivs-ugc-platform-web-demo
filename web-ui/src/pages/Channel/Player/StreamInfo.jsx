@@ -24,6 +24,7 @@ const StreamInfo = forwardRef(
           'aspect-video',
           'transition-colors',
           'pointer-events-none',
+          '-z-10',
           isVisible ? '!flex' : '!hidden',
           shouldAnimateProfileView.current ? 'duration-[400ms]' : 'duration-0',
           isProfileViewExpanded
