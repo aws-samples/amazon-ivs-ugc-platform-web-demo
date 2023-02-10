@@ -44,10 +44,11 @@ const FloatingPlayer = () => {
     shouldBlurPlayer,
     videoRef
   } = usePlayer({
-    defaultVolumeLevel: VOLUME_MIN,
-    ingestConfiguration: liveSession?.ingestConfiguration,
     isLive,
-    playbackUrl: userData?.playbackUrl
+    playbackUrl: userData?.playbackUrl,
+    ingestConfiguration: liveSession?.ingestConfiguration,
+    isBlurEnabled: true,
+    defaultVolumeLevel: VOLUME_MIN
   });
   const [isExpanded, setIsExpanded] = useState(true);
   const currentPage = useCurrentPage();

@@ -3,15 +3,15 @@ import { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
-import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
+import { useChannel } from '../../../contexts/Channel';
 import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useUser } from '../../../contexts/User';
 import FollowButton from './FollowButton';
 import PlayerOverlay from './PlayerOverlay';
-import UserAvatar from '../../../components/UserAvatar';
 import ProfileViewMenu from './ProfileViewMenu';
+import UserAvatar from '../../../components/UserAvatar';
 
 const HEADER_BUTTON_CLASSES = clsm([
   'flex',
@@ -31,11 +31,9 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
     shouldAnimateProfileView,
     toggleProfileView
   } = useProfileViewAnimation();
-  const {
-    isOverlayVisible,
-    player: { isLive }
-  } = usePlayerContext();
+  const { isOverlayVisible } = usePlayerContext();
   const { isSessionValid } = useUser();
+  const { channelData: { isLive } = {} } = useChannel();
   const layoutDependency = useRef(null);
   const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
   const shouldShowHeaderOverlay =
@@ -70,7 +68,7 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
       <motion.div
         layout="position"
         layoutDependency={layoutDependency.current}
-        className={HEADER_BUTTON_CLASSES}
+        className={clsm(HEADER_BUTTON_CLASSES)}
         {...getPlayerHeaderProfileViewAnimationProps({
           expanded: { y: 64, desktop: { y: 48 } },
           collapsed: { y: 0 }
@@ -135,29 +133,34 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
         >
           <motion.h3
             {...getPlayerHeaderProfileViewAnimationProps({
-              expanded: { marginLeft: 0 },
-              collapsed: { marginLeft: 64 }
+              expanded: { marginLeft: 0, height: 22 },
+              collapsed: { marginLeft: 64, height: 44 }
             })}
             layout="position"
             layoutDependency={layoutDependency.current}
-            className={clsm(['truncate', 'text-black', 'dark:text-white'])}
+            className={clsm([
+              'flex',
+              'items-center',
+              'max-w-full',
+              'truncate',
+              'transition-colors',
+              'duration-[400ms]',
+              'dark:text-white',
+              isProfileViewExpanded ? 'text-black' : 'text-white'
+            ])}
           >
             {username}
           </motion.h3>
           <motion.div
             layout="position"
             layoutDependency={layoutDependency.current}
-            className={HEADER_BUTTON_CLASSES}
+            className={clsm(HEADER_BUTTON_CLASSES)}
             {...getPlayerHeaderProfileViewAnimationProps({
-              expanded: { marginTop: 24 },
-              collapsed: { marginTop: 0 }
+              expanded: { marginTop: 24, marginLeft: 0 },
+              collapsed: { marginTop: 0, marginLeft: 16 }
             })}
           >
-            <motion.div
-              {...createAnimationProps({ animations: ['fadeIn-full'] })}
-            >
-              <FollowButton isExpandedView={isProfileViewExpanded} />
-            </motion.div>
+            <FollowButton isExpandedView={isProfileViewExpanded} />
             {isSessionValid && (
               <motion.div
                 className={clsm(['w-11', 'h-11'])}

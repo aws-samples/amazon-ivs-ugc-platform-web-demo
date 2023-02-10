@@ -33,7 +33,7 @@ const StreamVideo = forwardRef(
       isOverlayVisible,
       onMouseMoveHandler,
       openOverlayAndResetTimeout,
-      player: { selectedQualityName }
+      player: { selectedQualityName, isPaused }
     } = usePlayerContext();
     const { channelData: { isViewerBanned } = {} } = useChannel();
     const { isDefaultResponsiveView } = useResponsiveDevice();
@@ -50,10 +50,11 @@ const StreamVideo = forwardRef(
       onClickPlayerHandler(event);
     };
 
-    // Open the controls and reset the timeout when the player animation stops
+    // Open the controls and reset the timeout when the player animation stops,
+    // given that the player is not in a paused state
     useEffect(() => {
-      if (!isPlayerAnimationRunning) openOverlayAndResetTimeout();
-    }, [isPlayerAnimationRunning, openOverlayAndResetTimeout]);
+      if (!isPlayerAnimationRunning && !isPaused) openOverlayAndResetTimeout();
+    }, [isPaused, isPlayerAnimationRunning, openOverlayAndResetTimeout]);
 
     return (
       <>
@@ -69,7 +70,7 @@ const StreamVideo = forwardRef(
               ? 'duration-[400ms]'
               : 'duration-0',
             isProfileViewExpanded
-              ? ['bg-lightMode-gray-light', 'dark:bg-darkMode-gray-medium']
+              ? ['bg-lightMode-gray', 'dark:bg-darkMode-gray-medium']
               : 'bg-transparent',
             isProfileViewExpanded && [
               isDefaultResponsiveView ? 'w-[90%]' : 'w-[70%]',
@@ -93,7 +94,10 @@ const StreamVideo = forwardRef(
           onMouseMove={onMouseMoveHandler}
           role="toolbar"
         >
-          <PlayerOverlay isVisible={shouldShowControlsOverlay}>
+          <PlayerOverlay
+            {...(areControlsContained && { className: 'before:rounded-b-3xl' })}
+            isVisible={shouldShowControlsOverlay}
+          >
             <Controls
               areControlsContained={areControlsContained}
               isFullscreenEnabled={isFullscreenEnabled}

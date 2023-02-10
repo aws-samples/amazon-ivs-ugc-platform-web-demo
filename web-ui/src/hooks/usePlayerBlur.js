@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const usePlayerBlur = ({
   ingestConfiguration,
+  isEnabled = true,
   isLive,
   isLoading,
   videoRef
@@ -9,9 +10,9 @@ const usePlayerBlur = ({
   const canvasRef = useRef();
   const isBlurring = useRef(false);
   const shouldBlurPlayer = useMemo(() => {
-    if (ingestConfiguration) {
-      const videoWidth = ingestConfiguration?.video?.videoWidth;
-      const videoHeight = ingestConfiguration?.video?.videoHeight;
+    if (ingestConfiguration && isEnabled) {
+      const videoWidth = ingestConfiguration.video?.videoWidth;
+      const videoHeight = ingestConfiguration.video?.videoHeight;
 
       if (videoWidth && videoHeight) {
         // If the video ratio isn't 16:9, blur the sides
@@ -20,7 +21,7 @@ const usePlayerBlur = ({
     }
 
     return false;
-  }, [ingestConfiguration]);
+  }, [ingestConfiguration, isEnabled]);
   const [isBlurReady, setIsBlurReady] = useState(false);
 
   const startBlur = useCallback(() => {

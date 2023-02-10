@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 
 import { createProfileViewVariants, getProfileViewVariant } from './utils';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../../constants';
+import { setElementStyles } from '../../../../utils';
 import { useAnimationControls } from 'framer-motion';
 import { useChannelView } from '../ChannelView';
 import useContextHook from '../../../../contexts/useContextHook';
@@ -153,6 +154,7 @@ export const Provider = ({ children }) => {
   );
 
   // Invoking this function is the only way to start the profile view animation
+  const animationPromise = useRef();
   const toggleProfileView = useCallback(
     (options) => {
       const {
@@ -164,21 +166,23 @@ export const Provider = ({ children }) => {
       if (!isProfileViewAnimationEnabled || isProfileViewAnimationRunning)
         return;
 
-      shouldSkipProfileViewAnimation.current = skipAnimation;
-      let _isExpandedNext, animationPromise;
-
       setIsProfileViewExpanded(
         (prev) => {
-          _isExpandedNext =
+          const _isExpandedNext =
             isExpandedNext === undefined ? !prev : isExpandedNext;
-          const options = { isExpandedNext: _isExpandedNext, skipAnimation };
+          const _skipAnimation = skipAnimation || _isExpandedNext === prev;
+          const options = {
+            isExpandedNext: _isExpandedNext,
+            skipAnimation: _skipAnimation
+          };
+          shouldSkipProfileViewAnimation.current = _skipAnimation;
 
           appLayoutRef.current.scrollTo(0, 0);
           appLayoutRef.current.style.overflow = _isExpandedNext
             ? 'hidden'
             : null;
 
-          animationPromise = Promise.all([
+          animationPromise.current = Promise.all([
             toggleChat(options),
             togglePlayer(options),
             toggleHeader(options)
@@ -186,7 +190,7 @@ export const Provider = ({ children }) => {
 
           return _isExpandedNext;
         },
-        async () => {
+        async (_, _isExpandedNext) => {
           /**
            * We update the profile path in the callback as this update will take place in a different
            * Channel component path instance than the setState call above. Otherwise, if we updated
@@ -197,11 +201,13 @@ export const Provider = ({ children }) => {
            */
           if (action === 'user') updateProfilePath(_isExpandedNext);
 
-          await animationPromise;
+          await animationPromise.current;
 
           if (urlHasProfile.current !== _isExpandedNext) {
             updateProfilePath(_isExpandedNext);
           }
+
+          animationPromise.current = null;
         }
       );
     },
@@ -244,6 +250,13 @@ export const Provider = ({ children }) => {
     toggleProfileViewDebounced,
     urlHasProfile
   ]);
+
+  // Set the initial overflow on the app layout ref to hidden
+  // if the page loads straight into the expanded profile view
+  useEffect(() => {
+    if (urlHasProfile.current)
+      setElementStyles(appLayoutRef.current, { overflow: 'hidden' });
+  }, [appLayoutRef, isFirstMount, urlHasProfile]);
 
   // Update all toggle states on layout change
   useLayoutEffect(() => {

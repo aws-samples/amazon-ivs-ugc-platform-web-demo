@@ -28,7 +28,7 @@ const StreamInfo = forwardRef(
           isVisible ? '!flex' : '!hidden',
           shouldAnimateProfileView.current ? 'duration-[400ms]' : 'duration-0',
           isProfileViewExpanded
-            ? ['dark:bg-darkMode-gray-medium', 'bg-lightMode-gray-light']
+            ? ['dark:bg-darkMode-gray-medium', 'bg-lightMode-gray']
             : 'bg-transparent',
           isProfileViewExpanded && [
             // ensures StreamInfo has the correct dimensions when it mounts in the expanded profile view state

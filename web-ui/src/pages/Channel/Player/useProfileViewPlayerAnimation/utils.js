@@ -9,7 +9,13 @@ export const isCssAspectRatioSupported = CSS.supports('aspect-ratio', '16/9');
  *   dimensions will only change if the window is resized
  */
 export const createPlayerSectionDimensionsGetter =
-  ({ playerSectionRef, chatSectionRef, isChatVisible, isStackedView }) =>
+  ({
+    playerSectionRef,
+    chatSectionRef,
+    isChatVisible,
+    isStackedView,
+    isPlayerAnimationRunning
+  }) =>
   () => {
     if (!playerSectionRef.current || !chatSectionRef.current) return;
 
@@ -41,8 +47,16 @@ export const createPlayerSectionDimensionsGetter =
         expandedPlayerSectionWidth =
           currentPlayerSectionWidth + chatSectionWidth;
       } else {
-        collapsedPlayerSectionWidth =
-          currentPlayerSectionWidth - chatSectionWidth;
+        /**
+         * If the player animation is running, then the chat section will be in view once the animation ends.
+         * Therefore, we must subtract the chat section width from the current player section width. Otherwise,
+         * if the player animation is not running, then the chat section must have been hidden in isolation from
+         * the rest of the profile view animation. So, the collapsed player section will not include the chat
+         * section; thus, the collapsed player section width is equal to the current player section width.
+         */
+        collapsedPlayerSectionWidth = isPlayerAnimationRunning
+          ? currentPlayerSectionWidth - chatSectionWidth
+          : currentPlayerSectionWidth;
         expandedPlayerSectionWidth = currentPlayerSectionWidth;
       }
     }
@@ -79,9 +93,9 @@ export const createPlayerRelativeDimensionsSetter =
     chatSectionRef,
     isChatVisible,
     isStackedView,
-
     isDefaultResponsiveView,
     isProfileViewExpanded,
+    isPlayerAnimationRunning,
     playerAnimationControls,
     visiblePlayerAspectRatio
   }) =>
@@ -107,10 +121,11 @@ export const createPlayerRelativeDimensionsSetter =
         height: collapsedPlayerSectionHeight
       }
     } = createPlayerSectionDimensionsGetter({
+      playerSectionRef,
       chatSectionRef,
       isChatVisible,
       isStackedView,
-      playerSectionRef
+      isPlayerAnimationRunning
     })();
     const collapsedSectionAspectRatio = calcAspectRatio(
       collapsedPlayerSectionWidth,

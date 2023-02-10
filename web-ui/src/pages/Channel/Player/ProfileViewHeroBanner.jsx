@@ -64,7 +64,6 @@ const ProfileViewHeroBanner = () => {
         'before:left-0',
         'before:w-full',
         'before:h-full',
-        'before:duration-[400ms]',
         'before:transition-opacity',
         "before:content-['']",
         'before:dark:bg-[image:var(--darkHeroBannerGradient)]',

@@ -24,9 +24,15 @@ export const Provider = ({ children }) => {
   /**
    * IVS Player
    */
-  const { channelData } = useChannel();
+  const {
+    channelData: {
+      isLive,
+      playbackUrl,
+      isViewerBanned,
+      ingestConfiguration
+    } = {}
+  } = useChannel();
   const { setCurrentViewerAction } = useViewerStreamActions();
-  const { isLive, playbackUrl, isViewerBanned } = channelData || {};
 
   const onTimedMetadataHandler = useCallback(
     (metadata) => {
@@ -50,8 +56,9 @@ export const Provider = ({ children }) => {
   );
   const player = usePlayer({
     isLive,
-    onTimedMetadataHandler,
-    playbackUrl
+    playbackUrl,
+    ingestConfiguration,
+    onTimedMetadataHandler
   });
   const { hasError, isPaused } = player;
 

@@ -253,3 +253,11 @@ export const setElementStyles = (element, styles = {}) => {
 
   element.style.cssText += cssText;
 };
+
+export const isElementOverflowing = (element) => {
+  if (!element) return;
+
+  const { clientWidth, clientHeight, scrollWidth, scrollHeight } = element;
+
+  return scrollHeight > clientHeight || scrollWidth > clientWidth;
+};

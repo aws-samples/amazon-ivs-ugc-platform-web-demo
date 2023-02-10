@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { noop } from '../utils';
 import { unpack } from '../helpers/streamActionHelpers';
@@ -18,10 +18,11 @@ const { ENDED, PLAYING, READY, BUFFERING } = PlayerState;
 const { ERROR, AUDIO_BLOCKED, TEXT_METADATA_CUE } = PlayerEventType;
 
 const usePlayer = ({
-  defaultVolumeLevel = VOLUME_MAX,
-  ingestConfiguration,
   isLive,
   playbackUrl,
+  ingestConfiguration,
+  isBlurEnabled = false,
+  defaultVolumeLevel = VOLUME_MAX,
   onTimedMetadataHandler = noop
 }) => {
   const videoRef = useRef(null);
@@ -181,7 +182,8 @@ const usePlayer = ({
     ingestConfiguration,
     isLive,
     isLoading,
-    videoRef
+    videoRef,
+    isEnabled: isBlurEnabled
   });
 
   /**
@@ -281,13 +283,30 @@ const usePlayer = ({
   }, [hasPlayedFinalBuffer, reset]);
 
   // Update the video aspect ratio as soon as we are able to retrieve the video dimensions
+  const ingestVideoConfig = ingestConfiguration?.video;
+  const ingestVideoDim = useMemo(
+    () => ({
+      videoWidth: ingestVideoConfig?.videoWidth,
+      videoHeight: ingestVideoConfig?.videoHeight
+    }),
+    [ingestVideoConfig?.videoHeight, ingestVideoConfig?.videoWidth]
+  );
+
   useEffect(() => {
     const videoEl = videoRef.current;
-    const setAspectRatio = () => {
-      const { videoWidth: width, videoHeight: height } = videoEl;
+    const setAspectRatio = (e, ingestVideoConfig) => {
+      const { videoWidth: width, videoHeight: height } =
+        ingestVideoConfig || e.target;
       const aspectRatio = parseFloat((width / height).toFixed(5));
       setVideoAspectRatio((prev) => aspectRatio || prev);
     };
+
+    // If we receive the video width and height from the ingest configuration before the
+    // loadeddata or timeupdate events have fired, then we will use those dimensions to
+    // set the aspect ratio as early as possible
+    if (ingestVideoDim.videoWidth && ingestVideoDim.videoHeight) {
+      return setAspectRatio(null, ingestVideoDim);
+    }
 
     // 'loadeddata' will not fire in mobile/tablet devices if data-saver is on in browser settings.
     videoEl?.addEventListener('loadeddata', setAspectRatio);
@@ -298,7 +317,7 @@ const usePlayer = ({
       videoEl?.removeEventListener('loadeddata', setAspectRatio);
       videoEl?.removeEventListener('timeupdate', setAspectRatio);
     };
-  }, [videoRef, isLive]);
+  }, [ingestVideoDim]);
 
   return {
     canvasRef,

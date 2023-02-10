@@ -26,7 +26,7 @@ const MobileNavbar = ({ className, motionProps }) => {
           'rounded-[40px]',
           'w-[calc(100vw_-_32px)]',
           'max-w-[calc(440px_+_32px)]',
-          'min-w-[calc(228px_+_32px)]',
+          'min-w-[calc(212px_+_32px)]',
           'dark:bg-darkMode-gray-medium',
           'bg-lightMode-gray-extraLight',
           className

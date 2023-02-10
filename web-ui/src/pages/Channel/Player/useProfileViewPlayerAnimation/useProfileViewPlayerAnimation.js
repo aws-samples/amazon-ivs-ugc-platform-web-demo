@@ -24,9 +24,9 @@ const useProfileViewPlayerAnimation = ({
 }) => {
   const {
     isChatVisible,
-    isProfileViewAnimationRunning,
     isProfileViewExpanded,
     playerAnimationControls,
+    runningAnimationIds,
     shouldAnimateProfileView
   } = useProfileViewAnimation();
   const { isStackedView } = useChannelView();
@@ -34,13 +34,15 @@ const useProfileViewPlayerAnimation = ({
   const didInitializeFirstVideoFrame = useRef(false);
   const initialPlayerDimensions = useRef();
   const initialPlayerSectionDimensions = useRef();
+  const isPlayerAnimationRunning = runningAnimationIds.includes('player');
 
   const getPlayerSectionDimensions = useLatest(
     createPlayerSectionDimensionsGetter({
-      playerSectionRef,
       chatSectionRef,
       isChatVisible,
-      isStackedView
+      isPlayerAnimationRunning,
+      isStackedView,
+      playerSectionRef
     })
   );
 
@@ -52,6 +54,7 @@ const useProfileViewPlayerAnimation = ({
       isStackedView,
       isDefaultResponsiveView,
       isProfileViewExpanded,
+      isPlayerAnimationRunning,
       playerAnimationControls,
       visiblePlayerAspectRatio
     })
@@ -61,7 +64,7 @@ const useProfileViewPlayerAnimation = ({
   useResizeObserver(
     playerSectionRef,
     setPlayerRelativeDimensions.current,
-    !isProfileViewAnimationRunning
+    !isPlayerAnimationRunning
   );
 
   // Ensures that the first video frame is painted with the correct relative dimensions

@@ -1,30 +1,63 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../utils';
+import { clsm, isElementOverflowing } from '../../../utils';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
+import useDidChange from '../../../hooks/useDidChange';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
-const ProfileViewContent = ({ targetPlayerRef }) => {
+const ProfileViewContent = ({ playerSectionRef, targetPlayerRef }) => {
   const { isProfileViewExpanded } = useProfileViewAnimation();
-  const ProfileViewContentRef = useRef();
+  const { isLandscape } = useResponsiveDevice();
+  const didDeviceOrientationChange = useDidChange(isLandscape);
+  const profileViewContentRef = useRef();
+  const isPlayerSectionOverflowing = useRef(
+    isElementOverflowing(playerSectionRef.current)
+  );
 
-  const updatePlayerContentOffset = useCallback(
+  const updateProfileViewContentOffset = useCallback(
     ({ target, contentRect }) => {
       let contentTopOffset = '100%';
 
       if (isProfileViewExpanded) {
+        const currIsPlayerSectionOverflowing = isElementOverflowing(
+          playerSectionRef.current
+        );
+        const didPlayerSectionOverflowChange =
+          isPlayerSectionOverflowing.current !== undefined &&
+          isPlayerSectionOverflowing.current !== currIsPlayerSectionOverflowing;
+        isPlayerSectionOverflowing.current = currIsPlayerSectionOverflowing;
+
+        if (didPlayerSectionOverflowChange) return;
+
         const { height: playerHeightOffset } = contentRect;
         const playerTopOffset = parseInt(target.style.top);
+
         contentTopOffset = `${playerHeightOffset + playerTopOffset}px`;
       }
 
-      ProfileViewContentRef.current.style.top = contentTopOffset;
+      profileViewContentRef.current.style.top = contentTopOffset;
     },
-    [isProfileViewExpanded]
+    [isProfileViewExpanded, playerSectionRef]
   );
 
-  useResizeObserver(targetPlayerRef, updatePlayerContentOffset);
+  useResizeObserver(targetPlayerRef, updateProfileViewContentOffset);
+
+  useEffect(() => {
+    if (didDeviceOrientationChange) {
+      const targetElement = targetPlayerRef.current;
+
+      updateProfileViewContentOffset({
+        target: targetElement,
+        contentRect: targetElement.getBoundingClientRect()
+      });
+    }
+  }, [
+    didDeviceOrientationChange,
+    targetPlayerRef,
+    updateProfileViewContentOffset
+  ]);
 
   return (
     <div
@@ -35,14 +68,18 @@ const ProfileViewContent = ({ targetPlayerRef }) => {
         'top-full',
         'pointer-events-none'
       ])}
-      ref={ProfileViewContentRef}
+      ref={profileViewContentRef}
     />
   );
 };
 
-ProfileViewContent.defaultProps = { targetPlayerRef: { current: null } };
+ProfileViewContent.defaultProps = {
+  playerSectionRef: { current: null },
+  targetPlayerRef: { current: null }
+};
 
 ProfileViewContent.propTypes = {
+  playerSectionRef: PropTypes.shape({ current: PropTypes.object }),
   targetPlayerRef: PropTypes.shape({ current: PropTypes.object })
 };
 

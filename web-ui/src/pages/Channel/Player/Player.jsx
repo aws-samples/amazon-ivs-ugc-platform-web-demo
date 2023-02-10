@@ -42,7 +42,7 @@ const Player = ({ chatSectionRef }) => {
 
   const mobileNavBarStyleVariants = {
     default: {
-      width: isLandscape ? '50%' : 'calc(100vw - 32px)',
+      width: isLandscape ? 'calc(100vw - 384px)' : 'calc(100vw - 32px)',
       right: 'auto',
       left: '50%',
       x: '-50%'
@@ -289,7 +289,10 @@ const Player = ({ chatSectionRef }) => {
           />
         }
       />
-      <ProfileViewContent targetPlayerRef={targetPlayerRef} />
+      <ProfileViewContent
+        targetPlayerRef={targetPlayerRef}
+        playerSectionRef={playerSectionRef}
+      />
       <ProfileViewFloatingNav
         className={clsm(['fixed', 'bottom-0', 'right-0'])}
       />

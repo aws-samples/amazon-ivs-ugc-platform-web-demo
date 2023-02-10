@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+import { clsm } from '../../utils';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../constants';
 import { useProfileViewAnimation } from './contexts/ProfileViewAnimation';
 import FloatingNav from '../../components/FloatingNav';
@@ -29,20 +30,26 @@ const ProfileViewFloatingNav = ({
       duration: animationDuration / 2
     }
   };
-
   const hiddenStyles = {
     opacity: 0,
     transition: { duration: animationDuration / 4 },
     transitionEnd: { visibility: 'collapse' }
   };
 
+  const expandedVariant = reverseVisibility ? hiddenStyles : visibleStyles;
+  const collapsedVariant = reverseVisibility ? visibleStyles : hiddenStyles;
+
   return (
     <motion.div
-      {...getProfileViewAnimationProps(chatAnimationControls, {
-        expanded: reverseVisibility ? hiddenStyles : visibleStyles,
-        collapsed: reverseVisibility ? visibleStyles : hiddenStyles
-      })}
-      className={className}
+      {...getProfileViewAnimationProps(
+        chatAnimationControls,
+        { expanded: expandedVariant, collapsed: collapsedVariant },
+        { visible: collapsedVariant, hidden: hiddenStyles }
+      )}
+      className={clsm([
+        'z-[1000]', // This z-index must match that of ProfileMenu
+        className
+      ])}
     >
       <FloatingNav containerClassName={containerClassName} />
     </motion.div>
