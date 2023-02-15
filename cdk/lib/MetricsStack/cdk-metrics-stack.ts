@@ -206,8 +206,6 @@ export class MetricsStack extends NestedStack {
 
     // Stack Outputs
     this.containerEnv = {
-      ACCOUNT_ID: NestedStack.of(this).account,
-      REGION: NestedStack.of(this).region,
       IVS_CHANNEL_TYPE: ivsChannelType,
       /**
        * The following pagination values need to have specific lengths:

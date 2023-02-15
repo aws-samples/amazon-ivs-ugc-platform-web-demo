@@ -42,6 +42,8 @@ export class UGCStack extends Stack {
     } = resourceConfig;
     let { allowedOrigins } = resourceConfig;
     const stackNamePrefix = Stack.of(this).stackName;
+    const accountId = Stack.of(this).account;
+    const region = Stack.of(this).region;
 
     let frontendAppDistribution;
     let frontendAppBaseUrl = '';
@@ -166,7 +168,9 @@ export class UGCStack extends Stack {
 
     // This environment is required for any container that exposes authenticated endpoints
     const baseContainerEnv = {
+      ACCOUNT_ID: accountId,
       ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
+      REGION: region,
       USER_POOL_CLIENT_ID: userPoolClientId,
       USER_POOL_ID: userPoolId
     };
@@ -323,7 +327,6 @@ export class UGCStack extends Stack {
       .map(([key, val]) => `${key}=${JSON.stringify(val)}`)
       .join(' \\\n')}`;
     const apiBaseUrl = `https://${distribution.domainName}`;
-    const region = Stack.of(this).region;
 
     new CfnOutput(this, 'containerEnvStr', { value: containerEnvStr });
     new CfnOutput(this, 'apiBaseUrl', { value: apiBaseUrl });
