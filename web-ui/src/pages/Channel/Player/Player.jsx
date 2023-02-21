@@ -222,7 +222,6 @@ const Player = ({ chatSectionRef }) => {
         'flex',
         'flex-col',
         'items-center',
-        'justify-center',
         'max-h-screen',
         'w-full',
         'h-full',
@@ -321,7 +320,7 @@ const Player = ({ chatSectionRef }) => {
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowStream={shouldShowStream}
       />
-      <Notification />
+      <Notification className="sticky" />
     </motion.section>
   );
 };
