@@ -37,7 +37,7 @@ const ProfileViewMenu = ({ channelUsername }) => {
   const menuRef = useRef();
   const toggleBtnRef = useRef();
   const moderateUserButton = useRef();
-  const { userData } = useUser();
+  const { userData, isSessionValid } = useUser();
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { isMobileView } = useResponsiveDevice();
@@ -153,7 +153,7 @@ const ProfileViewMenu = ({ channelUsername }) => {
           isMobileView && ['left-1/2', 'origin-top']
         ])}
       >
-        {!isOwnChannel && (
+        {!isOwnChannel && isSessionValid && (
           <Button
             variant="tertiaryText"
             onClick={moderationHandler}
@@ -181,6 +181,8 @@ const ProfileViewMenu = ({ channelUsername }) => {
   );
 };
 
-ProfileViewMenu.propTypes = { channelUsername: PropTypes.string.isRequired };
+ProfileViewMenu.propTypes = {
+  channelUsername: PropTypes.string.isRequired
+};
 
 export default ProfileViewMenu;

@@ -161,34 +161,35 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
             })}
           >
             <FollowButton isExpandedView={isProfileViewExpanded} />
-            {isSessionValid && (
-              <motion.div
-                className={clsm(['w-11', 'h-11'])}
-                {...getPlayerHeaderProfileViewAnimationProps({
-                  expanded: {
-                    width: 'auto',
-                    opacity: 1,
-                    display: 'block',
-                    transition: {
-                      ...DEFAULT_PROFILE_VIEW_TRANSITION,
-                      duration: animationDuration / 2,
-                      delay: animationDuration
-                    }
-                  },
-                  collapsed: {
-                    width: 0,
-                    opacity: 0,
-                    transition: {
-                      ...DEFAULT_PROFILE_VIEW_TRANSITION,
-                      opacity: { duration: animationDuration / 4 }
-                    },
-                    transitionEnd: { display: 'none' }
+            <motion.div
+              className={clsm(['w-11', 'h-11'])}
+              {...getPlayerHeaderProfileViewAnimationProps({
+                expanded: {
+                  width: 'auto',
+                  opacity: 1,
+                  display: 'block',
+                  transition: {
+                    ...DEFAULT_PROFILE_VIEW_TRANSITION,
+                    duration: animationDuration / 2,
+                    delay: animationDuration
                   }
-                })}
-              >
-                <ProfileViewMenu channelUsername={username} />
-              </motion.div>
-            )}
+                },
+                collapsed: {
+                  width: 0,
+                  opacity: 0,
+                  transition: {
+                    ...DEFAULT_PROFILE_VIEW_TRANSITION,
+                    opacity: { duration: animationDuration / 4 }
+                  },
+                  transitionEnd: { display: 'none' }
+                }
+              })}
+            >
+              <ProfileViewMenu
+                channelUsername={username}
+                isSessionValid={isSessionValid}
+              />
+            </motion.div>
           </motion.div>
         </motion.div>
       </PlayerOverlay>
