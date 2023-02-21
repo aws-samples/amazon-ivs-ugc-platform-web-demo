@@ -131,6 +131,7 @@ const RenditionSettingPopup = ({
             'flex-col',
             'space-y-2',
             'overflow-y-auto',
+            !isMobileView && 'max-w-[110px]',
             isMobileView && [
               'border-lightMode-gray-light-hover',
               'border-t',
