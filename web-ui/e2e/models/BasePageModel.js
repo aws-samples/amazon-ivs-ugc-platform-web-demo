@@ -62,7 +62,7 @@ class BasePageModel {
     const assertionUrl = getValidUrl(assertionPath || url);
 
     await this.page.goto(url);
-    await expect(this.page).toHaveURL(assertionUrl);
+    await this.page.waitForURL(assertionUrl, { timeout: 5000 });
 
     // This ensures that we wait for the fonts to be downloaded before testing anything.
     // It helps keeping screenshots consistent.

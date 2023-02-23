@@ -87,7 +87,6 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
       const onResponse = async (response) => {
         const resourceType = response.request().resourceType();
         if (resourceType === 'fetch') {
-          await response.finished();
           page.fetchResponses.push(response);
         }
       };
