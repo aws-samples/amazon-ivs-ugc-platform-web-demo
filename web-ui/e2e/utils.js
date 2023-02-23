@@ -84,7 +84,7 @@ const extendTestFixtures = (pageModel = {}, options = {}) => {
        *  .toEqual(1);
        */
       page.fetchResponses = [];
-      const onResponse = async (response) => {
+      const onResponse = (response) => {
         const resourceType = response.request().resourceType();
         if (resourceType === 'fetch') {
           page.fetchResponses.push(response);

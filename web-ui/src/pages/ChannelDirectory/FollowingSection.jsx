@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 
 import { bound, clsm, range } from '../../utils';
 import { BREAKPOINTS, MAX_AVATAR_COUNT } from '../../constants';
@@ -17,6 +17,9 @@ import { useUser } from '../../contexts/User';
 
 const $content = $channelDirectoryContent.following_section;
 const $channelDirectoryNotifications = $channelDirectoryContent.notification;
+
+export const FIRST_ITEM_IN_FRAME = 'firstItemInFrame';
+export const LAST_ITEM_IN_FRAME = 'lastItemInFrame';
 
 const CAROUSEL_BUTTON_CLASSES = [
   'bg-lightMode-gray-extraLight',
@@ -71,6 +74,8 @@ const FollowingSection = () => {
   const shouldShowViewAllButton = followingList?.length > MAX_AVATAR_COUNT;
   let sectionList = followingList;
 
+  const firstAndLastItemInFrameRef = useRef({});
+
   if (shouldShowViewAllButton)
     sectionList = followingList?.slice(0, MAX_AVATAR_COUNT);
 
@@ -121,6 +126,39 @@ const FollowingSection = () => {
       notifyError($channelDirectoryNotifications.error.error_loading_channels);
   }, [hasFetchError, notifyError]);
 
+  useEffect(() => {
+    const handleTabbing = (e) => {
+      if (e.code === 'Tab' && !e.shiftKey) {
+        if (
+          firstAndLastItemInFrameRef.current[avatarsPerFrame][
+            LAST_ITEM_IN_FRAME
+          ].has(document.activeElement.href)
+        ) {
+          nextButtonHandler();
+        }
+      }
+
+      if (e.code === 'Tab' && e.shiftKey) {
+        if (
+          firstAndLastItemInFrameRef.current[avatarsPerFrame][
+            FIRST_ITEM_IN_FRAME
+          ].has(document.activeElement.href)
+        ) {
+          prevButtonHandler();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTabbing);
+
+    return () => document.removeEventListener('keydown', handleTabbing);
+  }, [
+    nextButtonHandler,
+    prevButtonHandler,
+    selectedFrameIndex,
+    avatarsPerFrame
+  ]);
+
   /**
    * If the user is not logged hide the following summary section.
    */
@@ -133,14 +171,12 @@ const FollowingSection = () => {
         'flex',
         'max-w-[960px]',
         'mb-[72px]',
-        'overflow-x-hidden',
-        'px-4',
         'shrink-0',
         'space-y-8',
         'w-[calc(100%_+_32px)]'
       ])}
     >
-      <div className={clsm(['flex', 'justify-between', 'h-[48px]'])}>
+      <div className={clsm(['flex', 'justify-between', 'h-[48px]', 'px-4'])}>
         <h2 className={clsm(['text-black', 'dark:text-white'])}>
           {$content.title}
         </h2>
@@ -168,20 +204,26 @@ const FollowingSection = () => {
         )}
       </div>
       {shouldShowFollowingListData && (
-        <div className={clsm(['flex', 'h-full', 'relative'])}>
+        <div
+          className={clsm(['flex', 'h-full', 'relative', 'overflow-x-clip'])}
+        >
           {range(carouselFramesCount).map((frameIndex) => {
             const leftMostAvatarIndex = frameIndex * avatarsPerFrame;
             const rightMostAvatarIndex = leftMostAvatarIndex + avatarsPerFrame;
             let translateOffset = 0;
+            const selectedSectionList = sectionList.slice(
+              leftMostAvatarIndex,
+              rightMostAvatarIndex
+            );
 
             if (isPreviousFrame(frameIndex, selectedFrameIndex))
               translateOffset = -32;
             if (isNextFrame(frameIndex, selectedFrameIndex))
               translateOffset = 32;
+
             return (
               <div
                 className={clsm([
-                  frameIndex !== 0 && 'absolute', // The first frame is used to set the height
                   'gap-x-8',
                   'grid-cols-5',
                   'grid',
@@ -192,6 +234,8 @@ const FollowingSection = () => {
                   'transition-transform',
                   'w-full',
                   'xs:grid-cols-2',
+                  'p-4',
+                  frameIndex !== selectedFrameIndex && 'hidden',
                   SECTION_MIN_HEIGHT_CLASSES
                 ])}
                 key={`carousel-frame-${frameIndex}`}
@@ -201,21 +245,26 @@ const FollowingSection = () => {
                   }%))`
                 }}
               >
-                {sectionList
-                  .slice(leftMostAvatarIndex, rightMostAvatarIndex)
-                  .map((channelData) => {
-                    const { color, username, isLive } = channelData;
+                {selectedSectionList.map((channelData, i) => {
+                  const { color, username, isLive } = channelData;
+                  const isLastItemInFrame =
+                    selectedSectionList.length - 1 === i;
+                  const isFirstItemInFrame = i === 0 && frameIndex > 0;
 
-                    return (
-                      <FollowedUserButton
-                        avatarSrc={getAvatarSrc(channelData)}
-                        color={color}
-                        isLive={isLive}
-                        key={username}
-                        username={username}
-                      />
-                    );
-                  })}
+                  return (
+                    <FollowedUserButton
+                      avatarSrc={getAvatarSrc(channelData)}
+                      color={color}
+                      isLive={isLive}
+                      key={username}
+                      username={username}
+                      isLastItemInFrame={isLastItemInFrame}
+                      isFirstItemInFrame={isFirstItemInFrame}
+                      ref={firstAndLastItemInFrameRef}
+                      avatarsPerFrame={avatarsPerFrame}
+                    />
+                  );
+                })}
                 {frameIndex === carouselFramesCount - 1 &&
                   !hasFetchError &&
                   shouldShowViewAllButton && <ViewAllButton />}

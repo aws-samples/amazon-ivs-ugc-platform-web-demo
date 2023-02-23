@@ -1,6 +1,4 @@
 // @ts-check
-const { expect } = require('@playwright/test');
-
 const { isValidUrl, getCloudfrontURLRegex } = require('../utils');
 
 class BasePageModel {
