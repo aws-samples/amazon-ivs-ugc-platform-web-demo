@@ -129,7 +129,6 @@ export class ChannelsStack extends NestedStack {
       this,
       `${nestedStackName}-ChannelAssets-Bucket`,
       {
-        bucketName: `${stackNamePrefix}-channelassets`.toLowerCase(),
         removalPolicy: RemovalPolicy.DESTROY,
         autoDeleteObjects: true,
         versioned: true,
@@ -181,9 +180,8 @@ export class ChannelsStack extends NestedStack {
     };
     const versionIdQueryStringCachePolicy = new CachePolicy(
       this,
-      `${nestedStackName}-VersionId-CachePolicy`,
+      `${nestedStackName}-VersionId-QueryStringCacheBehavior-CachePolicy`,
       {
-        cachePolicyName: `${stackNamePrefix}-VersionId-QueryStringCacheBehavior`,
         comment: 'Only includes the versionId queryString in the cache key',
         queryStringBehavior: CacheQueryStringBehavior.allowList('versionId')
       }
