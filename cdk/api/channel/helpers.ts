@@ -216,7 +216,7 @@ export const generatePresignedPost = ({
   contentType,
   key,
   maximumFileSize,
-  expiry = 5,
+  expiry = 20,
   acl = 'public-read', // By default, uploads will be public for read-access only
   additionalConditions = []
 }: {
