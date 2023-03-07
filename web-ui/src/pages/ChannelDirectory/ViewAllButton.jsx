@@ -16,6 +16,7 @@ const ViewAllButton = () => {
         'bg-lightMode-gray-light',
         'button',
         'dark:bg-darkMode-gray-medium',
+        'focus:ring-black',
         'dark:focus:ring-white',
         'dark:ring-darkMode-gray',
         'dark:text-white',
