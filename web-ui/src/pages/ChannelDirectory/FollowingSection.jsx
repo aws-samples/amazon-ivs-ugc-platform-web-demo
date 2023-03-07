@@ -63,6 +63,8 @@ const FollowingSection = () => {
     userData
   } = useUser();
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
+  const [isSlideAnimationDisabled, setIsSlideAnimationDisabled] =
+    useState(false);
   const { currentBreakpoint, isMobileView } = useResponsiveDevice();
   const { followingList } = userData || {};
   const { notifyError } = useNotif();
@@ -128,23 +130,24 @@ const FollowingSection = () => {
 
   useEffect(() => {
     const handleTabbing = (e) => {
-      if (e.code === 'Tab' && !e.shiftKey) {
-        if (
-          firstAndLastItemInFrameRef.current[avatarsPerFrame][
-            LAST_ITEM_IN_FRAME
-          ].has(document.activeElement.href)
-        ) {
-          nextButtonHandler();
-        }
-      }
-
-      if (e.code === 'Tab' && e.shiftKey) {
-        if (
-          firstAndLastItemInFrameRef.current[avatarsPerFrame][
-            FIRST_ITEM_IN_FRAME
-          ].has(document.activeElement.href)
-        ) {
-          prevButtonHandler();
+      if (e.code === 'Tab') {
+        setIsSlideAnimationDisabled(true);
+        if (e.shiftKey) {
+          if (
+            firstAndLastItemInFrameRef.current[avatarsPerFrame][
+              FIRST_ITEM_IN_FRAME
+            ].has(document.activeElement.href)
+          ) {
+            prevButtonHandler();
+          }
+        } else {
+          if (
+            firstAndLastItemInFrameRef.current[avatarsPerFrame][
+              LAST_ITEM_IN_FRAME
+            ].has(document.activeElement.href)
+          ) {
+            nextButtonHandler();
+          }
         }
       }
     };
@@ -156,7 +159,8 @@ const FollowingSection = () => {
     nextButtonHandler,
     prevButtonHandler,
     selectedFrameIndex,
-    avatarsPerFrame
+    avatarsPerFrame,
+    isSlideAnimationDisabled
   ]);
 
   /**
@@ -185,7 +189,10 @@ const FollowingSection = () => {
             <Button
               className={clsm(CAROUSEL_BUTTON_CLASSES)}
               isDisabled={selectedFrameIndex === 0}
-              onClick={prevButtonHandler}
+              onClick={() => {
+                setIsSlideAnimationDisabled(false);
+                setTimeout(prevButtonHandler);
+              }}
               variant="secondary"
               ariaLabel="Go to previous page"
             >
@@ -194,7 +201,10 @@ const FollowingSection = () => {
             <Button
               className={clsm(CAROUSEL_BUTTON_CLASSES)}
               isDisabled={selectedFrameIndex === carouselFramesCount - 1}
-              onClick={nextButtonHandler}
+              onClick={() => {
+                setIsSlideAnimationDisabled(false);
+                setTimeout(nextButtonHandler);
+              }}
               variant="secondary"
               ariaLabel="Go to next page"
             >
@@ -204,10 +214,9 @@ const FollowingSection = () => {
         )}
       </div>
       {shouldShowFollowingListData && (
-        <div
-          className={clsm(['flex', 'h-full', 'relative', 'overflow-x-clip'])}
-        >
+        <div className={clsm(['flex', 'relative', 'overflow-x-hidden'])}>
           {range(carouselFramesCount).map((frameIndex) => {
+            const framePositon = frameIndex !== 0;
             const leftMostAvatarIndex = frameIndex * avatarsPerFrame;
             const rightMostAvatarIndex = leftMostAvatarIndex + avatarsPerFrame;
             let translateOffset = 0;
@@ -224,6 +233,7 @@ const FollowingSection = () => {
             return (
               <div
                 className={clsm([
+                  !isSlideAnimationDisabled && framePositon && 'absolute',
                   'gap-x-8',
                   'grid-cols-5',
                   'grid',
@@ -232,10 +242,12 @@ const FollowingSection = () => {
                   'sm:grid-cols-3',
                   'top-0',
                   'transition-transform',
-                  'w-full',
                   'xs:grid-cols-2',
+                  'w-full',
                   'p-4',
-                  frameIndex !== selectedFrameIndex && 'hidden',
+                  isSlideAnimationDisabled &&
+                    frameIndex !== selectedFrameIndex &&
+                    'hidden',
                   SECTION_MIN_HEIGHT_CLASSES
                 ])}
                 key={`carousel-frame-${frameIndex}`}

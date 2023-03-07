@@ -65,14 +65,15 @@ const FollowedUserButton = forwardRef(
             <UserAvatar
               avatarSrc={avatarSrc}
               className={clsm([
-                'group-focus:ring-[6px]',
-                'group-focus:ring-white',
+                'group-focus:ring-4',
+                'group-focus:ring-black',
+                'dark:group-focus:ring-white',
                 'aspect-square',
                 'h-auto',
                 'ring-4',
                 'w-full',
                 !isTouchscreenDevice && [
-                  'group-hover:ring-[6px]',
+                  'group-hover:ring-4',
                   'group-hover:scale-110',
                   'transition-all'
                 ],
