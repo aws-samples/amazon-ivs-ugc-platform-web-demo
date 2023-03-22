@@ -11,14 +11,15 @@ const StaticNotification = ({ cta, message }) => (
       'items-center',
       'justify-between',
       'mt-4',
-      'p-8',
+      'py-5',
+      'px-8',
       'rounded-3xl',
       'sm:flex-col',
       'sm:p-8',
       'sm:space-x-0',
       'sm:space-y-5',
       'sm:w-full',
-      'space-x-[90px]'
+      'space-x-[60px]'
     ])}
   >
     <div

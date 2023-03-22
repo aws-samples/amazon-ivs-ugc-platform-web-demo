@@ -97,7 +97,7 @@
       "failed_to_load_sessions": "Failed to load stream sessions",
       "try_again": "Try again",
       "settings": "Settings",
-      "stream_instructions": "To monitor stream health you must first start a live stream. Your ingest server url and stream key are found in settings."
+      "stream_instructions": "To monitor stream health you must first start a live stream. "
     }
   },
   "settings_page": {
