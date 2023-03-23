@@ -23,7 +23,7 @@ Delete any section that is not relevant to your PR. Once this checklist has been
 #### Frontend
 
 - [ ] My visual changes are aligned with the mockup
-- [ ] I have checked both DARK and LIGHT mode
+- [ ] I have checked both DARK and LIGHT modes
 - [ ] I have successfully run all the E2E tests locally and updated the relevant screenshots
 - [ ] I have completed the [FE testing matrix](https://docs.google.com/spreadsheets/d/1Sa3F6AP-xQJQQwUu8Rfy8eysvUX3zb113GSvJG7v2Tw/edit#gid=0)
 - [ ] I have set the correct aria attributes (e.g.: label on icon buttons)
