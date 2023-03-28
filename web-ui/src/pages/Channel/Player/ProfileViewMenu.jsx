@@ -41,7 +41,7 @@ const ProfileViewMenu = ({ channelUsername }) => {
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { isMobileView } = useResponsiveDevice();
-  const { channelData: { isChannelBanned } = {}, refreshChannelData } =
+  const { channelData: { isChannelBanned, channelArn } = {}, refreshChannelData } =
     useChannel();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModerationActionLoading, setIsModerationActionLoading] =
@@ -78,7 +78,7 @@ const ProfileViewMenu = ({ channelUsername }) => {
         const handler = isChannelBanned
           ? channelAPI.unbanUser
           : channelAPI.banUser;
-        const { result, error } = await handler(channelUsername);
+        const { result, error } = await handler(channelArn);
 
         if (result) {
           await refreshChannelData();

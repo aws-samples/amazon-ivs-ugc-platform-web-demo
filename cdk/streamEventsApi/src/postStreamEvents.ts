@@ -13,10 +13,10 @@ import {
   AdditionalStreamAttributes,
   getStreamEvents,
   getStreamsByChannelArn,
-  getUserByChannelArn,
   StreamEvent,
   updateStreamEvents
 } from './helpers';
+import { getUserByChannelArn } from '../../api/shared/helpers'
 
 const handler = async (
   request: FastifyRequest<{

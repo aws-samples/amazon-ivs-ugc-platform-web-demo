@@ -22,20 +22,6 @@ export type StreamEvent = {
   type: string;
 };
 
-export const getUserByChannelArn = (eventChannelArn: string) => {
-  const queryCommand = new QueryCommand({
-    IndexName: 'channelArnIndex',
-    TableName: process.env.CHANNELS_TABLE_NAME,
-    Limit: 1,
-    KeyConditionExpression: 'channelArn=:eventChannelArn',
-    ExpressionAttributeValues: {
-      ':eventChannelArn': convertToAttr(eventChannelArn)
-    }
-  });
-
-  return dynamoDbClient.send(queryCommand);
-};
-
 export const getStreamsByChannelArn = (userChannelArn: string) => {
   const queryCommand = new QueryCommand({
     ScanIndexForward: false,

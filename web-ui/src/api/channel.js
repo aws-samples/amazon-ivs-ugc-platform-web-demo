@@ -295,18 +295,21 @@ export const getChatToken = async (
   });
 };
 
-export const banUser = async (bannedUsername) =>
-  await authFetch({
+export const banUser = async (bannedChannelArn) => {
+  console.log({ bannedChannelArn })
+  return   await authFetch({
     method: 'POST',
     url: `${apiBaseUrl}/channel/ban`,
-    body: { bannedUsername }
+    body: { bannedChannelArn }
   });
+}
 
-export const unbanUser = async (bannedUsername) =>
+
+export const unbanUser = async (bannedChannelArn) =>
   await authFetch({
     method: 'POST',
     url: `${apiBaseUrl}/channel/unban`,
-    body: { bannedUsername }
+    body: { bannedChannelArn }
   });
 
 export const sendStreamAction = async (metadataString) =>

@@ -7,6 +7,7 @@ import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useChatMessages } from '../../../contexts/ChatMessages';
+import { useChannel } from '../../../contexts/Channel';
 import { useModal } from '../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
@@ -26,6 +27,8 @@ const ChatPopup = ({
   selectedMessage: { avatarSrc, color, displayName, message, id },
   setIsChatPopupOpen
 }) => {
+  const { channelData: { channelArn } } = useChannel();
+  console.log(' useChannel()',  useChannel())
   const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
@@ -63,7 +66,7 @@ const ChatPopup = ({
         message: `${$modalContent.ban_user_message} ${displayName}?`
       },
       onConfirm: async () => {
-        await banUser(displayName);
+        await banUser(channelArn);
         handleClose();
       },
       onCancel: showChatPopup

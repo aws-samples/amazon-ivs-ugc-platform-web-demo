@@ -8,6 +8,7 @@ import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 
 import {
   dynamoDbClient,
+  getUserByChannelArn,
   isIvsChatError,
   ivsChatClient
 } from '../../shared/helpers';
@@ -19,20 +20,37 @@ import {
 } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
-type BanUserRequestBody = { bannedUsername?: string };
+type BanUserRequestBody = { bannedChannelArn?: string };
 
 const handler = async (
   request: FastifyRequest<{ Body: BanUserRequestBody }>,
   reply: FastifyReply
 ) => {
-  const { sub } = request.requestContext.get('user') as UserContext;
-  const { bannedUsername } = request.body; // bannedUsername is case sensitive
+  const { sub, username } = request.requestContext.get('user') as UserContext;
+  console.log(`what's love? ${username} don't hurt me, don't hurt me, no more, ooooooh ooohhh oooohh oh oh oh!`)
+  console.log("ding ding ding ding din din din")
+  console.log("da da da dada")
+  const { bannedChannelArn } = request.body;
+  console.log(request.body)
   let chatRoomArn, chatRoomOwnerUsername;
 
   // Retrieve the chat room data for the requester's channel
   try {
     const { Item: UserItem = {} } = await getUser(sub);
     ({ chatRoomArn, username: chatRoomOwnerUsername } = unmarshall(UserItem));
+    console.log(unmarshall(UserItem))
+
+    console.log({ chatRoomArn, bannedChannelArn, authUserChannelArn: '' })
+
+    if (bannedChannelArn === chatRoomArn) {
+      console.error(
+        'A user is not allowed to ban themselves from their own channel'
+      );
+  
+      reply.statusCode = 400;
+  
+      return reply.send({ __type: UNEXPECTED_EXCEPTION });
+    }
   } catch (error) {
     console.error(error);
 
@@ -42,9 +60,9 @@ const handler = async (
   }
 
   // Check input
-  if (!bannedUsername) {
+  if (!bannedChannelArn) {
     console.error(
-      `Missing bannedUsername for the channel owned by the user ${chatRoomOwnerUsername}`
+      `Missing bannedChannelArn for the channel owned by the user ${chatRoomOwnerUsername}`
     );
 
     reply.statusCode = 400;
@@ -53,23 +71,12 @@ const handler = async (
   }
 
   // Disallow users from banning themselves from their own channel
-  if (bannedUsername === chatRoomOwnerUsername) {
-    console.error(
-      'A user is not allowed to ban themselves from their own channel'
-    );
-
-    reply.statusCode = 400;
-
-    return reply.send({ __type: UNEXPECTED_EXCEPTION });
-  }
-
+  
   try {
-    const { Items: BannedUserItems = [] } = await getUserByUsername(
-      bannedUsername
-    );
+    const { Items: BannedUserItems = [] } = await getUserByChannelArn(bannedChannelArn);
 
     if (!BannedUserItems.length) {
-      console.error(`No user exists with the bannedUsername ${bannedUsername}`);
+      console.error(`No user exists with the bannedChannelArn ${bannedChannelArn}`);
 
       reply.statusCode = 404;
 
@@ -77,7 +84,8 @@ const handler = async (
     }
 
     // Add the bannedUserSub to the bannedUserSubs set in the user table
-    const { id: bannedUserSub } = unmarshall(BannedUserItems[0]);
+    const { id: bannedUserSub, username: bannedUsername } = unmarshall(BannedUserItems[0]);
+
     await dynamoDbClient.send(
       new UpdateItemCommand({
         ExpressionAttributeValues: {
@@ -102,14 +110,14 @@ const handler = async (
       new DisconnectUserCommand({
         reason: 'Kicked by moderator',
         roomIdentifier: chatRoomArn,
-        userId: bannedUsername
+        userId: 'bannedUsername'
       })
     );
 
     // Broadcast an event to delete all messages sent by the banned user to the chat room
     await ivsChatClient.send(
       new SendEventCommand({
-        attributes: { UserId: bannedUsername },
+        attributes: { UserId: 'bannedUsername' },
         eventName: 'app:DELETE_USER_MESSAGES',
         roomIdentifier: chatRoomArn
       })

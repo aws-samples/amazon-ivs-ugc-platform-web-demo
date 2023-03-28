@@ -25,6 +25,7 @@ const $content = $channelContent.chat;
 const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading, refreshChannelData } = useChannel();
+
   const { color: channelColor } = channelData || {};
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();

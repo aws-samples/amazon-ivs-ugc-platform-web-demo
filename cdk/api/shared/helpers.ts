@@ -1,6 +1,7 @@
 import {
   AttributeValueUpdate,
   DynamoDBClient,
+  QueryCommand,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
 import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
@@ -93,6 +94,20 @@ export const isCognitoError = (
   error: any
 ): error is CognitoIdentityProviderServiceException => {
   return error && error.message;
+};
+
+export const getUserByChannelArn = (eventChannelArn: string) => {
+  const queryCommand = new QueryCommand({
+    IndexName: 'channelArnIndex',
+    TableName: process.env.CHANNELS_TABLE_NAME,
+    Limit: 1,
+    KeyConditionExpression: 'channelArn=:eventChannelArn',
+    ExpressionAttributeValues: {
+      ':eventChannelArn': convertToAttr(eventChannelArn)
+    }
+  });
+
+  return dynamoDbClient.send(queryCommand);
 };
 
 export const isIvsChatError = (
