@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d2d4b1bd-33df-4733-98ff-b8fe7384e058",
+		"_postman_id": "6d1e7d79-3943-45a0-bb3f-e4ad0e04816f",
 		"name": "UGC",
 		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -71,7 +71,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+									"raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -99,7 +99,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"bannedUsername\": \"{{bannedUsername}}\"\n}",
+									"raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"

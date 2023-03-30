@@ -41,8 +41,10 @@ const ProfileViewMenu = ({ channelUsername }) => {
   const { notifySuccess, notifyError } = useNotif();
   const { openModal } = useModal();
   const { isMobileView } = useResponsiveDevice();
-  const { channelData: { isChannelBanned, channelArn } = {}, refreshChannelData } =
-    useChannel();
+  const {
+    channelData: { isChannelBanned, channelArn } = {},
+    refreshChannelData
+  } = useChannel();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModerationActionLoading, setIsModerationActionLoading] =
     useState(false);

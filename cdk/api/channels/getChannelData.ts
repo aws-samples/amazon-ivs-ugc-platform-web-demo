@@ -47,32 +47,31 @@ const handler = async (
   const responseBody: GetChannelDataResponseBody = {};
   let viewerSub;
 
-  // try {
-  //   const { authorization: authorizationToken } = request.headers;
-  //   const isAuthRequest = !!authorizationToken;
+  try {
+    const { authorization: authorizationToken } = request.headers;
+    const isAuthRequest = !!authorizationToken;
 
-  //   if (isAuthRequest) {
-  //     ({ sub: viewerSub } = await authorizer(request));
-  //   }
-  // } catch (error) {
-  //   console.error(error);
+    if (isAuthRequest) {
+      ({ sub: viewerSub } = await authorizer(request));
+    }
+  } catch (error) {
+    console.error(error);
 
-  //   reply.statusCode = 401;
+    reply.statusCode = 401;
 
-  //   return reply.send({ __type: UNAUTHORIZED_EXCEPTION });
-  // }
+    return reply.send({ __type: UNAUTHORIZED_EXCEPTION });
+  }
 
   try {
     if (!channelOwnerUsername) {
       throw new Error(`Missing channelOwnerUsername: ${channelOwnerUsername}`);
     }
 
-    console.log({ channelOwnerUsername })
-
     // Get the user data for the channel owner from the channelsTable
     const { Items: UserItems } = await getUserByUsername(channelOwnerUsername);
-    console.log({ UserItems })
+
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
+
     const {
       avatar,
       bannedUserSubs,
@@ -84,8 +83,6 @@ const handler = async (
       id: channelSub
     } = unmarshall(UserItems[0]);
 
-    console.log({ channelArn })
-
     responseBody.avatar = avatar;
     responseBody.color = color;
     responseBody.username = username;
@@ -93,7 +90,7 @@ const handler = async (
     responseBody.isChannelBanned = false;
     responseBody.isViewerFollowing = false;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
-    responseBody.channelArn = channelArn
+    responseBody.channelArn = channelArn;
 
     if (viewerSub) {
       try {
@@ -188,9 +185,7 @@ const handler = async (
 
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
   }
-  console.log({
-    responseBody
-  })
+
   return reply.send(responseBody);
 };
 

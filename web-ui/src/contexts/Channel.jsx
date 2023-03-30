@@ -53,14 +53,12 @@ export const Provider = ({ children }) => {
   } = useSWR(swrKey, channelDataFetcher, {
     refreshInterval: CHANNEL_DATA_REFRESH_INTERVAL
   });
-  console.log('incoming data ->', channelData)
   const isChannelLoading = !channelData && !channelError;
   const avatarSrc = getAvatarSrc(channelData);
   const augmentedChannelData = useMemo(
     () => ({ ...channelData, avatarSrc }),
     [avatarSrc, channelData]
   );
-
   const value = useMemo(
     () => ({
       channelData: !!channelData ? augmentedChannelData : undefined,

@@ -1,9 +1,8 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 
-import { dynamoDbClient } from '../../shared/helpers';
-import { getUserByUsername } from '../helpers';
+import { dynamoDbClient, getUserByChannelArn } from '../../shared/helpers';
 import {
   UNBAN_USER_EXCEPTION,
   UNEXPECTED_EXCEPTION,
@@ -11,17 +10,17 @@ import {
 } from '../../shared/constants';
 import { UserContext } from '../authorizer';
 
-type BanUserRequestBody = { bannedUsername?: string };
+type BanUserRequestBody = { bannedChannelArn?: string };
 
 const handler = async (
   request: FastifyRequest<{ Body: BanUserRequestBody }>,
   reply: FastifyReply
 ) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;
-  const { bannedUsername } = request.body; // bannedUsername is case sensitive
+  const { bannedChannelArn } = request.body;
 
   // Check input
-  if (!bannedUsername) {
+  if (!bannedChannelArn) {
     console.error(
       `Missing bannedUsername for the channel owned by the user ${username}`
     );
@@ -32,12 +31,14 @@ const handler = async (
   }
 
   try {
-    const { Items: BannedUserItems = [] } = await getUserByUsername(
-      bannedUsername
+    const { Items: BannedUserItems = [] } = await getUserByChannelArn(
+      bannedChannelArn
     );
 
     if (!BannedUserItems.length) {
-      console.error(`No user exists with the bannedUsername ${bannedUsername}`);
+      console.error(
+        `No user exists with the bannedChannelArn ${bannedChannelArn}`
+      );
 
       reply.statusCode = 404;
 
@@ -46,6 +47,7 @@ const handler = async (
 
     // Delete the bannedUserSub from the bannedUserSubs set in the user table
     const { id: bannedUserSub } = unmarshall(BannedUserItems[0]);
+
     await dynamoDbClient.send(
       new UpdateItemCommand({
         ExpressionAttributeValues: {

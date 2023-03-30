@@ -27,8 +27,9 @@ const ChatPopup = ({
   selectedMessage: { avatarSrc, color, displayName, message, id },
   setIsChatPopupOpen
 }) => {
-  const { channelData: { channelArn } } = useChannel();
-  console.log(' useChannel()',  useChannel())
+  const {
+    channelData: { channelArn }
+  } = useChannel();
   const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
