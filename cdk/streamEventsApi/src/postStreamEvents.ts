@@ -16,7 +16,7 @@ import {
   StreamEvent,
   updateStreamEvents
 } from './helpers';
-import { getUserByChannelArn } from '../../api/shared/helpers'
+import { getUserByChannelArn } from './helpers';
 
 const handler = async (
   request: FastifyRequest<{

@@ -102,3 +102,17 @@ export const updateStreamEvents = ({
 
   return dynamoDbClient.send(updateItemCommand);
 };
+
+export const getUserByChannelArn = (eventChannelArn: string) => {
+  const queryCommand = new QueryCommand({
+    IndexName: 'channelArnIndex',
+    TableName: process.env.CHANNELS_TABLE_NAME,
+    Limit: 1,
+    KeyConditionExpression: 'channelArn=:eventChannelArn',
+    ExpressionAttributeValues: {
+      ':eventChannelArn': convertToAttr(eventChannelArn)
+    }
+  });
+
+  return dynamoDbClient.send(queryCommand);
+};

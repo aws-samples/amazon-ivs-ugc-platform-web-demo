@@ -16,7 +16,7 @@ import useContextHook from '../../../contexts/useContextHook';
 import usePlayer from '../../../hooks/usePlayer';
 
 const Context = createContext(null);
-Context.displayName = 'PlayerOverlay';
+Context.displayName = 'Player';
 
 const OVERLAY_TIMEOUT = 3000; // ms
 

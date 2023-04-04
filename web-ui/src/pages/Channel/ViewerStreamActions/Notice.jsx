@@ -31,7 +31,7 @@ const Notice = ({
   const messageRef = useRef();
   const marqueeRef = useRef();
   const [maxMessages, setMaxMessages] = useState(0);
-  const { isOverlayVisible } = usePlayerContext;
+  const { isOverlayVisible } = usePlayerContext();
   const shouldInvertColors = isTextColorInverted(color);
   // The animation duration is calculated dynamically to allow for ~5s per message
   const animationDuration = `${DEFAULT_ANIMATION_DURATION * maxMessages}s`;
@@ -54,17 +54,21 @@ const Notice = ({
     <motion.div
       {...createAnimationProps({
         animations: ['fadeIn-full'],
-        customVariants: defaultSlideUpVariant,
+        customVariants: {
+          visible: { ...defaultSlideUpVariant['visible'], x: '-50%' },
+          hidden: { ...defaultSlideUpVariant['hidden'], x: '-50%' }
+        },
         transition: defaultViewerStreamActionTransition
       })}
       className={clsm([
         'absolute',
         'bottom-7',
-        'px-2',
-        'w-[60vw]',
+        'left-1/2',
         'lg:w-full',
         'max-w-full',
+        'px-2',
         'transition-[margin]',
+        'w-[60vw]',
         isOverlayVisible && shouldShowStream && ['mb-20', 'lg:mb-[52px]']
       ])}
       onClick={onClickPlayerHandler}

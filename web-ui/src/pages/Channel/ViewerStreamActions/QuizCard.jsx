@@ -69,12 +69,6 @@ const QuizCard = ({
   return (
     <div
       className={clsm([
-        !shouldRenderActionInTab && [
-          'max-w-[640px]',
-          'min-w-[482px]',
-          'h-screen',
-          'justify-end'
-        ],
         'absolute',
         'flex-col',
         'flex',
@@ -87,10 +81,19 @@ const QuizCard = ({
         'transition-[margin]',
         'w-full',
         'mb-4',
+        !shouldRenderActionInTab && [
+          '-translate-x-2/4',
+          'bottom-0',
+          'h-auto',
+          'justify-end',
+          'left-1/2',
+          'max-w-[640px]',
+          'min-w-[482px]'
+        ],
         isOverlayVisible &&
           shouldShowStream &&
           !shouldRenderActionInTab &&
-          'mb-40',
+          'mb-20',
         isMobileView && 'pb-20'
       ])}
     >
