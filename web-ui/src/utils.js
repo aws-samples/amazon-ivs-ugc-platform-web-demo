@@ -261,3 +261,28 @@ export const isElementOverflowing = (element) => {
 
   return scrollHeight > clientHeight || scrollWidth > clientWidth;
 };
+
+/**
+ * Function to convert concurrent views to a value that will be displayed on the stream status bar.
+ * For an example, 1000 views should be converted to 1K
+ * @param {string|integer} views
+ * @returns {string} view display value (ie. '100', '1K', '1.9M', '5.5B')
+ */
+
+export const convertConcurrentViews = (views) => {
+  if (views < 1000 || isNaN(views)) return views.toString();
+
+  let index = 0;
+  const abbreviations = ['', 'K', 'M', 'B'];
+
+  while (views >= 1000) {
+    views /= 1000;
+    index++;
+  }
+  const hasDecimal = views % 1 !== 0;
+
+  return (
+    (hasDecimal ? views.toFixed(index === 0 ? 0 : 1) : views) +
+    abbreviations[index]
+  );
+};

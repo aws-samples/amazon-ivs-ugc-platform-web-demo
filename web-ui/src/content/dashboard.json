@@ -110,6 +110,7 @@
     "ingest_server_url": "Ingest server URL",
     "ingest_endpoint": "Ingest endpoint",
     "playback_url": "Playback URL",
+    "go_live_from_web": "Go live from web",
     "account_settings": "Account settings",
     "channel_settings": "Channel settings",
     "upload_restrictions": "File format: {FILE_FORMATS} (Max {MAXIMUM_FILE_SIZE} MB)",

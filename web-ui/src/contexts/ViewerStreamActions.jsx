@@ -111,7 +111,7 @@ export const Provider = () => {
 
   return (
     <Context.Provider value={value}>
-      {<Outlet context={outletCtx} />}
+      <Outlet context={outletCtx} />
     </Context.Provider>
   );
 };

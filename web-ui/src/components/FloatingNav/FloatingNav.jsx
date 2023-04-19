@@ -7,14 +7,10 @@ import { useUser } from '../../contexts/User';
 import Button from '../Button';
 import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
-import useCurrentPage from '../../hooks/useCurrentPage';
 
-const FloatingNav = ({ containerClassName }) => {
+const FloatingNav = ({ containerClassName, menuClassName }) => {
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
-
-  const currentPage = useCurrentPage();
-  const isStreamManagerPage = currentPage === 'stream_manager';
 
   return (
     isMobileView &&
@@ -24,7 +20,7 @@ const FloatingNav = ({ containerClassName }) => {
         fadeBackground
         containerClassName={(isOpen) =>
           clsm([
-            isOpen || isStreamManagerPage ? 'fixed' : 'absolute',
+            isOpen ? 'fixed' : 'absolute',
             'flex',
             'flex-col',
             'items-end',
@@ -45,37 +41,12 @@ const FloatingNav = ({ containerClassName }) => {
               'md:max-w-[400px]',
               'touch-screen-device:max-w-[400px]'
             ],
-            isStreamManagerPage && [
-              'bottom-12',
-              'right-[52px]',
-              'sm:right-9',
-              'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
-              isLandscape && [
-                'absolute',
-                'sm:right-5',
-                'lg:right-5',
-                'bottom-6'
-              ]
-            ],
             containerClassName
           ])
         }
         menuClassName={clsm(
           ['w-full', 'h-full', 'origin-bottom-right'],
-          isStreamManagerPage && [
-            'lg:w-[calc(100vw_-_104px)]',
-            'sm:w-[calc(100vw_-_72px)]',
-            isLandscape && [
-              'fixed',
-              'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_126px))]',
-              'right-[52px]',
-              'sm:right-[36px]',
-              'sm:w-full',
-              'max-w-[400px]',
-              'bottom-[112px]',
-              'sm:w-[calc(100vw_-_72px)]'
-            ]
-          ]
+          menuClassName
         )}
       >
         {({ isOpen, toggle, toggleRef }) => (
@@ -102,8 +73,14 @@ const FloatingNav = ({ containerClassName }) => {
   );
 };
 
-FloatingNav.propTypes = { containerClassName: PropTypes.string };
+FloatingNav.propTypes = {
+  containerClassName: PropTypes.string,
+  menuClassName: PropTypes.string
+};
 
-FloatingNav.defaultProps = { containerClassName: '' };
+FloatingNav.defaultProps = {
+  containerClassName: '',
+  menuClassName: ''
+};
 
 export default FloatingNav;

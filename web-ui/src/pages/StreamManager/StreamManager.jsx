@@ -3,12 +3,13 @@ import { useEffect } from 'react';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
+import { Provider as StreamManagerWebBroadcastProvider } from '../../contexts/Broadcast';
+import { useRef } from 'react';
 import { useStreams } from '../../contexts/Streams';
+import { useUser } from '../../contexts/User';
 import Notification from '../../components/Notification';
 import StatusBar from '../../components/StatusBar';
-import StreamManagerActionModal from './StreamManagerActions/StreamManagerActionModal';
-import StreamManagerActions from './StreamManagerActions';
-import StreamManagerChat from './StreamManagerChat';
+import StreamManagerControlCenter from './StreamManagerControlCenter';
 import useStreamSessionData from '../../contexts/Streams/useStreamSessionData';
 import withVerticalScroller from '../../components/withVerticalScroller';
 
@@ -19,6 +20,9 @@ const StreamManager = () => {
     setStreamSessions,
     streamSessions
   });
+  const { userData } = useUser();
+  const { ingestEndpoint, streamKeyValue: streamKey } = userData || {};
+  const previewRef = useRef();
 
   useEffect(() => {
     if (isLive) {
@@ -45,26 +49,16 @@ const StreamManager = () => {
     >
       <StatusBar />
       <NotificationProvider>
-        <StreamManagerActionsProvider>
-          <Notification />
-          <StreamManagerActionModal />
-          <div
-            className={clsm([
-              'gap-6',
-              'grid-cols-[351px,auto]',
-              'grid',
-              'grow',
-              'h-full',
-              'lg:grid-cols-none',
-              'lg:grid-rows-[min-content,minmax(200px,100%)]',
-              'max-w-[960px]',
-              'w-full'
-            ])}
-          >
-            <StreamManagerActions />
-            <StreamManagerChat />
-          </div>
-        </StreamManagerActionsProvider>
+        <StreamManagerWebBroadcastProvider
+          previewRef={previewRef}
+          ingestEndpoint={ingestEndpoint}
+          streamKey={streamKey}
+        >
+          <StreamManagerActionsProvider>
+            <Notification />
+            <StreamManagerControlCenter ref={previewRef} />
+          </StreamManagerActionsProvider>
+        </StreamManagerWebBroadcastProvider>
       </NotificationProvider>
     </div>
   );

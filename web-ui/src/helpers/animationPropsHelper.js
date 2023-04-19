@@ -10,7 +10,7 @@ const defaultVariants = {
 };
 
 export const defaultTransition = { duration: 0.15, type: 'tween' };
-const getDefaultBounceTransition = (isVisible) => ({
+export const getDefaultBounceTransition = (isVisible) => ({
   type: 'spring',
   bounce: isVisible ? 0.2 : 0,
   duration: 0.3,

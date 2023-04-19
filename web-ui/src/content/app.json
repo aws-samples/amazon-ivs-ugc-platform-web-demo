@@ -37,7 +37,8 @@
     "offline": "Offline",
     "poor": "Poor",
     "stable": "Stable",
-    "view_stream_health": "View stream health"
+    "view_stream_health": "View stream health",
+    "view_your_channel": "View your channel"
   },
   "hide": "Hide",
   "show": "Show",

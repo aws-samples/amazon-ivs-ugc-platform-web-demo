@@ -80,7 +80,7 @@ export const KEY_MAP_REGEX = new RegExp(
 );
 
 /**
- * Channels
+ * CHANNELS
  */
 export const USER_MANAGEMENT_THEME_COLOR = '#000000';
 
@@ -116,12 +116,6 @@ export const VOLUME_MEDIAN = 50;
 export const VOLUME_MIN = 0;
 export const VOLUME_MAX = 100;
 
-export const FLOATING_PLAYER_PAGES = [
-  'stream_manager',
-  'stream_health',
-  'settings'
-];
-
 /**
  * CHAT
  */
@@ -133,7 +127,7 @@ export const COMPOSER_MAX_CHARACTER_LENGTH = 500;
 export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 
 /**
- * STREAM ACTIONS
+ * STREAM MANAGER
  */
 export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
@@ -188,7 +182,30 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   [STREAM_ACTION_NAME.CELEBRATION]: {}
 };
 
+const {
+  BASIC_FULL_HD_LANDSCAPE,
+  BASIC_FULL_HD_PORTRAIT,
+  STANDARD_LANDSCAPE,
+  STANDARD_PORTRAIT
+} = window.IVSBroadcastClient;
+export const BROADCAST_STREAM_CONFIG_PRESETS = {
+  [CHANNEL_TYPE.BASIC]: {
+    landscape: BASIC_FULL_HD_LANDSCAPE,
+    portrait: BASIC_FULL_HD_PORTRAIT
+  },
+  [CHANNEL_TYPE.STANDARD]: {
+    landscape: STANDARD_LANDSCAPE,
+    portrait: STANDARD_PORTRAIT
+  }
+};
+
 /**
- * Channel Directory page, Following section
+ * CHANNEL DIRECTORY, FOLLOWING
  */
 export const MAX_AVATAR_COUNT = 14;
+
+/**
+ * Stream Manager page, Following section
+ */
+export const STREAM_MANAGER_DEFAULT_TAB = 0;
+export const STREAM_MANAGER_WEB_BROADCAST_TAB = 1;

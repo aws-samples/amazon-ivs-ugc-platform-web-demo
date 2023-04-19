@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   createContext,
   useCallback,
@@ -6,6 +5,7 @@ import {
   useMemo,
   useState
 } from 'react';
+import { Outlet } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { channelAPI } from '../api';
@@ -28,7 +28,7 @@ const getCurrentSessionFetcher = async () => {
   return data;
 };
 
-export const Provider = ({ children }) => {
+export const Provider = () => {
   const [isCreatingResources, setIsCreatingResources] = useState(false);
   const [hasErrorCreatingResources, setHasErrorCreatingResources] =
     useState(false);
@@ -181,9 +181,11 @@ export const Provider = ({ children }) => {
     ]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>
+      <Outlet />
+    </Context.Provider>
+  );
 };
-
-Provider.propTypes = { children: PropTypes.node.isRequired };
 
 export const useUser = () => useContextHook(Context);

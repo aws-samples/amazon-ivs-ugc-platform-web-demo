@@ -19,7 +19,7 @@ import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescri
 import ProductViewerStreamAction from './ViewerStreamActions/Product';
 import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
-import useFirstMount from '../../hooks/useFirstMount';
+import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
@@ -43,7 +43,7 @@ const Channel = () => {
   );
   const channelRef = useRef();
   const chatSectionRef = useRef();
-  const isFirstMount = useFirstMount();
+  const isMounted = useMount();
 
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
@@ -71,8 +71,8 @@ const Channel = () => {
 
   // Ensures we have computed and set the chat section min-height before the first render
   useLayoutEffect(() => {
-    if (isFirstMount) updateChatSectionHeight();
-  }, [isFirstMount, updateChatSectionHeight]);
+    if (!isMounted()) updateChatSectionHeight();
+  }, [isMounted, updateChatSectionHeight]);
 
   if (channelError) return <PageUnavailable />;
 

@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-
 import { clsm } from '../../../utils';
 import StatusItemTooltip from './StatusItemTooltip';
 import StatusItemWrapper from './StatusItemWrapper';
@@ -13,9 +12,19 @@ const StatusItem = ({
   itemLabel,
   itemButtonProps,
   role,
-  value
+  value,
+  className
 }) => (
-  <div className="flex">
+  <div
+    className={clsm([
+      'flex',
+      'max-w-[92px]',
+      'sm:[&>div]:px-0',
+      'sm:[&>div>div]:px-0',
+      'sm:[&>div>button]:px-0',
+      className
+    ])}
+  >
     <StatusItemTooltip text={concurrentViewsTooltipText}>
       <StatusItemWrapper
         isActionable={!!itemButtonProps}
@@ -68,7 +77,8 @@ StatusItem.defaultProps = {
   isLive: false,
   itemButtonProps: null,
   role: '',
-  value: null
+  value: null,
+  className: ''
 };
 
 StatusItem.propTypes = {
@@ -80,6 +90,8 @@ StatusItem.propTypes = {
   itemLabel: PropTypes.string.isRequired,
   itemButtonProps: PropTypes.shape({ onClick: PropTypes.func }),
   role: PropTypes.string,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  className: PropTypes.string
 };
+
 export default StatusItem;

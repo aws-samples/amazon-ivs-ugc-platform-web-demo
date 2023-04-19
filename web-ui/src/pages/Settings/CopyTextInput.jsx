@@ -30,7 +30,6 @@ const CopyTextInput = ({ label, name, successMessage, value }) => {
         variant={inputVariant}
       />
       <Button
-        className="input-button"
         onClick={handleCopyAndNotify}
         variant="tertiary"
         ariaLabel={`Copy ${label} value`}

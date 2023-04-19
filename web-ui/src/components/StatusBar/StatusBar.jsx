@@ -1,18 +1,20 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { app as $appContent } from '../../content';
 import { BREAKPOINTS, CONCURRENT_VIEWS } from '../../constants';
 import { clsm } from '../../utils';
+import { convertConcurrentViews } from '../../utils';
 import { Hourglass, Visibility } from '../../assets/icons';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useStreams } from '../../contexts/Streams';
 import HealthIndicator from './HealthIndicator';
+import StreamStatus from './StatusItem/StreamStatus';
 import StatusItem from './StatusItem/StatusItem';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import useElapsedTime from '../../hooks/useElapsedTime';
 
 const $content = $appContent.status_bar;
+
 const NO_DATA_VALUE = '------';
 const NO_ELAPSED_TIME_VALUE = '--:--:--';
 
@@ -24,13 +26,13 @@ const StatusBar = () => {
     activeStreamSession
   } = useStreams();
   const { currentBreakpoint } = useResponsiveDevice();
+  const isCurrentScreenXxs = currentBreakpoint === BREAKPOINTS.xxs;
 
   const latestStreamSessionData = hasStreamSessions ? streamSessions[0] : {};
   const activeStreamSessionData = activeStreamSession
     ? activeStreamSession
     : {};
 
-  const navigate = useNavigate();
   const currentPage = useCurrentPage();
   const isStreamHealthPage = currentPage === 'stream_health';
   const streamSessionData = isStreamHealthPage
@@ -47,21 +49,22 @@ const StatusBar = () => {
   const concurrentViewsMetric = metrics?.find(
     (metric) => metric.label === CONCURRENT_VIEWS
   );
-  let concurrentViewsValue;
+
+  let concurrentViewsValue = NO_DATA_VALUE;
   if (concurrentViewsMetric?.data?.length && isLive) {
-    concurrentViewsValue =
-      concurrentViewsMetric.data[concurrentViewsMetric.data.length - 1];
+    concurrentViewsValue = convertConcurrentViews(
+      Math.round(
+        concurrentViewsMetric.data[concurrentViewsMetric.data.length - 1]
+      )
+    );
   } else if (
     typeof concurrentViewsMetric?.statistics?.average === 'number' &&
     !isLive
   ) {
-    concurrentViewsValue = concurrentViewsMetric.statistics.average;
+    concurrentViewsValue = convertConcurrentViews(
+      Math.round(concurrentViewsMetric.statistics.average)
+    );
   }
-  concurrentViewsValue =
-    typeof concurrentViewsValue === 'number'
-      ? Math.round(concurrentViewsValue)
-      : NO_DATA_VALUE;
-
   // Stream Health/Stability
   let health = NO_DATA_VALUE; // unknown stream health
   if (isHealthy === true) health = $content.stable;
@@ -85,8 +88,8 @@ const StatusBar = () => {
 
   const handleHealthClick = useCallback(() => {
     updateActiveStreamSession(streamSessions[0]);
-    navigate('/health');
-  }, [navigate, streamSessions, updateActiveStreamSession]);
+    window.open('/health', '_blank');
+  }, [streamSessions, updateActiveStreamSession]);
 
   return (
     <div
@@ -97,9 +100,9 @@ const StatusBar = () => {
         'h-full',
         'items-center',
         'justify-between',
-        'max-w-[320px]',
+        'max-w-[316px]',
         'mb-6',
-        'px-4',
+        'px-2',
         'py-3.5',
         'rounded-full',
         'w-full',
@@ -108,6 +111,7 @@ const StatusBar = () => {
       ])}
       role="status"
     >
+      <StreamStatus isLive={isLive} />
       <StatusItem
         dataTestId="status-item-time-elapsed"
         icon={<Hourglass />}
@@ -115,6 +119,10 @@ const StatusBar = () => {
         itemLabel="Stream elapsed time"
         role="timer"
         value={elapsedTime}
+        className={clsm([
+          elapsedTime === NO_ELAPSED_TIME_VALUE ? 'w-auto' : ['sm:w-[82px]'],
+          isCurrentScreenXxs && 'min-w-[78px]'
+        ])}
       />
       <StatusItem
         concurrentViewsTooltipText={concurrentViewsTooltipText}
@@ -124,6 +132,18 @@ const StatusBar = () => {
         isLive={isLive}
         itemLabel="Stream concurrent views count"
         value={concurrentViewsValue}
+        className={clsm([
+          concurrentViewsValue === NO_DATA_VALUE
+            ? 'w-auto'
+            : ['w-[77px]', 'md:w-[62px]', 'sm:w-[77px], xs:w-[62px]'],
+          concurrentViewsValue?.length > 4 &&
+            concurrentViewsValue !== NO_DATA_VALUE && [
+              'w-[82px]',
+              'md:w-[74px]',
+              'sm:w-[77px]',
+              'xs:w-[72px]'
+            ]
+        ])}
       />
       {!isStreamHealthPage && (
         <StatusItem
@@ -140,6 +160,12 @@ const StatusBar = () => {
           dataTestId="status-item-health-status"
           icon={<HealthIndicator health={health} />}
           itemLabel="Stream health status"
+          className={clsm([
+            !isCurrentScreenXxs
+              ? ['sm:min-w-[66px]', 'min-w-[76px]']
+              : ['w-auto', 'mr-2', 'ml-1'],
+            '[&>div>button]:pl-2'
+          ])}
         />
       )}
     </div>

@@ -2,12 +2,10 @@ import { Outlet } from 'react-router-dom';
 import { useRef } from 'react';
 
 import { clsm } from '../../utils';
-import { FLOATING_PLAYER_PAGES } from '../../constants';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useUser } from '../../contexts/User';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import FloatingNav from '../../components/FloatingNav';
-import FloatingPlayer from '../../components/FloatingPlayer';
 import Navbar from './Navbar';
 import Notification from '../../components/Notification';
 import useCurrentPage from '../../hooks/useCurrentPage';
@@ -27,9 +25,6 @@ const AppLayoutWithNavbar = () => {
   const isChannelPage = currentPage === 'channel';
   const isStreamManagerPage = currentPage === 'stream_manager';
   const isStreamHealthPage = currentPage === 'stream_health';
-  const shouldRenderFloatingPlayer =
-    !isMobileView && FLOATING_PLAYER_PAGES.includes(currentPage);
-
   const renderNav = () => {
     switch (true) {
       case isMobileView && (isChannelPage || isStreamManagerPage):
@@ -86,7 +81,6 @@ const AppLayoutWithNavbar = () => {
             {...(isStreamHealthPage ? { className: 'top-24' } : {})}
           />
         )}
-        {shouldRenderFloatingPlayer && <FloatingPlayer />}
         <Outlet context={{ appLayoutRef }} />
       </main>
       {renderNav()}

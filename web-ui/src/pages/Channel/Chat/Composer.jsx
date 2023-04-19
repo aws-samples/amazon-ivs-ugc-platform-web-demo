@@ -18,6 +18,7 @@ import { useUser } from '../../../contexts/User';
 import ComposerErrorMessage from './ComposerErrorMessage';
 import FloatingNav from '../../../components/FloatingNav';
 import Input from '../../../components/Input';
+import useCurrentPage from '../../../hooks/useCurrentPage';
 
 const $content = $channelContent.chat;
 
@@ -40,6 +41,8 @@ const Composer = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [shouldShake, setShouldShake] = useState(false); // Composer has shake animated only on submit
   const [blockChat, setBlockChat] = useState(false);
+  const currentPage = useCurrentPage();
+  const isStreamManagerPage = currentPage === 'stream_manager';
   const canSendMessages =
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);
@@ -235,7 +238,32 @@ const Composer = ({
           </div>
         </form>
       </motion.div>
-      <FloatingNav />
+      <FloatingNav
+        {...(isStreamManagerPage && {
+          containerClassName: clsm([
+            'fixed',
+            'bottom-12',
+            'right-[52px]',
+            'sm:right-9',
+            'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
+            isLandscape && ['absolute', 'sm:right-5', 'lg:right-5', 'bottom-6']
+          ]),
+          menuClassName: clsm([
+            'lg:w-[calc(100vw_-_104px)]',
+            'sm:w-[calc(100vw_-_72px)]',
+            isLandscape && [
+              'fixed',
+              'max-h-[min(570px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_126px))]',
+              'right-[52px]',
+              'sm:right-[36px]',
+              'sm:w-full',
+              'max-w-[400px]',
+              'bottom-[112px]',
+              'sm:w-[calc(100vw_-_72px)]'
+            ]
+          ])
+        })}
+      />
     </div>
   );
 };

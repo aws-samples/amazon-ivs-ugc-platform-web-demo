@@ -13,15 +13,6 @@ class SharedUIComponents {
 
     this.page = page;
 
-    /* Floating Player component */
-    this.floatingPlayerLoc = page.getByTestId('floating-player');
-    this.floatingPlayerVideoContainerLoc = page.getByTestId(
-      'floating-player-video-container'
-    );
-    this.floatingPlayerOfflineHeaderLoc = this.floatingPlayerLoc.getByText(
-      'Your channel is offline'
-    );
-
     /* Tooltip component */
     this.tooltipLoc = page.getByTestId('tooltip-content');
 

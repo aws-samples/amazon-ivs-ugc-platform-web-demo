@@ -3,7 +3,7 @@ import useMutationObserver from './useMutationObserver';
 
 const focusableSelectors = 'a[href], button, textarea, input, select';
 
-const useFocusTrap = (refs, isEnabled = true) => {
+const useFocusTrap = (refs, isEnabled = true, focusTrapConfigs = {}) => {
   const [elementLists, setElementLists] = useState([]);
   const targetRefs = useRef(refs);
 
@@ -45,6 +45,8 @@ const useFocusTrap = (refs, isEnabled = true) => {
      */
     const handleTabKey = (event) => {
       if (event.keyCode !== 9) return;
+      const { shouldReFocusBackOnLastClickedItem = undefined } =
+        focusTrapConfigs;
 
       const focusableElements = elementLists.map((elementList) =>
         elementList.filter((element) => !element.hidden && !element.disabled)
@@ -55,8 +57,13 @@ const useFocusTrap = (refs, isEnabled = true) => {
 
       const currentElementList =
         focusableElements[currentElementListIndex] || focusableElements[0];
+      const shouldFocusBackOnLastClickedItem =
+        shouldReFocusBackOnLastClickedItem &&
+        document.activeElement === document.body;
       const hasElementFocus = currentElementListIndex > -1;
       let nextElementToFocus;
+
+      if (shouldFocusBackOnLastClickedItem) return;
 
       if (event.shiftKey) {
         const lastElementListIndex = focusableElements.length - 1;
@@ -105,7 +112,7 @@ const useFocusTrap = (refs, isEnabled = true) => {
 
       return () => document.removeEventListener('keydown', handleTabKey);
     }
-  }, [elementLists, isEnabled]);
+  }, [elementLists, focusTrapConfigs, isEnabled]);
 };
 
 export default useFocusTrap;

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
@@ -9,13 +9,18 @@ const Hamburger = ({ isOpen }) => {
   const height = 16;
   const unitHeight = 4;
   const unitWidth = (unitHeight * width) / height;
-  const lineProps = useMemo(
-    () => ({
+  const lineProps = useCallback(
+    (transformOrigin) => ({
       initial: 'closed',
       animate: isOpen ? 'opened' : 'closed',
       strokeLinecap: 'round',
       vectorEffect: 'non-scaling-stroke',
-      className: clsm(['stroke-[3.15px]', 'stroke-black', 'dark:stroke-white'])
+      className: clsm([
+        'stroke-[3.15px]',
+        'stroke-black',
+        'dark:stroke-white',
+        transformOrigin
+      ])
     }),
     [isOpen]
   );
@@ -42,7 +47,7 @@ const Hamburger = ({ isOpen }) => {
           closed: { rotate: 0, translateY: 0 },
           opened: { rotate: 45, translateY: 2 }
         }}
-        {...lineProps}
+        {...lineProps('!origin-top')}
       />
       {/* CENTER */}
       <motion.line
@@ -54,7 +59,7 @@ const Hamburger = ({ isOpen }) => {
           closed: { opacity: 1 },
           opened: { opacity: 0 }
         }}
-        {...lineProps}
+        {...lineProps()}
       />
       {/* BOTTOM */}
       <motion.line
@@ -66,7 +71,7 @@ const Hamburger = ({ isOpen }) => {
           closed: { rotate: 0, translateY: 0 },
           opened: { rotate: -45, translateY: -2 }
         }}
-        {...lineProps}
+        {...lineProps('!origin-bottom')}
       />
     </motion.svg>
   );

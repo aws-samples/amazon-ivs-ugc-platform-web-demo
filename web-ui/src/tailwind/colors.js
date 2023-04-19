@@ -17,6 +17,10 @@ module.exports = {
       active: 'hsl(var(--base-color-extra-light-gray), 86%, 50%)',
       hover: 'hsl(var(--base-color-extra-light-gray), 86%, 30%)'
     },
+    switchThumb: {
+      focus: 'hsl(var(--base-color-white), 100%, 60%)',
+      hover: 'hsl(var(--base-color-white), 100%, 30%)'
+    },
     loadingOverlay: 'hsl(0 0% 0% / 0.3)',
     gray: {
       DEFAULT: 'hsl(var(--base-color-medium-gray), 27%)',
@@ -72,6 +76,10 @@ module.exports = {
     sliderThumb: {
       active: 'hsl(var(--base-color-dark-gray), 27%, 50%)',
       hover: 'hsl(var(--base-color-dark-gray), 27%, 30%)'
+    },
+    switchThumb: {
+      focus: 'hsl(var(--base-color-white), 0%, 60%)',
+      hover: 'hsl(var(--base-color-white), 0%, 30%)'
     },
     gray: {
       DEFAULT: 'hsl(var(--base-color-white), 80%)',

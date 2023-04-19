@@ -39,6 +39,14 @@ class StreamHealthPageModel extends BasePageModel {
         name: `Show the latest ${timeDurationString} of data`
       });
 
+    this.floatingPlayerLoc = page.getByTestId('floating-player');
+    this.floatingPlayerVideoContainerLoc = page.getByTestId(
+      'floating-player-video-container'
+    );
+    this.floatingPlayerOfflineHeaderLoc = this.floatingPlayerLoc.getByText(
+      'Your channel is offline'
+    );
+
     this.notifLoc = this.page.getByTestId('success-notification');
     this.streamSessionDropdownLoc = page.getByTestId('stream-session-dropdown');
     this.streamEventsLoc = page.getByRole('button', {
@@ -125,26 +133,6 @@ class StreamHealthPageModel extends BasePageModel {
 
   goToSettings = async (location) => {
     switch (location) {
-      case 'floating-player':
-        const floatingPlayerMessageLoc =
-          this.sharedUIComponents.floatingPlayerLoc.getByText(
-            'To start streaming, find your ingest server url and stream key in settings.'
-          );
-        const floatingPlayerGotoSettingsButtonLoc =
-          this.sharedUIComponents.floatingPlayerLoc.getByRole('link', {
-            name: 'Settings'
-          });
-
-        // Confirming the appropriate text in the floating player is visible
-        await expect(
-          this.sharedUIComponents.floatingPlayerOfflineHeaderLoc
-        ).toBeVisible();
-        await expect(floatingPlayerMessageLoc).toBeVisible();
-
-        // Click on the floating player settings button to redirect to the settings page
-        await floatingPlayerGotoSettingsButtonLoc.click();
-        await expect(this.page).toHaveURL(this.baseURL + '/settings');
-        break;
       case 'static-notification':
         // Click on the static notification settings button to redirect to the settings page
         await this.staticNotificationSettingsButtonLoc.click();

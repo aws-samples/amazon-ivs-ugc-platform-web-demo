@@ -14,7 +14,7 @@
     "test:e2e:ci": "npx playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.32",
+    "@playwright/test": "v1.32.1",
     "amazon-cognito-identity-js": "^5.2.12",
     "dotenv-cli": "^6.0.0",
     "jsonwebtoken": "^8.5.1",

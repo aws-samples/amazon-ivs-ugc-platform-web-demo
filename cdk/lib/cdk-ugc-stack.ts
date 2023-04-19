@@ -334,6 +334,7 @@ export class UGCStack extends Stack {
     new CfnOutput(this, 'userPoolClientId', { value: userPoolClientId });
     new CfnOutput(this, 'region', { value: region });
     new CfnOutput(this, 'stage', { value: stageName });
+    new CfnOutput(this, 'channelType', { value: ivsChannelType });
 
     if (frontendAppBaseUrl) {
       new CfnOutput(this, 'frontendAppBaseUrl', {

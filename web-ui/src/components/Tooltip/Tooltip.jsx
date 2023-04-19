@@ -23,9 +23,19 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   const parentRef = useRef();
   const tooltipRef = useRef();
   const tooltipId = useRef(uuidv4());
+  const touchTimeoutId = useRef();
 
-  const showTooltip = useCallback(() => setIsOpen(true), []);
-  const hideTooltip = useCallback(() => setIsOpen(false), []);
+  const showTooltip = useCallback(() => {
+    if (isTouchscreenDevice) {
+      touchTimeoutId.current = setTimeout(() => setIsOpen(true), 200);
+    } else setIsOpen(true);
+  }, [isTouchscreenDevice]);
+
+  const hideTooltip = useCallback(() => {
+    if (isTouchscreenDevice) clearTimeout(touchTimeoutId.current);
+
+    setIsOpen(false);
+  }, [isTouchscreenDevice]);
 
   useClickAway([parentRef], hideTooltip, isTouchscreenDevice);
 
@@ -91,7 +101,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
 
       setOffsets(boundOffsets);
     }
-  }, [isOpen, position, translate.x, translate.y]);
+  }, [isOpen, position, translate.x, translate.y, message]);
 
   useEffect(() => {
     const hideTooltip = () => setIsOpen(false);
@@ -115,7 +125,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   return (
     <div
       {...(isTouchscreenDevice
-        ? { onClick: showTooltip }
+        ? { onTouchStart: showTooltip, onTouchEnd: hideTooltip }
         : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
       className={clsm(['min-w-0', 'relative'])}
       ref={parentRef}

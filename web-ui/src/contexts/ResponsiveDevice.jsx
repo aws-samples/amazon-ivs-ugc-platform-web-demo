@@ -13,6 +13,7 @@ Context.displayName = 'ResponsiveDevice';
 
 export const Provider = ({ children }) => {
   const [currentBreakpoint, setCurrentBreakpoint] = useState();
+  const initialHeight = useRef(window.innerHeight);
   const mainRef = useRef();
   const mobileOverlayIds = useRef([]);
   const windowPageScrollY = useRef();
@@ -25,6 +26,8 @@ export const Provider = ({ children }) => {
   const isMobileView =
     isDefaultResponsiveView ||
     (isLandscape && isTouchscreenDevice && currentBreakpoint < BREAKPOINTS.lg);
+
+  const isDesktopView = currentBreakpoint >= BREAKPOINTS.lg;
 
   const lockBody = useCallback(() => {
     if (isiOS()) {
@@ -122,12 +125,28 @@ export const Provider = ({ children }) => {
     else setIsLandscape(isLandscapeMatches);
   }, [isLandscapeMatches, isTouchscreenDevice]);
 
+  const updateWindowInnerHeight = useCallback(() => {
+    /**
+     * The purpose of this code is to ensure that when the virtual keyboard is opened and closed, the window's inner height is correctly set to the viewport height.
+     * This is necessary because on Firefox iOS, the virtual keyboard was modifying the viewport height, which caused empty space to be left when the keyboard was closed.
+     */
+    if (isiOS() && window.innerHeight < initialHeight.current) {
+      window.innerHeight = initialHeight.current;
+    }
+  }, []);
+
   useResize(
     useCallback(() => {
       updateMobileVh();
       updateCurrentBreakpoint();
       updateOrientation();
-    }, [updateCurrentBreakpoint, updateMobileVh, updateOrientation]),
+      updateWindowInnerHeight();
+    }, [
+      updateCurrentBreakpoint,
+      updateMobileVh,
+      updateOrientation,
+      updateWindowInnerHeight
+    ]),
     { shouldCallOnMount: true }
   );
 
@@ -138,6 +157,7 @@ export const Provider = ({ children }) => {
       isDefaultResponsiveView,
       isLandscape,
       isMobileView,
+      isDesktopView,
       isTouchscreenDevice,
       mainRef,
       removeMobileOverlay
@@ -148,6 +168,7 @@ export const Provider = ({ children }) => {
       isDefaultResponsiveView,
       isLandscape,
       isMobileView,
+      isDesktopView,
       isTouchscreenDevice,
       removeMobileOverlay
     ]

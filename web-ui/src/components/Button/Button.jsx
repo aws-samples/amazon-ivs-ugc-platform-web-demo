@@ -34,6 +34,7 @@ const Button = forwardRef(
       onKeyDown,
       onMouseDown,
       role,
+      state,
       saveLocationFromState,
       tabIndex,
       to,
@@ -77,7 +78,7 @@ const Button = forwardRef(
           {...commonProps}
           className={classes}
           to={to}
-          {...(saveLocationFromState ? { state: { from: location } } : {})}
+          state={{ ...state, ...(saveLocationFromState && { from: location }) }}
         >
           {children}
         </Link>
@@ -114,6 +115,7 @@ Button.defaultProps = {
   id: undefined,
   isDisabled: false,
   isLoading: false,
+  state: {},
   name: '',
   onBlur: undefined,
   onClick: undefined,
@@ -139,6 +141,7 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   customStyles: PropTypes.object,
+  state: PropTypes.object,
   disableHover: PropTypes.bool,
   id: PropTypes.string,
   isDisabled: PropTypes.bool,

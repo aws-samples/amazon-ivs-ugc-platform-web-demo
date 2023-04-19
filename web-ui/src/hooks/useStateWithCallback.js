@@ -1,23 +1,31 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+
 import usePrevious from './usePrevious';
 
 const useStateWithCallback = (initialValue) => {
-  const callbackRef = useRef(null);
   const [value, setValue] = useState(initialValue);
   const prevValue = usePrevious(value);
+  const callbacksRef = useRef(new Set());
 
   useEffect(() => {
-    if (callbackRef.current) {
-      callbackRef.current(prevValue, value);
-
-      callbackRef.current = null;
+    for (const callback of callbacksRef.current) {
+      callback(prevValue, value);
     }
+
+    callbacksRef.current.clear();
   }, [value, prevValue]);
 
-  const setValueWithCallback = useCallback((newValue, callback) => {
-    callbackRef.current = callback;
+  const setValueWithCallback = useCallback((setter, callback) => {
+    setValue((prevValue) => {
+      const nextValue =
+        typeof setter === 'function' ? setter(prevValue) : setter;
 
-    return setValue(newValue);
+      if (nextValue === prevValue) return prevValue;
+
+      callback && callbacksRef.current.add(callback);
+
+      return nextValue;
+    });
   }, []);
 
   return [value, setValueWithCallback];

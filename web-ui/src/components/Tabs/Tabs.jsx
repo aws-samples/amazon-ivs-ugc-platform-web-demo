@@ -4,11 +4,17 @@ import { clsm } from '../../utils';
 import List from './List';
 import Panel from './Panel';
 
-const Tabs = ({ children }) => (
-  <div className={clsm(['flex-col', 'flex', 'w-full'])}>{children}</div>
+const Tabs = ({ children, className }) => (
+  <div className={clsm(['flex-col', 'flex', 'w-full', className])}>
+    {children}
+  </div>
 );
 
-Tabs.propTypes = { children: PropTypes.node.isRequired };
+Tabs.defaultProps = { className: '' };
+Tabs.propTypes = {
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string
+};
 
 Tabs.List = List;
 Tabs.Panel = Panel;

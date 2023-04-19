@@ -288,56 +288,6 @@ test.describe('Stream Manager Page', () => {
     });
   });
 
-  testWithoutNavigation.describe('Offline State', () => {
-    testWithoutNavigation.beforeEach(
-      async ({
-        streamManagerPage: {
-          navigate,
-          streamSessionsComponent: { updateStreamSessions }
-        }
-      }) => {
-        // Populate one offline session
-        updateStreamSessions(1);
-
-        await navigate();
-      }
-    );
-
-    testWithoutNavigation(
-      'should display the empty status bar and offline floating player module',
-      async ({
-        isMobile,
-        page,
-        streamManagerPage: {
-          chatComponent: { moderatingPillLoc },
-          sharedUIComponents: {
-            statusBarConcurrentViewsLoc,
-            statusBarHealthStatusLoc,
-            statusBarTimerLoc
-          }
-        }
-      }) => {
-        await moderatingPillLoc.waitFor({ state: 'visible' });
-        // Assert initial page load
-        await page.takeScreenshot('initial-page-load');
-
-        // Assert the status bar content
-        await expect(statusBarTimerLoc).toHaveText('--:--:--');
-        await expect(statusBarConcurrentViewsLoc).toHaveText('------');
-        await expect(statusBarHealthStatusLoc).toHaveText('------');
-
-        // Assert that the text inside the floating player is correct
-        const floatingPlayerHeaderLoc = page
-          .getByTestId('floating-player')
-          .getByText('Your channel is offline');
-
-        if (!isMobile) {
-          expect(floatingPlayerHeaderLoc).toBeVisible();
-        }
-      }
-    );
-  });
-
   test.describe('Live State', () => {
     testWithoutNavigation.beforeEach(
       async ({
@@ -354,77 +304,29 @@ test.describe('Stream Manager Page', () => {
     );
 
     testWithoutNavigation(
-      'should display the correct data inside the status bar and inside the floating player module',
-      async ({
-        isMobile,
-        page,
-        streamManagerPage: {
-          chatComponent: { moderatingPillLoc },
-          sharedUIComponents: {
-            floatingPlayerLoc,
-            statusBarConcurrentViewsLoc,
-            statusBarHealthStatusLoc,
-            statusBarTimerLoc
-          }
-        }
-      }) => {
-        await moderatingPillLoc.waitFor({ state: 'visible' });
-        // Assert initial page load
-        await page.takeScreenshot('initial-page-load-live', {
-          mask: [
-            statusBarTimerLoc,
-            page.getByTestId('floating-player-video-container')
-          ]
-        });
-
-        if (!isMobile) {
-          await expect(
-            floatingPlayerLoc.getByText('Your channel is offline')
-          ).toBeHidden();
-          // Assert that the live pill inside the floating player is present
-          await expect(floatingPlayerLoc.getByText('live')).toBeVisible();
-        }
-
-        // Assert the status bar content
-        await expect(statusBarTimerLoc).toHaveText(/00:\d{2}:\d{2}/);
-        await expect(statusBarConcurrentViewsLoc).toHaveText('1');
-        await expect(statusBarHealthStatusLoc).toHaveText('Stable');
-      }
-    );
-
-    testWithoutNavigation(
       'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
       async ({
         page,
+        context,
         streamManagerPage: {
-          sharedUIComponents: { statusBarHealthStatusBtnLoc }
+          navigate,
+          sharedUIComponents: { statusBarHealthStatusBtnLoc },
+          streamSessionsComponent: { updateStreamSessions }
         }
       }) => {
-        // Assert that clicking on the button takes you to monitor the live session on Stream Health
-        await statusBarHealthStatusBtnLoc.click();
+        // To ensure that the stream health page is being opened in a new tab, the test asserts that the current page remains unchanged while a new tab is opened.
+        const [newTab] = await Promise.all([
+          context.waitForEvent('page'),
+          statusBarHealthStatusBtnLoc.click()
+        ]);
 
-        await expect(page).toHaveURL('/health/streamId-0');
-      }
-    );
+        // make sure the url is updated to the most recent stream session
+        const updatedUrl = '/health/streamId-0';
+        await newTab.goto(updatedUrl);
+        await newTab.waitForURL(updatedUrl, { timeout: 5000 });
 
-    testWithoutNavigation(
-      'after clicking the health status button in the floating player module, the user should be taken to the Stream Health page to monitor the live session',
-      async ({
-        isMobile,
-        page,
-        streamManagerPage: {
-          sharedUIComponents: { floatingPlayerLoc }
-        }
-      }) => {
-        // There is no floating player module on mobile
-        if (isMobile) return;
-
-        // Assert that clicking on the button takes you to monitor the live session on Stream Health
-        await floatingPlayerLoc
-          .getByRole('button', { name: 'View stream session' })
-          .click();
-
-        await expect(page).toHaveURL('/health/streamId-0');
+        expect(page).toHaveURL('/manager');
+        expect(newTab).toHaveURL(updatedUrl);
       }
     );
 

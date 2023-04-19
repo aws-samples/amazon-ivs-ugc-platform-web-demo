@@ -1,14 +1,26 @@
 const { readFileSync, writeFileSync } = require('fs');
 
 const inputPath = 'temp_out.json';
+const outputPath = '../web-ui/.env';
 const json = readFileSync(inputPath);
 const output = JSON.parse(json);
 
-const { apiBaseUrl, region, stage, userPoolClientId, userPoolId } =
+const { apiBaseUrl, channelType, region, stage, userPoolClientId, userPoolId } =
   output[process.argv[2]];
 
-const outputPath = '../web-ui/.env';
-writeFileSync(
-  outputPath,
-  `REACT_APP_API_BASE_URL=${apiBaseUrl}\nREACT_APP_COGNITO_USER_POOL_CLIENT_ID=${userPoolClientId}\nREACT_APP_COGNITO_USER_POOL_ID=${userPoolId}\nREACT_APP_REGION=${region}\nREACT_APP_STAGE=${stage}`
-);
+const envVars = {
+  REACT_APP_API_BASE_URL: apiBaseUrl,
+  REACT_APP_CHANNEL_TYPE: channelType,
+  REACT_APP_COGNITO_USER_POOL_CLIENT_ID: userPoolClientId,
+  REACT_APP_COGNITO_USER_POOL_ID: userPoolId,
+  REACT_APP_REGION: region,
+  REACT_APP_STAGE: stage
+};
+
+let data = '';
+for (const key in envVars) {
+  const value = envVars[key];
+  data += `${key}=${value}\n`;
+}
+
+writeFileSync(outputPath, data);

@@ -25,8 +25,8 @@ import { useChannelView } from '../ChannelView';
 import useContextHook from '../../../../contexts/useContextHook';
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback';
 import useDidChange from '../../../../hooks/useDidChange';
-import useFirstMount from '../../../../hooks/useFirstMount';
 import useLatest from '../../../../hooks/useLatest';
+import useMount from '../../../../hooks/useMount';
 import useStateWithCallback from '../../../../hooks/useStateWithCallback';
 import useThrottledCallback from '../../../../hooks/useThrottledCallback';
 
@@ -53,7 +53,7 @@ export const Provider = ({ children }) => {
   const initialVariant = useRef(
     getProfileViewVariant(isProfileViewExpanded, currentView)
   );
-  const isFirstMount = useLatest(useFirstMount());
+  const isMounted = useMount();
   const shouldSkipProfileViewAnimation = useRef(false);
   const shouldAnimateProfileView = useLatest(
     didProfileViewChange && !shouldSkipProfileViewAnimation.current
@@ -237,14 +237,14 @@ export const Provider = ({ children }) => {
   // Toggle the profile view based on the existence of the /profile path param
   // when a navigation event occurs (i.e. hitting the browser's back button)
   useEffect(() => {
-    if (!isFirstMount.current && navigationType === 'POP') {
+    if (isMounted() && navigationType === 'POP') {
       toggleProfileViewDebounced({
         action: 'navigate',
         isExpandedNext: urlHasProfile.current
       });
     }
   }, [
-    isFirstMount,
+    isMounted,
     navigationType,
     pathname,
     toggleProfileViewDebounced,
@@ -253,10 +253,11 @@ export const Provider = ({ children }) => {
 
   // Set the initial overflow on the app layout ref to hidden
   // if the page loads straight into the expanded profile view
+  const _isMounted = isMounted();
   useEffect(() => {
     if (urlHasProfile.current)
       setElementStyles(appLayoutRef.current, { overflow: 'hidden' });
-  }, [appLayoutRef, isFirstMount, urlHasProfile]);
+  }, [appLayoutRef, _isMounted, urlHasProfile]);
 
   // Update all toggle states on layout change
   useLayoutEffect(() => {

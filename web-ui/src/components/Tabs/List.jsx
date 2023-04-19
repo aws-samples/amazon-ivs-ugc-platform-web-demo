@@ -39,8 +39,6 @@ const List = ({ selectedIndex, setSelectedIndex, tabs }) => {
   return (
     <div
       className={clsm([
-        'bg-white',
-        'dark:bg-darkMode-gray-dark',
         'flex',
         'justify-center',
         'pb-5',

@@ -1,8 +1,9 @@
 import {
-  BrowserRouter as Router,
+  createBrowserRouter,
+  createRoutesFromElements,
   Navigate,
   Route,
-  Routes
+  RouterProvider
 } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 
@@ -53,75 +54,74 @@ const updateTo = (to) => {
   return `/${replacedTo}`;
 };
 
-const App = () => (
-  <Router>
-    <MotionConfig reducedMotion="user">
-      <LastFocusedElementProvider>
-        <ResponsiveDeviceProvider>
-          <NotificationProvider>
-            <ModalProvider>
-              <TooltipsProvider>
-                <UserProvider>
-                  <Routes>
-                    <Route
-                      element={
-                        <StreamsProvider>
-                          <ChannelProvider>
-                            <ChatMessagesProvider>
-                              <AppLayoutWithNavbar />
-                            </ChatMessagesProvider>
-                          </ChannelProvider>
-                        </StreamsProvider>
-                      }
-                    >
-                      {/* PUBLIC PAGES - UGC */}
-                      <Route index element={<ChannelDirectory />} />
-                      <Route path=":username">
-                        <Route element={<ViewerStreamActionsProvider />}>
-                          <Route index element={<Channel />} />
-                          <Route path="profile" element={<Channel />} />
-                          <Route
-                            path="*"
-                            element={
-                              <Navigate replace to={updateTo('/:username')} />
-                            }
-                          />
-                        </Route>
-                      </Route>
-                      <Route path="feed" element={<Feed />} />
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route
+      element={
+        <MotionConfig reducedMotion="user">
+          <LastFocusedElementProvider>
+            <ResponsiveDeviceProvider>
+              <NotificationProvider>
+                <ModalProvider>
+                  <TooltipsProvider>
+                    <UserProvider />
+                  </TooltipsProvider>
+                </ModalProvider>
+              </NotificationProvider>
+            </ResponsiveDeviceProvider>
+          </LastFocusedElementProvider>
+        </MotionConfig>
+      }
+    >
+      <Route
+        element={
+          <StreamsProvider>
+            <ChannelProvider>
+              <ChatMessagesProvider>
+                <AppLayoutWithNavbar />
+              </ChatMessagesProvider>
+            </ChannelProvider>
+          </StreamsProvider>
+        }
+      >
+        {/* PUBLIC PAGES - UGC */}
+        <Route index element={<ChannelDirectory />} />
+        <Route path=":username">
+          <Route element={<ViewerStreamActionsProvider />}>
+            <Route index element={<Channel />} />
+            <Route path="profile" element={<Channel />} />
+            <Route
+              path="*"
+              element={<Navigate replace to={updateTo('/:username')} />}
+            />
+          </Route>
+        </Route>
+        <Route path="feed" element={<Feed />} />
 
-                      {/* PRIVATE PAGES */}
-                      <Route element={<RequireAuth />}>
-                        <Route path="following" element={<Following />} />
-                        <Route path="settings" element={<Settings />} />
-                        <Route path="manager" element={<StreamManager />} />
-                        <Route path="health">
-                          <Route index element={<StreamHealth />} />
-                          <Route path=":streamId" element={<StreamHealth />} />
-                          <Route
-                            path="*"
-                            element={<Navigate replace to="/health" />}
-                          />
-                        </Route>
-                      </Route>
-                      <Route path="*" element={<Navigate replace to="/" />} />
-                    </Route>
+        {/* PRIVATE PAGES */}
+        <Route element={<RequireAuth />}>
+          <Route path="following" element={<Following />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="manager" element={<StreamManager />} />
+          <Route path="health">
+            <Route index element={<StreamHealth />} />
+            <Route path=":streamId" element={<StreamHealth />} />
+            <Route path="*" element={<Navigate replace to="/health" />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<Navigate replace to="/" />} />
+      </Route>
 
-                    {/* PUBLIC PAGES - User Management */}
-                    <Route element={<UserManagement />}>
-                      <Route path="login" element={<SigninUser />} />
-                      <Route path="register" element={<RegisterUser />} />
-                      <Route path="reset" element={<ResetPassword />} />
-                    </Route>
-                  </Routes>
-                </UserProvider>
-              </TooltipsProvider>
-            </ModalProvider>
-          </NotificationProvider>
-        </ResponsiveDeviceProvider>
-      </LastFocusedElementProvider>
-    </MotionConfig>
-  </Router>
+      {/* PUBLIC PAGES - User Management */}
+      <Route element={<UserManagement />}>
+        <Route path="login" element={<SigninUser />} />
+        <Route path="register" element={<RegisterUser />} />
+        <Route path="reset" element={<ResetPassword />} />
+      </Route>
+    </Route>
+  )
 );
+
+const App = () => <RouterProvider router={router} />;
 
 export default App;

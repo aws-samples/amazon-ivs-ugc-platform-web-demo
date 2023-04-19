@@ -3,6 +3,7 @@ import copyToClipboard from 'copy-to-clipboard';
 
 import { channelAPI } from '../../../api';
 import { clsm } from '../../../utils';
+import { CreateVideo } from '../../../assets/icons';
 import { dashboard as $content } from '../../../content';
 import {
   INPUT_BUTTON_GROUP_CLASSES,
@@ -15,8 +16,11 @@ import { useUser } from '../../../contexts/User';
 import Button from '../../../components/Button';
 import CopyTextInput from '../CopyTextInput';
 import Input from '../../../components/Input';
+import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 
 const StreamSettings = () => {
+  const { isDesktopView } = useResponsiveDevice();
+
   const resetStreamKeyButtonRef = useRef();
   const [isResetStreamKeyLoading, setIsResetStreamKeyLoading] = useState(false);
   const { notifySuccess, notifyError } = useNotif();
@@ -114,6 +118,25 @@ const StreamSettings = () => {
         value={userData.playbackUrl}
         successMessage={$content.notification.success.playback_url_copied}
       />
+      <Button
+        type="nav"
+        to="/manager"
+        state={{
+          isWebBroadcastContainerOpen: true,
+          streamManagerSelectedTab: isDesktopView ? 0 : 1
+        }}
+        className={clsm([
+          'w-56',
+          'md:w-full',
+          'ml-[280px]',
+          'md:ml-0',
+          'dark:[&>svg]:fill-black'
+        ])}
+        variant="tertiary"
+      >
+        <CreateVideo className={clsm(['mr-2', 'w-6', 'h-6'])} />
+        {$content.settings_page.go_live_from_web}
+      </Button>
     </section>
   );
 };

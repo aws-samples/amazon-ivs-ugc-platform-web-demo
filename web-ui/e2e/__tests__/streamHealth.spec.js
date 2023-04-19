@@ -33,17 +33,6 @@ test.describe('Stream Health Page', () => {
       await page.takeScreenshot('initial-page-load');
       await goToSettings('static-notification');
     });
-
-    test('should navigate to the settings page when floating player is clicked on', async ({
-      streamHealthPage: { goToSettings },
-      page,
-      isMobile
-    }) => {
-      await page.takeScreenshot('initial-page-load');
-      if (!isMobile) {
-        await goToSettings('floating-player');
-      }
-    });
   });
 
   testWithoutNavigation.describe('Offline State', () => {
@@ -77,7 +66,6 @@ test.describe('Stream Health Page', () => {
           timestampLocators,
           getZoomWindowButtonLoc,
           sharedUIComponents: {
-            floatingPlayerOfflineHeaderLoc,
             statusBarConcurrentViewsLoc,
             statusBarHealthStatusLoc,
             statusBarTimerLoc
@@ -124,11 +112,6 @@ test.describe('Stream Health Page', () => {
         await expect(statusBarTimerLoc).toHaveText('Offline');
         await expect(statusBarConcurrentViewsLoc).toHaveText('1');
         await expect(statusBarHealthStatusLoc).toBeHidden();
-
-        // Assert that the text inside the floating player is correct
-        if (!isMobile) {
-          expect(floatingPlayerOfflineHeaderLoc).toBeVisible();
-        }
 
         // Assert that the currently selected zoom window is "All" and that the appropriate indicator is selected when clicked
         const zoomWindow1hrIndicationLoc = getZoomWindowButtonLoc('1 hour');
@@ -214,10 +197,8 @@ test.describe('Stream Health Page', () => {
       async ({
         page,
         streamHealthPage: {
-          sharedUIComponents: {
-            floatingPlayerVideoContainerLoc,
-            statusBarTimerLoc
-          }
+          floatingPlayerVideoContainerLoc,
+          sharedUIComponents: { statusBarTimerLoc }
         }
       }) => {
         await page.waitForResponse(
@@ -226,33 +207,6 @@ test.describe('Stream Health Page', () => {
         await page.takeScreenshot('initial-page-load-live', {
           mask: [floatingPlayerVideoContainerLoc, statusBarTimerLoc]
         });
-      }
-    );
-
-    testWithoutNavigation(
-      'should show online state in floating player',
-      async ({
-        streamHealthPage: {
-          sharedUIComponents: {
-            floatingPlayerVideoContainerLoc,
-            floatingPlayerOfflineHeaderLoc
-          }
-        },
-        page,
-        isMobile
-      }) => {
-        await page.waitForResponse(
-          getCloudfrontURLRegex('/metrics/mockChannelId/streamSessions/(.+)')
-        );
-        expect(floatingPlayerOfflineHeaderLoc).toBeHidden();
-
-        if (!isMobile) {
-          await expect(floatingPlayerOfflineHeaderLoc).toBeHidden();
-          // Assert that the live pill inside the floating player is present
-          await expect(
-            floatingPlayerVideoContainerLoc.getByText('live')
-          ).toBeVisible();
-        }
       }
     );
 
@@ -280,10 +234,8 @@ test.describe('Stream Health Page', () => {
         streamHealthPage: {
           streamSessionNavigatorButtonLoc,
           streamSessionDropdownLoc,
-          sharedUIComponents: {
-            floatingPlayerVideoContainerLoc,
-            statusBarTimerLoc
-          }
+          floatingPlayerVideoContainerLoc,
+          sharedUIComponents: { statusBarTimerLoc }
         },
         page
       }) => {
