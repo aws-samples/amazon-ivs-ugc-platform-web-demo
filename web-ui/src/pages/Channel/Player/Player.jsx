@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import { NoSignal, Lock } from '../../../assets/icons';
 import { player as $content } from '../../../content';
+import { POPUP_ID } from './Controls/RenditionSetting';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
@@ -82,6 +83,8 @@ const Player = ({ chatSectionRef }) => {
   /* Controls */
   const [openPopupIds, setOpenPopupIds] = useState([]);
   const isPopupOpen = !!openPopupIds.length;
+  const isResolutionPopupOpen = isPopupOpen && openPopupIds.includes(POPUP_ID);
+
   const prevIsPopupOpen = usePrevious(isPopupOpen);
 
   /* Profile view player animation */
@@ -317,6 +320,7 @@ const Player = ({ chatSectionRef }) => {
         }}
       />
       <PlayerViewerStreamActions
+        isResolutionPopupOpen={isResolutionPopupOpen}
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowStream={shouldShowStream}
       />

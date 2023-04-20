@@ -120,7 +120,9 @@ const StatusBar = () => {
         role="timer"
         value={elapsedTime}
         className={clsm([
-          elapsedTime === NO_ELAPSED_TIME_VALUE ? 'w-auto' : ['sm:w-[82px]'],
+          elapsedTime === NO_ELAPSED_TIME_VALUE
+            ? 'w-auto'
+            : ['w-[100px]', 'sm:w-[82px]'],
           isCurrentScreenXxs && 'min-w-[78px]'
         ])}
       />

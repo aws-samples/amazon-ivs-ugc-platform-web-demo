@@ -16,6 +16,7 @@ import ProductViewerStreamAction from '../ViewerStreamActions/Product';
 import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
+  isResolutionPopupOpen,
   onClickPlayerHandler,
   shouldShowStream
 }) => {
@@ -65,7 +66,8 @@ const PlayerViewerStreamActions = ({
                 'transition-[margin]',
                 'w-full',
                 'mb-4',
-                isOverlayVisible && shouldShowStream && 'mb-20'
+                isOverlayVisible && shouldShowStream && 'mb-20',
+                isResolutionPopupOpen && '-z-10'
               ])}
             >
               <ProductViewerStreamAction {...currentViewerStreamActionData} />
@@ -84,6 +86,7 @@ const PlayerViewerStreamActions = ({
 };
 
 PlayerViewerStreamActions.propTypes = {
+  isResolutionPopupOpen: PropTypes.bool.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool
 };
