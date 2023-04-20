@@ -14,10 +14,8 @@ const StreamStatus = ({ isLive }) => {
   const { userData } = useUser();
 
   const handleViewChannelClick = useCallback(() => {
-    if (!isLive) return;
-
     window.open(`/${userData?.username}`, '_blank');
-  }, [userData?.username, isLive]);
+  }, [userData?.username]);
 
   return (
     <StatusItemTooltip text={$content.view_your_channel}>
