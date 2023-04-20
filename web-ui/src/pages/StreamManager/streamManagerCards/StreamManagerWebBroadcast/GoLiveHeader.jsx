@@ -90,8 +90,8 @@ const GoLiveHeader = forwardRef(
             'h-8',
             'pl-1',
             'pr-3',
-            'focus:bg-lightMode-gray-hover',
-            'focus:dark:bg-darkMode-gray',
+            'focus:bg-transparent',
+            'focus:dark:bg-transparent',
             '[&>svg]:w-6',
             '[&>svg]:h-6',
             '[&>svg]:mr-2'
@@ -110,7 +110,7 @@ const GoLiveHeader = forwardRef(
             'dark:bg-darkMode-gray-medium',
             'bg-lightMode-gray',
             'hover:bg-lightMode-gray-hover',
-            'focus:dark:bg-darkMode-gray'
+            'dark:focus:bg-darkMode-gray-medium'
           ])}
         >
           <ExpandScreen className={clsm(['w-4', 'h-4'])} />

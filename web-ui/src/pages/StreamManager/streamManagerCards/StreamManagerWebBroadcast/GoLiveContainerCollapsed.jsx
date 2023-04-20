@@ -76,8 +76,8 @@ const GoLiveContainerCollapsed = ({
             'dark:focus:none',
             '[&>svg]:fill-black',
             'h-8',
-            'focus:bg-lightMode-gray-hover',
-            'focus:dark:bg-darkMode-gray',
+            'focus:bg-transparent',
+            'focus:dark:bg-transparent',
             '[&>svg]:w-6',
             '[&>svg]:h-6'
           ])}
