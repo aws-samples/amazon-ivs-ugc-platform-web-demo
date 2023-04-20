@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { memo, useCallback, useState, useEffect } from 'react';
+import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
@@ -22,22 +22,27 @@ import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const $content = $channelContent.chat;
 
-const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
+const Chat = ({ shouldRunCelebration }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading, refreshChannelData } = useChannel();
 
   const { color: channelColor } = channelData || {};
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifyInfo, notifySuccess } = useNotif();
-  const { isLandscape, isMobileView, currentBreakpoint, mainRef } =
-    useResponsiveDevice();
+  const {
+    isLandscape,
+    isMobileView,
+    currentBreakpoint,
+    mainRef,
+    isProfileMenuOpen
+  } = useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
+  const chatSectionRef = useRef();
   let chatPopupParentEl = chatSectionRef.current;
 
   if (isSplitView) chatPopupParentEl = document.body;
   else if (isStackedView) chatPopupParentEl = mainRef.current;
-
   /**
    * Chat Event Handlers
    */
@@ -132,8 +137,9 @@ const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
   return (
     <>
       <div
+        ref={chatSectionRef}
         className={clsm([
-          'relative',
+          (!isProfileMenuOpen || !isChatPopupOpen) && 'relative', // The container must be relative to contain the chat popup
           'flex',
           'flex-1',
           'flex-col',
@@ -143,6 +149,9 @@ const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
         ])}
         data-testid="chat-component"
       >
+        <div className={clsm(['relative', 'w-full', 'h-auto', 'flex'])}>
+          <Notification />
+        </div>
         <Messages
           isChatPopupOpen={isChatPopupOpen}
           isModerator={isModerator}
@@ -178,18 +187,15 @@ const Chat = ({ chatSectionRef, shouldRunCelebration }) => {
           />
         )}
       </AnimatePresence>
-      <Notification />
     </>
   );
 };
 
 Chat.defaultProps = {
-  chatSectionRef: null,
   shouldRunCelebration: false
 };
 
 Chat.propTypes = {
-  chatSectionRef: PropTypes.object,
   shouldRunCelebration: PropTypes.bool
 };
 

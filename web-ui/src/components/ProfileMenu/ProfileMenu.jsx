@@ -19,9 +19,14 @@ const ProfileMenu = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
-  const { isMobileView, isLandscape } = useResponsiveDevice();
+  const { isMobileView, isLandscape, setIsProfileMenuOpen } =
+    useResponsiveDevice();
   const profileMenuRef = useRef();
   const toggleRef = useRef();
+
+  useEffect(() => {
+    setIsProfileMenuOpen(isOpen);
+  }, [isOpen, setIsProfileMenuOpen]);
 
   const toggleProfileMenu = useCallback(
     (value) =>

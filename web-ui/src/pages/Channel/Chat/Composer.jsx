@@ -240,14 +240,11 @@ const Composer = ({
       </motion.div>
       <FloatingNav
         {...(isStreamManagerPage && {
-          containerClassName: clsm([
-            'fixed',
-            'bottom-12',
-            'right-[52px]',
-            'sm:right-9',
-            'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
-            isLandscape && ['absolute', 'sm:right-5', 'lg:right-5', 'bottom-6']
-          ]),
+          containerClassName: (isOpen) =>
+            clsm([
+              'max-h-[min(650px,calc(calc(var(--mobile-vh,1vh)_*_100)_-_72px))]',
+              isOpen && ['bottom-12', 'right-[52px]', 'sm:right-9']
+            ]),
           menuClassName: clsm([
             'lg:w-[calc(100vw_-_104px)]',
             'sm:w-[calc(100vw_-_72px)]',

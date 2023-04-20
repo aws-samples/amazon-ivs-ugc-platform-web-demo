@@ -212,7 +212,6 @@ const Channel = () => {
               >
                 <NotificationProvider>
                   <Chat
-                    chatSectionRef={chatSectionRef}
                     shouldRunCelebration={
                       currentViewerStreamActionName ===
                       STREAM_ACTION_NAME.CELEBRATION

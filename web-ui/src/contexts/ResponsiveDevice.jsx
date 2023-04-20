@@ -19,6 +19,7 @@ export const Provider = ({ children }) => {
   const windowPageScrollY = useRef();
   const isLandscapeMatches = useMediaQuery('(orientation: landscape)');
   const [isLandscape, setIsLandscape] = useState();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const isDefaultResponsiveView = currentBreakpoint < BREAKPOINTS.md;
   const isTouchscreenDevice = !useMediaQuery(
     '(hover: hover) and (pointer: fine)'
@@ -155,20 +156,23 @@ export const Provider = ({ children }) => {
       addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
+      isDesktopView,
       isLandscape,
       isMobileView,
-      isDesktopView,
+      isProfileMenuOpen,
       isTouchscreenDevice,
       mainRef,
-      removeMobileOverlay
+      removeMobileOverlay,
+      setIsProfileMenuOpen
     }),
     [
       addMobileOverlay,
       currentBreakpoint,
       isDefaultResponsiveView,
+      isDesktopView,
       isLandscape,
       isMobileView,
-      isDesktopView,
+      isProfileMenuOpen,
       isTouchscreenDevice,
       removeMobileOverlay
     ]

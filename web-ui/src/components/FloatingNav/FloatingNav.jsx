@@ -41,7 +41,9 @@ const FloatingNav = ({ containerClassName, menuClassName }) => {
               'md:max-w-[400px]',
               'touch-screen-device:max-w-[400px]'
             ],
-            containerClassName
+            typeof containerClassName === 'function'
+              ? containerClassName(isOpen)
+              : containerClassName
           ])
         }
         menuClassName={clsm(
@@ -74,12 +76,12 @@ const FloatingNav = ({ containerClassName, menuClassName }) => {
 };
 
 FloatingNav.propTypes = {
-  containerClassName: PropTypes.string,
+  containerClassName: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   menuClassName: PropTypes.string
 };
 
 FloatingNav.defaultProps = {
-  containerClassName: '',
+  containerClassName: undefined,
   menuClassName: ''
 };
 

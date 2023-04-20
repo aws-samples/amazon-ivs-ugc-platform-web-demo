@@ -145,13 +145,14 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
 Tooltip.defaultProps = {
   position: 'below',
   hasFixedWidth: false,
-  translate: { x: 0, y: 0 }
+  translate: { x: 0, y: 0 },
+  message: ''
 };
 
 Tooltip.propTypes = {
   children: PropTypes.node.isRequired,
   hasFixedWidth: PropTypes.bool,
-  message: PropTypes.node.isRequired,
+  message: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   position: PropTypes.oneOf(['above', 'below', 'right', 'left']),
   translate: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number })
 };
