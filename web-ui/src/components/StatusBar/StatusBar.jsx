@@ -123,7 +123,8 @@ const StatusBar = () => {
           elapsedTime === NO_ELAPSED_TIME_VALUE
             ? 'w-auto'
             : ['w-[100px]', 'sm:w-[82px]'],
-          isCurrentScreenXxs && 'min-w-[78px]'
+          isCurrentScreenXxs && 'min-w-[78px]',
+          'sm:[&>div>button]:px-0'
         ])}
       />
       <StatusItem
@@ -144,7 +145,8 @@ const StatusBar = () => {
               'md:w-[74px]',
               'sm:w-[77px]',
               'xs:w-[72px]'
-            ]
+            ],
+          'sm:[&>div>button]:px-0'
         ])}
       />
       {!isStreamHealthPage && (
@@ -166,7 +168,8 @@ const StatusBar = () => {
             !isCurrentScreenXxs
               ? ['sm:min-w-[66px]', 'min-w-[76px]']
               : ['w-auto', 'mr-2', 'ml-1'],
-            '[&>div>button]:pl-2'
+            '[&>div>button]:pl-2',
+            'sm:[&>div>button]:px-1'
           ])}
         />
       )}

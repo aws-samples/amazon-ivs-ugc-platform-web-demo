@@ -15,16 +15,7 @@ const StatusItem = ({
   value,
   className
 }) => (
-  <div
-    className={clsm([
-      'flex',
-      'max-w-[92px]',
-      'sm:[&>div]:px-0',
-      'sm:[&>div>div]:px-0',
-      'sm:[&>div>button]:px-0',
-      className
-    ])}
-  >
+  <div className={clsm(['flex', 'max-w-[92px]', 'sm:[&>div]:px-0', className])}>
     <StatusItemTooltip text={concurrentViewsTooltipText}>
       <StatusItemWrapper
         isActionable={!!itemButtonProps}
