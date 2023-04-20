@@ -27,7 +27,8 @@ const $content = $streamManagerContent.web_broadcast_audio_video_settings_modal;
 
 const WebBroadcastSettingsModal = () => {
   const { closeModal, handleConfirm, isModalOpen, type } = useModal();
-  const { isDesktopView, isMobileView, isLandscape } = useResponsiveDevice();
+  const { isTouchscreenDevice, isMobileView, isLandscape } =
+    useResponsiveDevice();
   const {
     activeDevices,
     devices,
@@ -151,7 +152,7 @@ const WebBroadcastSettingsModal = () => {
                   />
                 );
               })}
-            {isDesktopView && (
+            {!isTouchscreenDevice && (
               <SwitchGroup
                 icon={<AccountBox />}
                 label={$content.show_camera_on_screen_share}
