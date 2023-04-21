@@ -50,12 +50,11 @@ const StreamManagerControlCenter = forwardRef((_, previewRef) => {
     if (isDesktopView) {
       setSelectedTabIndex(STREAM_MANAGER_DEFAULT_TAB);
     } else {
-      setIsBroadcastCardOpen(true);
       if (isBroadcasting) {
         setSelectedTabIndex(STREAM_MANAGER_WEB_BROADCAST_TAB);
       }
     }
-  }, [isDesktopView, resetPreview, state, isBroadcasting, isBroadcastCardOpen]);
+  }, [isDesktopView, resetPreview, state, isBroadcasting]);
 
   return (
     <>
@@ -76,6 +75,9 @@ const StreamManagerControlCenter = forwardRef((_, previewRef) => {
             <Tabs.List
               selectedIndex={selectedTabIndex}
               setSelectedIndex={(tab) => {
+                if (!isBroadcasting) {
+                  setIsBroadcastCardOpen(tab === 1);
+                }
                 setSelectedTabIndex(tab);
               }}
               tabs={[
