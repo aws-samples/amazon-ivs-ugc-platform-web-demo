@@ -12,6 +12,7 @@ import StreamStatus from './StatusItem/StreamStatus';
 import StatusItem from './StatusItem/StatusItem';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import useElapsedTime from '../../hooks/useElapsedTime';
+import { isFireFox } from '../../pages/Channel/Player/useProfileViewPlayerAnimation/utils';
 
 const $content = $appContent.status_bar;
 
@@ -32,7 +33,6 @@ const StatusBar = () => {
   const activeStreamSessionData = activeStreamSession
     ? activeStreamSession
     : {};
-
   const currentPage = useCurrentPage();
   const isStreamHealthPage = currentPage === 'stream_health';
   const streamSessionData = isStreamHealthPage
@@ -122,7 +122,7 @@ const StatusBar = () => {
         className={clsm([
           elapsedTime === NO_ELAPSED_TIME_VALUE
             ? 'w-auto'
-            : ['w-[100px]', 'sm:w-[82px]'],
+            : ['w-[98px]', 'sm:w-[82px]'],
           isCurrentScreenXxs && 'min-w-[78px]',
           'sm:[&>div>button]:px-0'
         ])}
@@ -146,6 +146,8 @@ const StatusBar = () => {
               'sm:w-[77px]',
               'xs:w-[72px]'
             ],
+
+          !isFireFox && '[&>div>div]:px-0',
           'sm:[&>div>button]:px-0'
         ])}
       />
@@ -168,8 +170,8 @@ const StatusBar = () => {
             !isCurrentScreenXxs
               ? ['sm:min-w-[66px]', 'min-w-[76px]']
               : ['w-auto', 'mr-2', 'ml-1'],
-            '[&>div>button]:pl-2',
-            'sm:[&>div>button]:px-1'
+            !isFireFox && '[&>div>button]:pl-0',
+            'sm:[&>div>button]:px-1 !important'
           ])}
         />
       )}

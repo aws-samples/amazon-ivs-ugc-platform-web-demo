@@ -1,6 +1,7 @@
 const calcAspectRatio = (width, height) => parseFloat(width / height);
 
 export const isCssAspectRatioSupported = CSS.supports('aspect-ratio', '16/9');
+export const isFireFox = CSS.supports('-moz-appearance', 'none');
 
 /**
  * Creates a getter function that can be used to retrieve the width, height and aspect ratio
