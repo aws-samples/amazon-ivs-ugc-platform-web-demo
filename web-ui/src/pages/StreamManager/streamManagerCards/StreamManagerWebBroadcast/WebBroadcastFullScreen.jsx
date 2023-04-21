@@ -250,7 +250,7 @@ const WebBroadcastFullScreen = forwardRef(
                 transition: animationTransition
               })}
             >
-              <GoLiveStreamButton />
+              <GoLiveStreamButton tooltipPosition="above" />
             </motion.div>
           </div>
         </motion.div>

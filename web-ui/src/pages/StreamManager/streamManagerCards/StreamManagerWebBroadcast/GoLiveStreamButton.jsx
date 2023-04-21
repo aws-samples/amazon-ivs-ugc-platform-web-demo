@@ -8,6 +8,8 @@ import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
 import Tooltip from '../../../../components/Tooltip';
+import PropTypes from 'prop-types';
+
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 
@@ -19,7 +21,7 @@ const {
   }
 } = $webBroadcastContent;
 
-const GoLiveStreamButton = () => {
+const GoLiveStreamButton = ({ tooltipPosition }) => {
   const streamButtonRef = useRef();
   const {
     isBroadcasting,
@@ -66,7 +68,11 @@ const GoLiveStreamButton = () => {
   }
 
   return (
-    <Tooltip position="below" translate={{ y: -2 }} message={tooltipMessage}>
+    <Tooltip
+      position={tooltipPosition}
+      translate={{ y: -2 }}
+      message={tooltipMessage}
+    >
       <Button
         ref={streamButtonRef}
         onClick={handleStartStopBroadcastingAction}
@@ -95,6 +101,11 @@ const GoLiveStreamButton = () => {
       </Button>
     </Tooltip>
   );
+};
+
+GoLiveStreamButton.propTypes = {
+  tooltipPosition: PropTypes.oneOf(['above', 'below', 'right', 'left'])
+    .isRequired
 };
 
 export default GoLiveStreamButton;
