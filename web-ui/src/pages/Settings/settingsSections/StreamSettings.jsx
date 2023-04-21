@@ -126,13 +126,16 @@ const StreamSettings = () => {
           streamManagerSelectedTab: isDesktopView ? 0 : 1
         }}
         className={clsm([
-          'w-56',
+          'bg-lightMode-gray',
+          'dark:[&>svg]:fill-white',
+          'focus:bg-lightMode-gray',
+          'hover:bg-lightMode-gray-hover',
+          'md:ml-0',
           'md:w-full',
           'ml-[280px]',
-          'md:ml-0',
-          'dark:[&>svg]:fill-black'
+          'w-56'
         ])}
-        variant="tertiary"
+        variant="secondary"
       >
         <CreateVideo className={clsm(['mr-2', 'w-6', 'h-6'])} />
         {$content.settings_page.go_live_from_web}
