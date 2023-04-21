@@ -67,7 +67,8 @@ const handler = async (
         avatar,
         channelAssets,
         color,
-        username: viewerUsername
+        username: viewerUsername,
+        channelArn: viewerChannelArn
       } = unmarshall(Item);
       const { avatar: avatarUrl } = getChannelAssetUrls(channelAssets);
       const channelAssetUrls = { ...(avatarUrl ? { avatar: avatarUrl } : {}) };
@@ -75,7 +76,8 @@ const handler = async (
         avatar,
         channelAssetUrls: JSON.stringify(channelAssetUrls),
         color,
-        displayName: viewerUsername
+        displayName: viewerUsername,
+        channelArn: viewerChannelArn
       };
       const isModerator = viewerUsername === chatRoomOwnerUsername;
       capabilities.push(ChatTokenCapability.SEND_MESSAGE);

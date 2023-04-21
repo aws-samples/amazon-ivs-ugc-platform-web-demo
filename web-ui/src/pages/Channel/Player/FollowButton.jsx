@@ -126,6 +126,7 @@ const FollowButton = ({ isExpandedView }) => {
   useEffect(() => {
     if (
       location.state &&
+      locationStoredUsername &&
       locationStoredUsername === channelUsername &&
       !isFollowing
     ) {

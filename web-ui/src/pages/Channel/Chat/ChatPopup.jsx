@@ -7,7 +7,6 @@ import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
 import { useChatMessages } from '../../../contexts/ChatMessages';
-import { useChannel } from '../../../contexts/Channel';
 import { useModal } from '../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
@@ -24,12 +23,9 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  selectedMessage: { avatarSrc, color, displayName, message, id },
+  selectedMessage: { avatarSrc, color, displayName, message, id, channelArn },
   setIsChatPopupOpen
 }) => {
-  const {
-    channelData: { channelArn }
-  } = useChannel();
   const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
@@ -224,6 +220,7 @@ ChatPopup.propTypes = {
   selectedMessage: PropTypes.shape({
     avatar: PropTypes.string,
     avatarSrc: PropTypes.string,
+    channelArn: PropTypes.string,
     color: PropTypes.string,
     displayName: PropTypes.string,
     id: PropTypes.string,
