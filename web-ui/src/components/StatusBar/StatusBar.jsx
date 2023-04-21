@@ -147,8 +147,7 @@ const StatusBar = () => {
               'xs:w-[72px]'
             ],
 
-          !isFireFox && '[&>div>div]:px-0',
-          'sm:[&>div>button]:px-0'
+          !isFireFox && ['[&>div>div]:px-0', 'sm:[&>div>button]:px-0']
         ])}
       />
       {!isStreamHealthPage && (
@@ -170,8 +169,7 @@ const StatusBar = () => {
             !isCurrentScreenXxs
               ? ['sm:min-w-[66px]', 'min-w-[76px]']
               : ['w-auto', 'mr-2', 'ml-1'],
-            !isFireFox && '[&>div>button]:pl-0',
-            'sm:[&>div>button]:px-1 !important'
+            'sm:[&>div>button]:px-1'
           ])}
         />
       )}
