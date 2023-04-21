@@ -4,10 +4,21 @@ import { CAMERA_LAYER_NAME } from '../useLayers';
 import { getMediaDevices, requestMediaPermissions } from './utils';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../useAudioMixer';
 import { streamManager as $streamManagerContent } from '../../../content';
+import { noop } from '../../../utils';
 import { useNotif } from '../../Notification';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
+
+const defaultPermissions = {
+  audio: false,
+  video: false
+};
+
+const defaultActiveDevices = {
+  [CAMERA_LAYER_NAME]: null,
+  [MICROPHONE_AUDIO_INPUT_NAME]: null
+};
 
 const useDevices = ({
   addMicAudioInput,
@@ -19,18 +30,13 @@ const useDevices = ({
 }) => {
   const { notifySuccess } = useNotif();
 
-  const [permissions, setPermissions] = useState({
-    audio: false,
-    video: false
-  });
+  const [permissions, setPermissions] = useState(defaultPermissions);
   const [devices, setDevices] = useState({
     [CAMERA_LAYER_NAME]: [],
     [MICROPHONE_AUDIO_INPUT_NAME]: []
   });
-  const [activeDevices, setActiveDevices] = useStateWithCallback({
-    [CAMERA_LAYER_NAME]: null,
-    [MICROPHONE_AUDIO_INPUT_NAME]: null
-  });
+  const [activeDevices, setActiveDevices] =
+    useStateWithCallback(defaultActiveDevices);
 
   const updateActiveDevice = useCallback(
     ({ deviceName, device, options }) => {
@@ -265,6 +271,28 @@ const useDevices = ({
     }
   }, [refreshDevices, setError, updateActiveDevice]);
 
+  const detectDevicePermissions = useCallback(async () => {
+    let _permissions = permissions;
+
+    const onPermissionsDenied = (error) => {
+      setError({
+        message: $content.notifications.error.permissions_denied,
+        err: error
+      });
+      // Reset permission and active devices states
+      setPermissions(defaultPermissions);
+      setActiveDevices(defaultActiveDevices);
+      _permissions = defaultPermissions;
+    };
+
+    await requestMediaPermissions({
+      onPermissionsGranted: noop,
+      onPermissionsDenied
+    });
+
+    return _permissions;
+  }, [permissions, setError, setActiveDevices]);
+
   useEffect(() => {
     const { mediaDevices } = navigator;
 
@@ -281,7 +309,8 @@ const useDevices = ({
     initializeDevices,
     devices,
     activeDevices,
-    updateActiveDevice
+    updateActiveDevice,
+    detectDevicePermissions
   };
 };
 

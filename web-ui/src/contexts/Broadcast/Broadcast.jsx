@@ -140,7 +140,8 @@ export const Provider = ({
     initializeDevices,
     devices,
     activeDevices,
-    updateActiveDevice
+    updateActiveDevice,
+    detectDevicePermissions
   } = useDevices({
     addMicAudioInput,
     addVideoLayer,
@@ -189,9 +190,16 @@ export const Provider = ({
           'Failed to start broadcast stream - missing stream key.'
         );
 
+      /***
+       * Because the streamer is able to update the permissions once the browser has prompted the first time,
+       * We will need to do a final check to see if permissions are still allowed.
+       * The latest permissions will be used to tell if the user can start a broadcast.
+       */
+      const latestPermissions = await detectDevicePermissions();
+
       const missingPermissions = [];
-      for (const permissionType in permissions) {
-        const hasPermission = permissions[permissionType];
+      for (const permissionType in latestPermissions) {
+        const hasPermission = latestPermissions[permissionType];
         if (!hasPermission) missingPermissions.push(permissionType);
       }
 
@@ -225,7 +233,7 @@ export const Provider = ({
         err: error
       });
     }
-  }, [streamKey, ingestEndpoint, permissions, stopBroadcast]);
+  }, [detectDevicePermissions, ingestEndpoint, stopBroadcast, streamKey]);
 
   const resetPreview = useCallback(() => {
     if (!client || !previewRef.current) return;
