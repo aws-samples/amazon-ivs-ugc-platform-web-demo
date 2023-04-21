@@ -16,8 +16,8 @@ const defaultPermissions = {
 };
 
 const defaultActiveDevices = {
-  [CAMERA_LAYER_NAME]: null,
-  [MICROPHONE_AUDIO_INPUT_NAME]: null
+  [CAMERA_LAYER_NAME]: undefined,
+  [MICROPHONE_AUDIO_INPUT_NAME]: undefined
 };
 
 const useDevices = ({
@@ -251,13 +251,16 @@ const useDevices = ({
         message: $content.notifications.error.permissions_denied,
         err: error
       });
+      setActiveDevices({
+        [CAMERA_LAYER_NAME]: false,
+        [MICROPHONE_AUDIO_INPUT_NAME]: false
+      });
     };
 
     await requestMediaPermissions({
       onPermissionsGranted,
       onPermissionsDenied
     });
-
     // Set the default device as the initial one. If no default exists,
     // then choose the first device in the devices list as the initial one.
     for (const deviceName in mediaDevices) {
@@ -265,11 +268,10 @@ const useDevices = ({
       const initialActiveDevice =
         devicesList.find(({ deviceId }) => deviceId === 'default') ||
         devicesList[0];
-
       if (initialActiveDevice)
         updateActiveDevice({ deviceName, device: initialActiveDevice });
     }
-  }, [refreshDevices, setError, updateActiveDevice]);
+  }, [refreshDevices, setError, updateActiveDevice, setActiveDevices]);
 
   const detectDevicePermissions = useCallback(async () => {
     let _permissions = permissions;
@@ -281,7 +283,11 @@ const useDevices = ({
       });
       // Reset permission and active devices states
       setPermissions(defaultPermissions);
-      setActiveDevices(defaultActiveDevices);
+      setActiveDevices({
+        [CAMERA_LAYER_NAME]: false,
+        [MICROPHONE_AUDIO_INPUT_NAME]: false
+      });
+
       _permissions = defaultPermissions;
     };
 

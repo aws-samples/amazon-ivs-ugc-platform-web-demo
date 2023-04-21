@@ -55,7 +55,7 @@ const GoLiveStreamButton = ({ tooltipPosition }) => {
 
   let tooltipMessage;
   if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
-  else if (!activeCamera || !activeMicrophone)
+  else if (activeCamera === false || activeMicrophone === false)
     tooltipMessage = PermissionDenied;
 
   let buttonTextContent;
