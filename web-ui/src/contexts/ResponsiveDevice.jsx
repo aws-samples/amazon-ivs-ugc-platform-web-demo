@@ -113,7 +113,7 @@ export const Provider = ({ children }) => {
     document.documentElement.style.setProperty('--mobile-vh', `${vh}px`);
     const vw = window.innerWidth * 0.01;
     document.documentElement.style.setProperty('--mobile-vw', `${vw}px`);
-  }, 10);
+  }, 100);
 
   const updateOrientation = useCallback(() => {
     /**

@@ -68,8 +68,8 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                 onClick={onClick}
                 isDisabled={isDisabled}
                 className={clsm([
-                  '[&>svg]:h-6',
-                  '[&>svg]:w-6',
+                  'w-11',
+                  'h-11',
                   'dark:[&>svg]:fill-white',
                   '[&>svg]:fill-black',
                   'dark:bg-darkMode-gray-medium',
