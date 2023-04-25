@@ -114,9 +114,17 @@ The video bitrate, frame rate, concurrent views and keyframe interval metrics co
 
 ### Stream management
 
-The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can trigger stream overlays, as well as monitor and moderate their chatroom. Users can also prepare and save stream overlay configurations for later use.
+The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, trigger stream overlays, as well as monitor and moderate their chatroom. Users can also prepare and save stream overlay configurations for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
+
+#### Web broadcast
+
+Users are prompted to grant camera and microphone access when accessing the `/manager` URL, ensuring proper device access for broadcasting. The user must allow both the camera and mic permissions to use this feature. Users can toggle camera, microphone, and screen sharing options. Users have control over various settings such as changing camera and microphone devices, and toggling the option to show their camera when sharing their screen. The application provides a full-screen view option and ends the stream when a user leaves the page.
+
+Read more about Amazon IVS Web broadcast from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
+
+Read about [web broadcast known issues and limitations](#web-broadcast-known-issues).
 
 #### Chat monitoring
 
@@ -339,21 +347,14 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 
-## Web Broadcast known issues
-
-### Web Broadcast stream configuration
-
-- It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues. 
-
-### Safari broadcasting issues
-
+### Web Broadcast known issues
+- It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
 - There appear to be noticeable visual problems when livestreaming to either an "BASIC" or "STANDARD" channel on Safari. The broadcasting experience on Safari may not be optimal. However, we have decided to keep this feature enabled in the app, as reliable browser detection is currently unavailable. For a better broadcasting experience, we recommend using Chrome or Firefox.
-
 - On Safari v16.4 on macOS and iOS, the browser cannot capture the camera device. Because of this, the web broadcast video preview on the stream manager page will display as a black empty screen.
-
-### Firefox broadcasting issues
-
 - It seems that there is a noticeable lag when initializing the broadcast client using the "create" method in Firefox. This problem does not appear to occur in Chrome or Safari. this delay lasts for approximately 3-4 seconds and only happens during the first call to "create" method. That being said, the subsequent invocations of the "create" method complete almost instantly, but only in a newly opened browser tab. If the user refreshes the tab after invoking "create," the next "create" invocation is very fast.
+
+For Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
+
 ## Estimated costs
 
 For this estimation, we considered the usage costs associated with 1, 10 and 100 users, where each "user" is assumed to monitor one 4-hour live stream with 1 viewer. In each scenario, we assumed that there were no more than 10,800 chat messages sent by the end of the 4-hour stream. Additionally, the estimated costs below reflect the usage costs of running the production configuration of the CDK stack.
