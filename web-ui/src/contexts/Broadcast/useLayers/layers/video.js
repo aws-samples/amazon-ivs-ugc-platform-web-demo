@@ -38,7 +38,7 @@ export const addVideoLayerByDeviceId = async ({ name, data }) => {
             width: { ideal: maxWidth, max: maxWidth },
             height: { ideal: maxHeight, max: maxHeight }
           }),
-          frameRate: { ideal: maxFramerate, max: maxFramerate },
+          frameRate: { ideal: maxFramerate },
           aspectRatio: { ideal: 16 / 9 },
           resizeMode: 'crop-and-scale'
         }
