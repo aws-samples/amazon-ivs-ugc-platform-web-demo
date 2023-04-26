@@ -44,6 +44,7 @@ const StatusBar = () => {
 
   // Elapsed Stream Time
   let elapsedTime = useElapsedTime(startTime);
+  const isMac = navigator.userAgent.includes('Mac');
 
   // Concurrent Stream Views
   const concurrentViewsMetric = metrics?.find(
@@ -147,7 +148,7 @@ const StatusBar = () => {
               'xs:w-[72px]'
             ],
 
-          !isFireFox && ['[&>div>div]:px-0', 'sm:[&>div>button]:px-0']
+          !isFireFox && !isMac && ['[&>div>div]:px-0', 'sm:[&>div>button]:px-0']
         ])}
       />
       {!isStreamHealthPage && (

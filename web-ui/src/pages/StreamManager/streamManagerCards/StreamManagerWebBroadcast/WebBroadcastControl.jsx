@@ -26,7 +26,7 @@ const INACTIVE_BUTTON_COLORS = [
 ];
 
 const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
-  const { isDesktopView } = useResponsiveDevice();
+  const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
 
   return (
     <div
@@ -67,6 +67,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                 variant="icon"
                 onClick={onClick}
                 isDisabled={isDisabled}
+                disableHover={isTouchscreenDevice}
                 className={clsm([
                   'w-11',
                   'h-11',
@@ -76,8 +77,23 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                   'hover:bg-lightMode-gray-hover',
                   'dark:focus:bg-darkMode-gray-medium',
                   'bg-lightMode-gray',
-                  isDeviceControl && !isActive && INACTIVE_BUTTON_COLORS,
-                  !isDeviceControl && isActive && ACTIVE_BUTTON_COLORS
+                  isDeviceControl &&
+                    !isActive && [
+                      INACTIVE_BUTTON_COLORS,
+                      isTouchscreenDevice && [
+                        'hover:bg-darkMode-red',
+                        'dark:hover:dark:bg-darkMode-red'
+                      ]
+                    ],
+                  !isDeviceControl &&
+                    isActive && [
+                      ACTIVE_BUTTON_COLORS,
+                      isTouchscreenDevice && [
+                        'hover:bg-darkMode-blue',
+                        'dark:hover:bg-darkMode-blue'
+                      ]
+                    ],
+                  isTouchscreenDevice && ['dark:hover:bg-darkMode-gray-medium']
                 ])}
               >
                 {icon}

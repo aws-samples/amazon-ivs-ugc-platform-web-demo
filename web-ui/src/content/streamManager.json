@@ -34,9 +34,9 @@
         "could_not_go_live": "Could not go live",
         "failed_to_change_camera": "Failed to change camera",
         "failed_to_change_mic": "Failed to change mic",
-        "no_camera_detected": "No camera detected",
+        "failed_to_access_camera": "Failed to access camera",
+        "failed_to_access_mic": "Failed to access mic",
         "no_camera_or_mic_detected": "No camera or mic detected",
-        "no_mic_detected": "No mic detected",
         "permissions_denied": "You must allow access to both your camera and microphone",
         "screenshare_permissions_denied": "Screenshare permission denied",
         "stream_disconnected": "Stream disconnected"

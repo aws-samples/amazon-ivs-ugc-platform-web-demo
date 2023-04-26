@@ -8,6 +8,7 @@ import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useModal } from '../../../../contexts/Modal';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
 import WebBroadcastControl from './WebBroadcastControl';
 
@@ -33,6 +34,7 @@ const GoLiveContainerCollapsed = ({
   isOpen,
   webBroadcastControllerButtons
 }) => {
+  const { isTouchscreenDevice } = useResponsiveDevice();
   const { stopBroadcast } = useBroadcast();
   const stopBroadcastButtonRef = useRef();
   const { openModal } = useModal();
@@ -103,8 +105,10 @@ const GoLiveContainerCollapsed = ({
               'ml-3',
               'dark:bg-darkMode-red',
               'bg-darkMode-red',
-              'hover:dark:bg-darkMode-red-hover',
-              'hover:bg-darkMode-red-hover',
+              !isTouchscreenDevice && [
+                'hover:dark:bg-darkMode-red-hover',
+                'hover:bg-darkMode-red-hover'
+              ],
               'focus:dark:bg-darkMode-red-hover',
               'focus:bg-darkMode-red-hover'
             ])}

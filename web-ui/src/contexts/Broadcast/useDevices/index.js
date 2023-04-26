@@ -84,18 +84,20 @@ const useDevices = ({
 
               let errorMessage;
               if (deviceName === CAMERA_LAYER_NAME)
-                errorMessage =
-                  $content.notifications.error.failed_to_change_camera;
+                errorMessage = permissions.video
+                  ? $content.notifications.error.failed_to_change_camera
+                  : $content.notifications.error.failed_to_access_camera;
               if (deviceName === MICROPHONE_AUDIO_INPUT_NAME)
-                errorMessage =
-                  $content.notifications.error.failed_to_change_mic;
+                errorMessage = permissions.audio
+                  ? $content.notifications.error.failed_to_change_mic
+                  : $content.notifications.error.failed_to_access_mic;
               errorMessage && setError({ message: errorMessage });
             }
           }
         );
       }
     },
-    [addMicAudioInput, addVideoLayer, setActiveDevices, setError]
+    [addVideoLayer, addMicAudioInput, setActiveDevices, permissions, setError]
   );
 
   const isRefreshingDevices = useRef(false);
@@ -215,13 +217,15 @@ const useDevices = ({
       let errorMessage;
       if (undetectedDeviceNames.length === 1) {
         if (undetectedDeviceNames[0] === CAMERA_LAYER_NAME)
-          errorMessage = $content.notifications.error.no_camera_detected;
+          errorMessage = $content.notifications.error.failed_to_access_camera;
         if (undetectedDeviceNames[0] === MICROPHONE_AUDIO_INPUT_NAME)
-          errorMessage = $content.notifications.error.no_mic_detected;
+          errorMessage = $content.notifications.error.failed_to_access_mic;
       } else if (undetectedDeviceNames.length === 2)
         errorMessage = $content.notifications.error.no_camera_or_mic_detected;
 
-      errorMessage && setError({ message: errorMessage });
+      if (errorMessage && permissions.video && permissions.audio) {
+        setError({ message: errorMessage });
+      }
 
       isRefreshingDevices.current = false;
 
@@ -234,6 +238,7 @@ const useDevices = ({
       removeAudioInput,
       removeLayer,
       setError,
+      permissions,
       updateActiveDevice
     ]
   );
