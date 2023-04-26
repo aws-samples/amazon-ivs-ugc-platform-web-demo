@@ -56,7 +56,7 @@ const handler = async (
 
   try {
     let token, sessionExpirationTime, tokenExpirationTime;
-    const capabilities = [];
+    const capabilities: ChatTokenCapabilityType[] = [];
 
     if (!viewerSub) {
       ({ token, sessionExpirationTime, tokenExpirationTime } =
