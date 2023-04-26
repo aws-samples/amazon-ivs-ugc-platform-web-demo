@@ -10,10 +10,12 @@ import {
   NestedStack,
   NestedStackProps,
   RemovalPolicy,
-  Stack
+  Stack,
+  SecretValue
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
@@ -21,6 +23,9 @@ import {
 } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
+import {
+  SECRET_IDS
+} from '../../api/shared/constants'
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
@@ -33,6 +38,7 @@ export class ChannelsStack extends NestedStack {
     userPoolClientId: string;
     userPoolId: string;
     channelsTable: dynamodb.Table;
+    productApiSecretName: string;
   };
   public readonly policies: iam.PolicyStatement[];
 
@@ -266,6 +272,11 @@ export class ChannelsStack extends NestedStack {
         (assetType) => `${channelAssetsBucket.bucketArn}/*/${assetType}`
       )
     });
+    const secretsManagerPolicyStatement = new iam.PolicyStatement({
+      actions: ['secretsmanager:GetSecretValue'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    })
     const channelAssetsBucketPolicyStatement = new iam.PolicyStatement({
       actions: ['s3:ListBucket'],
       effect: iam.Effect.ALLOW,
@@ -345,7 +356,8 @@ export class ChannelsStack extends NestedStack {
       deleteUserPolicyStatement,
       forgotPasswordPolicyStatement,
       ivsChatPolicyStatement,
-      ivsPolicyStatement
+      ivsPolicyStatement,
+      secretsManagerPolicyStatement
     );
     this.policies = policies;
 
@@ -360,11 +372,22 @@ export class ChannelsStack extends NestedStack {
     };
     this.containerEnv = containerEnv;
 
+    // Add secrets to the AWS Secrets Manager
+    const productApiSecret = new Secret(this, SECRET_IDS.PA_API, {
+      description: 'Required JSON object containing the secretKey, accessKey and partnerTag for PA API Credentials',
+      secretObjectValue: {
+        secretKey: SecretValue.unsafePlainText(''),
+        accessKey: SecretValue.unsafePlainText(''),
+        partnerTag: SecretValue.unsafePlainText(''),
+      }
+    })
+
     // Stack Outputs
     this.outputs = {
       userPoolClientId: userPoolClient.userPoolClientId,
       userPoolId: userPool.userPoolId,
-      channelsTable
+      channelsTable,
+      productApiSecretName: productApiSecret.secretName
     };
   }
 }

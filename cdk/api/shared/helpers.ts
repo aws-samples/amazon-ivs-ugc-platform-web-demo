@@ -21,6 +21,10 @@ import {
   IvschatServiceException
 } from '@aws-sdk/client-ivschat';
 import { S3Client } from '@aws-sdk/client-s3';
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand
+} from '@aws-sdk/client-secrets-manager';
 
 import { ALLOWED_CHANNEL_ASSET_TYPES } from './constants';
 
@@ -80,6 +84,7 @@ export interface ChannelDbRecord {
   streamKeyArn?: string;
   streamKeyValue?: string;
   username?: string;
+  trackingId?: string;
 }
 
 export type FollowUserRequestBody = {
@@ -211,7 +216,7 @@ export const getIsLive = (
 
 type ChannelAssets = Partial<
   Record<
-    typeof ALLOWED_CHANNEL_ASSET_TYPES[number],
+    (typeof ALLOWED_CHANNEL_ASSET_TYPES)[number],
     {
       sequencer: string;
       url: string;
@@ -239,3 +244,38 @@ export const isRejected = (
 
 export const getChannelId = (channelArn: string) =>
   channelArn.split(':channel/')[1];
+
+export const getSecrets = async (secretId: string) => {
+  const client = new SecretsManagerClient({ region: process.env.REGION });
+
+  const getSecretValueCommand = new GetSecretValueCommand({
+    SecretId: secretId
+  });
+
+  try {
+    const secretKeys = await client.send(getSecretValueCommand);
+
+    // JSON key values
+    const keys = JSON.parse(secretKeys?.SecretString || '{}');
+
+    let emptyKeyValues: string[] = [];
+
+    Object.keys(keys).forEach((keyName: string) => {
+      if (!keys[keyName]) {
+        emptyKeyValues.push(keyName);
+      }
+    });
+
+    if (emptyKeyValues.length) {
+      throw new Error(
+        `The following keys: ${emptyKeyValues.join(
+          ', '
+        )} are empty, please visit the Secrets Manager inside the AWS console to fill in the values`
+      );
+    }
+
+    return keys;
+  } catch (error) {
+    throw error;
+  }
+};

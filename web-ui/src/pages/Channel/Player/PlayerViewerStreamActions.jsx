@@ -1,22 +1,23 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../utils';
-import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import {
   defaultSlideUpVariant,
   defaultViewerStreamActionTransition
 } from '../ViewerStreamActions/viewerStreamActionsTheme';
+import { commonProductContainerClasses } from '../ViewerStreamActions/Product/ProductTheme';
+import { createAnimationProps } from '../../../helpers/animationPropsHelper';
+import { sanitizeAmazonProductData } from '../../../helpers/streamActionHelpers';
 import { STREAM_ACTION_NAME } from '../../../constants';
 import { usePlayerContext } from '../contexts/Player';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useViewerStreamActions } from '../../../contexts/ViewerStreamActions';
 import NoticeViewerStreamAction from '../ViewerStreamActions/Notice';
-import ProductViewerStreamAction from '../ViewerStreamActions/Product';
+import ProductViewerStreamAction from '../ViewerStreamActions/Product/components/Product';
 import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
-  isResolutionPopupOpen,
+  isPopupOpen,
   onClickPlayerHandler,
   shouldShowStream
 }) => {
@@ -36,6 +37,7 @@ const PlayerViewerStreamActions = ({
         expanded: { opacity: 0 },
         collapsed: { opacity: 1 }
       })}
+      className={isPopupOpen && '-z-10'}
     >
       <AnimatePresence>
         {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
@@ -47,7 +49,10 @@ const PlayerViewerStreamActions = ({
               shouldRenderActionInTab={shouldRenderActionInTab}
             />
           )}
-        {currentViewerStreamActionName === STREAM_ACTION_NAME.PRODUCT &&
+        {[
+          STREAM_ACTION_NAME.PRODUCT,
+          STREAM_ACTION_NAME.AMAZON_PRODUCT
+        ].includes(currentViewerStreamActionName) &&
           !shouldRenderActionInTab && (
             <motion.div
               {...createAnimationProps({
@@ -55,22 +60,17 @@ const PlayerViewerStreamActions = ({
                 customVariants: defaultSlideUpVariant,
                 transition: defaultViewerStreamActionTransition
               })}
-              className={clsm([
-                'absolute',
-                'bg-white',
-                'bottom-4',
-                'dark:bg-[#161616F2]',
-                'max-w-[256px]',
-                'right-4',
-                'rounded-3xl',
-                'transition-[margin]',
-                'w-full',
-                'mb-4',
-                isOverlayVisible && shouldShowStream && 'mb-20',
-                isResolutionPopupOpen && '-z-10'
-              ])}
+              className={commonProductContainerClasses(
+                isOverlayVisible,
+                shouldShowStream
+              )}
             >
-              <ProductViewerStreamAction {...currentViewerStreamActionData} />
+              <ProductViewerStreamAction
+                {...(currentViewerStreamActionName ===
+                STREAM_ACTION_NAME.AMAZON_PRODUCT
+                  ? sanitizeAmazonProductData(currentViewerStreamActionData)
+                  : currentViewerStreamActionData)}
+              />
             </motion.div>
           )}
         {currentViewerStreamActionName === STREAM_ACTION_NAME.NOTICE && (
@@ -86,7 +86,7 @@ const PlayerViewerStreamActions = ({
 };
 
 PlayerViewerStreamActions.propTypes = {
-  isResolutionPopupOpen: PropTypes.bool.isRequired,
+  isPopupOpen: PropTypes.bool.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool
 };

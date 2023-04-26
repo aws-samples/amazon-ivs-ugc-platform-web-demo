@@ -47,6 +47,38 @@
     "unit_seconds": "s",
     "save": "Save",
     "cancel": "Cancel",
+    "amazon_product": {
+      "active_label": "Amazon product",
+      "clear_filter": "Clear filter",
+      "confirm_text": "Show product",
+      "default_label": "Amazon product",
+      "empty_text": "Search for a product",
+      "modal_form_title": "Feature an Amazon product",
+      "search_placeholder": "Enter keywords or ASIN",
+      "title": "Results",
+      "tooltip_message": "Sort by",
+      "aria_label_load_more_products": "Loading more products. This may take several seconds. You are currently viewing",
+      "aria_label_last_product": "You have reached the bottom of the product list",
+      "dropdown": {
+        "expand": "open sort dropdown",
+        "collapse": "close sort dropdown",
+        "search_parameters": {
+          "sort_by": "Sort by"
+        },
+        "sort_categories": {
+          "featured": "Featured",
+          "new_arrivals": "New arrivals",
+          "price_low_to_high": "Price: Low to high",
+          "relevance": "Relevance",
+          "price_high_to_low": "Price: High to low"
+        }
+      },
+      "no_results": {
+        "no_results_for_search": "No results for your search",
+        "seller_name_not_available": "Seller name not available",
+        "price_not_available": "Price not available"
+      }
+    },
     "quiz": {
       "confirm_text": "Start quiz",
       "question": "Question",
@@ -93,15 +125,18 @@
   },
   "notifications": {
     "success": {
-      "stream_action_saved": "Stream action successfully saved",
-      "started_quiz": "Host a quiz started",
-      "started_product": "Feature a product started",
+      "started_amazon_product": "Feature an Amazon product started",
+      "started_celebration": "Trigger a celebration started",
       "started_notice": "Show a notice started",
-      "started_celebration": "Trigger a celebration started"
+      "started_product": "Feature a product started",
+      "started_quiz": "Host a quiz started",
+      "stream_action_saved": "Stream action successfully saved"
     },
     "error": {
-      "unable_to_send": "Unable to send",
+      "an_error_occurred": "An error occurred",
+      "unable_to_get_products": "Unable to get products",
       "unable_to_save": "Unable to save",
+      "unable_to_send": "Unable to send",
       "unable_to_start_stream_action": "Unable to start stream action"
     }
   }

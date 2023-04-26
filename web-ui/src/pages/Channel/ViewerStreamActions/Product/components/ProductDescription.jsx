@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 
-import { BREAKPOINTS } from '../../../../constants';
-import { clsm } from '../../../../utils';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { BREAKPOINTS } from '../../../../../constants';
+import { clsm } from '../../../../../utils';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
 

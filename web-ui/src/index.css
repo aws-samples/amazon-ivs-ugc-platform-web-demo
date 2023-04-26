@@ -206,6 +206,11 @@
   --palette-color-blue: hsl(var(--base-color-blue), 63%);
   --palette-color-blue-hover: hsl(var(--base-color-blue), 73%);
 
+  --base-color-orange: 36, 100%;
+  --palette-color-medium-orange: hsl(var(--base-color-orange), 50%);
+  --palette-color-medium-orange-hover: hsl(var(--base-color-orange), 60%);
+  --palette-color-dark-orange-hover: hsl(var(--base-color-orange), 40%);
+
   --palette-color-medium-blue: hsl(var(--base-color-blue), 38%);
   --palette-color-medium-blue-hover: hsl(var(--base-color-blue), 48%);
 

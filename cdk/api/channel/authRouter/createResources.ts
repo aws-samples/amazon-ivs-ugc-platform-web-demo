@@ -7,7 +7,8 @@ import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import {
   ivsChatClient,
   ivsClient,
-  updateDynamoItemAttributes
+  updateDynamoItemAttributes,
+  getChannelId
 } from '../../shared/helpers';
 import { UserContext } from '../authorizer';
 
@@ -56,6 +57,17 @@ const handler = async (
     const playbackUrl = channel?.playbackUrl;
     const chatRoomArn = chatRoom.arn;
 
+    let trackingId;
+
+    if (channelArn) {
+      const channelId = getChannelId(channelArn);
+      trackingId =
+        channelId +
+        (process.env.PRODUCT_LINK_REGION_CODE
+          ? `-${process.env.PRODUCT_LINK_REGION_CODE}`
+          : '');
+    }
+
     if (
       !channelArn ||
       !ingestEndpoint ||
@@ -79,7 +91,8 @@ const handler = async (
         { key: 'ingestEndpoint', value: ingestEndpoint },
         { key: 'playbackUrl', value: playbackUrl },
         { key: 'streamKeyArn', value: streamKeyArn },
-        { key: 'streamKeyValue', value: streamKeyValue }
+        { key: 'streamKeyValue', value: streamKeyValue },
+        { key: 'trackingId', value: trackingId }
       ],
       primaryKey: { key: 'id', value: sub },
       tableName: process.env.CHANNELS_TABLE_NAME as string

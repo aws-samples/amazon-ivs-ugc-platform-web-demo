@@ -21,15 +21,18 @@
     "@aws-sdk/client-ivs": "^3.218.0",
     "@aws-sdk/client-ivschat": "^3.218.0",
     "@aws-sdk/client-s3": "^3.218.0",
+    "@aws-sdk/client-secrets-manager": "^3.218.0",
     "@aws-sdk/s3-presigned-post": "^3.218.0",
     "@aws-sdk/util-dynamodb": "^3.218.0",
     "@fastify/cors": "^8.1.0",
     "@fastify/request-context": "^4.0.0",
     "aws-jwt-verify": "^3.2.0",
     "fastify": "^4.10.2",
+    "paapi5-nodejs-sdk": "^1.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.272.0",
     "@types/jest": "^29.2.3",
     "@types/node": "^18.11.10",
     "@types/uuid": "^9.0.0",

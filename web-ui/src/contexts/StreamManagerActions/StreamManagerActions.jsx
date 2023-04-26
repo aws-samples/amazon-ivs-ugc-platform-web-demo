@@ -5,6 +5,10 @@ import { channelAPI } from '../../api';
 import { DEFAULT_STREAM_MANAGER_ACTIONS_STATE } from './utils';
 import { MODAL_TYPE, useModal } from '../Modal';
 import { pack } from '../../helpers/streamActionHelpers';
+import {
+  STREAM_ACTION_NAME,
+  LOCALSTORAGE_ENABLED_STREAM_ACTIONS
+} from '../../constants';
 import { streamManager as $content } from '../../content';
 import { useNotif } from '../Notification';
 import useContextHook from '../useContextHook';
@@ -53,10 +57,8 @@ export const Provider = ({ children }) => {
   const updateStreamManagerActionData = useCallback(
     ({ dataOrFn, actionName, shouldValidate = true }) => {
       let newData;
-
       setStreamManagerActionData((prevData) => {
         newData = dataOrFn instanceof Function ? dataOrFn(prevData) : dataOrFn;
-
         return actionName
           ? {
               ...prevData,
@@ -78,7 +80,12 @@ export const Provider = ({ children }) => {
     latestStoredStreamManagerActionData,
     saveStreamManagerActionData,
     storedStreamManagerActionData
-  } = useStreamManagerActionsLocalStorage({ updateStreamManagerActionData });
+  } = useStreamManagerActionsLocalStorage({
+    updateStreamManagerActionData
+  });
+
+  const shouldEnableLocalStorage = (actionName) =>
+    LOCALSTORAGE_ENABLED_STREAM_ACTIONS.includes(actionName);
 
   /**
    * Gets the current form state data for the given stream action name,
@@ -93,6 +100,14 @@ export const Provider = ({ children }) => {
   );
 
   /**
+   * Amazon Products
+   */
+  const [isLoadingNextPageOfProducts, setIsLoadingNextPageOfProducts] =
+    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isValidKeyword, setIsValidKeyword] = useState(false);
+
+  /**
    * Sends a timed metadata event to all stream viewers
    */
   const sendStreamAction = useThrottledCallback(
@@ -103,10 +118,12 @@ export const Provider = ({ children }) => {
     ) => {
       // Send a timed metadata event
       setIsSendingStreamAction(true);
-      const actionData = data[actionName];
+      const actionData =
+        actionName === STREAM_ACTION_NAME.AMAZON_PRODUCT
+          ? data[actionName].productChoice
+          : data[actionName];
       const metadata = pack({ data: actionData, name: actionName });
       const { result, error } = await channelAPI.sendStreamAction(metadata);
-
       // Save the form data only if the send request was successful
       const dataToSave = data;
       if (result) {
@@ -118,7 +135,10 @@ export const Provider = ({ children }) => {
 
         dataToSave._active = { duration, expiry, name: actionName };
       }
-      saveStreamManagerActionData(dataToSave);
+
+      if (shouldEnableLocalStorage(actionName)) {
+        saveStreamManagerActionData(dataToSave);
+      }
 
       // Notify the user of the send request status
       if (error) {
@@ -172,6 +192,18 @@ export const Provider = ({ children }) => {
   }, [latestStoredStreamManagerActionData, updateStreamManagerActionData]);
 
   /**
+   * Resets the Amazon product data
+   */
+  const handleResetAmazonProductData = useCallback(() => {
+    updateStreamManagerActionData({
+      dataOrFn:
+        DEFAULT_STREAM_MANAGER_ACTIONS_STATE[STREAM_ACTION_NAME.AMAZON_PRODUCT],
+      actionName: STREAM_ACTION_NAME.AMAZON_PRODUCT,
+      shouldValidate: false
+    });
+  }, [updateStreamManagerActionData]);
+
+  /**
    * Opens a Stream Manager Action modal for a specific action name,
    * with the "content" provided in the modalData argument
    */
@@ -205,7 +237,9 @@ export const Provider = ({ children }) => {
 
       const onCancel = () => {
         dismissNotif();
-        resetStreamManagerActionData();
+        if (shouldEnableLocalStorage(actionName)) {
+          resetStreamManagerActionData();
+        }
         resetStreamManagerActionErrorData();
       };
 
@@ -235,13 +269,20 @@ export const Provider = ({ children }) => {
       activeStreamManagerActionData,
       currentStreamManagerActionErrors,
       getStreamManagerActionData,
+      handleResetAmazonProductData,
+      isLoadingNextPageOfProducts,
       isSendingStreamAction,
       openStreamManagerActionModal,
       sendStreamAction,
+      setIsLoadingNextPageOfProducts,
       stopStreamAction,
+      throttledValidateStreamManagerActionData,
       updateStreamManagerActionData,
       validateStreamManagerActionData,
-      throttledValidateStreamManagerActionData
+      isLoading,
+      setIsLoading,
+      isValidKeyword,
+      setIsValidKeyword
     }),
     [
       activeStreamManagerActionData,
@@ -253,7 +294,14 @@ export const Provider = ({ children }) => {
       stopStreamAction,
       updateStreamManagerActionData,
       validateStreamManagerActionData,
-      throttledValidateStreamManagerActionData
+      throttledValidateStreamManagerActionData,
+      isLoadingNextPageOfProducts,
+      setIsLoadingNextPageOfProducts,
+      handleResetAmazonProductData,
+      isValidKeyword,
+      setIsValidKeyword,
+      isLoading,
+      setIsLoading
     ]
   );
 

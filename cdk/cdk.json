@@ -35,7 +35,10 @@
         "minScalingCapacity": 1,
         "natGateways": 1,
         "signUpAllowedDomains": [],
-        "stageName": "dev"
+        "stageName": "dev",
+        "productApiLocale": "",
+        "productLinkRegionCode": "",
+        "enableAmazonProductStreamAction": false
       }
     },
     "prod": {
@@ -49,7 +52,10 @@
         "minScalingCapacity": 1,
         "natGateways": 2,
         "signUpAllowedDomains": [],
-        "stageName": "prod"
+        "stageName": "prod",
+        "productApiLocale": "",
+        "productLinkRegionCode": "",
+        "enableAmazonProductStreamAction": false
       }
     }
   }

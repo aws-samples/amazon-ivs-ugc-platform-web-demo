@@ -109,6 +109,11 @@
     --color-two: hsla(var(--base-color-white), 100%, 1);
   }
 
+  .radio[type='radio'].withGrayBg:checked:before {
+    --color-one: hsla(var(--base-color-blue), 63%, 1);
+    --color-two: hsla(var(--base-color-white), 91%, 1);
+  }
+
   .radio[type='radio']:checked:hover:before {
     --color-one: hsla(var(--base-color-blue), 63%, 0.3);
     --color-two: hsla(var(--base-color-blue), 63%, 1);

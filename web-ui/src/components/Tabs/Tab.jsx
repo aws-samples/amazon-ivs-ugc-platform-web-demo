@@ -41,7 +41,7 @@ const Tab = forwardRef(
         role="tab"
         variant="secondary"
       >
-        {label}
+        <p className="truncate">{label}</p>
       </Button>
     );
   }

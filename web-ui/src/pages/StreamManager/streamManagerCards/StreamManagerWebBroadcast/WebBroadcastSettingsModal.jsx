@@ -7,8 +7,8 @@ import { clsm } from '../../../../utils';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 import {
   MODAL_CLOSE_BUTTON_CLASSES,
-  MODAL_FORM_HEADER_CLASSES,
   MODAL_OVERFLOW_DIVIDER_CLASSES,
+  getFormHeaderClasses,
   getModalContainerClasses,
   getModalFormClasses
 } from '../StreamManagerModalTheme';
@@ -94,7 +94,7 @@ const WebBroadcastSettingsModal = () => {
           ref={mainContentRef}
           className={clsm(getModalContainerClasses(isLandscape))}
         >
-          <h2 className={clsm(MODAL_FORM_HEADER_CLASSES)}>
+          <h2 className={getFormHeaderClasses(false)}>
             {$content.audio_and_video_settings}
           </h2>
           <div className={clsm(['flex', 'flex-col', 'space-y-8', 'pb-12'])}>

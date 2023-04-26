@@ -25,6 +25,8 @@ export const INVALID_PRESIGNED_POST_INPUT_EXCEPTION =
 export const DELETE_CHANNEL_ASSET_EXCEPTION = 'DeleteChannelAssetException';
 export const FOLLOWING_LIST_DUPLICATE_EXCEPTION =
   'FollowingListDuplicateException';
+export const SORT_PRODUCTS_EXCEPTION = 'SortProductsException';
+export const TOO_MANY_REQUESTS_EXCEPTION = 'TooManyRequestsException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
@@ -69,3 +71,19 @@ export const ALLOWED_IMAGE_CONTENT_TYPES = [
   'image/jpg',
   'image/png'
 ] as const;
+
+/**
+ * IDs to be consumed by the AWS Secrets Manager
+ * GetSecretValueCommand(<SECRET_ID>)
+ */
+export const SECRET_IDS = {
+  PA_API: 'Product_Advertising_API_Secret_Keys'
+};
+
+export const MAX_SERVER_PARAM_LENGTH = 200;
+export const DEFAULT_FASTIFY_MAX_PARAM_LENGTH = 100;
+
+export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
+  SORT: 'sort',
+  INPUT: 'input'
+};

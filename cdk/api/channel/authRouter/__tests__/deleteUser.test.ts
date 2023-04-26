@@ -32,6 +32,7 @@ const mockDynamoDbClient = mockClient(dynamoDbClient);
 const mockIvsChatClient = mockClient(ivsChatClient);
 const mockIvsClient = mockClient(ivsClient);
 const mockS3Client = mockClient(s3Client);
+
 const url = '/channel';
 const defaultRequestParams = { method: 'DELETE' as const, url };
 const defaultUserData = {

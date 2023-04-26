@@ -12,8 +12,8 @@ import {
 import { generatePresignedPost, getUser } from '../helpers';
 import { UserContext } from '../authorizer';
 
-type ASSET_TYPE = typeof ALLOWED_CHANNEL_ASSET_TYPES[number];
-type CONTENT_TYPE = typeof ALLOWED_IMAGE_CONTENT_TYPES[number];
+type ASSET_TYPE = (typeof ALLOWED_CHANNEL_ASSET_TYPES)[number];
+type CONTENT_TYPE = (typeof ALLOWED_IMAGE_CONTENT_TYPES)[number];
 
 interface GenerateImagePresignedPostRequestBody {
   assetType: ASSET_TYPE;

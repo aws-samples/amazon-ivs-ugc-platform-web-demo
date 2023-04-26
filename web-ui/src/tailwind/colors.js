@@ -70,6 +70,10 @@ module.exports = {
         start: 'hsla(var(--base-color-blue),63%,0.25)',
         end: 'hsla(240, 100, 63%, 0)'
       }
+    },
+    orange: {
+      DEFAULT: 'hsl(var(--base-color-orange), 50%)',
+      hover: 'hsl(var(--base-color-orange), 60%)'
     }
   },
   lightMode: {
@@ -121,6 +125,10 @@ module.exports = {
         DEFAULT: 'hsl(var(--base-color-medium-blue), 37%)',
         hover: 'hsl(var(--base-color-medium-blue), 27%)'
       }
+    },
+    orange: {
+      DEFAULT: 'hsl(var(--base-color-orange), 50%)',
+      hover: 'hsl(var(--base-color-orange), 40%)'
     }
   },
   profile: {

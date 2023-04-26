@@ -1,5 +1,7 @@
+import { DEFAULT_FASTIFY_MAX_PARAM_LENGTH } from '../shared/constants';
 import { injectAuthorizedRequest } from '../testUtils';
 import buildServer, { getOrigin } from '../buildServer';
+import { generateRandomString } from './helpers';
 
 const route = '/status';
 const oldAllowedOrigins = process.env.ALLOWED_ORIGINS;
@@ -10,6 +12,20 @@ describe('buildServer', () => {
   });
 
   describe('buildServer function', () => {
+    it(`should throw a Bad Request error if a path parameter's character limit: ${DEFAULT_FASTIFY_MAX_PARAM_LENGTH} has been exceeded`, async () => {
+      const server = buildServer();
+      const invalidUsername = generateRandomString(110);
+
+      let response = await injectAuthorizedRequest(server, {
+        url: `/channels/${invalidUsername}`
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toEqual(
+        '{"statusCode":400,"error":"Bad Request","message":"params/channelOwnerUsername must NOT have more than 100 characters"}'
+      );
+    });
+
     it('should not register any router if SERVICE_NAME is missing', async () => {
       const oldServiceName = process.env.SERVICE_NAME;
       delete process.env.SERVICE_NAME;

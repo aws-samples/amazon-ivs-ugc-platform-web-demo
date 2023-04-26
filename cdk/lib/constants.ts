@@ -9,6 +9,9 @@ export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   maxAzs: number;
   natGateways: number;
   stageName: string;
+  productApiLocale: string;
+  productLinkRegionCode: string;
+  enableAmazonProductStreamAction: boolean;
 }
 
 export interface ChannelsResourceConfig {

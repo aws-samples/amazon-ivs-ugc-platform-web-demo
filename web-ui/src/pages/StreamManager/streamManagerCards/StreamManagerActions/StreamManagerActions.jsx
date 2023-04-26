@@ -1,25 +1,33 @@
 import { useRef } from 'react';
 import {
+  AmazonA,
   CallToAction,
   Celebration,
   FactCheck,
   ShoppingBag
 } from '../../../../assets/icons';
+import {
+  Notice,
+  Product,
+  Quiz,
+  AmazonProduct
+} from './StreamManagerActionForms';
 import { clsm } from '../../../../utils';
-import { Notice, Product, Quiz } from './StreamManagerActionForms';
 import { STREAM_ACTION_NAME } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
 
 const STREAM_MANAGER_ACTION_ICONS = {
-  [STREAM_ACTION_NAME.QUIZ]: FactCheck,
-  [STREAM_ACTION_NAME.PRODUCT]: ShoppingBag,
+  [STREAM_ACTION_NAME.AMAZON_PRODUCT]: AmazonA,
   [STREAM_ACTION_NAME.CELEBRATION]: Celebration,
-  [STREAM_ACTION_NAME.NOTICE]: CallToAction
+  [STREAM_ACTION_NAME.NOTICE]: CallToAction,
+  [STREAM_ACTION_NAME.PRODUCT]: ShoppingBag,
+  [STREAM_ACTION_NAME.QUIZ]: FactCheck
 };
 
 export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
+  [STREAM_ACTION_NAME.AMAZON_PRODUCT]: <AmazonProduct />,
   [STREAM_ACTION_NAME.QUIZ]: <Quiz />,
   [STREAM_ACTION_NAME.PRODUCT]: <Product />,
   [STREAM_ACTION_NAME.NOTICE]: <Notice />
@@ -30,6 +38,23 @@ const StreamManagerActions = () => {
     useStreamManagerActions();
   const streamManagerActionButtonRefsMap = useRef(new Map());
   const lastFocusedStreamManagerActionButtonRef = useRef();
+
+  const getAvailableStreamActions = (streamActionNames) => {
+    const enableAmazonProductStreamAction =
+      process.env.REACT_APP_ENABLE_AMAZON_PRODUCT_STREAM_ACTION === 'true';
+
+    return Object.values(streamActionNames).reduce((acc, streamActionName) => {
+      if (streamActionName === STREAM_ACTION_NAME.AMAZON_PRODUCT) {
+        if (enableAmazonProductStreamAction) acc.push(streamActionName);
+      } else {
+        acc.push(streamActionName);
+      }
+
+      return acc;
+    }, []);
+  };
+
+  const streamActions = getAvailableStreamActions(STREAM_ACTION_NAME);
 
   return (
     <section
@@ -54,13 +79,14 @@ const StreamManagerActions = () => {
         'h-full'
       ])}
     >
-      {Object.values(STREAM_ACTION_NAME).map((actionName) => {
+      {streamActions.map((actionName) => {
         const hasModal = actionName in STREAM_MANAGER_ACTION_MODAL_FORMS;
         const $content =
           $streamManagerContent.stream_manager_actions[actionName];
+        const defaultLabel = actionName.replace(/_/g, ' ');
         const ariaLabel = hasModal
-          ? `Open the ${actionName} stream action editor`
-          : `Trigger a ${actionName} stream action`;
+          ? `Open the ${defaultLabel} stream action editor`
+          : `Trigger a ${defaultLabel} stream action`;
         const label = {
           default: $content.default_label,
           active: $content.active_label

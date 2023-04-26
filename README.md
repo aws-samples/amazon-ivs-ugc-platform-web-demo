@@ -27,6 +27,7 @@ Deploying the CDK stack will:
 - create a CloudFront distribution that sits in front of the backend service to handle incoming traffic from clients
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
+- create and populate the Secrets Manager with a secret(s) that may require filling depending on enabled features
 
 ## Quick links 🔗
 
@@ -80,11 +81,13 @@ Authenticated viewers are able to read and send messages. Unauthenticated users 
 
 #### Stream overlays
 
-Currently, streamers can trigger four different stream overlays: host a quiz, feature a product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available in the following section: [Trigger overlays](#stream-overlay-configuration).
+Currently, streamers can trigger five different stream overlays: host a quiz, feature a product, feature an Amazon product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available in the following section: [Trigger overlays](#stream-overlay-configuration).
 
 ![Quiz action](screenshots/features/action-quiz.png)
 
 ![Product action](screenshots/features/action-product.png)
+
+![Amazon Product action](screenshots/features/action-amazon-product.png)
 
 ![Notice action](screenshots/features/action-notice.png)
 
@@ -170,6 +173,20 @@ Each registered user has a following channels list that is stored in the databas
 
 ![Get or update following list data architecture](screenshots/architecture/get-or-update-following-list-data.png)
 
+#### Monetize affiliate links (Amazon Product stream action)
+
+With the Amazon Product stream action enabled (see Configuration section), through Amazon OneLink, you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+
+1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an Amazon Associate. If you're not already signed up, go to the Amazon Associates website and create an account.
+
+2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
+
+3. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+
+3. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+
+4. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
+
 ## Configuration
 
 The `cdk/cdk.json` file provides two configuration objects: one for the `dev` stage and one for the `prod` stage. The configuration object (`resourceConfig` property) for each stage is set with sensible defaults but can be edited prior to deploying the stack:
@@ -190,6 +207,11 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   ```json
   "signUpAllowedDomains": ["example.com"]
   ```
+
+- `productApiLocale` the locale set here will determine the host and region of the marketplace to which you will retrieve Amazon products from for the Amazon Product stream action (Reminder: Affiliate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error). In the event that a locale is incorrectly spelt, left blank or not supported (refer to https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region) the API will attempt to retrieve products from the US marketplace. If products are still not showing up, please refer to the logs for further details.
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id (which shows up in product urls). Because there are millions of tracking ids, it is in Amazon's best interest to keep ids unique. For this reason a code (region of the associate) is appended to each tracking id (For example, -20 = North America).
+- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show. It is important to note that updating this value will require a stack deployment.
+    - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. During stack deployment, a secret name of `Product_Advertising_API_Secret_Keys` should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
 
 ## Deployment
 
@@ -346,6 +368,10 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
 - The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
+- As soon as you create your Product Advertising API 5.0 credentials (for the Amazon Product stream action), you are allowed an initial usage limit up to a maximum of one request per second (one TPS) and a cumulative daily maximum of 8640 requests per day (8640 TPD) for the first 30-day period. This will help you begin your integration with the API, test it out, and start building links and referring products. Your PA API usage limit will be adjusted based on your shipped item revenue. Your account will earn a usage limit of one TPD for every five cents or one TPS (up to a maximum of ten TPS) for every $4320 of shipped item revenue generated via the use of Product Advertising API 5.0 for shipments in the previous 30-day period.
+Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
+
+See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
 ### Web Broadcast known issues
 - It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
@@ -375,6 +401,20 @@ For this estimation, we considered the usage costs associated with 1, 10 and 100
 | [Lambda](https://aws.amazon.com/lambda/pricing/)                     | <$0.01 |   <$0.01 |    <$0.01 |
 | Total cost                                                           |  $9.09 |   $89.18 |   $890.11 |
 
+### Additional pricing
+
+| Service                                                              | Description                    |
+| -------------------------------------------------------------------- | -----------------------------: |
+| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)   | $0.40 per secret per month. A  |
+|                                                                      | replica secret is considered a |
+|                                                                      | distinct secret and will also  |
+|                                                                      | be billed at $0.40 per replica |
+|                                                                      | per month. For secrets that    |
+|                                                                      | are stored for less than a     |
+|                                                                      | month, the price is prorated   |
+|                                                                      | (based on the number of hours.)|
+|                                                                      |                                |
+|                                                                      | $0.05 per 10,000 API calls     |
 
 ## About Amazon IVS
 

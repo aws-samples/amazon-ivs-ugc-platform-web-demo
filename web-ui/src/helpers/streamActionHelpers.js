@@ -18,3 +18,17 @@ export const pack = (metadataObj) =>
  */
 export const unpack = (metadataStr) =>
   JSON.parse(decompressFromBase64(metadataStr));
+
+export const sanitizeAmazonProductData = ({
+  color,
+  images,
+  price,
+  productURL,
+  title
+}) => ({
+  color: color,
+  imageUrl: images?.large.url,
+  price: price?.displayAmount,
+  productUrl: productURL,
+  title: title
+});

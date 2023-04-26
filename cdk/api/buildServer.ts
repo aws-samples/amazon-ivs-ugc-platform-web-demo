@@ -4,6 +4,10 @@ import fastifyCors from '@fastify/cors';
 import channelRouters from './channel';
 import channelsRouters from './channels';
 import metricsRouter from './metrics/';
+import productsRouters from './product';
+
+import configureRoute from './shared/hooks/configureRoute';
+import { MAX_SERVER_PARAM_LENGTH } from './shared/constants';
 
 export const getOrigin = () => {
   // By default, disable CORS
@@ -19,12 +23,20 @@ export const getOrigin = () => {
 };
 
 const buildServer = () => {
-  const server = fastify();
+  const server = fastify({
+    maxParamLength: MAX_SERVER_PARAM_LENGTH
+  });
 
   // Register CORS
   server.register(fastifyCors, { origin: getOrigin() });
 
-  const { SERVICE_NAME: serviceName = '' } = process.env;
+  // Hooks
+  server.addHook('onRoute', configureRoute);
+
+  const {
+    ENABLE_AMAZON_PRODUCT_STREAM_ACTION: enableAmazonProductRoute,
+    SERVICE_NAME: serviceName = ''
+  } = process.env;
 
   if (['all', 'channels'].includes(serviceName)) {
     // Create /channel authenticated and unauthenticated resources
@@ -32,6 +44,11 @@ const buildServer = () => {
 
     // Create /channels authenticated and unauthenticated resources
     server.register(channelsRouters, { prefix: 'channels' });
+
+    if (enableAmazonProductRoute === 'true') {
+      // Create /products authenticated resources
+      server.register(productsRouters, { prefix: 'products' });
+    }
   }
 
   if (['all', 'metrics'].includes(serviceName)) {

@@ -1,14 +1,14 @@
 import { useRef, useState } from 'react';
 
-import { BREAKPOINTS } from '../../../../constants';
-import { Close } from '../../../../assets/icons';
-import { clsm } from '../../../../utils';
-import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import Button from '../../../../components/Button';
-import Modal from '../../../../components/Modal';
-import ResponsivePanel from '../../../../components/ResponsivePanel';
-import useResizeObserver from '../../../../hooks/useResizeObserver';
+import { BREAKPOINTS } from '../../../../../constants';
+import { Close } from '../../../../../assets/icons';
+import { clsm } from '../../../../../utils';
+import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import Button from '../../../../../components/Button';
+import Modal from '../../../../../components/Modal';
+import ResponsivePanel from '../../../../../components/ResponsivePanel';
+import useResizeObserver from '../../../../../hooks/useResizeObserver';
 import ProductButtons from './ProductButtons';
 
 const ProductDescriptionModal = () => {

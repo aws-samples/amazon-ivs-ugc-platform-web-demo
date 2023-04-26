@@ -11,6 +11,47 @@
 			"name": "Channel",
 			"item": [
 				{
+					"name": "Products",
+					"description": "This folder provides operations used to retrieve products from the Product Advertising API",
+					"item": [
+						{
+							"name": "/products",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/products/:keyword",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"products",
+										":keyword"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "sort",
+											"value": "Featured"
+										}
+									],
+									"variable": [
+										{
+											"key": "keyword",
+											"value": "Avengers"
+										}
+									]
+								},
+								"description": "This endpoint fetches a list of products."
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Chat",
 					"item": [
 						{

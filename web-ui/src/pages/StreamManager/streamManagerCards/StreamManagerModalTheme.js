@@ -1,3 +1,5 @@
+import { clsm } from '../../../utils';
+
 export const getModalFormClasses = (isLandscape) => [
   'flex',
   'flex-col',
@@ -30,14 +32,17 @@ export const getModalContainerClasses = (isLandscape) => [
   isLandscape && ['touch-screen-device:lg:px-4', 'touch-screen-device:lg:pt-6']
 ];
 
-export const MODAL_FORM_HEADER_CLASSES = [
-  'text-center',
-  'pb-12',
-  'text-black',
-  'dark:text-white',
-  'm-auto',
-  'max-w-[calc(calc(var(--mobile-vw,1vw)_*_100)_-_120px)]'
-];
+export const getFormHeaderClasses = (isAmazonProduct) =>
+  clsm([
+    'text-center',
+    'pb-12',
+    'text-black',
+    'dark:text-white',
+    'm-auto',
+    isAmazonProduct
+      ? ['xs:max-w-[220px]', 'sm:max-w-[256px]']
+      : 'max-w-[calc(calc(var(--mobile-vw,1vw)_*_100)_-_120px)]'
+  ]);
 
 export const MODAL_CLOSE_BUTTON_CLASSES = [
   '[&>svg]:dark:fill-white',

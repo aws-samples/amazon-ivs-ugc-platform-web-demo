@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { BREAKPOINTS } from '../../../../constants';
+import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../../../constants';
 import { BUTTON_OUTLINE_CLASSES } from '../../../../components/Button/ButtonTheme';
 import { clsm, isTextColorInverted } from '../../../../utils';
 import { streamManager as $streamManagerContent } from '../../../../content';
@@ -57,7 +57,7 @@ const StreamManagerActionButton = forwardRef(
       <>
         {isActive ? label.active : label.default}
         <br />
-        {` a ${name}`}
+        {name !== STREAM_ACTION_NAME.AMAZON_PRODUCT && `a ${name}`}
       </>
     );
     let statusLabel =
@@ -108,7 +108,7 @@ const StreamManagerActionButton = forwardRef(
           ])}
         >
           {!isSmallBreakpoint && currentLabel && (
-            <p className={clsm(['min-h-[36px]'])}>{currentLabel}</p>
+            <p className="min-h-[36px]">{currentLabel}</p>
           )}
           {icon && !isCountingDown && (
             <div

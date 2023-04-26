@@ -110,7 +110,7 @@ const EnhancedChatTokenCapability = {
   VIEW_MESSAGE: 'VIEW_MESSAGE'
 } as const;
 export type ChatTokenCapabilityType =
-  typeof EnhancedChatTokenCapability[keyof typeof EnhancedChatTokenCapability];
+  (typeof EnhancedChatTokenCapability)[keyof typeof EnhancedChatTokenCapability];
 
 /**
  * Creates an IVS chat room token with an optional set of capabilities.

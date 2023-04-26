@@ -5,6 +5,7 @@ import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { Provider as PlayerProvider } from './contexts/Player';
+import { sanitizeAmazonProductData } from '../../helpers/streamActionHelpers';
 import { STREAM_ACTION_NAME } from '../../constants';
 import { useChannel } from '../../contexts/Channel';
 import { useChannelView } from './contexts/ChannelView';
@@ -15,8 +16,8 @@ import { useViewerStreamActions } from '../../contexts/ViewerStreamActions';
 import Chat from './Chat';
 import PageUnavailable from '../../components/PageUnavailable';
 import Player from './Player';
-import ProductDescriptionModal from './ViewerStreamActions/Product/ProductDescriptionModal';
-import ProductViewerStreamAction from './ViewerStreamActions/Product';
+import ProductDescriptionModal from './ViewerStreamActions/Product/components/ProductDescriptionModal';
+import ProductViewerStreamAction from './ViewerStreamActions/Product/components/Product';
 import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
 import useMount from '../../hooks/useMount';
@@ -179,8 +180,10 @@ const Channel = () => {
                         shouldRenderActionInTab={shouldRenderActionInTab}
                       />
                     )}
-                    {currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.PRODUCT && (
+                    {[
+                      STREAM_ACTION_NAME.AMAZON_PRODUCT,
+                      STREAM_ACTION_NAME.PRODUCT
+                    ].includes(currentViewerStreamActionName) && (
                       <div
                         className={clsm([
                           'absolute',
@@ -195,7 +198,12 @@ const Channel = () => {
                         ])}
                       >
                         <ProductViewerStreamAction
-                          {...currentViewerStreamActionData}
+                          {...(currentViewerStreamActionName ===
+                          STREAM_ACTION_NAME.AMAZON_PRODUCT
+                            ? sanitizeAmazonProductData(
+                                currentViewerStreamActionData
+                              )
+                            : currentViewerStreamActionData)}
                         />
                       </div>
                     )}

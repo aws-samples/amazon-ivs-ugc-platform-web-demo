@@ -34,7 +34,9 @@ export const Provider = () => {
   const currentViewerStreamActionName = currentViewerAction?.name;
   const currentViewerStreamActionTitle = `${currentViewerStreamActionName
     ?.charAt(0)
-    ?.toUpperCase()}${currentViewerStreamActionName?.slice(1)}`;
+    ?.toUpperCase()}${currentViewerStreamActionName
+    ?.slice(1)
+    ?.replace(/_/g, ' ')}`;
   const augmentedCurrentViewerStreamActionData = useMemo(
     () => ({
       ...currentViewerStreamActionData,
@@ -85,9 +87,11 @@ export const Provider = () => {
 
   const shouldRenderActionInTab = useMemo(
     () =>
-      [STREAM_ACTION_NAME.QUIZ, STREAM_ACTION_NAME.PRODUCT].includes(
-        currentViewerStreamActionName
-      ) && isChannelPageStackedView,
+      [
+        STREAM_ACTION_NAME.QUIZ,
+        STREAM_ACTION_NAME.PRODUCT,
+        STREAM_ACTION_NAME.AMAZON_PRODUCT
+      ].includes(currentViewerStreamActionName) && isChannelPageStackedView,
     [currentViewerStreamActionName, isChannelPageStackedView]
   );
 

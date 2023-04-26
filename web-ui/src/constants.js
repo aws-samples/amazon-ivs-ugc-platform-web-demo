@@ -1,3 +1,5 @@
+import { streamManager as $streamManagerContent } from './content';
+
 /**
  * MISC
  */
@@ -33,6 +35,8 @@ export const EMAIL_EXISTS_EXCEPTION = 'EmailExistsException';
 export const LIMIT_EXCEEDED_EXCEPTION = 'LimitExceededException';
 export const NOT_AUTHORIZED_EXCEPTION = 'NotAuthorizedException';
 export const RESERVED_USERNAME_EXCEPTION = 'ReservedUsernameException';
+export const SORT_PRODUCTS_EXCEPTION = 'SortProductsException';
+export const TOO_MANY_REQUESTS_EXCEPTION = 'TooManyRequestsException';
 export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 export const USER_LAMBDA_VALIDATION_EXCEPTION = 'UserLambdaValidationException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
@@ -131,9 +135,10 @@ export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
  */
 export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
-  PRODUCT: 'product',
+  CELEBRATION: 'celebration',
   NOTICE: 'notice',
-  CELEBRATION: 'celebration'
+  PRODUCT: 'product',
+  AMAZON_PRODUCT: 'amazon_product'
 };
 
 export const QUIZ_DATA_KEYS = {
@@ -154,6 +159,85 @@ export const NOTICE_DATA_KEYS = {
   TITLE: 'title',
   MESSAGE: 'message',
   DURATION: 'duration'
+};
+
+export const AMAZON_PRODUCT_DATA_KEYS = {
+  SELECTED_PRODUCT_INDEX: 'selectedProductIndex',
+  SELECTED_SORT_CATEGORY: 'selectedSortCategory',
+  KEYWORD: 'keyword',
+  PRODUCT_CHOICE: 'productChoice',
+  PRODUCT_OPTIONS: 'productOptions',
+  PRODUCT_PAGE_NUMBER: 'productPageNumber'
+};
+
+export const LOCALSTORAGE_ENABLED_STREAM_ACTIONS = [
+  STREAM_ACTION_NAME.QUIZ,
+  STREAM_ACTION_NAME.CELEBRATION,
+  STREAM_ACTION_NAME.NOTICE,
+  STREAM_ACTION_NAME.PRODUCT
+];
+
+/**
+ * Amazon Product Sorting Categories
+ */
+const $sort_categories =
+  $streamManagerContent.stream_manager_actions.amazon_product.dropdown
+    .sort_categories;
+
+export const DEFAULT_SELECTED_SORT_CATEGORY = 'Featured';
+
+export const SORT_CATEGORIES_TWO_COL = [
+  {
+    category: 'Featured',
+    label: $sort_categories.featured
+  },
+  {
+    category: 'NewestArrivals',
+    label: $sort_categories.new_arrivals
+  },
+  {
+    category: 'Price:LowToHigh',
+    label: $sort_categories.price_low_to_high
+  },
+  {
+    category: 'Relevance',
+    label: $sort_categories.relevance
+  },
+  {
+    category: 'Price:HighToLow',
+    label: $sort_categories.price_high_to_low
+  }
+];
+
+export const SORT_CATEGORIES_ONE_COL = [
+  {
+    category: 'Featured',
+    label: $sort_categories.featured
+  },
+  {
+    category: 'Price:LowToHigh',
+    label: $sort_categories.price_low_to_high
+  },
+  {
+    category: 'Price:HighToLow',
+    label: $sort_categories.price_high_to_low
+  },
+  {
+    category: 'NewestArrivals',
+    label: $sort_categories.new_arrivals
+  },
+  {
+    category: 'Relevance',
+    label: $sort_categories.relevance
+  }
+];
+
+export const MAX_PAGES_TO_SCROLL = 5;
+export const INFINITE_SCROLL_OFFSET = 2;
+
+export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
+  SORT: 'sort',
+  INPUT: 'input'
 };
 
 export const DEFAULT_CELEBRATION_DURATION = 10; // seconds
@@ -179,7 +263,10 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
     [NOTICE_DATA_KEYS.MESSAGE]: { maxCharLength: 256 },
     [NOTICE_DATA_KEYS.DURATION]: { min: 5, max: 30 } // seconds
   },
-  [STREAM_ACTION_NAME.CELEBRATION]: {}
+  [STREAM_ACTION_NAME.CELEBRATION]: {},
+  [STREAM_ACTION_NAME.AMAZON_PRODUCT]: {
+    [AMAZON_PRODUCT_DATA_KEYS.KEYWORD]: { maxCharLength: 150 }
+  }
 };
 
 const {
