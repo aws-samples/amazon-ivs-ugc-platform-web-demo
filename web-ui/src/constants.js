@@ -184,12 +184,12 @@ const $sort_categories =
   $streamManagerContent.stream_manager_actions.amazon_product.dropdown
     .sort_categories;
 
-export const DEFAULT_SELECTED_SORT_CATEGORY = 'Featured';
+export const DEFAULT_SELECTED_SORT_CATEGORY = 'Relevance';
 
 export const SORT_CATEGORIES_TWO_COL = [
   {
-    category: 'Featured',
-    label: $sort_categories.featured
+    category: 'Relevance',
+    label: $sort_categories.relevance
   },
   {
     category: 'NewestArrivals',
@@ -200,8 +200,8 @@ export const SORT_CATEGORIES_TWO_COL = [
     label: $sort_categories.price_low_to_high
   },
   {
-    category: 'Relevance',
-    label: $sort_categories.relevance
+    category: 'Featured',
+    label: $sort_categories.featured
   },
   {
     category: 'Price:HighToLow',
@@ -211,9 +211,10 @@ export const SORT_CATEGORIES_TWO_COL = [
 
 export const SORT_CATEGORIES_ONE_COL = [
   {
-    category: 'Featured',
-    label: $sort_categories.featured
+    category: 'Relevance',
+    label: $sort_categories.relevance
   },
+
   {
     category: 'Price:LowToHigh',
     label: $sort_categories.price_low_to_high
@@ -227,8 +228,8 @@ export const SORT_CATEGORIES_ONE_COL = [
     label: $sort_categories.new_arrivals
   },
   {
-    category: 'Relevance',
-    label: $sort_categories.relevance
+    category: 'Featured',
+    label: $sort_categories.featured
   }
 ];
 

@@ -35,16 +35,15 @@ const ProductItems = ({
   >
     {data.map((productData, index) => {
       const title = productData?.title;
-      const shouldIndicateLoadingMoreProducts =
-        index === data.lastIndexOf() && isLoadingNextPageOfProducts;
+      const shouldIndicateLoadingMoreProducts = index === data.length - 1;
 
       const isAtBottomOfProductList =
-        index === data.lastIndexOf() && !isLoadingNextPageOfProducts;
+        index === data.length - 1 && !isLoadingNextPageOfProducts;
 
-      const ariaLabel = shouldIndicateLoadingMoreProducts
+      const ariaLabel = isAtBottomOfProductList
+        ? $content.aria_label_last_product + title
+        : shouldIndicateLoadingMoreProducts
         ? $content.aria_label_load_more_products + title
-        : isAtBottomOfProductList
-        ? $content.aria_label_last_product
         : title;
 
       return (

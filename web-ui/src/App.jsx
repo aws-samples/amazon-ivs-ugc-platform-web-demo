@@ -23,7 +23,7 @@ import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStream
 import {
   Channel,
   ChannelDirectory,
-  Feed,
+  // Feed,
   Following,
   Settings,
   StreamHealth,
@@ -96,7 +96,7 @@ const router = createBrowserRouter(
             />
           </Route>
         </Route>
-        <Route path="feed" element={<Feed />} />
+        {/* <Route path="feed" element={<Feed />} /> */}
 
         {/* PRIVATE PAGES */}
         <Route element={<RequireAuth />}>

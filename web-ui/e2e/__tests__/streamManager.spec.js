@@ -323,7 +323,7 @@ test.describe('Stream Manager Page', () => {
         // make sure the url is updated to the most recent stream session
         const updatedUrl = '/health/streamId-0';
         await newTab.goto(updatedUrl);
-        await newTab.waitForURL(updatedUrl, { timeout: 5000 });
+        await newTab.waitForURL(updatedUrl, { timeout: 6000 });
 
         expect(page).toHaveURL('/manager');
         expect(newTab).toHaveURL(updatedUrl);

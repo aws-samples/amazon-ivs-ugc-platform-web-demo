@@ -69,17 +69,18 @@ const ProductResults = ({
               animations: ['fadeIn-full'],
               transition: { duration: 0.25 },
               options: {
-                isVisible: !isEmpty && searched
+                isVisible: !isEmpty && !isLoading
               }
             })}
             className={clsm([
               'flex',
               'justify-between',
               'mb-8',
-              isEmpty || !searched
+              isEmpty || isLoading
                 ? ['w-0', 'h-0', 'absolute']
                 : ['w-auto', 'h-auto']
             ])}
+            key="amazon-product-results-container"
           >
             <Label label={$content.title} />
           </motion.div>
