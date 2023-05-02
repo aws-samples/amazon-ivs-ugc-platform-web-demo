@@ -118,14 +118,13 @@ export const Provider = ({ children }) => {
   );
 
   const onMouseMoveHandler = useCallback(() => {
-    if (isTouchscreenDevice || isPaused || isViewerBanned) return;
+    if (isTouchscreenDevice || isViewerBanned) return;
 
     isCoveringOverlayElement
       ? openOverlayAndClearTimeout()
       : openOverlayAndResetTimeout();
   }, [
     isTouchscreenDevice,
-    isPaused,
     isViewerBanned,
     isCoveringOverlayElement,
     openOverlayAndClearTimeout,
