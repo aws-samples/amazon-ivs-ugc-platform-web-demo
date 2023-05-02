@@ -65,8 +65,8 @@ const ProductButtons = forwardRef(
             isModal && 'w-full',
             '[&>svg]:fill-black',
             'dark:[&>svg]:fill-black',
-            '[&>svg]:h-[24px]',
-            '[&>svg]:w-[24px]',
+            '[&>svg]:h-6',
+            '[&>svg]:w-6',
             '[&>svg]:mr-2',
             'md:w-full'
           ])}

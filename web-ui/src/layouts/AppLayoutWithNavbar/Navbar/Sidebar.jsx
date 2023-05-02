@@ -120,7 +120,7 @@ const Sidebar = () => {
                     </Button>,
                     displayName
                   )}
-                  {isSessionValid && i === 2 && (
+                  {isSessionValid && i === 1 && (
                     <span
                       className={clsm([
                         'w-8',

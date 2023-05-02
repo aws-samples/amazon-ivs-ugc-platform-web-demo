@@ -25,7 +25,11 @@ export const SearchGroup = ({
         'hover:[&>svg]:dark:fill-darkMode-gray-light-hover',
         'pr-3',
         'relative',
-        'w-full'
+        'w-full',
+        keyword === '' && [
+          '[&>svg]:dark:fill-darkMode-gray-light',
+          '[&>svg]:fill-lightMode-gray-medium'
+        ]
       ])}
     >
       <Input

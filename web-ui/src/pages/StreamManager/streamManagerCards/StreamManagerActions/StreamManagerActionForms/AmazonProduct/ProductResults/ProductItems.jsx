@@ -41,9 +41,9 @@ const ProductItems = ({
         index === data.length - 1 && !isLoadingNextPageOfProducts;
 
       const ariaLabel = isAtBottomOfProductList
-        ? $content.aria_label_last_product + title
+        ? `${$content.aria_label_last_product}. ${title}`
         : shouldIndicateLoadingMoreProducts
-        ? $content.aria_label_load_more_products + title
+        ? `${$content.aria_label_load_more_products}. ${title}`
         : title;
 
       return (
