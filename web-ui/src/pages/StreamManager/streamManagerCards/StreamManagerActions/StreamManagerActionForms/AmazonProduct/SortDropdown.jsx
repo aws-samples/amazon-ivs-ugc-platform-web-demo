@@ -16,6 +16,12 @@ const SortDropdown = ({
   selectedSortCategory,
   sortCategories
 }) => {
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      onClick(e);
+    }
+  };
+
   const lastCategoryValue = sortCategories.at(-1).label;
 
   return (
@@ -105,6 +111,7 @@ const SortDropdown = ({
                         '!top-[11px]',
                         'withGrayBg'
                       ])}
+                      onKeyDown={onKeyDown}
                       onChange={onClick}
                       type="radio"
                       value={index}

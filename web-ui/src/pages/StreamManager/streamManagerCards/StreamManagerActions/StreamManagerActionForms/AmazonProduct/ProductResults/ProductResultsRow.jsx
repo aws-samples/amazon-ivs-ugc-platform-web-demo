@@ -28,6 +28,12 @@ const StreamManagerActionProductResultsRow = ({
     setHasImgError(true);
   }, []);
 
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      onClick(e);
+    }
+  };
+
   const shouldShowImg = !!(!hasImgError && imgSrc);
 
   return (
@@ -39,6 +45,7 @@ const StreamManagerActionProductResultsRow = ({
           className={clsm(['radio', 'absolute', '!top-[48px]'])}
           name={title}
           onChange={onClick}
+          onKeyDown={onKeyDown}
           type="radio"
           value={index}
         />
