@@ -109,8 +109,7 @@ const GoLiveContainerCollapsed = ({
                 'hover:dark:bg-darkMode-red-hover',
                 'hover:bg-darkMode-red-hover'
               ],
-              'focus:dark:bg-darkMode-red-hover',
-              'focus:bg-darkMode-red-hover'
+              'focus:bg-darkMode-red'
             ])}
           >
             <motion.div

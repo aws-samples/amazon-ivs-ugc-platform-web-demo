@@ -310,9 +310,7 @@ test.describe('Stream Manager Page', () => {
         page,
         context,
         streamManagerPage: {
-          navigate,
-          sharedUIComponents: { statusBarHealthStatusBtnLoc },
-          streamSessionsComponent: { updateStreamSessions }
+          sharedUIComponents: { statusBarHealthStatusBtnLoc }
         }
       }) => {
         // To ensure that the stream health page is being opened in a new tab, the test asserts that the current page remains unchanged while a new tab is opened.

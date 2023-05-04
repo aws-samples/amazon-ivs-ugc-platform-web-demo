@@ -74,7 +74,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                   'dark:[&>svg]:fill-white',
                   '[&>svg]:fill-black',
                   'dark:bg-darkMode-gray-medium',
-                  'hover:bg-lightMode-gray-hover',
+                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
                   'dark:focus:bg-darkMode-gray-medium',
                   'bg-lightMode-gray',
                   isDeviceControl &&
@@ -92,8 +92,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                         'hover:bg-darkMode-blue',
                         'dark:hover:bg-darkMode-blue'
                       ]
-                    ],
-                  isTouchscreenDevice && ['dark:hover:bg-darkMode-gray-medium']
+                    ]
                 ])}
               >
                 {icon}

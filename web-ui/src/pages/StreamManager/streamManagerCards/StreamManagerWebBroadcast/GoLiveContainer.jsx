@@ -130,7 +130,10 @@ const GoLiveContainer = forwardRef(
               }
             })}
           >
-            <GoLiveStreamButton tooltipPosition="below" />
+            <GoLiveStreamButton
+              tooltipPosition="below"
+              tooltipCustomTranslate={{ y: -2 }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

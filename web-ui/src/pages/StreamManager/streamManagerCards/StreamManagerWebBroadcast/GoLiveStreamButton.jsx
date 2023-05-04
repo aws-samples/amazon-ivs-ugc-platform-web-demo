@@ -21,7 +21,7 @@ const {
   }
 } = $webBroadcastContent;
 
-const GoLiveStreamButton = ({ tooltipPosition }) => {
+const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
   const streamButtonRef = useRef();
   const {
     isBroadcasting,
@@ -70,7 +70,7 @@ const GoLiveStreamButton = ({ tooltipPosition }) => {
   return (
     <Tooltip
       position={tooltipPosition}
-      translate={{ y: -2 }}
+      translate={tooltipCustomTranslate}
       message={tooltipMessage}
     >
       <Button
@@ -92,8 +92,7 @@ const GoLiveStreamButton = ({ tooltipPosition }) => {
             'bg-darkMode-red',
             'hover:dark:bg-darkMode-red-hover',
             'hover:bg-darkMode-red-hover',
-            'focus:dark:bg-darkMode-red-hover',
-            'focus:bg-darkMode-red-hover'
+            'focus:bg-darkMode-red'
           ]
         ])}
       >
@@ -103,9 +102,14 @@ const GoLiveStreamButton = ({ tooltipPosition }) => {
   );
 };
 
+GoLiveStreamButton.defaultProps = {
+  tooltipCustomTranslate: {}
+};
+
 GoLiveStreamButton.propTypes = {
   tooltipPosition: PropTypes.oneOf(['above', 'below', 'right', 'left'])
-    .isRequired
+    .isRequired,
+  tooltipCustomTranslate: PropTypes.object
 };
 
 export default GoLiveStreamButton;
