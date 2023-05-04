@@ -10,7 +10,6 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
 import ProductDescription from './ProductDescription';
-import ProfileViewFloatingNav from '../../../ProfileViewFloatingNav';
 
 const Product = ({
   color,
@@ -61,7 +60,6 @@ const Product = ({
         variant="popup"
         productUrl={productUrl}
       />
-      <ProfileViewFloatingNav containerClassName="fixed" reverseVisibility />
     </div>
   );
 };

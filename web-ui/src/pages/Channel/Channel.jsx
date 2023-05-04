@@ -18,6 +18,7 @@ import PageUnavailable from '../../components/PageUnavailable';
 import Player from './Player';
 import ProductDescriptionModal from './ViewerStreamActions/Product/components/ProductDescriptionModal';
 import ProductViewerStreamAction from './ViewerStreamActions/Product/components/Product';
+import ProfileViewFloatingNav from './ProfileViewFloatingNav';
 import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
 import useMount from '../../hooks/useMount';
@@ -209,6 +210,12 @@ const Channel = () => {
                     )}
                   </Tabs.Panel>
                 </>
+              )}
+              {selectedTabIndex === 0 && shouldRenderActionInTab && (
+                <ProfileViewFloatingNav
+                  containerClassName="fixed"
+                  reverseVisibility
+                />
               )}
               <Tabs.Panel
                 index={1}

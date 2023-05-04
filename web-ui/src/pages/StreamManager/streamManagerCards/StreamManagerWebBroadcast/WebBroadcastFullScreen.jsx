@@ -154,6 +154,7 @@ const WebBroadcastFullScreen = forwardRef(
           })}
         >
           <Button
+            ariaLabel={$webBroadcastContent.collapse}
             variant="icon"
             onClick={handleOnClose}
             className={clsm([

@@ -101,6 +101,7 @@ const GoLiveHeader = forwardRef(
           <p>{$content.stream_manager_web_broadcast.go_live}</p>
         </Button>
         <Button
+          ariaLabel={$content.stream_manager_web_broadcast.expand}
           variant="icon"
           onClick={handleToggleFullscreen}
           className={clsm([

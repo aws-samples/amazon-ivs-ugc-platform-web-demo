@@ -59,7 +59,7 @@ export const BUTTON_HOVER_CLASSES = {
     'focus:bg-lightMode-gray-light-hover',
     'hover:bg-lightMode-gray-light-hover'
   ],
-  secondaryText: [],
+  secondaryText: TEXT_BASE_HOVER_CLASSES,
   tertiaryText: [
     ...TEXT_BASE_HOVER_CLASSES,
     'hover:bg-lightMode-gray-light-hover'
