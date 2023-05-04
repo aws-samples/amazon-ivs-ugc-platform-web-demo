@@ -49,7 +49,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
     STREAM_ACTION_NAME.AMAZON_PRODUCT
   ].includes(actionName);
 
-  useScrollListener(actionName, mainContentRef);
+  useScrollListener(actionName, mainContentRef, setIsContentOverflowing);
 
   useResizeObserver(
     mainContentRef,

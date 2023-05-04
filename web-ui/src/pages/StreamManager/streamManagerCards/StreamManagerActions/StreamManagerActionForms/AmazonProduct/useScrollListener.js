@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 import {
   AMAZON_PRODUCT_DATA_KEYS,
   INFINITE_SCROLL_OFFSET,
+  MAX_ITEMS_BEFORE_CONTENT_OVERFLOW,
   MAX_PAGES_TO_SCROLL,
   STREAM_ACTION_NAME
 } from '../../../../../../constants';
@@ -13,12 +14,17 @@ import { useResponsiveDevice } from '../../../../../../contexts/ResponsiveDevice
 import { useStreamManagerActions } from '../../../../../../contexts/StreamManagerActions';
 import useThrottledCallback from '../../../../../../hooks/useThrottledCallback';
 
-const useScrollListener = (actionName, mainContentRef) => {
+const useScrollListener = (
+  actionName,
+  mainContentRef,
+  setIsContentOverflowing
+) => {
   const {
     isLoadingNextPageOfProducts,
     setIsLoadingNextPageOfProducts,
     getStreamManagerActionData,
-    updateStreamManagerActionData
+    updateStreamManagerActionData,
+    isLoading
   } = useStreamManagerActions();
   const { notifyError } = useNotif();
 
@@ -97,6 +103,16 @@ const useScrollListener = (actionName, mainContentRef) => {
       productPageNumber
     ]
   );
+
+  useEffect(() => {
+    // Add a divider if product options is more than 5 items which is the maximum number of items before scrolling
+    if (actionName === STREAM_ACTION_NAME.AMAZON_PRODUCT) {
+      if (productOptions.length > MAX_ITEMS_BEFORE_CONTENT_OVERFLOW)
+        setIsContentOverflowing(true);
+      if (productOptions.length === 0 || isLoading)
+        setIsContentOverflowing(false);
+    }
+  }, [actionName, isLoading, productOptions.length, setIsContentOverflowing]);
 
   useEffect(() => {
     // Add a scroll event listener only if the action is an amazon product

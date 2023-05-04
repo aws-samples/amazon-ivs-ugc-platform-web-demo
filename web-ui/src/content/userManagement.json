@@ -16,6 +16,7 @@
   "reset_password_page": {
     "email_link_sent": "If an account with this email address exists, you will receive an email with a link to reset your password.",
     "request_password_reset": "Request password reset",
+    "reset_password_success": "Password has been reset",
     "resend": "Resend",
     "return_to_login": "Return to login",
     "title": "Reset your password"

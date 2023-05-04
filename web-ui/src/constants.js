@@ -235,6 +235,7 @@ export const SORT_CATEGORIES_ONE_COL = [
 
 export const MAX_PAGES_TO_SCROLL = 5;
 export const INFINITE_SCROLL_OFFSET = 2;
+export const MAX_ITEMS_BEFORE_CONTENT_OVERFLOW = 5;
 
 export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
   SORT: 'sort',
