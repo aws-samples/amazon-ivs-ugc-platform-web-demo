@@ -38,7 +38,7 @@ const Product = ({
         )
       },
       type: MODAL_TYPE.PRODUCT_DESCRIPTION,
-      lastFocusedElement: learnMoreButtonRef
+      lastFocusedElement: !isMobileView && learnMoreButtonRef
     });
   };
 
