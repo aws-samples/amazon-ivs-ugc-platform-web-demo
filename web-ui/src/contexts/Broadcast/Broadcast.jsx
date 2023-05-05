@@ -74,10 +74,11 @@ export const Provider = ({
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const connectionTimeoutRef = useRef(null);
 
   const { openModal } = useModal();
-  const { notifyError } = useNotif();
+  const { notifyError, notifySuccess } = useNotif();
   const isMounted = useMount();
 
   /**
@@ -145,10 +146,11 @@ export const Provider = ({
   } = useDevices({
     addMicAudioInput,
     addVideoLayer,
+    presetLayers,
     removeAudioInput,
     removeLayer,
-    presetLayers,
-    setError
+    setError,
+    setSuccess
   });
 
   /**
@@ -324,6 +326,14 @@ export const Provider = ({
       setError(null);
     }
   }, [error, notifyError]);
+
+  useEffect(() => {
+    if (success) {
+      notifySuccess(success, { asPortal: true });
+
+      setSuccess(null);
+    }
+  }, [success, notifySuccess]);
 
   useEffect(() => {
     if (isBlocked) {

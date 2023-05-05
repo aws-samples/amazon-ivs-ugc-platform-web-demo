@@ -5,7 +5,6 @@ import { getMediaDevices, requestMediaPermissions } from './utils';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../useAudioMixer';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { noop } from '../../../utils';
-import { useNotif } from '../../Notification';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
@@ -26,10 +25,9 @@ const useDevices = ({
   removeAudioInput,
   removeLayer,
   presetLayers,
-  setError
+  setError,
+  setSuccess
 }) => {
-  const { notifySuccess } = useNotif();
-
   const [permissions, setPermissions] = useState(defaultPermissions);
   const [devices, setDevices] = useState({
     [CAMERA_LAYER_NAME]: [],
@@ -169,7 +167,7 @@ const useDevices = ({
                   device: nextActiveDevice,
                   options: newActiveDeviceOptions
                 });
-                onNewActiveDevice && onNewActiveDevice();
+                if (onNewActiveDevice) onNewActiveDevice();
 
                 let updateMessage;
                 if (deviceName === CAMERA_LAYER_NAME)
@@ -178,9 +176,7 @@ const useDevices = ({
                 if (deviceName === MICROPHONE_AUDIO_INPUT_NAME)
                   updateMessage = $content.notifications.success.mic_changed_to;
                 updateMessage &&
-                  notifySuccess(`${updateMessage} ${nextActiveDevice.label}`, {
-                    asPortal: true
-                  });
+                  setSuccess(`${updateMessage} ${nextActiveDevice.label}`);
               } else {
                 // No other devices detected
                 removeActiveDevice();
@@ -201,7 +197,7 @@ const useDevices = ({
               device: connectedDevice,
               options: newActiveDeviceOptions
             });
-            onNewActiveDevice && onNewActiveDevice();
+            if (onNewActiveDevice) onNewActiveDevice();
           }
         }
 
@@ -233,12 +229,12 @@ const useDevices = ({
     },
     [
       activeDevices,
-      notifySuccess,
+      permissions,
       presetLayers.noCamera,
       removeAudioInput,
       removeLayer,
       setError,
-      permissions,
+      setSuccess,
       updateActiveDevice
     ]
   );
@@ -314,6 +310,19 @@ const useDevices = ({
     return () =>
       mediaDevices?.removeEventListener('devicechange', refreshDevices);
   }, [updateActiveDevice, refreshDevices]);
+
+  useEffect(() => {
+    /**
+     * When an external device is disconnected, the OS may not immediately update its list of available devices.
+     * This can cause Firefox to return outdated or incomplete device information, including devices with no labels.
+     */
+    const isDeviceLabelEmpty =
+      Object.values(devices)
+        .flat()
+        .some((device) => device.label === '') || false;
+
+    if (isDeviceLabelEmpty) refreshDevices();
+  }, [devices, refreshDevices]);
 
   return {
     permissions,

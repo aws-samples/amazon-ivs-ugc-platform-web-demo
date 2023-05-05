@@ -113,10 +113,12 @@ const WebBroadcastSettingsModal = () => {
                 const placeholder = `${
                   $content.choose
                 } ${deviceName.toLowerCase()}`;
-                const options = devicesList.map(({ deviceId, label }) => ({
-                  value: deviceId,
-                  label
-                }));
+                const options = devicesList.map(
+                  ({ deviceId, label }, index) => ({
+                    value: deviceId,
+                    label: label || `${deviceName} ${index + 1}`
+                  })
+                );
                 let label, updateActiveDeviceOptions;
                 if (deviceName === CAMERA_LAYER_NAME) {
                   label = $content.camera;

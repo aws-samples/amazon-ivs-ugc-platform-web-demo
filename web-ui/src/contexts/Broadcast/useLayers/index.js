@@ -16,9 +16,9 @@ export const LAYER_TYPE = {
 export const CAMERA_LAYER_NAME = 'camera';
 
 const useLayers = () => {
-  const layers = useMap();
+  const layers = useMap({}, true);
   const hiddenLayers = useMap();
-  const layerGroupCompositions = useMap();
+  const layerGroupCompositions = useMap({}, true);
 
   const getLayer = useCallback(
     (layerName) => layers.get(layerName) || hiddenLayers.get(layerName),
