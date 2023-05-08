@@ -27,7 +27,7 @@ Deploying the CDK stack will:
 - create a CloudFront distribution that sits in front of the backend service to handle incoming traffic from clients
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
-- create and populate the Secrets Manager with a secret(s) that may require filling depending on enabled features
+- create the Secrets Manager with the necessary secret(s) depending on the enabled features
 
 ## Quick links 🔗
 
@@ -123,7 +123,7 @@ The stream management page is only accessible to authenticated users, from the `
 
 #### Web broadcast
 
-Users are prompted to grant camera and microphone access when accessing the `/manager` URL, ensuring proper device access for broadcasting. The user must allow both the camera and mic permissions to use this feature. Users can toggle camera, microphone, and screen sharing options. Users have control over various settings such as changing camera and microphone devices, and toggling the option to show their camera when sharing their screen. The application provides a full-screen view option and ends the stream when a user leaves the page.
+Users are prompted to grant camera and microphone access when accessing the `/manager` URL, ensuring proper device access for broadcasting. The user must allow both the camera and microphone permissions to use this feature. Users can toggle camera, microphone, and screen sharing options. Users have control over various settings such as changing camera and microphone devices, and toggling the option to show their camera when sharing their screen. The application provides a full-screen view option and ends the stream when a user leaves the page or clicks the `end stream` button.
 
 Read more about Amazon IVS Web broadcast from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
 
@@ -135,7 +135,7 @@ The chat component on this page works exactly like the chat component from the C
 
 #### Stream overlay configuration
 
-Streamers can trigger any of the four stream overlays supported on [the viewer side](#stream-overlays). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
+Streamers can trigger any of the five stream overlays supported on [the viewer side](#stream-overlays). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
@@ -175,9 +175,9 @@ Each registered user has a following channels list that is stored in the databas
 
 #### Monetize affiliate links (Amazon Product stream action)
 
-With the Amazon Product stream action enabled (see Configuration section), through Amazon OneLink, you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+With the Amazon Product stream action enabled (see Configuration section), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
 
-1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an Amazon Associate. If you're not already signed up, go to the Amazon Associates website and create an account.
+1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
 
 2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
 
@@ -210,8 +210,8 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 - `productApiLocale` the locale set here will determine the host and region of the marketplace to which you will retrieve Amazon products from for the Amazon Product stream action (Reminder: Affiliate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error). In the event that a locale is incorrectly spelt, left blank or not supported (refer to https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region) the API will attempt to retrieve products from the US marketplace. If products are still not showing up, please refer to the logs for further details.
 - `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id (which shows up in product urls). Because there are millions of tracking ids, it is in Amazon's best interest to keep ids unique. For this reason a code (region of the associate) is appended to each tracking id (For example, -20 = North America).
-- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show. It is important to note that updating this value will require a stack deployment.
-    - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. During stack deployment, a secret name of `Product_Advertising_API_Secret_Keys` should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
+- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show the stream action. It is important to note that updating this value will require a new stack deployment.
+    - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. After stack deployment, a secret name of `ProductAdvertisingAPISecret` followed by a unique string should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
 
 ## Deployment
 
