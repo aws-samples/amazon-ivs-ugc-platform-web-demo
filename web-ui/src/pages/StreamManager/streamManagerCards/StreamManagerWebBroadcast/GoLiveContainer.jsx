@@ -6,7 +6,7 @@ import {
   createAnimationProps,
   getDefaultBounceTransition
 } from '../../../../helpers/animationPropsHelper';
-import { clsm } from '../../../../utils';
+import { clsm, noop } from '../../../../utils';
 import { Settings } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
@@ -22,12 +22,13 @@ const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const GoLiveContainer = forwardRef(
   (
     {
+      isBroadcastCardOpen,
       isOpen,
       onCollapse,
-      isBroadcastCardOpen,
+      setIsWebBroadcastAnimating,
+      webBroadcastContainerRef,
       webBroadcastControllerButtons,
-      webBroadcastParentContainerRef,
-      webBroadcastContainerRef
+      webBroadcastParentContainerRef
     },
     previewRef
   ) => {
@@ -89,6 +90,8 @@ const GoLiveContainer = forwardRef(
                 isVisible: isOpen
               }
             }))}
+          onAnimationStart={() => setIsWebBroadcastAnimating(true)}
+          onAnimationComplete={() => setIsWebBroadcastAnimating(false)}
         >
           {isDesktopView && (
             <GoLiveHeader
@@ -142,12 +145,17 @@ const GoLiveContainer = forwardRef(
 );
 
 GoLiveContainer.propTypes = {
+  isBroadcastCardOpen: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool.isRequired,
   onCollapse: PropTypes.func.isRequired,
-  isBroadcastCardOpen: PropTypes.bool.isRequired,
+  setIsWebBroadcastAnimating: PropTypes.func,
+  webBroadcastContainerRef: PropTypes.object.isRequired,
   webBroadcastControllerButtons: PropTypes.array.isRequired,
-  webBroadcastParentContainerRef: PropTypes.object.isRequired,
-  webBroadcastContainerRef: PropTypes.object.isRequired
+  webBroadcastParentContainerRef: PropTypes.object.isRequired
+};
+
+GoLiveContainer.defaultProps = {
+  setIsWebBroadcastAnimating: noop
 };
 
 export default GoLiveContainer;

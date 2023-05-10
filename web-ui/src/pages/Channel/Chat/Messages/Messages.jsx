@@ -10,6 +10,7 @@ import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
+import useResize from '../../../../hooks/useResize';
 
 const $content = $channelContent.chat;
 
@@ -37,6 +38,11 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
     // as the scroll position will change between layouts
     setTimeout(scrollToBottom, 10);
   }, [isSplitView, scrollToBottom]);
+
+  useResize(() => {
+    // Reset the sticky scroll when resizing browser
+    setTimeout(scrollToBottom, 10);
+  });
 
   return (
     <div

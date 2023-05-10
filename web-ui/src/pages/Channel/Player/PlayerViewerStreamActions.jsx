@@ -37,7 +37,7 @@ const PlayerViewerStreamActions = ({
         expanded: { opacity: 0 },
         collapsed: { opacity: 1 }
       })}
-      className={isPopupOpen && '-z-10'}
+      className={isPopupOpen ? '-z-10' : ''}
     >
       <AnimatePresence>
         {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&

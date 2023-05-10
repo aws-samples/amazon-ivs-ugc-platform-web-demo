@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../../../content';
@@ -73,6 +73,25 @@ const ChatPopup = ({
   const handleCancelAndRefocus = (event) => handleClose(event, true);
 
   useClickAway([popupRef], () => setIsChatPopupOpen(false));
+
+  useEffect(() => {
+    /**
+     * When the chat popup is open and not currently visible on the screen, automatically scroll the chat popup into view.
+     * Scroll treshhold value determines when the auto-scroll will trigger. We are  triggering the scroll when at least a quarter of the popup is visible.
+     */
+    if (!isOpen) return;
+
+    const {
+      top: popupTop,
+      bottom: popupBottom,
+      height: popupHeight
+    } = popupRef.current.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const scrollTreshhold = popupTop + popupHeight / 4;
+    const isPopupInView = scrollTreshhold < windowHeight && popupBottom >= 0;
+
+    if (!isPopupInView) popupRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [isOpen]);
 
   return (
     <div

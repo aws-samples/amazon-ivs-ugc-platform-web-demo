@@ -1,4 +1,6 @@
 import { useRef } from 'react';
+import PropTypes from 'prop-types';
+
 import {
   AmazonA,
   CallToAction,
@@ -33,7 +35,7 @@ export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
   [STREAM_ACTION_NAME.NOTICE]: <Notice />
 };
 
-const StreamManagerActions = () => {
+const StreamManagerActions = ({ className }) => {
   const { openStreamManagerActionModal, sendStreamAction } =
     useStreamManagerActions();
   const streamManagerActionButtonRefsMap = useRef(new Map());
@@ -66,17 +68,20 @@ const StreamManagerActions = () => {
         'gap-5',
         'grid-cols-2',
         'grid',
+        'h-full',
         'lg:grid-cols-4',
         'lg:max-w-full',
         'max-w-[351px]',
         'overflow-auto',
         'p-5',
         'rounded-3xl',
+        'scrollbar-mb-4',
+        'scrollbar-mt-4',
         'sm:grid-rows-none',
         'supports-overlay:overflow-overlay',
         'w-full',
         'xs:grid-cols-3',
-        'h-full'
+        className
       ])}
     >
       {streamActions.map((actionName) => {
@@ -126,6 +131,14 @@ const StreamManagerActions = () => {
       })}
     </section>
   );
+};
+
+StreamManagerActions.defaultProps = {
+  className: ''
+};
+
+StreamManagerActions.propTypes = {
+  className: PropTypes.string
 };
 
 export default StreamManagerActions;

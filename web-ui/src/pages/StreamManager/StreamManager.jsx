@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
@@ -23,6 +23,7 @@ const StreamManager = () => {
   const { userData } = useUser();
   const { ingestEndpoint, streamKeyValue: streamKey } = userData || {};
   const previewRef = useRef();
+  const [isWebBroadcastAnimating, setIsWebBroadcastAnimating] = useState(false);
 
   useEffect(() => {
     if (isLive) {
@@ -39,12 +40,17 @@ const StreamManager = () => {
         'grid',
         'h-screen',
         'justify-items-center',
-        'overflow-auto',
         'px-8',
         'py-6',
         'sm:px-4',
-        'supports-overlay:overflow-overlay',
-        'w-full'
+        'w-full',
+        isWebBroadcastAnimating
+          ? ['grid-rows-[48px,calc(100vh-48px-48px-24px)]', 'overflow-hidden']
+          : [
+              'grid-rows-[48px,auto]',
+              'overflow-auto',
+              'supports-overlay:overflow-overlay'
+            ]
       )}
     >
       <StatusBar />
@@ -56,7 +62,10 @@ const StreamManager = () => {
         >
           <StreamManagerActionsProvider>
             <Notification />
-            <StreamManagerControlCenter ref={previewRef} />
+            <StreamManagerControlCenter
+              ref={previewRef}
+              setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
+            />
           </StreamManagerActionsProvider>
         </StreamManagerWebBroadcastProvider>
       </NotificationProvider>

@@ -12,7 +12,7 @@ import {
   VideoCameraOff
 } from '../../../../assets/icons';
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
-import { clsm } from '../../../../utils';
+import { clsm, noop } from '../../../../utils';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
@@ -28,8 +28,9 @@ const StreamManagerWebBroadcast = forwardRef(
   (
     {
       isBroadcastCardOpen,
-      onExpand,
       onCollapse,
+      onExpand,
+      setIsWebBroadcastAnimating,
       webBroadcastParentContainerRef
     },
     previewRef
@@ -146,6 +147,7 @@ const StreamManagerWebBroadcast = forwardRef(
           webBroadcastControllerButtons={webBroadcastControllerButtons}
           isOpen={isGoLiveContainerOpen}
           onCollapse={handleOnCollapse}
+          setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
         />
         {!isBroadcastCardOpen && isBroadcasting && isDesktopView && (
           <GoLiveContainerCollapsed
@@ -182,7 +184,12 @@ StreamManagerWebBroadcast.propTypes = {
   isBroadcastCardOpen: PropTypes.bool.isRequired,
   onCollapse: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
+  setIsWebBroadcastAnimating: PropTypes.func,
   webBroadcastParentContainerRef: PropTypes.object.isRequired
+};
+
+StreamManagerWebBroadcast.defaultProps = {
+  setIsWebBroadcastAnimating: noop
 };
 
 export default StreamManagerWebBroadcast;
