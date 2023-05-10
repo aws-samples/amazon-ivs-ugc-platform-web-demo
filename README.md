@@ -47,6 +47,8 @@ This section lists the different user flows and features that are available in t
 
 New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
 
+While no two accounts can share the same username and email, it is possible to create a new account with the same username and email after deleting the previous account.
+
 ![User registration and login](screenshots/features/registration-login.png)
 
 On the first login, the required resources will be created on the backend and associated with the user account (each user gets their own IVS channel and IVS chatroom).
@@ -143,9 +145,23 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 ![Send stream actions architecture](screenshots/architecture/send-stream-actions.png)
 
+#### Monetize affiliate links (Amazon Product stream action)
+
+With the Amazon Product stream action enabled (see [Stream overlay configuration section](#stream-overlay-configuration)), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+
+1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
+
+2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
+
+3. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+
+3. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+
+4. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
+
 ### Settings Page
 
-From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chatroom).
+From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chatroom). A "Go live from web" button in the stream settings section allows for quick access to the stream manager page, where users can start their live stream.
 
 ![Settings page](screenshots/features/settings-page.png)
 
@@ -172,20 +188,6 @@ Authenticated users have a following page (`/following`) where they can view the
 Each registered user has a following channels list that is stored in the database and contains the channel IDs of the channels the user follows. When a user follows or unfollows a channel, the database is updated to reflect the change by adding or removing the respective channel ID from the list. The data is retrieved or updated using the regular authenticated flow through the Cognito authorizer and then by a container calling the database.
 
 ![Get or update following list data architecture](screenshots/architecture/get-or-update-following-list-data.png)
-
-#### Monetize affiliate links (Amazon Product stream action)
-
-With the Amazon Product stream action enabled (see Configuration section), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
-
-1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
-
-2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
-
-3. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
-
-3. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
-
-4. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
 
 ## Configuration
 
@@ -378,6 +380,7 @@ See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshoot
 - There appear to be noticeable visual problems when livestreaming to either an "BASIC" or "STANDARD" channel on Safari. The broadcasting experience on Safari may not be optimal. However, we have decided to keep this feature enabled in the app, as reliable browser detection is currently unavailable. For a better broadcasting experience, we recommend using Chrome or Firefox.
 - On Safari v16.4 on macOS and iOS, the browser cannot capture the camera device. Because of this, the web broadcast video preview on the stream manager page will display as a black empty screen.
 - It seems that there is a noticeable lag when initializing the broadcast client using the "create" method in Firefox. This problem does not appear to occur in Chrome or Safari. this delay lasts for approximately 3-4 seconds and only happens during the first call to "create" method. That being said, the subsequent invocations of the "create" method complete almost instantly, but only in a newly opened browser tab. If the user refreshes the tab after invoking "create," the next "create" invocation is very fast.
+- When using Firefox on Windows OS, some users may encounter a mini window displaying the error message "XML Parsing Error: no root element found Location: chrome://browser/content/webrtcLegacyIndicator.xml". This could be due to corruption of the browser's starter cache during an auto-update. Please refer to the article ["Clear Startup Cache in Mozilla Firefox"](https://winaero.com/clear-startup-cache-in-mozilla-firefox/#:~:text=To%20Clear%20the%20Startup%20Cache%20in%20Mozilla%20Firefox%2C,button%20to%20confirm%20the%20operation.) to manually clear the startup cache.
 
 For Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
 
