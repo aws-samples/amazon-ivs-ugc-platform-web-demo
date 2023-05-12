@@ -234,6 +234,13 @@ Example:
 ```json
    "productLinkRegionCode": "20"
 ```
+Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region and locale set to United States:
+
+```json
+   "enableAmazonProductStreamAction": true
+   "productApiLocale": "United States",
+   "productLinkRegionCode": "20"
+```
 
 
 ## Deployment
