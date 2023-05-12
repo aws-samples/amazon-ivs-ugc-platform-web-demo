@@ -226,9 +226,15 @@ Example:
 ```json
    "productApiLocale": "United States"
 ```
-- `productLinkRegionCode` in order to start monetizing affiliate links for the Amazon Product stream action, the value of `enableAmazonProductStreamAction` will need to be set to true (please see above). If true,   
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes (for more information on monetizing links and tracking please see "Monetize affiliate links" under the Features section). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store id) is store-20. 20 is your region code (North America).
 
-<!-- the region code set here is simply a suffix that is added to the end of your unique tracking id (which shows up in product urls). Because there are millions of tracking ids, it is in Amazon's best interest to keep ids unique. For this reason a code (region of the associate) is appended to each tracking id (For example, -20 = North America). -->
+Note that `enableAmazonProductStreamAction` will need to be set to true in order to set a value here.
+Example:
+
+```json
+   "productLinkRegionCode": "20"
+```
+
 
 ## Deployment
 
