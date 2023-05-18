@@ -6,6 +6,7 @@ import { getLiveChannels } from '../../api/channels';
 import { useNotif } from '../../contexts/Notification';
 import ChannelCard from '../../components/ChannelCard';
 import GridLayout from './GridLayout';
+import useForceLoader from '../../hooks/useForceLoader';
 
 const $content = $channelDirectoryContent.live_streams_section;
 const $channelPageNotifications = $channelDirectoryContent.notification;
@@ -13,10 +14,13 @@ const $channelPageNotifications = $channelDirectoryContent.notification;
 const LiveStreamsSection = () => {
   const [data, setData] = useState();
   const [error, setError] = useState();
-  const { channels: liveChannels } = data || {};
+
   const { notifyError } = useNotif();
+  const isLoadingForced = useForceLoader();
+
+  const { channels: liveChannels } = data || {};
   const hasLiveChannels = !!liveChannels?.length;
-  const isLoading = !error && !data;
+  const isLoading = (!error && !data) || isLoadingForced;
 
   const getSectionData = useCallback(async () => {
     setData(undefined);

@@ -7,13 +7,14 @@ import { ChevronLeft, ChevronRight } from '../../assets/icons';
 import { getAvatarSrc } from '../../helpers';
 import { useNotif } from '../../contexts/Notification';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
+import { useUser } from '../../contexts/User';
 import Button from '../../components/Button';
 import DataUnavailable from './DataUnavailable';
 import FollowedUserButton from './FollowedUserButton';
 import Spinner from '../../components/Spinner';
+import useForceLoader from '../../hooks/useForceLoader';
 import usePrevious from '../../hooks/usePrevious';
 import ViewAllButton from './ViewAllButton';
-import { useUser } from '../../contexts/User';
 
 const $content = $channelDirectoryContent.following_section;
 const $channelDirectoryNotifications = $channelDirectoryContent.notification;
@@ -65,12 +66,16 @@ const FollowingSection = () => {
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
   const [isSlideAnimationDisabled, setIsSlideAnimationDisabled] =
     useState(false);
+
+  const isLoadingForced = useForceLoader();
   const { currentBreakpoint, isMobileView } = useResponsiveDevice();
-  const { followingList } = userData || {};
   const { notifyError } = useNotif();
-  const hasFollowingListData = !!followingList?.length;
-  const isLoading = followingList === undefined && !hasFetchError;
   const prevBreakpoint = usePrevious(currentBreakpoint);
+
+  const { followingList } = userData || {};
+  const hasFollowingListData = !!followingList?.length;
+  const isLoading =
+    (followingList === undefined && !hasFetchError) || isLoadingForced;
   const shouldShowFollowingListData = !isLoading && hasFollowingListData;
   const shouldShowTryAgainButton = hasFetchError && !isMobileView;
   const shouldShowViewAllButton = followingList?.length > MAX_AVATAR_COUNT;
