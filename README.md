@@ -151,13 +151,24 @@ With the Amazon Product stream action enabled (see [Stream overlay configuration
 
 1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
 
-2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
+2. Enable OneLink: Once you've signed up for Amazon Associates, navigate to the 'Manage Tracking IDs' section located at the top right-hand corner
+   of the Amazon Associates portal.
 
-3. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+![Amazon IVS UGC action Amazon associates account step 1](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-1.png)
 
-3. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+3. Then, click on the `Add Tracking ID` button located at the top of this section.
 
-4. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
+![Amazon IVS UGC action Amazon associates account step 2](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-2.png)
+
+4. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+
+![Amazon IVS UGC action Amazon associates account step 3](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-3.png)
+
+5. Paste in the tracking ID you retrieved from the DynamoDB table to enable OneLink for your account, then click `Create`.
+
+6. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+
+7. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
 
 ### Settings Page
 
@@ -209,15 +220,17 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   ```json
   "signUpAllowedDomains": ["example.com"]
   ```
+
 - `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show the stream action. It is important to note that updating this value will require a new stack deployment.
-    - Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
-    - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. After stack deployment, a secret name of `ProductAdvertisingAPISecret` followed by a unique string should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
+  - Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
+  - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. After stack deployment, a secret name of `ProductAdvertisingAPISecret` followed by a unique string should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
 
 Example:
 
 ```json
    "enableAmazonProductStreamAction": true
 ```
+
 - `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action, the value of `enableAmazonProductStreamAction` will need to be set to true (please refer to the above). If true, you will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
 
 Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
@@ -226,6 +239,7 @@ Example:
 ```json
    "productApiLocale": "United States"
 ```
+
 - `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes (for more information on monetizing links and tracking please see "Monetize affiliate links" under the Features section). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store id) is store-20. 20 is your region code (North America).
 
 Note that `enableAmazonProductStreamAction` will need to be set to true in order to set a value here.
@@ -234,6 +248,7 @@ Example:
 ```json
    "productLinkRegionCode": "20"
 ```
+
 Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region and locale set to United States:
 
 ```json
@@ -241,7 +256,6 @@ Below is what your cdk.json config should look like if you are looking to enable
    "productApiLocale": "United States",
    "productLinkRegionCode": "20"
 ```
-
 
 ## Deployment
 
@@ -399,11 +413,12 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - As soon as you create your Product Advertising API 5.0 credentials (for the Amazon Product stream action), you are allowed an initial usage limit up to a maximum of one request per second (one TPS) and a cumulative daily maximum of 8640 requests per day (8640 TPD) for the first 30-day period. This will help you begin your integration with the API, test it out, and start building links and referring products. Your PA API usage limit will be adjusted based on your shipped item revenue. Your account will earn a usage limit of one TPD for every five cents or one TPS (up to a maximum of ten TPS) for every $4320 of shipped item revenue generated via the use of Product Advertising API 5.0 for shipments in the previous 30-day period.
-Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
+  Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
 ### Web Broadcast known issues
+
 - It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
 - There appear to be noticeable visual problems when livestreaming to either an "BASIC" or "STANDARD" channel on Safari. The broadcasting experience on Safari may not be optimal. However, we have decided to keep this feature enabled in the app, as reliable browser detection is currently unavailable. For a better broadcasting experience, we recommend using Chrome or Firefox.
 - On Safari v16.4 on macOS and iOS, the browser cannot capture the camera device. Because of this, the web broadcast video preview on the stream manager page will display as a black empty screen.
