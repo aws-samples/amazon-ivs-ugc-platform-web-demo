@@ -8,6 +8,7 @@ import {
   MaximumSizeExceededError,
   UnsupportedFileFormatError
 } from '../../../../../hooks/useImageUpload';
+import { isS3Url } from '../../../../../utils';
 import { useNotif } from '../../../../../contexts/Notification';
 import { useUser } from '../../../../../contexts/User';
 import * as userAvatars from '../../../../../assets/avatars';
@@ -94,7 +95,12 @@ const Avatar = () => {
       });
 
       if (result) {
-        await fetchUserData();
+        let newUserData = await fetchUserData();
+        while (isS3Url(newUserData.channelAssetUrls.avatar)) {
+          newUserData = await fetchUserData();
+        }
+        newUserData = await fetchUserData();
+        setAvatarUrl(newUserData.channelAssetUrls.avatar);
         setSelectedAvatar(result.avatar.name);
         if (action === 'selection')
           notifySuccess($content.notification.success.avatar_saved);
@@ -107,7 +113,14 @@ const Avatar = () => {
 
       setIsAvatarLoading(false);
     },
-    [avatar, fetchUserData, isAvatarLoading, notifyError, notifySuccess]
+    [
+      avatar,
+      fetchUserData,
+      isAvatarLoading,
+      notifyError,
+      notifySuccess,
+      setAvatarUrl
+    ]
   );
 
   const onUpload = useCallback(
@@ -115,14 +128,12 @@ const Avatar = () => {
       if (result) {
         const { previewUrl, uploadDateTime } = result;
 
-        setAvatarUrl(previewUrl, () => {
-          isAvatarUploaded.current = true;
-          handleChangeAvatar({
-            action: 'upload',
-            newSelection: CUSTOM_AVATAR_NAME,
-            previewUrl,
-            uploadDateTime
-          });
+        isAvatarUploaded.current = true;
+        handleChangeAvatar({
+          action: 'upload',
+          newSelection: CUSTOM_AVATAR_NAME,
+          previewUrl,
+          uploadDateTime
         });
       }
 
@@ -141,7 +152,7 @@ const Avatar = () => {
         }
       }
     },
-    [handleChangeAvatar, notifyError, setAvatarUrl]
+    [handleChangeAvatar, notifyError]
   );
 
   const onImageDownload = useCallback(

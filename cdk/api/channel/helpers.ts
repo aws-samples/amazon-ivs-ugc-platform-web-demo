@@ -217,7 +217,6 @@ export const generatePresignedPost = ({
   key,
   maximumFileSize,
   expiry = 20,
-  acl = 'public-read', // By default, uploads will be public for read-access only
   additionalConditions = []
 }: {
   bucketName: string;
@@ -225,7 +224,6 @@ export const generatePresignedPost = ({
   key: string;
   maximumFileSize: number;
   expiry?: number;
-  acl?: string;
   additionalConditions?: Conditions[];
 }) => {
   const contentLengthRangeInBytes = maximumFileSize * Math.pow(10, 6);
@@ -233,7 +231,6 @@ export const generatePresignedPost = ({
   return createPresignedPost(s3Client, {
     Bucket: bucketName,
     Key: key,
-    Fields: { acl },
     Expires: expiry,
     Conditions: [
       { bucket: bucketName }, // bucket condition

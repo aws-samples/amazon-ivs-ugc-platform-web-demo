@@ -143,8 +143,8 @@ export class ChannelsStack extends NestedStack {
           }
         ],
         blockPublicAccess: new s3.BlockPublicAccess({
-          blockPublicAcls: false,
-          ignorePublicAcls: false,
+          blockPublicAcls: true,
+          ignorePublicAcls: true,
           blockPublicPolicy: true,
           restrictPublicBuckets: true
         }),
@@ -160,9 +160,31 @@ export class ChannelsStack extends NestedStack {
             exposedHeaders: ['Location', 'x-amz-version-id', 'Date']
           }
         ],
-        objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_PREFERRED
+        objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED
       }
     );
+
+    const originAccessIdentity = new cloudfront.OriginAccessIdentity(
+      this,
+      `${nestedStackName}-cloudfrontOriginAccessIdentity`,
+      {
+        comment:
+          'This OAI is used to allow cloudfront to get objects from the channel assets bucket'
+      }
+    );
+
+    const cloudfrontPolicyStatementForS3 = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:GetObject', 's3:GetObjectVersion'],
+      resources: [`${channelAssetsBucket.bucketArn}/*`],
+      principals: [
+        new iam.CanonicalUserPrincipal(
+          originAccessIdentity.cloudFrontOriginAccessIdentityS3CanonicalUserId
+        )
+      ]
+    });
+
+    channelAssetsBucket.addToResourcePolicy(cloudfrontPolicyStatementForS3);
 
     // Channel Assets Distribution
     const {
@@ -176,8 +198,10 @@ export class ChannelsStack extends NestedStack {
       ViewerProtocolPolicy
     } = cloudfront;
     const defaultBehavior = {
-      origin: new origins.S3Origin(channelAssetsBucket),
-      allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+      origin: new origins.S3Origin(channelAssetsBucket, {
+        originAccessIdentity
+      }),
+      allowedMethods: AllowedMethods.ALLOW_ALL,
       cachedMethods: CachedMethods.CACHE_GET_HEAD,
       originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
       responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
@@ -260,12 +284,7 @@ export class ChannelsStack extends NestedStack {
     // IAM Policies
     const policies = [];
     const channelAssetsObjectPolicyStatement = new iam.PolicyStatement({
-      actions: [
-        's3:PutObject',
-        's3:PutObjectAcl',
-        's3:DeleteObject',
-        's3:DeleteObjects'
-      ],
+      actions: ['s3:PutObject', 's3:DeleteObject', 's3:DeleteObjects'],
       effect: iam.Effect.ALLOW,
       resources: ALLOWED_CHANNEL_ASSET_TYPES.map(
         (assetType) => `${channelAssetsBucket.bucketArn}/*/${assetType}`

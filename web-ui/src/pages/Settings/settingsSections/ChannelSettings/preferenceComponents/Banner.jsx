@@ -8,6 +8,7 @@ import {
 } from '../../../../../hooks/useImageUpload';
 import { useNotif } from '../../../../../contexts/Notification';
 import { useUser } from '../../../../../contexts/User';
+import { isS3Url } from '../../../../../utils';
 import ImageUploader from '../ImageUploader';
 import SettingContainer from '../../SettingContainer';
 import useStateWithCallback from '../../../../../hooks/useStateWithCallback';
@@ -28,7 +29,12 @@ const Banner = () => {
       });
 
       if (result) {
-        await fetchUserData();
+        let newUserData = await fetchUserData();
+        while (isS3Url(newUserData.channelAssetUrls.banner)) {
+          newUserData = await fetchUserData();
+        }
+        newUserData = await fetchUserData();
+        setBannerUrl(newUserData.channelAssetUrls.banner);
       }
 
       if (error) {
@@ -43,13 +49,7 @@ const Banner = () => {
 
   const onUpload = useCallback(
     ({ result, error }) => {
-      if (result) {
-        const { previewUrl } = result;
-
-        setBannerUrl(previewUrl, () => {
-          handleChangeBanner(result);
-        });
-      }
+      if (result) handleChangeBanner(result);
 
       if (error) {
         switch (true) {
@@ -66,7 +66,7 @@ const Banner = () => {
         }
       }
     },
-    [handleChangeBanner, notifyError, setBannerUrl]
+    [handleChangeBanner, notifyError]
   );
 
   const onImageDownload = useCallback(
