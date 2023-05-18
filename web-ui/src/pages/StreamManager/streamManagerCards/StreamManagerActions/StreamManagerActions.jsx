@@ -6,13 +6,14 @@ import {
   CallToAction,
   Celebration,
   FactCheck,
+  Poll,
   ShoppingBag
 } from '../../../../assets/icons';
 import {
-  Notice,
+  AmazonProduct,
   Product,
-  Quiz,
-  AmazonProduct
+  Notice,
+  QuizOrPollQuestionsComponent
 } from './StreamManagerActionForms';
 import { clsm } from '../../../../utils';
 import { STREAM_ACTION_NAME } from '../../../../constants';
@@ -25,14 +26,20 @@ const STREAM_MANAGER_ACTION_ICONS = {
   [STREAM_ACTION_NAME.CELEBRATION]: Celebration,
   [STREAM_ACTION_NAME.NOTICE]: CallToAction,
   [STREAM_ACTION_NAME.PRODUCT]: ShoppingBag,
-  [STREAM_ACTION_NAME.QUIZ]: FactCheck
+  [STREAM_ACTION_NAME.QUIZ]: FactCheck,
+  [STREAM_ACTION_NAME.POLL]: Poll
 };
 
 export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
   [STREAM_ACTION_NAME.AMAZON_PRODUCT]: <AmazonProduct />,
-  [STREAM_ACTION_NAME.QUIZ]: <Quiz />,
+  [STREAM_ACTION_NAME.QUIZ]: (
+    <QuizOrPollQuestionsComponent formType={STREAM_ACTION_NAME.QUIZ} />
+  ),
   [STREAM_ACTION_NAME.PRODUCT]: <Product />,
-  [STREAM_ACTION_NAME.NOTICE]: <Notice />
+  [STREAM_ACTION_NAME.NOTICE]: <Notice />,
+  [STREAM_ACTION_NAME.POLL]: (
+    <QuizOrPollQuestionsComponent formType={STREAM_ACTION_NAME.POLL} />
+  )
 };
 
 const StreamManagerActions = ({ className }) => {

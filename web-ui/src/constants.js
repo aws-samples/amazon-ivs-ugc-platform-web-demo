@@ -137,6 +137,7 @@ export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
   CELEBRATION: 'celebration',
   NOTICE: 'notice',
+  POLL: 'poll',
   PRODUCT: 'product',
   AMAZON_PRODUCT: 'amazon_product'
 };
@@ -170,11 +171,18 @@ export const AMAZON_PRODUCT_DATA_KEYS = {
   PRODUCT_PAGE_NUMBER: 'productPageNumber'
 };
 
+export const POLL_DATA_KEYS = {
+  QUESTION: 'question',
+  ANSWERS: 'answers',
+  DURATION: 'duration'
+};
+
 export const LOCALSTORAGE_ENABLED_STREAM_ACTIONS = [
   STREAM_ACTION_NAME.QUIZ,
   STREAM_ACTION_NAME.CELEBRATION,
   STREAM_ACTION_NAME.NOTICE,
-  STREAM_ACTION_NAME.PRODUCT
+  STREAM_ACTION_NAME.PRODUCT,
+  STREAM_ACTION_NAME.POLL
 ];
 
 /**
@@ -268,6 +276,15 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   [STREAM_ACTION_NAME.CELEBRATION]: {},
   [STREAM_ACTION_NAME.AMAZON_PRODUCT]: {
     [AMAZON_PRODUCT_DATA_KEYS.KEYWORD]: { maxCharLength: 150 }
+  },
+  [STREAM_ACTION_NAME.POLL]: {
+    [POLL_DATA_KEYS.ANSWERS]: {
+      min: 2, // count
+      max: 5, // count
+      maxCharLength: 128 // TENTATIVE
+    },
+    [POLL_DATA_KEYS.QUESTION]: { maxCharLength: 256 }, // TENTATIVE
+    [POLL_DATA_KEYS.DURATION]: { min: 5, max: 120 } // seconds
   }
 };
 

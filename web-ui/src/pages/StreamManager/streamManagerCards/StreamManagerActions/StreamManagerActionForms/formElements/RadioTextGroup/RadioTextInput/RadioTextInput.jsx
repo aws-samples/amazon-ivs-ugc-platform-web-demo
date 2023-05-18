@@ -19,7 +19,8 @@ const StreamManagerRadioTextInput = forwardRef(
       onClick,
       onDelete,
       placeholder,
-      value
+      value,
+      inputType
     },
     ref
   ) => {
@@ -35,16 +36,18 @@ const StreamManagerRadioTextInput = forwardRef(
             'relative'
           ])}
         >
-          <input
-            aria-label={value}
-            checked={isChecked}
-            className={clsm(['radio', hasRadioError && 'error'])}
-            data-testid={`${name}-${value}-radio-button`}
-            name={name}
-            onChange={onClick}
-            type="radio"
-            value={index}
-          />
+          {inputType === 'radio' && (
+            <input
+              aria-label={value}
+              checked={isChecked}
+              className={clsm(['radio', hasRadioError && 'error'])}
+              data-testid={`${name}-${value}-radio-button`}
+              name={name}
+              onChange={onClick}
+              type="radio"
+              value={index}
+            />
+          )}
           <Input
             className={'dark:bg-darkMode-gray-dark'}
             error={inputError}
@@ -93,6 +96,7 @@ StreamManagerRadioTextInput.propTypes = {
   hasRadioError: PropTypes.bool,
   index: PropTypes.number,
   inputError: PropTypes.string,
+  inputType: PropTypes.string.isRequired,
   isChecked: PropTypes.bool,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,

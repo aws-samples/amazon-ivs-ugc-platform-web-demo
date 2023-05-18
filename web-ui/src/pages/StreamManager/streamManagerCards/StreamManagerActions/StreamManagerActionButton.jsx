@@ -57,7 +57,9 @@ const StreamManagerActionButton = forwardRef(
       <>
         {isActive ? label.active : label.default}
         <br />
-        {name !== STREAM_ACTION_NAME.AMAZON_PRODUCT && `a ${name}`}
+        {![STREAM_ACTION_NAME.AMAZON_PRODUCT, STREAM_ACTION_NAME.POLL].includes(
+          name
+        ) && `a ${name}`}
       </>
     );
     let statusLabel =

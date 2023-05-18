@@ -28,6 +28,7 @@ export const Provider = ({ children }) => {
   const [streamManagerActionData, setStreamManagerActionData] = useState(
     DEFAULT_STREAM_MANAGER_ACTIONS_STATE
   );
+
   const activeStreamManagerActionData = useMemo(
     () => streamManagerActionData?._active || null,
     [streamManagerActionData?._active]
