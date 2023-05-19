@@ -196,7 +196,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   "signUpAllowedDomains": ["example.com"]
   ```
 
-- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides (section)[#guides] before setting a value.
+- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides [section](#guides) before setting a value.
 
 Note: updating this value will require a new stack deployment.
 
