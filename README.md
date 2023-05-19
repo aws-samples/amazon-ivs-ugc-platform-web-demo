@@ -198,34 +198,35 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 - `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides [section](#guides) before setting a value.
 
-Note: updating this value will require a new stack deployment.
+   Note: updating this value will require a new stack deployment.
 
-Example:
+   Example:
 
-```json
-   "enableAmazonProductStreamAction": true
-```
+   ```json
+      "enableAmazonProductStreamAction": true
+   ```
 
 - `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
 
-Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
-Example:
+   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
-```json
-   "productApiLocale": "United States"
-```
+   Example:
+
+   ```json
+      "productApiLocale": "United States"
+   ```
 
 - `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
 
-By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
+   By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
 
-Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
+   Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
 
-Example:
+   Example:
 
-```json
-   "productLinkRegionCode": "20"
-```
+   ```json
+      "productLinkRegionCode": "20"
+   ```
 
 ## Guides
 
@@ -239,13 +240,11 @@ This section contains step by step guides that you may refer to when setting up 
 
 3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
 
-Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
+   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
-4. (OPTIONAL) The last cdk.json value to identify is the `productLinkRegionCode`. Having a region code value set will determine whether or not your affiliate links can be tracked and monetized (see "How to monetize product affiliate links" for additional setup). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. So for example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
+4. (OPTIONAL) The last cdk.json value to identify is the `productLinkRegionCode`. Having a region code value set will determine whether or not your affiliate links can be tracked and monetized (see "How to monetize product affiliate links" for additional setup). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. So for example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). By leaving this value blank you are opting out of affiliate tracking and monetization.
 
-By leaving this value blank you are opting out of affiliate tracking and monetization.
-
-Note: the region code value should be surrounded by double quotes (ie. "20" not 20).
+   Note: the region code value should be surrounded by double quotes (ie. "20" not 20).
 
 5. Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region (for product link monetization and tracking) and locale set to United States.
 
@@ -257,7 +256,7 @@ Note: the region code value should be surrounded by double quotes (ie. "20" not 
 
 6. Once the application has been deployed, you must set credentials (provided by the Associate account) inside of the AWS Secrets Manager in order to retrieve product information from the Product Advertising API. For more details on setting your credentials see "Setting your Product Advertising API credentials" under this section.
 
-Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
+   Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
 
 ### Setting your Product Advertising API credentials
 
