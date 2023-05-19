@@ -147,7 +147,7 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 #### Monetize affiliate links (Amazon Product stream action)
 
-With the Amazon Product stream action enabled (see enableAmazonProductStreamAction in the [Configuration](#configuration) section), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+With the Amazon Product stream action enabled and a productLinkRegionCode set (see [Configuration](#configuration) section). After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
 
 1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
 
@@ -160,15 +160,19 @@ With the Amazon Product stream action enabled (see enableAmazonProductStreamActi
 
 ![Amazon IVS UGC action Amazon associates account step 2](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-2.png)
 
-4. To track a channel, you must first obtain the channel's `trackingId` (ex. xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+4. To track a channel, you must first obtain the channel's `trackingId` (ex. xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console) and locate the channel of interest.
+
+![Amazon IVS UGC action Amazon DynamoDB console](screenshots/features/trackingid-dynamodb.png)
+
+5. Copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
 
 ![Amazon IVS UGC action Amazon associates account step 3](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-3.png)
 
-5. Paste in the tracking ID you retrieved from the DynamoDB table to enable OneLink for your account, then click `Create`.
+6. Paste in the tracking ID you retrieved from the DynamoDB table to enable OneLink for your account, then click `Create`.
 
-6. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+7. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
 
-7. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
+8. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
 
 ### Settings Page
 
