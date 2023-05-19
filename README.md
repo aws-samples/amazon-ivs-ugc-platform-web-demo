@@ -203,7 +203,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    Example:
 
    ```json
-      "enableAmazonProductStreamAction": true
+   "enableAmazonProductStreamAction": true
    ```
 
 - `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
@@ -213,7 +213,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    Example:
 
    ```json
-      "productApiLocale": "United States"
+   "productApiLocale": "United States"
    ```
 
 - `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
@@ -225,7 +225,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    Example:
 
    ```json
-      "productLinkRegionCode": "20"
+   "productLinkRegionCode": "20"
    ```
 
 ## Guides
@@ -248,11 +248,11 @@ This section contains step by step guides that you may refer to when setting up 
 
 5. Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region (for product link monetization and tracking) and locale set to United States.
 
-```json
+   ```json
    "enableAmazonProductStreamAction": true,
    "productApiLocale": "United States",
    "productLinkRegionCode": "20"
-```
+   ```
 
 6. Once the application has been deployed, you must set credentials (provided by the Associate account) inside of the AWS Secrets Manager in order to retrieve product information from the Product Advertising API. For more details on setting your credentials see "Setting your Product Advertising API credentials" under this section.
 
