@@ -3,7 +3,7 @@ import mockProductSearchResults from '../../__mocks__/productSearchResults.json'
 
 describe('getProductsSummary', () => {
   it('should provide a summary of the search count and all the products when results are provided', () => {
-    const trackingId = 'vZLn75J4KNXA-20';
+    const trackingId = 'vzln75J4knxa-20';
     const result = getProductsSummary(mockProductSearchResults, trackingId);
     expect(result).toEqual({
       items: [
@@ -24,7 +24,7 @@ describe('getProductsSummary', () => {
             displayAmount: '$2,740.00'
           },
           productURL:
-            'https://www.amazon.com/dp/B0BF422V1P?tag=vZLn75J4KNXA-20&linkCode=osi&th=1&psc=1',
+            'https://www.amazon.com/dp/B0BF422V1P?tag=vzln75J4knxa-20&linkCode=osi&th=1&psc=1',
           title: 'Custom T-Shirts - Athletic Grey - 180pcs'
         }
       ],

@@ -82,7 +82,7 @@ describe('getProducts controller', () => {
       fetchUser.mockImplementation(() => ({
         Item: {
           trackingId: {
-            S: 'vZLn75J4KNXA-20'
+            S: 'vzln75J4knxa-20'
           }
         }
       }));
@@ -134,7 +134,7 @@ describe('getProducts controller', () => {
               displayAmount: '$2,740.00'
             },
             productURL:
-              'https://www.amazon.com/dp/B0BF422V1P?tag=vZLn75J4KNXA-20&linkCode=osi&th=1&psc=1',
+              'https://www.amazon.com/dp/B0BF422V1P?tag=vzln75J4knxa-20&linkCode=osi&th=1&psc=1',
             title: 'Custom T-Shirts - Athletic Grey - 180pcs'
           }
         ],

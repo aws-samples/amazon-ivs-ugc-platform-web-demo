@@ -62,12 +62,13 @@ const Dropdown = ({ id, label, selected, options, onChange, placeholder }) => (
       <ChevronDown
         className={clsm([
           'absolute',
+          'dark:fill-white',
+          'fill-black',
+          'h-5',
+          'pointer-events-none',
           'right-5',
           'top-4',
-          'w-5',
-          'h-5',
-          'fill-black',
-          'dark:fill-white'
+          'w-5'
         ])}
       />
     </div>
