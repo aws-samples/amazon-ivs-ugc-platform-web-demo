@@ -147,7 +147,7 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 #### Monetize affiliate links (Amazon Product stream action)
 
-With the Amazon Product stream action enabled (see [Stream overlay configuration section](#stream-overlay-configuration)), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+With the Amazon Product stream action enabled (see enableAmazonProductStreamAction in the [Configuration](#configuration) section), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
 
 1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
 
@@ -160,7 +160,7 @@ With the Amazon Product stream action enabled (see [Stream overlay configuration
 
 ![Amazon IVS UGC action Amazon associates account step 2](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-2.png)
 
-4. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+4. To track a channel, you must first obtain the channel's `trackingId` (ex. xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
 
 ![Amazon IVS UGC action Amazon associates account step 3](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-3.png)
 
@@ -221,9 +221,20 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   "signUpAllowedDomains": ["example.com"]
   ```
 
-- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show the stream action. It is important to note that updating this value will require a new stack deployment.
+If you are looking to enable the Amazon Product stream action on the stream manager page. Both `enableAmazonProductStreamAction` and `productApiLocale` values are required to be set.
+
+- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. It is important to note that updating this value will require a new stack deployment.
   - Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
-  - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. After stack deployment, a secret name of `ProductAdvertisingAPISecret` followed by a unique string should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
+  - If the value of enableAmazonProductStreamAction has been set to true AND you have made a deployment, you will have to set credentials (provided by the Associate account) inside of the AWS Secrets Manager in order to retrieve product information from the Product Advertising API. To set credentials you must:
+   1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets)
+   2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it
+   3. Scroll down the page and click "Retrieve secret value"
+   4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID)
+   5. Click Save
+
+   ![Set your credentials](screenshots/features/secrets-manager.png)
+
+   Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
 
 Example:
 
@@ -240,16 +251,19 @@ Example:
    "productApiLocale": "United States"
 ```
 
-- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes (for more information on monetizing links and tracking please see "Monetize affiliate links" under the Features section). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store id) is store-20. 20 is your region code (North America).
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes (for more information on monetizing links and tracking please see "Monetize affiliate links" under the [Features](#features) section). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
 
-Note that `enableAmazonProductStreamAction` will need to be set to true in order to set a value here.
+By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links 
+
+Note: `enableAmazonProductStreamAction` will need to be set to true in order to set a value here.
+
 Example:
 
 ```json
    "productLinkRegionCode": "20"
 ```
 
-Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region and locale set to United States:
+Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region (for product link monetization and tracking) and locale set to United States. Both `enableAmazonProductStreamAction` and `productApiLocale` are required for this feature.
 
 ```json
    "enableAmazonProductStreamAction": true,
