@@ -206,7 +206,7 @@ Example:
    "enableAmazonProductStreamAction": true
 ```
 
-- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. If true, you will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
 
 Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 Example:
@@ -241,7 +241,7 @@ This section contains step by step guides that you may refer to when setting up 
 
 Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
-4. (OPTIONAL) The last cdk.json value to identify is the `productLinkRegionCode`. Having a region code value set will determine whether or not your affiliate links can be tracked and monetized (see "How to monetize product affiliate links" for more information). It is typically a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. So for example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
+4. (OPTIONAL) The last cdk.json value to identify is the `productLinkRegionCode`. Having a region code value set will determine whether or not your affiliate links can be tracked and monetized (see "How to monetize product affiliate links" for more information). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. So for example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
 
 By leaving this value blank you are opting out of affiliate tracking and monetization.
 
