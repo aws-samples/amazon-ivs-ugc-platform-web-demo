@@ -253,9 +253,9 @@ Example:
 
 - `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes (for more information on monetizing links and tracking please see "Monetize affiliate links" under the [Features](#features) section). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
 
-By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links 
+By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
 
-Note: `enableAmazonProductStreamAction` will need to be set to true in order to set a value here.
+Note: `enableAmazonProductStreamAction` will need to be set to true in order to set a value here. Further, the region code value should be surrounded by double quotes (ie. "20" not 20).
 
 Example:
 
