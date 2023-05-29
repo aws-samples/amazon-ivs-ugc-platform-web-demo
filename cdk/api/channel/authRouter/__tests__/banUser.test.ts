@@ -155,8 +155,6 @@ describe('banUser handler', () => {
 
   describe('general case', () => {
     it('should successfully ban a user from a chat room. It should respond with status code 200 and an empty object', async () => {
-      mockIvsChatClient.on(DisconnectUserCommand).resolves({});
-      mockIvsChatClient.on(SendEventCommand).resolves({});
       mockGetUser(Promise.resolve(mockUserData));
       mockGetUserByChannelArn(
         Promise.resolve({

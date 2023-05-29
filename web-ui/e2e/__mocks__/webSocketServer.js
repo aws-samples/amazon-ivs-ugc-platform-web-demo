@@ -21,7 +21,8 @@ wss.on('connection', (ws) => {
         avatar: 'ibex',
         channelAssetUrls: '{}',
         color: 'yellow',
-        displayName: username
+        displayName: username,
+        channelArn: 'channelArn'
       }
     };
 
@@ -66,16 +67,6 @@ wss.on('connection', (ws) => {
           EventName: 'aws:DISCONNECT_USER',
           Attributes: {
             Reason,
-            UserId: Content
-          },
-          SendTime
-        }),
-        JSON.stringify({
-          Type: 'EVENT',
-          Id: uuidv4(),
-          RequestId,
-          EventName: 'app:DELETE_USER_MESSAGES',
-          Attributes: {
             UserId: Content
           },
           SendTime

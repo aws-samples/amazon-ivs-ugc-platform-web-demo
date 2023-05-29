@@ -5,7 +5,8 @@ module.exports = {
       avatar: 'bird',
       channelAssetUrls: '{}',
       color: 'salmon',
-      displayName: 'testUser'
+      displayName: 'testUser',
+      channelArn: 'channelArn'
     }
   },
   john: {
@@ -14,7 +15,8 @@ module.exports = {
       avatar: 'bear',
       channelAssetUrls: '{}',
       color: 'green',
-      displayName: 'john'
+      displayName: 'john',
+      channelArn: 'channelArn/viewer-trackingId'
     }
   }
 };

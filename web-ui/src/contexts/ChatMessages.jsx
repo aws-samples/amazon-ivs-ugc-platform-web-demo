@@ -61,7 +61,7 @@ const reducer = (messages, action) => {
       const newMessages = messages.reduce(
         (acc, msg) => [
           ...acc,
-          msg.Id === messageIdToDelete
+          msg.id === messageIdToDelete
             ? { ...msg, isDeleted: true, wasDeletedByUser }
             : msg
         ],
@@ -74,7 +74,7 @@ const reducer = (messages, action) => {
       const { userId: userIdToDelete } = action;
 
       const newMessages = messages.filter(
-        (msg) => msg.Sender.UserId !== userIdToDelete
+        (msg) => msg.sender.attributes.channelArn !== userIdToDelete
       );
 
       return newMessages;
@@ -108,10 +108,10 @@ export const Provider = ({ children }) => {
 
   const addMessage = useCallback(
     (message) => {
-      const isOwnMessage = ownUsername === message.Sender.UserId;
+      const isOwnMessage = ownUsername === message.sender.userId;
 
       // Upon receiving a new message, we detect if the message was sent by the current user
-      if (isOwnMessage) sentMessageIds.current.push(message.Id);
+      if (isOwnMessage) sentMessageIds.current.push(message.id);
 
       dispatch({ type: actionTypes.ADD_MESSAGE, message, isOwnMessage });
     },

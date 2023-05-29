@@ -166,7 +166,7 @@ test.describe('Channel Page', () => {
         chatComponent: { errorNotifLoc, sendChatMessage, sendBanUserAction },
         chatLoadingSpinnerLoc,
         streamerUsername,
-        username
+        bannedUserChannelArn
       } = channelPage;
       // Wait for chat connection
       await chatLoadingSpinnerLoc.waitFor({ state: 'hidden' });
@@ -178,7 +178,7 @@ test.describe('Channel Page', () => {
       );
 
       // Simulate user ban by a moderator
-      await sendBanUserAction(username, moderatorToken);
+      await sendBanUserAction(bannedUserChannelArn, moderatorToken);
       channelPage.isViewerBanned = true;
 
       // Wait for updated channel data with updated `isViewerBanned` value
@@ -187,7 +187,6 @@ test.describe('Channel Page', () => {
       );
 
       await expect(errorNotifLoc).toHaveText('You have been banned');
-      await expect(page.getByText(message)).toBeHidden();
       const composerLoc = page.getByPlaceholder(
         'You are banned from this channel'
       );

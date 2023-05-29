@@ -81,10 +81,10 @@ class ChatComponent {
 
   /**
    * Bans a user on behalf of a moderator. Can be used to simulate chat moderation from the viewer's point of view.
-   * @param {string} username
+   * @param {string} bannedUserChannelArn
    * @param {string} moderatorToken
    */
-  sendBanUserAction = async (username, moderatorToken) => {
+  sendBanUserAction = async (bannedUserChannelArn, moderatorToken) => {
     const socket = await connectToWss(moderatorToken);
 
     // Mock the IVS backend which normally broadcasts the message
@@ -92,7 +92,7 @@ class ChatComponent {
       JSON.stringify({
         Action: 'BAN_USER',
         RequestId: uuidv4(),
-        Content: username,
+        Content: bannedUserChannelArn,
         Reason: 'Kicked by moderator'
       })
     );
@@ -126,13 +126,13 @@ class ChatComponent {
     await expect(this.successNotifLoc).toHaveText('Message removed');
   };
 
-  banUser = async (username, token) => {
+  banUser = async ({ username, bannedUserChannelArn }, token) => {
     await this.openChatMessagePopup(username);
     await this.page.getByText('Ban user').click();
 
     await this.page.getByTestId('modal').getByText('Ban user').click();
 
-    this.sendBanUserAction(username, token);
+    this.sendBanUserAction(bannedUserChannelArn, token);
 
     await expect(this.successNotifLoc).toBeVisible();
     await expect(this.successNotifLoc).toHaveText('User banned from channel');

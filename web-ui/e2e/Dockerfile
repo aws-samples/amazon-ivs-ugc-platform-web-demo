@@ -1,5 +1,6 @@
 FROM node:16-alpine
-FROM mcr.microsoft.com/playwright:v1.33.0-jammy
+FROM mcr.microsoft.com/playwright:v1.34.0-jammy
+
 
 # Set the work directory for the application
 WORKDIR /e2e

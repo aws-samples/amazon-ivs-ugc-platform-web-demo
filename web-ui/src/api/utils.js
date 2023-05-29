@@ -32,10 +32,10 @@ if (!apiBaseUrl || !userPoolId || !userPoolClientId || !region)
     )
   );
 
-export const ivsChatWebSocketEndpoint =
+export const ivsChatWebSocketRegionOrUrl =
   isE2eTestBuild === 'true'
     ? `ws://localhost:${webSocketServerPort}/ws`
-    : `wss://edge.ivschat.${region}.amazonaws.com`;
+    : REACT_APP_REGION;
 
 const COGNITO_PARAMS = { UserPoolId: userPoolId, ClientId: userPoolClientId };
 export const userPool = new CognitoUserPool(COGNITO_PARAMS);

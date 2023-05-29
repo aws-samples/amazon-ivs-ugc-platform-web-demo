@@ -104,36 +104,6 @@ const handler = async (
     return reply.send({ __type: BAN_USER_EXCEPTION });
   }
 
-  try {
-    // Disconnect the banned user from the chat room
-    await ivsChatClient.send(
-      new DisconnectUserCommand({
-        reason: 'Kicked by moderator',
-        roomIdentifier: chatRoomArn,
-        userId: bannedUsername
-      })
-    );
-
-    // Broadcast an event to delete all messages sent by the banned user to the chat room
-    await ivsChatClient.send(
-      new SendEventCommand({
-        attributes: { UserId: bannedUsername },
-        eventName: 'app:DELETE_USER_MESSAGES',
-        roomIdentifier: chatRoomArn
-      })
-    );
-  } catch (error) {
-    console.error(error);
-
-    reply.statusCode = 500;
-
-    if (isIvsChatError(error)) {
-      return reply.send({ __type: error.name });
-    }
-
-    return reply.send({ __type: UNEXPECTED_EXCEPTION });
-  }
-
   return reply.send({});
 };
 

@@ -4,6 +4,7 @@ const BasePageModel = require('./BasePageModel');
 const ChatComponent = require('./ChatComponent');
 
 const DEFAULT_STREAMER_USERNAME = 'john';
+const DEFAULT_BANNED_CHANNEL_ARN = 'channelArn/trackingId';
 
 class ChannelPageModel extends BasePageModel {
   static #isInternalConstructing = false;
@@ -42,6 +43,7 @@ class ChannelPageModel extends BasePageModel {
     ChannelPageModel.#isInternalConstructing = false;
 
     channelPage.chatComponent = await ChatComponent.create(page);
+    channelPage.bannedUserChannelArn = DEFAULT_BANNED_CHANNEL_ARN;
     await channelPage.#mockGetUserChannelData();
     await channelPage.init();
 
