@@ -19,11 +19,20 @@ export const DEFAULT_NOTIF_TIMEOUT = 3000; // ms
 export const CHANNEL_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
 
 /**
+ * CHAT
+ */
+export const MAX_RECONNECT_ATTEMPTS = 7;
+
+export const CHAT_LOG_LEVELS = {
+  DEBUG: 'debug',
+  INFO: 'info',
+  ERROR: 'error'
+};
+
+/**
  * DEBUG
  */
 export const USE_MOCKS = false;
-
-export const ENABLE_CHAT_DEBUG_MESSAGES = false;
 
 export const RESTRICTED_PROD_CONSOLE_TYPES = ['log', 'info'];
 
@@ -119,11 +128,6 @@ export const KEYFRAME_INTERVAL = 'KeyframeInterval';
 export const VOLUME_MEDIAN = 50;
 export const VOLUME_MIN = 0;
 export const VOLUME_MAX = 100;
-
-/**
- * CHAT
- */
-export const CHAT_TOKEN_REFRESH_DELAY_OFFSET = 30000; // The time in ms before the chat session expires that the token should be refreshed
 
 export const MODERATOR_PILL_TIMEOUT = 5000; // ms
 

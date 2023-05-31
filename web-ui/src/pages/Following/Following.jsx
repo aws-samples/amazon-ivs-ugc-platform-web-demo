@@ -8,6 +8,7 @@ import ChannelCard from '../../components/ChannelCard';
 import GridLayout from '../ChannelDirectory/GridLayout';
 import PageLayout from '../ChannelDirectory/PageLayout';
 import withVerticalScroller from '../../components/withVerticalScroller';
+import useForceLoader from '../../hooks/useForceLoader';
 
 const $followingNotificationsContent = $followPageContent.notification;
 
@@ -15,6 +16,8 @@ const Following = () => {
   const { notifyError } = useNotif();
   const { fetchUserFollowingList, hasErrorFetchingFollowingList, userData } =
     useUser();
+  const isLoadingForced = useForceLoader();
+
   const { followingList } = userData || {};
   const hasFollowingListData = !!followingList?.length;
 
@@ -30,7 +33,8 @@ const Following = () => {
         hasData={hasFollowingListData}
         hasError={hasErrorFetchingFollowingList}
         isLoading={
-          followingList === undefined && !hasErrorFetchingFollowingList
+          (followingList === undefined && !hasErrorFetchingFollowingList) ||
+          isLoadingForced
         }
         loadingError={
           $followingNotificationsContent.error.error_loading_channels

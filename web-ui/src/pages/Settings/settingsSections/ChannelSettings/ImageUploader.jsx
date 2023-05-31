@@ -41,7 +41,6 @@ const ImageUploader = forwardRef(
       isDeleting,
       isDownloading,
       isUploading,
-      previewUrl,
       setIsDownloading,
       uploadChannelAsset
     } = useImageUpload({ assetType, onDelete, onUpload, maximumFileSize });
@@ -50,7 +49,7 @@ const ImageUploader = forwardRef(
     const fileInputRef = useRef();
     const deleteButtonRef = useRef();
 
-    const hasUploadUrl = !!(previewUrl || uploadUrl);
+    const hasUploadUrl = !!uploadUrl;
     const isLoadingNewImage = isUploading || isDownloading;
     const acceptedImageFileFormats = SUPPORTED_IMAGE_FILE_FORMATS.flat()
       .map((fileFormat) => `.${fileFormat}`)
@@ -114,7 +113,7 @@ const ImageUploader = forwardRef(
                 )}
                 alt={`${assetType} upload preview`}
                 draggable={false}
-                src={previewUrl || uploadUrl}
+                src={uploadUrl}
                 onLoad={handleImageFullyDownloaded}
               />
             )}
@@ -148,7 +147,6 @@ const ImageUploader = forwardRef(
       isUploading,
       previewClasses,
       previewShape,
-      previewUrl,
       uploadUrl
     ]);
 

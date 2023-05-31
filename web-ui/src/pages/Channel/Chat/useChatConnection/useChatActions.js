@@ -4,7 +4,12 @@ import { encode } from 'html-entities';
 
 import { channel as $channelContent } from '../../../../content';
 import { channelAPI } from '../../../../api';
-import { CHAT_CAPABILITY, CHAT_USER_ROLE } from './utils';
+import { CHAT_CAPABILITY, CHAT_USER_ROLE, SEND_ERRORS } from './utils';
+import {
+  DeleteMessageRequest,
+  DisconnectUserRequest,
+  SendMessageRequest
+} from 'amazon-ivs-chat-messaging';
 import { useNotif } from '../../../../contexts/Notification';
 
 const $content = $channelContent.notifications;
@@ -13,7 +18,12 @@ const $content = $channelContent.notifications;
  * @typedef {('VIEWER'|'SENDER'|'MODERATOR'|undefined)} ChatUserRole
  */
 
-const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
+const useChatActions = ({
+  chatCapabilities,
+  isConnectionOpen,
+  connection,
+  setSendAttemptError
+}) => {
   const { notifyError, notifySuccess } = useNotif();
 
   /** @type {[ChatUserRole, Function]} */
@@ -51,25 +61,33 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
   }, [chatCapabilities]);
 
   const send = useCallback(
-    (action, data) => {
+    async (content) => {
       try {
         if (!isConnectionOpen)
           throw new Error(
             'Message or event failed to send because there is no open socket connection!'
           );
 
-        connection.current.send(
-          JSON.stringify({
-            Action: action,
-            RequestId: uuidv4(),
-            ...data
-          })
+        const sendRequestId = uuidv4();
+        const sendRequestAttributes = {};
+        const sendRequest = new SendMessageRequest(
+          content,
+          sendRequestAttributes,
+          sendRequestId
         );
+
+        await connection.current.sendMessage(sendRequest);
       } catch (error) {
+        if (Object.values(SEND_ERRORS).indexOf(error.errorMessage) > -1) {
+          setSendAttemptError({
+            message: error.errorMessage
+          });
+        }
+
         console.error(error);
       }
     },
-    [connection, isConnectionOpen]
+    [connection, isConnectionOpen, setSendAttemptError]
   );
 
   // Actions
@@ -86,7 +104,7 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
         return;
       }
 
-      send('SEND_MESSAGE', { Content: encode(msg) });
+      send(encode(msg));
     },
     [chatUserRole, send]
   );
@@ -99,17 +117,20 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
         );
         return;
       }
-
-      send('DELETE_MESSAGE', {
-        Id: messageId,
-        Reason: 'Deleted by moderator'
-      });
+      const deleteMessageRequest = new DeleteMessageRequest(messageId);
+      connection.current.deleteMessage(deleteMessageRequest);
     },
-    [chatUserRole, send]
+    [chatUserRole, connection]
   );
 
   const banUser = useCallback(
-    async (bannedUsername) => {
+    async (bannedChannelArn) => {
+      if (!bannedChannelArn) {
+        console.error(
+          'Please provide a channelArn to ban a user on this channel!'
+        );
+        return;
+      }
       if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
         console.error(
           'You do not have permission to ban users on this channel!'
@@ -117,24 +138,39 @@ const useChatActions = ({ chatCapabilities, isConnectionOpen, connection }) => {
         return;
       }
 
-      const { result, error } = await channelAPI.banUser(bannedUsername);
-
-      if (result) notifySuccess($content.success.user_banned);
+      const { result, error } = await channelAPI.banUser(bannedChannelArn);
       if (error) notifyError($content.error.ban_user);
+      if (result) {
+        // send a request to disconnect user
+        const disconnectUserRequest = new DisconnectUserRequest(
+          bannedChannelArn,
+          'Kicked by moderator'
+        );
+
+        connection.current.disconnectUser(disconnectUserRequest);
+
+        notifySuccess($content.success.user_banned);
+      }
     },
-    [chatUserRole, notifyError, notifySuccess]
+    [chatUserRole, connection, notifyError, notifySuccess]
   );
 
   const unbanUser = useCallback(
-    async (bannedUsername) => {
+    async (bannedChannelArn) => {
+      if (!bannedChannelArn) {
+        console.error(
+          'Please provide a channelArn to unban a user on this channel!'
+        );
+        return;
+      }
       if (chatUserRole !== CHAT_USER_ROLE.MODERATOR) {
         console.error(
-          'You do not have permission to ban users on this channel!'
+          'You do not have permission to unban users on this channel!'
         );
         return;
       }
 
-      const { result, error } = await channelAPI.unbanUser(bannedUsername);
+      const { result, error } = await channelAPI.unbanUser(bannedChannelArn);
 
       if (result) notifySuccess($content.success.user_unbanned);
       if (error) notifyError($content.error.unban_user);

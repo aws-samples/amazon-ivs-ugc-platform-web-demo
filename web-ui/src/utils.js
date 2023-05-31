@@ -286,3 +286,5 @@ export const convertConcurrentViews = (views) => {
     abbreviations[index]
   );
 };
+
+export const isS3Url = (url = '') => url.includes('.s3.');

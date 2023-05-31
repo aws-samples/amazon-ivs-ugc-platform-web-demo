@@ -18,7 +18,6 @@ export class UnsupportedFileFormatError extends Error {
 }
 
 const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
-  const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -72,17 +71,15 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
         }));
       }
 
-      const newPreviewUrl = result?.previewUrl || previewUrl;
-      setPreviewUrl(newPreviewUrl);
       onUpload({ result, error });
       setIsUploading(false);
-      if (newPreviewUrl && !error) {
+      if (!error) {
         setIsDownloading(true);
       }
 
       return result;
     },
-    [assetType, isUploading, onUpload, prevalidateUpload, previewUrl]
+    [assetType, isUploading, onUpload, prevalidateUpload]
   );
 
   const deleteChannelAsset = useCallback(async () => {
@@ -91,7 +88,6 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
     setIsDeleting(true);
     const { result, error } = await channelAPI.deleteChannelAsset(assetType);
 
-    setPreviewUrl('');
     onDelete({ result, error });
     setIsDeleting(false);
 
@@ -103,7 +99,6 @@ const useImageUpload = ({ assetType, onUpload, onDelete, maximumFileSize }) => {
     isDeleting,
     isDownloading,
     isUploading,
-    previewUrl,
     setIsDownloading,
     uploadChannelAsset
   };

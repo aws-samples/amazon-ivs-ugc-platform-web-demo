@@ -55,7 +55,6 @@ const Chat = ({ shouldRunCelebration }) => {
   const handleDeleteMessage = useCallback(
     (messageId) => {
       removeMessage(messageId);
-
       if (deletedMessageIds.current.includes(messageId)) {
         notifySuccess($content.notifications.success.message_removed);
       } else if (sentMessageIds.current.includes(messageId)) {
@@ -72,13 +71,13 @@ const Chat = ({ shouldRunCelebration }) => {
   );
   const handleUserDisconnect = useCallback(
     (bannedUsername) => {
-      if (userData?.username === bannedUsername) {
+      if (bannedUsername.includes(userData?.trackingId)) {
         // This user has been banned
         notifyError($content.notifications.error.you_have_been_banned);
         refreshChannelData();
       }
     },
-    [notifyError, refreshChannelData, userData?.username]
+    [notifyError, refreshChannelData, userData?.trackingId]
   );
 
   const {

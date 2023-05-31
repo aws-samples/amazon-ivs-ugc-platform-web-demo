@@ -7,6 +7,7 @@ class BasePageModel {
   #username = 'testUser';
   #avatar = 'bird';
   #color = 'salmon';
+  #trackingId = 'channelArn/trackingId';
 
   /**
    * @param {import('@playwright/test').Page} page
@@ -88,7 +89,8 @@ class BasePageModel {
                 streamKeyValue: this.#streamKeyValue,
                 username: this.#username,
                 color: this.#color,
-                avatar: this.#avatar
+                avatar: this.#avatar,
+                trackingId: this.#trackingId
               })
             });
           } else {

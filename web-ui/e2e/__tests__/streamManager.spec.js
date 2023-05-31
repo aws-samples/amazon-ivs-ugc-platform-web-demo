@@ -268,6 +268,7 @@ test.describe('Stream Manager Page', () => {
 
           const message = 'Hi, this is john!';
           const viewerUsername = 'john';
+          const viewerChannelArn = 'channelArn/viewer-trackingId';
           const testTitleSlug = getTestTitleSlug(title, projectName);
 
           await populateChatMessage(
@@ -275,7 +276,10 @@ test.describe('Stream Manager Page', () => {
             buildChatToken(testTitleSlug, viewerUsername)
           );
           await banUser(
-            viewerUsername,
+            {
+              username: viewerUsername,
+              bannedUserChannelArn: viewerChannelArn
+            },
             buildChatToken(testTitleSlug, username)
           );
 

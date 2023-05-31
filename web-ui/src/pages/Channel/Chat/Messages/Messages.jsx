@@ -76,12 +76,12 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
       >
         {(hasInitMessages ? messages : []).map(
           ({
-            Content: message,
-            Id: messageId,
+            content: message,
+            id: messageId,
             isDeleted,
             isOwnMessage,
             isPreloaded,
-            Sender: { Attributes: senderAttributes },
+            sender: { attributes: senderAttributes },
             wasDeletedByUser
           }) => {
             const {

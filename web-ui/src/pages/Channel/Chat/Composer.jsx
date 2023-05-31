@@ -47,7 +47,6 @@ const Composer = ({
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);
   const focus = location.state?.focus;
-
   const setSubmitErrorStates = (_errorMessage) => {
     setErrorMessage(`${$content.error.message_not_sent} ${_errorMessage}`);
     setShouldShake(true);
@@ -58,7 +57,7 @@ const Composer = ({
 
   const handleOnChange = (event) => {
     // If the user isn't logged in, redirect them to the login page
-    if (!isLoading && !canSendMessages) {
+    if ((!isLoading && canSendMessages === false) || !isSessionValid) {
       navigateToLogin();
     }
 
@@ -79,6 +78,7 @@ const Composer = ({
 
   const handleSendMessage = (event) => {
     event.preventDefault();
+    if (isDisabled) return;
 
     if (isLoading) {
       setSubmitErrorStates($content.error.wait_until_connected);
@@ -94,7 +94,11 @@ const Composer = ({
         !errorMessage && setMessage('');
         setShouldShake(false);
       } else {
-        navigateToLogin();
+        if (canSendMessages === undefined) {
+          setSubmitErrorStates($content.error.wait_until_connected);
+        } else {
+          navigateToLogin();
+        }
       }
     }
   };

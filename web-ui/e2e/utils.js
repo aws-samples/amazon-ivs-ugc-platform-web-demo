@@ -241,10 +241,10 @@ const isValidUrl = (url) => {
 
 const connectToWss = (token) =>
   new Promise((resolve, reject) => {
-    const socket = new WebSocket(
-      `ws://localhost:${process.env.WEB_SOCKET_SERVER_PORT || 8081}/ws`,
-      token
-    );
+    const socketUrl = `ws://localhost:${
+      process.env.WEB_SOCKET_SERVER_PORT || 8081
+    }/ws`;
+    const socket = new WebSocket(socketUrl, token);
     socket.onopen = () => resolve(socket);
     socket.onerror = reject;
   });

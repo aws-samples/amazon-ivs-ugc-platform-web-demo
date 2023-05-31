@@ -60,7 +60,7 @@ const handler = async (
     let trackingId;
 
     if (channelArn) {
-      const channelId = getChannelId(channelArn);
+      const channelId = getChannelId(channelArn).toLowerCase();
       trackingId =
         channelId +
         (process.env.PRODUCT_LINK_REGION_CODE

@@ -145,20 +145,6 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 ![Send stream actions architecture](screenshots/architecture/send-stream-actions.png)
 
-#### Monetize affiliate links (Amazon Product stream action)
-
-With the Amazon Product stream action enabled (see [Stream overlay configuration section](#stream-overlay-configuration)), through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
-
-1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
-
-2. Enable OneLink: Once you've signed up for Amazon Associates, go to the OneLink section of your account dashboard and enable OneLink for your account.
-
-3. To track a channel, you must first obtain the channel's `trackingId` (ex. Xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console), locate the channel of interest and copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
-
-3. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
-
-4. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
-
 ### Settings Page
 
 From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chatroom). A "Go live from web" button in the stream settings section allows for quick access to the stream manager page, where users can start their live stream.
@@ -210,11 +196,111 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
   "signUpAllowedDomains": ["example.com"]
   ```
 
-- `productApiLocale` the locale set here will determine the host and region of the marketplace to which you will retrieve Amazon products from for the Amazon Product stream action (Reminder: Affiliate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error). In the event that a locale is incorrectly spelt, left blank or not supported (refer to https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region) the API will attempt to retrieve products from the US marketplace. If products are still not showing up, please refer to the logs for further details.
-- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id (which shows up in product urls). Because there are millions of tracking ids, it is in Amazon's best interest to keep ids unique. For this reason a code (region of the associate) is appended to each tracking id (For example, -20 = North America).
-- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action. Setting the value to false will hide the stream action while setting the value to true will show the stream action. It is important to note that updating this value will require a new stack deployment.
-    - Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
-    - If enabled, you will have to set credentials inside of the AWS Secrets Manager in order to retrieve data from the Product Advertising API. To do that, locate the AWS Secrets Manager inside of the AWS console. After stack deployment, a secret name of `ProductAdvertisingAPISecret` followed by a unique string should have been generated. Locate the secret and fill in the values for secretKey, accessKey and partnerTag. Failure to do so or specifying incorrect values will throw an error in the application when attempting to search Amazon products.
+- `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides [section](#guides) before setting a value.
+
+   Note: updating this value will require a new stack deployment.
+
+   Example:
+
+   ```json
+   "enableAmazonProductStreamAction": true
+   ```
+
+- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+
+   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
+
+   Example:
+
+   ```json
+   "productApiLocale": "United States"
+   ```
+
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
+
+   By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
+
+   Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
+
+   Example:
+
+   ```json
+   "productLinkRegionCode": "20"
+   ```
+
+## Guides
+
+This section contains step by step guides that you may refer to when setting up the application
+
+### Configuring cdk.json to enable the Amazon Product stream action
+
+1. Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
+
+2. Once accepted, you may set the value of `enableAmazonProductStreamAction` to true.
+
+3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+
+   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
+
+4. (OPTIONAL) The last cdk.json value to identify is the `productLinkRegionCode`. Having a region code value set will determine whether or not your affiliate links can be tracked and monetized (see "How to monetize product affiliate links" for additional setup). It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. So for example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). By leaving this value blank you are opting out of affiliate tracking and monetization.
+
+   Note: the region code value should be surrounded by double quotes (ie. "20" not 20).
+
+5. Below is what your cdk.json config should look like if you are looking to enable the Amazon product stream action and overlay, with a region (for product link monetization and tracking) and locale set to United States.
+
+   ```json
+   "enableAmazonProductStreamAction": true,
+   "productApiLocale": "United States",
+   "productLinkRegionCode": "20"
+   ```
+
+6. Once the application has been deployed, you must set credentials (provided by the Associate account) inside of the AWS Secrets Manager in order to retrieve product information from the Product Advertising API. For more details on setting your credentials see "Setting your Product Advertising API credentials" under this section.
+
+   Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
+
+### Setting your Product Advertising API credentials
+
+To set your Product Advertising API credentials you must:
+1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets)
+
+2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it
+
+3. Scroll down the page and click "Retrieve secret value"
+
+4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID)
+
+5. Click Save
+
+![Set your credentials](screenshots/features/secrets-manager.png)
+
+### How to monetize product affiliate links
+
+After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
+
+1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
+
+2. Enable OneLink: Once you've signed up for Amazon Associates, navigate to the 'Manage Tracking IDs' section located at the top right-hand corner
+   of the Amazon Associates portal.
+
+![Amazon IVS UGC action Amazon associates account step 1](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-1.png)
+
+3. Then, click on the `Add Tracking ID` button located at the top of this section.
+
+![Amazon IVS UGC action Amazon associates account step 2](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-2.png)
+
+4. To track a channel, you must first obtain the channel's `trackingId` (ex. xzhsymq-20). To locate it, you can simply go to the channel's DynamoDB table (in the AWS console) and locate the channel of interest. Within the same row, a trackingId should be provided.
+
+![Amazon IVS UGC action Amazon DynamoDB console](screenshots/features/trackingid-dynamodb.png)
+
+5. Copy and paste the `trackingId` into Amazon OneLink. Note: the id is composed of the channel's id followed by the region code (productLinkRegionCode) that was set on stack deployment.
+
+6. Paste in the tracking ID you retrieved from the DynamoDB table to enable OneLink for your account, then click `Create`.
+
+![Amazon IVS UGC action Amazon associates account step 3](screenshots/features/amazon-ivs-ugc-action-amazon-associates-account-3.png)
+
+7. Test your links (by clicking the Buy now button) to make sure they are redirecting to the correct Amazon store for the visitor's location.
+
+8. Monitor your earnings: Keep track of your earnings through the Amazon Associates dashboard. You can see how many clicks and purchases you've received from each Amazon store.
 
 ## Deployment
 
@@ -372,11 +458,12 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - As soon as you create your Product Advertising API 5.0 credentials (for the Amazon Product stream action), you are allowed an initial usage limit up to a maximum of one request per second (one TPS) and a cumulative daily maximum of 8640 requests per day (8640 TPD) for the first 30-day period. This will help you begin your integration with the API, test it out, and start building links and referring products. Your PA API usage limit will be adjusted based on your shipped item revenue. Your account will earn a usage limit of one TPD for every five cents or one TPS (up to a maximum of ten TPS) for every $4320 of shipped item revenue generated via the use of Product Advertising API 5.0 for shipments in the previous 30-day period.
-Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
+  Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
 ### Web Broadcast known issues
+
 - It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
 - There appear to be noticeable visual problems when livestreaming to either an "BASIC" or "STANDARD" channel on Safari. The broadcasting experience on Safari may not be optimal. However, we have decided to keep this feature enabled in the app, as reliable browser detection is currently unavailable. For a better broadcasting experience, we recommend using Chrome or Firefox.
 - On Safari v16.4 on macOS and iOS, the browser cannot capture the camera device. Because of this, the web broadcast video preview on the stream manager page will display as a black empty screen.

@@ -27,26 +27,23 @@ const defaultUserData = {
 const channelAssetsBucketName = 'ugc-channels-channelassets';
 
 jest.mock('@aws-sdk/s3-presigned-post', () => ({
-  createPresignedPost: jest.fn(
-    (_s3Client, { Bucket, Key, Fields: { acl: cannedAcl } }) => ({
-      url: `https://${Bucket}.s3.us-west-2.amazonaws.com/`,
-      fields: {
-        acl: cannedAcl,
-        bucket: Bucket,
-        'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
-        'X-Amz-Credential':
-          'AKIAIOSFODNN7EXAMPLE/20221129/us-west-2/s3/aws4_request',
-        'X-Amz-Date':
-          new Date().toISOString().split('.')[0].replace(/(-|:)/g, '') + 'Z',
-        'X-Amz-Security-Token': 'IQisudbiouisoduhf/sadfsdafasd+sdiopfsdha4334n',
-        key: Key,
-        Policy:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.YN5_EwCAOBuTPANx2p8HB6sxOZeUcp4l08XcjfAmCaY',
-        'X-Amz-Signature':
-          '733255ef022bec3f2a8701cd61d4b371f3f28c9f193a1f02279211d48d5193d7'
-      }
-    })
-  )
+  createPresignedPost: jest.fn((_s3Client, { Bucket, Key }) => ({
+    url: `https://${Bucket}.s3.us-west-2.amazonaws.com/`,
+    fields: {
+      bucket: Bucket,
+      'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+      'X-Amz-Credential':
+        'AKIAIOSFODNN7EXAMPLE/20221129/us-west-2/s3/aws4_request',
+      'X-Amz-Date':
+        new Date().toISOString().split('.')[0].replace(/(-|:)/g, '') + 'Z',
+      'X-Amz-Security-Token': 'IQisudbiouisoduhf/sadfsdafasd+sdiopfsdha4334n',
+      key: Key,
+      Policy:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.YN5_EwCAOBuTPANx2p8HB6sxOZeUcp4l08XcjfAmCaY',
+      'X-Amz-Signature':
+        '733255ef022bec3f2a8701cd61d4b371f3f28c9f193a1f02279211d48d5193d7'
+    }
+  }))
 }));
 const mockedS3PresignedPost = s3PresignedPost as jest.Mocked<
   typeof s3PresignedPost
@@ -214,7 +211,6 @@ describe('generatePresignedPost controller', () => {
       expect(channelAssetId).toBe(defaultUserData.channelAssetId);
       expect(Object.keys(fields)).toEqual(
         expect.arrayContaining([
-          'acl',
           'bucket',
           'key',
           'Policy',
