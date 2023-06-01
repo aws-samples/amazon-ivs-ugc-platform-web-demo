@@ -1,4 +1,10 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useEffect
+} from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -9,6 +15,7 @@ import {
 import { clsm } from '../../../../utils';
 import { CONTROLS_BUTTON_BASE_CLASSES } from './ControlsTheme';
 import { usePlayerContext } from '../../contexts/Player';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { VOLUME_MEDIAN, VOLUME_MAX, VOLUME_MIN } from '../../../../constants';
 import InputRange from '../../../../components/InputRange';
 import useClickAway from '../../../../hooks/useClickAway';
@@ -24,11 +31,15 @@ const VolumeSetting = ({
   updateVolume,
   volumeLevel
 }) => {
+  const [muted, setMuted] = useState(volumeLevel === VOLUME_MIN);
+  const [volume, setVolume] = useState(volumeLevel);
   const [volumeContainerPos, setVolumeContainerPos] = useState(null);
   const { subscribeOverlayElement, stopPropagAndResetTimeout } =
     usePlayerContext();
   const settingsButtonRef = useRef();
   const volumeContainerRef = useRef();
+
+  const { isTouchscreenDevice } = useResponsiveDevice();
 
   const subscribeOverlayControl = useCallback(
     (element) => {
@@ -46,15 +57,18 @@ const VolumeSetting = ({
     });
   }, [setOpenPopupIds]);
 
-  const onClickVolumeSettingHandler = useCallback(
+  const volumeSettingHandler = useCallback(
     (event) => {
-      stopPropagAndResetTimeout(event);
-      setOpenPopupIds((prev) => {
-        if (!prev.includes(POPUP_ID)) return [...prev, POPUP_ID];
-        else return prev.filter((id) => id !== POPUP_ID);
-      });
+      if (!isTouchscreenDevice) {
+        stopPropagAndResetTimeout(event);
+        setOpenPopupIds((prev) => {
+          if (!prev.includes(POPUP_ID)) return [...prev, POPUP_ID];
+          if (event.type !== 'mouseleave') return prev;
+          return prev.filter((id) => id !== POPUP_ID);
+        });
+      }
     },
-    [setOpenPopupIds, stopPropagAndResetTimeout]
+    [isTouchscreenDevice, setOpenPopupIds, stopPropagAndResetTimeout]
   );
 
   useClickAway([volumeContainerRef, settingsButtonRef], closeVolumeContainer);
@@ -65,9 +79,7 @@ const VolumeSetting = ({
         volumeContainerRef.current.getBoundingClientRect();
       const isMobileView = volumeContainerHeight <= MOBILE_INPUT_RANGE_HEIGHT;
 
-      const topPos = isMobileView
-        ? -volumeContainerHeight + 25
-        : -volumeContainerHeight + 45;
+      const topPos = isMobileView ? -volumeContainerHeight + 25 : 31;
       const leftPos = isMobileView
         ? -volumeContainerWidth / 2 - 12
         : -volumeContainerWidth / 2 - 27;
@@ -91,38 +103,70 @@ const VolumeSetting = ({
     }
   }, [volumeLevel]);
 
+  /*
+   * Toggling the mute button will initiate a state change in the volume level,
+   * resulting in it being set to either the minimum volume or the value of the previous volume level.
+   */
+
+  const toggleMute = useCallback(
+    (event) => {
+      setMuted((prevState) => !prevState);
+      updateVolume((muted && volume) || VOLUME_MIN);
+      stopPropagAndResetTimeout(event);
+    },
+    [muted, stopPropagAndResetTimeout, updateVolume, volume]
+  );
+
+  useEffect(() => {
+    if (volumeLevel !== VOLUME_MIN) {
+      setVolume(volumeLevel);
+    }
+  }, [volumeLevel]);
+
   return (
-    <div className={clsm(['flex', 'relative'])}>
-      <button
-        aria-label={`${
-          isExpanded ? 'Close' : 'Open'
-        } the video volume selector`}
-        className={clsm([
-          ...CONTROLS_BUTTON_BASE_CLASSES,
-          'transition-transform',
-          isExpanded && 'border-white',
-          className
-        ])}
-        disabled={isDisabled}
-        onClick={onClickVolumeSettingHandler}
-        ref={subscribeOverlayControl}
-      >
-        {getVolumeSVG()}
-      </button>
+    <div
+      className={clsm(['flex', 'relative', 'items-center'])}
+      onMouseEnter={volumeSettingHandler}
+      onMouseLeave={volumeSettingHandler}
+    >
+      <div className={isExpanded && clsm(['flex', 'h-[178px]', 'items-end'])}>
+        <button
+          aria-label={`${
+            isExpanded ? 'Close' : 'Open'
+          } the video volume selector`}
+          className={clsm([
+            ...CONTROLS_BUTTON_BASE_CLASSES,
+            'transition-transform',
+            isExpanded && 'border-white',
+            className,
+            'h-12'
+          ])}
+          disabled={isDisabled}
+          onClick={toggleMute}
+          onFocus={volumeSettingHandler}
+          ref={subscribeOverlayControl}
+        >
+          {getVolumeSVG()}
+        </button>
+      </div>
       {isExpanded && (
         <div
           className={clsm([
+            '-rotate-90',
             'absolute',
             'bg-lightMode-gray-light',
             'dark:bg-darkMode-gray',
             'flex-col',
             'flex',
-            'space-y-2',
+            'focus-within:outline-2',
+            'focus-within:outline-white',
+            'focus-within:outline',
             'p-4',
             'rounded-3xl',
-            '-rotate-90'
+            'space-y-2'
           ])}
           id="volume-range-container"
+          onBlur={closeVolumeContainer}
           ref={volumeContainerRef}
           style={
             volumeContainerPos && {

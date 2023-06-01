@@ -107,19 +107,24 @@ const Controls = ({
   return (
     <div
       className={clsm([
-        'relative',
         'flex',
+        'h-12',
+        'items-end',
         'justify-between',
-        'w-full',
-        'items-center',
-        'space-x-4'
+        'relative',
+        'space-x-4',
+        'w-full'
       ])}
     >
-      <div className="flex space-x-4">
+      <div className={clsm(['flex', 'space-x-4', 'items-end'])}>
         <button
           ref={subscribeOverlayControl}
           aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
-          className={clsm(CONTROLS_BUTTON_BASE_CLASSES, mobileSVGOpacity)}
+          className={clsm(
+            CONTROLS_BUTTON_BASE_CLASSES,
+            mobileSVGOpacity,
+            'h-12'
+          )}
           disabled={isViewerBanned}
           onClick={onClickPlayPauseHandler}
         >
