@@ -243,7 +243,7 @@ const ZoomSlider = ({
         'relative',
         'touch-none',
         'w-[calc(100%_-_12px)]',
-        !isEnabled && 'cursor-auto'
+        !isEnabled && ['cursor-auto', 'opacity-30']
       ])}
       componentsProps={{
         mark: {
@@ -260,12 +260,13 @@ const ZoomSlider = ({
           className: clsm([
             'absolute',
             'bg-clip-content',
-            'bg-lightMode-gray-light',
+            'bg-lightMode-gray',
             'block',
             'border-4',
             'border-transparent',
-            'dark:bg-darkMode-gray-medium',
+            'dark:bg-darkMode-gray',
             'h-3',
+            'rounded-[100px]',
             'w-[calc(100%_+_20px)]'
           ]),
           onMouseDown: isEnabled ? mouseDownTrackHandler : noop,
@@ -276,13 +277,13 @@ const ZoomSlider = ({
           className: clsm([
             'absolute',
             'bg-clip-content',
-            'bg-lightMode-gray',
+            'bg-lightMode-gray-medium',
             'block',
             'border-transparent',
             'border-y-4',
             'cursor-grab',
-            'dark:bg-darkMode-gray',
-            'h-3',
+            'dark:bg-darkMode-gray-light',
+            'h-3.5',
             !isEnabled && [
               'bg-lightMode-gray',
               'cursor-auto',
