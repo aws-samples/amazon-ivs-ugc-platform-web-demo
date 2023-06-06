@@ -102,6 +102,7 @@ const VoteItem = ({
           style={{ width: `${percentage}%` }}
           className={clsm([
             'absolute',
+            'top-[-1px]',
             'left-[-1px]',
             'h-full',
             `bg-poll-${color}-pollButtonBg`,
@@ -158,7 +159,7 @@ const VoteItem = ({
             <div className={clsm(['flex', 'items-center', 'justify-between'])}>
               <div
                 className={clsm([
-                  '[&>input.radio]:top-[-1px]',
+                  '[&>input.radio]:top-[0px]',
                   'flex',
                   'relative',
                   'items-center'
@@ -193,7 +194,7 @@ const VoteItem = ({
                 htmlFor={inputAndLabelId}
                 className={clsm([
                   isStreamManagerPage && 'max-w-[385px]',
-                  'pb-[3px]',
+                  // 'pb-[3px]',
                   'w-full',
                   'line-clamp-2',
                   'text-p4',
