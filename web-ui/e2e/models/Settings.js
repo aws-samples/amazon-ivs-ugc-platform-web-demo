@@ -25,6 +25,11 @@ class SettingsPageModel extends BasePageModel {
     this.getCopyButtonLocator = (label) =>
       page.getByRole('button', { name: `Copy ${label} value` });
 
+    this.goLiveFromWebButtonLoc = page.getByText('Go live from web');
+    this.startStreamButtonLoc = page.getByText('Start stream');
+    this.webBroadcastMicButtonLoc = page.getByLabel('Turn off microphone');
+    this.webBroadcastCameraButtonLoc = page.getByLabel('Turn off camera');
+
     /* Account Settings Locators */
     this.deleteAccountButtonLoc = page.getByText('Delete my account');
     this.usernameInputLoc = page.locator('input[id="username"]');
@@ -130,6 +135,19 @@ class SettingsPageModel extends BasePageModel {
 
     expect(newStreamKeyValue).not.toBe(initialStreamKeyValue);
     expect(newStreamKeyValue).toMatch(/sk_mock-region_mock-stream-key_NEW_.+/);
+  };
+
+  navigateToStreamManager = async () => {
+    // Click the 'Go live from web' button in the Stream settings section
+    await this.goLiveFromWebButtonLoc.click();
+
+    // When the 'Go live from web' button is clicked, it should redirect to the stream manager page and open the preview container simultaneously.
+    await expect(this.page).toHaveURL('/manager');
+    await expect(this.startStreamButtonLoc).toBeVisible();
+    await expect(this.webBroadcastMicButtonLoc).toBeVisible();
+    await expect(this.webBroadcastCameraButtonLoc).toBeVisible();
+
+    await this.page.takeScreenshot('navigate-to-stream-manager');
   };
 
   copyStreamConfiguration = async () => {

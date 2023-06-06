@@ -60,3 +60,15 @@ By default, the command `make deleteSeed` will look for a stack named `UGC-dev` 
 ```shell
 make deleteSeed STACK=my-stack
 ```
+
+## Fargate service auto scaling
+
+The ECS Fargate service utilizes a target tracking scaling policy to dynamically adjust its capacity based on a CPU utilization target value. This approach allows it to scale out and accommodate peak traffic, ensuring optimal performance. Additionally, during periods of low utilization, the service scales in to reduce costs and optimize resource allocation. For more information, you can refer to the [target tracking scaling policy documentation](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-target-tracking.html).
+
+### Service auto scaling alarms
+
+Service Auto Scaling automatically creates and manages CloudWatch alarms for your target tracking scaling policies. These alarms are responsible for monitoring metrics such as CPU utilization. When the metric falls below the target value, an alarm is triggered, prompting the service to automatically scale down and adjust the capacity accordingly. Furthermore, when these alarms are no longer necessary, Application Auto Scaling deletes them.
+
+For this reason, please do not create, edit, or delete the CloudWatch alarms that are used with a target tracking scaling policy.
+
+To learn how to hide auto scaling alarms, please consult the "Hide Auto Scaling alarms" user guide available at: [Hide Auto Scaling alarms user guide](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/hide-autoscaling-alarms.html).
