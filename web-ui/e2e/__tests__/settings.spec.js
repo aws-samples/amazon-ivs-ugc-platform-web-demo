@@ -88,5 +88,11 @@ test.describe('Settings Page', () => {
         ['/', 200] // Cognito authenticate user
       ]);
     });
+
+    test('should navigate to Stream Manager page from the Go live from web button', async ({
+      settingsPage: { navigateToStreamManager }
+    }) => {
+      await navigateToStreamManager();
+    });
   });
 });
