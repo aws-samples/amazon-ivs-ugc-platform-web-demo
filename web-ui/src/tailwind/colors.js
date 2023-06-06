@@ -452,5 +452,42 @@ module.exports = {
         DEFAULT: 'hsl(var(--base-profile-color-lavender), 98%)'
       }
     }
+  },
+  poll: {
+    green: {
+      pollVoteBg: 'hsl(var(--base-profile-color-green), 50%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-green), 62%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-green), 22%)'
+    },
+    yellow: {
+      pollVoteBg: 'hsl(var(--base-profile-color-yellow), 75%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-yellow), 85%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-yellow), 18%)'
+    },
+    blue: {
+      pollVoteBg: 'hsl(var(--base-profile-color-blue), 72%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-blue), 80%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-blue), 24%)'
+    },
+    salmon: {
+      pollVoteBg: 'hsl(var(--base-profile-color-salmon), 81%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-salmon), 90%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-salmon), 27%)'
+    },
+    purple: {
+      pollVoteBg: 'hsl(var(--base-profile-color-purple), 64%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-purple), 78%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-purple), 29%)'
+    },
+    turquoise: {
+      pollVoteBg: 'hsl(var(--base-profile-color-turquoise), 87%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-turquoise), 95%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-turquoise), 20%)'
+    },
+    lavender: {
+      pollVoteBg: 'hsl(var(--base-profile-color-lavender), 90%)',
+      pollButtonBg: 'hsl(var(--base-profile-color-lavender), 96%)',
+      pollWinnerTextColor: 'hsl(var(--base-profile-color-lavender), 36%)'
+    }
   }
 };

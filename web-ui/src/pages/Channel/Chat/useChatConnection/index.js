@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatRoom } from 'amazon-ivs-chat-messaging';
 
 import { channel as $channelContent } from '../../../../content';
-import { requestChatToken } from './utils';
+import { CHAT_USER_ROLE, requestChatToken } from './utils';
 import { ivsChatWebSocketRegionOrUrl } from '../../../../api/utils';
 import { MAX_RECONNECT_ATTEMPTS, CHAT_LOG_LEVELS } from '../../../../constants';
 import { useChannel } from '../../../../contexts/Channel';
@@ -25,7 +25,7 @@ const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
  * Initializes and controls a connection to the Amazon IVS Chat Messaging API
  * @param {ChatEventHandlers} eventHandlers
  */
-const useChatConnection = (eventHandlers) => {
+const useChatConnection = (eventHandlers = {}) => {
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned } = channelData || {};
   const { addMessage } = useChatMessages();
@@ -129,6 +129,8 @@ const useChatConnection = (eventHandlers) => {
     ownUsername
   ]);
 
+  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
+
   // Initialize connection
   useEffect(() => {
     connect();
@@ -213,7 +215,8 @@ const useChatConnection = (eventHandlers) => {
     chatUserRole,
     hasConnectionError,
     isConnecting,
-    sendAttemptError
+    sendAttemptError,
+    isModerator
   };
 };
 

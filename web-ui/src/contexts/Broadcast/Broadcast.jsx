@@ -336,7 +336,7 @@ export const Provider = ({
   }, [success, notifySuccess]);
 
   useEffect(() => {
-    if (isBlocked) {
+    if (isBlocked && isBroadcasting) {
       openModal({
         content: {
           confirmText: $content.leave_page,
@@ -353,7 +353,7 @@ export const Provider = ({
         onCancel
       });
     }
-  }, [isBlocked, onCancel, onConfirm, openModal, isMobile]);
+  }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
 
   const value = useMemo(
     () => ({

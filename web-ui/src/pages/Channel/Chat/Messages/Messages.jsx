@@ -11,7 +11,6 @@ import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
 import useStickyScroll from '../../../../hooks/useStickyScroll';
 import useResize from '../../../../hooks/useResize';
-
 const $content = $channelContent.chat;
 
 const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {

@@ -135,6 +135,12 @@ export const COMPOSER_MAX_CHARACTER_LENGTH = 500;
 export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 
 /**
+ * STREAM MANAGER POLL ACTION
+ */
+
+export const PROFILE_COLORS_WITH_WHITE_TEXT = ['green', 'blue'];
+
+/**
  * STREAM MANAGER
  */
 export const STREAM_ACTION_NAME = {
@@ -285,7 +291,7 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
     [POLL_DATA_KEYS.ANSWERS]: {
       min: 2, // count
       max: 5, // count
-      maxCharLength: 128 // TENTATIVE
+      maxCharLength: 40
     },
     [POLL_DATA_KEYS.QUESTION]: { maxCharLength: 256 }, // TENTATIVE
     [POLL_DATA_KEYS.DURATION]: { min: 5, max: 120 } // seconds

@@ -8,6 +8,7 @@ export { ReactComponent as Celebration } from './celebration.svg';
 export { ReactComponent as ChatClosed } from './chat-closed.svg';
 export { ReactComponent as ChatOpen } from './chat-open.svg';
 export { ReactComponent as Check } from './check.svg';
+export { ReactComponent as CheckCircle } from './check-circle.svg';
 export { ReactComponent as Checkmark } from './checkmark-round.svg';
 export { ReactComponent as ChevronDown } from './chevron-down.svg';
 export { ReactComponent as ChevronLeft } from './chevron-left.svg';

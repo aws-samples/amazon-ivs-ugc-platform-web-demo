@@ -124,7 +124,14 @@
       "answers": "Options",
       "title": "Title",
       "message": "Message",
-      "duration": "Duration"
+      "duration": "Duration",
+      "poll_results": "Poll results",
+      "total_votes": "Total votes",
+      "votes": "votes",
+      "winner": "Winner",
+      "vote": "Vote",
+      "leave_page": "Leave page",
+      "confirm_leave_page": "Are you sure you want to leave this page? You will miss votes while you are away."
     },
     "celebration": {
       "default_label": "Trigger",
@@ -145,6 +152,7 @@
       "started_notice": "Show a notice started",
       "started_product": "Feature a product started",
       "started_quiz": "Host a quiz started",
+      "started_poll": "Host a poll started",
       "stream_action_saved": "Stream action successfully saved"
     },
     "error": {

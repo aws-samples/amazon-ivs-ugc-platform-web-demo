@@ -76,6 +76,17 @@ module.exports = [
     pattern: /^bg-profile-([a-z]+)-darkMode-dark-hover$/,
     variants: ['dark:group-hover']
   },
+  {
+    pattern: /^bg-poll-([a-z]+)-pollVoteBg$/,
+    variants: ['dark:hover', 'hover']
+  },
+  {
+    pattern: /^bg-poll-([a-z]+)-pollButtonBg$/,
+    variants: ['focus']
+  },
+  {
+    pattern: /^text-poll-([a-z]+)-pollWinnerTextColor$/
+  },
   /**
    * Used in the useProfileViewPlayerAnimation hook
    */

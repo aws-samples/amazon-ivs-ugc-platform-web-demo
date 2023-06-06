@@ -23,13 +23,15 @@ import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
 import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
+import Poll from './Chat/Poll/Poll';
+import { usePoll } from '../../contexts/StreamManagerActions/Poll';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
   const { channelError } = useChannel();
-  const { isLandscape, isMobileView } = useResponsiveDevice();
+  const { isLandscape, isMobileView, isDesktopView } = useResponsiveDevice();
   const { isStackedView, isSplitView } = useChannelView();
   const { getProfileViewAnimationProps, chatAnimationControls } =
     useProfileViewAnimation();
@@ -37,9 +39,11 @@ const Channel = () => {
     currentViewerStreamActionData,
     currentViewerStreamActionName,
     currentViewerStreamActionTitle,
-    setCurrentViewerAction,
-    shouldRenderActionInTab
+    setCurrentViewerAction
+    // shouldRenderActionInTab
   } = useViewerStreamActions();
+  const { isActive } = usePoll();
+  const shouldRenderActionInTab = isActive && !isDesktopView;
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -166,13 +170,20 @@ const Channel = () => {
                     setSelectedIndex={setSelectedTabIndex}
                     tabs={[
                       {
-                        label: currentViewerStreamActionTitle,
+                        // temporary code. It will be repolaced once we get to integration ticket
+                        label: shouldRenderActionInTab
+                          ? 'Live poll'
+                          : currentViewerStreamActionTitle,
                         panelIndex: 0
                       },
                       { label: $channelContent.tabs.chat, panelIndex: 1 }
                     ]}
                   />
                   <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
+                    {/* {currentViewerStreamActionName ===
+                      STREAM_ACTION_NAME.POLL && <Poll />} */}
+                    {/* temporary code. It will be repolaced once we get to integration ticket */}
+                    <Poll />
                     {currentViewerStreamActionName ===
                       STREAM_ACTION_NAME.QUIZ && (
                       <QuizViewerStreamAction
@@ -226,6 +237,9 @@ const Channel = () => {
                 }
               >
                 <NotificationProvider>
+                  {/* {!shouldRenderActionInTab && currentViewerStreamActionName ===
+                      STREAM_ACTION_NAME.POLL && <Poll />} */}
+                  {!shouldRenderActionInTab && <Poll />}
                   <Chat
                     shouldRunCelebration={
                       currentViewerStreamActionName ===
