@@ -7,7 +7,7 @@ class BasePageModel {
   #username = 'testUser';
   #avatar = 'bird';
   #color = 'salmon';
-  #trackingId = 'channelArn/trackingId';
+  #trackingId = 'trackingid';
 
   /**
    * @param {import('@playwright/test').Page} page

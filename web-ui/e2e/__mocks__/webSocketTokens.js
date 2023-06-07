@@ -6,7 +6,7 @@ module.exports = {
       channelAssetUrls: '{}',
       color: 'salmon',
       displayName: 'testUser',
-      channelArn: 'channelArn'
+      channelArn: 'channel/channelId'
     }
   },
   john: {
@@ -16,7 +16,7 @@ module.exports = {
       channelAssetUrls: '{}',
       color: 'green',
       displayName: 'john',
-      channelArn: 'channelArn/viewer-trackingId'
+      channelArn: 'channel/viewer-trackingId'
     }
   }
 };

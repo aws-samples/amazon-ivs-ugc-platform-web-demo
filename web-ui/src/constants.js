@@ -21,6 +21,7 @@ export const CHANNEL_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
 /**
  * CHAT
  */
+export const BANNED_USERNAME_CHANNEL_ID_SEPARATOR = 'channel/';
 export const MAX_RECONNECT_ATTEMPTS = 7;
 
 export const CHAT_LOG_LEVELS = {

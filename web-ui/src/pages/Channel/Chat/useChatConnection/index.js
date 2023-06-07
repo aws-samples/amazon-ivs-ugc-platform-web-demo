@@ -87,7 +87,6 @@ const useChatConnection = (eventHandlers) => {
       regionOrUrl: ivsChatWebSocketRegionOrUrl,
       maxReconnectAttempts: MAX_RECONNECT_ATTEMPTS,
       tokenProvider: async () => {
-        if (!isSessionValid) return;
         const data = await requestChatToken(chatRoomOwnerUsername, signal);
 
         if (data?.error) {
