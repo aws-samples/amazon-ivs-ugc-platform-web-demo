@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.188.0",
+    "@aws-sdk/client-dynamodb": "^3.348.0",
     "@aws-sdk/util-dynamodb": "^3.188.0",
     "fastify": "^4.8.1"
   },
