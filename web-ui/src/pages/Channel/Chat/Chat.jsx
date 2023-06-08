@@ -2,7 +2,11 @@ import { AnimatePresence } from 'framer-motion';
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
+import {
+  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
+  BREAKPOINTS,
+  MODERATOR_PILL_TIMEOUT
+} from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
@@ -71,7 +75,11 @@ const Chat = ({ shouldRunCelebration }) => {
   );
   const handleUserDisconnect = useCallback(
     (bannedUsername) => {
-      if (bannedUsername.includes(userData?.trackingId)) {
+      const bannedUserChannelId = bannedUsername
+        .toLowerCase()
+        .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1];
+
+      if (bannedUserChannelId === userData?.trackingId) {
         // This user has been banned
         notifyError($content.notifications.error.you_have_been_banned);
         refreshChannelData();

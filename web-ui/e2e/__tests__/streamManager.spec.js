@@ -268,7 +268,7 @@ test.describe('Stream Manager Page', () => {
 
           const message = 'Hi, this is john!';
           const viewerUsername = 'john';
-          const viewerChannelArn = 'channelArn/viewer-trackingId';
+          const viewerChannelArn = 'channel/viewer-trackingId';
           const testTitleSlug = getTestTitleSlug(title, projectName);
 
           await populateChatMessage(
