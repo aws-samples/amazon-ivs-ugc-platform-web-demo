@@ -1,0 +1,71 @@
+{
+  "channels": [
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {
+        "banner": "https://img.freepik.com/free-photo/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds_181624-11068.jpg?w=2000"
+      },
+      "color": "yellow",
+      "username": "michelle",
+      "isLive": true
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {
+        "banner": "https://static.vecteezy.com/system/resources/previews/002/915/060/original/abstract-colorful-background-free-vector.jpg"
+      },
+      "color": "green",
+      "username": "greg",
+      "isLive": true
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {
+        "banner": "https://exoplanets.nasa.gov/internal_resources/2069"
+      },
+      "color": "blue",
+      "username": "Allan",
+      "isLive": true
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "purple",
+      "username": "Trish",
+      "isLive": true
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {
+        "banner": "https://lumiere-a.akamaihd.net/v1/images/sa_pixar_virtualbg_coco_16x9_9ccd7110.jpeg"
+      },
+      "color": "yellow",
+      "username": "madina",
+      "isLive": false
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {
+        "banner": "https://static.vecteezy.com/system/resources/previews/002/915/060/original/abstract-colorful-background-free-vector.jpg"
+      },
+      "color": "green",
+      "username": "John",
+      "isLive": false
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "blue",
+      "username": "Tammy",
+      "isLive": false
+    },
+    {
+      "avatar": "dog",
+      "channelAssetUrls": {},
+      "color": "salmon",
+      "username": "dave",
+      "isLive": false
+    }
+  ],
+  "maxResults": 50
+}

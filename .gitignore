@@ -1,0 +1,8 @@
+tmp
+tmp/
+tmp/*
+
+.DS_Store
+
+/bin
+/teardown

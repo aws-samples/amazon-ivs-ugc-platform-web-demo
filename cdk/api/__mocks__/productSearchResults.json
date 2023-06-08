@@ -1,0 +1,41 @@
+{
+  "SearchResult": {
+    "TotalResultCount": 312,
+    "Items": [
+      {
+        "DetailPageURL": "https://www.amazon.com/dp/B0BF422V1P?tag=123456061-20&linkCode=osi&th=1&psc=1",
+        "ItemInfo": {
+          "Title": {
+            "DisplayValue": "Custom T-Shirts - Athletic Grey - 180pcs"
+          }
+        },
+        "Images": {
+          "Primary": {
+            "Large": {
+              "URL": "https://m.media-amazon.com/images/I/41KsiGHKA-L._SL500_.jpg"
+            },
+            "Medium": {
+              "URL": "https://m.media-amazon.com/images/I/41KsiGHKA-L._SL160_.jpg"
+            },
+            "Small": {
+              "URL": "https://m.media-amazon.com/images/I/41KsiGHKA-L._SL75_.jpg"
+            }
+          }
+        },
+        "Offers": {
+          "Listings": [
+            {
+              "Price": {
+                "DisplayAmount": "$2,740.00"
+              },
+              "MerchantInfo": {
+                "Name": "Custom Apparel House"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "keyword": "Avengers"
+  }
+}

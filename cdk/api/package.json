@@ -1,0 +1,48 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "watch": "nodemon index.ts",
+    "test": "ALLOWED_ORIGINS=\"[\\\"*\\\"]\" SERVICE_NAME=all jest",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.218.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.218.0",
+    "@aws-sdk/client-dynamodb": "^3.218.0",
+    "@aws-sdk/client-ivs": "^3.218.0",
+    "@aws-sdk/client-ivschat": "^3.218.0",
+    "@aws-sdk/client-s3": "^3.218.0",
+    "@aws-sdk/client-secrets-manager": "^3.218.0",
+    "@aws-sdk/s3-presigned-post": "^3.218.0",
+    "@aws-sdk/util-dynamodb": "^3.218.0",
+    "@fastify/cors": "^8.1.0",
+    "@fastify/request-context": "^4.0.0",
+    "aws-jwt-verify": "^3.2.0",
+    "fastify": "^4.10.2",
+    "paapi5-nodejs-sdk": "^1.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/types": "^3.272.0",
+    "@types/jest": "^29.2.3",
+    "@types/node": "^18.11.10",
+    "@types/uuid": "^9.0.0",
+    "aws-sdk-client-mock": "^2.0.1",
+    "aws-sdk-client-mock-jest": "^2.0.1",
+    "jest": "^29.3.1",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.0",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.9.3"
+  }
+}

@@ -1,0 +1,87 @@
+/* defaults to dark theme */
+.input-range {
+  appearance: none;
+  outline: none;
+  opacity: 1;
+  transition: opacity 0, 0.2s;
+  background: linear-gradient(
+    to right,
+    var(--palette-color-white) 0%,
+    var(--palette-color-white) 100%,
+    var(--palette-color-light-gray) 50%,
+    var(--palette-color-light-gray) 100%
+  );
+  cursor: pointer;
+}
+
+.input-range::-webkit-slider-thumb {
+  appearance: none;
+  background: var(--palette-color-white);
+  border-radius: 9999px;
+  height: 16px;
+  transition: all 0.3s;
+  width: 16px;
+}
+
+.input-range::-moz-range-thumb {
+  background: var(--palette-color-white);
+  border: none;
+  height: 16px;
+  width: 16px;
+}
+
+.input-range::-moz-range-thumb:hover {
+  box-shadow: 0 0 0 8px hsla(var(--base-color-white), 100%, 0.3);
+}
+
+.input-range:active::-moz-range-thumb {
+  box-shadow: 0 0 0 8px hsla(var(--base-color-white), 100%, 0.6);
+}
+
+.input-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 8px hsla(var(--base-color-white), 100%, 0.3);
+}
+
+.input-range:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 8px hsla(var(--base-color-white), 100%, 0.6);
+}
+
+@media (prefers-color-scheme: light) {
+  .input-range {
+    background: linear-gradient(
+      to right,
+      var(--palette-color-black) 0%,
+      var(--palette-color-black) 100%,
+      var(--palette-color-white) 50%,
+      var(--palette-color-white) 100%
+    );
+  }
+
+  /* firefox */
+  .input-range::-moz-range-thumb {
+    background: var(--palette-color-black);
+  }
+
+  /* Chrome */
+  .input-range::-webkit-slider-thumb {
+    background: var(--palette-color-black);
+  }
+
+  /* Firefox */
+  .input-range::-moz-range-thumb:hover {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-white), 0%, 0.3);
+  }
+
+  .input-range:active::-moz-range-thumb {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-white), 0%, 0.6);
+  }
+
+  /* Chrome */
+  .input-range::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-white), 0%, 0.3);
+  }
+
+  .input-range:active::-webkit-slider-thumb {
+    box-shadow: 0 0 0 8px hsla(var(--base-color-white), 0%, 0.6);
+  }
+}

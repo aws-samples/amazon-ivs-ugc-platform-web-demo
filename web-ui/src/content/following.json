@@ -1,0 +1,11 @@
+{
+  "title": "Following",
+  "no_channels_followed": "No channels followed",
+  "failed_to_load_channels": "Failed to load channels",
+  "notification": {
+    "error": {
+      "error_loading_channels": "Error loading channels",
+      "try_again": "Try again"
+    }
+  }
+}

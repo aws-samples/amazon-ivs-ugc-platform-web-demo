@@ -1,0 +1,64 @@
+{
+  "register_page": {
+    "create_account": "Create account",
+    "have_an_account": "Have an account?",
+    "password_description": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
+    "title": "Create a new account",
+    "verify_your_account": "Verify your account",
+    "email_link_sent": "Your account has been created. Please verify it by clicking the activation link that has been sent to your email."
+  },
+  "login_page": {
+    "create_an_account": "Create an account",
+    "forgot_password": "Forgot password?",
+    "new_user": "New user?",
+    "title": "Sign in to your account"
+  },
+  "reset_password_page": {
+    "email_link_sent": "If an account with this email address exists, you will receive an email with a link to reset your password.",
+    "request_password_reset": "Request password reset",
+    "reset_password_success": "Password has been reset",
+    "resend": "Resend",
+    "return_to_login": "Return to login",
+    "title": "Reset your password"
+  },
+  "form": {
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "confirm": "Confirm",
+    "enter_your": "Enter your",
+    "confirm_your": "Confirm your"
+  },
+  "sign_in": "Sign in",
+  "continue": "Continue",
+  "confirm": "Confirm",
+  "resend": "Resend",
+  "did_not_receive_email": "Didn't receive the email?",
+  "return_to_login": "Return to login",
+  "input_error": {
+    "invalid_email": "Enter a valid email.",
+    "invalid_username": "Use 4 to 20 characters with a mix of letters, numbers & symbols.",
+    "invalid_password_length": "Use 8 characters or more.",
+    "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
+    "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
+    "passwords_mismatch": "Passwords didn’t match. Try again.",
+    "unavailable_username": "This username is unavailable.",
+    "username_taken": "This username has been taken.",
+    "unavailable_email": "This email has already been used."
+  },
+  "notification": {
+    "success": {
+      "resent_confirmation": "Verification email has been resent",
+      "registration_confirmed": "Your registration has been confirmed",
+      "account_deleted": "Your account has been successfully deleted."
+    },
+    "error": {
+      "incorrect_username_or_password": "Incorrect username or password",
+      "unexpected_error_occurred": "An unexpected error occurred, please try again later",
+      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later",
+      "registration_not_confirmed": "Your registration has not been confirmed",
+      "resent_confirmation_error": "Verification email failed to resend. Please try again.",
+      "resent_confirmation_limit_error": "Limit has been exceeded. Please try again in one hour."
+    }
+  }
+}

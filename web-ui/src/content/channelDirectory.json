@@ -1,0 +1,20 @@
+{
+  "live_streams_section": {
+    "title": "Live streams",
+    "no_streams_available": "No live streams available",
+    "try_again": "Try again"
+  },
+  "following_section": {
+    "failed_to_load_channels": "Failed to load channels",
+    "no_channels_followed": "No channels followed",
+    "title": "Following",
+    "try_again": "Try again",
+    "view_all": "View all"
+  },
+  "notification": {
+    "error": {
+      "error_loading_channels": "Error loading channels",
+      "error_loading_streams": "Error loading streams"
+    }
+  }
+}

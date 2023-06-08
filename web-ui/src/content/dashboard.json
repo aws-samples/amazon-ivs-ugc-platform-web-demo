@@ -1,0 +1,196 @@
+{
+  "header": {
+    "return_to_session": "Return to session",
+    "log_out": "Log out",
+    "stream_session": "Stream session",
+    "select_stream_session": "Select a session to view",
+    "settings": "Settings",
+    "session_navigator": {
+      "started": "Started",
+      "no_stream_sessions": "No stream sessions",
+      "no_stream_sessions_message": "Stream sessions will show up here when there is data.",
+      "session_group_labels": {
+        "today": "Today",
+        "previous_7_days": "Previous 7 days",
+        "previous_30_days": "Previous 30 days",
+        "earlier": "Earlier"
+      },
+      "load_more_sessions": "Load more sessions"
+    }
+  },
+  "stream_session_page": {
+    "failed_to_load": "Failed to load",
+    "no_data_available": "No data available",
+    "encoder_configuration": {
+      "title": "Encoder configuration",
+      "video_encoder": "Video encoder",
+      "video_codec": "Video codec",
+      "audio_codec": "Audio codec",
+      "audio_sample_rate": "Audio sample rate",
+      "audio_channels": "Audio channels",
+      "mono": "mono",
+      "stereo": "stereo",
+      "resolution": "Resolution",
+      "keyframe_interval": "Keyframe interval",
+      "target_bitrate": "Target bitrate",
+      "target_audio_bitrate": "Target audio bitrate",
+      "kHz": "kHz",
+      "kbps": "Kbps",
+      "mbps": "Mbps",
+      "copied": "copied",
+      "copy_the_label": "Copy the {label} value",
+      "errors": {
+        "encoderAudioSampleRateError": "Recommended sample rates are 44.1kHz and 48kHz.",
+        "encoderNumberOfAudioChannelsError": "The audio has more than two channels, but only one (mono) or two (stereo) channels are supported. Please correct the number of audio channels.",
+        "encoderResolutionError": "Your stream session ended because the {resolution} resolution setting is too high. Change your encoder settings to avoid the stream automatically ending.",
+        "encoderKeyframeIntervalError": "To achieve low latency, Amazon IVS recommends a keyframe interval of 2.",
+        "encoderTargetBitrateError": "Your stream session ended because the {bitrate} Mbps target bitrate setting is too high. Change your encoder settings to avoid the stream automatically ending.",
+        "encoderTargetAudioBitrateError": "The audio stream's target bitrate is higher than recommended. We recommend an audio stream bitrate of 320kbps or lower."
+      }
+    },
+    "charts": {
+      "video_bitrate": "Video bitrate",
+      "frame_rate": "Frame rate",
+      "all": "All",
+      "one_hour": "1 hr",
+      "thirty_min": "30 min",
+      "five_min": "5 min",
+      "now": "Now"
+    },
+    "stream_events": {
+      "stream_events": "Stream events",
+      "no_stream_events": "No stream events",
+      "no_stream_events_message": "Stream events will show up here when there is data.",
+      "view_all_events": "View all events",
+      "learn_how_to_fix_it": "Learn how to fix it",
+      "event_names": {
+        "session_created": "Session created",
+        "session_ended": "Session ended",
+        "stream_start": "Stream started",
+        "stream_end": "Stream ended",
+        "stream_failure": "Stream failure",
+        "starvation_start": "Poor stability",
+        "starvation_end": "Good stability",
+        "ingest_bitrate": "Bitrate limit breach",
+        "ingest_resolution": "Resolution limit breach",
+        "critical_system_error": "Critical System Error",
+        "recording_start": "Recording started",
+        "recording_end": "Recording ended",
+        "recording_start_failure": "Recording start failure",
+        "recording_end_failure": "Recording end failure"
+      },
+      "event_messages": {
+        "short": {
+          "stream_failure": "The stream is not being processed and is not available because processing capacity was exceeded.",
+          "starvation_start": "Your stream is experiencing performance or network issues. Please check your configuration settings and network connection.",
+          "ingest_bitrate": "Your stream session ended because the bitrate setting is too high. Please change your encoder settings.",
+          "ingest_resolution": "Your stream session ended because the resolution setting is too high. Please change your encoder settings.",
+          "concurrent_broadcasts": "Your stream session ended because the number of channels streaming at the same time was too high. Please change your encoder settings.",
+          "concurrent_viewers": "Your stream session ended because the number of concurrent viewers was too high. Please change your encoder settings.",
+          "recording_start_failure": "Recording failed to start due to errors. This live stream was not recorded.",
+          "recording_end_failure": "Due to errors encountered during the stream, the recording was not completed successfully. Some objects may have been written to the configured storage location."
+        }
+      }
+    },
+    "notification_with_cta": {
+      "failed_to_load_session": "Failed to load session data",
+      "failed_to_load_sessions": "Failed to load stream sessions",
+      "try_again": "Try again",
+      "settings": "Settings",
+      "stream_instructions": "To monitor stream health you must first start a live stream. "
+    }
+  },
+  "settings_page": {
+    "title": "Settings",
+    "copy": "Copy",
+    "save": "Save",
+    "reset": "Reset",
+    "stream_settings": "Stream settings",
+    "stream_key": "Stream key",
+    "ingest_server_url": "Ingest server URL",
+    "ingest_endpoint": "Ingest endpoint",
+    "playback_url": "Playback URL",
+    "go_live_from_web": "Go live from web",
+    "account_settings": "Account settings",
+    "channel_settings": "Channel settings",
+    "upload_restrictions": "File format: {FILE_FORMATS} (Max {MAXIMUM_FILE_SIZE} MB)",
+    "upload_image": "Upload image",
+    "replace_image": "Replace image",
+    "avatar": "Avatar",
+    "banner": "Profile banner",
+    "color": "Color",
+    "create_your_new_password": "Create your new password",
+    "account_deletion": "Account deletion",
+    "delete_my_account": "Delete my account",
+    "input_error": {
+      "attempt_limit_exceeded": "Attempt limit exceeded, please try again later.",
+      "unexpected_error_occurred": "An unexpected error occurred, please try again later.",
+      "incorrect_password": "Incorrect password.",
+      "invalid_password_length": "Use 8 characters or more.",
+      "invalid_password_strength": "Use at least 1 uppercase & lowercase letter, number, and symbol.",
+      "invalid_password": "Use 8 or more characters with a mix of uppercase & lowercase letters, numbers & symbols.",
+      "invalid_username": "Use 4 to 20 characters with a mix of letters, numbers & symbols.",
+      "passwords_mismatch": "Passwords didn’t match. Try again.",
+      "same_as_old_password": "Your new password cannot be the same as your old password.",
+      "unavailable_username": "This username is unavailable.",
+      "username_taken": "This username has been taken."
+    }
+  },
+  "modal": {
+    "reset_stream_key_modal": {
+      "reset_stream_key": "Reset stream key",
+      "confirm_intent_message": "Are you sure you would like to reset your stream key?",
+      "stream_will_terminate": "Your current live stream will be terminated when you reset your stream key."
+    },
+    "account_deletion_modal": {
+      "delete_account": "Delete account",
+      "confirm_intent_message": "Are you sure you would like to delete your account?"
+    },
+    "password_updated_modal": {
+      "password_updated": "Password updated",
+      "confirmation_message": "Your password has been updated. This change will log out your sessions on all other devices.",
+      "okay": "Okay"
+    },
+    "live_stream_ended_modal": {
+      "live_stream_ended": "Live stream ended",
+      "live_stream_ended_message": "The live stream you were monitoring has ended. Reload the page to view the stream summary.",
+      "reload": "Reload"
+    },
+    "channel_asset_deletion_modal": {
+      "delete_image": "Delete image",
+      "confirm_intent_message": "Are you sure you want to delete your {ASSET_TYPE} image?"
+    }
+  },
+  "notification": {
+    "success": {
+      "stream_key_reset": "Stream key has been reset",
+      "stream_key_copied": "Stream key copied",
+      "ingest_server_url_copied": "Ingest server URL copied",
+      "ingest_endpoint_copied": "Ingest endpoint copied",
+      "playback_url_copied": "Playback URL copied",
+      "username_saved": "Username saved",
+      "password_saved": "Password saved",
+      "avatar_saved": "Avatar saved",
+      "color_saved": "Color saved",
+      "avatar_uploaded": "Image uploaded and avatar saved",
+      "avatar_deleted": "Avatar image deleted",
+      "banner_uploaded": "Profile banner uploaded",
+      "banner_deleted": "Profile banner image deleted"
+    },
+    "error": {
+      "reset_stream_key_failed": "Stream key failed to reset",
+      "username_save_failed": "Username failed to save",
+      "password_save_failed": "Password failed to save",
+      "account_deletion_failed": "Account failed to delete",
+      "avatar_failed_to_save": "Avatar failed to save",
+      "color_failed_to_save": "Color failed to save",
+      "avatar_failed_to_upload": "Avatar failed to upload",
+      "avatar_failed_to_delete": "Avatar failed to delete",
+      "banner_failed_to_upload": "Profile banner failed to upload",
+      "banner_failed_to_delete": "Profile banner failed to delete",
+      "banner_failed_to_save": "Banner failed to save",
+      "image_exceeded_max_size": "Image exceeded max file size",
+      "cant_select_file": "Can't select the file you chose"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "stream_offline": "Stream offline",
+  "video_quality": "Video quality",
+  "you_are_banned": "You are banned from this channel",
+  "notification": {
+    "error": {
+      "error_loading_stream": "Error loading stream"
+    }
+  }
+}

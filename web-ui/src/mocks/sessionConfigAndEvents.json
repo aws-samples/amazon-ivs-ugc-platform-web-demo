@@ -1,0 +1,115 @@
+{
+  "channel": {
+    "type": "BASIC"
+  },
+  "ingestConfiguration": {
+    "audio": {
+      "channels": 2,
+      "codec": "mp4a.40.2",
+      "sampleRate": 48000,
+      "targetBitrate": 160000
+    },
+    "video": {
+      "avcLevel": "3.0",
+      "avcProfile": "High",
+      "codec": "avc1.64001E",
+      "encoder": "obs-output module (libobs version 27.2.4)",
+      "targetBitrate": 750000,
+      "targetFramerate": 30,
+      "videoHeight": 432,
+      "videoWidth": 768
+    }
+  },
+  "truncatedEvents": [
+    {
+      "eventTime": "2022-05-20T21:10:00.000Z",
+      "name": "Session Ended",
+      "type": "IVS Stream State Change",
+      "id": "Session Ended - 2022-05-20T21:10:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T21:05:00.000Z",
+      "name": "Stream End",
+      "type": "IVS Stream State Change",
+      "id": "Stream End - 2022-05-20T21:05:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T21:00:00.000Z",
+      "name": "Stream Failure",
+      "type": "IVS Stream State Change",
+      "id": "Stream Failure - 2022-05-20T21:00:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:55:00.000Z",
+      "name": "Starvation End",
+      "type": "IVS Stream Health Change",
+      "id": "Starvation End - 2022-05-20T20:55:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:50:00.000Z",
+      "name": "Starvation Start",
+      "type": "IVS Stream Health Change",
+      "id": "Starvation Start - 2022-05-20T20:50:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:45:00.000Z",
+      "name": "Ingest Bitrate",
+      "type": "IVS Limit Breach",
+      "id": "Ingest Bitrate - 2022-05-20T20:45:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:40:00.000Z",
+      "name": "Ingest Resolution",
+      "type": "IVS Limit Breach",
+      "id": "Ingest Resolution - 2022-05-20T20:40:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:35:00.000Z",
+      "name": "Concurrent Broadcasts",
+      "type": "IVS Limit Breach",
+      "id": "Concurrent Broadcasts - 2022-05-20T20:35:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:30:00.000Z",
+      "name": "Concurrent Viewers",
+      "type": "IVS Limit Breach",
+      "id": "Concurrent Viewers - 2022-05-20T20:30:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:25:00.000Z",
+      "name": "Recording End",
+      "type": "IVS Recording State Change",
+      "id": "Recording End - 2022-05-20T20:25:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:20:00.000Z",
+      "name": "Recording End Failure",
+      "type": "IVS Recording State Change",
+      "id": "Recording End Failure - 2022-05-20T20:20:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:15:00.000Z",
+      "name": "Recording Start Failure",
+      "type": "IVS Recording State Change",
+      "id": "Recording Start Failure - 2022-05-20T20:15:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:10:00.000Z",
+      "name": "Recording Start",
+      "type": "IVS Recording State Change",
+      "id": "Recording Start - 2022-05-20T20:10:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:05:00.000Z",
+      "name": "Stream Start",
+      "type": "IVS Stream State Change",
+      "id": "Stream Start - 2022-05-20T20:05:00.000Z"
+    },
+    {
+      "eventTime": "2022-05-20T20:00:00.000Z",
+      "name": "Session Created",
+      "type": "IVS Stream State Change",
+      "id": "Session Created - 2022-05-20T20:00:00.000Z"
+    }
+  ]
+}

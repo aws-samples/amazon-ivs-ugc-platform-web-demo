@@ -1,0 +1,77 @@
+{
+  "clearMocks": true,
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "**/*.ts",
+    "!**/node_modules/**",
+    "!**/dist/**",
+    "!./index.ts",
+    "!./testUtils.ts"
+  ],
+  "coverageDirectory": "coverage",
+  "coverageThreshold": {
+    "./buildServer.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channels/getChannels.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/unauthRouter/signUp.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/changeUsername.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/deleteUser.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/sendStreamAction.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/generateImagePresignedPost.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/deleteChannelAsset.ts": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "channel/authRouter/getFollowingChannels.ts": {
+      "statements": 100,
+      "branches": 73.33,
+      "functions": 100,
+      "lines": 100
+    },
+    "metrics/": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    }
+  },
+  "preset": "ts-jest",
+  "testMatch": ["**/*.test.ts"],
+  "testEnvironment": "node"
+}

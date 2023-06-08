@@ -1,0 +1,34 @@
+[
+  {
+    "name": "quiz",
+    "data": {
+      "duration": 7,
+      "question": "What is the capital of Canada?",
+      "correctAnswerIndex": 2,
+      "answers": ["Vancouver", "Toronto", "Ottawa", "Montréal"]
+    }
+  },
+  {
+    "name": "product",
+    "data": {
+      "title": "Sneakers",
+      "description": "Your streamer's favorite sneakers",
+      "price": "$250",
+      "imageUrl": "https://api.lorem.space/image/shoes?w=1024&h=1024"
+    }
+  },
+  {
+    "name": "notice",
+    "data": {
+      "duration": 7,
+      "title": "200k subs",
+      "message": "Yay 200k subs, thanks all!"
+    }
+  },
+  {
+    "name": "celebration",
+    "data": {
+      "duration": 10
+    }
+  }
+]
