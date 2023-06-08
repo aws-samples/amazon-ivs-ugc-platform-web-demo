@@ -1,0 +1,14 @@
+export { default as bear } from './bear.png';
+export { default as bird } from './bird.png';
+export { default as bird2 } from './bird2.png';
+export { default as dog } from './dog.png';
+export { default as dog2 } from './dog2.png';
+export { default as dog3 } from './dog3.png';
+export { default as giraffe } from './giraffe.png';
+export { default as hedgehog } from './hedgehog.png';
+export { default as hippo } from './hippo.png';
+export { default as horse } from './horse.png';
+export { default as ibex } from './ibex.png';
+export { default as jellyfish } from './jellyfish.png';
+export { default as sheep } from './sheep.png';
+export { default as tiger } from './tiger.png';

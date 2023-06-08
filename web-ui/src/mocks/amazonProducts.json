@@ -1,0 +1,42 @@
+{
+  "page": 1,
+  "totalResults": 30000,
+  "products": [
+    {
+      "title": "Sunglasses",
+      "imgURL": "https//cdn.shopify.com/s/files/1/0123/9390/6234/products/NeuralyzersFront_800x.jpg?v=1658409868",
+      "price": {
+        "displayAmount": "$25"
+      },
+      "merchantInfo": "Company/seller",
+      "productURL": "https://www.amazon.com/dp/B09FHSLTXL?tag=123456061-20&linkCode=osi&th=1&psc=1&channelId=<encoded channel id>"
+    },
+    {
+      "title": "Waterproof sunglasses",
+      "imgURL": "https://m.media-amazon.com/images/I/71GqRdXOpUL._AC_UL1500_.jpg",
+      "price": {
+        "displayAmount": null
+      },
+      "merchantInfo": null,
+      "productURL": "https://www.amazon.com/dp/B09FHSLTXL?tag=123456061-20&linkCode=osi&th=1&psc=1&channelId=<encoded channel id>"
+    },
+    {
+      "title": "Sunglasses with case and long name that goes on two lines",
+      "imgURL": "https://cdn.shopify.com/s/files/1/0185/7770/products/MotorboatSunsetDWFRNT_x566.jpg?v=1643306861",
+      "price": {
+        "displayAmount": "$25"
+      },
+      "merchantInfo": "Company/seller",
+      "productURL": "https://www.amazon.com/dp/B09FHSLTXL?tag=123456061-20&linkCode=osi&th=1&psc=1&channelId=<encoded channel id>"
+    },
+    {
+      "title": "Sport sunglasses",
+      "imgURL": "https://cdn.shopify.com/s/files/1/0148/9585/products/BLNDRS_HardThunder_EclipseX2_Quarter_712x.jpg?v=1613151840",
+      "price": {
+        "displayAmount": "$25"
+      },
+      "merchantInfo": "Company/seller",
+      "productURL": "https://www.amazon.com/dp/B09FHSLTXL?tag=123456061-20&linkCode=osi&th=1&psc=1&channelId=<encoded channel id>"
+    }
+  ]
+}

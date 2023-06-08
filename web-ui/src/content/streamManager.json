@@ -1,0 +1,145 @@
+{
+  "web_broadcast_audio_video_settings_modal": {
+    "camera": "Camera",
+    "show_camera_on_screen_share": "Show camera on screen share",
+    "audio_and_video_settings": "Audio & video settings",
+    "microphone": "Microphone",
+    "done": "Done",
+    "choose": "Choose"
+  },
+  "stream_manager_web_broadcast": {
+    "go_live": "Go live",
+    "manage_stream": "Manage stream",
+    "start_stream": "Start stream",
+    "end_stream": "End stream",
+    "confirm_end_stream": "Are you sure you want to end your live stream?",
+    "cancel": "Cancel",
+    "confirm_leave_page_L1": "Are you sure you want to leave this page?",
+    "confirm_leave_page_L2": "This will end your live stream.",
+    "leave_page": "Leave page",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "show_camera": "Show camera",
+    "hide_camera": "Hide camera",
+    "stop_sharing": "Stop sharing",
+    "share_your_screen": "Share your screen",
+    "open_settings": "Open settings",
+    "your_channel_is_already_live": "Your channel is already live",
+    "collapse": "Collapse full screen",
+    "expand": "Expand full screen",
+    "notifications": {
+      "success": {
+        "camera_changed_to": "Camera changed to",
+        "mic_changed_to": "Mic changed to"
+      },
+      "error": {
+        "could_not_go_live": "Could not go live",
+        "failed_to_change_camera": "Failed to change camera",
+        "failed_to_change_mic": "Failed to change mic",
+        "failed_to_access_camera": "Failed to access camera",
+        "failed_to_access_mic": "Failed to access mic",
+        "no_camera_or_mic_detected": "No camera or mic detected",
+        "permissions_denied": "You must allow access to both your camera and microphone",
+        "screenshare_permissions_denied": "Screenshare permission denied",
+        "stream_disconnected": "Stream disconnected"
+      }
+    }
+  },
+  "stream_manager_actions": {
+    "unit_seconds": "s",
+    "save": "Save",
+    "cancel": "Cancel",
+    "amazon_product": {
+      "active_label": "Amazon product",
+      "clear_filter": "Clear filter",
+      "confirm_text": "Show product",
+      "default_label": "Amazon product",
+      "empty_text": "Search for a product",
+      "modal_form_title": "Feature an Amazon product",
+      "search_placeholder": "Enter keywords or ASIN",
+      "title": "Results",
+      "tooltip_message": "Sort by",
+      "aria_label_load_more_products": "Loading more products. This may take several seconds. You are currently viewing",
+      "aria_label_last_product": "You have reached the bottom of the product list",
+      "dropdown": {
+        "expand": "open sort dropdown",
+        "collapse": "close sort dropdown",
+        "search_parameters": {
+          "sort_by": "Sort by"
+        },
+        "sort_categories": {
+          "featured": "Featured",
+          "new_arrivals": "New arrivals",
+          "price_low_to_high": "Price: Low to high",
+          "relevance": "Relevance",
+          "price_high_to_low": "Price: High to low"
+        }
+      },
+      "no_results": {
+        "no_results_for_search": "No results for your search",
+        "seller_name_not_available": "Seller name not available",
+        "price_not_available": "Price not available"
+      }
+    },
+    "quiz": {
+      "confirm_text": "Start quiz",
+      "question": "Question",
+      "answers": "Answers",
+      "answer": "Answer",
+      "add_answer": "Add answer",
+      "duration": "Duration",
+      "default_label": "Host",
+      "active_label": "Hosting",
+      "modal_form_title": "Host a quiz"
+    },
+    "product": {
+      "confirm_text": "Show product",
+      "title": "Title",
+      "price": "Price",
+      "price_placeholder": "$10",
+      "image_url": "Image URL",
+      "image_url_placeholder": "https://my-image.png",
+      "description": "Description",
+      "default_label": "Feature",
+      "active_label": "Featuring",
+      "modal_form_title": "Feature a product"
+    },
+    "notice": {
+      "confirm_text": "Show notice",
+      "default_label": "Show",
+      "active_label": "Showing",
+      "modal_form_title": "Show a notice",
+      "title": "Title",
+      "message": "Message",
+      "duration": "Duration"
+    },
+    "celebration": {
+      "default_label": "Trigger",
+      "active_label": "Triggering"
+    },
+    "input_error": {
+      "enter_valid_url": "Enter a valid URL.",
+      "max_length_exceeded": "Maximum length exceeded.",
+      "select_correct_answer": "Select a correct answer."
+    },
+    "on": "On",
+    "off": "Off"
+  },
+  "notifications": {
+    "success": {
+      "started_amazon_product": "Feature an Amazon product started",
+      "started_celebration": "Trigger a celebration started",
+      "started_notice": "Show a notice started",
+      "started_product": "Feature a product started",
+      "started_quiz": "Host a quiz started",
+      "stream_action_saved": "Stream action successfully saved"
+    },
+    "error": {
+      "an_error_occurred": "An error occurred",
+      "unable_to_get_products": "Unable to get products",
+      "unable_to_save": "Unable to save",
+      "unable_to_send": "Unable to send",
+      "unable_to_start_stream_action": "Unable to start stream action"
+    }
+  }
+}

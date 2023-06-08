@@ -1,0 +1,27 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# CDK stack output
+.env
+
+# dependencies
+**/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+**/build
+
+# playwright
+/e2e/test-results/
+/e2e/playwright-report/
+/e2e/playwright/.cache/
+/e2e/storageState.json
+/e2e/__tests__/**/*-darwin.png
+
+# misc
+.DS_Store
+.env
+.eslintcache

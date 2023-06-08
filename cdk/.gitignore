@@ -1,0 +1,17 @@
+*.js
+!/scripts/*
+!.prettierrc.js
+*.d.ts
+node_modules
+dist
+cdk.context.json
+
+# temp
+temp_out.json
+seed_temp_out.txt
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+coverage

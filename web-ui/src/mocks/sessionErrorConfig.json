@@ -1,0 +1,41 @@
+{
+  "hasErrorEvent": true,
+  "ingestConfiguration": {
+    "audio": {
+      "channels": 6,
+      "codec": "mp4a.40.2",
+      "sampleRate": 42000,
+      "targetBitrate": 420000
+    },
+    "video": {
+      "avcLevel": "3.0",
+      "avcProfile": "High",
+      "codec": "avc1.64001E",
+      "encoder": "obs-output module (libobs version 27.2.4)",
+      "targetBitrate": 8500000,
+      "targetFramerate": 30,
+      "videoHeight": 1080,
+      "videoWidth": 1920
+    }
+  },
+  "channel": {
+    "type": "BASIC"
+  },
+  "metrics": [
+    {
+      "label": "IngestVideoBitrate",
+      "data": [],
+      "statistics": {}
+    },
+    {
+      "label": "IngestFramerate",
+      "data": [],
+      "statistics": {}
+    },
+    {
+      "label": "KeyframeInterval",
+      "data": [3],
+      "statistics": { "average": 3 }
+    }
+  ]
+}

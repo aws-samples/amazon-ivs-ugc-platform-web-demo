@@ -1,0 +1,47 @@
+{
+  "title": "UGC",
+  "live": "live",
+  "navbar": {
+    "log_in": "Log in",
+    "sign_up": "Sign up",
+    "log_out": "Log out",
+    "settings": "Settings",
+    "home": "Home",
+    "feed": "Feed",
+    "following": "Following",
+    "stream_health": "Stream health",
+    "stream_manager": "Stream manager",
+    "profile": "Profile"
+  },
+  "modal": {
+    "cancel": "Cancel"
+  },
+  "full_screen_loader": {
+    "error_occurred": "Error occurred",
+    "try_again": "Try again"
+  },
+  "floating_player": {
+    "view_stream_session": "View stream session",
+    "offline_instructions": "To start streaming, find your ingest server url and stream key in settings.",
+    "settings": "Settings",
+    "expand": "Expand player",
+    "collapse": "Collapse player",
+    "your_channel_is_offline": "Your channel is offline"
+  },
+  "date_time": {
+    "just_now": "just now"
+  },
+  "status_bar": {
+    "concurrent_views_offline": "Average concurrent views for the entire session",
+    "concurrent_views": "Concurrent views",
+    "offline": "Offline",
+    "poor": "Poor",
+    "stable": "Stable",
+    "view_stream_health": "View stream health",
+    "view_your_channel": "View your channel"
+  },
+  "hide": "Hide",
+  "show": "Show",
+  "page_unavailable": "This page is unavailable",
+  "back_to_directory": "Back to directory"
+}

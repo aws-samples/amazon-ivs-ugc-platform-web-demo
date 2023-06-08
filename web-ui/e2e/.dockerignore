@@ -1,0 +1,14 @@
+# e2e
+
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/screenshots/
+/storageState.json
+/run-tests.sh
+/page-object-model.png
+
+# misc
+
+**/.DS_Store
+**/*.md

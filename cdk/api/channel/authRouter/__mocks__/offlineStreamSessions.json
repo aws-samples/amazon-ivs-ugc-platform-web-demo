@@ -1,0 +1,132 @@
+[
+  {
+    "channelArn": "offline-channelArn-user1",
+    "startTime": "2022-06-08T20:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T20:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T20:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Session Ended",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Stream End",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "offline-channelArn-user2",
+    "startTime": "2022-06-08T22:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T22:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T22:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Session Ended",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Stream End",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "offline-channelArn-user3",
+    "startTime": "2022-06-08T18:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T18:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T18:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Session Ended",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Stream End",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "offline-channelArn-user4",
+    "startTime": "2022-06-08T18:39:28.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-08T18:39:28.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-08T18:39:28.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Session Ended",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Stream End",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  },
+  {
+    "channelArn": "offline-channelArn-user5",
+    "startTime": "2022-06-09T18:39:27.000Z",
+    "truncatedEvents": [
+      {
+        "startTime": "2022-06-09T18:39:27.000Z",
+        "name": "Stream Start",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "startTime": "2022-06-09T18:39:27.000Z",
+        "name": "Session Created",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Session Ended",
+        "type": "IVS Stream State Change"
+      },
+      {
+        "eventTime": "2022-11-24T19:45:12.000Z",
+        "name": "Stream End",
+        "type": "IVS Stream State Change"
+      }
+    ]
+  }
+]

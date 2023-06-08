@@ -1,0 +1,50 @@
+{
+  "users": [
+    {
+      "id": "mock-user-id-0",
+      "avatar": "bear",
+      "channelArn": "arn:aws:ivs:us-west-2:000000000000:channel/mock-0",
+      "chatRoomArn": "",
+      "color": "blue",
+      "email": "fake+0@ugc.com",
+      "ingestEndpoint": "",
+      "playbackUrl": "https://4c62a87c1810.us-west-2.playback.live-video.net/api/video/v1/us-west-2.049054135175.channel.FMaC7IMoyDEA.m3u8",
+      "streamKeyArn": "",
+      "streamKeyValue": "",
+      "username": "mockUser0"
+    },
+    {
+      "id": "mock-user-id-1",
+      "avatar": "bird",
+      "channelArn": "arn:aws:ivs:us-west-2:000000000000:channel/mock-1",
+      "chatRoomArn": "",
+      "color": "green",
+      "email": "fake+1@ugc.com",
+      "ingestEndpoint": "",
+      "playbackUrl": "https://4c62a87c1810.us-west-2.playback.live-video.net/api/video/v1/us-west-2.049054135175.channel.FMaC7IMoyDEA.m3u8",
+      "streamKeyArn": "",
+      "streamKeyValue": "",
+      "username": "mockUser1"
+    }
+  ],
+  "streamSessions": [
+    {
+      "channelArn": "arn:aws:ivs:us-west-2:000000000000:channel/mock-0",
+      "id": "mock-stream-id-0",
+      "endTime": "",
+      "hasErrorEvent": false,
+      "isHealthy": true,
+      "startTime": "2022-11-08T00:47:58.622Z",
+      "userSub": ""
+    },
+    {
+      "channelArn": "arn:aws:ivs:us-west-2:000000000000:channel/mock-1",
+      "id": "mock-stream-id-1",
+      "endTime": "",
+      "hasErrorEvent": false,
+      "isHealthy": true,
+      "startTime": "2022-11-08T00:47:58.622Z",
+      "userSub": ""
+    }
+  ]
+}

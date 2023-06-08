@@ -1,0 +1,62 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/cdk.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "**/*.d.ts",
+      "**/*.js",
+      "tsconfig.json",
+      "package*.json",
+      "yarn.lock",
+      "node_modules",
+      "test"
+    ]
+  },
+  "context": {
+    "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
+    "@aws-cdk/core:stackRelativeExports": true,
+    "@aws-cdk/aws-rds:lowercaseDbIdentifier": true,
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": true,
+    "@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver": true,
+    "@aws-cdk/aws-ec2:uniqueImdsv2TemplateName": true,
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
+    "dev": {
+      "resourceConfig": {
+        "allowedOrigins": ["*"],
+        "clientBaseUrl": "http://localhost:3000",
+        "deploySeparateContainers": false,
+        "enableUserAutoVerify": true,
+        "ivsChannelType": "BASIC",
+        "logRetention": 7,
+        "maxAzs": 2,
+        "minScalingCapacity": 1,
+        "natGateways": 1,
+        "signUpAllowedDomains": [],
+        "stageName": "dev",
+        "productApiLocale": "",
+        "productLinkRegionCode": "",
+        "enableAmazonProductStreamAction": false
+      }
+    },
+    "prod": {
+      "resourceConfig": {
+        "allowedOrigins": ["http://localhost:3000"],
+        "clientBaseUrl": "http://localhost:3000",
+        "deploySeparateContainers": true,
+        "enableUserAutoVerify": false,
+        "ivsChannelType": "STANDARD",
+        "maxAzs": 3,
+        "minScalingCapacity": 1,
+        "natGateways": 2,
+        "signUpAllowedDomains": [],
+        "stageName": "prod",
+        "productApiLocale": "",
+        "productLinkRegionCode": "",
+        "enableAmazonProductStreamAction": false
+      }
+    }
+  }
+}
