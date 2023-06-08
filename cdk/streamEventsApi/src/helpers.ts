@@ -116,3 +116,22 @@ export const getUserByChannelArn = (eventChannelArn: string) => {
 
   return dynamoDbClient.send(queryCommand);
 };
+
+export const updateStreamSessionToOffline = ({
+  channelArn,
+  streamId
+}: {
+  channelArn: string;
+  streamId: string;
+}) => {
+  const updateCommand = new UpdateItemCommand({
+    TableName: process.env.STREAM_TABLE_NAME,
+    Key: {
+      channelArn: convertToAttr(channelArn),
+      id: convertToAttr(streamId)
+    },
+    UpdateExpression: 'REMOVE isOpen' // Removing isOpen attr equals to setting the session to be offline
+  });
+
+  return dynamoDbClient.send(updateCommand);
+};

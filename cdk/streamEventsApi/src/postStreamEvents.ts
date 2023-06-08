@@ -1,4 +1,5 @@
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { UpdateItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
@@ -14,7 +15,8 @@ import {
   getStreamEvents,
   getStreamsByChannelArn,
   StreamEvent,
-  updateStreamEvents
+  updateStreamEvents,
+  updateStreamSessionToOffline
 } from './helpers';
 import { getUserByChannelArn } from './helpers';
 
@@ -102,6 +104,28 @@ const handler = async (
       latestStreamHealthChangeEvent?.name !== STARVATION_START;
 
     if (eventName === SESSION_CREATED) {
+      // Older stream sessions that have isOpen set to true will have isOpen attribute removed
+      const { Items: streamSessions = [] } = await getStreamsByChannelArn(
+        channelArn
+      );
+
+      const updateStreamSessionToOfflinePromises: Promise<
+        UpdateItemCommandOutput | undefined
+      >[] = [];
+      streamSessions.forEach((streamSession) => {
+        const unmarshalledStreamSession = unmarshall(streamSession);
+        if (unmarshalledStreamSession.id !== streamId) {
+          updateStreamSessionToOfflinePromises.push(
+            updateStreamSessionToOffline({
+              channelArn,
+              streamId: unmarshalledStreamSession.id
+            })
+          );
+        }
+      });
+
+      await Promise.all(updateStreamSessionToOfflinePromises);
+
       additionalAttributes.startTime = eventTime;
 
       if (
@@ -111,8 +135,7 @@ const handler = async (
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
       }
-    }
-    if (eventName === SESSION_ENDED) {
+    } else if (eventName === SESSION_ENDED) {
       additionalAttributes.endTime = eventTime;
       attributesToRemove.push('isOpen');
     }
