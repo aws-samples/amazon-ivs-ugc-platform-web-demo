@@ -10,7 +10,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.216.0",
+    "@aws-sdk/client-dynamodb": "^3.348.0",
     "@aws-sdk/util-dynamodb": "^3.216.0",
     "@types/aws-lambda": "^8.10.107",
     "@types/node": "^18.8.5",
@@ -21,7 +21,7 @@
     "uuid": "^9.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-ivs": "^3.186.0",
+    "@aws-sdk/client-ivs": "^3.348.0",
     "aws-cdk-lib": "2.45.0",
     "cdk-ecr-deployment": "^2.5.6",
     "constructs": "^10.1.130",
