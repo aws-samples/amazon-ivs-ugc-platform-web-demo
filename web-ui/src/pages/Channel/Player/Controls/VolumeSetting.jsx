@@ -118,7 +118,8 @@ const VolumeSetting = ({
   );
 
   useEffect(() => {
-    if (volumeLevel !== VOLUME_MIN) {
+    if (volumeLevel > VOLUME_MIN) {
+      setMuted(false);
       setVolume(volumeLevel);
     }
   }, [volumeLevel]);
