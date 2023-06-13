@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -15,6 +15,7 @@ import Button from '../../../../components/Button/Button';
 import ProgressBar from '../../ViewerStreamActions/ProgressBar';
 import Spinner from '../../../../components/Spinner';
 import VoteItem from './VoteItem';
+import PollContainer from './PollContainer';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -24,27 +25,25 @@ const ViewerPoll = ({
   votes,
   showFinalResults,
   totalVotes,
-  highestCountOption
+  highestCountOption,
+  duration,
+  startTime,
+  isVoting,
+  isSubmitting,
+  selectedOption
 }) => {
-  const [selectedOption, setSelectedOption] = useState();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVoting, setIsVoting] = useState(true);
   const { isTouchscreenDevice } = useResponsiveDevice();
+  const { setIsSubmitting, setIsVoting } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
 
   const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
-  const { duration } = usePoll();
 
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
     : 'black';
-
-  const onOptionChange = (option) => {
-    setSelectedOption(option);
-  };
 
   const submitVote = useCallback(() => {
     setIsSubmitting(true);
@@ -56,39 +55,38 @@ const ViewerPoll = ({
       });
 
       await Promise.all([
-        inputDivControls.start({
-          x: '-1px',
-          transition: { duration: 0.2 }
-        }),
         buttonDivControls.start({
           height: 0,
           padding: 0,
+          opacity: 0,
+          transition: { duration: 0.1 }
+        }),
+        inputDivControls.start({
+          x: '-1px',
           transition: { duration: 0.2 }
         })
       ]);
       setIsVoting(false);
       setIsSubmitting(false);
     }, 2000);
-  }, [buttonDivControls, inputDivControls, radioBoxControls]);
+  }, [
+    buttonDivControls,
+    inputDivControls,
+    radioBoxControls,
+    setIsSubmitting,
+    setIsVoting
+  ]);
 
   const progressBarMemo = useMemo(
     () => (
-      <ProgressBar color={color} duration={duration} startTime={Date.now()} />
+      <ProgressBar color={color} duration={duration} startTime={startTime} />
     ),
-    [color, duration]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   return (
-    <div
-      className={clsm([
-        'm-5',
-        'mb-0',
-        'p-5',
-        showFinalResults && 'pb-7',
-        `bg-profile-${color}`,
-        'rounded-xl'
-      ])}
-    >
+    <PollContainer>
       <h3
         className={clsm([
           'flex',
@@ -112,40 +110,37 @@ const ViewerPoll = ({
               <VoteItem
                 key={id}
                 isHighestCount={isHighestCount}
-                showFinalResults={showFinalResults}
                 option={option}
                 count={count}
                 percentage={percentage}
                 showVotePercentage={true}
-                selectedOption={selectedOption}
                 color={color}
                 textColor={textColor}
-                onChange={onOptionChange}
                 inputDivControls={inputDivControls}
                 radioBoxControls={radioBoxControls}
                 inputAndLabelId={`${option}-${index}`}
-                isVoting={isVoting}
               />
             );
           })}
         </AnimatePresence>
       </div>
-      {!showFinalResults && (
+      {!showFinalResults && isVoting && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
         >
           <Button
             isDisabled={!selectedOption}
+            disableHover={isTouchscreenDevice}
             ariaLabel={$content.vote}
             className={clsm([
               'w-full',
               `bg-poll-${color}-pollButtonBg`,
-              `focus:bg-profile-${color}-darkMode-primary`,
-              isTouchscreenDevice && [`focus:bg-poll-${color}-pollButtonBg`],
-              !isTouchscreenDevice && [
-                `hover:bg-profile-${color}-darkMode-primary-hover`
-              ],
+              `focus:bg-poll-${color}-pollButtonBg`,
+              `dark:focus:bg-poll-${color}-pollButtonBg`,
+              !isTouchscreenDevice
+                ? `hover:bg-poll-${color}-voteButtonHover`
+                : `hover:bg-poll-${color}-voteButtpollButtonBg`,
               `text-${textColor}`
             ])}
             onClick={submitVote}
@@ -155,26 +150,31 @@ const ViewerPoll = ({
         </motion.div>
       )}
       {!showFinalResults && <div className={'pt-5'}>{progressBarMemo}</div>}
-    </div>
+    </PollContainer>
   );
 };
 
 ViewerPoll.defaultProps = {
-  totalVotes: 0
+  totalVotes: 0,
+  selectedOption: ''
 };
 
 ViewerPoll.propTypes = {
   question: PropTypes.string.isRequired,
-  // duration: PropTypes.number.isRequired,
   votes: PropTypes.arrayOf(
     PropTypes.shape({
       option: PropTypes.string.isRequired,
-      count: PropTypes.number
+      count: PropTypes.number.isRequired
     })
   ).isRequired,
   showFinalResults: PropTypes.bool.isRequired,
+  totalVotes: PropTypes.number.isRequired,
   highestCountOption: PropTypes.string.isRequired,
-  totalVotes: PropTypes.number
+  duration: PropTypes.number.isRequired,
+  selectedOption: PropTypes.string,
+  startTime: PropTypes.number.isRequired,
+  isVoting: PropTypes.bool.isRequired,
+  isSubmitting: PropTypes.bool.isRequired
 };
 
 export default ViewerPoll;

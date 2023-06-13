@@ -3,39 +3,60 @@ import { useLocation } from 'react-router-dom';
 
 import StreamerPoll from './StreamerPoll';
 import ViewerPoll from './ViewerPoll';
-import useChatConnection from '../useChatConnection';
-import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useChannel } from '../../../../contexts/Channel';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { useChat } from '../../../../contexts/Chat';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const Poll = () => {
-  // TODO: replace with chat SDK
   const {
     isActive,
     question,
     votes,
     showFinalResults,
     highestCountOption,
-    totalVotes
+    totalVotes,
+    selectedOption,
+    duration,
+    hasListReordered,
+    isExpanded,
+    isVoting,
+    isSubmitting,
+    startTime
   } = usePoll();
-
-  const { isModerator } = useChatConnection();
+  const pollProps = {
+    isActive,
+    question,
+    votes,
+    showFinalResults,
+    highestCountOption,
+    totalVotes,
+    selectedOption,
+    duration,
+    hasListReordered,
+    isExpanded,
+    isVoting,
+    isSubmitting
+  };
+  const { isModerator } = useChat();
   const { pathname } = useLocation();
-  const { isDesktopView } = useResponsiveDevice();
+  const { isDesktopView, isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
 
   const isStreamManagerPage = pathname === '/manager';
 
   const commonPollProps = {
+    ...pollProps,
     totalVotes,
     question,
     votes,
     showFinalResults,
-    highestCountOption: highestCountOption.option
+    highestCountOption: highestCountOption.option,
+    duration,
+    hasListReordered
   };
 
   return (
-    isActive &&
     !!channelData && (
       <div
         className={clsm([
@@ -47,13 +68,16 @@ const Poll = () => {
           ],
           'w-full',
           'absolute',
-          'z-50'
+          'z-50',
+          isLandscape && 'mb-[110px]'
         ])}
       >
         {isModerator && isStreamManagerPage && (
-          <StreamerPoll {...commonPollProps} isActive={isActive} />
+          <StreamerPoll {...commonPollProps} />
         )}
-        {!isStreamManagerPage && <ViewerPoll {...commonPollProps} />}
+        {!isStreamManagerPage && (
+          <ViewerPoll {...commonPollProps} startTime={startTime} />
+        )}
       </div>
     )
   );

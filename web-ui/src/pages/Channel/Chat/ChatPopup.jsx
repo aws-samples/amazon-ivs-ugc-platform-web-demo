@@ -6,7 +6,7 @@ import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
-import { useChatMessages } from '../../../contexts/ChatMessages';
+import { useChat } from '../../../contexts/Chat';
 import { useModal } from '../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
@@ -30,7 +30,7 @@ const ChatPopup = ({
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
-  const { deletedMessageIds } = useChatMessages();
+  const { deletedMessageIds } = useChat();
   const popupRef = useRef();
   const isOwnMessage = username === displayName;
 

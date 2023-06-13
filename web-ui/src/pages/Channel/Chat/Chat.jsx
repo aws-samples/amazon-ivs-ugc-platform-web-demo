@@ -1,17 +1,13 @@
-import { AnimatePresence } from 'framer-motion';
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { AnimatePresence } from 'framer-motion';
 
-import {
-  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
-  BREAKPOINTS,
-  MODERATOR_PILL_TIMEOUT
-} from '../../../constants';
+import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
-import { useChatMessages } from '../../../contexts/ChatMessages';
+import { useChat } from '../../../contexts/Chat';
 import { useNotif } from '../../../contexts/Notification';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
@@ -21,18 +17,17 @@ import Composer from './Composer';
 import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
 import Notification from '../../../components/Notification';
-import useChatConnection from './useChatConnection';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const $content = $channelContent.chat;
 
 const Chat = ({ shouldRunCelebration }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
-  const { channelData, isChannelLoading, refreshChannelData } = useChannel();
+  const { channelData, isChannelLoading } = useChannel();
 
   const { color: channelColor } = channelData || {};
-  const { isSessionValid, userData } = useUser();
-  const { notifyError, notifyInfo, notifySuccess } = useNotif();
+  const { isSessionValid } = useUser();
+  const { notifyInfo } = useNotif();
   const {
     isLandscape,
     isMobileView,
@@ -47,46 +42,6 @@ const Chat = ({ shouldRunCelebration }) => {
 
   if (isSplitView) chatPopupParentEl = document.body;
   else if (isStackedView) chatPopupParentEl = mainRef.current;
-  /**
-   * Chat Event Handlers
-   */
-  const {
-    deletedMessageIds,
-    removeMessage,
-    removeMessageByUserId,
-    sentMessageIds
-  } = useChatMessages();
-  const handleDeleteMessage = useCallback(
-    (messageId) => {
-      removeMessage(messageId);
-      if (deletedMessageIds.current.includes(messageId)) {
-        notifySuccess($content.notifications.success.message_removed);
-      } else if (sentMessageIds.current.includes(messageId)) {
-        notifyError($content.notifications.error.your_message_was_removed);
-      }
-    },
-    [
-      deletedMessageIds,
-      notifyError,
-      notifySuccess,
-      removeMessage,
-      sentMessageIds
-    ]
-  );
-  const handleUserDisconnect = useCallback(
-    (bannedUsername) => {
-      const bannedUserChannelId = bannedUsername
-        .toLowerCase()
-        .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1];
-
-      if (bannedUserChannelId === userData?.trackingId) {
-        // This user has been banned
-        notifyError($content.notifications.error.you_have_been_banned);
-        refreshChannelData();
-      }
-    },
-    [notifyError, refreshChannelData, userData?.trackingId]
-  );
 
   const {
     actions,
@@ -94,11 +49,7 @@ const Chat = ({ shouldRunCelebration }) => {
     hasConnectionError,
     isConnecting,
     sendAttemptError
-  } = useChatConnection({
-    handleDeleteMessage,
-    handleDeleteUserMessages: removeMessageByUserId,
-    handleUserDisconnect
-  });
+  } = useChat();
   const isLoading = isConnecting || isChannelLoading;
 
   /**

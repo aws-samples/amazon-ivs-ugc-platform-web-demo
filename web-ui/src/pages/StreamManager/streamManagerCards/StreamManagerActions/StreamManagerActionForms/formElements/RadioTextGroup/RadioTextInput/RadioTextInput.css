@@ -12,25 +12,25 @@
 }
 
 .radio[type='radio'].with-green-border:before {
-  @apply shadow-focus shadow-profile-green-lightMode-primary-hover;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-green-lightMode-primary-hover;
 }
 .radio[type='radio'].with-blue-border:before {
-  @apply shadow-focus shadow-profile-blue-dark;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-blue-dark;
 }
 .radio[type='radio'].with-salmon-border:before {
-  @apply shadow-focus shadow-profile-salmon-lightMode-primary-hover;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-salmon-lightMode-primary-hover;
 }
 .radio[type='radio'].with-purple-border:before {
-  @apply shadow-focus shadow-profile-purple-lightMode-primary-hover;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-purple-lightMode-primary-hover;
 }
 .radio[type='radio'].with-lavender-border:before {
-  @apply shadow-focus shadow-profile-lavender-lightMode-primary-hover;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-lavender-lightMode-primary-hover;
 }
 .radio[type='radio'].with-yellow-border:before {
-  @apply shadow-focus shadow-profile-yellow-dark;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-yellow-dark;
 }
 .radio[type='radio'].with-turquoise-border:before {
-  @apply shadow-focus shadow-profile-turquoise-dark;
+  @apply top-[30px] left-5 shadow-focus shadow-profile-turquoise-dark;
 }
 
 .radio[type='radio'].error:before {
@@ -183,7 +183,7 @@
 
 .radio[type='radio'].with-green-focus:focus-visible:before,
 .radio[type='radio'].with-green-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 100%, 0.7);
+  --color-one: hsla(var(--base-color-white), 100%, 0.5);
   --color-two: hsla(var(--base-color-white), 100%, 1);
   --color-three: hsla(var(--base-profile-color-green), 50%, 0.7);
 
@@ -214,7 +214,7 @@
 
 .radio[type='radio'].with-blue-focus:focus-visible:before,
 .radio[type='radio'].with-blue-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 100%, 0.7);
+  --color-one: hsla(var(--base-color-white), 100%, 0.5);
   --color-two: hsla(var(--base-color-white), 100%, 1);
   --color-three: hsla(var(--base-profile-color-blue), 72%, 0.7);
 
@@ -246,7 +246,7 @@
 
 .radio[type='radio'].with-lavender-focus:focus-visible:before,
 .radio[type='radio'].with-lavender-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 1%, 0.6);
+  --color-one: hsla(var(--base-color-white), 1%, 0.5);
   --color-two: hsla(var(--base-color-white), 1%, 1);
   --color-three: hsla(var(--base-profile-color-lavender), 90%, 0.7);
 
@@ -278,7 +278,7 @@
 
 .radio[type='radio'].with-turquoise-focus:focus-visible:before,
 .radio[type='radio'].with-turquoise-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 1%, 0.6);
+  --color-one: hsla(var(--base-color-white), 1%, 0.5);
   --color-two: hsla(var(--base-color-white), 1%, 1);
   --color-three: hsla(var(--base-profile-color-turquoise), 87%, 0.7);
 
@@ -310,7 +310,7 @@
 
 .radio[type='radio'].with-purple-focus:focus-visible:before,
 .radio[type='radio'].with-purple-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 1%, 0.6);
+  --color-one: hsla(var(--base-color-white), 1%, 0.5);
   --color-two: hsla(var(--base-color-white), 1%, 1);
   --color-three: hsla(var(--base-profile-color-purple), 64%, 0.7);
 
@@ -342,7 +342,7 @@
 
 .radio[type='radio'].with-yellow-focus:focus-visible:before,
 .radio[type='radio'].with-yellow-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 1%, 0.6);
+  --color-one: hsla(var(--base-color-white), 1%, 0.5);
   --color-two: hsla(var(--base-color-white), 1%, 1);
   --color-three: hsla(var(--base-profile-color-yellow), 75%, 0.7);
 
@@ -374,7 +374,7 @@
 
 .radio[type='radio'].with-salmon-focus:focus-visible:before,
 .radio[type='radio'].with-salmon-focus:checked:focus-visible:before {
-  --color-one: hsla(var(--base-color-white), 1%, 0.6);
+  --color-one: hsla(var(--base-color-white), 1%, 0.5);
   --color-two: hsla(var(--base-color-white), 1%, 1);
   --color-three: hsla(var(--base-profile-color-salmon), 81%, 0.7);
 
@@ -429,6 +429,36 @@
     --color-one: hsla(var(--base-color-blue), 63%, 0.6);
     --color-two: hsla(var(--base-color-blue), 63%, 1);
     --color-three: hsla(var(--base-color-white), 100%, 0.4);
+  }
+
+  .radio[type='radio'].with-blue-hover:hover:before {
+    --color-one: hsla(var(--base-color-white), 100%, 0.3);
+    --color-two: hsla(var(--base-color-white), 100%, 1);
+    --color-three: hsla(var(--base-profile-color-blue), 72%, 0.7);
+
+    animation-duration: 0.2s;
+    animation-name: expand-radio;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-timing-function: ease-in-out;
+
+    box-shadow: 0 0 0 8px var(--color-one), inset 0 0 0 2px var(--color-two),
+      inset 0 0 0 5px var(--color-three), inset 0 0 0 10px var(--color-two);
+  }
+
+  .radio[type='radio'].with-green-hover:hover:before {
+    --color-one: hsla(var(--base-color-white), 100%, 0.3);
+    --color-two: hsla(var(--base-color-white), 100%, 1);
+    --color-three: hsla(var(--base-profile-color-green), 50%, 0.7);
+
+    animation-duration: 0.2s;
+    animation-name: expand-radio;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-timing-function: ease-in-out;
+
+    box-shadow: 0 0 0 8px var(--color-one), inset 0 0 0 2px var(--color-two),
+      inset 0 0 0 5px var(--color-three), inset 0 0 0 10px var(--color-two);
   }
 }
 

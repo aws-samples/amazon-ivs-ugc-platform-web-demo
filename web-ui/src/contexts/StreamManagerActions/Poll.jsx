@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 
 import useContextHook from '../../contexts/useContextHook';
 
@@ -9,20 +9,29 @@ const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
 const Context = createContext(null);
 Context.displayName = 'Poll';
 
+const startTime = Date.now();
+
 export const Provider = ({ children }) => {
+  const [selectedOption, setSelectedOption] = useState();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pollHeight, setPollHeight] = useState(0);
   const [pollRef, setPollRef] = useState();
   const [hasListReordered, setHasListReordered] = useState(false);
   const [showFinalResults, setShowFinalResults] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVoting, setIsVoting] = useState(true);
   const [votes, setVotes] = useState([
-    { id: 1, option: 'Fried chicken and pasta', count: 22109 },
+    { id: 1, option: 'Fried chicken and pasta with salad', count: 22109 },
     {
       id: 2,
-      option: 'Fried chicken a pasta with extra spicy',
+      option: 'Fried chicken',
       count: 233333
     },
-    { id: 3, option: 'Sushi', count: 24300 },
+    {
+      id: 3,
+      option: 'Sushi',
+      count: 24300
+    },
     { id: 4, option: 'Hotdogs', count: 93300 },
     { id: 5, option: 'Beef', count: 32200 }
   ]);
@@ -89,22 +98,45 @@ export const Provider = ({ children }) => {
 
   const { highestCountOption, totalVotes } = getPollDetails(votes);
 
-  const value = {
-    isExpanded,
-    setIsExpanded,
-    pollHeight,
-    setPollHeight,
-    setPollRef,
-    containerMinHeight,
-    showFinalResults,
-    votes,
-    highestCountOption,
-    totalVotes,
-    hasListReordered,
-    question,
-    isActive,
-    duration
-  };
+  const value = useMemo(
+    () => ({
+      isExpanded,
+      setIsExpanded,
+      pollHeight,
+      setPollHeight,
+      setPollRef,
+      containerMinHeight,
+      showFinalResults,
+      votes,
+      highestCountOption,
+      totalVotes,
+      hasListReordered,
+      question,
+      isActive,
+      startTime,
+      duration,
+      selectedOption,
+      setSelectedOption,
+      isSubmitting,
+      setIsSubmitting,
+      isVoting,
+      setIsVoting
+    }),
+    [
+      containerMinHeight,
+      hasListReordered,
+      highestCountOption,
+      isActive,
+      isExpanded,
+      isSubmitting,
+      isVoting,
+      pollHeight,
+      selectedOption,
+      showFinalResults,
+      totalVotes,
+      votes
+    ]
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

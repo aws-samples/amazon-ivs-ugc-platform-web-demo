@@ -1,7 +1,10 @@
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
-import { CHANNEL_TYPE } from './constants';
+import {
+  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
+  CHANNEL_TYPE
+} from './constants';
 
 export const noop = () => {};
 
@@ -291,3 +294,8 @@ export const convertConcurrentViews = (views) => {
 };
 
 export const isS3Url = (url = '') => url.includes('.s3.');
+
+export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
+  bannedUserChannelArn
+    .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
+    .toLowerCase();

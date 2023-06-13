@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
 import { CheckCircle } from '../../../../assets/icons';
-import { clsm, convertConcurrentViews, noop } from '../../../../utils';
+import { clsm, convertConcurrentViews } from '../../../../utils';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { STREAM_ACTION_NAME } from '../../../../constants';
+import {
+  PROFILE_COLORS_WITH_WHITE_TEXT,
+  STREAM_ACTION_NAME
+} from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useLocation } from 'react-router-dom';
@@ -31,21 +34,24 @@ const VoteItem = ({
   isHighestCount,
   option,
   percentage,
-  showFinalResults,
   showVotePercentage,
-  selectedOption,
   color,
   textColor,
-  onChange,
-  isVoting,
   inputAndLabelId,
   inputDivControls,
   radioBoxControls
 }) => {
+  const {
+    selectedOption,
+    setSelectedOption,
+    hasListReordered,
+    isVoting,
+    showFinalResults
+  } = usePoll();
   const hasWon = isHighestCount && showFinalResults;
   const countFormatted = convertConcurrentViews(count);
   const { pathname } = useLocation();
-  const { hasListReordered } = usePoll();
+
   const isStreamManagerPage = pathname === '/manager';
 
   useEffect(() => {
@@ -64,7 +70,7 @@ const VoteItem = ({
     );
 
     for (const item of listItems) {
-      if (item.offsetHeight > 24 && item.offsetHeight < 40) {
+      if (item.offsetHeight > 24 && item.offsetHeight < 50) {
         shouldResizeAllContainers = true;
         break;
       }
@@ -80,6 +86,10 @@ const VoteItem = ({
     <motion.div
       layout={!hasListReordered}
       transition={{ stiffness: 150, damping: 60, duration: 0.3 }}
+      onClick={() => {
+        if (!isVoting) return;
+        setSelectedOption(option);
+      }}
       className={clsm([
         'overflow-hidden',
         'vote-option-parent-container',
@@ -101,13 +111,10 @@ const VoteItem = ({
         <div
           style={{ width: `${percentage}%` }}
           className={clsm([
-            'absolute',
-            'top-[-1px]',
-            'left-[-1px]',
             'h-full',
             `bg-poll-${color}-pollButtonBg`,
             hasWon && ['bg-white', 'h-20'],
-            percentage < 15 ? 'rounded-[100%]' : 'rounded-[100px]'
+            percentage < 15 ? 'rounded-r-[100%]' : 'rounded-r-[100px]'
           ])}
         />
       )}
@@ -165,8 +172,14 @@ const VoteItem = ({
                   'items-center'
                 ])}
               >
-                {!isStreamManagerPage && !showFinalResults && (
+                {!isStreamManagerPage && isVoting && !showFinalResults && (
                   <motion.input
+                    style={{
+                      width: '300px',
+                      height: '58px',
+                      top: '-30px',
+                      left: '-20px'
+                    }}
                     animate={radioBoxControls}
                     id={inputAndLabelId}
                     aria-label={option}
@@ -182,7 +195,8 @@ const VoteItem = ({
                     data-testid={`${option}-radio-button`}
                     name={option}
                     onChange={() => {
-                      onChange(option);
+                      if (!isVoting) return;
+                      setSelectedOption(option);
                     }}
                     type="radio"
                     value={selectedOption}
@@ -194,18 +208,21 @@ const VoteItem = ({
                 htmlFor={inputAndLabelId}
                 className={clsm([
                   isStreamManagerPage && 'max-w-[385px]',
-                  // 'pb-[3px]',
                   'w-full',
                   'line-clamp-2',
                   'text-p4',
                   'font-semibold',
                   `text-${textColor}`,
-                  !isStreamManagerPage && !showFinalResults && `translate-x-7`,
+                  !isStreamManagerPage &&
+                    !showFinalResults &&
+                    isVoting &&
+                    `translate-x-7`,
                   hasWon && [
                     'text-h3',
                     `text-poll-${color}-pollWinnerTextColor`,
                     'font-bold'
-                  ]
+                  ],
+                  'cursor-pointer'
                 ])}
               >
                 {option}
@@ -218,7 +235,15 @@ const VoteItem = ({
           >
             {selectedOption === option && !isVoting && (
               <CheckCircle
-                className={clsm(['w-5', 'h-5', 'ml-2.5', `fill-${textColor}`])}
+                className={clsm([
+                  'w-5',
+                  'h-5',
+                  'ml-2.5',
+                  `fill-${textColor}`,
+                  PROFILE_COLORS_WITH_WHITE_TEXT.includes(color) &&
+                    hasWon &&
+                    `fill-poll-${color}-pollWinnerTextColor`
+                ])}
               />
             )}
           </motion.div>
@@ -270,15 +295,11 @@ const VoteItem = ({
 VoteItem.defaultProps = {
   count: 0,
   isHighestCount: false,
-  showFinalResults: false,
   showVotePercentage: false,
   percentage: 0,
-  selectedOption: undefined,
   radioBoxControls: {},
   inputDivControls: {},
-  inputAndLabelId: undefined,
-  isVoting: undefined,
-  onChange: noop
+  inputAndLabelId: undefined
 };
 
 VoteItem.propTypes = {
@@ -287,12 +308,8 @@ VoteItem.propTypes = {
   textColor: PropTypes.string.isRequired,
   isHighestCount: PropTypes.bool,
   option: PropTypes.string.isRequired,
-  selectedOption: PropTypes.string,
   percentage: PropTypes.number,
-  showFinalResults: PropTypes.bool,
   showVotePercentage: PropTypes.bool,
-  onChange: PropTypes.func,
-  isVoting: PropTypes.bool,
   inputAndLabelId: PropTypes.string,
   inputDivControls: PropTypes.object,
   radioBoxControls: PropTypes.object

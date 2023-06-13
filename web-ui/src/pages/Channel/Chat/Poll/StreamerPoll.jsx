@@ -17,6 +17,7 @@ import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
 import VoteItem from './VoteItem';
 import usePrompt from '../../../../hooks/usePrompt';
+import PollContainer from './PollContainer';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -27,10 +28,11 @@ const StreamerPoll = ({
   question,
   showFinalResults,
   totalVotes,
-  votes
+  votes,
+  isExpanded
 }) => {
   const pollRef = useRef(null);
-  const { isExpanded, setIsExpanded, setPollRef } = usePoll();
+  const { setIsExpanded, setPollRef } = usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {
@@ -65,16 +67,7 @@ const StreamerPoll = ({
   }, [isBlocked, onCancel, onConfirm, openModal, isActive]);
 
   return (
-    <div
-      ref={pollRef}
-      className={clsm([
-        'm-5',
-        'mb-0',
-        'p-4',
-        `bg-profile-${color}`,
-        'rounded-xl'
-      ])}
-    >
+    <PollContainer>
       <Button
         variant="primaryText"
         className={clsm([
@@ -122,7 +115,8 @@ const StreamerPoll = ({
               'mb-3',
               'text-p4',
               'w-full',
-              `text-${textColor}`
+              `text-${textColor}`,
+              'font-bold'
             ])}
           >
             {question}
@@ -157,12 +151,12 @@ const StreamerPoll = ({
               })}
             </AnimatePresence>
           </div>
-          <p className={clsm(['text-p4', `text-${textColor}`])}>{`${
-            $content.total_votes
-          }: ${totalVotes.toLocaleString()}`}</p>
+          <p
+            className={clsm(['text-p4', `text-${textColor}`, 'font-bold'])}
+          >{`${$content.total_votes}: ${totalVotes.toLocaleString()}`}</p>
         </div>
       )}
-    </div>
+    </PollContainer>
   );
 };
 
@@ -184,7 +178,8 @@ StreamerPoll.propTypes = {
   ),
   showFinalResults: PropTypes.bool,
   totalVotes: PropTypes.number,
-  highestCountOption: PropTypes.string.isRequired
+  highestCountOption: PropTypes.string.isRequired,
+  isExpanded: PropTypes.bool.isRequired
 };
 
 export default StreamerPoll;

@@ -5,7 +5,7 @@ import { channel as $channelContent } from '../../../../content';
 import { clsm } from '../../../../utils';
 import { getAvatarSrc } from '../../../../helpers';
 import { useChannel } from '../../../../contexts/Channel';
-import { useChatMessages } from '../../../../contexts/ChatMessages';
+import { useChat } from '../../../../contexts/Chat';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import ChatLine from './ChatLine';
 import StickScrollButton from './StickScrollButton';
@@ -17,7 +17,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
   const { channelData } = useChannel();
   const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
-  const { messages, initMessages } = useChatMessages();
+  const { messages, initMessages } = useChat();
   const [hasInitMessages, setHasInitMessages] = useState(false);
   const { isSticky, scrollToBottom } = useStickyScroll(chatRef, messages);
   const { isMobileView, isLandscape } = useResponsiveDevice();

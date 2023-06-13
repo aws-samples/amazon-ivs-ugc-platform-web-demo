@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as PlayerProvider } from './contexts/Player';
 import { sanitizeAmazonProductData } from '../../helpers/streamActionHelpers';
 import { STREAM_ACTION_NAME } from '../../constants';
@@ -180,10 +181,13 @@ const Channel = () => {
                     ]}
                   />
                   <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                    {/* {currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.POLL && <Poll />} */}
-                    {/* temporary code. It will be repolaced once we get to integration ticket */}
-                    <Poll />
+                    {isActive && (
+                      <NotificationProvider>
+                        <ChatProvider>
+                          <Poll />
+                        </ChatProvider>
+                      </NotificationProvider>
+                    )}
                     {currentViewerStreamActionName ===
                       STREAM_ACTION_NAME.QUIZ && (
                       <QuizViewerStreamAction
@@ -237,15 +241,15 @@ const Channel = () => {
                 }
               >
                 <NotificationProvider>
-                  {/* {!shouldRenderActionInTab && currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.POLL && <Poll />} */}
-                  {!shouldRenderActionInTab && <Poll />}
-                  <Chat
-                    shouldRunCelebration={
-                      currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.CELEBRATION
-                    }
-                  />
+                  <ChatProvider>
+                    {!shouldRenderActionInTab && isActive && <Poll />}
+                    <Chat
+                      shouldRunCelebration={
+                        currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.CELEBRATION
+                      }
+                    />
+                  </ChatProvider>
                 </NotificationProvider>
               </Tabs.Panel>
             </Tabs>
