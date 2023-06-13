@@ -50,20 +50,24 @@ const StreamManagerActionButton = forwardRef(
     const isCountingDown =
       (isActive && !isPerpetual) || (name === 'poll' && isPollActive);
 
+    const activeActionDuration = isPollActive
+      ? pollDuration
+      : activeStreamManagerActionDuration;
+    const activeActionExpiry = isPollActive
+      ? pollExpiry
+      : activeStreamManagerActionExpiry;
+    const onExpiry = isPollActive
+      ? () => endPoll({ withTimeout: true })
+      : stopStreamAction;
+
     const [textFormattedTimeLeft, currentProgress] = useCountdown({
-      expiry: isPollActive ? pollExpiry : activeStreamManagerActionExpiry,
+      expiry: activeActionExpiry,
       formatter: (timeLeft) => [
         `${Math.ceil(timeLeft / 1000)}${$content.unit_seconds}`,
-        (timeLeft /
-          (isPollActive
-            ? pollDuration
-            : activeStreamManagerActionDuration * 1000)) *
-          STROKE_DASHARRAY_MAX
+        (timeLeft / (activeActionDuration * 1000)) * STROKE_DASHARRAY_MAX
       ],
       isEnabled: isCountingDown,
-      onExpiry: isPollActive
-        ? () => endPoll({ withTimeout: true })
-        : stopStreamAction
+      onExpiry
     });
 
     const handleClick = () => {
