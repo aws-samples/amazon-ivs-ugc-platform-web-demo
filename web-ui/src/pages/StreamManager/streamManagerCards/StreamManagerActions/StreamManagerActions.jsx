@@ -20,6 +20,8 @@ import { STREAM_ACTION_NAME } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import StreamManagerActionButton from './StreamManagerActionButton';
+import { useChat } from '../../../../contexts/Chat';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const STREAM_MANAGER_ACTION_ICONS = {
   [STREAM_ACTION_NAME.AMAZON_PRODUCT]: AmazonA,
@@ -43,6 +45,8 @@ export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
 };
 
 const StreamManagerActions = ({ className }) => {
+  const { isActive: isPollActive } = usePoll();
+  const { endPoll } = useChat();
   const { openStreamManagerActionModal, sendStreamAction } =
     useStreamManagerActions();
   const streamManagerActionButtonRefsMap = useRef(new Map());
@@ -106,6 +110,10 @@ const StreamManagerActions = ({ className }) => {
 
         const onClick = () => {
           if (hasModal) {
+            if (actionName === 'poll' && isPollActive) {
+              endPoll();
+              return;
+            }
             lastFocusedStreamManagerActionButtonRef.current =
               streamManagerActionButtonRefsMap.current.get(actionName);
 

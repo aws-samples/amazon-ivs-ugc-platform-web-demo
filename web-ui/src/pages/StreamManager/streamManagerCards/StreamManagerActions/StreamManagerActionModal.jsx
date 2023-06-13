@@ -21,10 +21,15 @@ import Spinner from '../../../../components/Spinner';
 import useMediaQuery from '../../../../hooks/useMediaQuery';
 import useResizeObserver from '../../../../hooks/useResizeObserver';
 import useScrollListener from '../../../../../src/pages/StreamManager/streamManagerCards/StreamManagerActions/StreamManagerActionForms/AmazonProduct/useScrollListener';
+import { useChat } from '../../../../contexts/Chat';
+import { useNotif } from '../../../../contexts/Notification';
 
-const $content = $streamManagerContent.stream_manager_actions;
-
+// const { START_POLL } = CHAT_MESSAGE_EVENT_TYPES;
+const $content = $streamManagerContent;
 const StreamManagerActionModal = forwardRef((_, ref) => {
+  const { startPoll } = useChat();
+  const { notifySuccess } = useNotif();
+
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
   const { actionName, title, confirmText, streamManagerActionContent } =
@@ -65,7 +70,16 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
   const save = () => handleSave(streamManagerActionData);
   const send = (e) => {
     e.preventDefault();
-    if (!shouldSubmitOnButtonClick) handleConfirm(streamManagerActionData);
+    if (actionName === STREAM_ACTION_NAME.POLL) {
+      startPoll();
+      // notifySuccess(
+      //   $content.notifications.success[
+      //     `started_${STREAM_ACTION_NAME.POLL}`
+      //   ]
+      // );
+    } else {
+      if (!shouldSubmitOnButtonClick) handleConfirm(streamManagerActionData);
+    }
   };
 
   const submitOnButtonClick = () => {
@@ -174,7 +188,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
             onClick={onClose}
             variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
           >
-            {$content.cancel}
+            {$content.stream_manager_actions.cancel}
           </Button>
           <div
             className={clsm([
@@ -190,7 +204,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
                 onClick={save}
                 variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
               >
-                {$content.save}
+                {$content.stream_manager_actions.save}
               </Button>
             )}
             <Button

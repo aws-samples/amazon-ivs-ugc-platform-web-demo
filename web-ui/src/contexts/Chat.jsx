@@ -10,12 +10,18 @@ import {
 import PropTypes from 'prop-types';
 
 import { channel as $channelContent } from '../content';
+import { streamManager as $streamActionscontent } from '../content';
 import { useUser } from './User';
 import useContextHook from './useContextHook';
 import { useChannel } from './Channel';
 import { useNotif } from './Notification';
 import useChatActions from '../pages/Channel/Chat/useChatConnection/useChatActions';
-import { CHAT_LOG_LEVELS, MAX_RECONNECT_ATTEMPTS } from '../constants';
+import {
+  CHAT_LOG_LEVELS,
+  // LOCALSTORAGE_ENABLED_STREAM_ACTIONS,
+  MAX_RECONNECT_ATTEMPTS,
+  STREAM_ACTION_NAME
+} from '../constants';
 import { ivsChatWebSocketRegionOrUrl } from '../api/utils';
 import {
   CHAT_USER_ROLE,
@@ -23,12 +29,20 @@ import {
 } from '../pages/Channel/Chat/useChatConnection/utils';
 import { ChatRoom } from 'amazon-ivs-chat-messaging';
 import { extractChannelIdfromChannelArn } from '../utils';
+import { usePoll } from './StreamManagerActions/Poll';
+import { CHAT_MESSAGE_EVENT_TYPES } from '../constants';
+import { useStreamManagerActions } from './StreamManagerActions';
+import { useModal } from './Modal';
+// import useStreamManagerActionsLocalStorage from './StreamManagerActions/useStreamManagerActionsLocalStorage';
+
+const { SEND_MESSAGE, START_POLL, END_POLL } = CHAT_MESSAGE_EVENT_TYPES;
 
 const $content = $channelContent.chat;
+
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
 
 const Context = createContext(null);
-Context.displayName = 'ChatMessages';
+Context.displayName = 'Chat';
 
 /**
  * @typedef {Object} SenderAttributes
@@ -109,6 +123,7 @@ export const Provider = ({ children }) => {
    * `sentMessageIds` and `deletedMessageIds` are used to show the notifications upon message deletion.
    * The corresponding messages are flagged respectively using the `isOwnMessage` and `wasDeletedByUser` booleans which are attached to `messages` (used for rendering).
    */
+  const { closeModal } = useModal();
   const sentMessageIds = useRef([]);
   const deletedMessageIds = useRef([]);
   const { userData, isSessionValid } = useUser();
@@ -140,6 +155,71 @@ export const Provider = ({ children }) => {
     connection,
     setSendAttemptError
   });
+
+  // Poll Stream Action
+  const { updatePollProps, resetPollProps } = usePoll();
+  const {
+    getStreamManagerActionData,
+    // updateStreamManagerActionData,
+    setIsSendingStreamAction
+  } = useStreamManagerActions();
+
+  // const { saveStreamManagerActionData } = useStreamManagerActionsLocalStorage({
+  //   updateStreamManagerActionData
+  // });
+
+  const startPoll = useCallback(async () => {
+    setIsSendingStreamAction(true);
+    const data = getStreamManagerActionData();
+    const actionData = data[STREAM_ACTION_NAME.POLL];
+    const attributes = { eventType: START_POLL };
+    const { duration } = actionData;
+    const expiry =
+      duration > 0
+        ? new Date(Date.now() + duration * 1000).toISOString()
+        : undefined;
+    const content = JSON.stringify({ ...actionData, expiry });
+
+    const result = await actions.sendMessage(content, attributes);
+    setIsSendingStreamAction(false);
+
+    if (result) {
+      const dataToSave = data;
+      dataToSave._active = { duration, expiry, name: STREAM_ACTION_NAME.POLL };
+      // if (
+      //   LOCALSTORAGE_ENABLED_STREAM_ACTIONS.includes(STREAM_ACTION_NAME.POLL)
+      // ) {
+      //   console.log('hello');
+      //   saveStreamManagerActionData(dataToSave);
+      // }
+
+      notifySuccess(
+        $streamActionscontent.notifications.success[
+          `started_${STREAM_ACTION_NAME.POLL}`
+        ]
+      );
+      closeModal();
+    }
+  }, [
+    actions,
+    closeModal,
+    getStreamManagerActionData,
+    notifySuccess,
+    setIsSendingStreamAction
+  ]);
+
+  const endPoll = useCallback(
+    ({ withTimeout } = {}) => {
+      const content = 'end poll';
+      const attributes = { eventType: END_POLL };
+      if (withTimeout) {
+        setTimeout(() => actions.sendMessage(content, attributes), 2000);
+      } else {
+        actions.sendMessage(content, attributes);
+      }
+    },
+    [actions]
+  );
 
   const disconnect = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -326,7 +406,35 @@ export const Provider = ({ children }) => {
     );
 
     const unsubscribeOnMessage = room.addListener('message', (message) => {
-      addMessage(message);
+      const {
+        attributes: { eventType = undefined },
+        content
+      } = message;
+      switch (eventType) {
+        case START_POLL:
+          const { answers, duration, question, expiry } = JSON.parse(content);
+          updatePollProps({
+            duration,
+            question,
+            votes: answers.reduce((acc, answer) => {
+              const option = { option: answer, count: 0 };
+              acc.push(option);
+              return acc;
+            }, []),
+            isActive: true,
+            expiry,
+            startTime: Date.now()
+          });
+          break;
+        case END_POLL:
+          resetPollProps();
+          break;
+        case SEND_MESSAGE:
+          addMessage(message);
+          break;
+        default:
+          break;
+      }
     });
 
     const unsubscribeOnMessageDelete = room.addListener(
@@ -355,7 +463,8 @@ export const Provider = ({ children }) => {
     handleDeleteMessage,
     handleUserDisconnect,
     userData,
-    removeMessageByUserId
+    removeMessageByUserId,
+    updatePollProps
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -392,7 +501,9 @@ export const Provider = ({ children }) => {
       hasConnectionError,
       isConnecting,
       sendAttemptError,
-      isModerator
+      isModerator,
+      startPoll,
+      endPoll
     }),
     [
       actions,
@@ -405,7 +516,9 @@ export const Provider = ({ children }) => {
       removeMessage,
       removeMessageByUserId,
       sendAttemptError,
-      isModerator
+      isModerator,
+      startPoll,
+      endPoll
     ]
   );
 

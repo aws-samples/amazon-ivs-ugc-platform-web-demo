@@ -107,7 +107,7 @@ const VoteItem = ({
         ]
       ])}
     >
-      {(!isVoting || showFinalResults) && (
+      {(!isVoting || showFinalResults || isStreamManagerPage) && (
         <div
           style={{ width: `${percentage}%` }}
           className={clsm([
@@ -248,7 +248,7 @@ const VoteItem = ({
             )}
           </motion.div>
         </div>
-        {(!isVoting || showFinalResults) && (
+        {(!isVoting || showFinalResults || isStreamManagerPage) && (
           <div
             className={clsm([
               'h-auto',

@@ -14,6 +14,7 @@ import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
 import { Provider as ResponsiveDeviceProvider } from './contexts/ResponsiveDevice';
 import { Provider as StreamsProvider } from './contexts/Streams';
+import { Provider as StreamsActionsProvider } from './contexts/StreamManagerActions';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
@@ -88,7 +89,14 @@ const router = createBrowserRouter(
         <Route index element={<ChannelDirectory />} />
         <Route path=":username">
           <Route element={<ViewerStreamActionsProvider />}>
-            <Route index element={<Channel />} />
+            <Route
+              index
+              element={
+                <StreamsActionsProvider>
+                  <Channel />
+                </StreamsActionsProvider>
+              }
+            />
             <Route path="profile" element={<Channel />} />
             <Route
               path="*"

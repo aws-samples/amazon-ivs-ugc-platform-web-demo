@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../../../constants';
@@ -9,6 +9,8 @@ import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import { useUser } from '../../../../contexts/User';
 import useCountdown from '../../../../hooks/useCountdown';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useChat } from '../../../../contexts/Chat';
 
 const $content = $streamManagerContent.stream_manager_actions;
 const PROGRESS_PIE_RADIUS = 14;
@@ -22,6 +24,12 @@ const DEFAULT_TRANSITION_CLASSES = [
 
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
+    const {
+      isActive: isPollActive,
+      expiry: pollExpiry,
+      duration: pollDuration
+    } = usePoll();
+    const { endPoll } = useChat();
     const Icon = icon;
     const { hasFetchedInitialUserData, userData } = useUser();
     const { color = 'default' } = userData || {};
@@ -34,25 +42,36 @@ const StreamManagerActionButton = forwardRef(
       name: activeStreamManagerActionName,
       expiry: activeStreamManagerActionExpiry
     } = activeStreamManagerActionData || {};
+
     const isActive = name === activeStreamManagerActionName;
-    const isPerpetual = isActive && !activeStreamManagerActionExpiry;
+
+    const isPerpetual =
+      (isActive && !activeStreamManagerActionExpiry) || isPollActive;
+    const isCountingDown =
+      (isActive && !isPerpetual) || (name === 'poll' && isPollActive);
+
     const [textFormattedTimeLeft, currentProgress] = useCountdown({
-      expiry: activeStreamManagerActionExpiry,
+      expiry: isPollActive ? pollExpiry : activeStreamManagerActionExpiry,
       formatter: (timeLeft) => [
         `${Math.ceil(timeLeft / 1000)}${$content.unit_seconds}`,
-        (timeLeft / (activeStreamManagerActionDuration * 1000)) *
+        (timeLeft /
+          (isPollActive
+            ? pollDuration
+            : activeStreamManagerActionDuration * 1000)) *
           STROKE_DASHARRAY_MAX
       ],
-      isEnabled: isActive && !isPerpetual,
-      onExpiry: stopStreamAction
+      isEnabled: isCountingDown,
+      onExpiry: isPollActive
+        ? () => endPoll({ withTimeout: true })
+        : stopStreamAction
     });
 
     const handleClick = () => {
+      if (isPollActive) endPoll();
       if (isActive) stopStreamAction();
       else onClick();
     };
 
-    const isCountingDown = isActive && !isPerpetual;
     const currentLabel = (
       <>
         {isActive ? label.active : label.default}
@@ -62,10 +81,17 @@ const StreamManagerActionButton = forwardRef(
         ) && `a ${name}`}
       </>
     );
-    let statusLabel =
-      isActive && (isPerpetual ? $content.on : textFormattedTimeLeft);
+    let statusLabel;
+    if (isActive) {
+      statusLabel =
+        isPerpetual && !isPollActive ? $content.on : textFormattedTimeLeft;
+    }
+    if (isPollActive) {
+      statusLabel = textFormattedTimeLeft;
+    }
 
-    if (!isActive) statusLabel = $content.off;
+    if ((!isActive && name !== 'poll') || (!isPollActive && name === 'poll'))
+      statusLabel = $content.off;
 
     const shouldInvertColors = isTextColorInverted(color);
 
@@ -131,7 +157,8 @@ const StreamManagerActionButton = forwardRef(
                   'opacity-50',
                   'w-full',
                   DEFAULT_TRANSITION_CLASSES,
-                  isActive && ['opacity-100', `fill-profile-${color}`],
+                  isActive &&
+                    isPollActive && ['opacity-100', `fill-profile-${color}`],
                   !isActive && shouldInvertColors && 'fill-white'
                 ])}
               />
@@ -191,7 +218,7 @@ const StreamManagerActionButton = forwardRef(
               'leading-4',
               'opacity-50',
               'text-[13px]',
-              isActive && 'opacity-100'
+              (isActive || (isPollActive && name === 'poll')) && 'opacity-100'
             ])}
           >
             {!isSmallBreakpoint && statusLabel}

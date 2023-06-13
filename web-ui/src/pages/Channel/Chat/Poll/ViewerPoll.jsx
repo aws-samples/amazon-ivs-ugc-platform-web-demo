@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -77,13 +77,13 @@ const ViewerPoll = ({
     setIsVoting
   ]);
 
-  const progressBarMemo = useMemo(
-    () => (
-      <ProgressBar color={color} duration={duration} startTime={startTime} />
-    ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  // const progressBarMemo = useMemo(
+  //   () => (
+
+  //   ),
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [duration]
+  // );
 
   return (
     <PollContainer>
@@ -104,7 +104,8 @@ const ViewerPoll = ({
         <AnimatePresence>
           {votes.map(({ option, count, id }, index) => {
             const isHighestCount = option === highestCountOption;
-            const percentage = Math.ceil((count / totalVotes) * 100);
+            const percentage =
+              (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
 
             return (
               <VoteItem
@@ -149,7 +150,15 @@ const ViewerPoll = ({
           </Button>
         </motion.div>
       )}
-      {!showFinalResults && <div className={'pt-5'}>{progressBarMemo}</div>}
+      {!showFinalResults && (
+        <div className={'pt-5'}>
+          <ProgressBar
+            color={color}
+            duration={duration}
+            startTime={startTime}
+          />
+        </div>
+      )}
     </PollContainer>
   );
 };

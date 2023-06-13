@@ -283,7 +283,8 @@ export const Provider = ({ children }) => {
       isLoading,
       setIsLoading,
       isValidKeyword,
-      setIsValidKeyword
+      setIsValidKeyword,
+      setIsSendingStreamAction
     }),
     [
       activeStreamManagerActionData,
@@ -302,7 +303,8 @@ export const Provider = ({ children }) => {
       isValidKeyword,
       setIsValidKeyword,
       isLoading,
-      setIsLoading
+      setIsLoading,
+      setIsSendingStreamAction
     ]
   );
 

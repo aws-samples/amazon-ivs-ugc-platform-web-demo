@@ -133,11 +133,12 @@ const StreamerPoll = ({
             <AnimatePresence>
               {votes.map(({ option, count, id }, i) => {
                 const isHighestCount = option === highestCountOption;
-                const percentage = Math.ceil((count / totalVotes) * 100);
+                const percentage =
+                  (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
 
                 return (
                   <VoteItem
-                    key={id}
+                    key={`${id}${i}`}
                     isHighestCount={isHighestCount}
                     showFinalResults={showFinalResults}
                     option={option}

@@ -21,6 +21,11 @@ export const CHANNEL_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
 /**
  * CHAT
  */
+export const CHAT_MESSAGE_EVENT_TYPES = {
+  SEND_MESSAGE: 'SEND_MESSAGE',
+  START_POLL: 'START_POLL',
+  END_POLL: 'END_POLL'
+};
 export const BANNED_USERNAME_CHANNEL_ID_SEPARATOR = 'channel/';
 export const MAX_RECONNECT_ATTEMPTS = 7;
 

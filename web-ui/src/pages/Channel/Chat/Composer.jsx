@@ -8,6 +8,7 @@ import {
   COMPOSER_MAX_CHARACTER_LENGTH,
   COMPOSER_RATE_LIMIT_BLOCK_TIME_MS
 } from '../../../constants';
+import { CHAT_MESSAGE_EVENT_TYPES } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE, SEND_ERRORS } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
@@ -19,6 +20,8 @@ import ComposerErrorMessage from './ComposerErrorMessage';
 import FloatingNav from '../../../components/FloatingNav';
 import Input from '../../../components/Input';
 import useCurrentPage from '../../../hooks/useCurrentPage';
+
+const { SEND_MESSAGE } = CHAT_MESSAGE_EVENT_TYPES;
 
 const $content = $channelContent.chat;
 
@@ -90,7 +93,7 @@ const Composer = ({
           setMessage('');
         }
 
-        sendMessage(message);
+        sendMessage(message, { eventType: SEND_MESSAGE });
         !errorMessage && setMessage('');
         setShouldShake(false);
       } else {
