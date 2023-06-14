@@ -100,6 +100,7 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
                 id: messageId,
                 message,
                 avatarSrc,
+                isOwnMessage,
                 ...restSenderAttributes
               });
 

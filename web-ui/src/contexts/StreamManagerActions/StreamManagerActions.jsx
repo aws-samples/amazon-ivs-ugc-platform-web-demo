@@ -10,6 +10,7 @@ import {
   LOCALSTORAGE_ENABLED_STREAM_ACTIONS
 } from '../../constants';
 import { streamManager as $content } from '../../content';
+import { useChat } from '../Chat';
 import { useNotif } from '../Notification';
 import useContextHook from '../useContextHook';
 import useStreamManagerActionsLocalStorage from './useStreamManagerActionsLocalStorage';
@@ -24,6 +25,7 @@ Context.displayName = 'StreamManagerActions';
  * The Provider takes
  */
 export const Provider = ({ children }) => {
+  const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
   const [streamManagerActionData, setStreamManagerActionData] = useState(
     DEFAULT_STREAM_MANAGER_ACTIONS_STATE
@@ -166,7 +168,7 @@ export const Provider = ({ children }) => {
   const stopStreamAction = useCallback(async () => {
     if (!activeStreamManagerActionData) return;
 
-    const { expiry } = activeStreamManagerActionData;
+    const { expiry, name } = activeStreamManagerActionData;
     const hasExpired = new Date().toISOString() > expiry;
 
     // Only send a "stop" timed metadata event if the currently active stream action
@@ -176,11 +178,15 @@ export const Provider = ({ children }) => {
       await channelAPI.sendStreamAction(metadata);
     }
 
+    if (name === STREAM_ACTION_NAME.POLL) {
+      await endPoll({ withTimeout: true, timeoutDuration: 2000 });
+    }
+
     saveStreamManagerActionData((prevStoredData) => ({
       ...prevStoredData,
       _active: undefined
     }));
-  }, [activeStreamManagerActionData, saveStreamManagerActionData]);
+  }, [activeStreamManagerActionData, endPoll, saveStreamManagerActionData]);
 
   /**
    * Resets the form data to the last data saved in local storage
@@ -203,6 +209,45 @@ export const Provider = ({ children }) => {
       shouldValidate: false
     });
   }, [updateStreamManagerActionData]);
+
+  /**
+   * Start Poll
+   */
+
+  const sendPollStreamAction = useThrottledCallback(
+    async (actionName, data) => {
+      try {
+        setIsSendingStreamAction(true);
+
+        const actionData = data[actionName];
+        const { duration } = actionData;
+        const expiry =
+          duration > 0
+            ? new Date(Date.now() + duration * 1000).toISOString()
+            : undefined;
+        const result = await startPoll({ ...data[actionName], expiry });
+
+        const dataToSave = data;
+        if (result) {
+          dataToSave._active = { duration, expiry, name: actionName };
+        }
+
+        if (shouldEnableLocalStorage(actionName)) {
+          saveStreamManagerActionData(dataToSave);
+        }
+
+        setIsSendingStreamAction(false);
+        notifySuccess($content.notifications.success[`started_${actionName}`]);
+
+        return result;
+      } catch (error) {
+        notifyErrorPortal(
+          $content.notifications.error.unable_to_start_stream_action
+        );
+      }
+    },
+    100
+  );
 
   /**
    * Opens a Stream Manager Action modal for a specific action name,
@@ -231,7 +276,10 @@ export const Provider = ({ children }) => {
 
         resetStreamManagerActionErrorData();
 
-        const result = await sendStreamAction(actionName, data);
+        const result =
+          actionName === STREAM_ACTION_NAME.POLL
+            ? await sendPollStreamAction(actionName, data)
+            : await sendStreamAction(actionName, data);
 
         return !!result;
       };
@@ -260,6 +308,7 @@ export const Provider = ({ children }) => {
       resetStreamManagerActionData,
       resetStreamManagerActionErrorData,
       saveStreamManagerActionData,
+      sendPollStreamAction,
       sendStreamAction,
       validateStreamManagerActionData
     ]

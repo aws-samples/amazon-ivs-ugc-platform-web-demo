@@ -6,7 +6,6 @@ import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { createAnimationProps } from '../../../helpers/animationPropsHelper';
 import { HAIRLINE_DIVIDER_CLASSES } from '../../../components/ProfileMenu/ProfileMenuTheme';
-import { useChat } from '../../../contexts/Chat';
 import { useModal } from '../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { useUser } from '../../../contexts/User';
@@ -23,14 +22,13 @@ const ChatPopup = ({
   banUser,
   deleteMessage,
   isOpen,
-  selectedMessage: { avatarSrc, color, displayName, message, id, channelArn },
+  selectedMessage: { avatarSrc, color, displayName, message, channelArn },
   setIsChatPopupOpen
 }) => {
   const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
-  const { deletedMessageIds } = useChat();
   const popupRef = useRef();
   const isOwnMessage = username === displayName;
 
@@ -46,12 +44,6 @@ const ChatPopup = ({
     isActive: isOpen,
     onRefocus: hideChatPopup
   });
-
-  const handleDeleteMessage = useCallback(() => {
-    deleteMessage(id);
-    deletedMessageIds.current.push(id);
-    handleClose();
-  }, [deleteMessage, deletedMessageIds, handleClose, id]);
 
   const handleBanUser = () => {
     handleClose();
@@ -187,7 +179,10 @@ const ChatPopup = ({
               'text-lightMode-red'
             ])}
             variant="tertiary"
-            onClick={handleDeleteMessage}
+            onClick={() => {
+              deleteMessage();
+              handleClose();
+            }}
           >
             {$content.delete_message}
           </Button>

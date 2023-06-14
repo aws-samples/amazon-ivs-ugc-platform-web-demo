@@ -1,4 +1,4 @@
-import { forwardRef, useEffect } from 'react';
+import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../../../../constants';
@@ -24,11 +24,7 @@ const DEFAULT_TRANSITION_CLASSES = [
 
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
-    const {
-      isActive: isPollActive,
-      expiry: pollExpiry,
-      duration: pollDuration
-    } = usePoll();
+    const { isActive: isPollActive } = usePoll();
     const { endPoll } = useChat();
     const Icon = icon;
     const { hasFetchedInitialUserData, userData } = useUser();
@@ -42,32 +38,20 @@ const StreamManagerActionButton = forwardRef(
       name: activeStreamManagerActionName,
       expiry: activeStreamManagerActionExpiry
     } = activeStreamManagerActionData || {};
-
     const isActive = name === activeStreamManagerActionName;
 
-    const isPerpetual =
-      (isActive && !activeStreamManagerActionExpiry) || isPollActive;
-    const isCountingDown =
-      (isActive && !isPerpetual) || (name === 'poll' && isPollActive);
-
-    const activeActionDuration = isPollActive
-      ? pollDuration
-      : activeStreamManagerActionDuration;
-    const activeActionExpiry = isPollActive
-      ? pollExpiry
-      : activeStreamManagerActionExpiry;
-    const onExpiry = isPollActive
-      ? () => endPoll({ withTimeout: true })
-      : stopStreamAction;
+    const isPerpetual = isActive && !activeStreamManagerActionExpiry;
+    const isCountingDown = isActive && !isPerpetual;
 
     const [textFormattedTimeLeft, currentProgress] = useCountdown({
-      expiry: activeActionExpiry,
+      expiry: activeStreamManagerActionExpiry,
       formatter: (timeLeft) => [
         `${Math.ceil(timeLeft / 1000)}${$content.unit_seconds}`,
-        (timeLeft / (activeActionDuration * 1000)) * STROKE_DASHARRAY_MAX
+        (timeLeft / (activeStreamManagerActionDuration * 1000)) *
+          STROKE_DASHARRAY_MAX
       ],
       isEnabled: isCountingDown,
-      onExpiry
+      onExpiry: stopStreamAction
     });
 
     const handleClick = () => {
@@ -85,17 +69,11 @@ const StreamManagerActionButton = forwardRef(
         ) && `a ${name}`}
       </>
     );
-    let statusLabel;
-    if (isActive) {
-      statusLabel =
-        isPerpetual && !isPollActive ? $content.on : textFormattedTimeLeft;
-    }
-    if (isPollActive) {
-      statusLabel = textFormattedTimeLeft;
-    }
 
-    if ((!isActive && name !== 'poll') || (!isPollActive && name === 'poll'))
-      statusLabel = $content.off;
+    let statusLabel =
+      isActive && (isPerpetual ? $content.on : textFormattedTimeLeft);
+
+    if (!isActive) statusLabel = $content.off;
 
     const shouldInvertColors = isTextColorInverted(color);
 
@@ -161,8 +139,7 @@ const StreamManagerActionButton = forwardRef(
                   'opacity-50',
                   'w-full',
                   DEFAULT_TRANSITION_CLASSES,
-                  isActive &&
-                    isPollActive && ['opacity-100', `fill-profile-${color}`],
+                  isActive && ['opacity-100', `fill-profile-${color}`],
                   !isActive && shouldInvertColors && 'fill-white'
                 ])}
               />
@@ -222,7 +199,7 @@ const StreamManagerActionButton = forwardRef(
               'leading-4',
               'opacity-50',
               'text-[13px]',
-              (isActive || (isPollActive && name === 'poll')) && 'opacity-100'
+              isActive && 'opacity-100'
             ])}
           >
             {!isSmallBreakpoint && statusLabel}

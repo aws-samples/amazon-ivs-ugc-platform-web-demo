@@ -27,7 +27,7 @@ const Chat = ({ shouldRunCelebration }) => {
 
   const { color: channelColor } = channelData || {};
   const { isSessionValid } = useUser();
-  const { notifyInfo } = useNotif();
+  const { notifyError, notifySuccess, notifyInfo } = useNotif();
   const {
     isLandscape,
     isMobileView,
@@ -48,20 +48,25 @@ const Chat = ({ shouldRunCelebration }) => {
     chatUserRole,
     hasConnectionError,
     isConnecting,
-    sendAttemptError
+    sendAttemptError,
+    deletedMessageIds,
+    sentMessageIds
   } = useChat();
   const isLoading = isConnecting || isChannelLoading;
-
+  // console.log('sina', selectedMessage);
   /**
    * Chat Moderation State and Actions
    */
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
-  const openChatPopup = useCallback((messageData) => {
-    setIsChatPopupOpen(true);
-    setSelectedMessage(messageData);
-  }, []);
+  const openChatPopup = useCallback(
+    (messageData) => {
+      setIsChatPopupOpen(true);
+      setSelectedMessage(messageData);
+    },
+    [setSelectedMessage]
+  );
 
   // Show moderation pill if user role is moderator
   useEffect(() => {
@@ -81,6 +86,25 @@ const Chat = ({ shouldRunCelebration }) => {
 
     setChatContainerDimensions({ width: clientWidth, height: clientHeight });
   }, []);
+
+  const handleDeleteMessage = useCallback(() => {
+    const { id } = selectedMessage;
+    actions.deleteMessage(id);
+    deletedMessageIds.current.push(id);
+
+    if (deletedMessageIds.current.includes(id)) {
+      notifySuccess($content.notifications.success.message_removed);
+    } else if (sentMessageIds.current.includes(id)) {
+      notifyError($content.notifications.error.your_message_was_removed);
+    }
+  }, [
+    selectedMessage,
+    actions,
+    deletedMessageIds,
+    sentMessageIds,
+    notifySuccess,
+    notifyError
+  ]);
 
   useResizeObserver(chatSectionRef, (entry) => {
     if (entry) updateChatContainerDimensions(entry.target);
@@ -136,7 +160,7 @@ const Chat = ({ shouldRunCelebration }) => {
         {isChatPopupOpen && (
           <ChatPopup
             banUser={actions.banUser}
-            deleteMessage={actions.deleteMessage}
+            deleteMessage={handleDeleteMessage}
             isOpen={isChatPopupOpen}
             openChatPopup={openChatPopup}
             parentEl={chatPopupParentEl}

@@ -61,15 +61,15 @@ const StreamManager = () => {
           ingestEndpoint={ingestEndpoint}
           streamKey={streamKey}
         >
-          <StreamManagerActionsProvider>
-            {/* <ChatProvider> */}
-            <Notification />
-            <StreamManagerControlCenter
-              ref={previewRef}
-              setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
-            />
-            {/* </ChatProvider> */}
-          </StreamManagerActionsProvider>
+          <ChatProvider>
+            <StreamManagerActionsProvider>
+              <Notification />
+              <StreamManagerControlCenter
+                ref={previewRef}
+                setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
+              />
+            </StreamManagerActionsProvider>
+          </ChatProvider>
         </StreamManagerWebBroadcastProvider>
       </NotificationProvider>
     </div>
