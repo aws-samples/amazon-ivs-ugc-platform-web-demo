@@ -148,7 +148,7 @@ export const Provider = ({ children }) => {
   });
 
   // Poll Stream Action
-  const { updatePollProps, resetPollProps } = usePoll();
+  const { updatePollData, resetPollProps, clearLocalStorage } = usePoll();
 
   const startPoll = useCallback(
     async (pollStreamActionData) => {
@@ -173,8 +173,9 @@ export const Provider = ({ children }) => {
       } else {
         actions.sendMessage(content, attributes);
       }
+      clearLocalStorage();
     },
-    [actions]
+    [actions, clearLocalStorage]
   );
 
   const disconnect = useCallback(() => {
@@ -357,18 +358,21 @@ export const Provider = ({ children }) => {
       } = message;
       switch (eventType) {
         case START_POLL:
-          const { answers, duration, question, expiry } = JSON.parse(content);
-          updatePollProps({
+          const { answers, duration, question, expiry, startTime } =
+            JSON.parse(content);
+          // const votes = answers.reduce((acc, answer) => {
+          //   const option = { option: answer, count: 0 };
+          //   acc.push(option);
+          //   return acc;
+          // }, []);
+
+          updatePollData({
             duration,
             question,
-            votes: answers.reduce((acc, answer) => {
-              const option = { option: answer, count: 0 };
-              acc.push(option);
-              return acc;
-            }, []),
+            answers,
             isActive: true,
             expiry,
-            startTime: Date.now()
+            startTime: new Date(startTime)
           });
           break;
         case END_POLL:
@@ -410,8 +414,8 @@ export const Provider = ({ children }) => {
     handleUserDisconnect,
     userData,
     removeMessageByUserId,
-    updatePollProps,
-    resetPollProps
+    resetPollProps,
+    updatePollData
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,

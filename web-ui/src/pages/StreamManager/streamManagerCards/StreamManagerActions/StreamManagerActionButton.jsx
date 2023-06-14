@@ -24,7 +24,8 @@ const DEFAULT_TRANSITION_CLASSES = [
 
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
-    const { isActive: isPollActive } = usePoll();
+    const { isActive: isPollActive, getPollDataFromLocalStorage } = usePoll();
+    const pollDataFromLocalStorage = getPollDataFromLocalStorage();
     const { endPoll } = useChat();
     const Icon = icon;
     const { hasFetchedInitialUserData, userData } = useUser();
@@ -37,9 +38,9 @@ const StreamManagerActionButton = forwardRef(
       duration: activeStreamManagerActionDuration,
       name: activeStreamManagerActionName,
       expiry: activeStreamManagerActionExpiry
-    } = activeStreamManagerActionData || {};
-    const isActive = name === activeStreamManagerActionName;
+    } = pollDataFromLocalStorage || activeStreamManagerActionData || {};
 
+    const isActive = name === activeStreamManagerActionName;
     const isPerpetual = isActive && !activeStreamManagerActionExpiry;
     const isCountingDown = isActive && !isPerpetual;
 

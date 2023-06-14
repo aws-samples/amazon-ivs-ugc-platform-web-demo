@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import useContextHook from '../../contexts/useContextHook';
+import { STREAM_ACTION_NAME } from '../../constants';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -34,20 +35,75 @@ export const Provider = ({ children }) => {
   const [showFinalResults, setShowFinalResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(true);
-  const [pollProps, updatePollProps] = useReducer(
+  const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
   const { votes, question, isActive, duration, expiry, startTime } = pollProps;
 
   const resetPollProps = useCallback(() => {
-    updatePollProps(pollInitialState);
+    dispatchPollProps(pollInitialState);
     setShowFinalResults(false);
     setHasListReordered(false);
     setIsSubmitting(false);
     setIsVoting(true);
     setPollHeight(0);
   }, []);
+
+  const updatePollData = ({
+    answers,
+    duration,
+    question,
+    expiry,
+    startTime,
+    isActive
+  }) => {
+    const votes = answers.reduce((acc, answer) => {
+      const option = { option: answer, count: 0 };
+      acc.push(option);
+      return acc;
+    }, []);
+
+    dispatchPollProps({
+      duration,
+      question,
+      votes,
+      expiry,
+      isActive,
+      startTime: new Date(startTime)
+    });
+  };
+
+  const saveToLocalStorage = useCallback((pollDataToSave) => {
+    localStorage.setItem(
+      STREAM_ACTION_NAME.POLL,
+      JSON.stringify(pollDataToSave)
+    );
+  }, []);
+
+  const getPollDataFromLocalStorage = useCallback(() => {
+    const pollData = localStorage.getItem(STREAM_ACTION_NAME.POLL);
+    return JSON.parse(pollData);
+  }, []);
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem(STREAM_ACTION_NAME.POLL);
+  };
+
+  useEffect(() => {
+    const pollProps = getPollDataFromLocalStorage();
+    if (pollProps) {
+      const { question, duration, startTime, answers, expiry } = pollProps;
+      updatePollData({
+        expiry,
+        startTime: new Date(startTime),
+        question,
+        duration,
+        isActive: true,
+        answers
+      });
+    }
+  }, [getPollDataFromLocalStorage]);
 
   useEffect(() => {
     if (showFinalResults) {
@@ -62,7 +118,7 @@ export const Provider = ({ children }) => {
         const sortedVotes = [...votes].sort((a, b) =>
           a.count > b.count ? -1 : a.count < b.count ? 1 : 0
         );
-        updatePollProps({
+        dispatchPollProps({
           votes: sortedVotes,
           isPollActive: false
         });
@@ -130,9 +186,12 @@ export const Provider = ({ children }) => {
       setIsSubmitting,
       isVoting,
       setIsVoting,
-      updatePollProps,
+      updatePollData,
       expiry,
-      resetPollProps
+      resetPollProps,
+      saveToLocalStorage,
+      getPollDataFromLocalStorage,
+      clearLocalStorage
     }),
     [
       isExpanded,
@@ -151,7 +210,9 @@ export const Provider = ({ children }) => {
       isSubmitting,
       isVoting,
       expiry,
-      resetPollProps
+      resetPollProps,
+      saveToLocalStorage,
+      getPollDataFromLocalStorage
     ]
   );
 

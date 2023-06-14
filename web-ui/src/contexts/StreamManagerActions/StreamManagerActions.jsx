@@ -16,6 +16,7 @@ import useContextHook from '../useContextHook';
 import useStreamManagerActionsLocalStorage from './useStreamManagerActionsLocalStorage';
 import useStreamManagerActionValidation from './useStreamManagerActionValidation';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
+import { usePoll } from './Poll';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
@@ -25,6 +26,7 @@ Context.displayName = 'StreamManagerActions';
  * The Provider takes
  */
 export const Provider = ({ children }) => {
+  const { saveToLocalStorage, isActive: isPollActive } = usePoll();
   const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
   const [streamManagerActionData, setStreamManagerActionData] = useState(
@@ -166,6 +168,9 @@ export const Provider = ({ children }) => {
    * Stops the currently active stream action, if one exists
    */
   const stopStreamAction = useCallback(async () => {
+    if (isPollActive) {
+      await endPoll({ withTimeout: true, timeoutDuration: 2000 });
+    }
     if (!activeStreamManagerActionData) return;
 
     const { expiry, name } = activeStreamManagerActionData;
@@ -173,20 +178,21 @@ export const Provider = ({ children }) => {
 
     // Only send a "stop" timed metadata event if the currently active stream action
     // is being stopped before it has expired or the stream action is perpetual
-    if (!expiry || !hasExpired) {
+    if (!expiry || (!hasExpired && name !== STREAM_ACTION_NAME.POLL)) {
       const metadata = pack(null);
       await channelAPI.sendStreamAction(metadata);
-    }
-
-    if (name === STREAM_ACTION_NAME.POLL) {
-      await endPoll({ withTimeout: true, timeoutDuration: 2000 });
     }
 
     saveStreamManagerActionData((prevStoredData) => ({
       ...prevStoredData,
       _active: undefined
     }));
-  }, [activeStreamManagerActionData, endPoll, saveStreamManagerActionData]);
+  }, [
+    activeStreamManagerActionData,
+    endPoll,
+    isPollActive,
+    saveStreamManagerActionData
+  ]);
 
   /**
    * Resets the form data to the last data saved in local storage
@@ -225,7 +231,11 @@ export const Provider = ({ children }) => {
           duration > 0
             ? new Date(Date.now() + duration * 1000).toISOString()
             : undefined;
-        const result = await startPoll({ ...data[actionName], expiry });
+        const result = await startPoll({
+          ...data[actionName],
+          expiry,
+          startTime: Date.now()
+        });
 
         const dataToSave = data;
         if (result) {
@@ -234,6 +244,7 @@ export const Provider = ({ children }) => {
 
         if (shouldEnableLocalStorage(actionName)) {
           saveStreamManagerActionData(dataToSave);
+          saveToLocalStorage({ ...actionData, ...dataToSave._active });
         }
 
         setIsSendingStreamAction(false);
