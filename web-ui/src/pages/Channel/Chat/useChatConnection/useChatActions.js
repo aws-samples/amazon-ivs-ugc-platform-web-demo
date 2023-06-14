@@ -11,7 +11,11 @@ import {
   SendMessageRequest
 } from 'amazon-ivs-chat-messaging';
 import { useNotif } from '../../../../contexts/Notification';
+import { CHAT_MESSAGE_EVENT_TYPES } from '../../../../constants';
 
+const {
+  SEND_MESSAGE
+} = CHAT_MESSAGE_EVENT_TYPES.
 const $content = $channelContent.notifications;
 
 /**
@@ -105,7 +109,7 @@ const useChatActions = ({
         return;
       }
 
-      return send(attr.eventType === 'SEND_MESSAGE' ? encode(msg) : msg, attr);
+      return send(attr.eventType === SEND_MESSAGE ? encode(msg) : msg, attr);
     },
     [chatUserRole, send]
   );

@@ -77,14 +77,6 @@ const ViewerPoll = ({
     setIsVoting
   ]);
 
-  // const progressBarMemo = useMemo(
-  //   () => (
-
-  //   ),
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [duration]
-  // );
-
   return (
     <PollContainer>
       <h3
