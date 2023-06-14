@@ -118,6 +118,7 @@ const useChatActions = ({
         );
         return;
       }
+
       const deleteMessageRequest = new DeleteMessageRequest(messageId);
       connection.current.deleteMessage(deleteMessageRequest);
     },

@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE } from './useChatConnection/utils';
-import { clsm } from '../../../utils';
+import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
 import { useChannel } from '../../../contexts/Channel';
 import { useChat } from '../../../contexts/Chat';
 import { useNotif } from '../../../contexts/Notification';
@@ -26,7 +26,7 @@ const Chat = ({ shouldRunCelebration }) => {
   const { channelData, isChannelLoading } = useChannel();
 
   const { color: channelColor } = channelData || {};
-  const { isSessionValid } = useUser();
+  const { isSessionValid, userData } = useUser();
   const { notifyError, notifySuccess, notifyInfo } = useNotif();
   const {
     isLandscape,
@@ -50,10 +50,12 @@ const Chat = ({ shouldRunCelebration }) => {
     isConnecting,
     sendAttemptError,
     deletedMessageIds,
-    sentMessageIds
+    deletedMessage,
+    setDeletedMessage,
+    messages
   } = useChat();
+
   const isLoading = isConnecting || isChannelLoading;
-  // console.log('sina', selectedMessage);
   /**
    * Chat Moderation State and Actions
    */
@@ -92,19 +94,8 @@ const Chat = ({ shouldRunCelebration }) => {
     actions.deleteMessage(id);
     deletedMessageIds.current.push(id);
 
-    if (deletedMessageIds.current.includes(id)) {
-      notifySuccess($content.notifications.success.message_removed);
-    } else if (sentMessageIds.current.includes(id)) {
-      notifyError($content.notifications.error.your_message_was_removed);
-    }
-  }, [
-    selectedMessage,
-    actions,
-    deletedMessageIds,
-    sentMessageIds,
-    notifySuccess,
-    notifyError
-  ]);
+    notifySuccess($content.notifications.success.message_removed);
+  }, [selectedMessage, actions, deletedMessageIds, notifySuccess]);
 
   useResizeObserver(chatSectionRef, (entry) => {
     if (entry) updateChatContainerDimensions(entry.target);
@@ -115,6 +106,33 @@ const Chat = ({ shouldRunCelebration }) => {
       updateChatContainerDimensions(chatSectionRef.current);
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
+
+  useEffect(() => {
+    if (deletedMessage && !isModerator) {
+      const {
+        sender: {
+          attributes: { channelArn: deletedMessageOwner }
+        }
+      } = messages?.find(({ id }) => id === deletedMessage);
+      if (
+        extractChannelIdfromChannelArn(deletedMessageOwner.toLowerCase()) ===
+        userData?.trackingId
+      )
+        notifyError($content.notifications.error.your_message_was_removed);
+
+      setDeletedMessage(undefined);
+    }
+  }, [
+    deletedMessage,
+    deletedMessageIds,
+    isModerator,
+    messages,
+    notifyError,
+    notifySuccess,
+    selectedMessage.id,
+    setDeletedMessage,
+    userData
+  ]);
 
   return (
     <>

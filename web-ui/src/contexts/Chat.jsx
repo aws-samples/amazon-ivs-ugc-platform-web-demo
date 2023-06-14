@@ -139,6 +139,7 @@ export const Provider = ({ children }) => {
   const isConnecting = isInitializingConnection.current;
 
   // Chat Actions
+  const [deletedMessage, setDeletedMessage] = useState();
   const { actions, chatUserRole, updateUserRole } = useChatActions({
     chatCapabilities,
     isConnectionOpen: isConnectionOpenRef.current,
@@ -288,6 +289,7 @@ export const Provider = ({ children }) => {
   const handleDeleteMessage = useCallback(
     (messageId) => {
       removeMessage(messageId);
+      setDeletedMessage(messageId);
     },
     [removeMessage]
   );
@@ -384,10 +386,11 @@ export const Provider = ({ children }) => {
       'messageDelete',
       (deletedMessage) => {
         const {
-          attributes: { MessageID }
+          attributes: { MessageID },
+          reason
         } = deletedMessage;
 
-        handleDeleteMessage(MessageID);
+        handleDeleteMessage(MessageID, reason);
       }
     );
 
@@ -447,7 +450,9 @@ export const Provider = ({ children }) => {
       sendAttemptError,
       isModerator,
       startPoll,
-      endPoll
+      endPoll,
+      deletedMessage,
+      setDeletedMessage
     }),
     [
       actions,
@@ -462,7 +467,9 @@ export const Provider = ({ children }) => {
       sendAttemptError,
       isModerator,
       startPoll,
-      endPoll
+      endPoll,
+      deletedMessage,
+      setDeletedMessage
     ]
   );
 
