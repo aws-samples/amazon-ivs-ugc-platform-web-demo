@@ -360,11 +360,6 @@ export const Provider = ({ children }) => {
         case START_POLL:
           const { answers, duration, question, expiry, startTime } =
             JSON.parse(content);
-          // const votes = answers.reduce((acc, answer) => {
-          //   const option = { option: answer, count: 0 };
-          //   acc.push(option);
-          //   return acc;
-          // }, []);
 
           updatePollData({
             duration,
