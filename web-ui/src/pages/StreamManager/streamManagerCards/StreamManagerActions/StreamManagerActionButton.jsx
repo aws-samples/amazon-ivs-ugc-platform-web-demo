@@ -57,7 +57,7 @@ const StreamManagerActionButton = forwardRef(
 
     const handleClick = () => {
       if (isPollActive) endPoll();
-      if (isActive) stopStreamAction();
+      if (isActive && !isPollActive) stopStreamAction();
       else onClick();
     };
 
