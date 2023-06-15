@@ -26,17 +26,21 @@ Context.displayName = 'StreamManagerActions';
  * The Provider takes
  */
 export const Provider = ({ children }) => {
-  const { saveToLocalStorage, isActive: isPollActive } = usePoll();
+  const {
+    saveToLocalStorage,
+    isActive: isPollActive,
+    getPollDataFromLocalStorage
+  } = usePoll();
   const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
   const [streamManagerActionData, setStreamManagerActionData] = useState(
     DEFAULT_STREAM_MANAGER_ACTIONS_STATE
   );
 
-  const activeStreamManagerActionData = useMemo(
-    () => streamManagerActionData?._active || null,
-    [streamManagerActionData?._active]
-  );
+  const activeStreamManagerActionData = useMemo(() => {
+    const pollProps = getPollDataFromLocalStorage();
+    return pollProps || streamManagerActionData?._active || null;
+  }, [getPollDataFromLocalStorage, streamManagerActionData?._active]);
   const {
     currentStreamManagerActionErrors,
     resetStreamManagerActionErrorData,
