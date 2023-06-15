@@ -15,7 +15,7 @@ import { CHAT_MESSAGE_EVENT_TYPES } from '../../../../constants';
 
 const {
   SEND_MESSAGE
-} = CHAT_MESSAGE_EVENT_TYPES.
+} = CHAT_MESSAGE_EVENT_TYPES
 const $content = $channelContent.notifications;
 
 /**
