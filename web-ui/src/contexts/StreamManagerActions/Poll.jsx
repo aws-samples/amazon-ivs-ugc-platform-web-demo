@@ -17,6 +17,8 @@ const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
 const Context = createContext(null);
 Context.displayName = 'Poll';
 
+const POLL_TAB_LABEL = 'Live poll';
+
 export const pollInitialState = {
   votes: [],
   question: null,
@@ -191,7 +193,8 @@ export const Provider = ({ children }) => {
       resetPollProps,
       saveToLocalStorage,
       getPollDataFromLocalStorage,
-      clearLocalStorage
+      clearLocalStorage,
+      pollTabLabel: POLL_TAB_LABEL
     }),
     [
       isExpanded,

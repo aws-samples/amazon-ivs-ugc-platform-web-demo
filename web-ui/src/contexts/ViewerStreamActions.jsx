@@ -102,14 +102,16 @@ export const Provider = () => {
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
       setCurrentViewerAction,
-      shouldRenderActionInTab
+      shouldRenderActionInTab,
+      isChannelPageStackedView
     }),
     [
       augmentedCurrentViewerStreamActionData,
       clearCurrentViewerAction,
       currentViewerStreamActionName,
       currentViewerStreamActionTitle,
-      shouldRenderActionInTab
+      shouldRenderActionInTab,
+      isChannelPageStackedView
     ]
   );
 

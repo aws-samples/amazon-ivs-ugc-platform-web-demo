@@ -32,7 +32,7 @@ const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
   const { channelError } = useChannel();
-  const { isLandscape, isMobileView, isDesktopView } = useResponsiveDevice();
+  const { isLandscape, isMobileView } = useResponsiveDevice();
   const { isStackedView, isSplitView } = useChannelView();
   const { getProfileViewAnimationProps, chatAnimationControls } =
     useProfileViewAnimation();
@@ -40,11 +40,11 @@ const Channel = () => {
     currentViewerStreamActionData,
     currentViewerStreamActionName,
     currentViewerStreamActionTitle,
-    setCurrentViewerAction
-    // shouldRenderActionInTab
+    setCurrentViewerAction,
+    shouldRenderActionInTab,
+    isChannelPageStackedView
   } = useViewerStreamActions();
-  const { isActive } = usePoll();
-  const shouldRenderActionInTab = isActive && !isDesktopView;
+  const { isActive, pollTabLabel } = usePoll();
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -55,6 +55,9 @@ const Channel = () => {
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
   else if (isStackedView) visibleChatWidth = '100%';
+
+  const shouldRenderInTab =
+    shouldRenderActionInTab || (isActive && isChannelPageStackedView);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
@@ -164,7 +167,7 @@ const Channel = () => {
             ])}
           >
             <Tabs>
-              {shouldRenderActionInTab && (
+              {shouldRenderInTab && (
                 <>
                   <Tabs.List
                     selectedIndex={selectedTabIndex}
@@ -172,8 +175,8 @@ const Channel = () => {
                     tabs={[
                       {
                         // temporary code. It will be repolaced once we get to integration ticket
-                        label: shouldRenderActionInTab
-                          ? 'Live poll'
+                        label: isActive
+                          ? pollTabLabel
                           : currentViewerStreamActionTitle,
                         panelIndex: 0
                       },
@@ -226,7 +229,7 @@ const Channel = () => {
                   </Tabs.Panel>
                 </>
               )}
-              {selectedTabIndex === 0 && shouldRenderActionInTab && (
+              {selectedTabIndex === 0 && shouldRenderInTab && (
                 <ProfileViewFloatingNav
                   containerClassName="fixed"
                   reverseVisibility
@@ -235,14 +238,12 @@ const Channel = () => {
               <Tabs.Panel
                 index={1}
                 selectedIndex={
-                  shouldRenderActionInTab
-                    ? selectedTabIndex
-                    : CHAT_PANEL_TAB_INDEX
+                  shouldRenderInTab ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
                 }
               >
                 <NotificationProvider>
                   <ChatProvider>
-                    {!shouldRenderActionInTab && isActive && <Poll />}
+                    {!shouldRenderInTab && isActive && <Poll />}
                     <Chat
                       shouldRunCelebration={
                         currentViewerStreamActionName ===
