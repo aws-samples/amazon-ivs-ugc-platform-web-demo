@@ -88,15 +88,15 @@ export const Provider = ({ children }) => {
     isActive,
     delay = 0
   }) => {
-    const props = {};
-
-    if (duration) props.duration = duration;
-    if (question) props.question = question;
-    if (votes) props.votes = votes;
-    if (expiry) props.expiry = expiry;
-    if (isActive) props.isActive = isActive;
-    if (startTime) props.startTime = startTime;
-    if (delay) props.delay = delay;
+    const props = {
+      ...(duration && { duration }),
+      ...(question && { question }),
+      ...(votes && { votes }),
+      ...(expiry && { expiry }),
+      ...(isActive && { isActive }),
+      ...(startTime && { startTime }),
+      ...(delay && { delay })
+    };
 
     dispatchPollProps(props);
   };

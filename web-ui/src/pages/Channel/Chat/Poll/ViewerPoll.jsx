@@ -19,7 +19,6 @@ import VoteItem from './VoteItem';
 import PollContainer from './PollContainer';
 import { useChat } from '../../../../contexts/Chat';
 import { useUser } from '../../../../contexts/User';
-import { useNavigate } from 'react-router-dom';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -54,19 +53,12 @@ const ViewerPoll = ({
   const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
-  const navigate = useNavigate();
 
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
     : 'black';
 
   const submitVote = useCallback(async () => {
-    if (!userData) {
-      navigate('/login');
-
-      return;
-    }
-
     setIsSubmitting(true);
 
     await radioBoxControls.start({
@@ -99,21 +91,7 @@ const ViewerPoll = ({
     if (result) {
       setIsSubmitting(false);
     }
-  }, [
-    SUBMIT_VOTE,
-    buttonDivControls,
-    duration,
-    inputDivControls,
-    navigate,
-    radioBoxControls,
-    selectedOption,
-    sendMessage,
-    setIsSubmitting,
-    setIsVoting,
-    startTime,
-    trackingId,
-    userData
-  ]);
+  }, [SUBMIT_VOTE, buttonDivControls, duration, inputDivControls, radioBoxControls, selectedOption, sendMessage, setIsSubmitting, setIsVoting, startTime, trackingId]);
 
   return (
     <PollContainer>
