@@ -36,15 +36,8 @@ const StreamerPoll = ({
   const {
     setIsExpanded,
     setPollRef,
-    duration,
     question,
-    expiry,
-    startTime,
-    getPollDataFromLocalStorage,
-    showFinalResult
   } = usePoll();
-  const { actions } = useChat();
-  const { HEART_BEAT } = CHAT_MESSAGE_EVENT_TYPES;
 
   useEffect(() => {
     if (pollRef?.current) {

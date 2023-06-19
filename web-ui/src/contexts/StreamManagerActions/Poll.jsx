@@ -10,6 +10,7 @@ import {
 
 import useContextHook from '../../contexts/useContextHook';
 import { STREAM_ACTION_NAME } from '../../constants';
+import { useUser } from '../User';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -45,7 +46,7 @@ export const Provider = ({ children }) => {
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
-
+  const { userData } = useUser()
   const { votes, question, isActive, duration, expiry, startTime, delay } =
     pollProps;
 
@@ -124,16 +125,18 @@ export const Provider = ({ children }) => {
   };
 
   useEffect(() => {
-    const pollProps = getPollDataFromLocalStorage();
-    if (pollProps) {
+    const savedPollProps = getPollDataFromLocalStorage();
+
+    if (savedPollProps) {
       const {
         question,
         duration,
         startTime,
         votes: options,
-        expiry
-        // voters = undefined
-      } = pollProps;
+        expiry,
+        voters = undefined
+      } = savedPollProps;
+      
       updatePollData({
         expiry,
         startTime,
@@ -143,12 +146,14 @@ export const Provider = ({ children }) => {
         votes: options,
         delay
       });
-
-      // if (voters) {
-      //   setSelectedOption(voters[userData?.trackingId.toLowerCase()])
-      // }
+      
+      const savedVote = voters[userData?.trackingId]
+ 
+      if (savedVote) {
+        setSelectedOption(savedVote)
+      }
     }
-  }, [getPollDataFromLocalStorage, delay]);
+  }, [userData, getPollDataFromLocalStorage, delay]);
 
   useEffect(() => {
     if (showFinalResults) {

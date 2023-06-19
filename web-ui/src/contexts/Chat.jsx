@@ -174,11 +174,13 @@ export const Provider = ({ children }) => {
     selectedOption,
     setIsVoting,
     getPollDataFromLocalStorage,
-    showFinalResult,
+    showFinalResults,
     duration,
     question,
     expiry,
-    startTime
+    startTime,
+    noVotesCaptured,
+    tieFound,
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -211,8 +213,7 @@ export const Provider = ({ children }) => {
   );
 
   const sendHeartBeat = useCallback(() => {
-    if (isActive && !showFinalResult) {
-      const { voters = undefined } = getPollDataFromLocalStorage();
+    if (isActive && !showFinalResults && !noVotesCaptured && !tieFound) {
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
         updatedVotes: JSON.stringify(votes),
@@ -220,24 +221,13 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(voters)
       });
     }
-  }, [
-    actions,
-    duration,
-    expiry,
-    getPollDataFromLocalStorage,
-    isActive,
-    question,
-    showFinalResult,
-    startTime,
-    votes
-  ]);
+  }, [actions, duration, expiry, isActive, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
 
   useEffect(() => {
     let heartBeatIntervalId = null;
-    if (!showFinalResult && isActive) {
+    if (!showFinalResults && isActive) {
       heartBeatIntervalId = setInterval(() => {
         sendHeartBeat();
       }, 4000);
@@ -248,7 +238,7 @@ export const Provider = ({ children }) => {
         clearInterval(heartBeatIntervalId);
       }
     };
-  }, [isActive, sendHeartBeat, showFinalResult]);
+  }, [isActive, sendHeartBeat, showFinalResults]);
 
   // const connect = useCallback(() => {
 
@@ -437,12 +427,10 @@ export const Provider = ({ children }) => {
           const moderator = isModerator && pathname === '/manager';
 
           if (moderator) return;
-
           updatePollData({
             duration: Number(JSON.parse(message.attributes.duration)),
             question: JSON.parse(message.attributes.question),
             votes: JSON.parse(message.attributes.updatedVotes),
-            voters: JSON.parse(message.attributes.voters),
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
