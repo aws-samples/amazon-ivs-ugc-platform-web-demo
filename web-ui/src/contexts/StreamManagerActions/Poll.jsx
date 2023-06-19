@@ -11,6 +11,7 @@ import {
 
 import useContextHook from '../../contexts/useContextHook';
 import { STREAM_ACTION_NAME } from '../../constants';
+import { useUser } from '../User';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -47,6 +48,7 @@ export const Provider = ({ children }) => {
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
+  const { userData } = useUser();
 
   const pollHasEnded = useCallback(() => {
     setHasPollEnded(true);
@@ -66,6 +68,7 @@ export const Provider = ({ children }) => {
     setNoVotesCaptured(false);
     setHasListReordered(false);
     setHasPollEnded(false);
+    setSelectedOption();
   }, []);
 
   const showFinalResultActionButton = () => ({
@@ -82,15 +85,15 @@ export const Provider = ({ children }) => {
     isActive,
     delay = 0
   }) => {
-    const props = {};
-
-    if (duration) props.duration = duration;
-    if (question) props.question = question;
-    if (votes) props.votes = votes;
-    if (expiry) props.expiry = expiry;
-    if (isActive) props.isActive = isActive;
-    if (startTime) props.startTime = startTime;
-    if (delay) props.delay = delay;
+    const props = {
+      ...(duration && { duration }),
+      ...(question && { question }),
+      ...(votes && { votes }),
+      ...(expiry && { expiry }),
+      ...(isActive && { isActive }),
+      ...(startTime && { startTime }),
+      ...(delay && { delay })
+    };
 
     dispatchPollProps(props);
   };
@@ -119,15 +122,17 @@ export const Provider = ({ children }) => {
   };
 
   useEffect(() => {
-    const pollProps = getPollDataFromLocalStorage();
-    if (pollProps) {
+    const savedPollProps = getPollDataFromLocalStorage();
+
+    if (savedPollProps) {
       const {
         question,
         duration,
         startTime,
         votes: options,
         expiry
-      } = pollProps;
+      } = savedPollProps;
+
       updatePollData({
         expiry,
         startTime,
@@ -138,7 +143,7 @@ export const Provider = ({ children }) => {
         delay
       });
     }
-  }, [getPollDataFromLocalStorage, delay]);
+  }, [userData, getPollDataFromLocalStorage, delay]);
 
   useEffect(() => {
     let timeout;

@@ -159,6 +159,7 @@ export const Provider = ({ children }) => {
     connection,
     setSendAttemptError
   });
+  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
   const {
@@ -174,11 +175,13 @@ export const Provider = ({ children }) => {
     selectedOption,
     setIsVoting,
     getPollDataFromLocalStorage,
-    showFinalResult,
+    showFinalResults,
     duration,
     question,
     expiry,
-    startTime
+    startTime,
+    noVotesCaptured,
+    tieFound
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -211,7 +214,13 @@ export const Provider = ({ children }) => {
   );
 
   const sendHeartBeat = useCallback(() => {
-    if (isActive && !showFinalResult) {
+    if (
+      isModerator &&
+      isActive &&
+      !showFinalResults &&
+      !noVotesCaptured &&
+      !tieFound
+    ) {
       const { voters = undefined } = getPollDataFromLocalStorage();
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
@@ -220,7 +229,7 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(voters)
+        ...(voters ? { voters: JSON.stringify(voters) } : {})
       });
     }
   }, [
@@ -229,15 +238,18 @@ export const Provider = ({ children }) => {
     expiry,
     getPollDataFromLocalStorage,
     isActive,
+    isModerator,
+    noVotesCaptured,
     question,
-    showFinalResult,
+    showFinalResults,
     startTime,
+    tieFound,
     votes
   ]);
 
   useEffect(() => {
     let heartBeatIntervalId = null;
-    if (!showFinalResult && isActive) {
+    if (!showFinalResults && isActive) {
       heartBeatIntervalId = setInterval(() => {
         sendHeartBeat();
       }, 4000);
@@ -248,13 +260,11 @@ export const Provider = ({ children }) => {
         clearInterval(heartBeatIntervalId);
       }
     };
-  }, [isActive, sendHeartBeat, showFinalResult]);
+  }, [isActive, sendHeartBeat, showFinalResults]);
 
   // const connect = useCallback(() => {
 
   // }, [chatRoomOwnerUsername, disconnect, isViewerBanned, notifyError]);
-
-  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
@@ -434,15 +444,13 @@ export const Provider = ({ children }) => {
           const date = JSON.parse(message.attributes.startTime);
           const currentTime = Date.now();
           const delay = (currentTime - date) / 1000;
-          const moderator = isModerator && pathname === '/manager';
 
-          if (moderator) return;
+          if (isModerator && pathname === '/manager') return;
 
           updatePollData({
             duration: Number(JSON.parse(message.attributes.duration)),
             question: JSON.parse(message.attributes.question),
             votes: JSON.parse(message.attributes.updatedVotes),
-            voters: JSON.parse(message.attributes.voters),
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
@@ -451,8 +459,12 @@ export const Provider = ({ children }) => {
 
           if (message.attributes.voters && !selectedOption) {
             const votersList = JSON.parse(message.attributes.voters);
-            setSelectedOption(votersList[userData?.trackingId.toLowerCase()]);
-            setIsVoting(false);
+            const savedVote = votersList && votersList[userData?.trackingId];
+
+            if (savedVote) {
+              setSelectedOption(savedVote);
+              setIsVoting(false);
+            }
           }
           break;
         case SEND_VOTE_STATS:
