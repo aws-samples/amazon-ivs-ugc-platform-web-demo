@@ -213,7 +213,7 @@ export const Provider = ({ children }) => {
   );
 
   const sendHeartBeat = useCallback(() => {
-    if (isActive && !showFinalResults && !noVotesCaptured && !tieFound) {
+    if (isModerator && isActive && !showFinalResults && !noVotesCaptured && !tieFound) {
       const { voters = undefined } = getPollDataFromLocalStorage();
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
@@ -225,7 +225,8 @@ export const Provider = ({ children }) => {
         ...( voters ? { voters: JSON.stringify(voters) } : {})
       });
     }
-  }, [actions, duration, expiry, getPollDataFromLocalStorage, isActive, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
+  // eslint-disable-next-line no-use-before-define
+  }, [actions, duration, expiry, getPollDataFromLocalStorage, isActive, isModerator, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
 
   useEffect(() => {
     let heartBeatIntervalId = null;

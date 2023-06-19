@@ -61,6 +61,7 @@ export const Provider = ({ children }) => {
     setNoVotesCaptured(false);
     setHasListReordered(false);
     setHasPollEnded(false);
+    setSelectedOption()
   }, []);
 
   useEffect(() => {
