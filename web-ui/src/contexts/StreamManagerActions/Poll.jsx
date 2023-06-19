@@ -134,7 +134,6 @@ export const Provider = ({ children }) => {
         startTime,
         votes: options,
         expiry,
-        voters = undefined
       } = savedPollProps;
       
       updatePollData({
@@ -146,12 +145,6 @@ export const Provider = ({ children }) => {
         votes: options,
         delay
       });
-      const savedVote = voters && voters[userData?.trackingId]
- 
-      if (savedVote) {
-        setSelectedOption(savedVote)
-        setIsVoting(false)
-      }
     }
   }, [userData, getPollDataFromLocalStorage, delay]);
 
