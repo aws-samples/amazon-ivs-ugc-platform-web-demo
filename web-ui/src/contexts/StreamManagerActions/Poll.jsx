@@ -146,11 +146,11 @@ export const Provider = ({ children }) => {
         votes: options,
         delay
       });
-      
-      const savedVote = voters[userData?.trackingId]
+      const savedVote = voters && voters[userData?.trackingId]
  
       if (savedVote) {
         setSelectedOption(savedVote)
+        setIsVoting(false)
       }
     }
   }, [userData, getPollDataFromLocalStorage, delay]);
