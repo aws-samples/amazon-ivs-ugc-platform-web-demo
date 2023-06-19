@@ -5,8 +5,7 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../../utils';
 import {
   PROFILE_COLORS_WITH_WHITE_TEXT,
-  STREAM_ACTION_NAME,
-  CHAT_MESSAGE_EVENT_TYPES
+  STREAM_ACTION_NAME
 } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useChannel } from '../../../../contexts/Channel';
@@ -17,9 +16,6 @@ import ProgressBar from '../../ViewerStreamActions/ProgressBar';
 import Spinner from '../../../../components/Spinner';
 import VoteItem from './VoteItem';
 import PollContainer from './PollContainer';
-import { useChat } from '../../../../contexts/Chat';
-import { useUser } from '../../../../contexts/User';
-import { useNavigate } from 'react-router-dom';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -29,90 +25,56 @@ const ViewerPoll = ({
   votes,
   showFinalResults,
   totalVotes,
-  highestCountOption
+  highestCountOption,
+  duration,
+  startTime,
+  isVoting,
+  isSubmitting,
+  selectedOption
 }) => {
-  const { SUBMIT_VOTE } = CHAT_MESSAGE_EVENT_TYPES;
-  const {
-    actions: { sendMessage }
-  } = useChat();
   const { isTouchscreenDevice } = useResponsiveDevice();
-  const {
-    setIsSubmitting,
-    setIsVoting,
-    noVotesCaptured,
-    tieFound,
-    isSubmitting,
-    selectedOption,
-    startTime,
-    duration,
-    isVoting
-  } = usePoll();
+  const { setIsSubmitting, setIsVoting } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
-  const { userData = undefined } = useUser();
-  const { trackingId = undefined } = userData || {};
+
   const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
-  const navigate = useNavigate();
 
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
     : 'black';
 
-  const submitVote = useCallback(async () => {
-    if (!userData) {
-      navigate('/login');
-
-      return;
-    }
-
+  const submitVote = useCallback(() => {
     setIsSubmitting(true);
-
-    await radioBoxControls.start({
-      left: '-300px',
-      opacity: 0,
-      transition: { duration: 0.1 }
-    });
-
-    await Promise.all([
-      buttonDivControls.start({
-        height: 0,
-        padding: 0,
+    setTimeout(async () => {
+      await radioBoxControls.start({
+        left: '-300px',
         opacity: 0,
         transition: { duration: 0.1 }
-      }),
-      inputDivControls.start({
-        x: '-1px',
-        transition: { duration: 0.2 }
-      })
-    ]);
-    setIsVoting(false);
-    const result = await sendMessage(SUBMIT_VOTE, {
-      voter: trackingId,
-      eventType: SUBMIT_VOTE,
-      option: selectedOption,
-      duration: JSON.stringify(duration),
-      startTime: JSON.stringify(startTime)
-    });
+      });
 
-    if (result) {
+      await Promise.all([
+        buttonDivControls.start({
+          height: 0,
+          padding: 0,
+          opacity: 0,
+          transition: { duration: 0.1 }
+        }),
+        inputDivControls.start({
+          x: '-1px',
+          transition: { duration: 0.2 }
+        })
+      ]);
+      setIsVoting(false);
       setIsSubmitting(false);
-    }
+    }, 2000);
   }, [
-    SUBMIT_VOTE,
     buttonDivControls,
-    duration,
     inputDivControls,
-    navigate,
     radioBoxControls,
-    selectedOption,
-    sendMessage,
     setIsSubmitting,
-    setIsVoting,
-    startTime,
-    trackingId,
-    userData
+    setIsVoting
   ]);
 
   return (
@@ -132,14 +94,14 @@ const ViewerPoll = ({
       </h3>
       <div className={clsm(['flex-col', 'flex', 'space-y-2', 'w-full'])}>
         <AnimatePresence>
-          {votes.map(({ option, count }, index) => {
+          {votes.map(({ option, count, id }, index) => {
             const isHighestCount = option === highestCountOption;
             const percentage =
               (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
 
             return (
               <VoteItem
-                key={option}
+                key={id}
                 isHighestCount={isHighestCount}
                 option={option}
                 count={count}
@@ -150,13 +112,12 @@ const ViewerPoll = ({
                 inputDivControls={inputDivControls}
                 radioBoxControls={radioBoxControls}
                 inputAndLabelId={`${option}-${index}`}
-                noVotesCaptured={noVotesCaptured}
               />
             );
           })}
         </AnimatePresence>
       </div>
-      {!showFinalResults && isVoting && !noVotesCaptured && (
+      {!showFinalResults && isVoting && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
@@ -181,7 +142,7 @@ const ViewerPoll = ({
           </Button>
         </motion.div>
       )}
-      {!showFinalResults && !noVotesCaptured && !tieFound && (
+      {!showFinalResults && (
         <div className={'pt-5'}>
           <ProgressBar
             color={color}
@@ -209,7 +170,12 @@ ViewerPoll.propTypes = {
   ).isRequired,
   showFinalResults: PropTypes.bool.isRequired,
   totalVotes: PropTypes.number.isRequired,
-  highestCountOption: PropTypes.string.isRequired
+  highestCountOption: PropTypes.string.isRequired,
+  duration: PropTypes.number.isRequired,
+  selectedOption: PropTypes.string,
+  startTime: PropTypes.number.isRequired,
+  isVoting: PropTypes.bool.isRequired,
+  isSubmitting: PropTypes.bool.isRequired
 };
 
 export default ViewerPoll;

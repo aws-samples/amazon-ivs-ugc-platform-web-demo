@@ -3,8 +3,7 @@ import clsx from 'clsx';
 
 import {
   BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
-  CHANNEL_TYPE,
-  NUM_MILLISECONDS_TO_BLOCK
+  CHANNEL_TYPE
 } from './constants';
 
 export const noop = () => {};
@@ -300,19 +299,3 @@ export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
   bannedUserChannelArn
     .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
     .toLowerCase();
-
-export const updateVotes = (message, votes) => {
-  const selectedOption = message.attributes?.option;
-
-  return votes.map((voteOption) => {
-    return voteOption.option === selectedOption
-      ? { ...voteOption, count: voteOption.count + 1 }
-      : voteOption;
-  });
-};
-
-export const isVotingBlocked = (duration, startTime) => {
-  const now = Date.now();
-
-  return startTime + duration * 1000 - now <= NUM_MILLISECONDS_TO_BLOCK;
-};

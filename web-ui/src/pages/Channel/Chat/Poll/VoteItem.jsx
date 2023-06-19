@@ -46,8 +46,7 @@ const VoteItem = ({
     setSelectedOption,
     hasListReordered,
     isVoting,
-    showFinalResults,
-    noVotesCaptured
+    showFinalResults
   } = usePoll();
   const hasWon = isHighestCount && showFinalResults;
   const countFormatted = convertConcurrentViews(count);
@@ -173,39 +172,36 @@ const VoteItem = ({
                   'items-center'
                 ])}
               >
-                {!isStreamManagerPage &&
-                  isVoting &&
-                  !showFinalResults &&
-                  !noVotesCaptured && (
-                    <motion.input
-                      style={{
-                        width: '300px',
-                        height: '58px',
-                        top: '-30px',
-                        left: '-20px'
-                      }}
-                      animate={radioBoxControls}
-                      id={inputAndLabelId}
-                      aria-label={option}
-                      checked={selectedOption === option}
-                      className={clsm([
-                        'radio',
-                        `with-${color}-bg`,
-                        `with-${color}-border`,
-                        `with-${color}-checked-hover`,
-                        `with-${color}-focus`,
-                        `with-${color}-hover`
-                      ])}
-                      data-testid={`${option}-radio-button`}
-                      name={option}
-                      onChange={() => {
-                        if (!isVoting) return;
-                        setSelectedOption(option);
-                      }}
-                      type="radio"
-                      value={selectedOption}
-                    />
-                  )}
+                {!isStreamManagerPage && isVoting && !showFinalResults && (
+                  <motion.input
+                    style={{
+                      width: '300px',
+                      height: '58px',
+                      top: '-30px',
+                      left: '-20px'
+                    }}
+                    animate={radioBoxControls}
+                    id={inputAndLabelId}
+                    aria-label={option}
+                    checked={selectedOption === option}
+                    className={clsm([
+                      'radio',
+                      `with-${color}-bg`,
+                      `with-${color}-border`,
+                      `with-${color}-checked-hover`,
+                      `with-${color}-focus`,
+                      `with-${color}-hover`
+                    ])}
+                    data-testid={`${option}-radio-button`}
+                    name={option}
+                    onChange={() => {
+                      if (!isVoting) return;
+                      setSelectedOption(option);
+                    }}
+                    type="radio"
+                    value={selectedOption}
+                  />
+                )}
               </div>
               <motion.label
                 animate={inputDivControls}
@@ -220,7 +216,6 @@ const VoteItem = ({
                   !isStreamManagerPage &&
                     !showFinalResults &&
                     isVoting &&
-                    !noVotesCaptured &&
                     `translate-x-7`,
                   hasWon && [
                     'text-h3',
@@ -253,10 +248,7 @@ const VoteItem = ({
             )}
           </motion.div>
         </div>
-        {(!isVoting ||
-          showFinalResults ||
-          isStreamManagerPage ||
-          noVotesCaptured) && (
+        {(!isVoting || showFinalResults || isStreamManagerPage) && (
           <div
             className={clsm([
               'h-auto',
@@ -307,8 +299,7 @@ VoteItem.defaultProps = {
   percentage: 0,
   radioBoxControls: {},
   inputDivControls: {},
-  inputAndLabelId: undefined,
-  noVotesCaptured: false
+  inputAndLabelId: undefined
 };
 
 VoteItem.propTypes = {
@@ -321,8 +312,7 @@ VoteItem.propTypes = {
   showVotePercentage: PropTypes.bool,
   inputAndLabelId: PropTypes.string,
   inputDivControls: PropTypes.object,
-  radioBoxControls: PropTypes.object,
-  noVotesCaptured: PropTypes.bool
+  radioBoxControls: PropTypes.object
 };
 
 export default VoteItem;

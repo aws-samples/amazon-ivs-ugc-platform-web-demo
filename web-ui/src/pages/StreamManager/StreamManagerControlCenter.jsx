@@ -6,6 +6,7 @@ import {
   STREAM_MANAGER_DEFAULT_TAB,
   STREAM_MANAGER_WEB_BROADCAST_TAB
 } from '../../constants';
+import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { clsm } from '../../utils';
 import { streamManager as $content } from '../../content';
@@ -156,7 +157,9 @@ const StreamManagerControlCenter = forwardRef(
                   />
                 </div>
                 <NotificationProvider>
-                  <StreamManagerChat />
+                  <ChatProvider>
+                    <StreamManagerChat />
+                  </ChatProvider>
                 </NotificationProvider>
               </div>
             </Tabs.Panel>
