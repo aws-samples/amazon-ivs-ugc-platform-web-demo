@@ -159,6 +159,7 @@ export const Provider = ({ children }) => {
     connection,
     setSendAttemptError
   });
+  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
   const {
@@ -180,7 +181,7 @@ export const Provider = ({ children }) => {
     expiry,
     startTime,
     noVotesCaptured,
-    tieFound,
+    tieFound
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -213,7 +214,13 @@ export const Provider = ({ children }) => {
   );
 
   const sendHeartBeat = useCallback(() => {
-    if (isModerator && isActive && !showFinalResults && !noVotesCaptured && !tieFound) {
+    if (
+      isModerator &&
+      isActive &&
+      !showFinalResults &&
+      !noVotesCaptured &&
+      !tieFound
+    ) {
       const { voters = undefined } = getPollDataFromLocalStorage();
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
@@ -222,11 +229,23 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        ...( voters ? { voters: JSON.stringify(voters) } : {})
+        ...(voters ? { voters: JSON.stringify(voters) } : {})
       });
     }
-  // eslint-disable-next-line no-use-before-define
-  }, [actions, duration, expiry, getPollDataFromLocalStorage, isActive, isModerator, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
+  }, [
+    actions,
+    duration,
+    expiry,
+    getPollDataFromLocalStorage,
+    isActive,
+    isModerator,
+    noVotesCaptured,
+    question,
+    showFinalResults,
+    startTime,
+    tieFound,
+    votes
+  ]);
 
   useEffect(() => {
     let heartBeatIntervalId = null;
@@ -246,8 +265,6 @@ export const Provider = ({ children }) => {
   // const connect = useCallback(() => {
 
   // }, [chatRoomOwnerUsername, disconnect, isViewerBanned, notifyError]);
-
-  const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
@@ -442,7 +459,7 @@ export const Provider = ({ children }) => {
 
           if (message.attributes.voters && !selectedOption) {
             const votersList = JSON.parse(message.attributes.voters);
-            const savedVote = votersList && votersList[userData?.trackingId]
+            const savedVote = votersList && votersList[userData?.trackingId];
 
             if (savedVote) {
               setSelectedOption(savedVote);

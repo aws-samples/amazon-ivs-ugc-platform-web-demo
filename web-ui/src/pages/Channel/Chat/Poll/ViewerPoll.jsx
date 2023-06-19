@@ -91,7 +91,19 @@ const ViewerPoll = ({
     if (result) {
       setIsSubmitting(false);
     }
-  }, [SUBMIT_VOTE, buttonDivControls, duration, inputDivControls, radioBoxControls, selectedOption, sendMessage, setIsSubmitting, setIsVoting, startTime, trackingId]);
+  }, [
+    SUBMIT_VOTE,
+    buttonDivControls,
+    duration,
+    inputDivControls,
+    radioBoxControls,
+    selectedOption,
+    sendMessage,
+    setIsSubmitting,
+    setIsVoting,
+    startTime,
+    trackingId
+  ]);
 
   return (
     <PollContainer>

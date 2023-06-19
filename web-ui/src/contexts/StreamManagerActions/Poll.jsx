@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState
 } from 'react';
 
@@ -31,6 +32,7 @@ export const pollInitialState = {
 };
 
 export const Provider = ({ children }) => {
+  const stopPollTimerRef = useRef();
   const [noVotesCaptured, setNoVotesCaptured] = useState(false);
   const [tieFound, setTieFound] = useState(false);
   const [selectedOption, setSelectedOption] = useState();
@@ -46,7 +48,12 @@ export const Provider = ({ children }) => {
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
-  const { userData } = useUser()
+  const { userData } = useUser();
+
+  const pollHasEnded = useCallback(() => {
+    setHasPollEnded(true);
+  }, []);
+
   const { votes, question, isActive, duration, expiry, startTime, delay } =
     pollProps;
 
@@ -61,24 +68,13 @@ export const Provider = ({ children }) => {
     setNoVotesCaptured(false);
     setHasListReordered(false);
     setHasPollEnded(false);
-    setSelectedOption()
+    setSelectedOption();
   }, []);
 
-  useEffect(() => {
-    let timeout;
-
-    if (duration) {
-      const pollDuration = duration * 1000 - delay * 1000;
-
-      timeout = setTimeout(() => {
-        setHasPollEnded(true);
-      }, pollDuration);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [delay, duration]);
+  const showFinalResultActionButton = () => ({
+    duration: 10,
+    expiry: new Date(Date.now() + 10 * 1000).toISOString()
+  });
 
   const updatePollData = ({
     votes,
@@ -134,9 +130,9 @@ export const Provider = ({ children }) => {
         duration,
         startTime,
         votes: options,
-        expiry,
+        expiry
       } = savedPollProps;
-      
+
       updatePollData({
         expiry,
         startTime,
@@ -148,6 +144,34 @@ export const Provider = ({ children }) => {
       });
     }
   }, [userData, getPollDataFromLocalStorage, delay]);
+
+  useEffect(() => {
+    let timeout;
+    const pollData = getPollDataFromLocalStorage();
+
+    if (pollData?.hasPollEnded && !hasPollEnded) {
+      pollHasEnded();
+      return;
+    }
+
+    if (duration && !hasPollEnded && !pollData?.hasPollEnded) {
+      const pollDuration = duration * 1000 - delay * 1000;
+
+      timeout = setTimeout(() => {
+        setHasPollEnded(true);
+      }, pollDuration);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [
+    delay,
+    duration,
+    getPollDataFromLocalStorage,
+    hasPollEnded,
+    pollHasEnded
+  ]);
 
   useEffect(() => {
     if (showFinalResults) {
@@ -250,7 +274,11 @@ export const Provider = ({ children }) => {
       saveToLocalStorage,
       getPollDataFromLocalStorage,
       clearLocalStorage,
-      pollTabLabel: POLL_TAB_LABEL
+      pollTabLabel: POLL_TAB_LABEL,
+      showFinalResultActionButton,
+      hasPollEnded,
+      stopPollTimerRef,
+      pollHasEnded
     }),
     [
       isExpanded,
@@ -274,7 +302,10 @@ export const Provider = ({ children }) => {
       tieFound,
       delay,
       saveToLocalStorage,
-      getPollDataFromLocalStorage
+      getPollDataFromLocalStorage,
+      hasPollEnded,
+      stopPollTimerRef,
+      pollHasEnded
     ]
   );
 

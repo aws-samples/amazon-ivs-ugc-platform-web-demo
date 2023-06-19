@@ -7,8 +7,7 @@ import { ChevronDown, ChevronUp } from '../../../../assets/icons';
 import {
   STREAM_ACTION_NAME,
   BREAKPOINTS,
-  PROFILE_COLORS_WITH_WHITE_TEXT,
-  CHAT_MESSAGE_EVENT_TYPES
+  PROFILE_COLORS_WITH_WHITE_TEXT
 } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useChannel } from '../../../../contexts/Channel';
@@ -19,7 +18,6 @@ import Button from '../../../../components/Button';
 import VoteItem from './VoteItem';
 import usePrompt from '../../../../hooks/usePrompt';
 import PollContainer from './PollContainer';
-import { useChat } from '../../../../contexts/Chat';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -33,11 +31,7 @@ const StreamerPoll = ({
   isExpanded
 }) => {
   const pollRef = useRef(null);
-  const {
-    setIsExpanded,
-    setPollRef,
-    question,
-  } = usePoll();
+  const { setIsExpanded, setPollRef, question } = usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {

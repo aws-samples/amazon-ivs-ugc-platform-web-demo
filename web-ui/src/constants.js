@@ -149,6 +149,7 @@ export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 
 export const PROFILE_COLORS_WITH_WHITE_TEXT = ['green', 'blue'];
 export const NUM_MILLISECONDS_TO_BLOCK = 2000;
+export const NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS = 10000;
 
 /**
  * STREAM MANAGER
