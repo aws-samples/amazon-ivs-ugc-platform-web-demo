@@ -10,7 +10,6 @@ import { useStreamManagerActions } from '../../../../contexts/StreamManagerActio
 import { useUser } from '../../../../contexts/User';
 import useCountdown from '../../../../hooks/useCountdown';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
-import { useChat } from '../../../../contexts/Chat';
 
 const $content = $streamManagerContent.stream_manager_actions;
 const PROGRESS_PIE_RADIUS = 14;
@@ -24,20 +23,20 @@ const DEFAULT_TRANSITION_CLASSES = [
 
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
-    const { isActive: isPollActive } = usePoll();
-    const { endPoll } = useChat();
     const Icon = icon;
+    const { getPollDataFromLocalStorage } = usePoll();
+    const savedPollData = getPollDataFromLocalStorage();
     const { hasFetchedInitialUserData, userData } = useUser();
     const { color = 'default' } = userData || {};
     const { currentBreakpoint } = useResponsiveDevice();
     const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
-    const { activeStreamManagerActionData, stopStreamAction } =
+    const { activeStreamManagerActionData, stopStreamAction, endPollOnExpiry } =
       useStreamManagerActions();
     const {
       duration: activeStreamManagerActionDuration,
       name: activeStreamManagerActionName,
       expiry: activeStreamManagerActionExpiry
-    } = activeStreamManagerActionData || {};
+    } = savedPollData || activeStreamManagerActionData || {};
 
     const isActive = name === activeStreamManagerActionName;
     const isPerpetual = isActive && !activeStreamManagerActionExpiry;
@@ -51,12 +50,12 @@ const StreamManagerActionButton = forwardRef(
           STROKE_DASHARRAY_MAX
       ],
       isEnabled: isCountingDown,
-      onExpiry: stopStreamAction
+      onExpiry:
+        name === STREAM_ACTION_NAME.POLL ? endPollOnExpiry : stopStreamAction
     });
 
     const handleClick = () => {
-      if (isPollActive) endPoll();
-      if (isActive && !isPollActive) stopStreamAction();
+      if (isActive) stopStreamAction();
       else onClick();
     };
 

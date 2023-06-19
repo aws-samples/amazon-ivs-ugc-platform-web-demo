@@ -8,6 +8,7 @@ import {
   useState
 } from 'react';
 import PropTypes from 'prop-types';
+import { useLocation } from 'react-router-dom';
 
 import { channel as $channelContent } from '../content';
 import { useUser } from './User';
@@ -22,11 +23,22 @@ import {
   requestChatToken
 } from '../pages/Channel/Chat/useChatConnection/utils';
 import { ChatRoom } from 'amazon-ivs-chat-messaging';
-import { extractChannelIdfromChannelArn } from '../utils';
+import {
+  extractChannelIdfromChannelArn,
+  updateVotes,
+  isVotingBlocked
+} from '../utils';
 import { usePoll } from './StreamManagerActions/Poll';
 import { CHAT_MESSAGE_EVENT_TYPES } from '../constants';
 
-const { SEND_MESSAGE, START_POLL, END_POLL } = CHAT_MESSAGE_EVENT_TYPES;
+const {
+  SEND_MESSAGE,
+  START_POLL,
+  END_POLL,
+  SUBMIT_VOTE,
+  SEND_VOTE_STATS,
+  HEART_BEAT
+} = CHAT_MESSAGE_EVENT_TYPES;
 
 const $content = $channelContent.chat;
 
@@ -119,9 +131,9 @@ export const Provider = ({ children }) => {
   const { userData, isSessionValid } = useUser();
   const { username: ownUsername } = userData || {};
   const savedMessages = useRef({});
-
   const { channelData, refreshChannelData } = useChannel();
-  const { username: chatRoomOwnerUsername, isViewerBanned } = channelData || {};
+  const { username: chatRoomOwnerUsername, isViewerBanned = false } =
+    channelData || {};
   const { notifyError, dismissNotif } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
@@ -129,12 +141,13 @@ export const Provider = ({ children }) => {
   // Connection State
   const [hasConnectionError, setHasConnectionError] = useState();
   const [sendAttemptError, setSendAttemptError] = useState();
+  const connection = useRef(null);
   const [room, setRoom] = useState(null);
   const isConnectionOpenRef = useRef(false);
 
   const isInitializingConnection = useRef(false);
-  const isRetryingConnection = useRef(false);
-  const connection = useRef();
+  // const isRetryingConnection = useRef(false);
+  // const connection = useRef();
   const abortControllerRef = useRef();
   const isConnecting = isInitializingConnection.current;
 
@@ -148,7 +161,26 @@ export const Provider = ({ children }) => {
   });
 
   // Poll Stream Action
-  const { updatePollData, resetPollProps, clearLocalStorage } = usePoll();
+  const {
+    updatePollData,
+    votes,
+    hasPollEnded,
+    resetPollProps,
+    isActive,
+    clearLocalStorage,
+    isSubmitting,
+    saveToLocalStorage,
+    setSelectedOption,
+    selectedOption,
+    setIsVoting,
+    getPollDataFromLocalStorage,
+    showFinalResult,
+    duration,
+    question,
+    expiry,
+    startTime
+  } = usePoll();
+  const { pathname } = useLocation();
 
   const startPoll = useCallback(
     async (pollStreamActionData) => {
@@ -178,78 +210,49 @@ export const Provider = ({ children }) => {
     [actions, clearLocalStorage]
   );
 
-  const disconnect = useCallback(() => {
-    abortControllerRef.current?.abort();
-    refreshChannelData();
-    setRoom(null);
-    connection.current = null;
-    chatCapabilities.current = null;
-    isInitializingConnection.current = false;
-    isConnectionOpenRef.current = false;
-  }, [refreshChannelData]);
-
-  const connect = useCallback(() => {
-    if (
-      isViewerBanned !== false ||
-      !chatRoomOwnerUsername ||
-      (!ownUsername && isSessionValid) ||
-      (isInitializingConnection.current && !isRetryingConnection.current)
-    )
-      return;
-
-    // Clean up previous connection resources
-    abortControllerRef.current = new AbortController();
-    if (connection.current) disconnect();
-
-    isInitializingConnection.current = true;
-    setHasConnectionError(false);
-
-    // create a new instance of chat room
-    const { signal } = abortControllerRef.current;
-    const room = new ChatRoom({
-      regionOrUrl: ivsChatWebSocketRegionOrUrl,
-      maxReconnectAttempts: MAX_RECONNECT_ATTEMPTS,
-      tokenProvider: async () => {
-        const data = await requestChatToken(chatRoomOwnerUsername, signal);
-
-        if (data?.error) {
-          retryConnectionAttemptsCounterRef.current += 1;
-          if (
-            retryConnectionAttemptsCounterRef.current === MAX_RECONNECT_ATTEMPTS
-          ) {
-            isInitializingConnection.current = false;
-            notifyError($content.notifications.error.error_loading_chat, {
-              withTimeout: false
-            });
-            setHasConnectionError(true);
-          }
-        } else {
-          chatCapabilities.current = data.capabilities;
-        }
-
-        return {
-          ...data,
-          ...(!data?.error && {
-            sessionExpirationTime: new Date(data.sessionExpirationTime)
-          })
-        };
-      }
-    });
-
-    room.logLevel = process.env.NODE === 'production' ? info : debug;
-    room.connect();
-    setRoom(room);
-    connection.current = room;
-    isConnectionOpenRef.current = true;
-    isInitializingConnection.current = false;
+  const sendHeartBeat = useCallback(() => {
+    if (isActive && !showFinalResult) {
+      const { voters = undefined } = getPollDataFromLocalStorage();
+      actions.sendMessage(HEART_BEAT, {
+        eventType: HEART_BEAT,
+        updatedVotes: JSON.stringify(votes),
+        duration: JSON.stringify(duration),
+        question: JSON.stringify(question),
+        expiry: JSON.stringify(expiry),
+        startTime: JSON.stringify(startTime),
+        voters: JSON.stringify(voters)
+      });
+    }
   }, [
-    chatRoomOwnerUsername,
-    disconnect,
-    isSessionValid,
-    isViewerBanned,
-    notifyError,
-    ownUsername
+    actions,
+    duration,
+    expiry,
+    getPollDataFromLocalStorage,
+    isActive,
+    question,
+    showFinalResult,
+    startTime,
+    votes
   ]);
+
+  useEffect(() => {
+    let heartBeatIntervalId = null;
+    if (!showFinalResult && isActive) {
+      heartBeatIntervalId = setInterval(() => {
+        sendHeartBeat();
+      }, 4000);
+    }
+
+    return () => {
+      if (heartBeatIntervalId !== null) {
+        clearInterval(heartBeatIntervalId);
+      }
+    };
+  }, [isActive, sendHeartBeat, showFinalResult]);
+
+  // const connect = useCallback(() => {
+
+  // }, [chatRoomOwnerUsername, disconnect, isViewerBanned, notifyError]);
 
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
@@ -309,12 +312,77 @@ export const Provider = ({ children }) => {
     [notifyError, refreshChannelData, userData?.trackingId]
   );
 
+  const disconnect = useCallback(() => {
+    abortControllerRef.current?.abort();
+    refreshChannelData();
+    setRoom(null);
+    connection.current = null;
+    chatCapabilities.current = null;
+    isInitializingConnection.current = false;
+    isConnectionOpenRef.current = false;
+  }, [refreshChannelData]);
+
+  const connect = useCallback(() => {
+    if (
+      isViewerBanned !== false ||
+      !chatRoomOwnerUsername ||
+      isInitializingConnection.current
+    )
+      return;
+
+    // Clean up previous connection resources
+    abortControllerRef.current = new AbortController();
+    if (connection.current) disconnect();
+
+    isInitializingConnection.current = true;
+    setHasConnectionError(false);
+
+    // create a new instance of chat room
+    const { signal } = abortControllerRef.current;
+    const room = new ChatRoom({
+      regionOrUrl: ivsChatWebSocketRegionOrUrl,
+      maxReconnectAttempts: MAX_RECONNECT_ATTEMPTS,
+      tokenProvider: async () => {
+        const data = await requestChatToken(chatRoomOwnerUsername, signal);
+
+        if (data?.error) {
+          retryConnectionAttemptsCounterRef.current += 1;
+          if (
+            retryConnectionAttemptsCounterRef.current === MAX_RECONNECT_ATTEMPTS
+          ) {
+            isInitializingConnection.current = false;
+            notifyError($content.notifications.error.error_loading_chat, {
+              withTimeout: false
+            });
+            setHasConnectionError(true);
+          }
+        } else {
+          chatCapabilities.current = data.capabilities;
+        }
+
+        return {
+          ...data,
+          ...(!data?.error && {
+            sessionExpirationTime: new Date(data.sessionExpirationTime)
+          })
+        };
+      }
+    });
+
+    room.logLevel = process.env.NODE === 'production' ? info : debug;
+    room.connect();
+    setRoom(room);
+    connection.current = room;
+    isConnectionOpenRef.current = true;
+    isInitializingConnection.current = false;
+  }, [chatRoomOwnerUsername, disconnect, isViewerBanned, notifyError]);
+
   // Initialize connection
   useEffect(() => {
     connect();
 
     return disconnect;
-  }, [connect, disconnect, isSessionValid]);
+  }, [connect, disconnect]);
 
   useEffect(() => {
     // If chat room listeners are not available, do not continue
@@ -330,6 +398,7 @@ export const Provider = ({ children }) => {
     const unsubscribeOnDisconnect = room.addListener('disconnect', () => {
       isConnectionOpenRef.current = false;
       connection.current = null;
+      setRoom(null);
       chatCapabilities.current = [];
 
       updateUserRole();
@@ -353,21 +422,84 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnMessage = room.addListener('message', (message) => {
       const {
-        attributes: { eventType = undefined },
+        attributes: {
+          eventType = undefined,
+          voter = undefined,
+          option = undefined
+        },
         content
       } = message;
       switch (eventType) {
-        case START_POLL:
-          const { answers, duration, question, expiry, startTime } =
-            JSON.parse(content);
+        case HEART_BEAT:
+          const date = JSON.parse(message.attributes.startTime);
+          const currentTime = Date.now();
+          const delay = (currentTime - date) / 1000;
+          const moderator = isModerator && pathname === '/manager';
 
+          if (moderator) return;
+
+          updatePollData({
+            duration: Number(JSON.parse(message.attributes.duration)),
+            question: JSON.parse(message.attributes.question),
+            votes: JSON.parse(message.attributes.updatedVotes),
+            voters: JSON.parse(message.attributes.voters),
+            isActive: true,
+            expiry: JSON.parse(message.attributes.expiry),
+            startTime: JSON.parse(message.attributes.startTime),
+            delay
+          });
+
+          if (message.attributes.voters && !selectedOption) {
+            const votersList = JSON.parse(message.attributes.voters);
+            setSelectedOption(votersList[userData?.trackingId.toLowerCase()]);
+            setIsVoting(false);
+          }
+          break;
+        case SEND_VOTE_STATS:
+          const updatedVotes = JSON.parse(message.attributes.updatedVotes);
+          updatePollData({ votes: updatedVotes });
+          break;
+        case SUBMIT_VOTE:
+          const shouldBlockVote = isVotingBlocked(
+            JSON.parse(message.attributes.duration),
+            JSON.parse(message.attributes.startTime)
+          );
+
+          const canProcessVote =
+            isModerator && pathname === '/manager' && !shouldBlockVote;
+
+          if (canProcessVote) {
+            const currentVotes = updateVotes(message, votes);
+            updatePollData({ votes: currentVotes });
+            const pollData = getPollDataFromLocalStorage();
+            saveToLocalStorage({
+              votes: currentVotes,
+              voters: { ...(pollData.voters || {}), [voter]: option }
+            });
+
+            actions.sendMessage(SEND_VOTE_STATS, {
+              eventType: SEND_VOTE_STATS,
+              updatedVotes: JSON.stringify(currentVotes)
+            });
+          }
+          break;
+        case START_POLL:
+          const {
+            votes: options,
+            duration,
+            question,
+            expiry,
+            startTime,
+            delay: del = 0
+          } = JSON.parse(content);
           updatePollData({
             duration,
             question,
-            answers,
+            votes: options,
             isActive: true,
             expiry,
-            startTime: new Date(startTime)
+            startTime,
+            delay: del
           });
           break;
         case END_POLL:
@@ -409,8 +541,20 @@ export const Provider = ({ children }) => {
     handleUserDisconnect,
     userData,
     removeMessageByUserId,
+    updatePollData,
     resetPollProps,
-    updatePollData
+    hasPollEnded,
+    isModerator,
+    pathname,
+    votes,
+    actions,
+    isActive,
+    isSubmitting,
+    saveToLocalStorage,
+    selectedOption,
+    setSelectedOption,
+    setIsVoting,
+    getPollDataFromLocalStorage
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,

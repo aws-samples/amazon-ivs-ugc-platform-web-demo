@@ -29,7 +29,7 @@ export const Provider = ({ children }) => {
   const {
     saveToLocalStorage,
     isActive: isPollActive,
-    getPollDataFromLocalStorage
+    clearLocalStorage
   } = usePoll();
   const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
@@ -37,10 +37,10 @@ export const Provider = ({ children }) => {
     DEFAULT_STREAM_MANAGER_ACTIONS_STATE
   );
 
-  const activeStreamManagerActionData = useMemo(() => {
-    const pollProps = getPollDataFromLocalStorage();
-    return pollProps || streamManagerActionData?._active || null;
-  }, [getPollDataFromLocalStorage, streamManagerActionData?._active]);
+  const activeStreamManagerActionData = useMemo(
+    () => streamManagerActionData?._active || null,
+    [streamManagerActionData?._active]
+  );
   const {
     currentStreamManagerActionErrors,
     resetStreamManagerActionErrorData,
@@ -169,11 +169,23 @@ export const Provider = ({ children }) => {
   );
 
   /**
+   * Stops the currently active poll action
+   */
+  const endPollOnExpiry = useCallback(async () => {
+    clearLocalStorage();
+    await endPoll({ withTimeout: true, timeoutDuration: 10000 });
+    saveStreamManagerActionData((prevStoredData) => ({
+      ...prevStoredData,
+      _active: undefined
+    }));
+  }, [endPoll, saveStreamManagerActionData]);
+
+  /**
    * Stops the currently active stream action, if one exists
    */
   const stopStreamAction = useCallback(async () => {
     if (isPollActive) {
-      await endPoll({ withTimeout: true, timeoutDuration: 2000 });
+      await endPoll();
     }
     if (!activeStreamManagerActionData) return;
 
@@ -230,16 +242,24 @@ export const Provider = ({ children }) => {
         setIsSendingStreamAction(true);
 
         const actionData = data[actionName];
-        const { duration } = actionData;
+        const { duration, question, answers } = actionData;
         const expiry =
           duration > 0
             ? new Date(Date.now() + duration * 1000).toISOString()
             : undefined;
-        const result = await startPoll({
-          ...data[actionName],
+        const startTime = Date.now();
+        const payload = {
+          duration,
           expiry,
-          startTime: Date.now()
-        });
+          startTime,
+          question,
+          votes: answers.reduce((acc, answer) => {
+            const option = { option: answer, count: 0 };
+            acc.push(option);
+            return acc;
+          }, [])
+        };
+        const result = await startPoll(payload);
 
         const dataToSave = data;
         if (result) {
@@ -248,7 +268,10 @@ export const Provider = ({ children }) => {
 
         if (shouldEnableLocalStorage(actionName)) {
           saveStreamManagerActionData(dataToSave);
-          saveToLocalStorage({ ...actionData, ...dataToSave._active });
+          saveToLocalStorage({
+            ...payload,
+            ...dataToSave._active
+          });
         }
 
         setIsSendingStreamAction(false);
@@ -348,7 +371,8 @@ export const Provider = ({ children }) => {
       setIsLoading,
       isValidKeyword,
       setIsValidKeyword,
-      setIsSendingStreamAction
+      setIsSendingStreamAction,
+      endPollOnExpiry
     }),
     [
       activeStreamManagerActionData,
@@ -368,7 +392,8 @@ export const Provider = ({ children }) => {
       setIsValidKeyword,
       isLoading,
       setIsLoading,
-      setIsSendingStreamAction
+      setIsSendingStreamAction,
+      endPollOnExpiry
     ]
   );
 
