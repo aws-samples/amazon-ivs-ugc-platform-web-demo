@@ -7,7 +7,8 @@ import { MODAL_TYPE, useModal } from '../Modal';
 import { pack } from '../../helpers/streamActionHelpers';
 import {
   STREAM_ACTION_NAME,
-  LOCALSTORAGE_ENABLED_STREAM_ACTIONS
+  LOCALSTORAGE_ENABLED_STREAM_ACTIONS,
+  NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS
 } from '../../constants';
 import { streamManager as $content } from '../../content';
 import { useChat } from '../Chat';
@@ -29,7 +30,9 @@ export const Provider = ({ children }) => {
   const {
     saveToLocalStorage,
     isActive: isPollActive,
-    clearLocalStorage
+    showFinalResultActionButton,
+    stopPollTimerRef,
+    pollHasEnded
   } = usePoll();
   const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
@@ -171,22 +174,54 @@ export const Provider = ({ children }) => {
   /**
    * Stops the currently active poll action
    */
-  const endPollOnExpiry = useCallback(async () => {
-    clearLocalStorage();
-    await endPoll({ withTimeout: true, timeoutDuration: 10000 });
+  const endPollOnExpiry = useCallback(() => {
+    pollHasEnded();
+    const { duration, expiry } = showFinalResultActionButton();
+    saveStreamManagerActionData((prevStoredData) => ({
+      ...prevStoredData,
+      _active: {
+        duration,
+        expiry
+      }
+    }));
+    saveToLocalStorage({
+      duration,
+      expiry,
+      hasPollEnded: true
+    });
+
+    stopPollTimerRef.current = setTimeout(() => {
+      endPoll();
+      saveStreamManagerActionData((prevStoredData) => ({
+        ...prevStoredData,
+        _active: undefined
+      }));
+    }, NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS);
+  }, [
+    endPoll,
+    pollHasEnded,
+    saveStreamManagerActionData,
+    saveToLocalStorage,
+    showFinalResultActionButton,
+    stopPollTimerRef
+  ]);
+
+  const cancelActivePoll = useCallback(async () => {
+    if (stopPollTimerRef.current) {
+      clearTimeout(stopPollTimerRef.current);
+    }
+    await endPoll();
     saveStreamManagerActionData((prevStoredData) => ({
       ...prevStoredData,
       _active: undefined
     }));
-  }, [endPoll, saveStreamManagerActionData]);
+  }, [endPoll, saveStreamManagerActionData, stopPollTimerRef]);
 
   /**
    * Stops the currently active stream action, if one exists
    */
   const stopStreamAction = useCallback(async () => {
-    if (isPollActive) {
-      await endPoll();
-    }
+    if (isPollActive) cancelActivePoll();
     if (!activeStreamManagerActionData) return;
 
     const { expiry, name } = activeStreamManagerActionData;
@@ -205,7 +240,7 @@ export const Provider = ({ children }) => {
     }));
   }, [
     activeStreamManagerActionData,
-    endPoll,
+    cancelActivePoll,
     isPollActive,
     saveStreamManagerActionData
   ]);
@@ -372,7 +407,8 @@ export const Provider = ({ children }) => {
       isValidKeyword,
       setIsValidKeyword,
       setIsSendingStreamAction,
-      endPollOnExpiry
+      endPollOnExpiry,
+      cancelActivePoll
     }),
     [
       activeStreamManagerActionData,
@@ -393,7 +429,8 @@ export const Provider = ({ children }) => {
       isLoading,
       setIsLoading,
       setIsSendingStreamAction,
-      endPollOnExpiry
+      endPollOnExpiry,
+      cancelActivePoll
     ]
   );
 

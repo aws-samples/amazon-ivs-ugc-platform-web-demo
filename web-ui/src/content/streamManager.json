@@ -131,7 +131,8 @@
       "winner": "Winner",
       "vote": "Vote",
       "leave_page": "Leave page",
-      "confirm_leave_page": "Are you sure you want to leave this page? You will miss votes while you are away."
+      "confirm_leave_page": "Are you sure you want to leave this page? You will miss votes while you are away.",
+      "showing_results": "Showing results"
     },
     "celebration": {
       "default_label": "Trigger",

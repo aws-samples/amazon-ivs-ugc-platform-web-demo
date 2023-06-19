@@ -24,7 +24,7 @@ const DEFAULT_TRANSITION_CLASSES = [
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
     const Icon = icon;
-    const { getPollDataFromLocalStorage } = usePoll();
+    const { getPollDataFromLocalStorage, hasPollEnded } = usePoll();
     const savedPollData = getPollDataFromLocalStorage();
     const { hasFetchedInitialUserData, userData } = useUser();
     const { color = 'default' } = userData || {};
@@ -37,7 +37,6 @@ const StreamManagerActionButton = forwardRef(
       name: activeStreamManagerActionName,
       expiry: activeStreamManagerActionExpiry
     } = savedPollData || activeStreamManagerActionData || {};
-
     const isActive = name === activeStreamManagerActionName;
     const isPerpetual = isActive && !activeStreamManagerActionExpiry;
     const isCountingDown = isActive && !isPerpetual;
@@ -51,7 +50,9 @@ const StreamManagerActionButton = forwardRef(
       ],
       isEnabled: isCountingDown,
       onExpiry:
-        name === STREAM_ACTION_NAME.POLL ? endPollOnExpiry : stopStreamAction
+        name === STREAM_ACTION_NAME.POLL && !hasPollEnded
+          ? endPollOnExpiry
+          : stopStreamAction
     });
 
     const handleClick = () => {
@@ -61,7 +62,9 @@ const StreamManagerActionButton = forwardRef(
 
     const currentLabel = (
       <>
-        {isActive ? label.active : label.default}
+        {!isActive && label.default}
+        {isActive && !hasPollEnded && label.active}
+        {isActive && hasPollEnded && $content.poll.showing_results}
         <br />
         {![STREAM_ACTION_NAME.AMAZON_PRODUCT, STREAM_ACTION_NAME.POLL].includes(
           name
