@@ -214,6 +214,7 @@ export const Provider = ({ children }) => {
 
   const sendHeartBeat = useCallback(() => {
     if (isActive && !showFinalResults && !noVotesCaptured && !tieFound) {
+      const { voters = undefined } = getPollDataFromLocalStorage();
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
         updatedVotes: JSON.stringify(votes),
@@ -221,9 +222,10 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
+        ...( voters ? { voters: JSON.stringify(voters) } : {})
       });
     }
-  }, [actions, duration, expiry, isActive, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
+  }, [actions, duration, expiry, getPollDataFromLocalStorage, isActive, noVotesCaptured, question, showFinalResults, startTime, tieFound, votes]);
 
   useEffect(() => {
     let heartBeatIntervalId = null;
@@ -424,9 +426,9 @@ export const Provider = ({ children }) => {
           const date = JSON.parse(message.attributes.startTime);
           const currentTime = Date.now();
           const delay = (currentTime - date) / 1000;
-          const moderator = isModerator && pathname === '/manager';
 
-          if (moderator) return;
+          if (isModerator && pathname === '/manager') return;
+
           updatePollData({
             duration: Number(JSON.parse(message.attributes.duration)),
             question: JSON.parse(message.attributes.question),
@@ -439,8 +441,12 @@ export const Provider = ({ children }) => {
 
           if (message.attributes.voters && !selectedOption) {
             const votersList = JSON.parse(message.attributes.voters);
-            setSelectedOption(votersList[userData?.trackingId.toLowerCase()]);
-            setIsVoting(false);
+            const savedVote = votersList && votersList[userData?.trackingId]
+
+            if (savedVote) {
+              setSelectedOption(savedVote);
+              setIsVoting(false);
+            }
           }
           break;
         case SEND_VOTE_STATS:
