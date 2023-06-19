@@ -7,7 +7,8 @@ import { ChevronDown, ChevronUp } from '../../../../assets/icons';
 import {
   STREAM_ACTION_NAME,
   BREAKPOINTS,
-  PROFILE_COLORS_WITH_WHITE_TEXT
+  PROFILE_COLORS_WITH_WHITE_TEXT,
+  CHAT_MESSAGE_EVENT_TYPES
 } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useChannel } from '../../../../contexts/Channel';
@@ -18,6 +19,7 @@ import Button from '../../../../components/Button';
 import VoteItem from './VoteItem';
 import usePrompt from '../../../../hooks/usePrompt';
 import PollContainer from './PollContainer';
+import { useChat } from '../../../../contexts/Chat';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -25,14 +27,24 @@ const $content =
 const StreamerPoll = ({
   highestCountOption,
   isActive,
-  question,
   showFinalResults,
   totalVotes,
   votes,
   isExpanded
 }) => {
   const pollRef = useRef(null);
-  const { setIsExpanded, setPollRef } = usePoll();
+  const {
+    setIsExpanded,
+    setPollRef,
+    duration,
+    question,
+    expiry,
+    startTime,
+    getPollDataFromLocalStorage,
+    showFinalResult
+  } = usePoll();
+  const { actions } = useChat();
+  const { HEART_BEAT } = CHAT_MESSAGE_EVENT_TYPES;
 
   useEffect(() => {
     if (pollRef?.current) {
@@ -131,14 +143,14 @@ const StreamerPoll = ({
             ])}
           >
             <AnimatePresence>
-              {votes.map(({ option, count, id }, i) => {
+              {votes.map(({ option, count }, i) => {
                 const isHighestCount = option === highestCountOption;
                 const percentage =
                   (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
 
                 return (
                   <VoteItem
-                    key={`${id}${i}`}
+                    key={option}
                     isHighestCount={isHighestCount}
                     showFinalResults={showFinalResults}
                     option={option}
@@ -170,7 +182,6 @@ StreamerPoll.defaultProps = {
 
 StreamerPoll.propTypes = {
   isActive: PropTypes.bool,
-  question: PropTypes.string.isRequired,
   votes: PropTypes.arrayOf(
     PropTypes.shape({
       option: PropTypes.string.isRequired,

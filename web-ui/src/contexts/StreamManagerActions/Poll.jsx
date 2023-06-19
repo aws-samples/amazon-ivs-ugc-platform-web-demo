@@ -25,10 +25,13 @@ export const pollInitialState = {
   isActive: false,
   duration: 0,
   expiry: null,
-  startTime: null
+  startTime: null,
+  delay: 0
 };
 
 export const Provider = ({ children }) => {
+  const [noVotesCaptured, setNoVotesCaptured] = useState(false);
+  const [tieFound, setTieFound] = useState(false);
   const [selectedOption, setSelectedOption] = useState();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pollHeight, setPollHeight] = useState(0);
@@ -37,11 +40,14 @@ export const Provider = ({ children }) => {
   const [showFinalResults, setShowFinalResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(true);
+  const [hasPollEnded, setHasPollEnded] = useState(false);
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
-  const { votes, question, isActive, duration, expiry, startTime } = pollProps;
+
+  const { votes, question, isActive, duration, expiry, startTime, delay } =
+    pollProps;
 
   const resetPollProps = useCallback(() => {
     dispatchPollProps(pollInitialState);
@@ -50,43 +56,68 @@ export const Provider = ({ children }) => {
     setIsSubmitting(false);
     setIsVoting(true);
     setPollHeight(0);
+    setTieFound(false);
+    setNoVotesCaptured(false);
+    setHasListReordered(false);
+    setHasPollEnded(false);
   }, []);
 
+  useEffect(() => {
+    let timeout;
+
+    if (duration) {
+      const pollDuration = duration * 1000 - delay * 1000;
+
+      timeout = setTimeout(() => {
+        setHasPollEnded(true);
+      }, pollDuration);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [delay, duration]);
+
   const updatePollData = ({
-    answers,
+    votes,
     duration,
     question,
     expiry,
     startTime,
-    isActive
+    isActive,
+    delay = 0
   }) => {
-    const votes = answers.reduce((acc, answer) => {
-      const option = { option: answer, count: 0 };
-      acc.push(option);
-      return acc;
-    }, []);
+    const props = {};
 
-    dispatchPollProps({
-      duration,
-      question,
-      votes,
-      expiry,
-      isActive,
-      startTime: new Date(startTime)
-    });
+    if (duration) props.duration = duration;
+    if (question) props.question = question;
+    if (votes) props.votes = votes;
+    if (expiry) props.expiry = expiry;
+    if (isActive) props.isActive = isActive;
+    if (startTime) props.startTime = startTime;
+    if (delay) props.delay = delay;
+
+    dispatchPollProps(props);
   };
-
-  const saveToLocalStorage = useCallback((pollDataToSave) => {
-    localStorage.setItem(
-      STREAM_ACTION_NAME.POLL,
-      JSON.stringify(pollDataToSave)
-    );
-  }, []);
 
   const getPollDataFromLocalStorage = useCallback(() => {
     const pollData = localStorage.getItem(STREAM_ACTION_NAME.POLL);
     return JSON.parse(pollData);
   }, []);
+
+  const saveToLocalStorage = useCallback(
+    (pollDataToSave) => {
+      const pollData = getPollDataFromLocalStorage();
+      localStorage.setItem(
+        STREAM_ACTION_NAME.POLL,
+        JSON.stringify({
+          ...(pollData || {}),
+          ...pollDataToSave
+        })
+      );
+    },
+    [getPollDataFromLocalStorage]
+  );
 
   const clearLocalStorage = () => {
     localStorage.removeItem(STREAM_ACTION_NAME.POLL);
@@ -95,17 +126,29 @@ export const Provider = ({ children }) => {
   useEffect(() => {
     const pollProps = getPollDataFromLocalStorage();
     if (pollProps) {
-      const { question, duration, startTime, answers, expiry } = pollProps;
+      const {
+        question,
+        duration,
+        startTime,
+        votes: options,
+        expiry
+        // voters = undefined
+      } = pollProps;
       updatePollData({
         expiry,
-        startTime: new Date(startTime),
+        startTime,
         question,
         duration,
         isActive: true,
-        answers
+        votes: options,
+        delay
       });
+
+      // if (voters) {
+      //   setSelectedOption(voters[userData?.trackingId.toLowerCase()])
+      // }
     }
-  }, [getPollDataFromLocalStorage]);
+  }, [getPollDataFromLocalStorage, delay]);
 
   useEffect(() => {
     if (showFinalResults) {
@@ -113,25 +156,36 @@ export const Provider = ({ children }) => {
     }
   }, [showFinalResults]);
 
+  const checkForTie = (votes) => {
+    const maxVote = Math.max(...votes.map((vote) => vote.count));
+    const count = votes.filter((vote) => vote.count === maxVote).length;
+
+    return count > 1;
+  };
+
   useEffect(() => {
-    let timeout;
-    if (duration) {
-      timeout = setTimeout(() => {
-        const sortedVotes = [...votes].sort((a, b) =>
-          a.count > b.count ? -1 : a.count < b.count ? 1 : 0
+    if (hasPollEnded && !noVotesCaptured && !showFinalResults && !tieFound) {
+      const noVotesCaptured = votes.every((vote) => vote.count === 0);
+      const hasTie = checkForTie(votes);
+
+      if (noVotesCaptured) {
+        setNoVotesCaptured(true);
+      } else {
+        if (hasTie) {
+          setTieFound(true);
+        } else {
+          setShowFinalResults(true);
+        }
+        const sortedVotes = votes.sort((a, b) =>
+          a.count < b.count ? 1 : a.count > b.count ? -1 : 0
         );
         dispatchPollProps({
           votes: sortedVotes,
           isPollActive: false
         });
-        setShowFinalResults(true);
-      }, duration * 1000);
+      }
     }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [duration, votes]);
+  }, [hasPollEnded, noVotesCaptured, showFinalResults, tieFound, votes]);
 
   // The value set here will determine the min height of the chat + poll container.
   // The reason its calculated this way is because the poll has a position: absolute
@@ -191,6 +245,9 @@ export const Provider = ({ children }) => {
       updatePollData,
       expiry,
       resetPollProps,
+      noVotesCaptured,
+      tieFound,
+      delay,
       saveToLocalStorage,
       getPollDataFromLocalStorage,
       clearLocalStorage,
@@ -214,6 +271,9 @@ export const Provider = ({ children }) => {
       isVoting,
       expiry,
       resetPollProps,
+      noVotesCaptured,
+      tieFound,
+      delay,
       saveToLocalStorage,
       getPollDataFromLocalStorage
     ]

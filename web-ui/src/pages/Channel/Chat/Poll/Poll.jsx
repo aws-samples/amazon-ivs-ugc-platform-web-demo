@@ -22,7 +22,11 @@ const Poll = () => {
     isExpanded,
     isVoting,
     isSubmitting,
-    startTime
+    startTime,
+    setIsVoting,
+    setSelectedOption,
+    noVotesCaptured,
+    tieFound
   } = usePoll();
   const pollProps = {
     isActive,
@@ -36,7 +40,11 @@ const Poll = () => {
     hasListReordered,
     isExpanded,
     isVoting,
-    isSubmitting
+    isSubmitting,
+    setIsVoting,
+    setSelectedOption,
+    noVotesCaptured,
+    tieFound
   };
   const { isModerator } = useChat();
   const { pathname } = useLocation();
