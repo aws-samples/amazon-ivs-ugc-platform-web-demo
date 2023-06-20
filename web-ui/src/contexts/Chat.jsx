@@ -146,8 +146,6 @@ export const Provider = ({ children }) => {
   const isConnectionOpenRef = useRef(false);
 
   const isInitializingConnection = useRef(false);
-  // const isRetryingConnection = useRef(false);
-  // const connection = useRef();
   const abortControllerRef = useRef();
   const isConnecting = isInitializingConnection.current;
 
@@ -168,20 +166,20 @@ export const Provider = ({ children }) => {
     hasPollEnded,
     resetPollProps,
     isActive,
-    clearLocalStorage,
+    clearPollLocalStorage,
     isSubmitting,
-    saveToLocalStorage,
     setSelectedOption,
     selectedOption,
     setIsVoting,
-    getPollDataFromLocalStorage,
     showFinalResults,
     duration,
     question,
     expiry,
     startTime,
     noVotesCaptured,
-    tieFound
+    tieFound,
+    savedPollData,
+    saveVotesToLocalStorage
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -208,9 +206,9 @@ export const Provider = ({ children }) => {
       } else {
         actions.sendMessage(content, attributes);
       }
-      clearLocalStorage();
+      clearPollLocalStorage();
     },
-    [actions, clearLocalStorage]
+    [actions, clearPollLocalStorage]
   );
 
   const sendHeartBeat = useCallback(() => {
@@ -221,7 +219,6 @@ export const Provider = ({ children }) => {
       !noVotesCaptured &&
       !tieFound
     ) {
-      const { voters = undefined } = getPollDataFromLocalStorage();
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
         updatedVotes: JSON.stringify(votes),
@@ -229,18 +226,18 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        ...(voters ? { voters: JSON.stringify(voters) } : {})
+        voters: JSON.stringify(savedPollData.voters)
       });
     }
   }, [
     actions,
     duration,
     expiry,
-    getPollDataFromLocalStorage,
     isActive,
     isModerator,
     noVotesCaptured,
     question,
+    savedPollData.voters,
     showFinalResults,
     startTime,
     tieFound,
@@ -249,7 +246,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     let heartBeatIntervalId = null;
-    if (!showFinalResults && isActive) {
+    if (isActive) {
       heartBeatIntervalId = setInterval(() => {
         sendHeartBeat();
       }, 4000);
@@ -260,11 +257,8 @@ export const Provider = ({ children }) => {
         clearInterval(heartBeatIntervalId);
       }
     };
-  }, [isActive, sendHeartBeat, showFinalResults]);
 
-  // const connect = useCallback(() => {
-
-  // }, [chatRoomOwnerUsername, disconnect, isViewerBanned, notifyError]);
+  }, [isActive, sendHeartBeat]);
 
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
@@ -323,7 +317,6 @@ export const Provider = ({ children }) => {
   );
 
   const disconnect = useCallback(() => {
-    abortControllerRef.current?.abort();
     refreshChannelData();
     setRoom(null);
     connection.current = null;
@@ -483,11 +476,8 @@ export const Provider = ({ children }) => {
           if (canProcessVote) {
             const currentVotes = updateVotes(message, votes);
             updatePollData({ votes: currentVotes });
-            const pollData = getPollDataFromLocalStorage();
-            saveToLocalStorage({
-              votes: currentVotes,
-              voters: { ...(pollData.voters || {}), [voter]: option }
-            });
+
+            saveVotesToLocalStorage(currentVotes, { [voter]: option });
 
             actions.sendMessage(SEND_VOTE_STATS, {
               eventType: SEND_VOTE_STATS,
@@ -562,11 +552,10 @@ export const Provider = ({ children }) => {
     actions,
     isActive,
     isSubmitting,
-    saveToLocalStorage,
     selectedOption,
     setSelectedOption,
     setIsVoting,
-    getPollDataFromLocalStorage
+    saveVotesToLocalStorage
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,

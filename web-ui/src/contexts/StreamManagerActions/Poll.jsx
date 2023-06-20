@@ -11,7 +11,8 @@ import {
 
 import useContextHook from '../../contexts/useContextHook';
 import { STREAM_ACTION_NAME } from '../../constants';
-import { useUser } from '../User';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { pack, unpack } from '../../helpers/streamActionHelpers';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -31,6 +32,11 @@ export const pollInitialState = {
   delay: 0
 };
 
+const localStorageInitialState = {
+  ...pollInitialState,
+  voters: {}
+};
+
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
   const [noVotesCaptured, setNoVotesCaptured] = useState(false);
@@ -48,7 +54,6 @@ export const Provider = ({ children }) => {
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
-  const { userData } = useUser();
 
   const pollHasEnded = useCallback(() => {
     setHasPollEnded(true);
@@ -70,6 +75,17 @@ export const Provider = ({ children }) => {
     setHasPollEnded(false);
     setSelectedOption();
   }, []);
+
+  const { value: savedPollData, set: savePollDataToLocalStorage } =
+    useLocalStorage({
+      key: STREAM_ACTION_NAME.POLL,
+      initialValue: localStorageInitialState,
+      options: {
+        keyPrefix: 'user',
+        serialize: pack,
+        deserialize: unpack
+      }
+    });
 
   const showFinalResultActionButton = () => ({
     duration: 10,
@@ -98,40 +114,19 @@ export const Provider = ({ children }) => {
     dispatchPollProps(props);
   };
 
-  const getPollDataFromLocalStorage = useCallback(() => {
-    const pollData = localStorage.getItem(STREAM_ACTION_NAME.POLL);
-    return JSON.parse(pollData);
-  }, []);
-
-  const saveToLocalStorage = useCallback(
-    (pollDataToSave) => {
-      const pollData = getPollDataFromLocalStorage();
-      localStorage.setItem(
-        STREAM_ACTION_NAME.POLL,
-        JSON.stringify({
-          ...(pollData || {}),
-          ...pollDataToSave
-        })
-      );
-    },
-    [getPollDataFromLocalStorage]
-  );
-
-  const clearLocalStorage = () => {
-    localStorage.removeItem(STREAM_ACTION_NAME.POLL);
-  };
+  const clearPollLocalStorage = useCallback(() => {
+    savePollDataToLocalStorage(localStorageInitialState);
+  }, [savePollDataToLocalStorage]);
 
   useEffect(() => {
-    const savedPollProps = getPollDataFromLocalStorage();
-
-    if (savedPollProps) {
+    if (savedPollData.isActive) {
       const {
         question,
         duration,
         startTime,
         votes: options,
         expiry
-      } = savedPollProps;
+      } = savedPollData;
 
       updatePollData({
         expiry,
@@ -143,18 +138,18 @@ export const Provider = ({ children }) => {
         delay
       });
     }
-  }, [userData, getPollDataFromLocalStorage, delay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let timeout;
-    const pollData = getPollDataFromLocalStorage();
 
-    if (pollData?.hasPollEnded && !hasPollEnded) {
+    if (savedPollData?.hasPollEnded && !hasPollEnded) {
       pollHasEnded();
       return;
     }
 
-    if (duration && !hasPollEnded && !pollData?.hasPollEnded) {
+    if (duration && !hasPollEnded && !savedPollData?.hasPollEnded) {
       const pollDuration = duration * 1000 - delay * 1000;
 
       timeout = setTimeout(() => {
@@ -168,9 +163,9 @@ export const Provider = ({ children }) => {
   }, [
     delay,
     duration,
-    getPollDataFromLocalStorage,
     hasPollEnded,
-    pollHasEnded
+    pollHasEnded,
+    savedPollData?.hasPollEnded
   ]);
 
   useEffect(() => {
@@ -203,8 +198,7 @@ export const Provider = ({ children }) => {
           a.count < b.count ? 1 : a.count > b.count ? -1 : 0
         );
         dispatchPollProps({
-          votes: sortedVotes,
-          isPollActive: false
+          votes: sortedVotes
         });
       }
     }
@@ -242,6 +236,29 @@ export const Provider = ({ children }) => {
 
   const { highestCountOption, totalVotes } = getPollDetails(votes);
 
+  const saveVotesToLocalStorage = useCallback(
+    (currentVotes, voter) => {
+      savePollDataToLocalStorage({
+        ...savedPollData,
+        votes: currentVotes,
+        voters: {
+          ...savedPollData.voters,
+          ...voter
+        }
+      });
+    },
+    [savePollDataToLocalStorage, savedPollData]
+  );
+
+  const updateSavedPollPropsOnTimerExpiry = useCallback(() => {
+    const { duration, expiry } = showFinalResultActionButton();
+    savePollDataToLocalStorage({
+      ...savedPollData,
+      duration,
+      expiry,
+      hasPollEnded: true
+    });
+  }, [savePollDataToLocalStorage, savedPollData]);
   const value = useMemo(
     () => ({
       isExpanded,
@@ -271,14 +288,16 @@ export const Provider = ({ children }) => {
       noVotesCaptured,
       tieFound,
       delay,
-      saveToLocalStorage,
-      getPollDataFromLocalStorage,
-      clearLocalStorage,
+      clearPollLocalStorage,
       pollTabLabel: POLL_TAB_LABEL,
       showFinalResultActionButton,
       hasPollEnded,
       stopPollTimerRef,
-      pollHasEnded
+      pollHasEnded,
+      saveVotesToLocalStorage,
+      savedPollData,
+      savePollDataToLocalStorage,
+      updateSavedPollPropsOnTimerExpiry
     }),
     [
       isExpanded,
@@ -301,11 +320,13 @@ export const Provider = ({ children }) => {
       noVotesCaptured,
       tieFound,
       delay,
-      saveToLocalStorage,
-      getPollDataFromLocalStorage,
+      savePollDataToLocalStorage,
+      clearPollLocalStorage,
       hasPollEnded,
-      stopPollTimerRef,
-      pollHasEnded
+      pollHasEnded,
+      saveVotesToLocalStorage,
+      savedPollData,
+      updateSavedPollPropsOnTimerExpiry
     ]
   );
 
