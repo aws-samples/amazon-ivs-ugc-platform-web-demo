@@ -56,7 +56,6 @@ const useChatConnection = (eventHandlers) => {
   });
 
   const disconnect = useCallback(() => {
-    abortControllerRef.current?.abort();
     refreshChannelData();
     setRoom(null);
     connection.current = null;
