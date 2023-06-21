@@ -32,7 +32,7 @@ export const Provider = ({ children }) => {
     stopPollTimerRef,
     pollHasEnded,
     savePollDataToLocalStorage,
-    updateSavedPollPropsOnTimerExpiry,
+    updateSavedPollPropsOnTimerExpiry
   } = usePoll();
   const { startPoll, endPoll } = useChat();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
@@ -204,11 +204,7 @@ export const Provider = ({ children }) => {
       ...prevStoredData,
       _active: undefined
     }));
-  }, [
-    endPoll,
-    saveStreamManagerActionData,
-    stopPollTimerRef
-  ]);
+  }, [endPoll, saveStreamManagerActionData, stopPollTimerRef]);
 
   /**
    * Stops the currently active stream action, if one exists

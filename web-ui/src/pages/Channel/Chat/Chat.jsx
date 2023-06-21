@@ -109,17 +109,19 @@ const Chat = ({ shouldRunCelebration }) => {
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
-      const {
-        sender: {
-          attributes: { channelArn: deletedMessageOwner }
-        }
-      } = messages?.find(({ id }) => id === deletedMessage);
-      if (
-        extractChannelIdfromChannelArn(deletedMessageOwner.toLowerCase()) ===
-        userData?.trackingId
-      )
-        notifyError($content.notifications.error.your_message_was_removed);
-
+      const message = messages?.find(({ id }) => id === deletedMessage);
+      if (message) {
+        const {
+          sender: {
+            attributes: { channelArn: deletedMessageOwner }
+          }
+        } = message;
+        if (
+          extractChannelIdfromChannelArn(deletedMessageOwner.toLowerCase()) ===
+          userData?.trackingId
+        )
+          notifyError($content.notifications.error.your_message_was_removed);
+      }
       setDeletedMessage(undefined);
     }
   }, [

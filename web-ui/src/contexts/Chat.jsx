@@ -183,6 +183,8 @@ export const Provider = ({ children }) => {
   } = usePoll();
   const { pathname } = useLocation();
 
+  const isStreamManagerPage = pathname === '/manager';
+
   const startPoll = useCallback(
     async (pollStreamActionData) => {
       const content = JSON.stringify(pollStreamActionData);
@@ -217,7 +219,8 @@ export const Provider = ({ children }) => {
       isActive &&
       !showFinalResults &&
       !noVotesCaptured &&
-      !tieFound
+      !tieFound &&
+      isStreamManagerPage
     ) {
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
@@ -235,6 +238,7 @@ export const Provider = ({ children }) => {
     expiry,
     isActive,
     isModerator,
+    isStreamManagerPage,
     noVotesCaptured,
     question,
     savedPollData.voters,
@@ -257,7 +261,6 @@ export const Provider = ({ children }) => {
         clearInterval(heartBeatIntervalId);
       }
     };
-
   }, [isActive, sendHeartBeat]);
 
   const initMessages = useCallback(() => {
@@ -438,7 +441,7 @@ export const Provider = ({ children }) => {
           const currentTime = Date.now();
           const delay = (currentTime - date) / 1000;
 
-          if (isModerator && pathname === '/manager') return;
+          if (isModerator && isStreamManagerPage) return;
 
           updatePollData({
             duration: Number(JSON.parse(message.attributes.duration)),
@@ -450,10 +453,10 @@ export const Provider = ({ children }) => {
             delay
           });
 
-          if (message.attributes.voters && !selectedOption) {
-            const votersList = JSON.parse(message.attributes.voters);
-            const savedVote = votersList && votersList[userData?.trackingId];
+          const votersList = JSON.parse(message.attributes.voters);
 
+          if (!selectedOption && userData?.trackingId in votersList) {
+            const savedVote = votersList[userData?.trackingId];
             if (savedVote) {
               setSelectedOption(savedVote);
               setIsVoting(false);
@@ -555,7 +558,10 @@ export const Provider = ({ children }) => {
     selectedOption,
     setSelectedOption,
     setIsVoting,
-    saveVotesToLocalStorage
+    saveVotesToLocalStorage,
+    savedPollData,
+    clearPollLocalStorage,
+    isStreamManagerPage
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
