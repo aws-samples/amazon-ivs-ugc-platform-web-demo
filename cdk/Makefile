@@ -1,4 +1,6 @@
 .DEFAULT_GOAL := help
+ORANGE := \033[38;5;202m
+RESET := \033[0m
 
 .PHONY: help app install bootstrap deploy destroy clean
 
@@ -43,6 +45,7 @@ deploy: ## Deploys the stack
 	node scripts/sanitize-output $(STACK)
 	rm temp_out.json
 	@echo "\n$$(tput bold) ✅ $(STACK) Deployed Successfully $$(tput sgr0)\n"
+	@echo "\n$$(tput bold) $(ORANGE) Attention: Please note that adjustments made to your current cloud stack may not retrospectively affect all previously created resources. $$(tput sgr0)\n$(RESET)"
 	@if [ $(PUBLISH) = true ]; then\
 		echo "Publishing Frontend App...";\
 		npm install --prefix ../web-ui;\

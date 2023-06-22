@@ -1,18 +1,18 @@
-const { readFileSync, writeFileSync } = require("fs");
+const { readFileSync, writeFileSync } = require('fs');
 
-const inputPath = "temp_out.json";
-const outputPath = "../web-ui/.env";
+const inputPath = 'temp_out.json';
+const outputPath = '../web-ui/.env';
 const json = readFileSync(inputPath);
 const output = JSON.parse(json);
 
 const {
   apiBaseUrl,
   channelType,
+  enableAmazonProductStreamAction,
   region,
   stage,
   userPoolClientId,
-  userPoolId,
-  enableAmazonProductStreamAction,
+  userPoolId
 } = output[process.argv[2]];
 
 const envVars = {
@@ -22,10 +22,10 @@ const envVars = {
   REACT_APP_COGNITO_USER_POOL_ID: userPoolId,
   REACT_APP_REGION: region,
   REACT_APP_STAGE: stage,
-  REACT_APP_ENABLE_AMAZON_PRODUCT_STREAM_ACTION: enableAmazonProductStreamAction,
+  REACT_APP_ENABLE_AMAZON_PRODUCT_STREAM_ACTION: enableAmazonProductStreamAction
 };
 
-let data = "";
+let data = '';
 for (const key in envVars) {
   const value = envVars[key];
   data += `${key}=${value}\n`;

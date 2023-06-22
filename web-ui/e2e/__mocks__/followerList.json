@@ -1,0 +1,44 @@
+[
+  {
+    "avatar": "horse",
+    "channelAssetUrls": {},
+    "color": "lavender",
+    "isLive": true,
+    "username": "mockUser098dc4d5"
+  },
+  {
+    "avatar": "ibex",
+    "channelAssetUrls": {},
+    "color": "purple",
+    "isLive": true,
+    "username": "mockUserd456dc86"
+  },
+  {
+    "avatar": "horse",
+    "channelAssetUrls": {},
+    "color": "yellow",
+    "isLive": true,
+    "username": "mockUser78e8482e"
+  },
+  {
+    "avatar": "ibex",
+    "channelAssetUrls": {},
+    "color": "yellow",
+    "isLive": true,
+    "username": "mockUser78e8482e"
+  },
+  {
+    "avatar": "dog2",
+    "channelAssetUrls": {},
+    "color": "lavender",
+    "isLive": true,
+    "username": "mockUser4ba56053"
+  },
+  {
+    "avatar": "ibex",
+    "channelAssetUrls": {},
+    "color": "turquoise",
+    "isLive": true,
+    "username": "mockUserd1955e63"
+  }
+]

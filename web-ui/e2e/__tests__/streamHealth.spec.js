@@ -228,8 +228,7 @@ test.describe('Stream Health Page', () => {
       }
     );
 
-    // This test is working locally when isolated. When all tests are run together, it times out. This will require further investigation.
-    testWithoutNavigation.fixme(
+    testWithoutNavigation(
       'should have LIVE notification in stream session dropdown',
       async ({
         streamHealthPage: {
@@ -241,6 +240,7 @@ test.describe('Stream Health Page', () => {
         page
       }) => {
         await streamSessionNavigatorButtonLoc.click();
+        await page.mouse.down();
         await page.takeScreenshot('stream-sessions-live-dropdown-open', {
           mask: [floatingPlayerVideoContainerLoc, statusBarTimerLoc]
         });
@@ -308,8 +308,7 @@ test.describe('Stream Health Page', () => {
       }
     );
 
-    // This test doesn't seem to be working with Firefox and will need to be investigated further.
-    testWithoutNavigation.fixme(
+    testWithoutNavigation(
       'should show tooltip for live session in session status bar',
       async ({
         streamHealthPage: {
@@ -318,11 +317,13 @@ test.describe('Stream Health Page', () => {
             statusBarTooltipLoc
           }
         },
-        isMobile
+        isMobile,
+        page
       }) => {
         isMobile
           ? await statusBarConcurrentViewsLoc.click()
           : await statusBarConcurrentViewsLoc.hover();
+        await page.mouse.down();
         await expect(statusBarTooltipLoc).toBeVisible();
       }
     );

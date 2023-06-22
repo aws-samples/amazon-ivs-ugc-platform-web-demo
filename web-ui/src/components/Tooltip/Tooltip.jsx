@@ -125,7 +125,12 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   return (
     <div
       {...(isTouchscreenDevice
-        ? { onTouchStart: showTooltip, onTouchEnd: hideTooltip }
+        ? {
+            onTouchStart: showTooltip,
+            onTouchEnd: hideTooltip,
+            onMouseDown: showTooltip,
+            onMouseUp: hideTooltip
+          }
         : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
       className={clsm(['min-w-0', 'relative'])}
       ref={parentRef}

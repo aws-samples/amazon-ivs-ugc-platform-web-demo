@@ -72,3 +72,13 @@ Service Auto Scaling automatically creates and manages CloudWatch alarms for you
 For this reason, please do not create, edit, or delete the CloudWatch alarms that are used with a target tracking scaling policy.
 
 To learn how to hide auto scaling alarms, please consult the "Hide Auto Scaling alarms" user guide available at: [Hide Auto Scaling alarms user guide](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/hide-autoscaling-alarms.html).
+
+## Stream events API
+
+Amazon IVS sends change events about the status of your streams to Amazon EventBridge. The Stream Events API is an EventBridge rule that updates the DynamoDB Streams table for the UGC application.
+
+When the postStreamEvents function receives an event with a `session created` event name, any existing live stream session in the same channel is updated to offline by removing the `isOpen` attribute from the corresponding DynamoDB record. This logic ensures that a channel cannot have more than one live stream session simultaneously. Subsequently, the new stream session is saved with the `isOpen` attribute set to true.
+
+When a `session ended` event is received, the corresponding stream record is grabbed and updated by removing the `isOpen` attribute.
+
+You can find the Stream events API code in the `/streamEventsApi` folder.

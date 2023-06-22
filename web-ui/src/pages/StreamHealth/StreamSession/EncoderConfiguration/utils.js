@@ -95,7 +95,12 @@ const ENCODER_CONFIG_DATA = [
     units: '',
     validate: ([videoWidth, videoHeight], channelType) => {
       if (
-        [CHANNEL_TYPE.BASIC, CHANNEL_TYPE.STANDARD].includes(channelType) &&
+        [
+          CHANNEL_TYPE.BASIC,
+          CHANNEL_TYPE.STANDARD,
+          CHANNEL_TYPE.ADVANCED_HD,
+          CHANNEL_TYPE.ADVANCED_SD
+        ].includes(channelType) &&
         exceedsFullHdRes(videoWidth, videoHeight)
       )
         return 'encoderResolutionError';

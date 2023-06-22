@@ -307,34 +307,30 @@ test.describe('Stream Manager Page', () => {
       }
     );
 
-    // This test is working locally when isolated. When all tests are run together, it times out. This will require further investigation.
-    testWithoutNavigation.fixme(
+    testWithoutNavigation(
       'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
       async ({
-        page,
         context,
         streamManagerPage: {
           sharedUIComponents: { statusBarHealthStatusBtnLoc }
-        }
+        },
+        browserName
       }) => {
-        // To ensure that the stream health page is being opened in a new tab, the test asserts that the current page remains unchanged while a new tab is opened.
-        const [newTab] = await Promise.all([
-          context.waitForEvent('page'),
-          statusBarHealthStatusBtnLoc.click()
-        ]);
-
-        // make sure the url is updated to the most recent stream session
-        const updatedUrl = '/health/streamId-0';
-        await newTab.goto(updatedUrl);
-        await newTab.waitForURL(updatedUrl, { timeout: 6000 });
-
-        expect(page).toHaveURL('/manager');
-        expect(newTab).toHaveURL(updatedUrl);
+        // Skip test on Safari (Webkit): the test runner does not always open a new tab. This is a known issue.
+        testWithoutNavigation.skip(
+          browserName === 'webkit',
+          'WebKit: Does not open a new window.'
+        );
+        // Start waiting for new page before clicking status bar health status button
+        const pagePromise = context.waitForEvent('page');
+        await statusBarHealthStatusBtnLoc.click();
+        const newPage = await pagePromise;
+        await newPage.waitForLoadState();
+        expect(newPage).toHaveURL('/health');
       }
     );
 
-    // This test doesn't seem to be working with Firefox and will need to be investigated further.
-    testWithoutNavigation.fixme(
+    testWithoutNavigation(
       'should show tooltip for live session in session status bar',
       async ({
         streamManagerPage: {
@@ -343,11 +339,13 @@ test.describe('Stream Manager Page', () => {
             statusBarTooltipLoc
           }
         },
-        isMobile
+        isMobile,
+        page
       }) => {
         isMobile
           ? await statusBarConcurrentViewsLoc.click()
           : await statusBarConcurrentViewsLoc.hover();
+        await page.mouse.down();
         await expect(statusBarTooltipLoc).toBeVisible();
       }
     );

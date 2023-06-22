@@ -1,4 +1,8 @@
-import { ChannelType, CreateChannelCommand } from '@aws-sdk/client-ivs';
+import {
+  ChannelType,
+  CreateChannelCommand,
+  TranscodePreset
+} from '@aws-sdk/client-ivs';
 import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -39,6 +43,8 @@ const handler = async (
     const createChannelCommand = new CreateChannelCommand({
       name: channelName,
       type: process.env.IVS_CHANNEL_TYPE as ChannelType,
+      preset: process.env
+        .IVS_ADVANCED_CHANNEL_TRANSCODE_PRESET as TranscodePreset,
       tags: { project: process.env.PROJECT_TAG as string }
     });
     const { channel, streamKey } = await ivsClient.send(createChannelCommand);

@@ -52,6 +52,7 @@ export class ChannelsStack extends NestedStack {
     const {
       allowedOrigins,
       enableUserAutoVerify,
+      ivsAdvancedChannelTranscodePreset,
       ivsChannelType,
       signUpAllowedDomains
     } = resourceConfig;
@@ -383,6 +384,7 @@ export class ChannelsStack extends NestedStack {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
       CHANNELS_TABLE_NAME: channelsTable.tableName,
       IVS_CHANNEL_TYPE: ivsChannelType,
+      IVS_ADVANCED_CHANNEL_TRANSCODE_PRESET: ivsAdvancedChannelTranscodePreset,
       PROJECT_TAG: tags.project,
       SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
