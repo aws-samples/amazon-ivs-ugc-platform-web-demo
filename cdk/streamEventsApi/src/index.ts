@@ -1,15 +1,6 @@
-import fastify from 'fastify';
+import buildServer from './buildServer';
 
-import postStreamEvents from './postStreamEvents';
-
-const server = fastify();
-
-// Health check
-server.get('/status', async () => {
-  return 'OK';
-});
-
-server.post('/', postStreamEvents);
+const server = buildServer();
 
 server.listen({ host: '0.0.0.0', port: 8080 }, (err, address) => {
   if (err) {
