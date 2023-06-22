@@ -13,6 +13,7 @@ import { streamManager as $streamManagerContent } from '../../../../content';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useLocation } from 'react-router-dom';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useUser } from '../../../../contexts/User';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -52,6 +53,7 @@ const VoteItem = ({
   const hasWon = isHighestCount && showFinalResults;
   const countFormatted = convertConcurrentViews(count);
   const { pathname } = useLocation();
+  const { userData } = useUser();
 
   const isStreamManagerPage = pathname === '/manager';
 
@@ -110,7 +112,10 @@ const VoteItem = ({
     >
       {(!isVoting || showFinalResults || isStreamManagerPage) && (
         <div
-          style={{ width: `${percentage}%` }}
+          // To ensure the entire parent div is covered, we are increasing the div width by 10 pixels when it is set to 100%.
+          style={{
+            width: `${percentage === 100 ? percentage + 10 : percentage}%`
+          }}
           className={clsm([
             'h-full',
             `bg-poll-${color}-pollButtonBg`,
@@ -173,7 +178,8 @@ const VoteItem = ({
                   'items-center'
                 ])}
               >
-                {!isStreamManagerPage &&
+                {userData &&
+                  !isStreamManagerPage &&
                   isVoting &&
                   !showFinalResults &&
                   !noVotesCaptured && (
@@ -221,6 +227,7 @@ const VoteItem = ({
                     !showFinalResults &&
                     isVoting &&
                     !noVotesCaptured &&
+                    userData &&
                     `translate-x-7`,
                   hasWon && [
                     'text-h3',

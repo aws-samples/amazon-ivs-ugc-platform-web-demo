@@ -66,7 +66,7 @@ const StreamerPoll = ({
   }, [isBlocked, onCancel, onConfirm, openModal, isActive]);
 
   return (
-    <PollContainer>
+    <PollContainer ref={pollRef}>
       <Button
         variant="primaryText"
         className={clsm([

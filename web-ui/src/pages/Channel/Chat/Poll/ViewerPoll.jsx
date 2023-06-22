@@ -146,7 +146,7 @@ const ViewerPoll = ({
           })}
         </AnimatePresence>
       </div>
-      {!showFinalResults && isVoting && !noVotesCaptured && (
+      {!showFinalResults && isVoting && !noVotesCaptured && userData && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
