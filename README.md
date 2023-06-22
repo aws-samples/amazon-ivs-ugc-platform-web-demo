@@ -183,7 +183,8 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 - `clientBaseUrl` should be set to the base URL of the frontend application. This URL is used for sending verification emails with links that redirect the user back to the frontend application to complete the verification process.
 - `deploySeparateContainers`, setting this to `true` will deploy the backend in two separate services, each one with the minimal required permissions. While being more costly, this option will scale better and is recommended for production.
 - `enableUserAutoVerify`, setting this to `true` is not recommended for production. It will skip the email verification when a new user signs up in the app.
-- `ivsChannelType` can be set to `BASIC` or `STANDARD`.
+- `ivsChannelType` can be set to `"BASIC"`, `"STANDARD"`, `"ADVANCED_SD"`, or `"ADVANCED_HD"`. You can find more detailed information about IVS channel types in the [user guide](https://docs.aws.amazon.com/ivs/latest/userguide/streaming-config.html#streaming-config-settings-channel-types).
+- The `ivsAdvancedChannelTranscodePreset` applies only to `ADVANCED_HD` and `ADVANCED_SD` channel types. It is ignored for any other channel type. You can set the preset to either `"HIGHER_BANDWIDTH_DELIVERY"` or `"CONSTRAINED_BANDWIDTH_DELIVERY"`. If you leave it empty (`""`) and the ivsChannelType is an advanced channel, the default preset will be `HIGHER_BANDWIDTH_DELIVERY`.
 - `logRetention` is the number of days that the logs for the Cognito triggers will be kept. Omit this property to keep the logs forever.
 - `maxAzs` is the maximum number of availability zones (AZs) for the VPC in the region that the stack is deployed. Setting this value to the maximum number of AZs in your region will reduce the risk of the backend going offline but also increase the running cost. If you pick a number that is higher than the amount of AZs in your region, then all the AZs in the region will be used. Therefore, to use all "all AZs" available to your account, specify a high number for this property (such as 99). While it is possible to use 1 AZ, we recommend using a minimum of 2 AZs to take advantage of the safety and reliability of geographic redundancy (i.e. when one AZ becomes unhealthy or unavailable, the unaffected AZ will be used instead).
 - `minScalingCapacity` sets the lower limit of the number of tasks for Service Auto Scaling to use when running each of the backend services, ensuring that the backend services will not be automatically adjusted below this amount. You may increase this value if you're expecting high traffic in production. Alternatively, if you know that the backend services may be idle for a long period of time and you want to optimize for costs, you may set this value to 1.
@@ -462,6 +463,8 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
+- Please note that the audio_only rendition is not supported by the IVS Web Player. For more information, including known issues and workarounds, please refer to the [official documentation](https://docs.aws.amazon.com/ivs/latest/userguide/web-issues.html).
+
 ### Web Broadcast known issues
 
 - It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
@@ -517,6 +520,7 @@ Amazon Interactive Video Service (Amazon IVS) is a managed live streaming soluti
 - [Setting Up for Streaming with Amazon Interactive Video Service](https://aws.amazon.com/blogs/media/setting-up-for-streaming-with-amazon-ivs/)
 - [Learn more about Amazon IVS on IVS.rocks](https://ivs.rocks/)
 - [View more demos like this](https://ivs.rocks/examples)
+- [Amazon IVS cost estimator](https://ivs.rocks/calculator)
 
 ## Security
 

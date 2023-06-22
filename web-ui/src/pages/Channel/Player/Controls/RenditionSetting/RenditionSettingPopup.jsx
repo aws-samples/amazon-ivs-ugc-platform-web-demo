@@ -141,41 +141,43 @@ const RenditionSettingPopup = ({
             ]
           ])}
         >
-          {qualities.map(({ name }) =>
-            name ? (
-              <Button
-                ariaLabel={`Select the ${name} video quality`}
-                className={clsm([
-                  selectedQualityName === name
-                    ? [
-                        'bg-lightMode-gray-light-hover',
-                        'dark:bg-darkMode-gray-hover',
-                        'dark:!shadow-white',
-                        '!shadow-black',
-                        'shadow-focus'
-                      ]
-                    : [
-                        '[&:focus]:[&]:text-black',
-                        '[&:focus]:font-bold',
-                        '[&:hover]:[&]:text-black',
-                        '[&:hover]:font-bold',
-                        '[&]:text-lightMode-gray-medium',
-                        'dark:[&:focus]:[&]:text-white',
-                        'dark:[&:hover]:[&]:text-white',
-                        'dark:[&]:text-darkMode-gray-light',
-                        'font-normal',
-                        'transition-none'
-                      ]
-                ])}
-                key={name}
-                name={name}
-                onClick={onSelectQualityHandler}
-                variant="secondaryText"
-              >
-                {name}
-              </Button>
-            ) : null
-          )}
+          {qualities
+            .filter(({ name }) => name !== 'audio_only')
+            .map(({ name }) =>
+              name ? (
+                <Button
+                  ariaLabel={`Select the ${name} video quality`}
+                  className={clsm([
+                    selectedQualityName === name
+                      ? [
+                          'bg-lightMode-gray-light-hover',
+                          'dark:bg-darkMode-gray-hover',
+                          'dark:!shadow-white',
+                          '!shadow-black',
+                          'shadow-focus'
+                        ]
+                      : [
+                          '[&:focus]:[&]:text-black',
+                          '[&:focus]:font-bold',
+                          '[&:hover]:[&]:text-black',
+                          '[&:hover]:font-bold',
+                          '[&]:text-lightMode-gray-medium',
+                          'dark:[&:focus]:[&]:text-white',
+                          'dark:[&:hover]:[&]:text-white',
+                          'dark:[&]:text-darkMode-gray-light',
+                          'font-normal',
+                          'transition-none'
+                        ]
+                  ])}
+                  key={name}
+                  name={name}
+                  onClick={onSelectQualityHandler}
+                  variant="secondaryText"
+                >
+                  {name}
+                </Button>
+              ) : null
+            )}
         </div>
       </motion.div>
     </>

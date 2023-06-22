@@ -21,8 +21,9 @@ describe('buildServer', () => {
       });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body).toEqual(
-        '{"statusCode":400,"error":"Bad Request","message":"params/channelOwnerUsername must NOT have more than 100 characters"}'
+      expect(response.statusMessage).toBe('Bad Request');
+      expect(JSON.parse(response.body).message).toBe(
+        'params/channelOwnerUsername must NOT have more than 100 characters'
       );
     });
 

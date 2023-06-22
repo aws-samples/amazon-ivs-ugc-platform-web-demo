@@ -5,7 +5,12 @@ import { streamManager as $streamManagerContent } from './content';
  */
 export const NO_DATA_VALUE = '----';
 
-export const CHANNEL_TYPE = { BASIC: 'BASIC', STANDARD: 'STANDARD' };
+export const CHANNEL_TYPE = {
+  BASIC: 'BASIC',
+  STANDARD: 'STANDARD',
+  ADVANCED_SD: 'ADVANCED_SD',
+  ADVANCED_HD: 'ADVANCED_HD'
+};
 
 /**
  * APP
@@ -276,6 +281,12 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   }
 };
 
+const ADVANCED_DEFAULT_CONFIG = {
+  maxBitrate: 3500,
+  maxFramerate: 30,
+  maxResolution: { width: 1280, height: 720 }
+};
+
 const {
   BASIC_FULL_HD_LANDSCAPE,
   BASIC_FULL_HD_PORTRAIT,
@@ -290,6 +301,14 @@ export const BROADCAST_STREAM_CONFIG_PRESETS = {
   [CHANNEL_TYPE.STANDARD]: {
     landscape: STANDARD_LANDSCAPE,
     portrait: STANDARD_PORTRAIT
+  },
+  [CHANNEL_TYPE.ADVANCED_SD]: {
+    landscape: ADVANCED_DEFAULT_CONFIG,
+    portrait: ADVANCED_DEFAULT_CONFIG
+  },
+  [CHANNEL_TYPE.ADVANCED_HD]: {
+    landscape: ADVANCED_DEFAULT_CONFIG,
+    portrait: ADVANCED_DEFAULT_CONFIG
   }
 };
 
