@@ -7,6 +7,7 @@ import { useChannel } from '../../../../contexts/Channel';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useChat } from '../../../../contexts/Chat';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useEffect, useRef } from 'react';
 
 const Poll = () => {
   const {

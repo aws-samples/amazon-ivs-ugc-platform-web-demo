@@ -23,7 +23,7 @@ const useResizeObserver = (targetRef, callback, isEnabled = true) => {
   const storedCallback = useLatest(callback);
 
   useLayoutEffect(() => {
-    const targetEl = targetRef.current;
+    const targetEl = targetRef?.current;
     if (!targetEl || !isEnabled) return;
 
     let didUnsubscribe = false;

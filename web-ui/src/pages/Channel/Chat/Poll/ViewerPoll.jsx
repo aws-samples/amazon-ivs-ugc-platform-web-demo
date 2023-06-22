@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -105,8 +105,17 @@ const ViewerPoll = ({
     trackingId
   ]);
 
+  const pollRef = useRef();
+  const { setPollRef } = usePoll();
+
+  useEffect(() => {
+    if (pollRef?.current) {
+      setPollRef(pollRef.current);
+    }
+  }, [pollRef, setPollRef]);
+
   return (
-    <PollContainer>
+    <PollContainer ref={pollRef} isViewer={true}>
       <h3
         className={clsm([
           'flex',

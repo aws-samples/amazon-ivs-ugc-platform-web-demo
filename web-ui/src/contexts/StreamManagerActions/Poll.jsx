@@ -50,6 +50,7 @@ export const Provider = ({ children }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(true);
   const [hasPollEnded, setHasPollEnded] = useState(false);
+  const [minifiedDesign, setMinifiedDesign] = useState(false)
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
@@ -297,9 +298,13 @@ export const Provider = ({ children }) => {
       saveVotesToLocalStorage,
       savedPollData,
       savePollDataToLocalStorage,
-      updateSavedPollPropsOnTimerExpiry
+      updateSavedPollPropsOnTimerExpiry,
+      pollRef,
+      setMinifiedDesign,
+      minifiedDesign
     }),
     [
+      pollRef,
       isExpanded,
       pollHeight,
       containerMinHeight,
@@ -326,7 +331,9 @@ export const Provider = ({ children }) => {
       pollHasEnded,
       saveVotesToLocalStorage,
       savedPollData,
-      updateSavedPollPropsOnTimerExpiry
+      updateSavedPollPropsOnTimerExpiry,
+      setMinifiedDesign,
+      minifiedDesign
     ]
   );
 
