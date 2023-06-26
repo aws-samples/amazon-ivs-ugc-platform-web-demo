@@ -27,17 +27,16 @@ const StreamerPoll = ({
   isActive,
   showFinalResults,
   totalVotes,
-  votes,
-  isExpanded
+  votes
 }) => {
   const pollRef = useRef(null);
-  const { setIsExpanded, setPollRef, question } = usePoll();
+  const { question, dispatchPollState, isExpanded } = usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {
-      setPollRef(pollRef.current);
+      dispatchPollState({ pollRef: pollRef.current });
     }
-  }, [isExpanded, pollRef, setPollRef]);
+  }, [dispatchPollState, isExpanded, pollRef]);
 
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -82,7 +81,7 @@ const StreamerPoll = ({
           'pr-3',
           'rounded-2xl'
         ])}
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => dispatchPollState({ isExpanded: !isExpanded })}
       >
         {isExpanded ? (
           <ChevronUp
@@ -177,8 +176,7 @@ StreamerPoll.propTypes = {
   ),
   showFinalResults: PropTypes.bool,
   totalVotes: PropTypes.number,
-  highestCountOption: PropTypes.string.isRequired,
-  isExpanded: PropTypes.bool.isRequired
+  highestCountOption: PropTypes.string.isRequired
 };
 
 export default StreamerPoll;

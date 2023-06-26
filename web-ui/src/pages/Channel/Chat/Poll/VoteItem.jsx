@@ -234,7 +234,7 @@ const VoteItem = ({
                     `text-poll-${color}-pollWinnerTextColor`,
                     'font-bold'
                   ],
-                  'cursor-pointer'
+                  isVoting ? 'cursor-pointer' : 'cursor-default'
                 ])}
               >
                 {option}

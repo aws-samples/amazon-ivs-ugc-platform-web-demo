@@ -32,6 +32,19 @@ export const pollInitialState = {
   delay: 0
 };
 
+const initialPollState = {
+  isSubmitting: false,
+  isVoting: true,
+  isExpanded: true,
+  pollHeight: 0,
+  pollRef: undefined,
+  hasListReordered: false,
+  showFinalResults: false,
+  hasPollEnded: false,
+  noVotesCaptured: false,
+  tieFound: false
+};
+
 const localStorageInitialState = {
   ...pollInitialState,
   voters: {}
@@ -39,42 +52,38 @@ const localStorageInitialState = {
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
-  const [noVotesCaptured, setNoVotesCaptured] = useState(false);
-  const [tieFound, setTieFound] = useState(false);
   const [selectedOption, setSelectedOption] = useState();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [pollHeight, setPollHeight] = useState(0);
-  const [pollRef, setPollRef] = useState();
-  const [hasListReordered, setHasListReordered] = useState(false);
-  const [showFinalResults, setShowFinalResults] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVoting, setIsVoting] = useState(true);
-  const [hasPollEnded, setHasPollEnded] = useState(false);
+
+  // Poll UI states
+  const [pollState, dispatchPollState] = useReducer(
+    (prevState, nextState) => ({ ...prevState, ...nextState }),
+    initialPollState
+  );
+
+  // Active poll props
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
   );
 
   const pollHasEnded = useCallback(() => {
-    setHasPollEnded(true);
+    dispatchPollState({ hasPollEnded: true });
   }, []);
 
   const { votes, question, isActive, duration, expiry, startTime, delay } =
     pollProps;
-
-  const resetPollProps = useCallback(() => {
-    dispatchPollProps(pollInitialState);
-    setShowFinalResults(false);
-    setHasListReordered(false);
-    setIsSubmitting(false);
-    setIsVoting(true);
-    setPollHeight(0);
-    setTieFound(false);
-    setNoVotesCaptured(false);
-    setHasListReordered(false);
-    setHasPollEnded(false);
-    setSelectedOption();
-  }, []);
+  const {
+    isSubmitting,
+    isVoting,
+    isExpanded,
+    pollHeight,
+    pollRef,
+    showFinalResults,
+    hasListReordered,
+    hasPollEnded,
+    noVotesCaptured,
+    tieFound
+  } = pollState;
 
   const { value: savedPollData, set: savePollDataToLocalStorage } =
     useLocalStorage({
@@ -118,6 +127,14 @@ export const Provider = ({ children }) => {
     savePollDataToLocalStorage(localStorageInitialState);
   }, [savePollDataToLocalStorage]);
 
+  const resetPollProps = useCallback(() => {
+    clearPollLocalStorage();
+    dispatchPollProps(pollInitialState);
+
+    dispatchPollState(initialPollState);
+    setSelectedOption();
+  }, [clearPollLocalStorage]);
+
   useEffect(() => {
     if (savedPollData.isActive) {
       const {
@@ -153,7 +170,7 @@ export const Provider = ({ children }) => {
       const pollDuration = duration * 1000 - delay * 1000;
 
       timeout = setTimeout(() => {
-        setHasPollEnded(true);
+        dispatchPollState({ hasPollEnded: true });
       }, pollDuration);
     }
 
@@ -170,7 +187,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (showFinalResults) {
-      setHasListReordered(true);
+      dispatchPollState({ hasListReordered: true });
     }
   }, [showFinalResults]);
 
@@ -187,12 +204,12 @@ export const Provider = ({ children }) => {
       const hasTie = checkForTie(votes);
 
       if (noVotesCaptured) {
-        setNoVotesCaptured(true);
+        dispatchPollState({ noVotesCaptured: true });
       } else {
         if (hasTie) {
-          setTieFound(true);
+          dispatchPollState({ tieFound: true });
         } else {
-          setShowFinalResults(true);
+          dispatchPollState({ showFinalResults: true });
         }
         const sortedVotes = votes.sort((a, b) =>
           a.count < b.count ? 1 : a.count > b.count ? -1 : 0
@@ -212,7 +229,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (pollRef) {
-      setPollHeight(pollRef.offsetHeight);
+      dispatchPollProps({ pollHeight: pollRef.offsetHeight });
     }
   }, [pollRef, isExpanded]);
 
@@ -262,10 +279,7 @@ export const Provider = ({ children }) => {
   const value = useMemo(
     () => ({
       isExpanded,
-      setIsExpanded,
       pollHeight,
-      setPollHeight,
-      setPollRef,
       containerMinHeight,
       showFinalResults,
       votes,
@@ -279,9 +293,7 @@ export const Provider = ({ children }) => {
       selectedOption,
       setSelectedOption,
       isSubmitting,
-      setIsSubmitting,
       isVoting,
-      setIsVoting,
       updatePollData,
       expiry,
       resetPollProps,
@@ -297,7 +309,8 @@ export const Provider = ({ children }) => {
       saveVotesToLocalStorage,
       savedPollData,
       savePollDataToLocalStorage,
-      updateSavedPollPropsOnTimerExpiry
+      updateSavedPollPropsOnTimerExpiry,
+      dispatchPollState
     }),
     [
       isExpanded,
@@ -326,7 +339,8 @@ export const Provider = ({ children }) => {
       pollHasEnded,
       saveVotesToLocalStorage,
       savedPollData,
-      updateSavedPollPropsOnTimerExpiry
+      updateSavedPollPropsOnTimerExpiry,
+      dispatchPollState
     ]
   );
 

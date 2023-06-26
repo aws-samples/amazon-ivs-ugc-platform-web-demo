@@ -16,7 +16,11 @@ import useContextHook from './useContextHook';
 import { useChannel } from './Channel';
 import { useNotif } from './Notification';
 import useChatActions from '../pages/Channel/Chat/useChatConnection/useChatActions';
-import { CHAT_LOG_LEVELS, MAX_RECONNECT_ATTEMPTS } from '../constants';
+import {
+  CHAT_LOG_LEVELS,
+  MAX_RECONNECT_ATTEMPTS,
+  STREAM_ACTION_NAME
+} from '../constants';
 import { ivsChatWebSocketRegionOrUrl } from '../api/utils';
 import {
   CHAT_USER_ROLE,
@@ -167,10 +171,8 @@ export const Provider = ({ children }) => {
     resetPollProps,
     isActive,
     clearPollLocalStorage,
-    isSubmitting,
     setSelectedOption,
     selectedOption,
-    setIsVoting,
     showFinalResults,
     duration,
     question,
@@ -179,7 +181,9 @@ export const Provider = ({ children }) => {
     noVotesCaptured,
     tieFound,
     savedPollData,
-    saveVotesToLocalStorage
+    saveVotesToLocalStorage,
+    savePollDataToLocalStorage,
+    dispatchPollState
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -208,9 +212,8 @@ export const Provider = ({ children }) => {
       } else {
         actions.sendMessage(content, attributes);
       }
-      clearPollLocalStorage();
     },
-    [actions, clearPollLocalStorage]
+    [actions]
   );
 
   const sendHeartBeat = useCallback(() => {
@@ -375,7 +378,7 @@ export const Provider = ({ children }) => {
       }
     });
 
-    room.logLevel = process.env.NODE === 'production' ? info : debug;
+    room.logLevel = process.env.REACT_APP_STAGE === 'prod' ? info : debug;
     room.connect();
     setRoom(room);
     connection.current = room;
@@ -459,7 +462,7 @@ export const Provider = ({ children }) => {
             const savedVote = votersList[userData?.trackingId];
             if (savedVote) {
               setSelectedOption(savedVote);
-              setIsVoting(false);
+              dispatchPollState({ isVoting: false });
             }
           }
           break;
@@ -497,6 +500,16 @@ export const Provider = ({ children }) => {
             startTime,
             delay: del = 0
           } = JSON.parse(content);
+          savePollDataToLocalStorage({
+            duration,
+            expiry,
+            startTime,
+            question,
+            votes,
+            voters: {},
+            isActive: true,
+            name: STREAM_ACTION_NAME.POLL
+          });
           updatePollData({
             duration,
             question,
@@ -554,14 +567,14 @@ export const Provider = ({ children }) => {
     votes,
     actions,
     isActive,
-    isSubmitting,
     selectedOption,
     setSelectedOption,
-    setIsVoting,
     saveVotesToLocalStorage,
     savedPollData,
     clearPollLocalStorage,
-    isStreamManagerPage
+    isStreamManagerPage,
+    savePollDataToLocalStorage,
+    dispatchPollState
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,

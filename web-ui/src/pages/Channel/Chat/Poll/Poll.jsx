@@ -1,12 +1,12 @@
 import { clsm } from '../../../../utils';
-import { useLocation } from 'react-router-dom';
 
+import { useChannel } from '../../../../contexts/Channel';
+import { useChat } from '../../../../contexts/Chat';
+import { useLocation } from 'react-router-dom';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import StreamerPoll from './StreamerPoll';
 import ViewerPoll from './ViewerPoll';
-import { useChannel } from '../../../../contexts/Channel';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useChat } from '../../../../contexts/Chat';
-import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const Poll = () => {
   const {
@@ -46,10 +46,10 @@ const Poll = () => {
     noVotesCaptured,
     tieFound
   };
-  const { isModerator } = useChat();
   const { pathname } = useLocation();
-  const { isDesktopView, isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
+  const { isModerator } = useChat();
+  const { isDesktopView, isLandscape } = useResponsiveDevice();
 
   const isStreamManagerPage = pathname === '/manager';
 
@@ -59,13 +59,14 @@ const Poll = () => {
     question,
     votes,
     showFinalResults,
-    highestCountOption: highestCountOption.option,
+    highestCountOption: highestCountOption?.option,
     duration,
     hasListReordered
   };
 
   return (
-    !!channelData && (
+    !!channelData &&
+    votes.length > 0 && (
       <div
         className={clsm([
           !isStreamManagerPage && [

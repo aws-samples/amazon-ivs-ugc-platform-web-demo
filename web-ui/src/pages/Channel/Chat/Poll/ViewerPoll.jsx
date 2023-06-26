@@ -36,15 +36,14 @@ const ViewerPoll = ({
   } = useChat();
   const { isTouchscreenDevice } = useResponsiveDevice();
   const {
-    setIsSubmitting,
-    setIsVoting,
     noVotesCaptured,
     tieFound,
     isSubmitting,
     selectedOption,
     startTime,
     duration,
-    isVoting
+    isVoting,
+    dispatchPollState
   } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -59,7 +58,7 @@ const ViewerPoll = ({
     : 'black';
 
   const submitVote = useCallback(async () => {
-    setIsSubmitting(true);
+    dispatchPollState({ isSubmitting: true });
 
     await radioBoxControls.start({
       left: '-300px',
@@ -79,7 +78,8 @@ const ViewerPoll = ({
         transition: { duration: 0.2 }
       })
     ]);
-    setIsVoting(false);
+
+    dispatchPollState({ isVoting: false });
     const result = await sendMessage(SUBMIT_VOTE, {
       voter: trackingId,
       eventType: SUBMIT_VOTE,
@@ -89,7 +89,7 @@ const ViewerPoll = ({
     });
 
     if (result) {
-      setIsSubmitting(false);
+      dispatchPollState({ isSubmitting: true });
     }
   }, [
     SUBMIT_VOTE,
@@ -99,10 +99,9 @@ const ViewerPoll = ({
     radioBoxControls,
     selectedOption,
     sendMessage,
-    setIsSubmitting,
-    setIsVoting,
     startTime,
-    trackingId
+    trackingId,
+    dispatchPollState
   ]);
 
   return (
@@ -185,8 +184,9 @@ const ViewerPoll = ({
 };
 
 ViewerPoll.defaultProps = {
-  totalVotes: 0,
-  selectedOption: ''
+  totalVotes: undefined,
+  selectedOption: '',
+  highestCountOption: undefined
 };
 
 ViewerPoll.propTypes = {
@@ -198,8 +198,8 @@ ViewerPoll.propTypes = {
     })
   ).isRequired,
   showFinalResults: PropTypes.bool.isRequired,
-  totalVotes: PropTypes.number.isRequired,
-  highestCountOption: PropTypes.string.isRequired
+  totalVotes: PropTypes.number,
+  highestCountOption: PropTypes.string
 };
 
 export default ViewerPoll;

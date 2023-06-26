@@ -31,7 +31,6 @@ export const Provider = ({ children }) => {
     isActive: isPollActive,
     stopPollTimerRef,
     pollHasEnded,
-    savePollDataToLocalStorage,
     updateSavedPollPropsOnTimerExpiry
   } = usePoll();
   const { startPoll, endPoll } = useChat();
@@ -199,12 +198,9 @@ export const Provider = ({ children }) => {
     if (stopPollTimerRef.current) {
       clearTimeout(stopPollTimerRef.current);
     }
+
     await endPoll();
-    saveStreamManagerActionData((prevStoredData) => ({
-      ...prevStoredData,
-      _active: undefined
-    }));
-  }, [endPoll, saveStreamManagerActionData, stopPollTimerRef]);
+  }, [endPoll, stopPollTimerRef]);
 
   /**
    * Stops the currently active stream action, if one exists
@@ -286,20 +282,6 @@ export const Provider = ({ children }) => {
           isActive: true
         };
         const result = await startPoll(payload);
-        const dataToSave = data;
-        if (result) {
-          dataToSave._active = { duration, expiry, name: actionName };
-        }
-
-        if (shouldEnableLocalStorage(actionName)) {
-          saveStreamManagerActionData(dataToSave);
-          savePollDataToLocalStorage({
-            duration,
-            expiry,
-            name: actionName,
-            ...payload
-          });
-        }
 
         setIsSendingStreamAction(false);
         notifySuccess($content.notifications.success[`started_${actionName}`]);
