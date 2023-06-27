@@ -55,6 +55,7 @@ const VoteItem = forwardRef(
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
     const { pathname } = useLocation();
+    const voteContent = count <= 1 ? $content.vote : $content.votes
 
     const isStreamManagerPage = pathname === '/manager';
 
@@ -277,7 +278,7 @@ const VoteItem = forwardRef(
               {showVotePercentage ? (
                 <Tooltip
                   position="below"
-                  message={`${count.toLocaleString()} ${$content.votes}`}
+                  message={`${count.toLocaleString()} ${voteContent}`}
                   translate={{ y: -6 }}
                 >
                   <motion.p
@@ -298,7 +299,7 @@ const VoteItem = forwardRef(
                     'text-p2',
                     hasWon && ['text-h3']
                   ])}
-                >{`${percentage}% (${countFormatted} ${$content.votes})`}</p>
+                >{`${percentage}% (${countFormatted} ${voteContent})`}</p>
               )}
             </div>
           )}
