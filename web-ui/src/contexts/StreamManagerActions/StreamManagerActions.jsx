@@ -84,7 +84,6 @@ export const Provider = ({ children }) => {
     latestStoredStreamManagerActionData,
     saveStreamManagerActionData,
     storedStreamManagerActionData
-    // setStoredStreamManagerActionData
   } = useStreamManagerActionsLocalStorage({
     updateStreamManagerActionData
   });

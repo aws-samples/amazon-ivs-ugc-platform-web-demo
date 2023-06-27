@@ -41,20 +41,20 @@ const AnimateReorderList = ({ children }) => {
         const firstBox = prevBoundingBox[child.key];
 
         const lastBox = boundingBox[child.key];
-        const changeInY = firstBox.y - lastBox.y;
+        const changeInYAxis = firstBox.y - lastBox.y;
 
         const domNode = child.ref.current;
 
         if (
           !shouldAnimateListRef.current &&
-          changeInY &&
-          changeInY !== 0 &&
+          changeInYAxis &&
+          changeInYAxis !== 0 &&
           showFinalResults
         ) {
           requestAnimationFrame(() => {
             shouldAnimateListRef.current = true;
             // Before the DOM paints, invert child to old position
-            domNode.style.transform = `translateY(${changeInY}px)`;
+            domNode.style.transform = `translateY(${changeInYAxis}px)`;
             domNode.style.transition = 'transform 0s';
 
             requestAnimationFrame(() => {

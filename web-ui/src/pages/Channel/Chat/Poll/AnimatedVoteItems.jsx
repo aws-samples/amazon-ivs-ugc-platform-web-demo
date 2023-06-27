@@ -1,5 +1,6 @@
 import { createRef } from 'react';
 import PropTypes from 'prop-types';
+
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 import AnimateReorderList from './AnimateReorderList';
 import VoteItem from './VoteItem';

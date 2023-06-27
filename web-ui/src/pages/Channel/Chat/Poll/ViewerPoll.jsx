@@ -150,7 +150,7 @@ const ViewerPoll = () => {
         </motion.div>
       )}
       {!showFinalResults && !noVotesCaptured && !tieFound && (
-        <div className={'pt-5'}>
+        <div className="pt-5">
           <ProgressBar
             color={color}
             duration={duration}
