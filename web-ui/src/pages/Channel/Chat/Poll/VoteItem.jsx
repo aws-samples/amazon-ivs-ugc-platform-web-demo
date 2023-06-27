@@ -55,7 +55,8 @@ const VoteItem = forwardRef(
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
     const { pathname } = useLocation();
-    const voteContent = count <= 1 ? $content.vote : $content.votes
+    const voteContent =
+      count <= 1 ? $content.vote.toLowerCase() : $content.votes;
 
     const isStreamManagerPage = pathname === '/manager';
 
