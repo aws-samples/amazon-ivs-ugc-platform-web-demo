@@ -26,7 +26,7 @@ const AnimatedVoteItems = ({
         return (
           <VoteItem
             ref={createRef()}
-            key={option}
+            key={`${option}-${index}`}
             isHighestCount={isHighestCount}
             option={option}
             count={count}
