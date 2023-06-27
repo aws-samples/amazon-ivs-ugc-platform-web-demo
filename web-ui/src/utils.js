@@ -299,7 +299,7 @@ export const isS3Url = (url = '') => url.includes('.s3.');
 export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
   bannedUserChannelArn
     .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
-    .toLowerCase();
+    ?.toLowerCase();
 
 export const updateVotes = (message, votes) => {
   const selectedOption = message.attributes?.option;

@@ -129,6 +129,8 @@ export const Provider = ({ children }) => {
       data = storedStreamManagerActionData,
       hasModalSource = true
     ) => {
+      // End active poll stream action
+      if (isPollActive) cancelActivePoll();
       // Send a timed metadata event
       setIsSendingStreamAction(true);
       const actionData =
@@ -206,15 +208,14 @@ export const Provider = ({ children }) => {
    * Stops the currently active stream action, if one exists
    */
   const stopStreamAction = useCallback(async () => {
-    if (isPollActive) cancelActivePoll();
     if (!activeStreamManagerActionData) return;
 
-    const { expiry, name } = activeStreamManagerActionData;
+    const { expiry } = activeStreamManagerActionData;
     const hasExpired = new Date().toISOString() > expiry;
 
     // Only send a "stop" timed metadata event if the currently active stream action
     // is being stopped before it has expired or the stream action is perpetual
-    if (!expiry || (!hasExpired && name !== STREAM_ACTION_NAME.POLL)) {
+    if (!expiry || !hasExpired) {
       const metadata = pack(null);
       await channelAPI.sendStreamAction(metadata);
     }
@@ -223,12 +224,7 @@ export const Provider = ({ children }) => {
       ...prevStoredData,
       _active: undefined
     }));
-  }, [
-    activeStreamManagerActionData,
-    cancelActivePoll,
-    isPollActive,
-    saveStreamManagerActionData
-  ]);
+  }, [activeStreamManagerActionData, saveStreamManagerActionData]);
 
   /**
    * Resets the form data to the last data saved in local storage
@@ -258,6 +254,13 @@ export const Provider = ({ children }) => {
 
   const sendPollStreamAction = useThrottledCallback(
     async (actionName, data) => {
+      // End active stream actions
+      if (
+        activeStreamManagerActionData &&
+        actionName !== STREAM_ACTION_NAME.CELEBRATION
+      )
+        stopStreamAction();
+
       try {
         setIsSendingStreamAction(true);
 

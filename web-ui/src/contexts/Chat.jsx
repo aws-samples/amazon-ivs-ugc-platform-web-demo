@@ -222,8 +222,7 @@ export const Provider = ({ children }) => {
       isActive &&
       !showFinalResults &&
       !noVotesCaptured &&
-      !tieFound &&
-      isStreamManagerPage
+      !tieFound
     ) {
       actions.sendMessage(HEART_BEAT, {
         eventType: HEART_BEAT,
@@ -232,7 +231,7 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(savedPollData.voters)
+        voters: JSON.stringify(savedPollData?.voters || {})
       });
     }
   }, [
@@ -241,10 +240,9 @@ export const Provider = ({ children }) => {
     expiry,
     isActive,
     isModerator,
-    isStreamManagerPage,
     noVotesCaptured,
     question,
-    savedPollData.voters,
+    savedPollData?.voters,
     showFinalResults,
     startTime,
     tieFound,
@@ -505,7 +503,7 @@ export const Provider = ({ children }) => {
             expiry,
             startTime,
             question,
-            votes,
+            votes: options,
             voters: {},
             isActive: true,
             name: STREAM_ACTION_NAME.POLL

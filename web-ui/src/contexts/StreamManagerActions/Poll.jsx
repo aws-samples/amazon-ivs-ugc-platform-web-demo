@@ -10,9 +10,12 @@ import {
 } from 'react';
 
 import useContextHook from '../../contexts/useContextHook';
-import { STREAM_ACTION_NAME } from '../../constants';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import { extractChannelIdfromChannelArn } from '../../utils';
 import { pack, unpack } from '../../helpers/streamActionHelpers';
+import { useChannel } from '../Channel';
+import { useUser } from '../User';
+import { useLocation } from 'react-router-dom';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -52,14 +55,21 @@ const localStorageInitialState = {
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
+  const shouldAnimateListRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState();
+  const { channelData } = useChannel();
+  const { username, channelArn = '' } = channelData || {};
+  const { userData } = useUser();
+  const channelId = extractChannelIdfromChannelArn(channelArn);
+  const isModerator = channelId === userData?.trackingId;
+  const { pathname } = useLocation();
+  const isStreamManagerPage = pathname === '/manager';
 
   // Poll UI states
   const [pollState, dispatchPollState] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     initialPollState
   );
-
   // Active poll props
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
@@ -87,10 +97,10 @@ export const Provider = ({ children }) => {
 
   const { value: savedPollData, set: savePollDataToLocalStorage } =
     useLocalStorage({
-      key: STREAM_ACTION_NAME.POLL,
+      key: username,
       initialValue: localStorageInitialState,
       options: {
-        keyPrefix: 'user',
+        keyPrefix: 'poll',
         serialize: pack,
         deserialize: unpack
       }
@@ -130,13 +140,13 @@ export const Provider = ({ children }) => {
   const resetPollProps = useCallback(() => {
     clearPollLocalStorage();
     dispatchPollProps(pollInitialState);
-
     dispatchPollState(initialPollState);
     setSelectedOption();
+    shouldAnimateListRef.current = false;
   }, [clearPollLocalStorage]);
 
   useEffect(() => {
-    if (savedPollData.isActive) {
+    if (isModerator && isStreamManagerPage && savedPollData?.isActive) {
       const {
         question,
         duration,
@@ -276,6 +286,7 @@ export const Provider = ({ children }) => {
       hasPollEnded: true
     });
   }, [savePollDataToLocalStorage, savedPollData]);
+
   const value = useMemo(
     () => ({
       isExpanded,
@@ -286,6 +297,7 @@ export const Provider = ({ children }) => {
       highestCountOption,
       totalVotes,
       hasListReordered,
+      shouldAnimateListRef,
       question,
       isActive,
       startTime,
