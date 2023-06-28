@@ -466,41 +466,6 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
 
-## Estimated costs
-
-For this estimation, we considered the usage costs associated with 1, 10 and 100 users, where each "user" is assumed to monitor one 4-hour live stream with 1 viewer. In each scenario, we assumed that there were no more than 10,800 chat messages sent by the end of the 4-hour stream. Additionally, the estimated costs below reflect the usage costs of running the production configuration of the CDK stack.
-
-### Overall pricing
-
-| Service                                                              | 1 user | 10 users | 100 users |
-| -------------------------------------------------------------------- | -----: | -------: | --------: |
-| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)           | <$0.01 |   <$0.01 |    <$0.01 |
-| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)             | <$0.01 |    $0.04 |     $0.38 |
-| [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/)             |  $0.29 |    $2.90 |    $29.00 |
-| [Cognito](https://aws.amazon.com/cognito/pricing/)                   | <$0.01 |    $0.06 |     $0.55 |
-| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)       | <$0.01 |   <$0.01 |    <$0.01 |
-| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)    | <$0.01 |   <$0.01 |    <$0.01 |
-| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/) |  $0.13 |    $0.13 |     $0.13 |
-| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)           | <$0.01 |   <$0.01 |    <$0.01 |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)     |  $8.60 |   $86.00 |   $860.00 |
-| [Lambda](https://aws.amazon.com/lambda/pricing/)                     | <$0.01 |   <$0.01 |    <$0.01 |
-| Total cost                                                           |  $9.09 |   $89.18 |   $890.11 |
-
-### Additional pricing
-
-| Service                                                              | Description                    |
-| -------------------------------------------------------------------- | -----------------------------: |
-| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)   | $0.40 per secret per month. A  |
-|                                                                      | replica secret is considered a |
-|                                                                      | distinct secret and will also  |
-|                                                                      | be billed at $0.40 per replica |
-|                                                                      | per month. For secrets that    |
-|                                                                      | are stored for less than a     |
-|                                                                      | month, the price is prorated   |
-|                                                                      | (based on the number of hours.)|
-|                                                                      |                                |
-|                                                                      | $0.05 per 10,000 API calls     |
-
 ## About Amazon IVS
 
 Amazon Interactive Video Service (Amazon IVS) is a managed live streaming solution that is quick and easy to set up, and ideal for creating interactive video experiences. [Learn more](https://aws.amazon.com/ivs/).
