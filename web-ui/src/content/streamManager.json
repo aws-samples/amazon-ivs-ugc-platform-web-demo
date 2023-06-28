@@ -141,7 +141,8 @@
     "input_error": {
       "enter_valid_url": "Enter a valid URL.",
       "max_length_exceeded": "Maximum length exceeded.",
-      "select_correct_answer": "Select a correct answer."
+      "select_correct_answer": "Select a correct answer.",
+      "enter_a_unique_option": "Enter a unique option."
     },
     "on": "On",
     "off": "Off"
