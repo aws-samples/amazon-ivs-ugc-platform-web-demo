@@ -21,6 +21,8 @@ const PollContainer = forwardRef(
   ({ children, isViewer, shouldRenderInTab }, ref) => {
     const marginBotttomRef = useRef();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    const [height, setHeight] = useState();
+    const fullHeightOfPoll = useRef();
     const { channelData } = useChannel();
     const {
       hasScrollbar,
@@ -33,6 +35,11 @@ const PollContainer = forwardRef(
     const { isTouchscreenDevice, isLandscape } = useResponsiveDevice();
     const { isSessionValid } = useUser();
     const { color } = channelData || {};
+    const scrollableContentHeight =
+    windowHeight -
+    COMPOSER_HEIGHT -
+    MIN_DISTANCE_BETWEEN_COMPOSER_AND_POLL -
+    (isVoting ? FOOTER_HEIGHT : FOOTER_HEIGHT - VOTE_BUTTON_HEIGHT);
 
     useEffect(() => {
       marginBotttomRef.current =
@@ -58,15 +65,6 @@ const PollContainer = forwardRef(
         };
       }
     }, []);
-
-    const [height, setHeight] = useState();
-    const fullHeightOfPoll = useRef();
-
-    const scrollableContentHeight =
-    windowHeight -
-    COMPOSER_HEIGHT -
-    MIN_DISTANCE_BETWEEN_COMPOSER_AND_POLL -
-    (isVoting ? FOOTER_HEIGHT : FOOTER_HEIGHT - VOTE_BUTTON_HEIGHT);
     
     useEffect(() => {
       if (hasPollEnded) {
