@@ -34,6 +34,7 @@ import {
 } from '../utils';
 import { usePoll } from './StreamManagerActions/Poll';
 import { CHAT_MESSAGE_EVENT_TYPES } from '../constants';
+import { unpack } from '../helpers/streamActionHelpers';
 
 const {
   SEND_MESSAGE,
@@ -191,10 +192,9 @@ export const Provider = ({ children }) => {
 
   const startPoll = useCallback(
     async (pollStreamActionData) => {
-      const content = JSON.stringify(pollStreamActionData);
       const attributes = { eventType: START_POLL };
 
-      await actions.sendMessage(content, attributes);
+      await actions.sendMessage(pollStreamActionData, attributes);
       return true;
     },
     [actions]
@@ -497,7 +497,7 @@ export const Provider = ({ children }) => {
             expiry,
             startTime,
             delay: del = 0
-          } = JSON.parse(content);
+          } = unpack(content);
           savePollDataToLocalStorage({
             duration,
             expiry,

@@ -284,7 +284,7 @@ export const Provider = ({ children }) => {
           voters: {},
           isActive: true
         };
-        const result = await startPoll(payload);
+        const result = await startPoll(pack(payload));
 
         setIsSendingStreamAction(false);
         notifySuccess($content.notifications.success[`started_${actionName}`]);
