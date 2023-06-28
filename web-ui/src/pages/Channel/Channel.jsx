@@ -187,7 +187,7 @@ const Channel = () => {
                     {isActive && (
                       <NotificationProvider>
                         <ChatProvider>
-                          <Poll />
+                          <Poll shouldRenderInTab={true} />
                         </ChatProvider>
                       </NotificationProvider>
                     )}

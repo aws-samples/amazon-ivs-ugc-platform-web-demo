@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -28,7 +28,8 @@ const ViewerPoll = ({
   votes,
   showFinalResults,
   totalVotes,
-  highestCountOption
+  highestCountOption,
+  shouldRenderInTab
 }) => {
   const { SUBMIT_VOTE } = CHAT_MESSAGE_EVENT_TYPES;
   const {
@@ -44,7 +45,10 @@ const ViewerPoll = ({
     selectedOption,
     startTime,
     duration,
-    isVoting
+    isVoting,
+    setPollRef,
+    hasScrollbar,
+    hasPollEnded
   } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -106,7 +110,6 @@ const ViewerPoll = ({
   ]);
 
   const pollRef = useRef();
-  const { setPollRef } = usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {
@@ -114,48 +117,23 @@ const ViewerPoll = ({
     }
   }, [pollRef, setPollRef]);
 
-  return (
-    <PollContainer ref={pollRef} isViewer={true}>
-      <h3
-        className={clsm([
-          'flex',
-          'pb-5',
-          'w-full',
-          'justify-center',
-          'break-word',
-          'text-center',
-          `text-${textColor}`
-        ])}
-      >
-        {question}
-      </h3>
-      <div className={clsm(['flex-col', 'flex', 'space-y-2', 'w-full'])}>
-        <AnimatePresence>
-          {votes.map(({ option, count }, index) => {
-            const isHighestCount = option === highestCountOption;
-            const percentage =
-              (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
+  const renderProgressBar = (
+    <>
+      {!showFinalResults && !noVotesCaptured && !tieFound && (
+        <div className={'pt-5'}>
+          <ProgressBar
+            color={color}
+            duration={duration}
+            startTime={startTime}
+          />
+        </div>
+      )}
+    </>
+  );
 
-            return (
-              <VoteItem
-                key={option}
-                isHighestCount={isHighestCount}
-                option={option}
-                count={count}
-                percentage={percentage}
-                showVotePercentage={true}
-                color={color}
-                textColor={textColor}
-                inputDivControls={inputDivControls}
-                radioBoxControls={radioBoxControls}
-                inputAndLabelId={`${option}-${index}`}
-                noVotesCaptured={noVotesCaptured}
-              />
-            );
-          })}
-        </AnimatePresence>
-      </div>
-      {!showFinalResults && isVoting && !noVotesCaptured && (
+  const renderVoteButton = (
+    <>
+      {!showFinalResults && isVoting && !noVotesCaptured && userData && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
@@ -180,22 +158,90 @@ const ViewerPoll = ({
           </Button>
         </motion.div>
       )}
-      {!showFinalResults && !noVotesCaptured && !tieFound && (
-        <div className={'pt-5'}>
-          <ProgressBar
-            color={color}
-            duration={duration}
-            startTime={startTime}
-          />
+    </>
+  );
+
+  return (
+    <>
+      <PollContainer
+        ref={pollRef}
+        isViewer={true}
+        shouldRenderInTab={shouldRenderInTab}
+      >
+        <h3
+          className={clsm([
+            'flex',
+            'pb-5',
+            'w-full',
+            'justify-center',
+            'break-word',
+            'text-center',
+            `text-${textColor}`
+          ])}
+        >
+          {question}
+        </h3>
+        <div className={clsm(['flex-col', 'flex', 'space-y-2', 'w-full'])}>
+          <AnimatePresence>
+            {votes.map(({ option, count }, index) => {
+              const isHighestCount = option === highestCountOption;
+              const percentage =
+                (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
+
+              return (
+                <VoteItem
+                  key={option}
+                  isHighestCount={isHighestCount}
+                  option={option}
+                  count={count}
+                  percentage={percentage}
+                  showVotePercentage={true}
+                  color={color}
+                  textColor={textColor}
+                  inputDivControls={inputDivControls}
+                  radioBoxControls={radioBoxControls}
+                  inputAndLabelId={`${option}-${index}`}
+                  noVotesCaptured={noVotesCaptured}
+                />
+              );
+            })}
+          </AnimatePresence>
         </div>
-      )}
-    </PollContainer>
+        {!hasScrollbar && (
+          <>
+            {renderVoteButton}
+            {renderProgressBar}
+          </>
+        )}
+      </PollContainer>
+      {hasScrollbar &&
+        !hasPollEnded &&
+        !showFinalResults &&
+        !shouldRenderInTab && (
+          <footer
+            className={clsm([
+              'w-[320px]',
+              'm-auto',
+              `bg-profile-${color}`,
+              'rounded-b-xl',
+              'border-t',
+              `border-bg-profile-${color}-dark`,
+              'p-5',
+              'pt-0'
+            ])}
+          >
+            {renderProgressBar}
+            {renderVoteButton}
+          </footer>
+        )}
+    </>
   );
 };
 
 ViewerPoll.defaultProps = {
   totalVotes: 0,
-  selectedOption: ''
+  selectedOption: '',
+  shouldRenderInTab: false
 };
 
 ViewerPoll.propTypes = {
@@ -206,6 +252,7 @@ ViewerPoll.propTypes = {
       count: PropTypes.number.isRequired
     })
   ).isRequired,
+  shouldRenderInTab: PropTypes.string.isRequired,
   showFinalResults: PropTypes.bool.isRequired,
   totalVotes: PropTypes.number.isRequired,
   highestCountOption: PropTypes.string.isRequired

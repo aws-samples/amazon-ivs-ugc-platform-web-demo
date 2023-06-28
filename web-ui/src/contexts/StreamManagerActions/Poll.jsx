@@ -39,6 +39,7 @@ const localStorageInitialState = {
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
+  const [composerRef, setComposerRef] = useState();
   const [noVotesCaptured, setNoVotesCaptured] = useState(false);
   const [tieFound, setTieFound] = useState(false);
   const [selectedOption, setSelectedOption] = useState();
@@ -50,7 +51,7 @@ export const Provider = ({ children }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(true);
   const [hasPollEnded, setHasPollEnded] = useState(false);
-  const [minifiedDesign, setMinifiedDesign] = useState(false)
+  const [hasScrollbar, setHasScrollbar] = useState();
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     pollInitialState
@@ -300,8 +301,10 @@ export const Provider = ({ children }) => {
       savePollDataToLocalStorage,
       updateSavedPollPropsOnTimerExpiry,
       pollRef,
-      setMinifiedDesign,
-      minifiedDesign
+      setHasScrollbar,
+      hasScrollbar,
+      composerRef,
+      setComposerRef
     }),
     [
       pollRef,
@@ -332,8 +335,10 @@ export const Provider = ({ children }) => {
       saveVotesToLocalStorage,
       savedPollData,
       updateSavedPollPropsOnTimerExpiry,
-      setMinifiedDesign,
-      minifiedDesign
+      setHasScrollbar,
+      hasScrollbar,
+      composerRef,
+      setComposerRef
     ]
   );
 
