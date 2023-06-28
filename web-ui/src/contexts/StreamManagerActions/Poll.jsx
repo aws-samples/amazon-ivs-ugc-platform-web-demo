@@ -25,7 +25,7 @@ Context.displayName = 'Poll';
 
 const POLL_TAB_LABEL = 'Live poll';
 
-export const pollInitialState = {
+const initialPollProps = {
   votes: [],
   question: null,
   isActive: false,
@@ -49,7 +49,7 @@ const initialPollState = {
 };
 
 const localStorageInitialState = {
-  ...pollInitialState,
+  ...initialPollProps,
   voters: {}
 };
 
@@ -73,7 +73,7 @@ export const Provider = ({ children }) => {
   // Active poll props
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
-    pollInitialState
+    initialPollProps
   );
 
   const pollHasEnded = useCallback(() => {
@@ -139,7 +139,7 @@ export const Provider = ({ children }) => {
 
   const resetPollProps = useCallback(() => {
     clearPollLocalStorage();
-    dispatchPollProps(pollInitialState);
+    dispatchPollProps(initialPollProps);
     dispatchPollState(initialPollState);
     setSelectedOption();
     shouldAnimateListRef.current = false;
