@@ -4,69 +4,18 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../../utils';
 import StreamerPoll from './StreamerPoll';
 import ViewerPoll from './ViewerPoll';
-import { useChannel } from '../../../../contexts/Channel';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useChat } from '../../../../contexts/Chat';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const Poll = ({ shouldRenderInTab }) => {
-  const {
-    isActive,
-    question,
-    votes,
-    showFinalResults,
-    highestCountOption,
-    totalVotes,
-    selectedOption,
-    duration,
-    hasListReordered,
-    isExpanded,
-    isVoting,
-    isSubmitting,
-    startTime,
-    setIsVoting,
-    setSelectedOption,
-    noVotesCaptured,
-    tieFound
-  } = usePoll();
-  const pollProps = {
-    isActive,
-    question,
-    votes,
-    showFinalResults,
-    highestCountOption,
-    totalVotes,
-    selectedOption,
-    duration,
-    hasListReordered,
-    isExpanded,
-    isVoting,
-    isSubmitting,
-    setIsVoting,
-    setSelectedOption,
-    noVotesCaptured,
-    tieFound
-  };
-  const { isModerator } = useChat();
+  const { votes } = usePoll();
   const { pathname } = useLocation();
+  const { isModerator } = useChat();
   const { isDesktopView, isLandscape } = useResponsiveDevice();
-  const { channelData } = useChannel();
-
   const isStreamManagerPage = pathname === '/manager';
 
-  const commonPollProps = {
-    ...pollProps,
-    totalVotes,
-    question,
-    votes,
-    showFinalResults,
-    highestCountOption: highestCountOption.option,
-    duration,
-    hasListReordered
-  };
-
   return (
-    !!channelData &&
     votes.length > 0 && (
       <div
         className={clsm([
@@ -82,16 +31,8 @@ const Poll = ({ shouldRenderInTab }) => {
           isLandscape && 'mb-[110px]'
         ])}
       >
-        {isModerator && isStreamManagerPage && (
-          <StreamerPoll {...commonPollProps} />
-        )}
-        {!isStreamManagerPage && (
-          <ViewerPoll
-            {...commonPollProps}
-            startTime={startTime}
-            shouldRenderInTab={shouldRenderInTab}
-          />
-        )}
+        {isModerator && isStreamManagerPage && <StreamerPoll />}
+        {!isStreamManagerPage && <ViewerPoll shouldRenderInTab={shouldRenderInTab} />}
       </div>
     )
   );

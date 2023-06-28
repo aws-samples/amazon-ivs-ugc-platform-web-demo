@@ -1,6 +1,4 @@
-import { AnimatePresence } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { clsm } from '../../../../utils';
 
 import { ChevronDown, ChevronUp } from '../../../../assets/icons';
@@ -15,29 +13,23 @@ import { useModal } from '../../../../contexts/Modal';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
-import VoteItem from './VoteItem';
 import usePrompt from '../../../../hooks/usePrompt';
 import PollContainer from './PollContainer';
+import AnimatedVoteItems from './AnimatedVoteItems';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
 
-const StreamerPoll = ({
-  highestCountOption,
-  isActive,
-  showFinalResults,
-  totalVotes,
-  votes,
-  isExpanded
-}) => {
+const StreamerPoll = () => {
   const pollRef = useRef(null);
-  const { setIsExpanded, setPollRef, question } = usePoll();
+  const { isActive, question, dispatchPollState, isExpanded, totalVotes } =
+    usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {
-      setPollRef(pollRef.current);
+      dispatchPollState({ pollRef: pollRef.current });
     }
-  }, [isExpanded, pollRef, setPollRef]);
+  }, [dispatchPollState, isExpanded, pollRef]);
 
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -82,7 +74,7 @@ const StreamerPoll = ({
           'pr-3',
           'rounded-2xl'
         ])}
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => dispatchPollState({ isExpanded: !isExpanded })}
       >
         {isExpanded ? (
           <ChevronUp
@@ -129,27 +121,10 @@ const StreamerPoll = ({
               'pb-5'
             ])}
           >
-            <AnimatePresence>
-              {votes.map(({ option, count }, i) => {
-                const isHighestCount = option === highestCountOption;
-                const percentage =
-                  (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
-
-                return (
-                  <VoteItem
-                    key={option}
-                    isHighestCount={isHighestCount}
-                    showFinalResults={showFinalResults}
-                    option={option}
-                    count={count}
-                    percentage={percentage}
-                    showVotePercentage={showVotePercentage}
-                    color={color}
-                    textColor={textColor}
-                  />
-                );
-              })}
-            </AnimatePresence>
+            <AnimatedVoteItems
+              showVotePercentage={showVotePercentage}
+              textColor={textColor}
+            />
           </div>
           <p
             className={clsm(['text-p4', `text-${textColor}`, 'font-bold'])}
@@ -158,27 +133,6 @@ const StreamerPoll = ({
       )}
     </PollContainer>
   );
-};
-
-StreamerPoll.defaultProps = {
-  isActive: false,
-  showFinalResults: false,
-  votes: [],
-  totalVotes: 0
-};
-
-StreamerPoll.propTypes = {
-  isActive: PropTypes.bool,
-  votes: PropTypes.arrayOf(
-    PropTypes.shape({
-      option: PropTypes.string.isRequired,
-      count: PropTypes.number
-    })
-  ),
-  showFinalResults: PropTypes.bool,
-  totalVotes: PropTypes.number,
-  highestCountOption: PropTypes.string.isRequired,
-  isExpanded: PropTypes.bool.isRequired
 };
 
 export default StreamerPoll;

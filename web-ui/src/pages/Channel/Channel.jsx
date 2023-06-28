@@ -56,7 +56,7 @@ const Channel = () => {
   if (isSplitView) visibleChatWidth = 308;
   else if (isStackedView) visibleChatWidth = '100%';
 
-  const shouldRenderInTab =
+  const isTabView =
     shouldRenderActionInTab || (isActive && isChannelPageStackedView);
 
   const updateChatSectionHeight = useCallback(() => {
@@ -167,14 +167,13 @@ const Channel = () => {
             ])}
           >
             <Tabs>
-              {shouldRenderInTab && (
+              {isTabView && (
                 <>
                   <Tabs.List
                     selectedIndex={selectedTabIndex}
                     setSelectedIndex={setSelectedTabIndex}
                     tabs={[
                       {
-                        // temporary code. It will be repolaced once we get to integration ticket
                         label: isActive
                           ? pollTabLabel
                           : currentViewerStreamActionTitle,
@@ -229,7 +228,7 @@ const Channel = () => {
                   </Tabs.Panel>
                 </>
               )}
-              {selectedTabIndex === 0 && shouldRenderInTab && (
+              {selectedTabIndex === 0 && isTabView && (
                 <ProfileViewFloatingNav
                   containerClassName="fixed"
                   reverseVisibility
@@ -238,12 +237,12 @@ const Channel = () => {
               <Tabs.Panel
                 index={1}
                 selectedIndex={
-                  shouldRenderInTab ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
+                  isTabView ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
                 }
               >
                 <NotificationProvider>
                   <ChatProvider>
-                    {!shouldRenderInTab && isActive && <Poll />}
+                    {!isTabView && isActive && <Poll />}
                     <Chat
                       shouldRunCelebration={
                         currentViewerStreamActionName ===

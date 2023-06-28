@@ -10,9 +10,12 @@ import {
 } from 'react';
 
 import useContextHook from '../../contexts/useContextHook';
-import { STREAM_ACTION_NAME } from '../../constants';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import { extractChannelIdfromChannelArn } from '../../utils';
 import { pack, unpack } from '../../helpers/streamActionHelpers';
+import { useChannel } from '../Channel';
+import { useUser } from '../User';
+import { useLocation } from 'react-router-dom';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -22,7 +25,7 @@ Context.displayName = 'Poll';
 
 const POLL_TAB_LABEL = 'Live poll';
 
-export const pollInitialState = {
+const initialPollProps = {
   votes: [],
   question: null,
   isActive: false,
@@ -32,58 +35,74 @@ export const pollInitialState = {
   delay: 0
 };
 
+const initialPollState = {
+  isSubmitting: false,
+  isVoting: true,
+  isExpanded: true,
+  pollHeight: 0,
+  pollRef: undefined,
+  hasListReordered: false,
+  showFinalResults: false,
+  hasPollEnded: false,
+  noVotesCaptured: false,
+  tieFound: false
+};
+
 const localStorageInitialState = {
-  ...pollInitialState,
+  ...initialPollProps,
   voters: {}
 };
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
   const [composerRef, setComposerRef] = useState();
-  const [noVotesCaptured, setNoVotesCaptured] = useState(false);
-  const [tieFound, setTieFound] = useState(false);
-  const [selectedOption, setSelectedOption] = useState();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [pollHeight, setPollHeight] = useState(0);
-  const [pollRef, setPollRef] = useState();
-  const [hasListReordered, setHasListReordered] = useState(false);
-  const [showFinalResults, setShowFinalResults] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVoting, setIsVoting] = useState(true);
-  const [hasPollEnded, setHasPollEnded] = useState(false);
   const [hasScrollbar, setHasScrollbar] = useState();
+  const shouldAnimateListRef = useRef(false);
+  const [selectedOption, setSelectedOption] = useState();
+  const { channelData } = useChannel();
+  const { username, channelArn = '' } = channelData || {};
+  const { userData } = useUser();
+  const channelId = extractChannelIdfromChannelArn(channelArn);
+  const isModerator = channelId === userData?.trackingId;
+  const { pathname } = useLocation();
+  const isStreamManagerPage = pathname === '/manager';
+
+  // Poll UI states
+  const [pollState, dispatchPollState] = useReducer(
+    (prevState, nextState) => ({ ...prevState, ...nextState }),
+    initialPollState
+  );
+  // Active poll props
   const [pollProps, dispatchPollProps] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
-    pollInitialState
+    initialPollProps
   );
 
   const pollHasEnded = useCallback(() => {
-    setHasPollEnded(true);
+    dispatchPollState({ hasPollEnded: true });
   }, []);
 
   const { votes, question, isActive, duration, expiry, startTime, delay } =
     pollProps;
-
-  const resetPollProps = useCallback(() => {
-    dispatchPollProps(pollInitialState);
-    setShowFinalResults(false);
-    setHasListReordered(false);
-    setIsSubmitting(false);
-    setIsVoting(true);
-    setPollHeight(0);
-    setTieFound(false);
-    setNoVotesCaptured(false);
-    setHasListReordered(false);
-    setHasPollEnded(false);
-    setSelectedOption();
-  }, []);
+  const {
+    isSubmitting,
+    isVoting,
+    isExpanded,
+    pollHeight,
+    pollRef,
+    showFinalResults,
+    hasListReordered,
+    hasPollEnded,
+    noVotesCaptured,
+    tieFound
+  } = pollState;
 
   const { value: savedPollData, set: savePollDataToLocalStorage } =
     useLocalStorage({
-      key: STREAM_ACTION_NAME.POLL,
+      key: username,
       initialValue: localStorageInitialState,
       options: {
-        keyPrefix: 'user',
+        keyPrefix: 'poll',
         serialize: pack,
         deserialize: unpack
       }
@@ -120,8 +139,16 @@ export const Provider = ({ children }) => {
     savePollDataToLocalStorage(localStorageInitialState);
   }, [savePollDataToLocalStorage]);
 
+  const resetPollProps = useCallback(() => {
+    clearPollLocalStorage();
+    dispatchPollProps(initialPollProps);
+    dispatchPollState(initialPollState);
+    setSelectedOption();
+    shouldAnimateListRef.current = false;
+  }, [clearPollLocalStorage]);
+
   useEffect(() => {
-    if (savedPollData.isActive) {
+    if (isModerator && isStreamManagerPage && savedPollData?.isActive) {
       const {
         question,
         duration,
@@ -155,7 +182,7 @@ export const Provider = ({ children }) => {
       const pollDuration = duration * 1000 - delay * 1000;
 
       timeout = setTimeout(() => {
-        setHasPollEnded(true);
+        dispatchPollState({ hasPollEnded: true });
       }, pollDuration);
     }
 
@@ -172,7 +199,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (showFinalResults) {
-      setHasListReordered(true);
+      dispatchPollState({ hasListReordered: true });
     }
   }, [showFinalResults]);
 
@@ -189,12 +216,12 @@ export const Provider = ({ children }) => {
       const hasTie = checkForTie(votes);
 
       if (noVotesCaptured) {
-        setNoVotesCaptured(true);
+        dispatchPollState({ noVotesCaptured: true });
       } else {
         if (hasTie) {
-          setTieFound(true);
+          dispatchPollState({ tieFound: true });
         } else {
-          setShowFinalResults(true);
+          dispatchPollState({ showFinalResults: true });
         }
         const sortedVotes = votes.sort((a, b) =>
           a.count < b.count ? 1 : a.count > b.count ? -1 : 0
@@ -214,7 +241,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (pollRef) {
-      setPollHeight(pollRef.offsetHeight);
+      dispatchPollProps({ pollHeight: pollRef.offsetHeight });
     }
   }, [pollRef, isExpanded]);
 
@@ -261,19 +288,18 @@ export const Provider = ({ children }) => {
       hasPollEnded: true
     });
   }, [savePollDataToLocalStorage, savedPollData]);
+
   const value = useMemo(
     () => ({
       isExpanded,
-      setIsExpanded,
       pollHeight,
-      setPollHeight,
-      setPollRef,
       containerMinHeight,
       showFinalResults,
       votes,
       highestCountOption,
       totalVotes,
       hasListReordered,
+      shouldAnimateListRef,
       question,
       isActive,
       startTime,
@@ -281,9 +307,7 @@ export const Provider = ({ children }) => {
       selectedOption,
       setSelectedOption,
       isSubmitting,
-      setIsSubmitting,
       isVoting,
-      setIsVoting,
       updatePollData,
       expiry,
       resetPollProps,
@@ -304,7 +328,8 @@ export const Provider = ({ children }) => {
       setHasScrollbar,
       hasScrollbar,
       composerRef,
-      setComposerRef
+      setComposerRef,
+      dispatchPollState
     }),
     [
       pollRef,
@@ -338,7 +363,8 @@ export const Provider = ({ children }) => {
       setHasScrollbar,
       hasScrollbar,
       composerRef,
-      setComposerRef
+      setComposerRef,
+      dispatchPollState
     ]
   );
 

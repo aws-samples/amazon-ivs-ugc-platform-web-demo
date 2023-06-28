@@ -17,6 +17,7 @@ import useContextHook from '../useContextHook';
 import useStreamManagerActionsLocalStorage from './useStreamManagerActionsLocalStorage';
 import useStreamManagerActionValidation from './useStreamManagerActionValidation';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
+import { v4 as uuidv4 } from 'uuid';
 import { usePoll } from './Poll';
 
 const Context = createContext(null);
@@ -31,7 +32,6 @@ export const Provider = ({ children }) => {
     isActive: isPollActive,
     stopPollTimerRef,
     pollHasEnded,
-    savePollDataToLocalStorage,
     updateSavedPollPropsOnTimerExpiry
   } = usePoll();
   const { startPoll, endPoll } = useChat();
@@ -85,7 +85,6 @@ export const Provider = ({ children }) => {
     latestStoredStreamManagerActionData,
     saveStreamManagerActionData,
     storedStreamManagerActionData
-    // setStoredStreamManagerActionData
   } = useStreamManagerActionsLocalStorage({
     updateStreamManagerActionData
   });
@@ -130,6 +129,8 @@ export const Provider = ({ children }) => {
       data = storedStreamManagerActionData,
       hasModalSource = true
     ) => {
+      // End active poll stream action
+      if (isPollActive) cancelActivePoll();
       // Send a timed metadata event
       setIsSendingStreamAction(true);
       const actionData =
@@ -199,26 +200,22 @@ export const Provider = ({ children }) => {
     if (stopPollTimerRef.current) {
       clearTimeout(stopPollTimerRef.current);
     }
+
     await endPoll();
-    saveStreamManagerActionData((prevStoredData) => ({
-      ...prevStoredData,
-      _active: undefined
-    }));
-  }, [endPoll, saveStreamManagerActionData, stopPollTimerRef]);
+  }, [endPoll, stopPollTimerRef]);
 
   /**
    * Stops the currently active stream action, if one exists
    */
   const stopStreamAction = useCallback(async () => {
-    if (isPollActive) cancelActivePoll();
     if (!activeStreamManagerActionData) return;
 
-    const { expiry, name } = activeStreamManagerActionData;
+    const { expiry } = activeStreamManagerActionData;
     const hasExpired = new Date().toISOString() > expiry;
 
     // Only send a "stop" timed metadata event if the currently active stream action
     // is being stopped before it has expired or the stream action is perpetual
-    if (!expiry || (!hasExpired && name !== STREAM_ACTION_NAME.POLL)) {
+    if (!expiry || !hasExpired) {
       const metadata = pack(null);
       await channelAPI.sendStreamAction(metadata);
     }
@@ -227,12 +224,7 @@ export const Provider = ({ children }) => {
       ...prevStoredData,
       _active: undefined
     }));
-  }, [
-    activeStreamManagerActionData,
-    cancelActivePoll,
-    isPollActive,
-    saveStreamManagerActionData
-  ]);
+  }, [activeStreamManagerActionData, saveStreamManagerActionData]);
 
   /**
    * Resets the form data to the last data saved in local storage
@@ -262,6 +254,13 @@ export const Provider = ({ children }) => {
 
   const sendPollStreamAction = useThrottledCallback(
     async (actionName, data) => {
+      // End active stream actions
+      if (
+        activeStreamManagerActionData &&
+        actionName !== STREAM_ACTION_NAME.CELEBRATION
+      )
+        stopStreamAction();
+
       try {
         setIsSendingStreamAction(true);
 
@@ -278,7 +277,7 @@ export const Provider = ({ children }) => {
           startTime,
           question,
           votes: answers.reduce((acc, answer) => {
-            const option = { option: answer, count: 0 };
+            const option = { option: answer, count: 0, key: uuidv4() };
             acc.push(option);
             return acc;
           }, []),
@@ -286,20 +285,6 @@ export const Provider = ({ children }) => {
           isActive: true
         };
         const result = await startPoll(payload);
-        const dataToSave = data;
-        if (result) {
-          dataToSave._active = { duration, expiry, name: actionName };
-        }
-
-        if (shouldEnableLocalStorage(actionName)) {
-          saveStreamManagerActionData(dataToSave);
-          savePollDataToLocalStorage({
-            duration,
-            expiry,
-            name: actionName,
-            ...payload
-          });
-        }
 
         setIsSendingStreamAction(false);
         notifySuccess($content.notifications.success[`started_${actionName}`]);

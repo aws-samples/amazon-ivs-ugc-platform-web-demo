@@ -30,6 +30,25 @@ const validateUrl = (url) => {
   return validateLength(url, 0, 2048) && regex.test(url);
 };
 
+const getListOfDuplicateOptions = (value) => {
+  const _duplicatesIdxArray = [];
+  const answerCountMap = {};
+
+  value.forEach((option, idx) => {
+    if (option === '') return;
+
+    const formattedString = option.trim();
+    answerCountMap[formattedString] =
+      formattedString in answerCountMap ? ++answerCountMap[formattedString] : 1;
+
+    if (answerCountMap[formattedString] > 1) {
+      _duplicatesIdxArray.push(idx);
+    }
+  });
+
+  return _duplicatesIdxArray;
+};
+
 // Main Validator
 const defaultValidationOptions = {
   disableFormatValidation: false,
@@ -69,6 +88,16 @@ const validate = (
             messages[i] = $content.enter_valid_url;
             isInvalid = true;
           }
+        }
+      }
+
+      // Check whether answers/options are unique
+      const listOfDuplicateOptions = getListOfDuplicateOptions(value);
+
+      if (listOfDuplicateOptions.length) {
+        for (const duplicateIdx of listOfDuplicateOptions) {
+          messages[duplicateIdx] = $content.enter_a_unique_option;
+          isInvalid = true;
         }
       }
 

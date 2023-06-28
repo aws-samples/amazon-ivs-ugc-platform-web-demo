@@ -29,15 +29,31 @@ const StreamManagerActionButton = forwardRef(
     const { color = 'default' } = userData || {};
     const { currentBreakpoint } = useResponsiveDevice();
     const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
-    const { activeStreamManagerActionData, stopStreamAction, endPollOnExpiry } =
-      useStreamManagerActions();
     const {
-      duration: activeStreamManagerActionDuration,
-      name: activeStreamManagerActionName,
-      expiry: activeStreamManagerActionExpiry
-    } = (savedPollData?.isActive && savedPollData) ||
-    activeStreamManagerActionData ||
-    {};
+      activeStreamManagerActionData,
+      stopStreamAction,
+      endPollOnExpiry,
+      cancelActivePoll
+    } = useStreamManagerActions();
+
+    let activeStreamManagerActionDuration;
+    let activeStreamManagerActionName;
+    let activeStreamManagerActionExpiry;
+
+    if (name !== STREAM_ACTION_NAME.POLL) {
+      const { duration, name, expiry } = activeStreamManagerActionData || {};
+
+      activeStreamManagerActionDuration = duration;
+      activeStreamManagerActionName = name;
+      activeStreamManagerActionExpiry = expiry;
+    } else {
+      const { duration, name, expiry } =
+        (savedPollData?.isActive && savedPollData) || {};
+
+      activeStreamManagerActionDuration = duration;
+      activeStreamManagerActionName = name;
+      activeStreamManagerActionExpiry = expiry;
+    }
 
     const isActive = name === activeStreamManagerActionName;
     const isPerpetual = isActive && !activeStreamManagerActionExpiry;
@@ -58,7 +74,10 @@ const StreamManagerActionButton = forwardRef(
     });
 
     const handleClick = () => {
-      if (isActive) stopStreamAction();
+      if (isActive)
+        name === STREAM_ACTION_NAME.POLL
+          ? cancelActivePoll()
+          : stopStreamAction();
       else onClick();
     };
 

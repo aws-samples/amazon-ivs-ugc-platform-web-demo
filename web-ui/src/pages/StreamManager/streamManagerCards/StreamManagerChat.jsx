@@ -8,7 +8,11 @@ const StreamManagerChat = () => {
 
   return (
     <section
-      style={{ ...(isActive && { minHeight: containerMinHeight }) }}
+      style={{
+        ...(isActive && {
+          minHeight: containerMinHeight
+        })
+      }}
       className={clsm([
         'relative',
         'bg-lightMode-gray-extraLight',
