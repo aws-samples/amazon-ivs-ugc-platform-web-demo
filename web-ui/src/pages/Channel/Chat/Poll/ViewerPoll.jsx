@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import PropTypes from 'prop-types'
 
 import { clsm } from '../../../../utils';
 import {
@@ -23,11 +24,6 @@ const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
 
 const ViewerPoll = ({
-  question,
-  votes,
-  showFinalResults,
-  totalVotes,
-  highestCountOption,
   shouldRenderInTab
 }) => {
   const { SUBMIT_VOTE } = CHAT_MESSAGE_EVENT_TYPES;
@@ -46,7 +42,9 @@ const ViewerPoll = ({
     setPollRef,
     dispatchPollState,
     question,
-    showFinalResults
+    showFinalResults,
+    hasScrollbar,
+    hasPollEnded
   } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -223,17 +221,7 @@ const ViewerPoll = ({
 };
 
 ViewerPoll.propTypes = {
-  question: PropTypes.string.isRequired,
-  votes: PropTypes.arrayOf(
-    PropTypes.shape({
-      option: PropTypes.string.isRequired,
-      count: PropTypes.number.isRequired
-    })
-  ).isRequired,
-  shouldRenderInTab: PropTypes.string.isRequired,
-  showFinalResults: PropTypes.bool.isRequired,
-  totalVotes: PropTypes.number.isRequired,
-  highestCountOption: PropTypes.string.isRequired
+  shouldRenderInTab: PropTypes.string.isRequired
 };
 
 export default ViewerPoll;
