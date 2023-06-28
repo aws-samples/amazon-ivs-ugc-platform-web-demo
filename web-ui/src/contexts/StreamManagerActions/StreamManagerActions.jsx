@@ -17,6 +17,7 @@ import useContextHook from '../useContextHook';
 import useStreamManagerActionsLocalStorage from './useStreamManagerActionsLocalStorage';
 import useStreamManagerActionValidation from './useStreamManagerActionValidation';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
+import { v4 as uuidv4 } from 'uuid';
 import { usePoll } from './Poll';
 
 const Context = createContext(null);
@@ -276,7 +277,7 @@ export const Provider = ({ children }) => {
           startTime,
           question,
           votes: answers.reduce((acc, answer) => {
-            const option = { option: answer, count: 0 };
+            const option = { option: answer, count: 0, key: uuidv4() };
             acc.push(option);
             return acc;
           }, []),

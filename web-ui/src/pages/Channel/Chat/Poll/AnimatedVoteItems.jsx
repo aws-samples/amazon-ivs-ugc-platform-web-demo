@@ -18,7 +18,7 @@ const AnimatedVoteItems = ({
 
   return (
     <AnimateReorderList>
-      {votes.map(({ option, count }, index) => {
+      {votes.map(({ option, count, key }, index) => {
         const isHighestCount = option === highestCountOption.option;
         const percentage =
           (!!count && Math.ceil((count / totalVotes) * 100)) || 0;
@@ -26,7 +26,7 @@ const AnimatedVoteItems = ({
         return (
           <VoteItem
             ref={createRef()}
-            key={`${option}-${index}`}
+            key={key}
             isHighestCount={isHighestCount}
             option={option}
             count={count}
