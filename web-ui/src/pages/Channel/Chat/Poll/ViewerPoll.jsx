@@ -109,9 +109,9 @@ const ViewerPoll = ({
 
   useEffect(() => {
     if (pollRef?.current) {
-      setPollRef(pollRef.current);
+      dispatchPollState({ pollRef: pollRef.current });
     }
-  }, [pollRef, setPollRef]);
+  }, [dispatchPollState, pollRef, setPollRef]);
 
   const renderProgressBar = (
     <>
