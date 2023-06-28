@@ -138,7 +138,7 @@ const PollContainer = forwardRef(
         }}
         ref={ref}
         className={clsm([
-          !shouldRenderInTab && ['overflow-y-scroll'],
+          !shouldRenderInTab && 'overflow-y-scroll',
           'm-5',
           'p-5',
           hasPollEnded && 'pb-7',

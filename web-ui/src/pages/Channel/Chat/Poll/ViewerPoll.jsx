@@ -53,7 +53,7 @@ const ViewerPoll = ({
   const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
-
+  const shouldRenderVoteButton = !showFinalResults && isVoting && !noVotesCaptured && userData
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
     : 'black';
@@ -116,7 +116,7 @@ const ViewerPoll = ({
   const renderProgressBar = (
     <>
       {!showFinalResults && !noVotesCaptured && !tieFound && (
-        <div className={'pt-5'}>
+        <div className="pt-5">
           <ProgressBar
             color={color}
             duration={duration}
@@ -129,7 +129,7 @@ const ViewerPoll = ({
 
   const renderVoteButton = (
     <>
-      {!showFinalResults && isVoting && !noVotesCaptured && userData && (
+      {shouldRenderVoteButton && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
