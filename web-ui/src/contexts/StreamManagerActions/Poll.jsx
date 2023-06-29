@@ -241,7 +241,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (pollRef) {
-      dispatchPollProps({ pollHeight: pollRef.offsetHeight });
+      dispatchPollState({ pollHeight: pollRef.offsetHeight });
     }
   }, [pollRef, isExpanded]);
 

@@ -36,36 +36,34 @@ const PollContainer = forwardRef(
     const { isSessionValid } = useUser();
     const { color } = channelData || {};
     const scrollableContentHeight =
-    windowHeight -
-    COMPOSER_HEIGHT_PX -
-    SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-    (isVoting ? FOOTER_HEIGHT_PX : FOOTER_HEIGHT_PX - VOTE_BUTTON_HEIGHT_PX);
+      windowHeight -
+      COMPOSER_HEIGHT_PX -
+      SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
+      (isVoting ? FOOTER_HEIGHT_PX : FOOTER_HEIGHT_PX - VOTE_BUTTON_HEIGHT_PX);
 
     useEffect(() => {
       marginBotttomRef.current =
         isLandscape || !isSessionValid ? 'mb-28' : 'mb-0';
     }, [isTouchscreenDevice, isLandscape, isSessionValid]);
 
-    const handleResize = () => {
+    const debouncedSetWindowHeight = useDebouncedCallback(() => {
       if (isViewer) {
         setWindowHeight(window.innerHeight);
       }
-    };
-
-    const debouncedHandleResize = useDebouncedCallback(handleResize, 200);
+    }, 200);
 
     useEffect(() => {
       if (isViewer) {
         setWindowHeight(window.innerHeight);
 
-        window.addEventListener('resize', debouncedHandleResize);
+        window.addEventListener('resize', debouncedSetWindowHeight);
 
         return () => {
-          window.removeEventListener('resize', handleResize);
+          window.removeEventListener('resize', debouncedSetWindowHeight);
         };
       }
     }, []);
-    
+
     useEffect(() => {
       if (hasPollEnded) {
         setHeight('100%');
@@ -79,20 +77,26 @@ const PollContainer = forwardRef(
         const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
-          if (pollComponent && composerComponent) {
+        if (pollComponent && composerComponent) {
           const distanceY =
-            poll?.bottom - composer?.top + (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
-          const isDecreasingBrowserHeight = distanceY > -SPACE_BETWEEN_POLL_AND_COMPOSER_PX
+            poll?.bottom -
+            composer?.top +
+            (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
+          const isDecreasingBrowserHeight =
+            distanceY > -SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
 
           if (isDecreasingBrowserHeight) {
             setHeight(scrollableContentHeight);
             setHasScrollbar(true);
           } else {
-            if (height === '100%') return
+            if (height === '100%') return;
 
-            const shouldSetFullHeight = (fullHeightOfPoll.current < scrollableContentHeight) || (Math.abs(distanceY) + scrollableContentHeight > ref.current.scrollHeight) 
-            setHasScrollbar(!shouldSetFullHeight)
-            setHeight(shouldSetFullHeight ? '100%' : scrollableContentHeight)
+            const shouldSetFullHeight =
+              fullHeightOfPoll.current < scrollableContentHeight ||
+              Math.abs(distanceY) + scrollableContentHeight >
+                ref.current.scrollHeight;
+            setHasScrollbar(!shouldSetFullHeight);
+            setHeight(shouldSetFullHeight ? '100%' : scrollableContentHeight);
           }
         }
       };
@@ -100,18 +104,18 @@ const PollContainer = forwardRef(
       if (fullHeightOfPoll.current) {
         onResizeUpdatePollHeight();
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [windowHeight]);
 
     useEffect(() => {
       const onMount = () => {
         fullHeightOfPoll.current = ref.current.scrollHeight;
-        
+
         const pollComponent = ref.current;
         const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
-        
+
         if (pollComponent && composerComponent) {
           const overlapY =
             poll?.bottom > composer?.top && poll?.top < composer?.bottom;
@@ -129,7 +133,14 @@ const PollContainer = forwardRef(
       if (!fullHeightOfPoll.current) {
         onMount();
       }
-    }, [composerRefState, isVoting, ref, scrollableContentHeight, setHasScrollbar, windowHeight]);
+    }, [
+      composerRefState,
+      isVoting,
+      ref,
+      scrollableContentHeight,
+      setHasScrollbar,
+      windowHeight
+    ]);
 
     return (
       <div

@@ -32,7 +32,9 @@ const Poll = ({ shouldRenderInTab }) => {
         ])}
       >
         {isModerator && isStreamManagerPage && <StreamerPoll />}
-        {!isStreamManagerPage && <ViewerPoll shouldRenderInTab={shouldRenderInTab} />}
+        {!isStreamManagerPage && (
+          <ViewerPoll shouldRenderInTab={shouldRenderInTab} />
+        )}
       </div>
     )
   );
