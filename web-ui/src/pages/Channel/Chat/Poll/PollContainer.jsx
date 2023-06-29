@@ -63,7 +63,7 @@ const PollContainer = forwardRef(
           window.removeEventListener('resize', debouncedSetWindowHeight);
         };
       }
-    }, []);
+    }, [debouncedSetWindowHeight, isViewer]);
 
 
     useEffect(() => {
