@@ -55,6 +55,8 @@ const localStorageInitialState = {
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
+  const [composerRefState, setComposerRefState] = useState();
+  const [hasScrollbar, setHasScrollbar] = useState();
   const shouldAnimateListRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState();
   const { channelData } = useChannel();
@@ -239,7 +241,7 @@ export const Provider = ({ children }) => {
 
   useEffect(() => {
     if (pollRef) {
-      dispatchPollProps({ pollHeight: pollRef.offsetHeight });
+      dispatchPollState({ pollHeight: pollRef.offsetHeight });
     }
   }, [pollRef, isExpanded]);
 
@@ -322,9 +324,15 @@ export const Provider = ({ children }) => {
       savedPollData,
       savePollDataToLocalStorage,
       updateSavedPollPropsOnTimerExpiry,
+      pollRef,
+      setHasScrollbar,
+      hasScrollbar,
+      composerRefState,
+      setComposerRefState,
       dispatchPollState
     }),
     [
+      pollRef,
       isExpanded,
       pollHeight,
       containerMinHeight,
@@ -352,6 +360,10 @@ export const Provider = ({ children }) => {
       saveVotesToLocalStorage,
       savedPollData,
       updateSavedPollPropsOnTimerExpiry,
+      setHasScrollbar,
+      hasScrollbar,
+      composerRefState,
+      setComposerRefState,
       dispatchPollState
     ]
   );

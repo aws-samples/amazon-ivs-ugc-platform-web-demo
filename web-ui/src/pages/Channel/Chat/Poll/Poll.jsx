@@ -1,13 +1,14 @@
-import { clsm } from '../../../../utils';
-
-import { useChat } from '../../../../contexts/Chat';
 import { useLocation } from 'react-router-dom';
-import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import PropTypes from 'prop-types';
+
+import { clsm } from '../../../../utils';
 import StreamerPoll from './StreamerPoll';
 import ViewerPoll from './ViewerPoll';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { useChat } from '../../../../contexts/Chat';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
-const Poll = () => {
+const Poll = ({ shouldRenderInTab }) => {
   const { votes } = usePoll();
   const { pathname } = useLocation();
   const { isModerator } = useChat();
@@ -31,10 +32,20 @@ const Poll = () => {
         ])}
       >
         {isModerator && isStreamManagerPage && <StreamerPoll />}
-        {!isStreamManagerPage && <ViewerPoll />}
+        {!isStreamManagerPage && (
+          <ViewerPoll shouldRenderInTab={shouldRenderInTab} />
+        )}
       </div>
     )
   );
+};
+
+Poll.defaultProps = {
+  shouldRenderInTab: false
+};
+
+Poll.propTypes = {
+  shouldRenderInTab: PropTypes.bool
 };
 
 export default Poll;

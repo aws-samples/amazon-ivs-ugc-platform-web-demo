@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../utils';
 import {
@@ -22,7 +23,7 @@ import AnimatedVoteItems from './AnimatedVoteItems';
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
 
-const ViewerPoll = () => {
+const ViewerPoll = ({ shouldRenderInTab }) => {
   const { SUBMIT_VOTE } = CHAT_MESSAGE_EVENT_TYPES;
   const {
     actions: { sendMessage }
@@ -36,9 +37,12 @@ const ViewerPoll = () => {
     startTime,
     duration,
     isVoting,
+    setPollRef,
     dispatchPollState,
     question,
-    showFinalResults
+    showFinalResults,
+    hasScrollbar,
+    hasPollEnded
   } = usePoll();
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -47,6 +51,8 @@ const ViewerPoll = () => {
   const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
+  const shouldRenderVoteButton =
+    !showFinalResults && isVoting && !noVotesCaptured && !!userData;
 
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
@@ -99,32 +105,34 @@ const ViewerPoll = () => {
     dispatchPollState
   ]);
 
-  return (
-    <PollContainer>
-      <h3
-        className={clsm([
-          'flex',
-          'pb-5',
-          'w-full',
-          'justify-center',
-          'break-word',
-          'text-center',
-          `text-${textColor}`
-        ])}
-      >
-        {question}
-      </h3>
-      <div className={clsm(['flex-col', 'flex', 'space-y-2', 'w-full'])}>
-        <AnimatePresence>
-          <AnimatedVoteItems
-            textColor={textColor}
-            inputDivControls={inputDivControls}
-            radioBoxControls={radioBoxControls}
-            showVotePercentage
+  const pollRef = useRef();
+
+  useEffect(() => {
+    if (pollRef?.current) {
+      dispatchPollState({ pollRef: pollRef.current });
+    }
+  }, [dispatchPollState, pollRef, setPollRef]);
+
+  const showVoteAndProgress = !hasPollEnded && !showFinalResults;
+  const showVoteAndProgressAsFooter = hasScrollbar && !shouldRenderInTab;
+
+  const renderProgressBar = (
+    <>
+      {!showFinalResults && !noVotesCaptured && !tieFound && (
+        <div className="pt-5">
+          <ProgressBar
+            color={color}
+            duration={duration}
+            startTime={startTime}
           />
-        </AnimatePresence>
-      </div>
-      {!showFinalResults && isVoting && !noVotesCaptured && userData && (
+        </div>
+      )}
+    </>
+  );
+
+  const renderVoteButton = (
+    <>
+      {shouldRenderVoteButton && (
         <motion.div
           animate={buttonDivControls}
           className={clsm(['w-full', 'pt-4', 'overflow-hidden'])}
@@ -149,17 +157,74 @@ const ViewerPoll = () => {
           </Button>
         </motion.div>
       )}
-      {!showFinalResults && !noVotesCaptured && !tieFound && (
-        <div className="pt-5">
-          <ProgressBar
-            color={color}
-            duration={duration}
-            startTime={startTime}
-          />
-        </div>
-      )}
-    </PollContainer>
+    </>
   );
+
+  return (
+    <>
+      <PollContainer
+        ref={pollRef}
+        isViewer={true}
+        shouldRenderInTab={shouldRenderInTab}
+      >
+        <h3
+          className={clsm([
+            'flex',
+            'pb-5',
+            'w-full',
+            'justify-center',
+            'break-word',
+            'text-center',
+            `text-${textColor}`
+          ])}
+        >
+          {question}
+        </h3>
+
+        <div className={clsm(['flex-col', 'flex', 'space-y-2', 'w-full'])}>
+          <AnimatePresence>
+            <AnimatedVoteItems
+              textColor={textColor}
+              inputDivControls={inputDivControls}
+              radioBoxControls={radioBoxControls}
+              showVotePercentage
+            />
+          </AnimatePresence>
+        </div>
+        {showVoteAndProgress && !showVoteAndProgressAsFooter && (
+          <>
+            {renderVoteButton}
+            {renderProgressBar}
+          </>
+        )}
+      </PollContainer>
+      {showVoteAndProgress && showVoteAndProgressAsFooter && (
+        <>
+          <div
+            style={{ width: '320px', height: '2px', margin: 'auto' }}
+            className={[`bg-profile-${color}-dark`]}
+          />
+          <footer
+            className={clsm([
+              'w-[320px]',
+              'm-auto',
+              `bg-profile-${color}`,
+              'rounded-b-xl',
+              'p-5',
+              'pt-0'
+            ])}
+          >
+            {renderProgressBar}
+            {renderVoteButton}
+          </footer>
+        </>
+      )}
+    </>
+  );
+};
+
+ViewerPoll.propTypes = {
+  shouldRenderInTab: PropTypes.string.isRequired
 };
 
 export default ViewerPoll;
