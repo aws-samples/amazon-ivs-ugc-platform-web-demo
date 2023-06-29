@@ -41,7 +41,7 @@ const Composer = ({
   const { isViewerBanned: isLocked } = channelData || {};
   const { isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
-  const { setComposerRef } = usePoll();
+  const { setComposerRefState } = usePoll();
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [shouldShake, setShouldShake] = useState(false); // Composer has shake animated only on submit
@@ -55,9 +55,9 @@ const Composer = ({
 
   useEffect(() => {
     if (composerFieldRef.current) {
-      setComposerRef(composerFieldRef);
+      setComposerRefState(composerFieldRef);
     }
-  }, [composerFieldRef, setComposerRef]);
+  }, [composerFieldRef, setComposerRefState]);
 
   const setSubmitErrorStates = (_errorMessage) => {
     setErrorMessage(`${$content.error.message_not_sent} ${_errorMessage}`);

@@ -8,14 +8,14 @@ import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 import { useUser } from '../../../../contexts/User';
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback';
 
-const COMPOSER_HEIGHT = 92;
-const VOTE_BUTTON_HEIGHT = 60;
-const PROGRESS_BAR_HEIGHT = 26;
-const FOOTER_PADDING_HEIGHT = 20;
-const FOOTER_HEIGHT =
-  VOTE_BUTTON_HEIGHT + PROGRESS_BAR_HEIGHT + FOOTER_PADDING_HEIGHT;
-const MIN_DISTANCE_BETWEEN_COMPOSER_AND_POLL = 20;
-const SPACE_BETWEEN_POLL_AND_COMPOSER = 20;
+// Static heights based on design
+const COMPOSER_HEIGHT_PX = 92;
+const VOTE_BUTTON_HEIGHT_PX = 60;
+const PROGRESS_BAR_HEIGHT_PX = 26;
+const FOOTER_PADDING_HEIGHT_PX = 20;
+const FOOTER_HEIGHT_PX =
+  VOTE_BUTTON_HEIGHT_PX + PROGRESS_BAR_HEIGHT_PX + FOOTER_PADDING_HEIGHT_PX;
+const SPACE_BETWEEN_POLL_AND_COMPOSER_PX = 20;
 
 const PollContainer = forwardRef(
   ({ children, isViewer, shouldRenderInTab }, ref) => {
@@ -29,7 +29,7 @@ const PollContainer = forwardRef(
       setHasScrollbar,
       isVoting,
       hasPollEnded,
-      composerRef
+      composerRefState
     } = usePoll();
 
     const { isTouchscreenDevice, isLandscape } = useResponsiveDevice();
@@ -37,9 +37,9 @@ const PollContainer = forwardRef(
     const { color } = channelData || {};
     const scrollableContentHeight =
     windowHeight -
-    COMPOSER_HEIGHT -
-    MIN_DISTANCE_BETWEEN_COMPOSER_AND_POLL -
-    (isVoting ? FOOTER_HEIGHT : FOOTER_HEIGHT - VOTE_BUTTON_HEIGHT);
+    COMPOSER_HEIGHT_PX -
+    SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
+    (isVoting ? FOOTER_HEIGHT_PX : FOOTER_HEIGHT_PX - VOTE_BUTTON_HEIGHT_PX);
 
     useEffect(() => {
       marginBotttomRef.current =
@@ -74,15 +74,15 @@ const PollContainer = forwardRef(
     }, [hasPollEnded, setHasScrollbar]);
 
     useEffect(() => {
-      const onResize = () => {
+      const onResizeUpdatePollHeight = () => {
         const pollComponent = ref.current;
-        const composerComponent = composerRef.current;
+        const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
           if (pollComponent && composerComponent) {
           const distanceY =
-            poll?.bottom - composer?.top + (hasScrollbar ? FOOTER_HEIGHT : 0);
-          const isDecreasingBrowserHeight = distanceY > -SPACE_BETWEEN_POLL_AND_COMPOSER
+            poll?.bottom - composer?.top + (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
+          const isDecreasingBrowserHeight = distanceY > -SPACE_BETWEEN_POLL_AND_COMPOSER_PX
 
           if (isDecreasingBrowserHeight) {
             setHeight(scrollableContentHeight);
@@ -98,7 +98,7 @@ const PollContainer = forwardRef(
       };
 
       if (fullHeightOfPoll.current) {
-        onResize();
+        onResizeUpdatePollHeight();
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [windowHeight]);
@@ -108,7 +108,7 @@ const PollContainer = forwardRef(
         fullHeightOfPoll.current = ref.current.scrollHeight;
         
         const pollComponent = ref.current;
-        const composerComponent = composerRef.current;
+        const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
         
@@ -119,7 +119,7 @@ const PollContainer = forwardRef(
 
           // Add a scroll bar if the components are overlapping or < 20px apart
           const shouldAddScrollBar =
-            overlapY || distanceY < SPACE_BETWEEN_POLL_AND_COMPOSER;
+            overlapY || distanceY < SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
 
           setHeight(shouldAddScrollBar ? scrollableContentHeight : '100%');
           setHasScrollbar(shouldAddScrollBar);
@@ -129,7 +129,7 @@ const PollContainer = forwardRef(
       if (!fullHeightOfPoll.current) {
         onMount();
       }
-    }, [composerRef, isVoting, ref, scrollableContentHeight, setHasScrollbar, windowHeight]);
+    }, [composerRefState, isVoting, ref, scrollableContentHeight, setHasScrollbar, windowHeight]);
 
     return (
       <div

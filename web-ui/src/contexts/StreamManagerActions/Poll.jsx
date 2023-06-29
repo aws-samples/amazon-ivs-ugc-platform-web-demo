@@ -55,7 +55,7 @@ const localStorageInitialState = {
 
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
-  const [composerRef, setComposerRef] = useState();
+  const [composerRefState, setComposerRefState] = useState();
   const [hasScrollbar, setHasScrollbar] = useState();
   const shouldAnimateListRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState();
@@ -327,8 +327,8 @@ export const Provider = ({ children }) => {
       pollRef,
       setHasScrollbar,
       hasScrollbar,
-      composerRef,
-      setComposerRef,
+      composerRefState,
+      setComposerRefState,
       dispatchPollState
     }),
     [
@@ -362,8 +362,8 @@ export const Provider = ({ children }) => {
       updateSavedPollPropsOnTimerExpiry,
       setHasScrollbar,
       hasScrollbar,
-      composerRef,
-      setComposerRef,
+      composerRefState,
+      setComposerRefState,
       dispatchPollState
     ]
   );
