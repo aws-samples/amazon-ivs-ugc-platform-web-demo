@@ -64,12 +64,6 @@ const PollContainer = forwardRef(
       }
     }, [debouncedSetWindowHeight, isViewer]);
 
-    useEffect(() => {
-      if (hasPollEnded) {
-        setHeight('100%');
-        setHasScrollbar(false);
-      }
-    }, [hasPollEnded, setHasScrollbar]);
 
     useEffect(() => {
       const onResizeUpdatePollHeight = () => {
@@ -85,18 +79,35 @@ const PollContainer = forwardRef(
           const isDecreasingBrowserHeight =
             distanceY > -SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
 
-          if (isDecreasingBrowserHeight) {
+          if (isDecreasingBrowserHeight && !hasPollEnded) {
             setHeight(scrollableContentHeight);
             setHasScrollbar(true);
           } else {
-            if (height === '100%') return;
+            if (height === '100%' && !hasPollEnded) {
+              return;
+            }
 
-            const shouldSetFullHeight =
-              fullHeightOfPoll.current < scrollableContentHeight ||
-              Math.abs(distanceY) + scrollableContentHeight >
-                ref.current.scrollHeight;
-            setHasScrollbar(!shouldSetFullHeight);
-            setHeight(shouldSetFullHeight ? '100%' : scrollableContentHeight);
+            if (hasPollEnded) {
+              const updatedPollHeight =
+                windowHeight -
+                COMPOSER_HEIGHT_PX -
+                SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
+
+              if (updatedPollHeight > ref.current.scrollHeight) {
+                setHasScrollbar(false);
+                setHeight('100%');
+              } else {
+                setHasScrollbar(true);
+                setHeight(updatedPollHeight);
+              }
+            } else {
+              const shouldSetFullHeight =
+                fullHeightOfPoll.current < scrollableContentHeight ||
+                Math.abs(distanceY) + scrollableContentHeight >
+                  ref.current.scrollHeight;
+              setHasScrollbar(!shouldSetFullHeight);
+              setHeight(shouldSetFullHeight ? '100%' : scrollableContentHeight);
+            }
           }
         }
       };
@@ -105,7 +116,7 @@ const PollContainer = forwardRef(
         onResizeUpdatePollHeight();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [windowHeight]);
+    }, [windowHeight, isVoting, hasPollEnded]);
 
     useEffect(() => {
       const onMount = () => {
