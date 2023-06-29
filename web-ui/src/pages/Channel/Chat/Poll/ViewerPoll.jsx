@@ -113,10 +113,8 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
     }
   }, [dispatchPollState, pollRef, setPollRef]);
 
-  const showFooter = hasScrollbar &&
-  !hasPollEnded &&
-  !showFinalResults &&
-  !shouldRenderInTab
+  const showVoteAndProgress = !hasPollEnded && !showFinalResults;
+  const showVoteAndProgressAsFooter = hasScrollbar && !shouldRenderInTab;
 
   const renderProgressBar = (
     <>
@@ -193,34 +191,34 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
             />
           </AnimatePresence>
         </div>
-      {!showFooter && (
-        <>
-          {renderVoteButton}
-          {renderProgressBar}
-        </>
-      )}
-      </PollContainer>
-      {showFooter && (
+        {showVoteAndProgress && !showVoteAndProgressAsFooter && (
           <>
-            <div
-              style={{ width: '320px', height: '2px', margin: 'auto' }}
-              className={[`bg-profile-${color}-dark`]}
-            />
-            <footer
-              className={clsm([
-                'w-[320px]',
-                'm-auto',
-                `bg-profile-${color}`,
-                'rounded-b-xl',
-                'p-5',
-                'pt-0'
-              ])}
-            >
-              {renderProgressBar}
-              {renderVoteButton}
-            </footer>
+            {renderVoteButton}
+            {renderProgressBar}
           </>
         )}
+      </PollContainer>
+      {showVoteAndProgress && showVoteAndProgressAsFooter && (
+        <>
+          <div
+            style={{ width: '320px', height: '2px', margin: 'auto' }}
+            className={[`bg-profile-${color}-dark`]}
+          />
+          <footer
+            className={clsm([
+              'w-[320px]',
+              'm-auto',
+              `bg-profile-${color}`,
+              'rounded-b-xl',
+              'p-5',
+              'pt-0'
+            ])}
+          >
+            {renderProgressBar}
+            {renderVoteButton}
+          </footer>
+        </>
+      )}
     </>
   );
 };
