@@ -52,7 +52,8 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
   const shouldRenderVoteButton =
-    !showFinalResults && isVoting && !noVotesCaptured && userData;
+    !showFinalResults && isVoting && !noVotesCaptured && !!userData;
+
   const textColor = PROFILE_COLORS_WITH_WHITE_TEXT.includes(color)
     ? 'white'
     : 'black';
@@ -111,6 +112,11 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
       dispatchPollState({ pollRef: pollRef.current });
     }
   }, [dispatchPollState, pollRef, setPollRef]);
+
+  const showFooter = hasScrollbar &&
+  !hasPollEnded &&
+  !showFinalResults &&
+  !shouldRenderInTab
 
   const renderProgressBar = (
     <>
@@ -187,18 +193,14 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
             />
           </AnimatePresence>
         </div>
-
-        {!hasScrollbar && (
-          <>
-            {renderVoteButton}
-            {renderProgressBar}
-          </>
-        )}
+      {!showFooter && (
+        <>
+          {renderVoteButton}
+          {renderProgressBar}
+        </>
+      )}
       </PollContainer>
-      {hasScrollbar &&
-        !hasPollEnded &&
-        !showFinalResults &&
-        !shouldRenderInTab && (
+      {showFooter && (
           <>
             <div
               style={{ width: '320px', height: '2px', margin: 'auto' }}
