@@ -19,6 +19,7 @@ const SPACE_BETWEEN_POLL_AND_COMPOSER_PX = 20;
 
 const PollContainer = forwardRef(
   ({ children, isViewer, shouldRenderInTab }, ref) => {
+    console.log('shouldRenderInTab >>>>', shouldRenderInTab)
     const marginBotttomRef = useRef();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
     const [height, setHeight] = useState();
@@ -166,7 +167,8 @@ const PollContainer = forwardRef(
           hasPollEnded && 'pb-7',
           `bg-profile-${color}`,
           'rounded-xl',
-          shouldRenderInTab && `${marginBotttomRef.current}`,
+          shouldRenderInTab !== false && `${marginBotttomRef.current}`,
+          !shouldRenderInTab &&
           isViewer &&
             hasScrollbar &&
             !hasPollEnded && ['mb-0', 'rounded-b-none']
