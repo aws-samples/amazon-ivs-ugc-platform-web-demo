@@ -45,7 +45,8 @@ const initialPollState = {
   showFinalResults: false,
   hasPollEnded: false,
   noVotesCaptured: false,
-  tieFound: false
+  tieFound: false,
+  hasScrollbar: false
 };
 
 const localStorageInitialState = {
@@ -56,7 +57,6 @@ const localStorageInitialState = {
 export const Provider = ({ children }) => {
   const stopPollTimerRef = useRef();
   const [composerRefState, setComposerRefState] = useState();
-  const [hasScrollbar, setHasScrollbar] = useState();
   const shouldAnimateListRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState();
   const { channelData } = useChannel();
@@ -94,7 +94,8 @@ export const Provider = ({ children }) => {
     hasListReordered,
     hasPollEnded,
     noVotesCaptured,
-    tieFound
+    tieFound,
+    hasScrollbar
   } = pollState;
 
   const { value: savedPollData, set: savePollDataToLocalStorage } =
@@ -325,7 +326,6 @@ export const Provider = ({ children }) => {
       savePollDataToLocalStorage,
       updateSavedPollPropsOnTimerExpiry,
       pollRef,
-      setHasScrollbar,
       hasScrollbar,
       composerRefState,
       setComposerRefState,
@@ -360,7 +360,6 @@ export const Provider = ({ children }) => {
       saveVotesToLocalStorage,
       savedPollData,
       updateSavedPollPropsOnTimerExpiry,
-      setHasScrollbar,
       hasScrollbar,
       composerRefState,
       setComposerRefState,

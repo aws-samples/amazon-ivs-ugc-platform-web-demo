@@ -41,7 +41,7 @@ const AnimateReorderList = ({ children }) => {
         const firstBox = prevBoundingBox[child.key];
 
         const lastBox = boundingBox[child.key];
-        const changeInYAxis = firstBox.y - lastBox.y;
+        const changeInYAxis = firstBox?.y - lastBox?.y;
 
         const domNode = child.ref.current;
 
