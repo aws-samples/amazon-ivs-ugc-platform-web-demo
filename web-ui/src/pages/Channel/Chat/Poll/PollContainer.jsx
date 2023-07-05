@@ -44,80 +44,108 @@ const PollContainer = forwardRef(
     useEffect(() => {
       // Recalculate the height of the poll if user has voted or the poll has ended
       if (!isVoting || hasPollEnded) {
-        console.log('IS VOTING CHANGED, CHANGED HEIGHT OF POLL')
-
-        console.log('POLL HAS ENDED, CHANGE HEIGHT OF POLL')
-      }
-    }, [hasPollEnded, isVoting])
-
-    useResize(useDebouncedCallback(() => {
-      const windowHeight = window.innerHeight
-
-      // Compare the distance between the poll and composer component
-      const pollComponent = ref?.current;
-      const composerComponent = composerRefState?.current;
-
-      if (pollComponent && composerComponent) {
+        const pollComponent = ref.current;
+        const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
+        const distanceY =
+          poll?.bottom - composer?.top + (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
 
-        if (!fullHeightOfPoll.current) { // Mounting
-          fullHeightOfPoll.current = ref.current.scrollHeight
-          
-          const overlapY =
-            poll.bottom > composer?.top && poll?.top < composer?.bottom;
-          const distanceY = Math.abs(poll?.bottom - composer?.top);
-          const shouldAddScrollBar = overlapY || distanceY < 20
+        const scrollableContentHeight =
+          window.innerHeight -
+          COMPOSER_HEIGHT_PX -
+          SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
+          (isVoting
+            ? FOOTER_HEIGHT_PX
+            : FOOTER_HEIGHT_PX - VOTE_BUTTON_HEIGHT_PX);
 
-          if (shouldAddScrollBar) {
-            const scrollableContentHeight =
-            windowHeight -
+        if (hasPollEnded) {
+          const updatedPollHeight =
+            window.innerHeight -
             COMPOSER_HEIGHT_PX -
-            SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-            FOOTER_HEIGHT_PX
-  
-            setHeight(scrollableContentHeight);
-            // setHasScrollbar(true);
+            SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
+
+          if (updatedPollHeight > ref.current.scrollHeight) {
+            dispatchPollState({ hasScrollbar: false });
+            setHeight('100%');
+          } else {
             dispatchPollState({ hasScrollbar: true });
+            setHeight(updatedPollHeight);
           }
-        } else { // Resizing
-          const distanceY =
-          poll?.bottom -
-          composer?.top +
-          (hasScrollbar ? FOOTER_HEIGHT_PX : 0)
-  
-          if (distanceY > -20) { // Decrease size of browser
-              const scrollableContentHeight =
-              windowHeight -
-              COMPOSER_HEIGHT_PX -
-              SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-              FOOTER_HEIGHT_PX
-  
-              setHeight(scrollableContentHeight);
-              dispatchPollState({ hasScrollbar: true });
-          } else { // Increase size of browser
-            const scrollableContentHeight =
+        } else {
+          const shouldSetFullHeight =
+            fullHeightOfPoll.current < scrollableContentHeight ||
+            Math.abs(distanceY) + scrollableContentHeight >
+              ref.current.scrollHeight;
+          dispatchPollState({ hasScrollbar: !shouldSetFullHeight });
+          setHeight(shouldSetFullHeight ? '100%' : scrollableContentHeight);
+        }
+      }
+    }, [hasPollEnded, isVoting]);
+
+    useResize(
+      useDebouncedCallback(() => {
+        const windowHeight = window.innerHeight;
+
+        // Compare the distance between the poll and composer component
+        const pollComponent = ref?.current;
+        const composerComponent = composerRefState?.current;
+
+        if (pollComponent && composerComponent) {
+          const poll = pollComponent?.getBoundingClientRect();
+          const composer = composerComponent?.getBoundingClientRect();
+          const scrollableContentHeight =
             windowHeight -
             COMPOSER_HEIGHT_PX -
             SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-            FOOTER_HEIGHT_PX
+            FOOTER_HEIGHT_PX;
 
-            // Check if we can go from the poll footer design back to the expanded design
-            if (scrollableContentHeight + FOOTER_HEIGHT_PX > fullHeightOfPoll.current) {
-              setHeight('100%')
-              dispatchPollState({ hasScrollbar: false });
-            } else {
+          if (!fullHeightOfPoll.current) {
+            // Mounting
+            fullHeightOfPoll.current = ref.current.scrollHeight;
+
+            const overlapY =
+              poll.bottom > composer?.top && poll?.top < composer?.bottom;
+            const distanceY = Math.abs(poll?.bottom - composer?.top);
+            const shouldAddScrollBar = overlapY || distanceY < 20;
+
+            if (shouldAddScrollBar) {
+              setHeight(scrollableContentHeight);
+              // setHasScrollbar(true);
+              dispatchPollState({ hasScrollbar: true });
+            }
+          } else {
+            // Resizing
+            const distanceY =
+              poll?.bottom -
+              composer?.top +
+              (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
+
+            if (distanceY > -20) {
+              // Decrease size of browser
               setHeight(scrollableContentHeight);
               dispatchPollState({ hasScrollbar: true });
+            } else {
+              // Increase size of browser
+              // Check if we can go from the poll footer design back to the expanded design
+              if (scrollableContentHeight > fullHeightOfPoll.current) {
+                setHeight('100%');
+                dispatchPollState({ hasScrollbar: false });
+              } else {
+                setHeight(scrollableContentHeight);
+                dispatchPollState({ hasScrollbar: true });
+              }
             }
           }
         }
-      }
-    }, 200), { shouldCallOnMount: true })
+      }, 200),
+      { shouldCallOnMount: true }
+    );
 
     return (
       <div
         style={{
+          border: '1px solid red',
           height: !shouldRenderInTab && isViewer && height
         }}
         ref={ref}
@@ -130,7 +158,7 @@ const PollContainer = forwardRef(
           'rounded-xl',
           shouldRenderInTab !== false && `${marginBotttomRef.current}`,
           !shouldRenderInTab &&
-          isViewer &&
+            isViewer &&
             hasScrollbar &&
             !hasPollEnded && ['mb-0', 'rounded-b-none']
         ])}
