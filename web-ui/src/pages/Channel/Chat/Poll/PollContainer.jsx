@@ -35,6 +35,27 @@ const PollContainer = forwardRef(
     const { isTouchscreenDevice, isLandscape } = useResponsiveDevice();
     const { isSessionValid } = useUser();
     const { color } = channelData || {};
+    let previousHeight = window.innerHeight;
+
+    const getScrollableContentHeight = (
+      windowHeight,
+      hasPollEnded,
+      isVoting
+    ) => {
+      if (hasPollEnded)
+        return (
+          windowHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
+        );
+
+      return (
+        windowHeight -
+        COMPOSER_HEIGHT_PX -
+        SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
+        (isVoting
+          ? FOOTER_HEIGHT_PX
+          : PROGRESS_BAR_HEIGHT_PX + FOOTER_PADDING_HEIGHT_PX)
+      );
+    };
 
     useEffect(() => {
       marginBotttomRef.current =
@@ -43,7 +64,7 @@ const PollContainer = forwardRef(
 
     useEffect(() => {
       // Recalculate the height of the poll if user has voted or the poll has ended
-      if (!isVoting || hasPollEnded) {
+      if (fullHeightOfPoll.current && (!isVoting || hasPollEnded)) {
         const pollComponent = ref.current;
         const composerComponent = composerRefState.current;
         const poll = pollComponent?.getBoundingClientRect();
@@ -51,26 +72,19 @@ const PollContainer = forwardRef(
         const distanceY =
           poll?.bottom - composer?.top + (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
 
-        const scrollableContentHeight =
-          window.innerHeight -
-          COMPOSER_HEIGHT_PX -
-          SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-          (isVoting
-            ? FOOTER_HEIGHT_PX
-            : FOOTER_HEIGHT_PX - VOTE_BUTTON_HEIGHT_PX);
+        const scrollableContentHeight = getScrollableContentHeight(
+          window.innerHeight,
+          hasPollEnded,
+          isVoting
+        );
 
         if (hasPollEnded) {
-          const updatedPollHeight =
-            window.innerHeight -
-            COMPOSER_HEIGHT_PX -
-            SPACE_BETWEEN_POLL_AND_COMPOSER_PX;
-
-          if (updatedPollHeight > ref.current.scrollHeight) {
+          if (scrollableContentHeight > ref.current.scrollHeight) {
             dispatchPollState({ hasScrollbar: false });
             setHeight('100%');
           } else {
             dispatchPollState({ hasScrollbar: true });
-            setHeight(updatedPollHeight);
+            setHeight(scrollableContentHeight);
           }
         } else {
           const shouldSetFullHeight =
@@ -86,19 +100,18 @@ const PollContainer = forwardRef(
     useResize(
       useDebouncedCallback(() => {
         const windowHeight = window.innerHeight;
-
+        const pollComponent = ref.current;
+        const composerComponent = composerRefState.current;
         // Compare the distance between the poll and composer component
-        const pollComponent = ref?.current;
-        const composerComponent = composerRefState?.current;
 
         if (pollComponent && composerComponent) {
           const poll = pollComponent?.getBoundingClientRect();
           const composer = composerComponent?.getBoundingClientRect();
-          const scrollableContentHeight =
-            windowHeight -
-            COMPOSER_HEIGHT_PX -
-            SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-            FOOTER_HEIGHT_PX;
+          const scrollableContentHeight = getScrollableContentHeight(
+            windowHeight,
+            hasPollEnded,
+            isVoting
+          );
 
           if (!fullHeightOfPoll.current) {
             // Mounting
@@ -111,30 +124,48 @@ const PollContainer = forwardRef(
 
             if (shouldAddScrollBar) {
               setHeight(scrollableContentHeight);
-              // setHasScrollbar(true);
               dispatchPollState({ hasScrollbar: true });
             }
           } else {
             // Resizing
-            const distanceY =
-              poll?.bottom -
-              composer?.top +
-              (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
+            
+            const pollComponent = ref.current;
+            const composerComponent = composerRefState.current;
 
-            if (distanceY > -20) {
-              // Decrease size of browser
-              setHeight(scrollableContentHeight);
-              dispatchPollState({ hasScrollbar: true });
-            } else {
-              // Increase size of browser
-              // Check if we can go from the poll footer design back to the expanded design
-              if (scrollableContentHeight > fullHeightOfPoll.current) {
-                setHeight('100%');
-                dispatchPollState({ hasScrollbar: false });
+            if (pollComponent && composerComponent) {
+              const poll = pollComponent?.getBoundingClientRect();
+              const composer = composerComponent?.getBoundingClientRect();
+  
+              const distanceY =
+                poll?.bottom -
+                composer?.top +
+                (hasScrollbar ? FOOTER_HEIGHT_PX : 0);
+  
+              // Decrease browser size
+              if (windowHeight < previousHeight) {
+                if (distanceY > -20) {
+                  setHeight(scrollableContentHeight);
+                  dispatchPollState({ hasScrollbar: true });
+                }
               } else {
-                setHeight(scrollableContentHeight);
-                dispatchPollState({ hasScrollbar: true });
+                // Increase browser size
+                // Check if we can go from the poll footer design back to the expanded design
+                if (
+                  scrollableContentHeight +
+                    (isVoting
+                      ? FOOTER_HEIGHT_PX
+                      : PROGRESS_BAR_HEIGHT_PX + FOOTER_PADDING_HEIGHT_PX) >
+                  fullHeightOfPoll.current
+                ) {
+                  setHeight('100%');
+                  dispatchPollState({ hasScrollbar: false });
+                } else {
+                  setHeight(scrollableContentHeight);
+                  dispatchPollState({ hasScrollbar: true });
+                }
               }
+  
+              previousHeight = windowHeight;
             }
           }
         }
@@ -144,26 +175,35 @@ const PollContainer = forwardRef(
 
     return (
       <div
-        style={{
-          border: '1px solid red',
-          height: !shouldRenderInTab && isViewer && height
-        }}
-        ref={ref}
         className={clsm([
-          !shouldRenderInTab && 'overflow-y-scroll',
-          'm-5',
-          'p-5',
-          hasPollEnded && 'pb-7',
-          `bg-profile-${color}`,
+          'overflow-hidden',
           'rounded-xl',
-          shouldRenderInTab !== false && `${marginBotttomRef.current}`,
+          'm-5',
           !shouldRenderInTab &&
             isViewer &&
             hasScrollbar &&
             !hasPollEnded && ['mb-0', 'rounded-b-none']
         ])}
       >
-        {children}
+        <div
+          style={{
+            height: !shouldRenderInTab && isViewer && height
+          }}
+          ref={ref}
+          className={clsm([
+            !shouldRenderInTab &&
+              isViewer &&
+              hasScrollbar &&
+              'overflow-y-scroll',
+            'p-5',
+            hasPollEnded && 'pb-7',
+            `bg-profile-${color}`,
+            shouldRenderInTab !== false && `${marginBotttomRef.current}`,
+            `scrollbar-color-poll-${color}-scrollBarThumb`
+          ])}
+        >
+          {children}
+        </div>
       </div>
     );
   }

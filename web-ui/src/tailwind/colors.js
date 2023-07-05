@@ -458,43 +458,50 @@ module.exports = {
       pollVoteBg: 'hsl(var(--base-profile-color-green), 50%)',
       pollButtonBg: 'hsl(var(--base-profile-color-green), 62%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-green), 22%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-green), 71%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-green), 71%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-green), 55%)'
     },
     yellow: {
       pollVoteBg: 'hsl(var(--base-profile-color-yellow), 75%)',
       pollButtonBg: 'hsl(var(--base-profile-color-yellow), 85%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-yellow), 18%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-yellow), 93%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-yellow), 93%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-yellow), 80%)'
     },
     blue: {
       pollVoteBg: 'hsl(var(--base-profile-color-blue), 72%)',
       pollButtonBg: 'hsl(var(--base-profile-color-blue), 80%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-blue), 24%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-blue), 90%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-blue), 90%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-blue), 76%)'
     },
     salmon: {
       pollVoteBg: 'hsl(var(--base-profile-color-salmon), 81%)',
       pollButtonBg: 'hsl(var(--base-profile-color-salmon), 90%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-salmon), 27%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-salmon), 95%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-salmon), 95%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-salmon), 85%)'
     },
     purple: {
       pollVoteBg: 'hsl(var(--base-profile-color-purple), 64%)',
       pollButtonBg: 'hsl(var(--base-profile-color-purple), 78%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-purple), 29%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-purple), 86%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-purple), 86%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-purple), 70%)'
     },
     turquoise: {
       pollVoteBg: 'hsl(var(--base-profile-color-turquoise), 87%)',
       pollButtonBg: 'hsl(var(--base-profile-color-turquoise), 95%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-turquoise), 20%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-turquoise), 99%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-turquoise), 99%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-turquoise), 90%)'
     },
     lavender: {
       pollVoteBg: 'hsl(var(--base-profile-color-lavender), 90%)',
       pollButtonBg: 'hsl(var(--base-profile-color-lavender), 96%)',
       pollWinnerTextColor: 'hsl(var(--base-profile-color-lavender), 36%)',
-      voteButtonHover: 'hsl(var(--base-profile-color-lavender), 99%)'
+      voteButtonHover: 'hsl(var(--base-profile-color-lavender), 99%)',
+      scrollBarThumb: 'hsl(var(--base-profile-color-lavender), 94%)'
     }
   }
 };
