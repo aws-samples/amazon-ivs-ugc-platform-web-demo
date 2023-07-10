@@ -44,7 +44,7 @@ const Channel = () => {
     shouldRenderActionInTab,
     isChannelPageStackedView
   } = useViewerStreamActions();
-  const { isActive, pollTabLabel } = usePoll();
+  const { isActive: isPollActive, pollTabLabel } = usePoll();
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -57,7 +57,7 @@ const Channel = () => {
   else if (isStackedView) visibleChatWidth = '100%';
 
   const isTabView =
-    shouldRenderActionInTab || (isActive && isChannelPageStackedView);
+    shouldRenderActionInTab || (isPollActive && isChannelPageStackedView);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
@@ -174,7 +174,7 @@ const Channel = () => {
                     setSelectedIndex={setSelectedTabIndex}
                     tabs={[
                       {
-                        label: isActive
+                        label: isPollActive
                           ? pollTabLabel
                           : currentViewerStreamActionTitle,
                         panelIndex: 0
@@ -183,48 +183,50 @@ const Channel = () => {
                     ]}
                   />
                   <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                    {isActive && (
+                    {isPollActive && (
                       <NotificationProvider>
                         <ChatProvider>
                           <Poll shouldRenderInTab={true} />
                         </ChatProvider>
                       </NotificationProvider>
                     )}
-                    {currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.QUIZ && (
-                      <QuizViewerStreamAction
-                        {...currentViewerStreamActionData}
-                        setCurrentViewerAction={setCurrentViewerAction}
-                        shouldRenderActionInTab={shouldRenderActionInTab}
-                      />
-                    )}
-                    {[
-                      STREAM_ACTION_NAME.AMAZON_PRODUCT,
-                      STREAM_ACTION_NAME.PRODUCT
-                    ].includes(currentViewerStreamActionName) && (
-                      <div
-                        className={clsm([
-                          'absolute',
-                          'h-full',
-                          'no-scrollbar',
-                          'overflow-x-hidden',
-                          'overflow-y-auto',
-                          'pb-5',
-                          'px-5',
-                          'supports-overlay:overflow-y-overlay',
-                          'w-full'
-                        ])}
-                      >
-                        <ProductViewerStreamAction
-                          {...(currentViewerStreamActionName ===
-                          STREAM_ACTION_NAME.AMAZON_PRODUCT
-                            ? sanitizeAmazonProductData(
-                                currentViewerStreamActionData
-                              )
-                            : currentViewerStreamActionData)}
+                    {!isPollActive &&
+                      currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.QUIZ && (
+                        <QuizViewerStreamAction
+                          {...currentViewerStreamActionData}
+                          setCurrentViewerAction={setCurrentViewerAction}
+                          shouldRenderActionInTab={shouldRenderActionInTab}
                         />
-                      </div>
-                    )}
+                      )}
+                    {!isPollActive &&
+                      [
+                        STREAM_ACTION_NAME.AMAZON_PRODUCT,
+                        STREAM_ACTION_NAME.PRODUCT
+                      ].includes(currentViewerStreamActionName) && (
+                        <div
+                          className={clsm([
+                            'absolute',
+                            'h-full',
+                            'no-scrollbar',
+                            'overflow-x-hidden',
+                            'overflow-y-auto',
+                            'pb-5',
+                            'px-5',
+                            'supports-overlay:overflow-y-overlay',
+                            'w-full'
+                          ])}
+                        >
+                          <ProductViewerStreamAction
+                            {...(currentViewerStreamActionName ===
+                            STREAM_ACTION_NAME.AMAZON_PRODUCT
+                              ? sanitizeAmazonProductData(
+                                  currentViewerStreamActionData
+                                )
+                              : currentViewerStreamActionData)}
+                          />
+                        </div>
+                      )}
                   </Tabs.Panel>
                 </>
               )}
@@ -242,7 +244,7 @@ const Channel = () => {
               >
                 <NotificationProvider>
                   <ChatProvider>
-                    {!isTabView && isActive && <Poll />}
+                    {!isTabView && isPollActive && <Poll />}
                     <Chat
                       shouldRunCelebration={
                         currentViewerStreamActionName ===

@@ -103,5 +103,8 @@ module.exports = [
   {
     pattern: /^overflow-y-overlay$/,
     variants: ['supports-overlay']
+  },
+  {
+    pattern: /^scrollbar-color-poll-([a-z]+)-scrollBarThumb$/
   }
 ];

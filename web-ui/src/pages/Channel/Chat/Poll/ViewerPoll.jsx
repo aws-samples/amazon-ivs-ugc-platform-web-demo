@@ -162,11 +162,7 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
 
   return (
     <>
-      <PollContainer
-        ref={pollRef}
-        isViewer={true}
-        shouldRenderInTab={shouldRenderInTab}
-      >
+      <PollContainer ref={pollRef}>
         <h3
           className={clsm([
             'flex',
@@ -201,7 +197,7 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
       {showVoteAndProgress && showVoteAndProgressAsFooter && (
         <>
           <div
-            style={{ width: '320px', height: '2px', margin: 'auto' }}
+            style={{ width: '320px', height: '1px', margin: 'auto' }}
             className={[`bg-profile-${color}-dark`]}
           />
           <footer

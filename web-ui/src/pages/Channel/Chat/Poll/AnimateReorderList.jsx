@@ -8,8 +8,8 @@ export const calculateBoundingBoxes = (children) => {
   const boundingBoxes = {};
 
   React.Children.forEach(children, (child) => {
-    const domNode = child.ref.current;
-    const nodeBoundingBox = domNode.getBoundingClientRect();
+    const domNode = child?.ref?.current;
+    const nodeBoundingBox = domNode?.getBoundingClientRect();
 
     boundingBoxes[child.key] = nodeBoundingBox;
   });
@@ -41,12 +41,12 @@ const AnimateReorderList = ({ children }) => {
         const firstBox = prevBoundingBox[child.key];
 
         const lastBox = boundingBox[child.key];
-        const changeInYAxis = firstBox.y - lastBox.y;
+        const changeInYAxis = firstBox?.y - lastBox?.y;
 
-        const domNode = child.ref.current;
+        const domNode = child?.ref?.current;
 
         if (
-          !shouldAnimateListRef.current &&
+          !shouldAnimateListRef?.current &&
           changeInYAxis &&
           changeInYAxis !== 0 &&
           showFinalResults

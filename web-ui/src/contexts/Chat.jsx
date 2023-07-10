@@ -438,11 +438,11 @@ export const Provider = ({ children }) => {
       } = message;
       switch (eventType) {
         case HEART_BEAT:
+          if ((isModerator && isStreamManagerPage) || hasPollEnded) return;
+
           const date = JSON.parse(message.attributes.startTime);
           const currentTime = Date.now();
           const delay = (currentTime - date) / 1000;
-
-          if (isModerator && isStreamManagerPage) return;
 
           updatePollData({
             duration: Number(JSON.parse(message.attributes.duration)),

@@ -24,6 +24,7 @@ import StreamVideo from './StreamVideo';
 import useFullscreen from './useFullscreen';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
+import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -68,6 +69,7 @@ const Player = ({ chatSectionRef }) => {
     },
     setShouldKeepOverlaysVisible
   } = usePlayerContext();
+  const { isActive: isPollActive } = usePoll();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
     isLive !== false || hasPlayedFinalBuffer === false
@@ -318,6 +320,7 @@ const Player = ({ chatSectionRef }) => {
         }}
       />
       <PlayerViewerStreamActions
+        isPollActive={isPollActive}
         isPopupOpen={isPopupOpen}
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowStream={shouldShowStream}
