@@ -21,7 +21,7 @@
     "uuid": "^9.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-ivs": "^3.186.0",
+    "@aws-sdk/client-ivs": "^3.354.0",
     "aws-cdk-lib": "2.45.0",
     "cdk-ecr-deployment": "^2.5.6",
     "constructs": "^10.1.130",

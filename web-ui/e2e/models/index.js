@@ -1,5 +1,6 @@
 module.exports = {
   ChannelPageModel: require('./Channel'),
+  DirectoryPageModel: require('./Directory'),
   LoginPageModel: require('./Login'),
   RegisterPageModel: require('./Register'),
   ResetPageModel: require('./Reset'),

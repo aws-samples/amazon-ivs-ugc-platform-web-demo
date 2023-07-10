@@ -26,6 +26,7 @@ const FollowedUserButton = forwardRef(
 
     return (
       <Link
+        data-testid="followed-user"
         ref={(el) => {
           if (el?.href) {
             if (!firstAndLastItemInFrameRef.current[avatarsPerFrame]) {

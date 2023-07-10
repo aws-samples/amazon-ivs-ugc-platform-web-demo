@@ -26,7 +26,7 @@ const getRunnableProjects = (projects) => {
 const config = {
   testDir: path.join(__dirname, '__tests__'),
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.

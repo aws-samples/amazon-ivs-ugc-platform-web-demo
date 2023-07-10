@@ -118,7 +118,8 @@ const VolumeSetting = ({
   );
 
   useEffect(() => {
-    if (volumeLevel !== VOLUME_MIN) {
+    if (volumeLevel > VOLUME_MIN) {
+      setMuted(false);
       setVolume(volumeLevel);
     }
   }, [volumeLevel]);
@@ -129,7 +130,7 @@ const VolumeSetting = ({
       onMouseEnter={volumeSettingHandler}
       onMouseLeave={volumeSettingHandler}
     >
-      <div className={isExpanded && clsm(['flex', 'h-[178px]', 'items-end'])}>
+      <div className={clsm(isExpanded && ['flex', 'h-[178px]', 'items-end'])}>
         <button
           aria-label={`${
             isExpanded ? 'Close' : 'Open'

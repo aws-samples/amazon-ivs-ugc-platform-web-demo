@@ -2,7 +2,7 @@ import {
   aws_elasticloadbalancingv2 as elbv2,
   aws_logs as logs
 } from 'aws-cdk-lib';
-import { ChannelType } from '@aws-sdk/client-ivs';
+import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   deploySeparateContainers: boolean;
@@ -18,6 +18,7 @@ export interface ChannelsResourceConfig {
   allowedOrigins: string[];
   clientBaseUrl: string;
   enableUserAutoVerify: boolean;
+  ivsAdvancedChannelTranscodePreset: TranscodePreset | string;
   ivsChannelType: ChannelType;
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
