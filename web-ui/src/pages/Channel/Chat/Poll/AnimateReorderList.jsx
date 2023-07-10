@@ -43,10 +43,10 @@ const AnimateReorderList = ({ children }) => {
         const lastBox = boundingBox[child.key];
         const changeInYAxis = firstBox?.y - lastBox?.y;
 
-        const domNode = child.ref.current;
+        const domNode = child?.ref?.current;
 
         if (
-          !shouldAnimateListRef.current &&
+          !shouldAnimateListRef?.current &&
           changeInYAxis &&
           changeInYAxis !== 0 &&
           showFinalResults
