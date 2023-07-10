@@ -190,41 +190,43 @@ const Channel = () => {
                         </ChatProvider>
                       </NotificationProvider>
                     )}
-                    {!isPollActive && currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.QUIZ && (
-                      <QuizViewerStreamAction
-                        {...currentViewerStreamActionData}
-                        setCurrentViewerAction={setCurrentViewerAction}
-                        shouldRenderActionInTab={shouldRenderActionInTab}
-                      />
-                    )}
-                    {!isPollActive && [
-                      STREAM_ACTION_NAME.AMAZON_PRODUCT,
-                      STREAM_ACTION_NAME.PRODUCT
-                    ].includes(currentViewerStreamActionName) && (
-                      <div
-                        className={clsm([
-                          'absolute',
-                          'h-full',
-                          'no-scrollbar',
-                          'overflow-x-hidden',
-                          'overflow-y-auto',
-                          'pb-5',
-                          'px-5',
-                          'supports-overlay:overflow-y-overlay',
-                          'w-full'
-                        ])}
-                      >
-                        <ProductViewerStreamAction
-                          {...(currentViewerStreamActionName ===
-                          STREAM_ACTION_NAME.AMAZON_PRODUCT
-                            ? sanitizeAmazonProductData(
-                                currentViewerStreamActionData
-                              )
-                            : currentViewerStreamActionData)}
+                    {!isPollActive &&
+                      currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.QUIZ && (
+                        <QuizViewerStreamAction
+                          {...currentViewerStreamActionData}
+                          setCurrentViewerAction={setCurrentViewerAction}
+                          shouldRenderActionInTab={shouldRenderActionInTab}
                         />
-                      </div>
-                    )}
+                      )}
+                    {!isPollActive &&
+                      [
+                        STREAM_ACTION_NAME.AMAZON_PRODUCT,
+                        STREAM_ACTION_NAME.PRODUCT
+                      ].includes(currentViewerStreamActionName) && (
+                        <div
+                          className={clsm([
+                            'absolute',
+                            'h-full',
+                            'no-scrollbar',
+                            'overflow-x-hidden',
+                            'overflow-y-auto',
+                            'pb-5',
+                            'px-5',
+                            'supports-overlay:overflow-y-overlay',
+                            'w-full'
+                          ])}
+                        >
+                          <ProductViewerStreamAction
+                            {...(currentViewerStreamActionName ===
+                            STREAM_ACTION_NAME.AMAZON_PRODUCT
+                              ? sanitizeAmazonProductData(
+                                  currentViewerStreamActionData
+                                )
+                              : currentViewerStreamActionData)}
+                          />
+                        </div>
+                      )}
                   </Tabs.Panel>
                 </>
               )}

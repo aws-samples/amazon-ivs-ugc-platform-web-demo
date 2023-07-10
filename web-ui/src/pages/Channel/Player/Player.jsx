@@ -69,7 +69,7 @@ const Player = ({ chatSectionRef }) => {
     },
     setShouldKeepOverlaysVisible
   } = usePlayerContext();
-  const { isActive: isPollActive } = usePoll()
+  const { isActive: isPollActive } = usePoll();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
     isLive !== false || hasPlayedFinalBuffer === false

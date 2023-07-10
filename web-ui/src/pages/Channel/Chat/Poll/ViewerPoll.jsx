@@ -162,11 +162,7 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
 
   return (
     <>
-      <PollContainer
-        ref={pollRef}
-        isViewer={true}
-        shouldRenderInTab={shouldRenderInTab}
-      >
+      <PollContainer ref={pollRef}>
         <h3
           className={clsm([
             'flex',
