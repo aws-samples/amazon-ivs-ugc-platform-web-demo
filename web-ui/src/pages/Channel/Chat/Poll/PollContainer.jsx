@@ -9,7 +9,6 @@ import { useUser } from '../../../../contexts/User';
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback';
 import useResize from '../../../../hooks/useResize';
 import { useLocation } from 'react-router-dom';
-import useResizeObserver from '../../../../hooks/useResizeObserver';
 
 // Static heights based on design
 const COMPOSER_HEIGHT_PX = 92;
@@ -43,26 +42,15 @@ const PollContainer = forwardRef(({ children }, ref) => {
   let previousHeight = window.innerHeight;
 
   const getScrollableContentHeight = (windowHeight, hasPollEnded, isVoting) => {
-    if (hasPollEnded) {
-      return (
-        windowHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
-      );
-    }
+    const remainingHeightToFill = windowHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
 
-    // Logged out
-    if (!userData?.username) {
-      return (
-        windowHeight -
-        COMPOSER_HEIGHT_PX -
-        SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
-        PROGRESS_BAR_HEIGHT_PX
-      );
-    }
+    if (hasPollEnded) return remainingHeightToFill
+
+    // Logged out and poll is active
+    if (!userData?.username) return remainingHeightToFill - PROGRESS_BAR_HEIGHT_PX
 
     return (
-      windowHeight -
-      COMPOSER_HEIGHT_PX -
-      SPACE_BETWEEN_POLL_AND_COMPOSER_PX -
+      remainingHeightToFill -
       (isVoting
         ? FOOTER_HEIGHT_PX
         : PROGRESS_BAR_HEIGHT_PX)
@@ -83,10 +71,10 @@ const PollContainer = forwardRef(({ children }, ref) => {
           isVoting
         );
           
-        const heightToFill = window.innerHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
+        const remainingHeightToFill = window.innerHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
         const calculatedPollHeight = ref.current.scrollHeight + PROGRESS_BAR_HEIGHT_PX
 
-        if (calculatedPollHeight > heightToFill) {
+        if (calculatedPollHeight > remainingHeightToFill) {
           setHeight(scrollableContentHeight)
           dispatchPollState({ hasScrollbar: true });
         } else {
@@ -148,12 +136,12 @@ const PollContainer = forwardRef(({ children }, ref) => {
                 ? FOOTER_HEIGHT_PX
                 : PROGRESS_BAR_HEIGHT_PX;
             }
-            
+
+            const remainingHeightToFill = window.innerHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX
             const shouldRemoveScrollbar =
               (isVoting && calculatedPollHeight > fullHeightOfPoll?.current)
-              || (!isVoting && ref.current.scrollHeight + PROGRESS_BAR_HEIGHT_PX < window.innerHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX)
-              || (hasPollEnded && ref.current.scrollHeight < window.innerHeight - COMPOSER_HEIGHT_PX - SPACE_BETWEEN_POLL_AND_COMPOSER_PX)
-
+              || (!isVoting && ref.current.scrollHeight + PROGRESS_BAR_HEIGHT_PX < remainingHeightToFill)
+              || (hasPollEnded && ref.current.scrollHeight < remainingHeightToFill)
 
             if (shouldRemoveScrollbar) {
               setHeight('100%')
@@ -174,16 +162,14 @@ const PollContainer = forwardRef(({ children }, ref) => {
 
   return (
     <div
-      style={{ 
-        border: '2px solid red',
-      }}
       className={clsm([
         'overflow-hidden',
         'rounded-xl',
         'm-5',
         isDesktopView &&
           !isStreamManagerPage &&
-          hasScrollbar && !hasPollEnded && ['rounded-b-none', 'mb-0']
+          hasScrollbar && !hasPollEnded && ['rounded-b-none', 'mb-0'],
+          !isDesktopView && !isStreamManagerPage && `${marginBotttomRef.current}`
       ])}
     >
       <div
