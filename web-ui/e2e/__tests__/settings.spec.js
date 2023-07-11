@@ -29,17 +29,17 @@ test.describe('Settings Page', () => {
       await page.takeScreenshot('copy-stream-config-values-success');
     });
 
-    test.fixme(
-      'should change the profile avatar',
-      async ({ settingsPage: { updateProfileAvatar }, page }) => {
-        await updateProfileAvatar();
-        await page.takeScreenshot('change-profile-avatar-success');
-        await page.assertResponses([
-          ['/channel/preferences/update', 200], // Update avatar
-          ['/channel', 200] // Get user data
-        ]);
-      }
-    );
+    test('should change the profile avatar', async ({
+      settingsPage: { updateProfileAvatar },
+      page
+    }) => {
+      await updateProfileAvatar();
+      await page.takeScreenshot('change-profile-avatar-success');
+      await page.assertResponses([
+        ['/channel/preferences/update', 200], // Update avatar
+        ['/channel', 200] // Get user data
+      ]);
+    });
 
     test('should change the profile color', async ({
       settingsPage: { updateProfileColor },

@@ -51,13 +51,17 @@ class BasePageModel {
   };
 
   navigate = async (path, assertionPath) => {
-    const getValidUrl = (url) => {
-      if (!isValidUrl(url)) {
-        url = this.baseURL + url;
+    const getValidUrl = (path) => {
+      let _url = path;
+
+      if (!isValidUrl(path)) {
+        _url = this.baseURL + _url;
       }
-      return url;
+      return _url;
     };
+
     const url = getValidUrl(path || this.route);
+
     const assertionUrl = getValidUrl(assertionPath || url);
 
     await this.page.goto(url);
@@ -90,6 +94,9 @@ class BasePageModel {
                 username: this.#username,
                 color: this.#color,
                 avatar: this.#avatar,
+                channelAssetUrls: {
+                  avatar: this.#avatar
+                },
                 trackingId: this.#trackingId
               })
             });

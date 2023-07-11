@@ -101,10 +101,13 @@ export const retryWithExponentialBackoff = ({
   return retry(0);
 };
 
-const BASIC_BITRATE_LIMIT = 1.5; // Mbps
+const BASIC_BITRATE_LIMIT = 3.5; // Mbps
 const STANDARD_BITRATE_LIMIT = 8.5; // Mbps
-const BASIC_RESOLUTION_LIMIT = '480p (852 x 480)';
-const STANDARD_RESOLUTION_LIMIT = '1080p (1920 x 1080)';
+const ADVANCED_BITRATE_LIMIT = 3.5; // Mbps
+const BASIC_RESOLUTION_LIMIT = '1080p (1280 x 720)';
+const STANDARD_RESOLUTION_LIMIT = '1080p (1280 x 720)';
+const ADVANCED_SD_RESOLUTION_LIMIT = '480p (1280 x 720)';
+const ADVANCED_HD_RESOLUTION_LIMIT = '720p (1280 x 720)';
 
 const BITRATE_LIMIT_SUB_KEY = '{BITRATE_LIMIT}';
 const RESOLUTION_LIMIT_SUB_KEY = '{RESOLUTION_LIMIT}';
@@ -123,19 +126,34 @@ export const substitutePlaceholders = (str = '', activeStreamSession) => {
   const targetBitrateMbps = targetBitrate * Math.pow(10, -6) || 0;
   str = str.replaceAll(BITRATE_SUB_KEY, targetBitrateMbps.toLocaleString());
 
-  str = str.replaceAll(
-    BITRATE_LIMIT_SUB_KEY,
-    channelType === CHANNEL_TYPE.STANDARD
-      ? STANDARD_BITRATE_LIMIT.toLocaleString()
-      : BASIC_BITRATE_LIMIT.toLocaleString()
-  );
+  const channelLimits = {
+    [CHANNEL_TYPE.BASIC]: {
+      bitrateLimit: BASIC_BITRATE_LIMIT,
+      resolutionLimit: BASIC_RESOLUTION_LIMIT
+    },
+    [CHANNEL_TYPE.STANDARD]: {
+      bitrateLimit: STANDARD_BITRATE_LIMIT,
+      resolutionLimit: STANDARD_RESOLUTION_LIMIT
+    },
+    [CHANNEL_TYPE.ADVANCED_HD]: {
+      bitrateLimit: ADVANCED_BITRATE_LIMIT,
+      resolutionLimit: ADVANCED_HD_RESOLUTION_LIMIT
+    },
+    [CHANNEL_TYPE.ADVANCED_SD]: {
+      bitrateLimit: ADVANCED_BITRATE_LIMIT,
+      resolutionLimit: ADVANCED_SD_RESOLUTION_LIMIT
+    }
+  };
+
+  const { bitrateLimit = '', resolutionLimit = '' } =
+    channelLimits[channelType];
+
+  str = str.replaceAll(BITRATE_LIMIT_SUB_KEY, bitrateLimit.toLocaleString());
 
   // Resolution substitutions
   str = str.replaceAll(
     RESOLUTION_LIMIT_SUB_KEY,
-    channelType === CHANNEL_TYPE.STANDARD
-      ? STANDARD_RESOLUTION_LIMIT.toLocaleString()
-      : BASIC_RESOLUTION_LIMIT.toLocaleString()
+    resolutionLimit.toLocaleString()
   );
 
   str = str.replaceAll(

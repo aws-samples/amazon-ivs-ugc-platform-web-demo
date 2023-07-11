@@ -1,6 +1,6 @@
-# Amazon IVS UGC web demo
+# Amazon IVS UGC platform web demo
 
-A demo web application intended as an educational tool for demonstrating how you can use Amazon IVS, in conjunction with other AWS services, to create a full-featured web application with user authentication, live video playback, live chat messaging, interactive virtual experiences, stream monitoring, and more.
+A demo web application intended as an educational tool for demonstrating how you can use Amazon IVS, in conjunction with other AWS services, to create a full-featured User-Generated Content (UGC) platform with user authentication, live video playback, live chat, interactive virtual experiences, stream monitoring, and more.
 
 This demo uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK v2).
 
@@ -41,9 +41,8 @@ Deploying the CDK stack will:
 
 ## Features
 
-This section lists the different user flows and features that are available in this app. For each feature, there will be a screenshot from the user's point of view and an architecture diagram to explain the supporting backend flow in isolation.
 
-### User Registration, Login and Password Reset
+### User Registration, Login and Password Reset using Amazon Cognito
 
 New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
 
@@ -55,7 +54,7 @@ On the first login, the required resources will be created on the backend and as
 
 ![User registration and login architecture](screenshots/architecture/registration-login.png)
 
-### Channel page
+### Channel page, with live video and chat
 
 ![Channel page](screenshots/features/channel-page.png)
 
@@ -67,13 +66,13 @@ The playback URL and the streamer information are retrieved directly from the da
 
 ![Get channel data architecture](screenshots/architecture/get-channel-data.png)
 
-#### Follow channel button
+#### "Follow" channels
 
 Authenticated users can add or remove a channel from their following list by clicking the follow/unfollow button on a user's channel of their choice. Unauthenticated users who click on the follow button are redirected to the login page to sign in or create a new account. Once logged in, the user is redirected back to the same channel page they were trying to follow earlier and the channel will be automatically followed for them on page load.
 
-#### Chat
+#### Stream chat
 
-Each channel has a corresponding chatroom which is accessible from the channel page.
+Each channel has a corresponding chat room which is accessible from the channel page.
 
 ![Chat moderation](screenshots/features/chat-moderation.png)
 
@@ -83,7 +82,7 @@ Authenticated viewers are able to read and send messages. Unauthenticated users 
 
 #### Stream overlays
 
-Currently, streamers can trigger five different stream overlays: host a quiz, feature a product, feature an Amazon product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available in the following section: [Trigger overlays](#stream-overlay-configuration).
+Streamers can trigger various stream overlays: host a quiz, feature a product, feature an Amazon product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available here: [Trigger overlays](#stream-overlay-configuration).
 
 ![Quiz action](screenshots/features/action-quiz.png)
 
@@ -119,15 +118,15 @@ The video bitrate, frame rate, concurrent views and keyframe interval metrics co
 
 ### Stream management
 
-The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, trigger stream overlays, as well as monitor and moderate their chatroom. Users can also prepare and save stream overlay configurations for later use.
+The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, trigger stream overlays, as well as monitor and moderate their chat room. Users can also prepare and save stream overlay configurations for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
 
 #### Web broadcast
 
-Users are prompted to grant camera and microphone access when accessing the `/manager` URL, ensuring proper device access for broadcasting. The user must allow both the camera and microphone permissions to use this feature. Users can toggle camera, microphone, and screen sharing options. Users have control over various settings such as changing camera and microphone devices, and toggling the option to show their camera when sharing their screen. The application provides a full-screen view option and ends the stream when a user leaves the page or clicks the `end stream` button.
+Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use this feature. Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
 
-Read more about Amazon IVS Web broadcast from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
+Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
 
 Read about [web broadcast known issues and limitations](#web-broadcast-known-issues).
 
@@ -137,7 +136,7 @@ The chat component on this page works exactly like the chat component from the C
 
 #### Stream overlay configuration
 
-Streamers can trigger any of the five stream overlays supported on [the viewer side](#stream-overlays). Only one stream action can be active at any given moment. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
+Streamers can trigger [overlays](#stream-overlays). Only one stream action can be active at a time. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
@@ -145,9 +144,9 @@ The stream actions are sent to viewers using the [PutMetadata Endpoint](https://
 
 ![Send stream actions architecture](screenshots/architecture/send-stream-actions.png)
 
-### Settings Page
+### Settings
 
-From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chatroom). A "Go live from web" button in the stream settings section allows for quick access to the stream manager page, where users can start their live stream.
+From the settings page (`/settings`), registered users can select a profile color, change their avatar and profile banner, get and update their account information or delete their account. Deleting an account will delete its associated resources (IVS channel and IVS chat room). A "Go live from web" button in the stream settings section allows for quick access to the stream manager page, where users can start their live stream.
 
 ![Settings page](screenshots/features/settings-page.png)
 
@@ -157,13 +156,13 @@ All the user information is stored in the database. The data is retrieved or upd
 
 ![Get user data architecture](screenshots/architecture/get-or-update-user-data.png)
 
-### Directory page
+### Directory
 
 ![Directory page](screenshots/features/directory-page.png)
 
-The directory page (`/`) is where all users can view the 50 most recent live streams, while authenticated users will also be able to see up to 14 of the channels they follow in a carousel at the top. Within the following list, the live channels appear first and are sorted in order of most recent start time. The offline channels follow after the live channels and are sorted in order of most recently added.
+The directory page (`/`) is where all users can view the 50 most recent live streams, while authenticated users will also be able to see up to 14 of the channels they follow in a carousel. Within the following list, the live channels appear first and are sorted in order of most recent start time. The offline channels follow after the live channels and are sorted in order of most recently added.
 
-### Following page
+### Following
 
 ![Following page](screenshots/features/following-page.png)
 
@@ -230,7 +229,6 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 ## Guides
 
-This section contains step by step guides that you may refer to when setting up the application
 
 ### Configuring cdk.json to enable the Amazon Product stream action
 
@@ -442,10 +440,11 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 
 ## Limitations
 
-- In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
-- While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved via the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved via the Amazon IVS API.
-- By default, Cognito will send user account-related emails using a Cognito-hosted domain, which are limited to 50 emails / day per account. If you wish to increase the email delivery volume, you will need to configure your Cognito user pool to use Amazon SES configured with your own domain. For more information, see [Email settings for Amazon Cognito user pools](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html).
-- The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
+- Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
+- Backend: In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
+- Backend: While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved via the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved via the Amazon IVS API.
+- Backend: By default, Cognito will send user account-related emails using a Cognito-hosted domain, which are limited to 50 emails / day per account. If you wish to increase the email delivery volume, you will need to configure your Cognito user pool to use Amazon SES configured with your own domain. For more information, see [Email settings for Amazon Cognito user pools](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html).
+- Backend: The ECS tasks that are deployed as part of the backend infrastructure require public internet access to fetch the corresponding Docker image from the ECR repository. To enable the ECS tasks to access the public internet, and therefore the ECR repository, we have to create NAT Gateways - 1 for dev and 2 for prod, by default - and associate them with a VPC. There is a limit of 5 NAT Gateways per availability zone. If your account is already at this limit, attempting to deploy the infrastructure for the demo will fail. To solve this issue, you can either remove unused NAT Gateways from the current region or deploy the stack in a different region by modifying the `cdk/bin/cdk.ts` file as follows:
 
   ```typescript
   const region = <your-region-here>
@@ -453,59 +452,19 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 
   Alternatively, you may also choose to [request a quota increase](https://console.aws.amazon.com/servicequotas/home/services/vpc/quotas) for "NAT gateways per Availability Zone" and "VPCs per Region."
 
-- iOS devices do not currently support the fullscreen API, which prevents us from offering a fullscreen player experience that includes the custom player controls and header as available on desktop devices. The current implemented workaround initiates the default WebKit fullscreen mode, which uses the native iOS video player UI.
-- Due to iOS-specific limitations, the volume level of the video player is always under the user's physical control and not settable using JavaScript. The implication of this limitation is that iOS only allows us to mute and unmute the volume, but not set it to a specific value as this can only be done by using the physical volume buttons on the device. To deal with this limitation, on iOS devices only, setting the volume control on the player to zero will mute the audio, while setting it to any level above zero will unmute and play the audio at the current volume level set on the device.
-- The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
-- Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
-- As soon as you create your Product Advertising API 5.0 credentials (for the Amazon Product stream action), you are allowed an initial usage limit up to a maximum of one request per second (one TPS) and a cumulative daily maximum of 8640 requests per day (8640 TPD) for the first 30-day period. This will help you begin your integration with the API, test it out, and start building links and referring products. Your PA API usage limit will be adjusted based on your shipped item revenue. Your account will earn a usage limit of one TPD for every five cents or one TPS (up to a maximum of ten TPS) for every $4320 of shipped item revenue generated via the use of Product Advertising API 5.0 for shipments in the previous 30-day period.
+- Backend: The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
+
+- Web Broadcast: Currently set to 720p resolution to ensure best performance across a wide range of devices.
+- Web Broadcast: For other Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
+
+- iOS: devices do not currently support the fullscreen API, which prevents a fullscreen player experience that includes custom player controls and header.
+- iOS: the volume level of the video player is always under the user's physical control and not settable using JavaScript.
+
+- PA API: When creating your Product Advertising API 5.0 credentials (for the Amazon Product stream action), you are allowed an initial usage limit up to a maximum of one request per second (one TPS) and a cumulative daily maximum of 8640 requests per day (8640 TPD) for the first 30-day period. This will help you begin your integration with the API, test it out, and start building links and referring products. Your PA API usage limit will be adjusted based on your shipped item revenue. Your account will earn a usage limit of one TPD for every five cents or one TPS (up to a maximum of ten TPS) for every $4320 of shipped item revenue generated via the use of Product Advertising API 5.0 for shipments in the previous 30-day period.
   Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
 
-### Web Broadcast known issues
-
-- It is currently capped at 720p resolution, as the default setting for client instantiation. This resolution of 1280 x 720 does not cause any performance problems. However, using a higher resolution of 1080p seems to result in performance issues.
-- There appear to be noticeable visual problems when livestreaming to either an "BASIC" or "STANDARD" channel on Safari. The broadcasting experience on Safari may not be optimal. However, we have decided to keep this feature enabled in the app, as reliable browser detection is currently unavailable. For a better broadcasting experience, we recommend using Chrome or Firefox.
-- On Safari v16.4 on macOS and iOS, the browser cannot capture the camera device. Because of this, the web broadcast video preview on the stream manager page will display as a black empty screen.
-- It seems that there is a noticeable lag when initializing the broadcast client using the "create" method in Firefox. This problem does not appear to occur in Chrome or Safari. this delay lasts for approximately 3-4 seconds and only happens during the first call to "create" method. That being said, the subsequent invocations of the "create" method complete almost instantly, but only in a newly opened browser tab. If the user refreshes the tab after invoking "create," the next "create" invocation is very fast.
-- When using Firefox on Windows OS, some users may encounter a mini window displaying the error message "XML Parsing Error: no root element found Location: chrome://browser/content/webrtcLegacyIndicator.xml". This could be due to corruption of the browser's starter cache during an auto-update. Please refer to the article ["Clear Startup Cache in Mozilla Firefox"](https://winaero.com/clear-startup-cache-in-mozilla-firefox/#:~:text=To%20Clear%20the%20Startup%20Cache%20in%20Mozilla%20Firefox%2C,button%20to%20confirm%20the%20operation.) to manually clear the startup cache.
-
-For Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
-
-## Estimated costs
-
-For this estimation, we considered the usage costs associated with 1, 10 and 100 users, where each "user" is assumed to monitor one 4-hour live stream with 1 viewer. In each scenario, we assumed that there were no more than 10,800 chat messages sent by the end of the 4-hour stream. Additionally, the estimated costs below reflect the usage costs of running the production configuration of the CDK stack.
-
-### Overall pricing
-
-| Service                                                              | 1 user | 10 users | 100 users |
-| -------------------------------------------------------------------- | -----: | -------: | --------: |
-| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)           | <$0.01 |   <$0.01 |    <$0.01 |
-| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)             | <$0.01 |    $0.04 |     $0.38 |
-| [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/)             |  $0.29 |    $2.90 |    $29.00 |
-| [Cognito](https://aws.amazon.com/cognito/pricing/)                   | <$0.01 |    $0.06 |     $0.55 |
-| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)       | <$0.01 |   <$0.01 |    <$0.01 |
-| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)    | <$0.01 |   <$0.01 |    <$0.01 |
-| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/) |  $0.13 |    $0.13 |     $0.13 |
-| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)           | <$0.01 |   <$0.01 |    <$0.01 |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)     |  $8.60 |   $86.00 |   $860.00 |
-| [Lambda](https://aws.amazon.com/lambda/pricing/)                     | <$0.01 |   <$0.01 |    <$0.01 |
-| Total cost                                                           |  $9.09 |   $89.18 |   $890.11 |
-
-### Additional pricing
-
-| Service                                                              | Description                    |
-| -------------------------------------------------------------------- | -----------------------------: |
-| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)   | $0.40 per secret per month. A  |
-|                                                                      | replica secret is considered a |
-|                                                                      | distinct secret and will also  |
-|                                                                      | be billed at $0.40 per replica |
-|                                                                      | per month. For secrets that    |
-|                                                                      | are stored for less than a     |
-|                                                                      | month, the price is prorated   |
-|                                                                      | (based on the number of hours.)|
-|                                                                      |                                |
-|                                                                      | $0.05 per 10,000 API calls     |
 
 ## About Amazon IVS
 
