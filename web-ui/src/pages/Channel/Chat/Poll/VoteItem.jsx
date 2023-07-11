@@ -5,14 +5,12 @@ import { motion } from 'framer-motion';
 import { CheckCircle } from '../../../../assets/icons';
 import { clsm, convertConcurrentViews } from '../../../../utils';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import {
-  PROFILE_COLORS_WITH_WHITE_TEXT,
-  STREAM_ACTION_NAME
-} from '../../../../constants';
+import { STREAM_ACTION_NAME } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useLocation } from 'react-router-dom';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -50,10 +48,12 @@ const VoteItem = forwardRef(
       setSelectedOption,
       isVoting,
       showFinalResults,
-      noVotesCaptured
+      noVotesCaptured,
+      shouldRenderRadioInput
     } = usePoll();
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
+    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
     const { pathname } = useLocation();
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
@@ -113,19 +113,30 @@ const VoteItem = forwardRef(
           ]
         ])}
       >
-        {(!isVoting || showFinalResults || isStreamManagerPage) && (
-          <div
-            style={{
-              width: `${percentage === 100 ? percentage + 10 : percentage}%`
-            }}
-            className={clsm([
-              'h-full',
-              `bg-poll-${color}-pollButtonBg`,
-              hasWon && ['bg-white', 'h-20'],
-              percentage < 15 ? 'rounded-r-[100%]' : 'rounded-r-[100px]'
-            ])}
-          />
-        )}
+        <motion.div
+          key="pollPercentageContainer"
+          {...createAnimationProps({
+            customVariants: {
+              hidden: {
+                width: 0
+              },
+              visible: {
+                width: `${percentage === 100 ? percentage + 10 : percentage}%`
+              }
+            },
+            transition: { duration: 0.15 },
+            options: {
+              isVisible: !isVoting || showFinalResults || isStreamManagerPage
+            }
+          })}
+          className={clsm([
+            'h-full',
+            `bg-poll-${color}-pollButtonBg`,
+            hasWon && ['bg-white', 'h-20'],
+            percentage < 15 ? 'rounded-r-[100%]' : 'rounded-r-[100px]',
+            hasWon && 'mt-[-2px]'
+          ])}
+        />
         <div
           className={clsm([
             'translate-y-[-50%]',
@@ -143,13 +154,27 @@ const VoteItem = forwardRef(
         >
           <div
             className={clsm([
-              'px-4',
+              currentBreakpoint !== 0 ? 'px-4' : 'pl-4',
               'flex',
               'flex-row',
               'items-center',
               'h-full',
-              'w-auto',
-              'max-w-[82%]'
+              hasWon &&
+                isStreamManagerPage && [
+                  'lg:max-w-[75%]',
+                  'max-w-[65%]',
+                  'md:max-w-[65%]',
+                  'sm:max-w-[80%]'
+                ],
+              hasWon &&
+                !isStreamManagerPage && [
+                  'lg:max-w-[85%]',
+                  'max-w-[65%]',
+                  'md:max-w-[85%]',
+                  'sm:max-w-[70%]',
+                  'xs:max-w-[55%]'
+                ],
+              !hasWon && 'max-w-[75%]'
             ])}
           >
             <div
@@ -182,61 +207,55 @@ const VoteItem = forwardRef(
                     'items-center'
                   ])}
                 >
-                  {!isStreamManagerPage &&
-                    isVoting &&
-                    !showFinalResults &&
-                    !noVotesCaptured && (
-                      <motion.input
-                        style={{
-                          width: '300px',
-                          height: '58px',
-                          top: '-30px',
-                          left: '-20px'
-                        }}
-                        animate={radioBoxControls}
-                        id={inputAndLabelId}
-                        aria-label={option}
-                        checked={selectedOption === option}
-                        className={clsm([
-                          'radio',
-                          `with-${color}-bg`,
-                          `with-${color}-border`,
-                          `with-${color}-checked-hover`,
-                          `with-${color}-focus`,
-                          `with-${color}-hover`
-                        ])}
-                        data-testid={`${option}-radio-button`}
-                        name={option}
-                        onChange={() => {
-                          if (!isVoting) return;
-                          setSelectedOption(option);
-                        }}
-                        type="radio"
-                        value={selectedOption}
-                      />
-                    )}
+                  {shouldRenderRadioInput && (
+                    <motion.input
+                      style={{
+                        width: '300px',
+                        height: '58px',
+                        top: '-30px',
+                        left: '-20px'
+                      }}
+                      animate={radioBoxControls}
+                      id={inputAndLabelId}
+                      aria-label={option}
+                      checked={selectedOption === option}
+                      className={clsm([
+                        'radio',
+                        `with-${color}-bg`,
+                        `with-${color}-border`,
+                        `with-${color}-checked-hover`,
+                        `with-${color}-focus`,
+                        `with-${color}-hover`
+                      ])}
+                      data-testid={`${option}-radio-button`}
+                      name={option}
+                      onChange={() => {
+                        setSelectedOption(option);
+                      }}
+                      type="radio"
+                      value={selectedOption}
+                    />
+                  )}
                 </div>
                 <motion.label
                   animate={inputDivControls}
                   htmlFor={inputAndLabelId}
                   className={clsm([
-                    isStreamManagerPage && 'max-w-[385px]',
-                    'w-full',
+                    hasWon && isDesktopView && ['w-[300px]'],
+                    'break-words',
                     'line-clamp-2',
                     'text-p4',
                     'font-semibold',
                     `text-${textColor}`,
-                    !isStreamManagerPage &&
-                      !showFinalResults &&
-                      isVoting &&
-                      !noVotesCaptured &&
-                      `translate-x-7`,
                     hasWon && [
                       'text-h3',
                       `text-poll-${color}-pollWinnerTextColor`,
                       'font-bold'
                     ],
-                    isVoting ? 'cursor-pointer' : 'cursor-default'
+                    isVoting ? 'cursor-pointer' : 'cursor-default',
+                    shouldRenderRadioInput
+                      ? `translate-x-7`
+                      : ['translate-x-0', 'cursor-default']
                   ])}
                 >
                   {option}
@@ -253,10 +272,7 @@ const VoteItem = forwardRef(
                     'w-5',
                     'h-5',
                     'ml-2.5',
-                    `fill-${textColor}`,
-                    PROFILE_COLORS_WITH_WHITE_TEXT.includes(color) &&
-                      hasWon &&
-                      `fill-poll-${color}-pollWinnerTextColor`
+                    `fill-poll-${color}-pollWinnerTextColor`
                   ])}
                 />
               )}

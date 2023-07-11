@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { clsm } from '../../../../utils';
 
 import { ChevronDown, ChevronUp } from '../../../../assets/icons';
@@ -16,6 +17,10 @@ import Button from '../../../../components/Button';
 import usePrompt from '../../../../hooks/usePrompt';
 import PollContainer from './PollContainer';
 import AnimatedVoteItems from './AnimatedVoteItems';
+import {
+  createAnimationProps,
+  getDefaultBounceTransition
+} from '../../../../helpers/animationPropsHelper';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -87,21 +92,43 @@ const StreamerPoll = () => {
         )}
         {$content.poll_results}
       </Button>
-
-      {isExpanded && (
-        <div
+      <AnimatePresence initial={false}>
+        <motion.div
+          key="StreamerPollContainer"
+          {...createAnimationProps({
+            animations: ['fadeIn-full'],
+            transition: 'bounce',
+            customVariants: {
+              hidden: {
+                height: 0,
+                transitionEnd: { display: 'none' }
+              },
+              visible: {
+                height: 'auto',
+                transition: {
+                  ...getDefaultBounceTransition(isExpanded),
+                  opacity: { delay: 0.25 }
+                }
+              }
+            },
+            options: {
+              isVisible: isExpanded
+            }
+          })}
           className={clsm([
-            'mt-[15px]',
             `bg-profile-${color}`,
             'flex-col',
             'flex',
             'items-start',
             'rounded-b-xl',
-            'w-full'
+            'w-full',
+            'overflow-hidden'
           ])}
         >
           <p
             className={clsm([
+              'break-words',
+              'mt-[15px]',
               'text-center',
               'mb-3',
               'text-p4',
@@ -129,8 +156,8 @@ const StreamerPoll = () => {
           <p
             className={clsm(['text-p4', `text-${textColor}`, 'font-bold'])}
           >{`${$content.total_votes}: ${totalVotes.toLocaleString()}`}</p>
-        </div>
-      )}
+        </motion.div>
+      </AnimatePresence>
     </PollContainer>
   );
 };

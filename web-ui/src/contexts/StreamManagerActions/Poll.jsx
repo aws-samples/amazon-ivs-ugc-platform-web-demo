@@ -16,6 +16,10 @@ import { pack, unpack } from '../../helpers/streamActionHelpers';
 import { useChannel } from '../Channel';
 import { useUser } from '../User';
 import { useLocation } from 'react-router-dom';
+import {
+  NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS,
+  EXTRA_TIME_TO_WAIT_FOR_END_POLL_EVENT
+} from '../../constants';
 
 const COMPOSER_HEIGHT = 92;
 const SPACE_BETWEEN_COMPOSER_AND_POLL = 100;
@@ -55,13 +59,14 @@ const localStorageInitialState = {
 };
 
 export const Provider = ({ children }) => {
+  const forceResetPollPropsTimerRef = useRef();
   const stopPollTimerRef = useRef();
   const [composerRefState, setComposerRefState] = useState();
   const shouldAnimateListRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState();
   const { channelData } = useChannel();
-  const { username, channelArn = '' } = channelData || {};
-  const { userData } = useUser();
+  const { username, channelArn = '', isViewerBanned } = channelData || {};
+  const { userData, isSessionValid } = useUser();
   const channelId = extractChannelIdfromChannelArn(channelArn);
   const isModerator = channelId === userData?.trackingId;
   const { pathname } = useLocation();
@@ -141,11 +146,14 @@ export const Provider = ({ children }) => {
   }, [savePollDataToLocalStorage]);
 
   const resetPollProps = useCallback(() => {
+    if (stopPollTimerRef.current) clearTimeout(stopPollTimerRef.current);
     clearPollLocalStorage();
     dispatchPollProps(initialPollProps);
     dispatchPollState(initialPollState);
     setSelectedOption();
     shouldAnimateListRef.current = false;
+    stopPollTimerRef.current = undefined;
+    forceResetPollPropsTimerRef.current = undefined;
   }, [clearPollLocalStorage]);
 
   useEffect(() => {
@@ -290,6 +298,35 @@ export const Provider = ({ children }) => {
     });
   }, [savePollDataToLocalStorage, savedPollData]);
 
+  const isAbleToVote =
+    isVoting && !showFinalResults && !noVotesCaptured && !isViewerBanned;
+
+  const shouldRenderRadioInput =
+    isAbleToVote && isSessionValid && !isStreamManagerPage;
+
+  const shouldRenderVoteButton = isAbleToVote && !!userData;
+
+  const shouldRenderProgressbar =
+    !showFinalResults && !noVotesCaptured && !tieFound && startTime;
+
+  const endPollAndResetPollProps = useCallback(() => {
+    clearTimeout(forceResetPollPropsTimerRef.current);
+    dispatchPollProps({ isActive: false });
+    setTimeout(resetPollProps, 100);
+  }, [resetPollProps]);
+
+  useEffect(() => {
+    if (hasPollEnded) {
+      if (forceResetPollPropsTimerRef.current) {
+        clearTimeout(forceResetPollPropsTimerRef.current);
+      } else {
+        forceResetPollPropsTimerRef.current = setTimeout(() => {
+          if (isActive) endPollAndResetPollProps();
+        }, NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS + EXTRA_TIME_TO_WAIT_FOR_END_POLL_EVENT);
+      }
+    }
+  }, [endPollAndResetPollProps, isActive, hasPollEnded]);
+
   const value = useMemo(
     () => ({
       isExpanded,
@@ -325,14 +362,17 @@ export const Provider = ({ children }) => {
       savedPollData,
       savePollDataToLocalStorage,
       updateSavedPollPropsOnTimerExpiry,
-      pollRef,
       hasScrollbar,
       composerRefState,
       setComposerRefState,
-      dispatchPollState
+      dispatchPollState,
+      shouldRenderRadioInput,
+      shouldRenderVoteButton,
+      shouldRenderProgressbar,
+      endPollAndResetPollProps,
+      hasVotes: votes.length > 0
     }),
     [
-      pollRef,
       isExpanded,
       pollHeight,
       containerMinHeight,
@@ -353,17 +393,19 @@ export const Provider = ({ children }) => {
       noVotesCaptured,
       tieFound,
       delay,
-      savePollDataToLocalStorage,
       clearPollLocalStorage,
       hasPollEnded,
       pollHasEnded,
       saveVotesToLocalStorage,
       savedPollData,
+      savePollDataToLocalStorage,
       updateSavedPollPropsOnTimerExpiry,
       hasScrollbar,
       composerRefState,
-      setComposerRefState,
-      dispatchPollState
+      shouldRenderRadioInput,
+      shouldRenderVoteButton,
+      shouldRenderProgressbar,
+      endPollAndResetPollProps
     ]
   );
 

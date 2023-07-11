@@ -6,10 +6,12 @@ import { Delete } from '../../../../../../../../assets/icons';
 import Button from '../../../../../../../../components/Button';
 import Input from '../../../../../../../../components/Input';
 import './RadioTextInput.css';
+import { STREAM_ACTION_NAME } from '../../../../../../../../constants';
 
 const StreamManagerRadioTextInput = forwardRef(
   (
     {
+      formType,
       hasRadioError,
       index,
       inputError,
@@ -31,7 +33,7 @@ const StreamManagerRadioTextInput = forwardRef(
             'flex',
             'space-x-[52px]',
             'md:space-x-[44px]',
-            'md:ml-3',
+            formType !== STREAM_ACTION_NAME.POLL && 'md:ml-3',
             'w-full',
             'relative'
           ])}
@@ -96,6 +98,7 @@ StreamManagerRadioTextInput.propTypes = {
   hasRadioError: PropTypes.bool,
   index: PropTypes.number,
   inputError: PropTypes.string,
+  formType: PropTypes.string.isRequired,
   inputType: PropTypes.string.isRequired,
   isChecked: PropTypes.bool,
   name: PropTypes.string.isRequired,

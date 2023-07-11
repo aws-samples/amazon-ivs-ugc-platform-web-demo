@@ -34,7 +34,6 @@ import {
 } from '../utils';
 import { usePoll } from './StreamManagerActions/Poll';
 import { CHAT_MESSAGE_EVENT_TYPES } from '../constants';
-import { unpack } from '../helpers/streamActionHelpers';
 
 const {
   SEND_MESSAGE,
@@ -184,7 +183,8 @@ export const Provider = ({ children }) => {
     savedPollData,
     saveVotesToLocalStorage,
     savePollDataToLocalStorage,
-    dispatchPollState
+    dispatchPollState,
+    endPollAndResetPollProps
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -192,9 +192,12 @@ export const Provider = ({ children }) => {
 
   const startPoll = useCallback(
     async (pollStreamActionData) => {
-      const attributes = { eventType: START_POLL };
+      const attributes = {
+        eventType: START_POLL,
+        pollStreamActionData: JSON.stringify(pollStreamActionData)
+      };
 
-      await actions.sendMessage(pollStreamActionData, attributes);
+      await actions.sendMessage(START_POLL, attributes);
       return true;
     },
     [actions]
@@ -430,11 +433,11 @@ export const Provider = ({ children }) => {
     const unsubscribeOnMessage = room.addListener('message', (message) => {
       const {
         attributes: {
+          pollStreamActionData = undefined,
           eventType = undefined,
           voter = undefined,
           option = undefined
-        },
-        content
+        }
       } = message;
       switch (eventType) {
         case HEART_BEAT:
@@ -497,17 +500,21 @@ export const Provider = ({ children }) => {
             expiry,
             startTime,
             delay: del = 0
-          } = unpack(content);
-          savePollDataToLocalStorage({
-            duration,
-            expiry,
-            startTime,
-            question,
-            votes: options,
-            voters: {},
-            isActive: true,
-            name: STREAM_ACTION_NAME.POLL
-          });
+          } = JSON.parse(pollStreamActionData);
+
+          if (isModerator && isStreamManagerPage) {
+            savePollDataToLocalStorage({
+              duration,
+              expiry,
+              startTime,
+              question,
+              votes: options,
+              voters: {},
+              isActive: true,
+              name: STREAM_ACTION_NAME.POLL
+            });
+          }
+
           updatePollData({
             duration,
             question,
@@ -519,7 +526,7 @@ export const Provider = ({ children }) => {
           });
           break;
         case END_POLL:
-          resetPollProps();
+          endPollAndResetPollProps();
           break;
         case SEND_MESSAGE:
           addMessage(message);
@@ -572,7 +579,8 @@ export const Provider = ({ children }) => {
     clearPollLocalStorage,
     isStreamManagerPage,
     savePollDataToLocalStorage,
-    dispatchPollState
+    dispatchPollState,
+    endPollAndResetPollProps
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,

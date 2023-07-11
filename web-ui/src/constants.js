@@ -156,6 +156,12 @@ export const PROFILE_COLORS_WITH_WHITE_TEXT = ['green', 'blue'];
 export const NUM_MILLISECONDS_TO_BLOCK = 2000;
 export const NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS = 10000;
 export const SHOW_POLL_RESULTS_ANIMATION_DURATION = 200; // ms
+/*
+To handle undelivered SDK messages, we follow this approach: if the "end poll" message is not received, 
+we wait an additional 2 seconds before removing the poll forcefully to resolve the issue and prevent it 
+from persisting in the user interface.
+*/
+export const EXTRA_TIME_TO_WAIT_FOR_END_POLL_EVENT = 2000; // ms
 
 /**
  * STREAM MANAGER
@@ -355,4 +361,3 @@ export const MAX_AVATAR_COUNT = 14;
  * Stream Manager page, Following section
  */
 export const STREAM_MANAGER_DEFAULT_TAB = 0;
-export const STREAM_MANAGER_WEB_BROADCAST_TAB = 1;

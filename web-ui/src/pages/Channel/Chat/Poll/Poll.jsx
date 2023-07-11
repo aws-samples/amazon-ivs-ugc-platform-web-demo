@@ -9,34 +9,32 @@ import { useChat } from '../../../../contexts/Chat';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const Poll = ({ shouldRenderInTab }) => {
-  const { votes } = usePoll();
   const { pathname } = useLocation();
+  const { isActive } = usePoll();
   const { isModerator } = useChat();
   const { isDesktopView, isLandscape } = useResponsiveDevice();
   const isStreamManagerPage = pathname === '/manager';
 
   return (
-    votes.length > 0 && (
-      <div
-        className={clsm([
-          !isStreamManagerPage && [
-            'no-scrollbar',
-            'overflow-y-auto',
-            'supports-overlay:overflow-y-overlay',
-            !isDesktopView && ['pb-20', 'h-full']
-          ],
-          'w-full',
-          'absolute',
-          'z-50',
-          isLandscape && 'mb-[110px]'
-        ])}
-      >
-        {isModerator && isStreamManagerPage && <StreamerPoll />}
-        {!isStreamManagerPage && (
-          <ViewerPoll shouldRenderInTab={shouldRenderInTab} />
-        )}
-      </div>
-    )
+    <div
+      className={clsm([
+        !isStreamManagerPage && [
+          'no-scrollbar',
+          'overflow-y-auto',
+          'supports-overlay:overflow-y-overlay',
+          !isDesktopView && ['pb-20', 'h-full']
+        ],
+        'w-full',
+        'absolute',
+        isLandscape && 'mb-[110px]',
+        !isActive ? 'z-0' : 'z-50'
+      ])}
+    >
+      {isModerator && isStreamManagerPage && <StreamerPoll />}
+      {!isStreamManagerPage && (
+        <ViewerPoll shouldRenderInTab={shouldRenderInTab} />
+      )}
+    </div>
   );
 };
 

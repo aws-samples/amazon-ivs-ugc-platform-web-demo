@@ -130,6 +130,7 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
         options={answers}
         placeholder={$content.answer}
         updateData={updateStreamManagerActionQuizPollData}
+        formType={formType}
         {...radioGroupSelectedAnswerProps}
       />
       <RangeSelector

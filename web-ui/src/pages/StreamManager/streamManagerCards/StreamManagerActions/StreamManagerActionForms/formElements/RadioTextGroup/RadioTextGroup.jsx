@@ -24,7 +24,8 @@ const StreamManagerActionRadioTextGroup = ({
   selectedDataKey,
   selectedOptionIndex,
   updateData,
-  inputType
+  inputType,
+  formType
 }) => {
   const radioTextInputRef = useRef([]);
   const addButtonRef = useRef();
@@ -102,6 +103,7 @@ const StreamManagerActionRadioTextGroup = ({
       <div className={clsm(['flex', 'flex-col', 'space-y-6'])}>
         {options.map((_, index) => (
           <RadioTextInput
+            formType={formType}
             inputType={inputType}
             ref={(el) => (radioTextInputRef.current[index] = el)}
             key={index}
@@ -165,7 +167,8 @@ StreamManagerActionRadioTextGroup.propTypes = {
   placeholder: PropTypes.string,
   selectedDataKey: PropTypes.string,
   selectedOptionIndex: PropTypes.number,
-  updateData: PropTypes.func.isRequired
+  updateData: PropTypes.func.isRequired,
+  formType: PropTypes.string.isRequired
 };
 
 export default StreamManagerActionRadioTextGroup;

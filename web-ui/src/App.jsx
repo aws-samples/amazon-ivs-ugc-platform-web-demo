@@ -17,7 +17,6 @@ import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
-import { Provider as PollProvider } from './contexts/StreamManagerActions/Poll';
 
 // Pages
 import {
@@ -77,9 +76,7 @@ const router = createBrowserRouter(
         element={
           <StreamsProvider>
             <ChannelProvider>
-              <PollProvider>
-                <AppLayoutWithNavbar />
-              </PollProvider>
+              <AppLayoutWithNavbar />
             </ChannelProvider>
           </StreamsProvider>
         }

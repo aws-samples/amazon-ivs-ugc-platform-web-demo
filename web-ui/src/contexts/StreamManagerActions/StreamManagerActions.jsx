@@ -129,8 +129,6 @@ export const Provider = ({ children }) => {
       data = storedStreamManagerActionData,
       hasModalSource = true
     ) => {
-      // End active poll stream action
-      if (isPollActive) cancelActivePoll();
       // Send a timed metadata event
       setIsSendingStreamAction(true);
       const actionData =
@@ -149,6 +147,9 @@ export const Provider = ({ children }) => {
             : undefined;
 
         dataToSave._active = { duration, expiry, name: actionName };
+
+        // End active poll stream action
+        if (isPollActive) cancelActivePoll();
       }
 
       if (shouldEnableLocalStorage(actionName)) {
@@ -180,7 +181,6 @@ export const Provider = ({ children }) => {
   const endPollOnExpiry = useCallback(() => {
     pollHasEnded();
     updateSavedPollPropsOnTimerExpiry();
-
     stopPollTimerRef.current = setTimeout(() => {
       endPoll();
       saveStreamManagerActionData((prevStoredData) => ({
@@ -197,12 +197,8 @@ export const Provider = ({ children }) => {
   ]);
 
   const cancelActivePoll = useCallback(async () => {
-    if (stopPollTimerRef.current) {
-      clearTimeout(stopPollTimerRef.current);
-    }
-
     await endPoll();
-  }, [endPoll, stopPollTimerRef]);
+  }, [endPoll]);
 
   /**
    * Stops the currently active stream action, if one exists
@@ -271,7 +267,7 @@ export const Provider = ({ children }) => {
             ? new Date(Date.now() + duration * 1000).toISOString()
             : undefined;
         const startTime = Date.now();
-        const payload = {
+        const pollStreamActionData = {
           duration,
           expiry,
           startTime,
@@ -284,7 +280,17 @@ export const Provider = ({ children }) => {
           voters: {},
           isActive: true
         };
-        const result = await startPoll(pack(payload));
+        const result = await startPoll(pollStreamActionData);
+
+        // Save the form data only if the send request was successful
+        const dataToSave = data;
+        if (result) {
+          dataToSave._active = { duration, expiry, name: actionName };
+        }
+        // Save data to stream manager local storage
+        if (shouldEnableLocalStorage(actionName)) {
+          saveStreamManagerActionData(dataToSave);
+        }
 
         setIsSendingStreamAction(false);
         notifySuccess($content.notifications.success[`started_${actionName}`]);

@@ -4,7 +4,7 @@ import Poll from '../../Channel/Chat/Poll/Poll';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
 
 const StreamManagerChat = () => {
-  const { isActive, containerMinHeight } = usePoll();
+  const { isActive, containerMinHeight, hasVotes } = usePoll();
 
   return (
     <section
@@ -24,7 +24,7 @@ const StreamManagerChat = () => {
         'w-full'
       ])}
     >
-      {isActive && <Poll />}
+      {hasVotes && <Poll />}
       <Chat />
     </section>
   );
