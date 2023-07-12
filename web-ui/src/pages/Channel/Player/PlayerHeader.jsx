@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -12,17 +12,22 @@ import FollowButton from './FollowButton';
 import PlayerOverlay from './PlayerOverlay';
 import ProfileViewMenu from './ProfileViewMenu';
 import UserAvatar from '../../../components/UserAvatar';
+import { POPUP_ID } from './Controls/RenditionSetting';
+import useResize from '../../../hooks/useResize';
+import useDebouncedCallback from '../../../hooks/useDebouncedCallback';
 
-const HEADER_BUTTON_CLASSES = clsm([
-  'flex',
-  'items-center',
-  'space-x-2',
-  'shrink-0',
-  'pointer-events-all',
-  'z-10'
-]);
+const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
+  return clsm([
+    'flex',
+    'items-center',
+    'space-x-2',
+    'shrink-0',
+    'pointer-events-all',
+    !shouldRemoveZIndex && 'z-10'
+  ])
+}
 
-const PlayerHeader = ({ avatarSrc, color, username }) => {
+const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   const {
     getProfileViewAnimationProps,
     headerAnimationControls,
@@ -31,6 +36,43 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
     shouldAnimateProfileView,
     toggleProfileView
   } = useProfileViewAnimation();
+
+  const isRenditionSettingPopupExpanded = !!openPopupIds.find(
+    (openPopupId) => openPopupId === POPUP_ID
+  );
+  const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
+  const [followButtonRefState, setFollowButtonRefState] = useState()
+  const { player: { qualitiesContainerRefState } } = usePlayerContext()
+  
+  const isElementsOverlapping = (element1, element2) => {
+    const el1 = element1?.getBoundingClientRect();
+    const el2 = element2?.getBoundingClientRect();
+
+    return el1.bottom > el2?.top && el1?.top < el2?.bottom;
+  }
+
+  useResize(useDebouncedCallback(() => {
+    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
+      if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+        setShouldRemoveFollowButtonZIndex(true)
+      }
+    }
+  }, 200))
+
+  useEffect(() => {
+    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
+      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+        setShouldRemoveFollowButtonZIndex(true)
+      }
+    }
+  }, [followButtonRefState, qualitiesContainerRefState, isRenditionSettingPopupExpanded])
+
+  useEffect(() => {
+    if (!isRenditionSettingPopupExpanded) {
+      setShouldRemoveFollowButtonZIndex(false)
+    }
+  }, [isRenditionSettingPopupExpanded])
+
   const { isOverlayVisible } = usePlayerContext();
   const { isSessionValid } = useUser();
   const { channelData: { isLive } = {} } = useChannel();
@@ -68,7 +110,7 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
       <motion.div
         layout="position"
         layoutDependency={layoutDependency.current}
-        className={clsm(HEADER_BUTTON_CLASSES)}
+        className={clsm(getHeaderButtonClasses())}
         {...getPlayerHeaderProfileViewAnimationProps({
           expanded: { y: 64, desktop: { y: 48 } },
           collapsed: { y: 0 }
@@ -154,13 +196,13 @@ const PlayerHeader = ({ avatarSrc, color, username }) => {
           <motion.div
             layout="position"
             layoutDependency={layoutDependency.current}
-            className={clsm(HEADER_BUTTON_CLASSES)}
+            className={clsm(getHeaderButtonClasses(shouldRemoveFollowButtonZIndex))}
             {...getPlayerHeaderProfileViewAnimationProps({
               expanded: { marginTop: 24, marginLeft: 0 },
               collapsed: { marginTop: 0, marginLeft: 16 }
             })}
           >
-            <FollowButton isExpandedView={isProfileViewExpanded} />
+            <FollowButton isExpandedView={isProfileViewExpanded} setFollowButtonRefState={setFollowButtonRefState} />
             <motion.div
               className={clsm(['w-11', 'h-11'])}
               {...getPlayerHeaderProfileViewAnimationProps({
@@ -206,6 +248,7 @@ PlayerHeader.defaultProps = {
 PlayerHeader.propTypes = {
   avatarSrc: PropTypes.string,
   color: PropTypes.string,
+  openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   username: PropTypes.string
 };
 
