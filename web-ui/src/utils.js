@@ -334,3 +334,10 @@ export const isVotingBlocked = (duration, startTime) => {
 
   return startTime + duration * 1000 - now <= NUM_MILLISECONDS_TO_BLOCK;
 };
+
+export const isElementsOverlapping = (element1, element2) => {
+  const el1 = element1?.getBoundingClientRect();
+  const el2 = element2?.getBoundingClientRect();
+
+  return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
+}
