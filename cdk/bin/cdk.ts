@@ -12,6 +12,7 @@ const app = new App();
 const stage = app.node.tryGetContext('stage');
 const stackName = app.node.tryGetContext('stackName');
 const shouldPublish = app.node.tryGetContext('publish') === 'true';
+const scheduleExp = app.node.tryGetContext('scheduleExp');
 // Get the config for the current stage
 const { resourceConfig }: { resourceConfig: UGCResourceWithChannelsConfig } =
   app.node.tryGetContext(stage);
@@ -22,7 +23,8 @@ new UGCStack(app, stackName, {
   env: { account, region },
   tags: { stage, project: 'ugc' },
   resourceConfig,
-  shouldPublish
+  shouldPublish,
+  scheduleExp
 });
 
 new UGCFrontendDeploymentStack(app, `UGC-Frontend-Deployment-${stage}`, {
