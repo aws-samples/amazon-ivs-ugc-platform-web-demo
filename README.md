@@ -82,9 +82,11 @@ Authenticated viewers are able to read and send messages. Unauthenticated users 
 
 #### Stream overlays
 
-Streamers can trigger various stream overlays: host a quiz, feature a product, feature an Amazon product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available here: [Trigger overlays](#stream-overlay-configuration).
+Streamers can trigger various stream overlays: host a quiz, host a poll, feature a product, feature an Amazon product, show a notice and trigger a celebration. More information on how overlays are triggered by streamers is available here: [Trigger overlays](#stream-overlay-configuration).
 
 ![Quiz action](screenshots/features/action-quiz.png)
+
+![Poll action](screenshots/features/action-poll.png)
 
 ![Product action](screenshots/features/action-product.png)
 
@@ -94,9 +96,15 @@ Streamers can trigger various stream overlays: host a quiz, feature a product, f
 
 ![Celebration action](screenshots/features/action-celebration.png)
 
-The stream actions are received by the viewers through the IVS Player using [Timed Metadata](https://docs.aws.amazon.com/ivs/latest/userguide/metadata.html).
+All stream actions (with the exception of hosting a poll) are received by the viewers through the IVS Player using [Timed Metadata](https://docs.aws.amazon.com/ivs/latest/userguide/metadata.html).
 
 ![Viewer stream actions architecture](screenshots/architecture/receive-stream-actions.png)
+
+The poll stream overlay action on the otherhand leverages the IVS Chat Messaging [SDK](https://aws.github.io/amazon-ivs-chat-messaging-sdk-js/1.0.2/) to receive and emit different poll action events. 
+
+Note: The processing of votes happens on the streamer's side while they are on the stream manager page. Navigating away from this page will effectively skip votes.
+
+![Poll stream action architecture](screenshots/architecture//poll.png)
 
 ### Stream health monitoring
 
