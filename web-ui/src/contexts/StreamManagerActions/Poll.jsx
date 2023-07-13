@@ -327,6 +327,22 @@ export const Provider = ({ children }) => {
     }
   }, [endPollAndResetPollProps, isActive, hasPollEnded]);
 
+  useEffect(() => {
+    /*
+    This code ensures that any expired poll is removed from the user interface (UI) when the user closes all instances of the UGC app and revist the app again.
+    */
+    const isPollExpired =
+      startTime +
+        duration * 1000 +
+        NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS +
+        EXTRA_TIME_TO_WAIT_FOR_END_POLL_EVENT <
+      Date.now();
+
+    if (isPollExpired && isActive) {
+      endPollAndResetPollProps();
+    }
+  }, [duration, startTime, isActive, endPollAndResetPollProps]);
+
   const value = useMemo(
     () => ({
       isExpanded,
@@ -368,9 +384,9 @@ export const Provider = ({ children }) => {
       dispatchPollState,
       shouldRenderRadioInput,
       shouldRenderVoteButton,
-      shouldRenderProgressbar,
       endPollAndResetPollProps,
-      hasVotes: votes.length > 0
+      hasVotes: votes.length > 0,
+      shouldRenderProgressbar
     }),
     [
       isExpanded,
@@ -404,8 +420,8 @@ export const Provider = ({ children }) => {
       composerRefState,
       shouldRenderRadioInput,
       shouldRenderVoteButton,
-      shouldRenderProgressbar,
-      endPollAndResetPollProps
+      endPollAndResetPollProps,
+      shouldRenderProgressbar
     ]
   );
 

@@ -317,7 +317,7 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
       maxCharLength: 40
     },
     [POLL_DATA_KEYS.QUESTION]: { maxCharLength: 256 }, // TENTATIVE
-    [POLL_DATA_KEYS.DURATION]: { min: 5, max: 120 } // seconds
+    [POLL_DATA_KEYS.DURATION]: { min: 10, max: 120 } // seconds
   }
 };
 

@@ -221,7 +221,6 @@ const PollContainer = forwardRef(({ children }, ref) => {
               hasScrollbar &&
               'overflow-y-scroll',
             'p-5',
-            hasPollEnded && 'pb-7',
             `bg-profile-${color}`,
             `scrollbar-color-poll-${color}-scrollBarThumb`
           ])}
