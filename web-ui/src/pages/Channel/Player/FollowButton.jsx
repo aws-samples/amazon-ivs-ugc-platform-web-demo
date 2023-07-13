@@ -31,7 +31,7 @@ const textAnimationProps = createAnimationProps({
   transition: customSpringTransition
 });
 
-const FollowButton = ({ isExpandedView, setFollowButtonRefState }) => {
+const FollowButton = ({ isExpandedView }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { notifyError } = useNotif();
@@ -87,10 +87,8 @@ const FollowButton = ({ isExpandedView, setFollowButtonRefState }) => {
     (element) => {
       subscribeOverlayElement(element);
       buttonRef.current = element;
-
-      setFollowButtonRefState(buttonRef.current)
     },
-    [setFollowButtonRefState, subscribeOverlayElement]
+    [subscribeOverlayElement]
   );
 
   const updateFollowingList = useCallback(async () => {
@@ -287,8 +285,7 @@ FollowButton.defaultProps = {
 };
 
 FollowButton.propTypes = {
-  isExpandedView: PropTypes.bool,
-  setFollowButtonRefState: PropTypes.func.isRequired
+  isExpandedView: PropTypes.bool
 };
 
 export default FollowButton;

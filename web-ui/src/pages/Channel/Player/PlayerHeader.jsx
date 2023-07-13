@@ -41,36 +41,9 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
     (openPopupId) => openPopupId === POPUP_ID
   );
   const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
-  const [followButtonRefState, setFollowButtonRefState] = useState()
-  const { player: { qualitiesContainerRefState } } = usePlayerContext()
-  
-  const isElementsOverlapping = (element1, element2) => {
-    const el1 = element1?.getBoundingClientRect();
-    const el2 = element2?.getBoundingClientRect();
-
-    return el1.bottom > el2?.top && el1?.top < el2?.bottom;
-  }
-
-  useResize(useDebouncedCallback(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
-      if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
-        setShouldRemoveFollowButtonZIndex(true)
-      }
-    }
-  }, 200))
 
   useEffect(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
-      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
-        setShouldRemoveFollowButtonZIndex(true)
-      }
-    }
-  }, [followButtonRefState, qualitiesContainerRefState, isRenditionSettingPopupExpanded])
-
-  useEffect(() => {
-    if (!isRenditionSettingPopupExpanded) {
-      setShouldRemoveFollowButtonZIndex(false)
-    }
+      setShouldRemoveFollowButtonZIndex(isRenditionSettingPopupExpanded)
   }, [isRenditionSettingPopupExpanded])
 
   const { isOverlayVisible } = usePlayerContext();
@@ -202,7 +175,7 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
               collapsed: { marginTop: 0, marginLeft: 16 }
             })}
           >
-            <FollowButton isExpandedView={isProfileViewExpanded} setFollowButtonRefState={setFollowButtonRefState} />
+            <FollowButton isExpandedView={isProfileViewExpanded} />
             <motion.div
               className={clsm(['w-11', 'h-11'])}
               {...getPlayerHeaderProfileViewAnimationProps({
