@@ -52,7 +52,6 @@ wss.on('connection', (ws) => {
           RequestId,
           EventName: 'aws:DELETE_MESSAGE',
           Attributes: {
-            Attributes: { eventType: 'SEND_MESSAGE' },
             MessageID: Id,
             Reason
           },
