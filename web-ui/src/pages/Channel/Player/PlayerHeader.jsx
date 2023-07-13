@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../utils';
+import { clsm, isElementsOverlapping } from '../../../utils';
 import { DEFAULT_PROFILE_VIEW_TRANSITION } from '../../../constants';
 import { useChannel } from '../../../contexts/Channel';
 import { usePlayerContext } from '../contexts/Player';
@@ -42,13 +42,6 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
   const [followButtonRefState, setFollowButtonRefState] = useState()
   const { player: { qualitiesContainerRefState, qualities } } = usePlayerContext()
-  
-  const isElementsOverlapping = (element1, element2) => {
-    const el1 = element1?.getBoundingClientRect();
-    const el2 = element2?.getBoundingClientRect();
-
-    return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
-  }
 
   useResize(() => {
     if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
