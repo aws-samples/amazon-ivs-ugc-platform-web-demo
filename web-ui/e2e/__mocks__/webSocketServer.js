@@ -38,7 +38,7 @@ wss.on('connection', (ws) => {
           Type: 'MESSAGE',
           Id: uuidv4(),
           RequestId,
-          Attributes: null,
+          Attributes: { eventType: 'SEND_MESSAGE' },
           Content,
           SendTime,
           Sender: userData
@@ -52,6 +52,7 @@ wss.on('connection', (ws) => {
           RequestId,
           EventName: 'aws:DELETE_MESSAGE',
           Attributes: {
+            Attributes: { eventType: 'SEND_MESSAGE' },
             MessageID: Id,
             Reason
           },

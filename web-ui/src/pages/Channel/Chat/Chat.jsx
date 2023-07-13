@@ -108,6 +108,7 @@ const Chat = ({ shouldRunCelebration }) => {
   }, [chatSectionRef, updateChatContainerDimensions]);
 
   useEffect(() => {
+    console.log({ messages: JSON.stringify(messages), deletedMessage })
     if (deletedMessage && !isModerator) {
       const message = messages?.find(({ id }) => id === deletedMessage);
       if (message) {
