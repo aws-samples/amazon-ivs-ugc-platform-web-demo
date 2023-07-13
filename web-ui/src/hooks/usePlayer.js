@@ -35,7 +35,6 @@ const usePlayer = ({
   const [volumeLevel, setVolumeLevel] = useState(defaultVolumeLevel);
   const [hasPlayedFinalBuffer, setHasPlayedFinalBuffer] = useState();
   const [qualities, setQualities] = useState([{ name: 'Auto' }]);
-  const [qualitiesContainerRefState, setQualitiesContainerRefState] = useState()
   const [selectedQualityName, setSelectedQualityName] = useState(
     qualities[0].name
   );
@@ -332,9 +331,7 @@ const usePlayer = ({
     play,
     playerRef,
     qualities,
-    qualitiesContainerRefState,
     selectedQualityName,
-    setQualitiesContainerRefState,
     shouldBlurPlayer,
     updateQuality,
     updateVolume,

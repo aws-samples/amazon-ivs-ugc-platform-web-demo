@@ -41,30 +41,30 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   );
   const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
   const [followButtonRefState, setFollowButtonRefState] = useState()
-  const { player: { qualitiesContainerRefState, qualities } } = usePlayerContext()
+  const { qualitiesContainerRef, player: { qualities } } = usePlayerContext()
 
   useResize(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
-      if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
+      if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current)) {
         setShouldRemoveFollowButtonZIndex(true)
       }
 
-      if (shouldRemoveFollowButtonZIndex && !isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+      if (shouldRemoveFollowButtonZIndex && !isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current)) {
         setShouldRemoveFollowButtonZIndex(false)
       }
     }
   })
 
-  const qualitiesContainerInitialHeight = qualitiesContainerRefState?.clientHeight
+  const qualitiesContainerInitialHeight = qualitiesContainerRef?.current?.clientHeight
 
   // Handles mounting the expanded settings with and without the qualities data loaded
   useEffect(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
-      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRefState) || qualitiesContainerRefState.clientHeight > qualitiesContainerInitialHeight) {
+    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
+      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current) || qualitiesContainerRef?.current.clientHeight > qualitiesContainerInitialHeight) {
         setShouldRemoveFollowButtonZIndex(true)
       }
     }
-  }, [followButtonRefState, qualitiesContainerRefState, isRenditionSettingPopupExpanded, qualitiesContainerInitialHeight, qualities])
+  }, [followButtonRefState, qualitiesContainerRef, isRenditionSettingPopupExpanded, qualitiesContainerInitialHeight, shouldRemoveFollowButtonZIndex])
 
   useEffect(() => {
     if (!isRenditionSettingPopupExpanded) {
