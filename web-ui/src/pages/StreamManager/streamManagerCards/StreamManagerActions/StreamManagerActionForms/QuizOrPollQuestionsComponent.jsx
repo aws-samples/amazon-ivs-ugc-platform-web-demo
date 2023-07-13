@@ -90,7 +90,9 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
   const {
     content: {
       question: questionLabel,
-      input_name_attribute: inputNameAttribute
+      answers_input_name_attribute: streamManagerActionFormAnswers,
+      question_input_name_attribute: streamManagerActionFormQuestion,
+      duration_input_name_attribute: streamManagerActionFormDuration,
     },
     dataKey,
     rangeSelector: {
@@ -111,7 +113,7 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
     <>
       <Input
         label={questionLabel}
-        name={inputNameAttribute}
+        name={streamManagerActionFormQuestion}
         dataKey={dataKey}
         value={question}
         onChange={updateStreamManagerActionQuizPollData}
@@ -126,7 +128,7 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
         label={contentMapper[formType].content.answers}
         minOptions={inputGroupMin}
         maxOptions={inputGroupMax}
-        name={inputNameAttribute}
+        name={streamManagerActionFormAnswers}
         options={answers}
         placeholder={$content.answer}
         updateData={updateStreamManagerActionQuizPollData}
@@ -135,7 +137,7 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
       />
       <RangeSelector
         label={rangeSelectorLabel}
-        name={inputNameAttribute}
+        name={streamManagerActionFormDuration}
         dataKey={rangeSelectorDataKey}
         updateData={updateStreamManagerActionQuizPollData}
         value={duration}

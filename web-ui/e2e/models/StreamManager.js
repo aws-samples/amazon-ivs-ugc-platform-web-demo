@@ -106,7 +106,7 @@ class StreamManagerPageModel extends BasePageModel {
       hasText: 'Duration'
     });
     const durationRangeInputLoc = this.page.getByTestId(
-      'streamManagerActionFormDuration-range-input'
+      'streamManagerActionQuizFormDuration-range-input'
     );
     if (!isPreFilled) {
       expect(durationNumInputLoc).toHaveValue(defaultDuration);
@@ -169,14 +169,14 @@ class StreamManagerPageModel extends BasePageModel {
 
     // Select the correct answer
     const correctAnswerRadioBtnLoc = this.page.getByTestId(
-      `streamManagerActionFormAnswers-${answers[1]}-radio-button`
+      `streamManagerActionQuizFormAnswers-${answers[1]}-radio-button`
     );
     if (!isPreFilled) await correctAnswerRadioBtnLoc.click();
 
     expect(
       await this.page
         .getByTestId(
-          `streamManagerActionFormAnswers-${answers[0]}-radio-button`
+          `streamManagerActionQuizFormAnswers-${answers[0]}-radio-button`
         )
         .isChecked()
     ).toBeFalsy();
@@ -184,7 +184,7 @@ class StreamManagerPageModel extends BasePageModel {
     expect(
       await this.page
         .getByTestId(
-          `streamManagerActionFormAnswers-${answers[2]}-radio-button`
+          `streamManagerActionQuizFormAnswers-${answers[2]}-radio-button`
         )
         .isChecked()
     ).toBeFalsy();
