@@ -41,7 +41,7 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   );
   const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
   const [followButtonRefState, setFollowButtonRefState] = useState()
-  const { qualitiesContainerRef, player: { qualities } } = usePlayerContext()
+  const { qualitiesContainerRef } = usePlayerContext()
 
   useResize(() => {
     if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
@@ -57,7 +57,7 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
 
   const qualitiesContainerInitialHeight = qualitiesContainerRef?.current?.clientHeight
 
-  // Handles mounting the expanded settings with and without the qualities data loaded
+  // On mount
   useEffect(() => {
     if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
       if (isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current) || qualitiesContainerRef?.current.clientHeight > qualitiesContainerInitialHeight) {
