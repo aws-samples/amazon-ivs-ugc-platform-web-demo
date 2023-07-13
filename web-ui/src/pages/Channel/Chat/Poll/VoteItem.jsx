@@ -53,7 +53,7 @@ const VoteItem = forwardRef(
     } = usePoll();
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
-    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
+    const { currentBreakpoint } = useResponsiveDevice();
     const { pathname } = useLocation();
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
@@ -174,7 +174,7 @@ const VoteItem = forwardRef(
                   'sm:max-w-[70%]',
                   'xs:max-w-[55%]'
                 ],
-              !hasWon && 'max-w-[75%]'
+              !hasWon && ['max-w-[75%]', 'xs:max-w-[65%]']
             ])}
           >
             <div
@@ -241,7 +241,7 @@ const VoteItem = forwardRef(
                   animate={inputDivControls}
                   htmlFor={inputAndLabelId}
                   className={clsm([
-                    hasWon && isDesktopView && ['w-[300px]'],
+                    'w-full',
                     'break-words',
                     'line-clamp-2',
                     'text-p4',

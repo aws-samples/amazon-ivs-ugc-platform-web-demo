@@ -9,6 +9,7 @@ import { player as $content } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import Button from '../../../../../components/Button';
 import useClickAway from '../../../../../hooks/useClickAway';
+import { usePlayerContext } from '../../../contexts/Player';
 
 export const POPUP_ID = 'rendition';
 
@@ -22,7 +23,7 @@ const RenditionSettingPopup = ({
 }) => {
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
   const { isMobileView } = useResponsiveDevice();
-  const qualitiesContainerRef = useRef();
+  const { qualitiesContainerRef } = usePlayerContext()
 
   const onSelectQualityHandler = useCallback(
     (event) => {
@@ -55,7 +56,7 @@ const RenditionSettingPopup = ({
     } else {
       setQualitiesContainerPos(null);
     }
-  }, [isOpen, qualities]);
+  }, [isOpen, qualities, qualitiesContainerRef]);
 
   return (
     <>

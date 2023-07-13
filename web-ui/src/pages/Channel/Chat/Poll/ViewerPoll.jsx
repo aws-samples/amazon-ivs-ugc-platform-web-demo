@@ -8,17 +8,18 @@ import {
   STREAM_ACTION_NAME,
   CHAT_MESSAGE_EVENT_TYPES
 } from '../../../../constants';
+import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useChannel } from '../../../../contexts/Channel';
+import { useChat } from '../../../../contexts/Chat';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useUser } from '../../../../contexts/User';
+import AnimatedVoteItems from './AnimatedVoteItems';
 import Button from '../../../../components/Button/Button';
 import ProgressBar from '../../ViewerStreamActions/ProgressBar';
 import Spinner from '../../../../components/Spinner';
 import PollContainer from './PollContainer';
-import { useChat } from '../../../../contexts/Chat';
-import { useUser } from '../../../../contexts/User';
-import AnimatedVoteItems from './AnimatedVoteItems';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -115,17 +116,9 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
   const showVoteAndProgressAsFooter = hasScrollbar && !shouldRenderInTab;
 
   const renderProgressBar = (
-    <>
-      {shouldRenderProgressbar && (
-        <div className="pt-5">
-          <ProgressBar
-            color={color}
-            duration={duration}
-            startTime={startTime}
-          />
-        </div>
-      )}
-    </>
+    <div className="pt-5">
+      <ProgressBar color={color} duration={duration} startTime={startTime} />
+    </div>
   );
 
   const renderVoteButton = (
@@ -183,12 +176,32 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
             />
           </AnimatePresence>
         </div>
-        {showVoteAndProgress && !showVoteAndProgressAsFooter && (
-          <>
-            {renderVoteButton}
-            {renderProgressBar}
-          </>
-        )}
+        <motion.div
+          {...createAnimationProps({
+            animations: ['fadeIn-full', 'fadeOut-full'],
+            transition: 'bounce',
+            customVariants: {
+              hidden: {
+                height: 0,
+                padding: 0,
+                transition: { duration: 0.1 }
+              },
+              visible: {
+                height: 'auto'
+              }
+            },
+            options: {
+              isVisible: shouldRenderProgressbar
+            }
+          })}
+        >
+          {!showVoteAndProgressAsFooter && (
+            <>
+              {renderVoteButton}
+              {renderProgressBar}
+            </>
+          )}
+        </motion.div>
       </PollContainer>
       {showVoteAndProgress && showVoteAndProgressAsFooter && isActive && (
         <>
