@@ -14,7 +14,6 @@ import ProfileViewMenu from './ProfileViewMenu';
 import UserAvatar from '../../../components/UserAvatar';
 import { POPUP_ID } from './Controls/RenditionSetting';
 import useResize from '../../../hooks/useResize';
-import useDebouncedCallback from '../../../hooks/useDebouncedCallback';
 
 const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
   return clsm([
@@ -42,30 +41,37 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   );
   const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
   const [followButtonRefState, setFollowButtonRefState] = useState()
-  const { player: { qualitiesContainerRefState } } = usePlayerContext()
+  const { player: { qualitiesContainerRefState, qualities } } = usePlayerContext()
   
   const isElementsOverlapping = (element1, element2) => {
     const el1 = element1?.getBoundingClientRect();
     const el2 = element2?.getBoundingClientRect();
 
-    return el1.bottom > el2?.top && el1?.top < el2?.bottom;
+    return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
   }
 
-  useResize(useDebouncedCallback(() => {
+  useResize(() => {
     if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
       if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
         setShouldRemoveFollowButtonZIndex(true)
       }
-    }
-  }, 200))
 
+      if (shouldRemoveFollowButtonZIndex && !isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+        setShouldRemoveFollowButtonZIndex(false)
+      }
+    }
+  })
+
+  const qualitiesContainerInitialHeight = qualitiesContainerRefState?.clientHeight
+
+  // Handles mounting the expanded settings with and without the qualities data loaded
   useEffect(() => {
     if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRefState) {
-      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRefState)) {
+      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRefState) || qualitiesContainerRefState.clientHeight > qualitiesContainerInitialHeight) {
         setShouldRemoveFollowButtonZIndex(true)
       }
     }
-  }, [followButtonRefState, qualitiesContainerRefState, isRenditionSettingPopupExpanded])
+  }, [followButtonRefState, qualitiesContainerRefState, isRenditionSettingPopupExpanded, qualitiesContainerInitialHeight, qualities])
 
   useEffect(() => {
     if (!isRenditionSettingPopupExpanded) {
