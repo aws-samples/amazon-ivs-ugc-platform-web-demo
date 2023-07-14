@@ -50,7 +50,6 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
   const { color } = channelData || {};
   const { userData = undefined } = useUser();
   const { trackingId = undefined } = userData || {};
-  const inputDivControls = useAnimationControls();
   const buttonDivControls = useAnimationControls();
   const radioBoxControls = useAnimationControls();
 
@@ -69,22 +68,17 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
       startTime: JSON.stringify(startTime)
     });
 
-    await radioBoxControls.start({
-      left: '-300px',
-      opacity: 0,
-      transition: { duration: 0.1 }
-    });
-
     await Promise.all([
+      radioBoxControls.start({
+        left: '-300px',
+        opacity: 0,
+        transition: { duration: 0.1 }
+      }),
       buttonDivControls.start({
         height: 0,
         padding: 0,
         opacity: 0,
         transition: { duration: 0.1 }
-      }),
-      inputDivControls.start({
-        x: '-1px',
-        transition: { duration: 0.2 }
       })
     ]);
 
@@ -95,7 +89,6 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
     SUBMIT_VOTE,
     buttonDivControls,
     duration,
-    inputDivControls,
     radioBoxControls,
     selectedOption,
     sendMessage,
@@ -170,7 +163,6 @@ const ViewerPoll = ({ shouldRenderInTab }) => {
           <AnimatePresence>
             <AnimatedVoteItems
               textColor={textColor}
-              inputDivControls={inputDivControls}
               radioBoxControls={radioBoxControls}
               showVotePercentage
             />
