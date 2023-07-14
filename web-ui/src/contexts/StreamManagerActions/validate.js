@@ -37,7 +37,7 @@ const getListOfDuplicateOptions = (value) => {
   value.forEach((option, idx) => {
     if (option === '') return;
 
-    const formattedString = option.trim();
+    const formattedString = option?.trim();
     answerCountMap[formattedString] =
       formattedString in answerCountMap ? ++answerCountMap[formattedString] : 1;
 
@@ -52,7 +52,8 @@ const getListOfDuplicateOptions = (value) => {
 // Main Validator
 const defaultValidationOptions = {
   disableFormatValidation: false,
-  disableLengthValidation: false
+  disableLengthValidation: false,
+  enableDuplicateValidation: false
 };
 
 const validate = (
@@ -60,7 +61,8 @@ const validate = (
   actionName,
   {
     disableFormatValidation = defaultValidationOptions.disableFormatValidation,
-    disableLengthValidation = defaultValidationOptions.disableLengthValidation
+    disableLengthValidation = defaultValidationOptions.disableLengthValidation,
+    enableDuplicateValidation = defaultValidationOptions.enableDuplicateValidation
   } = defaultValidationOptions
 ) =>
   Object.entries(data).reduce((errors, [key, value]) => {
@@ -92,12 +94,14 @@ const validate = (
       }
 
       // Check whether answers/options are unique
-      const listOfDuplicateOptions = getListOfDuplicateOptions(value);
+      if (enableDuplicateValidation) {
+        const listOfDuplicateOptions = getListOfDuplicateOptions(value);
 
-      if (listOfDuplicateOptions.length) {
-        for (const duplicateIdx of listOfDuplicateOptions) {
-          messages[duplicateIdx] = $content.enter_a_unique_option;
-          isInvalid = true;
+        if (listOfDuplicateOptions.length) {
+          for (const duplicateIdx of listOfDuplicateOptions) {
+            messages[duplicateIdx] = $content.enter_a_unique_option;
+            isInvalid = true;
+          }
         }
       }
 
