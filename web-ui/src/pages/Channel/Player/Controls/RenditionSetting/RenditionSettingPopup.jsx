@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Close } from '../../../../../assets/icons';
@@ -23,7 +23,7 @@ const RenditionSettingPopup = ({
 }) => {
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
   const { isMobileView } = useResponsiveDevice();
-  const { qualitiesContainerRef } = usePlayerContext()
+  const { qualitiesContainerRef } = usePlayerContext();
 
   const onSelectQualityHandler = useCallback(
     (event) => {

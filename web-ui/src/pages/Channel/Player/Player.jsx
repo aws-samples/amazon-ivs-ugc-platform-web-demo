@@ -241,7 +241,12 @@ const Player = ({ chatSectionRef }) => {
       ref={playerSectionRef}
     >
       <ProfileViewHeroBanner />
-      <PlayerHeader avatarSrc={avatarSrc} color={color} username={username} openPopupIds={openPopupIds} />
+      <PlayerHeader
+        avatarSrc={avatarSrc}
+        color={color}
+        username={username}
+        openPopupIds={openPopupIds}
+      />
       <StreamVideo
         ref={videoRef}
         /* Player */

@@ -340,4 +340,4 @@ export const isElementsOverlapping = (element1, element2) => {
   const el2 = element2?.getBoundingClientRect();
 
   return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
-}
+};

@@ -88,7 +88,7 @@ const FollowButton = ({ isExpandedView, setFollowButtonRefState }) => {
       subscribeOverlayElement(element);
       buttonRef.current = element;
 
-      setFollowButtonRefState(buttonRef.current)
+      setFollowButtonRefState(buttonRef.current);
     },
     [setFollowButtonRefState, subscribeOverlayElement]
   );

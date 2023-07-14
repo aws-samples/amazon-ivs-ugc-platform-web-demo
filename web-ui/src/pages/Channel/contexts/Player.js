@@ -73,7 +73,7 @@ export const Provider = ({ children }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const targetElements = useRef(new Map());
   const timeoutId = useRef(null);
-  const qualitiesContainerRef = useRef(null)
+  const qualitiesContainerRef = useRef(null);
 
   const closeOverlay = useCallback(() => {
     if (shouldKeepOverlaysVisible) return;

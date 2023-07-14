@@ -23,8 +23,8 @@ const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
     'shrink-0',
     'pointer-events-all',
     !shouldRemoveZIndex && 'z-10'
-  ])
-}
+  ]);
+};
 
 const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   const {
@@ -39,38 +39,73 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   const isRenditionSettingPopupExpanded = !!openPopupIds.find(
     (openPopupId) => openPopupId === POPUP_ID
   );
-  const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] = useState(false)
-  const [followButtonRefState, setFollowButtonRefState] = useState()
-  const { qualitiesContainerRef } = usePlayerContext()
+  const [shouldRemoveFollowButtonZIndex, setShouldRemoveFollowButtonZIndex] =
+    useState(false);
+  const [followButtonRefState, setFollowButtonRefState] = useState();
+  const { qualitiesContainerRef } = usePlayerContext();
 
   useResize(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
-      if (!shouldRemoveFollowButtonZIndex && isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current)) {
-        setShouldRemoveFollowButtonZIndex(true)
+    if (
+      isRenditionSettingPopupExpanded &&
+      followButtonRefState &&
+      qualitiesContainerRef?.current
+    ) {
+      if (
+        !shouldRemoveFollowButtonZIndex &&
+        isElementsOverlapping(
+          followButtonRefState,
+          qualitiesContainerRef?.current
+        )
+      ) {
+        setShouldRemoveFollowButtonZIndex(true);
       }
 
-      if (shouldRemoveFollowButtonZIndex && !isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current)) {
-        setShouldRemoveFollowButtonZIndex(false)
+      if (
+        shouldRemoveFollowButtonZIndex &&
+        !isElementsOverlapping(
+          followButtonRefState,
+          qualitiesContainerRef?.current
+        )
+      ) {
+        setShouldRemoveFollowButtonZIndex(false);
       }
     }
-  })
+  });
 
-  const qualitiesContainerInitialHeight = qualitiesContainerRef?.current?.clientHeight
+  const qualitiesContainerInitialHeight =
+    qualitiesContainerRef?.current?.clientHeight;
 
   // On mount
   useEffect(() => {
-    if (isRenditionSettingPopupExpanded && followButtonRefState && qualitiesContainerRef?.current) {
-      if (isElementsOverlapping(followButtonRefState, qualitiesContainerRef?.current) || qualitiesContainerRef?.current.clientHeight > qualitiesContainerInitialHeight) {
-        setShouldRemoveFollowButtonZIndex(true)
+    if (
+      isRenditionSettingPopupExpanded &&
+      followButtonRefState &&
+      qualitiesContainerRef?.current
+    ) {
+      if (
+        isElementsOverlapping(
+          followButtonRefState,
+          qualitiesContainerRef?.current
+        ) ||
+        qualitiesContainerRef?.current.clientHeight >
+          qualitiesContainerInitialHeight
+      ) {
+        setShouldRemoveFollowButtonZIndex(true);
       }
     }
-  }, [followButtonRefState, qualitiesContainerRef, isRenditionSettingPopupExpanded, qualitiesContainerInitialHeight, shouldRemoveFollowButtonZIndex])
+  }, [
+    followButtonRefState,
+    qualitiesContainerRef,
+    isRenditionSettingPopupExpanded,
+    qualitiesContainerInitialHeight,
+    shouldRemoveFollowButtonZIndex
+  ]);
 
   useEffect(() => {
     if (!isRenditionSettingPopupExpanded) {
-      setShouldRemoveFollowButtonZIndex(false)
+      setShouldRemoveFollowButtonZIndex(false);
     }
-  }, [isRenditionSettingPopupExpanded])
+  }, [isRenditionSettingPopupExpanded]);
 
   const { isOverlayVisible } = usePlayerContext();
   const { isSessionValid } = useUser();
@@ -195,13 +230,18 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
           <motion.div
             layout="position"
             layoutDependency={layoutDependency.current}
-            className={clsm(getHeaderButtonClasses(shouldRemoveFollowButtonZIndex))}
+            className={clsm(
+              getHeaderButtonClasses(shouldRemoveFollowButtonZIndex)
+            )}
             {...getPlayerHeaderProfileViewAnimationProps({
               expanded: { marginTop: 24, marginLeft: 0 },
               collapsed: { marginTop: 0, marginLeft: 16 }
             })}
           >
-            <FollowButton isExpandedView={isProfileViewExpanded} setFollowButtonRefState={setFollowButtonRefState} />
+            <FollowButton
+              isExpandedView={isProfileViewExpanded}
+              setFollowButtonRefState={setFollowButtonRefState}
+            />
             <motion.div
               className={clsm(['w-11', 'h-11'])}
               {...getPlayerHeaderProfileViewAnimationProps({
