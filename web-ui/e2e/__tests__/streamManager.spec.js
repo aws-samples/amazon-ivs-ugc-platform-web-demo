@@ -290,6 +290,42 @@ test.describe('Stream Manager Page', () => {
         });
       });
     });
+
+    test.describe('Web Broadcast', () => {
+      test('When camera and microphone permissions are not granted, should show error message, microphone button, camera button, and start stream button are disabled', async ({
+        page
+      }) => {
+        const goLiveBtnLoc = page.getByTestId('web-broadcast-go-live-button'); // This go live button is only rendered on non-mobile devices
+        const goLiveTabBtnLoc = page.getByText('Go Live');
+        const startStreamBtnLoc = page.getByText('Start stream');
+        const errorNotifLoc = page.getByTestId('error-notification');
+
+        // Expand web broadcast component
+        if (await goLiveBtnLoc.isVisible()) {
+          // Desktop
+          await goLiveBtnLoc.click();
+          await expect(startStreamBtnLoc).toBeDisabled();
+        } else {
+          // Mobile
+          await goLiveTabBtnLoc.click();
+        }
+
+        // Error message
+        await expect(errorNotifLoc).toHaveText(
+          'You must allow access to both your camera and microphone'
+        );
+        // Microphone button
+        const microphoneOffBtnLoc = await page.locator(
+          'button[aria-label="Turn off microphone"]'
+        );
+        await expect(microphoneOffBtnLoc).toBeDisabled();
+        // Camera button
+        const cameraOffBtnLoc = await page.locator(
+          'button[aria-label="Turn off camera"]'
+        );
+        await expect(cameraOffBtnLoc).toBeDisabled();
+      });
+    });
   });
 
   test.describe('Live State', () => {
