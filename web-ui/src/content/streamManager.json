@@ -84,7 +84,9 @@
     "quiz": {
       "confirm_text": "Start quiz",
       "question": "Question",
-      "input_name_attribute": "streamManagerActionQuizFormQuestion",
+      "answers_input_name_attribute": "streamManagerActionQuizFormAnswers",
+      "question_input_name_attribute": "streamManagerActionQuizFormQuestion",
+      "duration_input_name_attribute": "streamManagerActionFormDuration",
       "answers": "Answers",
       "answer": "Answer",
       "add_answer": "Add answer",
@@ -117,7 +119,9 @@
     "poll": {
       "confirm_text": "Start poll",
       "question": "Question",
-      "input_name_attribute": "streamManagerActionPollFormQuestion",
+      "answers_input_name_attribute": "streamManagerActionPollFormAnswers",
+      "question_input_name_attribute": "streamManagerActionPollFormQuestion",
+      "duration_input_name_attribute": "streamManagerActionFormDuration",
       "default_label": "Host a live poll",
       "active_label": "Hosting a live poll",
       "modal_form_title": "Host a poll",

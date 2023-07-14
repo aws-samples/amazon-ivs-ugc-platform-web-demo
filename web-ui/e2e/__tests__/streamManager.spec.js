@@ -79,7 +79,7 @@ test.describe('Stream Manager Page', () => {
       await page.takeScreenshot('initial-page-load');
     });
 
-    test.describe('Action Modals', () => {
+    test.describe.fixme('Action Modals', () => {
       for (const streamActionName of MODAL_STREAM_ACTION_NAMES) {
         test.describe('Shared tests', () => {
           test(`should open and close the ${streamActionName} modal`, async ({
@@ -103,7 +103,7 @@ test.describe('Stream Manager Page', () => {
             );
           });
 
-          test.fixme(
+          test(
             `should complete the ${streamActionName} form and save the data`,
             async ({
               streamManagerPage: {

@@ -9,7 +9,7 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 
 const useStreamManagerActionsLocalStorage = ({
   updateStreamManagerActionData
-} = {}) => {
+}) => {
   const { userData } = useUser();
   const { channelData } = useChannel();
   const { isLive } = channelData || {};
@@ -45,12 +45,10 @@ const useStreamManagerActionsLocalStorage = ({
           JSON.stringify(prevStoredData) !== JSON.stringify(data);
         const dataToSave = shouldUpdate ? data : prevStoredData;
 
-        if (updateStreamManagerActionData) {
-          updateStreamManagerActionData({
-            dataOrFn: dataToSave,
-            shouldValidate: false
-          });
-        }
+        updateStreamManagerActionData({
+          dataOrFn: dataToSave,
+          shouldValidate: false
+        });
 
         return dataToSave;
       });
