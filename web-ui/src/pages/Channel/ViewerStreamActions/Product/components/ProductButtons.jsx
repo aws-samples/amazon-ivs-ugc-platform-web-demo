@@ -26,7 +26,7 @@ const ProductButtons = forwardRef(
   ({ openProductDetails, variant, productUrl }, ref) => {
     const { channelData } = useChannel();
 
-    const { color = 'default' } = channelData;
+    const color = channelData?.color || 'default';
     const isModal = variant !== 'popup';
     const isAmazonProduct = productUrl !== '';
 

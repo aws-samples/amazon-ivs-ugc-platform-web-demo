@@ -74,7 +74,8 @@ const Channel = () => {
       chatSectionHeight = Math.max(innerHeight - (width * 9) / 16, 200); // chat section should be no less than 200px in height
     }
 
-    chatSectionRef.current.style.minHeight = `${chatSectionHeight}px`;
+    if (chatSectionRef.current)
+      chatSectionRef.current.style.minHeight = `${chatSectionHeight}px`;
   }, [isMobileView, isStackedView]);
 
   useResize(updateChatSectionHeight, { shouldCallOnMount: true });
