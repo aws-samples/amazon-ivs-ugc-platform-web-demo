@@ -92,8 +92,9 @@ class StreamManagerPageModel extends BasePageModel {
     const userData = localStorage.find(({ name }) => name === userKey);
     // Removes the need to provide the expected output every time this function is called
     const expectedDataStr =
-      expectedOutputStr !== undefined ? expectedOutputStr : userData.value;
-
+    expectedOutputStr !== undefined ? expectedOutputStr : userData.value;
+    
+    // console.log({ expectedOutputStr, expectedDataStr, userData: userData.value })
     expect(userData.value).toBe(expectedDataStr);
   };
 
@@ -106,7 +107,7 @@ class StreamManagerPageModel extends BasePageModel {
       hasText: 'Duration'
     });
     const durationRangeInputLoc = this.page.getByTestId(
-      'streamManagerActionQuizFormDuration-range-input'
+      'streamManagerActionFormDuration-range-input'
     );
     if (!isPreFilled) {
       expect(durationNumInputLoc).toHaveValue(defaultDuration);
