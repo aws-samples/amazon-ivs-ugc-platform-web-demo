@@ -103,30 +103,26 @@ test.describe('Stream Manager Page', () => {
             );
           });
 
-          test(
-            `should complete the ${streamActionName} form and save the data`,
-            async ({
-              streamManagerPage: {
-                completeNoticeForm,
-                completeProductForm,
-                completeQuizForm,
-                saveFormData
-              },
-              page
-            }) => {
-              if (streamActionName === QUIZ) await completeQuizForm();
-              else if (streamActionName === PRODUCT)
-                await completeProductForm();
-              else if (streamActionName === NOTICE) await completeNoticeForm();
+          test(`should complete the ${streamActionName} form and save the data`, async ({
+            streamManagerPage: {
+              completeNoticeForm,
+              completeProductForm,
+              completeQuizForm,
+              saveFormData
+            },
+            page
+          }) => {
+            if (streamActionName === QUIZ) await completeQuizForm();
+            else if (streamActionName === PRODUCT) await completeProductForm();
+            else if (streamActionName === NOTICE) await completeNoticeForm();
 
-              await page.takeScreenshot(
-                `${streamActionName}-action-modal-completed-form`
-              );
+            await page.takeScreenshot(
+              `${streamActionName}-action-modal-completed-form`
+            );
 
-              const expectedOutputStr = expectedOutputStrMap[streamActionName];
-              await saveFormData({ expectedOutputStr });
-            }
-          );
+            const expectedOutputStr = expectedOutputStrMap[streamActionName];
+            await saveFormData({ expectedOutputStr });
+          });
 
           test(`should load the ${streamActionName} data from localStorage`, async ({
             streamManagerPage: {
