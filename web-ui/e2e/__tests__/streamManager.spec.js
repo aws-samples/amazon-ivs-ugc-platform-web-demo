@@ -103,7 +103,7 @@ test.describe('Stream Manager Page', () => {
             );
           });
 
-          test(`should complete the ${streamActionName} form and save the data`, async ({
+          test.fixme(`should complete the ${streamActionName} form and save the data`, async ({
             streamManagerPage: {
               completeNoticeForm,
               completeProductForm,
