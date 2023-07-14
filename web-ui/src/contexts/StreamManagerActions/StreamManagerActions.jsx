@@ -324,10 +324,21 @@ export const Provider = ({ children }) => {
       };
 
       const onConfirm = async (data) => {
-        const shouldCheckForDuplicateValidaton = [STREAM_ACTION_NAME.POLL, STREAM_ACTION_NAME.QUIZ].includes(actionName)
-        const options = { enableDuplicateValidation: shouldCheckForDuplicateValidaton }
+        const shouldCheckForDuplicateValidaton = [
+          STREAM_ACTION_NAME.POLL,
+          STREAM_ACTION_NAME.QUIZ
+        ].includes(actionName);
+        const options = {
+          enableDuplicateValidation: shouldCheckForDuplicateValidaton
+        };
 
-        if (!validateStreamManagerActionData(data[actionName], actionName, options)) {
+        if (
+          !validateStreamManagerActionData(
+            data[actionName],
+            actionName,
+            options
+          )
+        ) {
           notifyErrorPortal($content.notifications.error.unable_to_send);
 
           return false;
