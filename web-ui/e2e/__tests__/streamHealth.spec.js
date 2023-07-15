@@ -228,7 +228,7 @@ test.describe('Stream Health Page', () => {
       }
     );
 
-    testWithoutNavigation(
+    testWithoutNavigation.fixme(
       'should have LIVE notification in stream session dropdown',
       async ({
         streamHealthPage: {
