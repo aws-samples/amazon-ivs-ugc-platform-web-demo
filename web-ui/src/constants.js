@@ -26,6 +26,14 @@ export const CHANNEL_DATA_REFRESH_INTERVAL = 5000; // 5 seconds
 /**
  * CHAT
  */
+export const CHAT_MESSAGE_EVENT_TYPES = {
+  SEND_MESSAGE: 'SEND_MESSAGE',
+  START_POLL: 'START_POLL',
+  END_POLL: 'END_POLL',
+  SUBMIT_VOTE: 'SUBMIT_VOTE',
+  SEND_VOTE_STATS: 'SEND_VOTE_STATS',
+  HEART_BEAT: 'HEART_BEAT'
+};
 export const BANNED_USERNAME_CHANNEL_ID_SEPARATOR = 'channel/';
 export const MAX_RECONNECT_ATTEMPTS = 7;
 
@@ -141,12 +149,28 @@ export const COMPOSER_MAX_CHARACTER_LENGTH = 500;
 export const COMPOSER_RATE_LIMIT_BLOCK_TIME_MS = 2000; // 2 seconds
 
 /**
+ * STREAM MANAGER POLL ACTION
+ */
+
+export const PROFILE_COLORS_WITH_WHITE_TEXT = ['green', 'blue'];
+export const NUM_MILLISECONDS_TO_BLOCK = 2000;
+export const NUM_MILLISECONDS_TO_SHOW_POLL_RESULTS = 10000;
+export const SHOW_POLL_RESULTS_ANIMATION_DURATION = 200; // ms
+/*
+To handle undelivered SDK messages, we follow this approach: if the "end poll" message is not received, 
+we wait an additional 2 seconds before removing the poll forcefully to resolve the issue and prevent it 
+from persisting in the user interface.
+*/
+export const EXTRA_TIME_TO_WAIT_FOR_END_POLL_EVENT = 2000; // ms
+
+/**
  * STREAM MANAGER
  */
 export const STREAM_ACTION_NAME = {
   QUIZ: 'quiz',
   CELEBRATION: 'celebration',
   NOTICE: 'notice',
+  POLL: 'poll',
   PRODUCT: 'product',
   AMAZON_PRODUCT: 'amazon_product'
 };
@@ -180,11 +204,18 @@ export const AMAZON_PRODUCT_DATA_KEYS = {
   PRODUCT_PAGE_NUMBER: 'productPageNumber'
 };
 
+export const POLL_DATA_KEYS = {
+  QUESTION: 'question',
+  ANSWERS: 'answers',
+  DURATION: 'duration'
+};
+
 export const LOCALSTORAGE_ENABLED_STREAM_ACTIONS = [
   STREAM_ACTION_NAME.QUIZ,
   STREAM_ACTION_NAME.CELEBRATION,
   STREAM_ACTION_NAME.NOTICE,
-  STREAM_ACTION_NAME.PRODUCT
+  STREAM_ACTION_NAME.PRODUCT,
+  STREAM_ACTION_NAME.POLL
 ];
 
 /**
@@ -278,6 +309,15 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   [STREAM_ACTION_NAME.CELEBRATION]: {},
   [STREAM_ACTION_NAME.AMAZON_PRODUCT]: {
     [AMAZON_PRODUCT_DATA_KEYS.KEYWORD]: { maxCharLength: 150 }
+  },
+  [STREAM_ACTION_NAME.POLL]: {
+    [POLL_DATA_KEYS.ANSWERS]: {
+      min: 2, // count
+      max: 5, // count
+      maxCharLength: 40
+    },
+    [POLL_DATA_KEYS.QUESTION]: { maxCharLength: 256 }, // TENTATIVE
+    [POLL_DATA_KEYS.DURATION]: { min: 10, max: 120 } // seconds
   }
 };
 
@@ -321,4 +361,3 @@ export const MAX_AVATAR_COUNT = 14;
  * Stream Manager page, Following section
  */
 export const STREAM_MANAGER_DEFAULT_TAB = 0;
-export const STREAM_MANAGER_WEB_BROADCAST_TAB = 1;

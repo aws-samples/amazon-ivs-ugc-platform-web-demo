@@ -11,7 +11,7 @@ import usePrevious from '../../../../../../../hooks/usePrevious';
 
 const $content = $streamManagerContent.stream_manager_actions;
 
-const StreamManagerActionRadioGroup = ({
+const StreamManagerActionRadioTextGroup = ({
   addOptionButtonText,
   dataKey,
   label,
@@ -23,9 +23,11 @@ const StreamManagerActionRadioGroup = ({
   placeholder,
   selectedDataKey,
   selectedOptionIndex,
-  updateData
+  updateData,
+  inputType,
+  formType
 }) => {
-  const radioInputRefs = useRef([]);
+  const radioTextInputRef = useRef([]);
   const addButtonRef = useRef();
   const shouldShowDeleteOptionButton = options.length > minOptions;
   const shouldShowAddOptionButton = options.length < maxOptions;
@@ -50,7 +52,7 @@ const StreamManagerActionRadioGroup = ({
   useEffect(() => {
     // Focus on newly added option input field only if any option field is already in focus
     if (options.length > previousOptionLength) {
-      radioInputRefs.current[previousOptionLength].focus();
+      radioTextInputRef.current[previousOptionLength].focus();
     }
   }, [previousOptionLength, options.length]);
 
@@ -65,6 +67,8 @@ const StreamManagerActionRadioGroup = ({
   };
 
   const handleSelectOption = ({ target }) => {
+    if (!selectedDataKey) return;
+
     updateData({
       [selectedDataKey]: parseInt(target.value)
     });
@@ -87,10 +91,10 @@ const StreamManagerActionRadioGroup = ({
 
     updateData({
       [dataKey]: options.filter((_, i) => i !== index),
-      [selectedDataKey]: newSelectedOptionIndex
+      ...(selectedDataKey && { [selectedDataKey]: newSelectedOptionIndex })
     });
     if (hasFocusOnInput)
-      radioInputRefs.current[index === 0 ? 0 : index - 1].focus();
+      radioTextInputRef.current[index === 0 ? 0 : index - 1].focus();
   };
 
   return (
@@ -99,7 +103,9 @@ const StreamManagerActionRadioGroup = ({
       <div className={clsm(['flex', 'flex-col', 'space-y-6'])}>
         {options.map((_, index) => (
           <RadioTextInput
-            ref={(el) => (radioInputRefs.current[index] = el)}
+            formType={formType}
+            inputType={inputType}
+            ref={(el) => (radioTextInputRef.current[index] = el)}
             key={index}
             name={name}
             onChange={handleOptionTextChange}
@@ -117,7 +123,7 @@ const StreamManagerActionRadioGroup = ({
             hasRadioError={!hasSelection}
           />
         ))}
-        {!hasSelection && (
+        {selectedDataKey && !hasSelection && (
           <ErrorMessage error={$content.input_error.select_correct_answer} />
         )}
         <Button
@@ -137,19 +143,21 @@ const StreamManagerActionRadioGroup = ({
   );
 };
 
-StreamManagerActionRadioGroup.defaultProps = {
+StreamManagerActionRadioTextGroup.defaultProps = {
   addOptionButtonText: '',
   optionErrors: [],
   label: '',
   maxOptions: Infinity,
   minOptions: 0,
   placeholder: '',
-  selectedOptionIndex: 0
+  selectedOptionIndex: 0,
+  selectedDataKey: undefined
 };
 
-StreamManagerActionRadioGroup.propTypes = {
+StreamManagerActionRadioTextGroup.propTypes = {
   addOptionButtonText: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
+  inputType: PropTypes.string.isRequired,
   optionErrors: PropTypes.arrayOf(PropTypes.string),
   label: PropTypes.string,
   maxOptions: PropTypes.number,
@@ -157,9 +165,10 @@ StreamManagerActionRadioGroup.propTypes = {
   name: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
   placeholder: PropTypes.string,
-  selectedDataKey: PropTypes.string.isRequired,
+  selectedDataKey: PropTypes.string,
   selectedOptionIndex: PropTypes.number,
-  updateData: PropTypes.func.isRequired
+  updateData: PropTypes.func.isRequired,
+  formType: PropTypes.string.isRequired
 };
 
-export default StreamManagerActionRadioGroup;
+export default StreamManagerActionRadioTextGroup;

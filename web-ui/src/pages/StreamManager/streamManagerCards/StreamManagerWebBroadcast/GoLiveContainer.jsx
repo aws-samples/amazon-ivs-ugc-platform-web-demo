@@ -108,13 +108,11 @@ const GoLiveContainer = forwardRef(
             ref={!isFullScreen ? previewRef : null}
             className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
           />
-          {isBroadcastCardOpen && (
-            <WebBroadcastControl
-              ref={settingsButtonRef}
-              isOpen={isOpen}
-              buttons={webBroadcastControllerWithSettingsButton}
-            />
-          )}
+          <WebBroadcastControl
+            ref={settingsButtonRef}
+            isOpen={isOpen}
+            buttons={webBroadcastControllerWithSettingsButton}
+          />
         </motion.div>
         {(isOpen || !isDesktopView) && (
           <motion.div

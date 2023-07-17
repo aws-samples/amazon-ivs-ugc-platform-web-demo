@@ -1,24 +1,33 @@
 import { clsm } from '../../../utils';
-import { Provider as NotificationProvider } from '../../../contexts/Notification';
 import Chat from '../../Channel/Chat';
+import Poll from '../../Channel/Chat/Poll/Poll';
+import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
 
-const StreamManagerChat = () => (
-  <section
-    className={clsm([
-      'bg-lightMode-gray-extraLight',
-      'dark:bg-darkMode-gray-dark',
-      'flex-1',
-      'flex',
-      'h-full',
-      'overflow-hidden',
-      'rounded-3xl',
-      'w-full'
-    ])}
-  >
-    <NotificationProvider>
+const StreamManagerChat = () => {
+  const { isActive, containerMinHeight, hasVotes } = usePoll();
+
+  return (
+    <section
+      style={{
+        ...(isActive && {
+          minHeight: containerMinHeight
+        })
+      }}
+      className={clsm([
+        'relative',
+        'bg-lightMode-gray-extraLight',
+        'dark:bg-darkMode-gray-dark',
+        'flex-1',
+        'flex',
+        'overflow-hidden',
+        'rounded-3xl',
+        'w-full'
+      ])}
+    >
+      {hasVotes && <Poll />}
       <Chat />
-    </NotificationProvider>
-  </section>
-);
+    </section>
+  );
+};
 
 export default StreamManagerChat;

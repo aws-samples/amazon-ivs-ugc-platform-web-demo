@@ -1,7 +1,11 @@
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
-import { CHANNEL_TYPE } from './constants';
+import {
+  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
+  CHANNEL_TYPE,
+  NUM_MILLISECONDS_TO_BLOCK
+} from './constants';
 
 export const noop = () => {};
 
@@ -194,7 +198,7 @@ const customTwMerge = extendTailwindMerge({
         ]
       }
     ],
-    text: ['text-p1', 'text-p2', 'text-p3', 'text-h3']
+    text: ['text-p1', 'text-p2', 'text-p3', 'text-p4', 'text-h3']
   }
 });
 
@@ -297,12 +301,43 @@ export const convertConcurrentViews = (views) => {
     views /= 1000;
     index++;
   }
-  const hasDecimal = views % 1 !== 0;
+
+  const formattedViews = Number(
+    Number.isInteger(views) ? views : views.toFixed(1)
+  );
 
   return (
-    (hasDecimal ? views.toFixed(index === 0 ? 0 : 1) : views) +
+    (formattedViews % 1 === 0 ? formattedViews.toFixed() : formattedViews) +
     abbreviations[index]
   );
 };
 
 export const isS3Url = (url = '') => url.includes('.s3.');
+
+export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
+  bannedUserChannelArn
+    .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
+    ?.toLowerCase();
+
+export const updateVotes = (message, votes) => {
+  const selectedOption = message.attributes?.option;
+
+  return votes.map((voteOption) => {
+    return voteOption.option === selectedOption
+      ? { ...voteOption, count: voteOption.count + 1 }
+      : voteOption;
+  });
+};
+
+export const isVotingBlocked = (duration, startTime) => {
+  const now = Date.now();
+
+  return startTime + duration * 1000 - now <= NUM_MILLISECONDS_TO_BLOCK;
+};
+
+export const isElementsOverlapping = (element1, element2) => {
+  const el1 = element1?.getBoundingClientRect();
+  const el2 = element2?.getBoundingClientRect();
+
+  return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
+};

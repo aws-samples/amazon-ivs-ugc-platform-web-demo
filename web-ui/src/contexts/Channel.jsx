@@ -75,7 +75,11 @@ export const Provider = ({ children }) => {
     ]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>
+      {((!isChannelLoading && channelData) || !isSessionValid) && children}
+    </Context.Provider>
+  );
 };
 
 Provider.propTypes = { children: PropTypes.node.isRequired };

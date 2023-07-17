@@ -17,6 +17,7 @@ import ProductViewerStreamAction from '../ViewerStreamActions/Product/components
 import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
+  isPollActive,
   isPopupOpen,
   onClickPlayerHandler,
   shouldShowStream
@@ -40,7 +41,8 @@ const PlayerViewerStreamActions = ({
       className={isPopupOpen ? '-z-10' : ''}
     >
       <AnimatePresence>
-        {currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
+        {!isPollActive &&
+          currentViewerStreamActionName === STREAM_ACTION_NAME.QUIZ &&
           !shouldRenderActionInTab && (
             <QuizViewerStreamAction
               {...currentViewerStreamActionData}
@@ -49,10 +51,11 @@ const PlayerViewerStreamActions = ({
               shouldRenderActionInTab={shouldRenderActionInTab}
             />
           )}
-        {[
-          STREAM_ACTION_NAME.PRODUCT,
-          STREAM_ACTION_NAME.AMAZON_PRODUCT
-        ].includes(currentViewerStreamActionName) &&
+        {!isPollActive &&
+          [
+            STREAM_ACTION_NAME.PRODUCT,
+            STREAM_ACTION_NAME.AMAZON_PRODUCT
+          ].includes(currentViewerStreamActionName) &&
           !shouldRenderActionInTab && (
             <motion.div
               {...createAnimationProps({
@@ -73,24 +76,29 @@ const PlayerViewerStreamActions = ({
               />
             </motion.div>
           )}
-        {currentViewerStreamActionName === STREAM_ACTION_NAME.NOTICE && (
-          <NoticeViewerStreamAction
-            {...currentViewerStreamActionData}
-            onClickPlayerHandler={onClickPlayerHandler}
-            shouldShowStream={shouldShowStream}
-          />
-        )}
+        {!isPollActive &&
+          currentViewerStreamActionName === STREAM_ACTION_NAME.NOTICE && (
+            <NoticeViewerStreamAction
+              {...currentViewerStreamActionData}
+              onClickPlayerHandler={onClickPlayerHandler}
+              shouldShowStream={shouldShowStream}
+            />
+          )}
       </AnimatePresence>
     </motion.div>
   );
 };
 
 PlayerViewerStreamActions.propTypes = {
+  isPollActive: PropTypes.bool,
   isPopupOpen: PropTypes.bool.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool
 };
 
-PlayerViewerStreamActions.defaultProps = { shouldShowStream: false };
+PlayerViewerStreamActions.defaultProps = {
+  isPollActive: false,
+  shouldShowStream: false
+};
 
 export default PlayerViewerStreamActions;

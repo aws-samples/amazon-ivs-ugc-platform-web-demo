@@ -9,7 +9,6 @@ import { MotionConfig } from 'framer-motion';
 
 // Context Providers
 import { Provider as ChannelProvider } from './contexts/Channel';
-import { Provider as ChatMessagesProvider } from './contexts/ChatMessages';
 import { Provider as LastFocusedElementProvider } from './contexts/LastFocusedElement';
 import { Provider as ModalProvider } from './contexts/Modal';
 import { Provider as NotificationProvider } from './contexts/Notification';
@@ -77,9 +76,7 @@ const router = createBrowserRouter(
         element={
           <StreamsProvider>
             <ChannelProvider>
-              <ChatMessagesProvider>
-                <AppLayoutWithNavbar />
-              </ChatMessagesProvider>
+              <AppLayoutWithNavbar />
             </ChannelProvider>
           </StreamsProvider>
         }

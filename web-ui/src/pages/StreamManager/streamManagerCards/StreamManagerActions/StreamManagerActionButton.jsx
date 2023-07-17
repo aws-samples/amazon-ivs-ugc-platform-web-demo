@@ -9,6 +9,7 @@ import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useStreamManagerActions } from '../../../../contexts/StreamManagerActions';
 import { useUser } from '../../../../contexts/User';
 import useCountdown from '../../../../hooks/useCountdown';
+import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
 const $content = $streamManagerContent.stream_manager_actions;
 const PROGRESS_PIE_RADIUS = 14;
@@ -23,19 +24,41 @@ const DEFAULT_TRANSITION_CLASSES = [
 const StreamManagerActionButton = forwardRef(
   ({ ariaLabel, icon, label, name, onClick }, ref) => {
     const Icon = icon;
+    const { hasPollEnded, savedPollData } = usePoll();
     const { hasFetchedInitialUserData, userData } = useUser();
     const { color = 'default' } = userData || {};
     const { currentBreakpoint } = useResponsiveDevice();
     const isSmallBreakpoint = currentBreakpoint < BREAKPOINTS.sm;
-    const { activeStreamManagerActionData, stopStreamAction } =
-      useStreamManagerActions();
     const {
-      duration: activeStreamManagerActionDuration,
-      name: activeStreamManagerActionName,
-      expiry: activeStreamManagerActionExpiry
-    } = activeStreamManagerActionData || {};
+      activeStreamManagerActionData,
+      stopStreamAction,
+      endPollOnExpiry,
+      cancelActivePoll
+    } = useStreamManagerActions();
+
+    let activeStreamManagerActionDuration;
+    let activeStreamManagerActionName;
+    let activeStreamManagerActionExpiry;
+
+    if (name !== STREAM_ACTION_NAME.POLL) {
+      const { duration, name, expiry } = activeStreamManagerActionData || {};
+
+      activeStreamManagerActionDuration = duration;
+      activeStreamManagerActionName = name;
+      activeStreamManagerActionExpiry = expiry;
+    } else {
+      const { duration, name, expiry } =
+        (savedPollData?.isActive && savedPollData) || {};
+
+      activeStreamManagerActionDuration = duration;
+      activeStreamManagerActionName = name;
+      activeStreamManagerActionExpiry = expiry;
+    }
+
     const isActive = name === activeStreamManagerActionName;
     const isPerpetual = isActive && !activeStreamManagerActionExpiry;
+    const isCountingDown = isActive && !isPerpetual;
+
     const [textFormattedTimeLeft, currentProgress] = useCountdown({
       expiry: activeStreamManagerActionExpiry,
       formatter: (timeLeft) => [
@@ -43,23 +66,33 @@ const StreamManagerActionButton = forwardRef(
         (timeLeft / (activeStreamManagerActionDuration * 1000)) *
           STROKE_DASHARRAY_MAX
       ],
-      isEnabled: isActive && !isPerpetual,
-      onExpiry: stopStreamAction
+      isEnabled: isCountingDown,
+      onExpiry:
+        name === STREAM_ACTION_NAME.POLL && !hasPollEnded
+          ? endPollOnExpiry
+          : stopStreamAction
     });
 
     const handleClick = () => {
-      if (isActive) stopStreamAction();
+      if (isActive)
+        name === STREAM_ACTION_NAME.POLL
+          ? cancelActivePoll()
+          : stopStreamAction();
       else onClick();
     };
 
-    const isCountingDown = isActive && !isPerpetual;
     const currentLabel = (
       <>
-        {isActive ? label.active : label.default}
+        {!isActive && label.default}
+        {isActive && !hasPollEnded && label.active}
+        {isActive && hasPollEnded && $content.poll.showing_results}
         <br />
-        {name !== STREAM_ACTION_NAME.AMAZON_PRODUCT && `a ${name}`}
+        {![STREAM_ACTION_NAME.AMAZON_PRODUCT, STREAM_ACTION_NAME.POLL].includes(
+          name
+        ) && `a ${name}`}
       </>
     );
+
     let statusLabel =
       isActive && (isPerpetual ? $content.on : textFormattedTimeLeft);
 

@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 
 import { channel as $channelContent } from '../../content';
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as PlayerProvider } from './contexts/Player';
 import { sanitizeAmazonProductData } from '../../helpers/streamActionHelpers';
 import { STREAM_ACTION_NAME } from '../../constants';
@@ -23,6 +24,8 @@ import QuizViewerStreamAction from './ViewerStreamActions/QuizCard';
 import Tabs from '../../components/Tabs/Tabs';
 import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
+import Poll from './Chat/Poll/Poll';
+import { usePoll } from '../../contexts/StreamManagerActions/Poll';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
@@ -38,8 +41,10 @@ const Channel = () => {
     currentViewerStreamActionName,
     currentViewerStreamActionTitle,
     setCurrentViewerAction,
-    shouldRenderActionInTab
+    shouldRenderActionInTab,
+    isChannelPageStackedView
   } = useViewerStreamActions();
+  const { isActive: isPollActive, pollTabLabel, hasVotes } = usePoll();
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -50,6 +55,9 @@ const Channel = () => {
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
   else if (isStackedView) visibleChatWidth = '100%';
+
+  const isTabView =
+    shouldRenderActionInTab || (isPollActive && isChannelPageStackedView);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
@@ -160,59 +168,70 @@ const Channel = () => {
             ])}
           >
             <Tabs>
-              {shouldRenderActionInTab && (
+              {isTabView && (
                 <>
                   <Tabs.List
                     selectedIndex={selectedTabIndex}
                     setSelectedIndex={setSelectedTabIndex}
                     tabs={[
                       {
-                        label: currentViewerStreamActionTitle,
+                        label: isPollActive
+                          ? pollTabLabel
+                          : currentViewerStreamActionTitle,
                         panelIndex: 0
                       },
                       { label: $channelContent.tabs.chat, panelIndex: 1 }
                     ]}
                   />
                   <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                    {currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.QUIZ && (
-                      <QuizViewerStreamAction
-                        {...currentViewerStreamActionData}
-                        setCurrentViewerAction={setCurrentViewerAction}
-                        shouldRenderActionInTab={shouldRenderActionInTab}
-                      />
+                    {hasVotes && (
+                      <NotificationProvider>
+                        <ChatProvider>
+                          <Poll shouldRenderInTab={true} />
+                        </ChatProvider>
+                      </NotificationProvider>
                     )}
-                    {[
-                      STREAM_ACTION_NAME.AMAZON_PRODUCT,
-                      STREAM_ACTION_NAME.PRODUCT
-                    ].includes(currentViewerStreamActionName) && (
-                      <div
-                        className={clsm([
-                          'absolute',
-                          'h-full',
-                          'no-scrollbar',
-                          'overflow-x-hidden',
-                          'overflow-y-auto',
-                          'pb-5',
-                          'px-5',
-                          'supports-overlay:overflow-y-overlay',
-                          'w-full'
-                        ])}
-                      >
-                        <ProductViewerStreamAction
-                          {...(currentViewerStreamActionName ===
-                          STREAM_ACTION_NAME.AMAZON_PRODUCT
-                            ? sanitizeAmazonProductData(
-                                currentViewerStreamActionData
-                              )
-                            : currentViewerStreamActionData)}
+                    {!isPollActive &&
+                      currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.QUIZ && (
+                        <QuizViewerStreamAction
+                          {...currentViewerStreamActionData}
+                          setCurrentViewerAction={setCurrentViewerAction}
+                          shouldRenderActionInTab={shouldRenderActionInTab}
                         />
-                      </div>
-                    )}
+                      )}
+                    {!isPollActive &&
+                      [
+                        STREAM_ACTION_NAME.AMAZON_PRODUCT,
+                        STREAM_ACTION_NAME.PRODUCT
+                      ].includes(currentViewerStreamActionName) && (
+                        <div
+                          className={clsm([
+                            'absolute',
+                            'h-full',
+                            'no-scrollbar',
+                            'overflow-x-hidden',
+                            'overflow-y-auto',
+                            'pb-5',
+                            'px-5',
+                            'supports-overlay:overflow-y-overlay',
+                            'w-full'
+                          ])}
+                        >
+                          <ProductViewerStreamAction
+                            {...(currentViewerStreamActionName ===
+                            STREAM_ACTION_NAME.AMAZON_PRODUCT
+                              ? sanitizeAmazonProductData(
+                                  currentViewerStreamActionData
+                                )
+                              : currentViewerStreamActionData)}
+                          />
+                        </div>
+                      )}
                   </Tabs.Panel>
                 </>
               )}
-              {selectedTabIndex === 0 && shouldRenderActionInTab && (
+              {selectedTabIndex === 0 && isTabView && (
                 <ProfileViewFloatingNav
                   containerClassName="fixed"
                   reverseVisibility
@@ -221,18 +240,19 @@ const Channel = () => {
               <Tabs.Panel
                 index={1}
                 selectedIndex={
-                  shouldRenderActionInTab
-                    ? selectedTabIndex
-                    : CHAT_PANEL_TAB_INDEX
+                  isTabView ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
                 }
               >
                 <NotificationProvider>
-                  <Chat
-                    shouldRunCelebration={
-                      currentViewerStreamActionName ===
-                      STREAM_ACTION_NAME.CELEBRATION
-                    }
-                  />
+                  <ChatProvider>
+                    {!isTabView && hasVotes && <Poll />}
+                    <Chat
+                      shouldRunCelebration={
+                        currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.CELEBRATION
+                      }
+                    />
+                  </ChatProvider>
                 </NotificationProvider>
               </Tabs.Panel>
             </Tabs>

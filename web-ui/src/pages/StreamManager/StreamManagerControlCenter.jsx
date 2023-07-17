@@ -2,10 +2,8 @@ import PropTypes from 'prop-types';
 import { useEffect, useRef, useState, forwardRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import {
-  STREAM_MANAGER_DEFAULT_TAB,
-  STREAM_MANAGER_WEB_BROADCAST_TAB
-} from '../../constants';
+import { STREAM_MANAGER_DEFAULT_TAB } from '../../constants';
+import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { clsm } from '../../utils';
 import { streamManager as $content } from '../../content';
 import {
@@ -51,17 +49,11 @@ const StreamManagerControlCenter = forwardRef(
 
       if (isDesktopView) {
         setSelectedTabIndex(STREAM_MANAGER_DEFAULT_TAB);
-      } else {
-        if (isBroadcasting) {
-          setSelectedTabIndex(STREAM_MANAGER_WEB_BROADCAST_TAB);
-        }
       }
     }, [isDesktopView, resetPreview, state, isBroadcasting]);
 
     return (
       <>
-        <StreamManagerActionModal />
-        <WebBroadcastSettingsModal />
         <div
           ref={webBroadcastParentContainerRef}
           className={clsm(['flex', 'h-full', 'w-full', 'max-w-[960px]'])}
@@ -73,6 +65,8 @@ const StreamManagerControlCenter = forwardRef(
               '[&>div>button]:h-9'
             ])}
           >
+            <StreamManagerActionModal />
+            <WebBroadcastSettingsModal />
             {!isDesktopView && (
               <Tabs.List
                 selectedIndex={selectedTabIndex}
@@ -154,7 +148,9 @@ const StreamManagerControlCenter = forwardRef(
                     )}
                   />
                 </div>
-                <StreamManagerChat />
+                <NotificationProvider>
+                  <StreamManagerChat />
+                </NotificationProvider>
               </div>
             </Tabs.Panel>
             {!isDesktopView && (

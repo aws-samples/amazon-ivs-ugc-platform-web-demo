@@ -14,7 +14,8 @@ const STREAM_MANAGER_ACTION_FORMATS = {
   },
   [STREAM_ACTION_NAME.NOTICE]: {},
   [STREAM_ACTION_NAME.CELEBRATION]: {},
-  [STREAM_ACTION_NAME.AMAZON_PRODUCT]: {}
+  [STREAM_ACTION_NAME.AMAZON_PRODUCT]: {},
+  [STREAM_ACTION_NAME.POLL]: {}
 };
 
 // Character Length Validator
@@ -29,10 +30,30 @@ const validateUrl = (url) => {
   return validateLength(url, 0, 2048) && regex.test(url);
 };
 
+const getListOfDuplicateOptions = (value) => {
+  const _duplicatesIdxArray = [];
+  const answerCountMap = {};
+
+  value.forEach((option, idx) => {
+    if (option === '') return;
+
+    const formattedString = option?.trim();
+    answerCountMap[formattedString] =
+      formattedString in answerCountMap ? ++answerCountMap[formattedString] : 1;
+
+    if (answerCountMap[formattedString] > 1) {
+      _duplicatesIdxArray.push(idx);
+    }
+  });
+
+  return _duplicatesIdxArray;
+};
+
 // Main Validator
 const defaultValidationOptions = {
   disableFormatValidation: false,
-  disableLengthValidation: false
+  disableLengthValidation: false,
+  enableDuplicateValidation: false
 };
 
 const validate = (
@@ -40,7 +61,8 @@ const validate = (
   actionName,
   {
     disableFormatValidation = defaultValidationOptions.disableFormatValidation,
-    disableLengthValidation = defaultValidationOptions.disableLengthValidation
+    disableLengthValidation = defaultValidationOptions.disableLengthValidation,
+    enableDuplicateValidation = defaultValidationOptions.enableDuplicateValidation
   } = defaultValidationOptions
 ) =>
   Object.entries(data).reduce((errors, [key, value]) => {
@@ -66,6 +88,18 @@ const validate = (
         if (value[i] && format && !disableFormatValidation) {
           if (format === FORMAT_VALIDATION_TYPE.URL && !validateUrl(value[i])) {
             messages[i] = $content.enter_valid_url;
+            isInvalid = true;
+          }
+        }
+      }
+
+      // Check whether answers/options are unique
+      if (enableDuplicateValidation) {
+        const listOfDuplicateOptions = getListOfDuplicateOptions(value);
+
+        if (listOfDuplicateOptions.length) {
+          for (const duplicateIdx of listOfDuplicateOptions) {
+            messages[duplicateIdx] = $content.enter_a_unique_option;
             isInvalid = true;
           }
         }
