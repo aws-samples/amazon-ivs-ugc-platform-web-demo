@@ -8,7 +8,8 @@ AWS_PROFILE_FLAG		=	--profile $(AWS_PROFILE)
 STAGE					?=	dev
 PUBLISH					?=	false
 STACK 					?=	UGC-$(STAGE)
-CDK_OPTIONS 			=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK)
+SCHEDULE 				?= 	rate(48 hours)
+CDK_OPTIONS 			=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c scheduleExp="$(strip $(SCHEDULE))"
 FE_DEPLOYMENT_STACK		=	UGC-Frontend-Deployment-$(STAGE)
 SEED_COUNT 				?=	50
 OFFLINE_SESSION_COUNT	?=	1
@@ -25,8 +26,10 @@ help: ## Shows this help message
 	@echo "   Option 1: export AWS_PROFILE=user1\n"
 	@echo "   Option 2: make <target> AWS_PROFILE=user1\n"
 	@echo "2. Set the STAGE value to \"dev\" or \"prod\" to use the corresponding configuration. The default value is \"dev\". \n" | fold -s
-	@echo "3. AWS CLI is required to run the seed command (https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html). \n"
-	@echo "4. Add JSON=<file_path> as an argument for the seed command to use a JSON file to create data. Furthermore, the script will create randomly generated data to match the SEED_COUNT. By default the script will create 1 offline session count out of the seed count. To change this please use the OFFLINE_SESSION_COUNT attribute. \n"
+	@echo "3. Set the SCHEDULE value to either a cron or rate expression based on the UTC time zone. By default, a rate expression is used to run the cleanupUnverifiedUsers Lambda every 48 hours. \n" | fold -s"
+	@echo "Read more about schedule expressions for EventBridge rules here: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html \n" | fold -s
+	@echo "4. AWS CLI is required to run the seed command (https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html). \n"
+	@echo "5. Add JSON=<file_path> as an argument for the seed command to use a JSON file to create data. Furthermore, the script will create randomly generated data to match the SEED_COUNT. By default the script will create 1 offline session count out of the seed count. To change this please use the OFFLINE_SESSION_COUNT attribute. \n"
 
 app: install bootstrap deploy ## Installs NPM dependencies, bootstraps, and deploys the stack
 

@@ -8,7 +8,6 @@ import { useChannel } from '../../../../contexts/Channel';
 
 const AnimatedVoteItems = ({
   textColor,
-  inputDivControls,
   radioBoxControls,
   showVotePercentage
 }) => {
@@ -34,7 +33,6 @@ const AnimatedVoteItems = ({
             showVotePercentage={showVotePercentage}
             color={color}
             textColor={textColor}
-            inputDivControls={inputDivControls}
             radioBoxControls={radioBoxControls}
             inputAndLabelId={`${option}-${index}`}
             noVotesCaptured={noVotesCaptured}
@@ -48,7 +46,6 @@ const AnimatedVoteItems = ({
 AnimatedVoteItems.defaultProps = {
   showVotePercentage: true,
   textColor: undefined,
-  inputDivControls: {},
   radioBoxControls: {}
 };
 
@@ -56,7 +53,6 @@ AnimatedVoteItems.propTypes = {
   textColor: PropTypes.string,
   showVotePercentage: PropTypes.bool,
   // Viewer props
-  inputDivControls: PropTypes.object,
   radioBoxControls: PropTypes.object
 };
 

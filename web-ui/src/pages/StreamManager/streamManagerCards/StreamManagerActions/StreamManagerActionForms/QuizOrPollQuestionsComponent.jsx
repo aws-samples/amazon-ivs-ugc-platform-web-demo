@@ -92,7 +92,7 @@ const QuizOrPollQuestionsComponent = ({ formType }) => {
       question: questionLabel,
       answers_input_name_attribute: streamManagerActionFormAnswers,
       question_input_name_attribute: streamManagerActionFormQuestion,
-      duration_input_name_attribute: streamManagerActionFormDuration,
+      duration_input_name_attribute: streamManagerActionFormDuration
     },
     dataKey,
     rangeSelector: {

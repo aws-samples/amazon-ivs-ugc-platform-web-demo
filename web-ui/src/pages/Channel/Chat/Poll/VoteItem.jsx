@@ -10,7 +10,6 @@ import { streamManager as $streamManagerContent } from '../../../../content';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useLocation } from 'react-router-dom';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -38,7 +37,6 @@ const VoteItem = forwardRef(
       color,
       textColor,
       inputAndLabelId,
-      inputDivControls,
       radioBoxControls
     },
     ref
@@ -53,7 +51,6 @@ const VoteItem = forwardRef(
     } = usePoll();
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
-    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
     const { pathname } = useLocation();
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
@@ -149,12 +146,12 @@ const VoteItem = forwardRef(
             'flex',
             'items-center',
             'justify-between',
-            'pr-4'
+            'pr-2.5'
           ])}
         >
           <div
             className={clsm([
-              currentBreakpoint !== 0 ? 'px-4' : 'pl-4',
+              'pl-4',
               'flex',
               'flex-row',
               'items-center',
@@ -163,18 +160,18 @@ const VoteItem = forwardRef(
                 isStreamManagerPage && [
                   'lg:max-w-[75%]',
                   'max-w-[65%]',
-                  'md:max-w-[65%]',
+                  'md:max-w-[55%]',
                   'sm:max-w-[80%]'
                 ],
               hasWon &&
                 !isStreamManagerPage && [
                   'lg:max-w-[85%]',
                   'max-w-[65%]',
-                  'md:max-w-[85%]',
-                  'sm:max-w-[70%]',
-                  'xs:max-w-[55%]'
+                  'md:max-w-[58%]',
+                  'sm:max-w-[63%]',
+                  'xs:max-w-[50%]'
                 ],
-              !hasWon && 'max-w-[75%]'
+              !hasWon && ['max-w-[75%]', 'xs:max-w-[65%]']
             ])}
           >
             <div
@@ -183,7 +180,8 @@ const VoteItem = forwardRef(
                 'justify-center',
                 'flex-col',
                 'h-full',
-                'w-full'
+                'w-full',
+                'pr-1'
               ])}
             >
               {hasWon && (
@@ -196,9 +194,7 @@ const VoteItem = forwardRef(
                   {$content.winner}
                 </p>
               )}
-              <div
-                className={clsm(['flex', 'items-center', 'justify-between'])}
-              >
+              <div className={clsm(['flex', 'items-center', 'justify-start'])}>
                 <div
                   className={clsm([
                     '[&>input.radio]:top-[0px]',
@@ -237,11 +233,10 @@ const VoteItem = forwardRef(
                     />
                   )}
                 </div>
-                <motion.label
-                  animate={inputDivControls}
+                <label
                   htmlFor={inputAndLabelId}
                   className={clsm([
-                    hasWon && isDesktopView && ['w-[300px]'],
+                    'w-max',
                     'break-words',
                     'line-clamp-2',
                     'text-p4',
@@ -259,7 +254,7 @@ const VoteItem = forwardRef(
                   ])}
                 >
                   {option}
-                </motion.label>
+                </label>
               </div>
             </div>
             <motion.div
@@ -271,7 +266,6 @@ const VoteItem = forwardRef(
                   className={clsm([
                     'w-5',
                     'h-5',
-                    'ml-2.5',
                     `fill-poll-${color}-pollWinnerTextColor`
                   ])}
                 />
@@ -289,7 +283,8 @@ const VoteItem = forwardRef(
                 'flex',
                 'justify-between',
                 'items-center',
-                'w-auto'
+                'w-auto',
+                'pr-3'
               ])}
             >
               {showVotePercentage ? (
@@ -332,7 +327,6 @@ VoteItem.defaultProps = {
   showVotePercentage: false,
   percentage: 0,
   radioBoxControls: {},
-  inputDivControls: {},
   inputAndLabelId: undefined,
   noVotesCaptured: false
 };
@@ -346,7 +340,6 @@ VoteItem.propTypes = {
   percentage: PropTypes.number,
   showVotePercentage: PropTypes.bool,
   inputAndLabelId: PropTypes.string,
-  inputDivControls: PropTypes.object,
   radioBoxControls: PropTypes.object,
   noVotesCaptured: PropTypes.bool
 };

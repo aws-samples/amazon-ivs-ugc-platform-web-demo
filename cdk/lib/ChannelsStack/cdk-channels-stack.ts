@@ -3,7 +3,11 @@ import {
   aws_cloudfront_origins as origins,
   aws_cognito as cognito,
   aws_dynamodb as dynamodb,
+  aws_events as events,
+  aws_events_targets as targets,
   aws_iam as iam,
+  aws_lambda as lambda,
+  aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
   Duration,
@@ -24,10 +28,15 @@ import {
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
 import { SECRET_IDS } from '../../api/shared/constants';
+import { join } from 'path';
+
+const getLambdaEntryPath = (functionName: string) =>
+  join(__dirname, '../../lambdas', `${functionName}.ts`);
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
   tags: { [key: string]: string };
+  scheduleExp: string;
 }
 
 export class ChannelsStack extends NestedStack {
@@ -46,7 +55,7 @@ export class ChannelsStack extends NestedStack {
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
-    const { resourceConfig, tags } = props;
+    const { resourceConfig, scheduleExp, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
@@ -379,6 +388,47 @@ export class ChannelsStack extends NestedStack {
       secretsManagerPolicyStatement
     );
     this.policies = policies;
+
+    // Cleanup unverified users policies
+    const deleteUnverifiedChannelsPolicyStatement = new iam.PolicyStatement({
+      actions: ['dynamodb:BatchWriteItem'],
+      effect: iam.Effect.ALLOW,
+      resources: [channelsTable.tableArn]
+    });
+    const deleteUnverifiedUserPolicyStatement = new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminDeleteUser', 'cognito-idp:ListUsers'],
+      effect: iam.Effect.ALLOW,
+      resources: [userPool.userPoolArn]
+    });
+
+    // Cleanup unverified users lambda
+    const cleanupUnverifiedUsersHandler = new nodejsLambda.NodejsFunction(
+      this,
+      `${stackNamePrefix}-CleanupUnverifiedUsers-Handler`,
+      {
+        logRetention: 7,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        bundling: { minify: true },
+        functionName: `${stackNamePrefix}-CleanupUnverifiedUsers`,
+        entry: getLambdaEntryPath('cleanupUnverifiedUsers'),
+        timeout: Duration.minutes(10),
+        initialPolicy: [
+          deleteUnverifiedUserPolicyStatement,
+          deleteUnverifiedChannelsPolicyStatement
+        ]
+      }
+    );
+
+    // Scheduled cleanup unverified users lambda function
+    new events.Rule(this, 'Cleanup-Unverified-Users-Schedule-Rule', {
+      schedule: events.Schedule.expression(scheduleExp),
+      ruleName: `${stackNamePrefix}-CleanupUnverifiedUsers-Schedule`,
+      targets: [
+        new targets.LambdaFunction(cleanupUnverifiedUsersHandler, {
+          maxEventAge: Duration.minutes(2)
+        })
+      ]
+    });
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,

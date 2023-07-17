@@ -169,6 +169,7 @@ const StreamManagerWebBroadcast = forwardRef(
               'space-x-1',
               'rounded-xl'
             ])}
+            data-testid="web-broadcast-go-live-button"
           >
             <CreateVideo />
             <p>{$webBroadcastContent.go_live}</p>
