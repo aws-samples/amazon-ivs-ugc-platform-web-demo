@@ -94,7 +94,6 @@ class StreamManagerPageModel extends BasePageModel {
     const expectedDataStr =
       expectedOutputStr !== undefined ? expectedOutputStr : userData.value;
 
-    // console.log({ expectedOutputStr, expectedDataStr, userData: userData.value })
     expect(userData.value).toBe(expectedDataStr);
   };
 
