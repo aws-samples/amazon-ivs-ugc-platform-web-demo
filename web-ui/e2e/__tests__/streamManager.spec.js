@@ -87,7 +87,7 @@ test.describe('Stream Manager Page', () => {
               chatComponent: { moderatingPillLoc },
               closeStreamActionModal,
               openStreamActionModal
-          },
+            },
             page
           }) => {
             // Wait for the moderating pill to be visible for consistent screenshots
