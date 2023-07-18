@@ -24,8 +24,7 @@ const QUIZ = 'quiz';
 const PRODUCT = 'product';
 const NOTICE = 'notice';
 const CELEBRATION = 'celebration';
-const MODAL_STREAM_ACTION_NAMES = [QUIZ];
-// const MODAL_STREAM_ACTION_NAMES = [QUIZ, PRODUCT, NOTICE];
+const MODAL_STREAM_ACTION_NAMES = [QUIZ, PRODUCT, NOTICE];
 const STREAM_ACTION_NAMES = [...MODAL_STREAM_ACTION_NAMES, CELEBRATION];
 
 const buildChatToken = (roomName, username) => [roomName, username].join('|');
@@ -80,29 +79,29 @@ test.describe('Stream Manager Page', () => {
       await page.takeScreenshot('initial-page-load');
     });
 
-    test.describe.fixme('Action Modals', () => {
+    test.describe('Action Modals', () => {
       for (const streamActionName of MODAL_STREAM_ACTION_NAMES) {
         test.describe('Shared tests', () => {
-          // test(`should open and close the ${streamActionName} modal`, async ({
-          //   streamManagerPage: {
-          //     chatComponent: { moderatingPillLoc },
-          //     closeStreamActionModal,
-          //     openStreamActionModal
-          //   },
-          //   page
-          // }) => {
-          //   // Wait for the moderating pill to be visible for consistent screenshots
-          //   await moderatingPillLoc.waitFor({ state: 'visible' });
-          //   await openStreamActionModal(streamActionName);
-          //   await page.takeScreenshot(`${streamActionName}-action-modal-open`);
+          test(`should open and close the ${streamActionName} modal`, async ({
+            streamManagerPage: {
+              chatComponent: { moderatingPillLoc },
+              closeStreamActionModal,
+              openStreamActionModal
+          },
+            page
+          }) => {
+            // Wait for the moderating pill to be visible for consistent screenshots
+            await moderatingPillLoc.waitFor({ state: 'visible' });
+            await openStreamActionModal(streamActionName);
+            await page.takeScreenshot(`${streamActionName}-action-modal-open`);
 
-          //   // Wait for the moderating pill to be hidden for consistent screenshots
-          //   await moderatingPillLoc.waitFor({ state: 'hidden' });
-          //   await closeStreamActionModal(streamActionName);
-          //   await page.takeScreenshot(
-          //     `${streamActionName}-action-modal-closed`
-          //   );
-          // });
+            // Wait for the moderating pill to be hidden for consistent screenshots
+            await moderatingPillLoc.waitFor({ state: 'hidden' });
+            await closeStreamActionModal(streamActionName);
+            await page.takeScreenshot(
+              `${streamActionName}-action-modal-closed`
+            );
+          });
 
           test(`should complete the ${streamActionName} form and save the data`, async ({
             streamManagerPage: {
@@ -125,172 +124,172 @@ test.describe('Stream Manager Page', () => {
             await saveFormData({ expectedOutputStr });
           });
 
-          // test(`should load the ${streamActionName} data from localStorage`, async ({
-          //   streamManagerPage: {
-          //     completeNoticeForm,
-          //     completeProductForm,
-          //     completeQuizForm,
-          //     saveFormData
-          //   },
-          //   page
-          // }) => {
-          //   let completeFormFn = noop;
-          //   if (streamActionName === QUIZ) completeFormFn = completeQuizForm;
-          //   else if (streamActionName === PRODUCT)
-          //     completeFormFn = completeProductForm;
-          //   else if (streamActionName === NOTICE)
-          //     completeFormFn = completeNoticeForm;
+          test(`should load the ${streamActionName} data from localStorage`, async ({
+            streamManagerPage: {
+              completeNoticeForm,
+              completeProductForm,
+              completeQuizForm,
+              saveFormData
+            },
+            page
+          }) => {
+            let completeFormFn = noop;
+            if (streamActionName === QUIZ) completeFormFn = completeQuizForm;
+            else if (streamActionName === PRODUCT)
+              completeFormFn = completeProductForm;
+            else if (streamActionName === NOTICE)
+              completeFormFn = completeNoticeForm;
 
-          //   await completeFormFn();
-          //   await saveFormData();
+            await completeFormFn();
+            await saveFormData();
 
-          //   await page.reload();
-          //   // Assert that the form data against what was saved in localStorage
-          //   await completeFormFn(true);
-          //   await page.takeScreenshot(
-          //     `${streamActionName}-action-modal-prefilled-form`
-          //   );
-          // });
+            await page.reload();
+            // Assert that the form data against what was saved in localStorage
+            await completeFormFn(true);
+            await page.takeScreenshot(
+              `${streamActionName}-action-modal-prefilled-form`
+            );
+          });
         });
 
-        // test.describe('Action-specific tests', () => {
-        //   if (streamActionName === QUIZ) {
-        //     test('should add and remove an answer', async ({
-        //       streamManagerPage: { completeQuizForm },
-        //       page
-        //     }) => {
-        //       await completeQuizForm();
+        test.describe('Action-specific tests', () => {
+          if (streamActionName === QUIZ) {
+            test('should add and remove an answer', async ({
+              streamManagerPage: { completeQuizForm },
+              page
+            }) => {
+              await completeQuizForm();
 
-        //       const answersInputLoc = page.getByPlaceholder('Answer');
-        //       expect(await answersInputLoc.count()).toBe(3);
+              const answersInputLoc = page.getByPlaceholder('Answer');
+              expect(await answersInputLoc.count()).toBe(3);
 
-        //       // Add an answer
-        //       const addAnswerBtnLoc = page.getByText('Add answer');
-        //       await addAnswerBtnLoc.click();
-        //       expect(await answersInputLoc.count()).toBe(4);
+              // Add an answer
+              const addAnswerBtnLoc = page.getByText('Add answer');
+              await addAnswerBtnLoc.click();
+              expect(await answersInputLoc.count()).toBe(4);
 
-        //       const tempAnswer = 'Paris';
-        //       await answersInputLoc.last().fill(tempAnswer);
-        //       await expect(answersInputLoc.last()).toHaveValue(tempAnswer);
-        //       await page.takeScreenshot('quiz-action-modal-add-answer');
+              const tempAnswer = 'Paris';
+              await answersInputLoc.last().fill(tempAnswer);
+              await expect(answersInputLoc.last()).toHaveValue(tempAnswer);
+              await page.takeScreenshot('quiz-action-modal-add-answer');
 
-        //       // Remove an answer
-        //       const removeAnswerBtnLoc = page.getByTestId(
-        //         `delete-${tempAnswer}-item-button`
-        //       );
-        //       await removeAnswerBtnLoc.click();
-        //       expect(await answersInputLoc.count()).toBe(3);
-        //       await page.takeScreenshot('quiz-action-modal-remove-answer');
-        //     });
-        //   }
-        // });
+              // Remove an answer
+              const removeAnswerBtnLoc = page.getByTestId(
+                `delete-${tempAnswer}-item-button`
+              );
+              await removeAnswerBtnLoc.click();
+              expect(await answersInputLoc.count()).toBe(3);
+              await page.takeScreenshot('quiz-action-modal-remove-answer');
+            });
+          }
+        });
       }
     });
 
-    // test.describe('Chat', () => {
-    //   const message = 'Hello world!';
+    test.describe('Chat', () => {
+      const message = 'Hello world!';
 
-    //   test.describe('Single-user chat', () => {
-    //     test('a moderator sends a message and receives it', async ({
-    //       streamManagerPage: {
-    //         chatComponent: { moderatingPillLoc, sendChatMessage }
-    //       },
-    //       page
-    //     }) => {
-    //       await moderatingPillLoc.waitFor({ state: 'visible' });
+      test.describe('Single-user chat', () => {
+        test('a moderator sends a message and receives it', async ({
+          streamManagerPage: {
+            chatComponent: { moderatingPillLoc, sendChatMessage }
+          },
+          page
+        }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
 
-    //       await sendChatMessage(message);
+          await sendChatMessage(message);
 
-    //       await moderatingPillLoc.waitFor({ state: 'hidden' });
-    //       await expect(page.getByText(message)).toBeVisible();
-    //       await page.takeScreenshot(
-    //         'chat-moderator-sends-message-moderator-receives-message'
-    //       );
-    //     });
+          await moderatingPillLoc.waitFor({ state: 'hidden' });
+          await expect(page.getByText(message)).toBeVisible();
+          await page.takeScreenshot(
+            'chat-moderator-sends-message-moderator-receives-message'
+          );
+        });
 
-    //     test('a moderator sends a message and then deletes it', async ({
-    //       streamManagerPage: {
-    //         chatComponent: { deleteMessage, moderatingPillLoc, sendChatMessage }
-    //       },
-    //       page
-    //     }) => {
-    //       await moderatingPillLoc.waitFor({ state: 'visible' });
-    //       await sendChatMessage(message);
+        test('a moderator sends a message and then deletes it', async ({
+          streamManagerPage: {
+            chatComponent: { deleteMessage, moderatingPillLoc, sendChatMessage }
+          },
+          page
+        }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
+          await sendChatMessage(message);
 
-    //       await deleteMessage(message);
+          await deleteMessage(message);
 
-    //       expect(
-    //         await page.getByTestId('chatline-message-removed').count()
-    //       ).toBe(1);
-    //       await page.takeScreenshot(
-    //         'chat-moderator-sends-message-moderator-deletes-message'
-    //       );
-    //     });
-    //   });
+          expect(
+            await page.getByTestId('chatline-message-removed').count()
+          ).toBe(1);
+          await page.takeScreenshot(
+            'chat-moderator-sends-message-moderator-deletes-message'
+          );
+        });
+      });
 
-    //   test.describe('Multi-user chat', () => {
-    //     test('a moderator deletes a message sent by a viewer', async ({
-    //       streamManagerPage: {
-    //         chatComponent: {
-    //           deleteMessage,
-    //           moderatingPillLoc,
-    //           populateChatMessage
-    //         },
-    //         username
-    //       },
-    //       page
-    //     }, { title, project: { name: projectName } }) => {
-    //       await moderatingPillLoc.waitFor({ state: 'visible' });
+      test.describe('Multi-user chat', () => {
+        test('a moderator deletes a message sent by a viewer', async ({
+          streamManagerPage: {
+            chatComponent: {
+              deleteMessage,
+              moderatingPillLoc,
+              populateChatMessage
+            },
+            username
+          },
+          page
+        }, { title, project: { name: projectName } }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
 
-    //       const message = 'Hi, this is john!';
+          const message = 'Hi, this is john!';
 
-    //       await populateChatMessage(
-    //         message,
-    //         buildChatToken(getTestTitleSlug(title, projectName), username)
-    //       );
-    //       await deleteMessage(message);
+          await populateChatMessage(
+            message,
+            buildChatToken(getTestTitleSlug(title, projectName), username)
+          );
+          await deleteMessage(message);
 
-    //       expect(
-    //         await page.getByTestId('chatline-message-removed').count()
-    //       ).toBe(1);
-    //       await page.takeScreenshot(
-    //         'chat-viewer-sends-message-moderator-deletes-message'
-    //       );
-    //     });
+          expect(
+            await page.getByTestId('chatline-message-removed').count()
+          ).toBe(1);
+          await page.takeScreenshot(
+            'chat-viewer-sends-message-moderator-deletes-message'
+          );
+        });
 
-    //     test('a moderator bans a viewer', async ({
-    //       streamManagerPage: {
-    //         chatComponent: { banUser, moderatingPillLoc, populateChatMessage },
-    //         username
-    //       },
-    //       page
-    //     }, { title, project: { name: projectName } }) => {
-    //       await moderatingPillLoc.waitFor({ state: 'visible' });
+        test('a moderator bans a viewer', async ({
+          streamManagerPage: {
+            chatComponent: { banUser, moderatingPillLoc, populateChatMessage },
+            username
+          },
+          page
+        }, { title, project: { name: projectName } }) => {
+          await moderatingPillLoc.waitFor({ state: 'visible' });
 
-    //       const message = 'Hi, this is john!';
-    //       const viewerUsername = 'john';
-    //       const viewerChannelArn = 'channel/viewer-trackingId';
-    //       const testTitleSlug = getTestTitleSlug(title, projectName);
+          const message = 'Hi, this is john!';
+          const viewerUsername = 'john';
+          const viewerChannelArn = 'channel/viewer-trackingId';
+          const testTitleSlug = getTestTitleSlug(title, projectName);
 
-    //       await populateChatMessage(
-    //         message,
-    //         buildChatToken(testTitleSlug, viewerUsername)
-    //       );
-    //       await banUser(
-    //         {
-    //           username: viewerUsername,
-    //           bannedUserChannelArn: viewerChannelArn
-    //         },
-    //         buildChatToken(testTitleSlug, username)
-    //       );
+          await populateChatMessage(
+            message,
+            buildChatToken(testTitleSlug, viewerUsername)
+          );
+          await banUser(
+            {
+              username: viewerUsername,
+              bannedUserChannelArn: viewerChannelArn
+            },
+            buildChatToken(testTitleSlug, username)
+          );
 
-    //       expect(await page.getByText(message).count()).toBe(0);
-    //       await page.takeScreenshot(
-    //         'chat-viewer-sends-message-moderator-bans-viewer'
-    //       );
-    //     });
-    //   });
-    // });
+          expect(await page.getByText(message).count()).toBe(0);
+          await page.takeScreenshot(
+            'chat-viewer-sends-message-moderator-bans-viewer'
+          );
+        });
+      });
+    });
   });
 
   test.describe('Live State', () => {
