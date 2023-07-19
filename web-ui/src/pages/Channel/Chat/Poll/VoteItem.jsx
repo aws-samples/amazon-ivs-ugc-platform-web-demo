@@ -10,6 +10,7 @@ import { streamManager as $streamManagerContent } from '../../../../content';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useLocation } from 'react-router-dom';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useUser } from '../../../../contexts/User';
 
 const $content =
   $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL];
@@ -52,10 +53,15 @@ const VoteItem = forwardRef(
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
     const { pathname } = useLocation();
+    const { isSessionValid } = useUser();
+
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
-
     const isStreamManagerPage = pathname === '/manager';
+    const isPollPercentageVisible =
+      !isSessionValid || !isVoting || showFinalResults || isStreamManagerPage;
+
+    const showCurrentVotes = isPollPercentageVisible || noVotesCaptured;
 
     useEffect(() => {
       /**
@@ -123,7 +129,7 @@ const VoteItem = forwardRef(
             },
             transition: { duration: 0.15 },
             options: {
-              isVisible: !isVoting || showFinalResults || isStreamManagerPage
+              isVisible: isPollPercentageVisible
             }
           })}
           className={clsm([
@@ -272,10 +278,7 @@ const VoteItem = forwardRef(
               )}
             </motion.div>
           </div>
-          {(!isVoting ||
-            showFinalResults ||
-            isStreamManagerPage ||
-            noVotesCaptured) && (
+          {showCurrentVotes && (
             <div
               className={clsm([
                 'h-auto',
