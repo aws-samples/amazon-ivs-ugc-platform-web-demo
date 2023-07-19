@@ -64,17 +64,17 @@ test.describe('Settings Page', () => {
       ]);
     });
 
-    test.fixme(
-      'should update username',
-      async ({ settingsPage: { changeUsername }, page }) => {
-        await changeUsername('testUser1');
-        await page.takeScreenshot('update-username-success');
-        await page.assertResponses([
-          ['/channel/username/update', 200], // Update username
-          ['/channel', 200] // Get user data
-        ]);
-      }
-    );
+    test('should update username', async ({
+      settingsPage: { changeUsername },
+      page
+    }) => {
+      await changeUsername('testUser1');
+      await page.takeScreenshot('update-username-success');
+      await page.assertResponses([
+        ['/channel/username/update', 200], // Update username
+        ['/channel', 200] // Get user data
+      ]);
+    });
 
     test('should update password', async ({
       settingsPage: { changePassword },

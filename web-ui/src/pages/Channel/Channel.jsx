@@ -68,7 +68,7 @@ const Channel = () => {
        * Therefore, we use the window.innerHeight instead; otherwise, we use the channel width.
        */
       const { innerWidth, innerHeight } = window;
-      const { clientWidth: channelWidth } = channelRef.current;
+      const { clientWidth: channelWidth = 0 } = channelRef?.current || {};
       const width = isMobileView ? innerWidth : channelWidth;
 
       chatSectionHeight = Math.max(innerHeight - (width * 9) / 16, 200); // chat section should be no less than 200px in height

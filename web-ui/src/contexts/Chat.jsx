@@ -543,7 +543,6 @@ export const Provider = ({ children }) => {
           attributes: { MessageID },
           reason
         } = deletedMessage;
-
         handleDeleteMessage(MessageID, reason);
       }
     );
