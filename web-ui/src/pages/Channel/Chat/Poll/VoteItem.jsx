@@ -58,15 +58,10 @@ const VoteItem = forwardRef(
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
     const isStreamManagerPage = pathname === '/manager';
-    const showCurrentVotes =
-      isLoggedOut ||
-      !isVoting ||
-      showFinalResults ||
-      isStreamManagerPage ||
-      noVotesCaptured;
-
     const containerAnimationIsVisible =
       isLoggedOut || !isVoting || showFinalResults || isStreamManagerPage;
+
+    const showCurrentVotes = containerAnimationIsVisible || noVotesCaptured;
 
     useEffect(() => {
       /**
