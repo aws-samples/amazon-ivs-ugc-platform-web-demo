@@ -53,12 +53,17 @@ const VoteItem = forwardRef(
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
     const { pathname } = useLocation();
-    const { userData } = useUser()
-    const isLoggedOut = !userData?.username
+    const { userData } = useUser();
+    const isLoggedOut = !userData?.username;
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
-
     const isStreamManagerPage = pathname === '/manager';
+    const showCurrentVotes =
+      isLoggedOut ||
+      !isVoting ||
+      showFinalResults ||
+      isStreamManagerPage ||
+      noVotesCaptured;
 
     useEffect(() => {
       /**
@@ -126,7 +131,11 @@ const VoteItem = forwardRef(
             },
             transition: { duration: 0.15 },
             options: {
-              isVisible: isLoggedOut || !isVoting || showFinalResults || isStreamManagerPage
+              isVisible:
+                isLoggedOut ||
+                !isVoting ||
+                showFinalResults ||
+                isStreamManagerPage
             }
           })}
           className={clsm([
@@ -275,11 +284,7 @@ const VoteItem = forwardRef(
               )}
             </motion.div>
           </div>
-          {(isLoggedOut || 
-            !isVoting ||
-            showFinalResults ||
-            isStreamManagerPage ||
-            noVotesCaptured) && (
+          {showCurrentVotes && (
             <div
               className={clsm([
                 'h-auto',
