@@ -53,13 +53,13 @@ const VoteItem = forwardRef(
     const hasWon = isHighestCount && showFinalResults;
     const countFormatted = convertConcurrentViews(count);
     const { pathname } = useLocation();
-    const { userData } = useUser();
-    const isLoggedOut = !userData?.username;
+    const { isSessionValid } = useUser();
+
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
     const isStreamManagerPage = pathname === '/manager';
     const containerAnimationIsVisible =
-      isLoggedOut || !isVoting || showFinalResults || isStreamManagerPage;
+      !isSessionValid || !isVoting || showFinalResults || isStreamManagerPage;
 
     const showCurrentVotes = containerAnimationIsVisible || noVotesCaptured;
 
