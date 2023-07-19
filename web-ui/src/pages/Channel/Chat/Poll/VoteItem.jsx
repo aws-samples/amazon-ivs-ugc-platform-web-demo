@@ -58,10 +58,10 @@ const VoteItem = forwardRef(
     const voteContent =
       count === 1 ? $content.vote.toLowerCase() : $content.votes;
     const isStreamManagerPage = pathname === '/manager';
-    const containerAnimationIsVisible =
+    const isPollPercentageVisible =
       !isSessionValid || !isVoting || showFinalResults || isStreamManagerPage;
 
-    const showCurrentVotes = containerAnimationIsVisible || noVotesCaptured;
+    const showCurrentVotes = isPollPercentageVisible || noVotesCaptured;
 
     useEffect(() => {
       /**
@@ -129,7 +129,7 @@ const VoteItem = forwardRef(
             },
             transition: { duration: 0.15 },
             options: {
-              isVisible: containerAnimationIsVisible
+              isVisible: isPollPercentageVisible
             }
           })}
           className={clsm([
