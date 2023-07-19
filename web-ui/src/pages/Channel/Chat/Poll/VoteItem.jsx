@@ -65,6 +65,9 @@ const VoteItem = forwardRef(
       isStreamManagerPage ||
       noVotesCaptured;
 
+    const containerAnimationIsVisible =
+      isLoggedOut || !isVoting || showFinalResults || isStreamManagerPage;
+
     useEffect(() => {
       /**
        * This code dynamically adjusts the height of certain containers based on the height
@@ -131,11 +134,7 @@ const VoteItem = forwardRef(
             },
             transition: { duration: 0.15 },
             options: {
-              isVisible:
-                isLoggedOut ||
-                !isVoting ||
-                showFinalResults ||
-                isStreamManagerPage
+              isVisible: containerAnimationIsVisible
             }
           })}
           className={clsm([
