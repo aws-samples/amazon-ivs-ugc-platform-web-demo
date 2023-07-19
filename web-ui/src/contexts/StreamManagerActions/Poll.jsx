@@ -156,13 +156,13 @@ export const Provider = ({ children }) => {
     forceResetPollPropsTimerRef.current = undefined;
   }, [clearPollLocalStorage]);
 
-  const hasMounted = useRef(false)
+  const hasMounted = useRef(false);
 
   useEffect(() => {
-    if (!channelData || hasMounted.current) return
+    if (!channelData || hasMounted.current) return;
 
     if (isModerator && isStreamManagerPage && savedPollData?.isActive) {
-      hasMounted.current = true
+      hasMounted.current = true;
       const {
         question,
         duration,
@@ -318,7 +318,7 @@ export const Provider = ({ children }) => {
     clearTimeout(forceResetPollPropsTimerRef.current);
     dispatchPollProps({ isActive: false });
     setTimeout(resetPollProps, 100);
-    hasMounted.current = false
+    hasMounted.current = false;
   }, [resetPollProps]);
 
   useEffect(() => {
