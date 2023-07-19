@@ -156,8 +156,13 @@ export const Provider = ({ children }) => {
     forceResetPollPropsTimerRef.current = undefined;
   }, [clearPollLocalStorage]);
 
+  const hasMounted = useRef(false);
+
   useEffect(() => {
+    if (!channelData || hasMounted.current) return;
+
     if (isModerator && isStreamManagerPage && savedPollData?.isActive) {
+      hasMounted.current = true;
       const {
         question,
         duration,
@@ -177,7 +182,7 @@ export const Provider = ({ children }) => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channelData, savedPollData]);
 
   useEffect(() => {
     let timeout;
@@ -313,6 +318,7 @@ export const Provider = ({ children }) => {
     clearTimeout(forceResetPollPropsTimerRef.current);
     dispatchPollProps({ isActive: false });
     setTimeout(resetPollProps, 100);
+    hasMounted.current = false;
   }, [resetPollProps]);
 
   useEffect(() => {

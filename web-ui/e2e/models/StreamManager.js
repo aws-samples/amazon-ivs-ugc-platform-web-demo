@@ -149,7 +149,7 @@ class StreamManagerPageModel extends BasePageModel {
    */
   completeQuizForm = async (isPreFilled = false) => {
     const question = 'What is the capital of Canada?';
-    const answers = ['Vancouver', 'Ottawa', 'Toronto'];
+    const answers = ['Vancouver', 'Ottawa', 'Calgary'];
 
     await this.openStreamActionModal('quiz');
 
@@ -169,14 +169,14 @@ class StreamManagerPageModel extends BasePageModel {
 
     // Select the correct answer
     const correctAnswerRadioBtnLoc = this.page.getByTestId(
-      `streamManagerActionFormAnswers-${answers[1]}-radio-button`
+      `streamManagerActionQuizFormAnswers-${answers[1]}-radio-button`
     );
     if (!isPreFilled) await correctAnswerRadioBtnLoc.click();
 
     expect(
       await this.page
         .getByTestId(
-          `streamManagerActionFormAnswers-${answers[0]}-radio-button`
+          `streamManagerActionQuizFormAnswers-${answers[0]}-radio-button`
         )
         .isChecked()
     ).toBeFalsy();
@@ -184,7 +184,7 @@ class StreamManagerPageModel extends BasePageModel {
     expect(
       await this.page
         .getByTestId(
-          `streamManagerActionFormAnswers-${answers[2]}-radio-button`
+          `streamManagerActionQuizFormAnswers-${answers[2]}-radio-button`
         )
         .isChecked()
     ).toBeFalsy();
@@ -199,7 +199,7 @@ class StreamManagerPageModel extends BasePageModel {
    */
   completeProductForm = async (isPreFilled = false) => {
     const title = 'Sneakers';
-    const price = '$250';
+    const price = '$270';
     const imageUrl = 'https://api.lorem.space/image/shoes?w=1024&h=1024';
     const description = "Your streamer's favorite sneakers";
 
@@ -240,7 +240,7 @@ class StreamManagerPageModel extends BasePageModel {
    */
   completeNoticeForm = async (isPreFilled = false) => {
     const title = '200k subs';
-    const message = 'Yay 200k subs, thanks all!';
+    const message = 'Yay just reached 200k subs, thanks all!';
 
     await this.openStreamActionModal('notice');
 
