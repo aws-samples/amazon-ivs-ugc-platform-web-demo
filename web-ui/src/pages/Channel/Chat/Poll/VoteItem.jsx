@@ -267,7 +267,7 @@ const VoteItem = forwardRef(
               className={clsm(['w-5', 'h-5', 'pb-[20px]'])}
               {...opacityAnimation}
             >
-              {selectedOption === option && !isVoting && (
+              {isSessionValid && selectedOption === option && !isVoting && (
                 <CheckCircle
                   className={clsm([
                     'w-5',
