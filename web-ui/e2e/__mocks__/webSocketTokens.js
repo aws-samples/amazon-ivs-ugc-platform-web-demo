@@ -6,7 +6,7 @@ module.exports = {
       channelAssetUrls: '{}',
       color: 'salmon',
       displayName: 'testUser',
-      channelArn: 'channel/channelId'
+      channelArn: 'channel/trackingid'
     }
   },
   john: {

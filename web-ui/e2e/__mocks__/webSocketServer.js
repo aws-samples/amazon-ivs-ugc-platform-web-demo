@@ -38,7 +38,7 @@ wss.on('connection', (ws) => {
           Type: 'MESSAGE',
           Id: uuidv4(),
           RequestId,
-          Attributes: null,
+          Attributes: { eventType: 'SEND_MESSAGE' },
           Content,
           SendTime,
           Sender: userData

@@ -1,5 +1,5 @@
 import { unstable_useBlocker as useBlocker } from 'react-router-dom';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import useBeforeUnload from './useBeforeUnload';
 
@@ -21,10 +21,6 @@ const usePrompt = (when) => {
   const onCancel = useCallback(() => {
     if (isBlocked) blocker.reset();
   }, [blocker, isBlocked]);
-
-  useEffect(() => {
-    if (isBlocked && !when) blocker.reset();
-  }, [blocker, isBlocked, when]);
 
   useBeforeUnload(when);
 

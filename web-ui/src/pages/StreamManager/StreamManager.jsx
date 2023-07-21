@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { clsm } from '../../utils';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { Provider as PollProvider } from '../../contexts/StreamManagerActions/Poll';
+import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
 import { Provider as StreamManagerWebBroadcastProvider } from '../../contexts/Broadcast';
 import { useRef } from 'react';
@@ -54,21 +56,25 @@ const StreamManager = () => {
       )}
     >
       <StatusBar />
-      <NotificationProvider>
-        <StreamManagerWebBroadcastProvider
-          previewRef={previewRef}
-          ingestEndpoint={ingestEndpoint}
-          streamKey={streamKey}
-        >
-          <StreamManagerActionsProvider>
-            <Notification />
-            <StreamManagerControlCenter
-              ref={previewRef}
-              setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
-            />
-          </StreamManagerActionsProvider>
-        </StreamManagerWebBroadcastProvider>
-      </NotificationProvider>
+      <PollProvider>
+        <NotificationProvider>
+          <StreamManagerWebBroadcastProvider
+            previewRef={previewRef}
+            ingestEndpoint={ingestEndpoint}
+            streamKey={streamKey}
+          >
+            <ChatProvider>
+              <StreamManagerActionsProvider>
+                <Notification />
+                <StreamManagerControlCenter
+                  ref={previewRef}
+                  setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
+                />
+              </StreamManagerActionsProvider>
+            </ChatProvider>
+          </StreamManagerWebBroadcastProvider>
+        </NotificationProvider>
+      </PollProvider>
     </div>
   );
 };

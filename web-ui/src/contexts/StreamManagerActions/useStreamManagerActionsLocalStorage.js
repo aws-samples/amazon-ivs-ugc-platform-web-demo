@@ -28,6 +28,7 @@ const useStreamManagerActionsLocalStorage = ({
       deserialize: unpack
     }
   });
+
   const latestStoredStreamManagerActionData = useLatest(
     storedStreamManagerActionData
   );
@@ -36,20 +37,22 @@ const useStreamManagerActionsLocalStorage = ({
    * Saves the form data in local storage
    */
   const saveStreamManagerActionData = useCallback(
-    (dataOrFn) =>
+    (dataOrFn) => {
       setStoredStreamManagerActionData((prevStoredData) => {
         const data =
           dataOrFn instanceof Function ? dataOrFn(prevStoredData) : dataOrFn;
         const shouldUpdate =
           JSON.stringify(prevStoredData) !== JSON.stringify(data);
         const dataToSave = shouldUpdate ? data : prevStoredData;
+
         updateStreamManagerActionData({
           dataOrFn: dataToSave,
           shouldValidate: false
         });
 
         return dataToSave;
-      }),
+      });
+    },
     [setStoredStreamManagerActionData, updateStreamManagerActionData]
   );
 
@@ -105,7 +108,8 @@ const useStreamManagerActionsLocalStorage = ({
   return {
     saveStreamManagerActionData,
     latestStoredStreamManagerActionData,
-    storedStreamManagerActionData
+    storedStreamManagerActionData,
+    setStoredStreamManagerActionData
   };
 };
 

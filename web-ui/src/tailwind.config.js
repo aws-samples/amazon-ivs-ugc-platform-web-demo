@@ -68,6 +68,13 @@ module.exports = {
             fontWeight: '500'
           }
         ],
+        p4: [
+          '14px',
+          {
+            lineHeight: '17px',
+            fontWeight: 700
+          }
+        ],
         h3: [
           '1.125rem',
           {

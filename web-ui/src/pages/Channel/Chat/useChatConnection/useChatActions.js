@@ -61,7 +61,7 @@ const useChatActions = ({
   }, [chatCapabilities]);
 
   const send = useCallback(
-    async (content) => {
+    async (content, attributes = {}) => {
       try {
         if (!isConnectionOpen)
           throw new Error(
@@ -69,14 +69,14 @@ const useChatActions = ({
           );
 
         const sendRequestId = uuidv4();
-        const sendRequestAttributes = {};
         const sendRequest = new SendMessageRequest(
           content,
-          sendRequestAttributes,
+          attributes,
           sendRequestId
         );
 
         await connection.current.sendMessage(sendRequest);
+        return true;
       } catch (error) {
         if (Object.values(SEND_ERRORS).indexOf(error.errorMessage) > -1) {
           setSendAttemptError({
@@ -86,13 +86,14 @@ const useChatActions = ({
 
         console.error(error);
       }
+      return false;
     },
     [connection, isConnectionOpen, setSendAttemptError]
   );
 
   // Actions
   const sendMessage = useCallback(
-    (msg) => {
+    (msg, attr = {}) => {
       if (
         ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(
           chatUserRole
@@ -104,7 +105,7 @@ const useChatActions = ({
         return;
       }
 
-      send(encode(msg));
+      return send(encode(msg), attr);
     },
     [chatUserRole, send]
   );
@@ -117,6 +118,7 @@ const useChatActions = ({
         );
         return;
       }
+
       const deleteMessageRequest = new DeleteMessageRequest(messageId);
       connection.current.deleteMessage(deleteMessageRequest);
     },

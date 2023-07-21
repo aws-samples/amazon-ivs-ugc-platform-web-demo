@@ -84,6 +84,9 @@
     "quiz": {
       "confirm_text": "Start quiz",
       "question": "Question",
+      "answers_input_name_attribute": "streamManagerActionQuizFormAnswers",
+      "question_input_name_attribute": "streamManagerActionQuizFormQuestion",
+      "duration_input_name_attribute": "streamManagerActionFormDuration",
       "answers": "Answers",
       "answer": "Answer",
       "add_answer": "Add answer",
@@ -113,6 +116,28 @@
       "message": "Message",
       "duration": "Duration"
     },
+    "poll": {
+      "confirm_text": "Start poll",
+      "question": "Question",
+      "answers_input_name_attribute": "streamManagerActionPollFormAnswers",
+      "question_input_name_attribute": "streamManagerActionPollFormQuestion",
+      "duration_input_name_attribute": "streamManagerActionFormDuration",
+      "default_label": "Host a live poll",
+      "active_label": "Hosting a live poll",
+      "modal_form_title": "Host a poll",
+      "answers": "Options",
+      "title": "Title",
+      "message": "Message",
+      "duration": "Duration",
+      "poll_results": "Poll results",
+      "total_votes": "Total votes",
+      "votes": "votes",
+      "winner": "Winner",
+      "vote": "Vote",
+      "leave_page": "Leave page",
+      "confirm_leave_page": "Are you sure you want to leave this page? You will miss votes while you are away.",
+      "showing_results": "Showing results"
+    },
     "celebration": {
       "default_label": "Trigger",
       "active_label": "Triggering"
@@ -120,7 +145,8 @@
     "input_error": {
       "enter_valid_url": "Enter a valid URL.",
       "max_length_exceeded": "Maximum length exceeded.",
-      "select_correct_answer": "Select a correct answer."
+      "select_correct_answer": "Select a correct answer.",
+      "enter_a_unique_option": "Enter a unique option."
     },
     "on": "On",
     "off": "Off"
@@ -132,6 +158,7 @@
       "started_notice": "Show a notice started",
       "started_product": "Feature a product started",
       "started_quiz": "Host a quiz started",
+      "started_poll": "Host a poll started",
       "stream_action_saved": "Stream action successfully saved"
     },
     "error": {

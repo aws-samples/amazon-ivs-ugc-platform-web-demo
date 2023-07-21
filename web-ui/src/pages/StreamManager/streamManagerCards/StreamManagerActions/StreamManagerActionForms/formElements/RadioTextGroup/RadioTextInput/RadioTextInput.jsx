@@ -6,10 +6,12 @@ import { Delete } from '../../../../../../../../assets/icons';
 import Button from '../../../../../../../../components/Button';
 import Input from '../../../../../../../../components/Input';
 import './RadioTextInput.css';
+import { STREAM_ACTION_NAME } from '../../../../../../../../constants';
 
 const StreamManagerRadioTextInput = forwardRef(
   (
     {
+      formType,
       hasRadioError,
       index,
       inputError,
@@ -19,7 +21,8 @@ const StreamManagerRadioTextInput = forwardRef(
       onClick,
       onDelete,
       placeholder,
-      value
+      value,
+      inputType
     },
     ref
   ) => {
@@ -30,21 +33,23 @@ const StreamManagerRadioTextInput = forwardRef(
             'flex',
             'space-x-[52px]',
             'md:space-x-[44px]',
-            'md:ml-3',
+            formType !== STREAM_ACTION_NAME.POLL && 'md:ml-3',
             'w-full',
             'relative'
           ])}
         >
-          <input
-            aria-label={value}
-            checked={isChecked}
-            className={clsm(['radio', hasRadioError && 'error'])}
-            data-testid={`${name}-${value}-radio-button`}
-            name={name}
-            onChange={onClick}
-            type="radio"
-            value={index}
-          />
+          {inputType === 'radio' && (
+            <input
+              aria-label={value}
+              checked={isChecked}
+              className={clsm(['radio', hasRadioError && 'error'])}
+              data-testid={`${name}-${value}-radio-button`}
+              name={name}
+              onChange={onClick}
+              type="radio"
+              value={index}
+            />
+          )}
           <Input
             className={'dark:bg-darkMode-gray-dark'}
             error={inputError}
@@ -93,6 +98,8 @@ StreamManagerRadioTextInput.propTypes = {
   hasRadioError: PropTypes.bool,
   index: PropTypes.number,
   inputError: PropTypes.string,
+  formType: PropTypes.string.isRequired,
+  inputType: PropTypes.string.isRequired,
   isChecked: PropTypes.bool,
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func,

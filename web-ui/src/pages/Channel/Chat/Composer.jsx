@@ -8,6 +8,7 @@ import {
   COMPOSER_MAX_CHARACTER_LENGTH,
   COMPOSER_RATE_LIMIT_BLOCK_TIME_MS
 } from '../../../constants';
+import { CHAT_MESSAGE_EVENT_TYPES } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
 import { CHAT_USER_ROLE, SEND_ERRORS } from './useChatConnection/utils';
 import { clsm } from '../../../utils';
@@ -19,6 +20,9 @@ import ComposerErrorMessage from './ComposerErrorMessage';
 import FloatingNav from '../../../components/FloatingNav';
 import Input from '../../../components/Input';
 import useCurrentPage from '../../../hooks/useCurrentPage';
+import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
+
+const { SEND_MESSAGE } = CHAT_MESSAGE_EVENT_TYPES;
 
 const $content = $channelContent.chat;
 
@@ -37,6 +41,7 @@ const Composer = ({
   const { isViewerBanned: isLocked } = channelData || {};
   const { isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
+  const { setComposerRefState } = usePoll();
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [shouldShake, setShouldShake] = useState(false); // Composer has shake animated only on submit
@@ -47,6 +52,13 @@ const Composer = ({
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);
   const focus = location.state?.focus;
+
+  useEffect(() => {
+    if (composerFieldRef.current) {
+      setComposerRefState(composerFieldRef);
+    }
+  }, [composerFieldRef, setComposerRefState]);
+
   const setSubmitErrorStates = (_errorMessage) => {
     setErrorMessage(`${$content.error.message_not_sent} ${_errorMessage}`);
     setShouldShake(true);
@@ -90,7 +102,7 @@ const Composer = ({
           setMessage('');
         }
 
-        sendMessage(message);
+        sendMessage(message, { eventType: SEND_MESSAGE });
         !errorMessage && setMessage('');
         setShouldShake(false);
       } else {

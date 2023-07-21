@@ -22,8 +22,7 @@ import useMediaQuery from '../../../../hooks/useMediaQuery';
 import useResizeObserver from '../../../../hooks/useResizeObserver';
 import useScrollListener from '../../../../../src/pages/StreamManager/streamManagerCards/StreamManagerActions/StreamManagerActionForms/AmazonProduct/useScrollListener';
 
-const $content = $streamManagerContent.stream_manager_actions;
-
+const $content = $streamManagerContent;
 const StreamManagerActionModal = forwardRef((_, ref) => {
   const { closeModal, content, handleConfirm, handleSave, isModalOpen, type } =
     useModal();
@@ -174,7 +173,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
             onClick={onClose}
             variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
           >
-            {$content.cancel}
+            {$content.stream_manager_actions.cancel}
           </Button>
           <div
             className={clsm([
@@ -190,7 +189,7 @@ const StreamManagerActionModal = forwardRef((_, ref) => {
                 onClick={save}
                 variant={prefersDarkColorScheme ? 'secondary' : 'tertiary'}
               >
-                {$content.save}
+                {$content.stream_manager_actions.save}
               </Button>
             )}
             <Button
