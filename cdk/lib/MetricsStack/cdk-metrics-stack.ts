@@ -34,6 +34,7 @@ export class MetricsStack extends NestedStack {
 
   constructor(scope: Construct, id: string, props: MetricsStackProps) {
     super(scope, id, props);
+    const region = Stack.of(this).region;
 
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
     const nestedStackName = 'Metrics';
@@ -194,7 +195,13 @@ export class MetricsStack extends NestedStack {
     // Integration with EventBridge
     new events.Rule(this, `${nestedStackName}-StreamEvents-Rule`, {
       eventPattern: {
-        source: ['aws.ivs']
+        source: ['aws.ivs'],
+        region: [region],
+        detailType: [
+          'IVS Stream State Change',
+          'IVS Stream Health Change',
+          'IVS Limit Breach'
+        ]
       },
       targets: [
         new eventsTargets.ApiGateway(streamEventsApiGateway, {
