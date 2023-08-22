@@ -38,6 +38,14 @@ const handler = async (
       time: eventTime,
       resources
     } = request.body;
+
+    // Ignore "AWS API Call via CloudTrail" events
+    if (eventType === 'AWS API Call via CloudTrail') {
+      return;
+    }
+
+    console.info('Incoming Event', JSON.stringify(request.body));
+
     let {
       detail: { stream_id: streamId = '' }
     } = request.body;
@@ -135,12 +143,16 @@ const handler = async (
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
       }
-    } else if (eventName === SESSION_ENDED) {
+    }
+
+    if (eventName === SESSION_ENDED) {
       additionalAttributes.endTime = eventTime;
       attributesToRemove.push('isOpen');
     }
-    if (eventType === LIMIT_BREACH_EVENT_TYPE)
+
+    if (eventType === LIMIT_BREACH_EVENT_TYPE) {
       additionalAttributes.hasErrorEvent = true;
+    }
 
     await updateStreamEvents({
       additionalAttributes,
@@ -151,9 +163,7 @@ const handler = async (
       userSub
     });
   } catch (error) {
-    console.error(error);
-    console.error(`Event body: ${JSON.stringify(request.body)}`);
-
+    console.error(error, JSON.stringify(request.body));
     reply.statusCode = 500;
 
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
