@@ -36,7 +36,8 @@ const getLambdaEntryPath = (functionName: string) =>
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
   tags: { [key: string]: string };
-  scheduleExp: string;
+  cognitoCleanupScheduleExp: string;
+  stageCleanupScheduleExp: string;
 }
 
 export class ChannelsStack extends NestedStack {
@@ -55,7 +56,12 @@ export class ChannelsStack extends NestedStack {
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
-    const { resourceConfig, scheduleExp, tags } = props;
+    const {
+      resourceConfig,
+      cognitoCleanupScheduleExp,
+      stageCleanupScheduleExp,
+      tags
+    } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
@@ -89,7 +95,7 @@ export class ChannelsStack extends NestedStack {
       },
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
-      signInAliases: { preferredUsername: true, username: true },
+      signInAliases: { preferredUsername: true, username: true, email: true },
       signInCaseSensitive: false,
       standardAttributes: {
         email: {
@@ -343,11 +349,13 @@ export class ChannelsStack extends NestedStack {
     const ivsPolicyStatement = new iam.PolicyStatement({
       actions: [
         'ivs:CreateChannel',
+        'ivs:CreateParticipantToken',
+        'ivs:CreateStage',
         'ivs:CreateStreamKey',
         'ivs:DeleteChannel',
         'ivs:DeleteStreamKey',
-        'ivs:StopStream',
         'ivs:PutMetadata',
+        'ivs:StopStream',
         'ivs:TagResource'
       ],
       effect: iam.Effect.ALLOW,
@@ -389,6 +397,13 @@ export class ChannelsStack extends NestedStack {
     );
     this.policies = policies;
 
+    // Cleanup idle stages users policies
+    const deleteIdleStagesIvsPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:ListStages', 'ivs:DeleteStage'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+
     // Cleanup unverified users policies
     const deleteUnverifiedChannelsPolicyStatement = new iam.PolicyStatement({
       actions: ['dynamodb:BatchWriteItem'],
@@ -400,6 +415,21 @@ export class ChannelsStack extends NestedStack {
       effect: iam.Effect.ALLOW,
       resources: [userPool.userPoolArn]
     });
+
+    // Cleanup idle stages lambda
+    const cleanupIdleStagesHandler = new nodejsLambda.NodejsFunction(
+      this,
+      `${stackNamePrefix}-CleanupIdleStages-Handler`,
+      {
+        logRetention: 7,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        bundling: { minify: true },
+        functionName: `${stackNamePrefix}-CleanupIdleStages`,
+        entry: getLambdaEntryPath('cleanupIdleStages'),
+        timeout: Duration.minutes(10),
+        initialPolicy: [deleteIdleStagesIvsPolicyStatement]
+      }
+    );
 
     // Cleanup unverified users lambda
     const cleanupUnverifiedUsersHandler = new nodejsLambda.NodejsFunction(
@@ -419,13 +449,26 @@ export class ChannelsStack extends NestedStack {
       }
     );
 
+    // Scheduled cleanup idle stages lambda function
+    new events.Rule(this, 'Cleanup-Idle-Stages-Schedule-Rule', {
+      schedule: events.Schedule.expression(stageCleanupScheduleExp),
+      ruleName: `${stackNamePrefix}-CleanupIdleStages-Schedule`,
+      targets: [
+        new targets.LambdaFunction(cleanupIdleStagesHandler, {
+          maxEventAge: Duration.minutes(2),
+          retryAttempts: 2
+        })
+      ]
+    });
+
     // Scheduled cleanup unverified users lambda function
     new events.Rule(this, 'Cleanup-Unverified-Users-Schedule-Rule', {
-      schedule: events.Schedule.expression(scheduleExp),
+      schedule: events.Schedule.expression(cognitoCleanupScheduleExp),
       ruleName: `${stackNamePrefix}-CleanupUnverifiedUsers-Schedule`,
       targets: [
         new targets.LambdaFunction(cleanupUnverifiedUsersHandler, {
-          maxEventAge: Duration.minutes(2)
+          maxEventAge: Duration.minutes(2),
+          retryAttempts: 2
         })
       ]
     });

@@ -214,7 +214,7 @@ export const getIsLive = (
     (truncatedEvent) => truncatedEvent.name === 'Stream Start'
   );
 
-type ChannelAssets = Partial<
+export type ChannelAssets = Partial<
   Record<
     (typeof ALLOWED_CHANNEL_ASSET_TYPES)[number],
     {

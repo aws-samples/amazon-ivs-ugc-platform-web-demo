@@ -4,7 +4,7 @@ import { isiOS, retryWithExponentialBackoff } from '../../../../utils';
 const { mediaDevices } = navigator;
 
 export const addVideoLayerByDeviceId = async ({ name, data }) => {
-  if (!name || !data) return;
+  if (!name || !data || !client) return;
 
   const { deviceId, position = { index: 0 } } = data;
   const {

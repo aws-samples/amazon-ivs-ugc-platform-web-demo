@@ -14,8 +14,9 @@ import {
 } from '../StreamManagerModalTheme';
 import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../../content';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useBroadcast } from '../../../../contexts/Broadcast';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { useStage } from '../../../../contexts/Stage/Stage';
 import Button from '../../../../components/Button';
 import Dropdown from '../../../../components/Dropdown';
 import Modal from '../../../../components/Modal';
@@ -29,6 +30,7 @@ const WebBroadcastSettingsModal = () => {
   const { closeModal, handleConfirm, isModalOpen, type } = useModal();
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
+
   const {
     activeDevices,
     devices,
@@ -38,6 +40,9 @@ const WebBroadcastSettingsModal = () => {
     updateActiveDevice,
     updateShouldShowCameraOnScreenShare
   } = useBroadcast();
+
+  const { isStageActive } = useStage();
+
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const mainContentRef = useRef();
 
@@ -154,7 +159,7 @@ const WebBroadcastSettingsModal = () => {
                   />
                 );
               })}
-            {!isTouchscreenDevice && (
+            {!isTouchscreenDevice && !isStageActive && (
               <SwitchGroup
                 icon={<AccountBox />}
                 label={$content.show_camera_on_screen_share}

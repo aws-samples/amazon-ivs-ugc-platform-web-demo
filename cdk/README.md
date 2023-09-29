@@ -34,7 +34,7 @@ The outcome of the seed command above is 50 new channels and streams, 20 of thes
 make seed JSON=./seed.example.json
 ```
 
-**\*NOTE:** Please refer to the [seed.example.json file](./seed.example.json) so that you may create data that the DynamoDB client can use. Incorrect JSON data will lead to errors when seeding.\*
+***NOTE:** Please refer to the [seed.example.json file](./seed.example.json) so that you may create data that the DynamoDB client can use. Incorrect JSON data will lead to errors when seeding.*
 
 All the environment variables can be used together to generate mock data that suites your needs:
 
@@ -82,3 +82,21 @@ When the postStreamEvents function receives an event with a `session created` ev
 When a `session ended` event is received, the corresponding stream record is grabbed and updated by removing the `isOpen` attribute.
 
 You can find the Stream events API code in the `/streamEventsApi` folder.
+
+## Scheduled resource cleanup AWS Lambdas
+
+The scheduled resource cleanup lambdas are created when the stack is deployed. No additional steps are necessary to set up and trigger these functions. The lambda functions exist in the `cdk/lambdas` folder. The schedule can be customized in the `cdk/Makefile`. AWS Lambda supports standard rate and cron expressions for frequencies of up to once per minute. Read more about [schedule expressions using rate or cron](https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html).
+
+### Amazon IVS idle stages cleanup
+
+The cleanup lambda function follows these steps:
+1. It retrieves a list of all stages
+2. The `getIdleStageArn` helper function is employed to filter out idle stages that have been in existence for at least 1 hour
+3. Subsequently, the filtered idle stages are deleted.
+
+### Amazon Cognito unverified users cleanup
+
+The cleanup lambda function follows these steps:
+1. It retrieves a list of users with a `UNCONFIRMED` status
+2. Within the unconfirmed users, we filter for users that have existed for at least 24 hours
+3. Finally, the filtered unverified and expired users are deleted both from the Cognito user pool and AWS DynamoDB channels table.

@@ -10,7 +10,7 @@ import useBeforeUnload from './useBeforeUnload';
  * may attempt to stay on the page but the app navigates anyway, or the app may stay
  * on the correct page but the browser's history stack gets out of whack.
  */
-const usePrompt = (when) => {
+const usePrompt = (when, displayRefreshPrompt = true) => {
   const blocker = useBlocker(when);
   const isBlocked = blocker.state === 'blocked';
 
@@ -22,7 +22,12 @@ const usePrompt = (when) => {
     if (isBlocked) blocker.reset();
   }, [blocker, isBlocked]);
 
-  useBeforeUnload(when);
+  // Triggered via browser's refresh button or attempting to navigate by entering a URL
+  const shouldShowBrowserLeavePrompt = ![when, displayRefreshPrompt].includes(
+    false
+  );
+
+  useBeforeUnload(shouldShowBrowserLeavePrompt);
 
   return { isBlocked, onConfirm, onCancel };
 };

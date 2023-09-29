@@ -47,6 +47,7 @@ const {
 const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
+const isDebug = false;
 
 const Context = createContext(null);
 Context.displayName = 'Chat';
@@ -138,7 +139,7 @@ export const Provider = ({ children }) => {
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned = false } =
     channelData || {};
-  const { notifyError, dismissNotif } = useNotif();
+  const { notifyError } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
 
@@ -379,7 +380,8 @@ export const Provider = ({ children }) => {
       }
     });
 
-    room.logLevel = process.env.REACT_APP_STAGE === 'prod' ? info : debug;
+    room.logLevel =
+      process.env.REACT_APP_STAGE === 'prod' ? info : isDebug && debug;
     room.connect();
     setRoom(room);
     connection.current = room;
@@ -402,7 +404,6 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnConnect = room.addListener('connect', () => {
       updateUserRole();
-      dismissNotif();
     });
 
     const unsubscribeOnDisconnect = room.addListener('disconnect', () => {
@@ -558,7 +559,6 @@ export const Provider = ({ children }) => {
     addMessage,
     room,
     updateUserRole,
-    dismissNotif,
     handleDeleteMessage,
     handleUserDisconnect,
     userData,

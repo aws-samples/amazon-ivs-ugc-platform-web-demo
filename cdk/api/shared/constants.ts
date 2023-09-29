@@ -71,6 +71,7 @@ export const ALLOWED_IMAGE_CONTENT_TYPES = [
   'image/jpg',
   'image/png'
 ] as const;
+export const CUSTOM_AVATAR_NAME = 'custom' as const;
 
 /**
  * IDs to be consumed by the AWS Secrets Manager
@@ -87,3 +88,8 @@ export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
   SORT: 'sort',
   INPUT: 'input'
 };
+
+/**
+ * Stages
+ */
+export const STAGE_TOKEN_DURATION = 1440; // Minutes

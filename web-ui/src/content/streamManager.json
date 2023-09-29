@@ -45,6 +45,32 @@
       }
     }
   },
+  "stream_manager_stage": {
+    "collaborate": "Collaborate",
+    "leave_session": "Leave session",
+    "copy_session_link": "Copy session link",
+    "copy_link": "Copy link",
+    "invite_participant": "Invite participant",
+    "notifications": {
+      "success": {
+        "you_have_left_the_session": "You have left the session",
+        "session_link_has_been_copied_to_clipboard": "Session link has been copied to clipboard",
+        "user_has_joined_the_session": "USERNAME has joined the session"
+      },
+      "error": {
+        "unable_to_create_session": "Unable to create session",
+        "unable_to_join_session": "Unable to join session",
+        "permissions_denied": "You must allow access to both your camera and microphone"
+      }
+    },
+    "leave_stage_modal": {
+      "exit_stage_session": "Are you sure you want to exit the session?",
+      "confirm_exit": "Leave",
+      "leave_page": "Leave page",
+      "confirm_leave_page_L1": "Are you sure you want to leave this page?",
+      "confirm_leave_page_L2": "You will also leave this session."
+    }
+  },
   "stream_manager_actions": {
     "unit_seconds": "s",
     "save": "Save",

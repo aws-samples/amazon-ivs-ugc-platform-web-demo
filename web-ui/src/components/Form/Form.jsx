@@ -27,7 +27,8 @@ const Form = ({
   submitHandler,
   submitText,
   title,
-  validationCheck
+  validationCheck,
+  type
 }) => {
   const [formProps, isLoading, onChange, onSubmit, presubmitValidation] =
     useForm({
@@ -37,7 +38,8 @@ const Form = ({
       onFailure,
       onSuccess,
       submitHandler,
-      validationCheck
+      validationCheck,
+      type
     });
 
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
@@ -175,6 +177,7 @@ Form.defaultProps = {
   submitBtnVariant: 'primary',
   submitText: 'Submit',
   title: '',
+  type: '',
   validationCheck: noop
 };
 
@@ -201,6 +204,7 @@ Form.propTypes = {
   submitHandler: PropTypes.func.isRequired,
   submitText: PropTypes.string.isRequired,
   title: PropTypes.string,
+  type: PropTypes.string,
   validationCheck: PropTypes.func
 };
 

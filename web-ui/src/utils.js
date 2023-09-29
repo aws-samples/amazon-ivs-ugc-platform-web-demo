@@ -341,3 +341,28 @@ export const isElementsOverlapping = (element1, element2) => {
 
   return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
 };
+
+export const decodeJWT = (token) => {
+  const tokenParts = token.split('.');
+  if (tokenParts.length !== 3) {
+    throw new Error('Invalid JWT format');
+  }
+  const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+
+  const jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join('')
+  );
+
+  return JSON.parse(jsonPayload);
+};
+
+export const containsURL = (text) => {
+  const urlRegex = /(www\.|http:\/\/|https:\/\/)/;
+  return urlRegex.test(text);
+};

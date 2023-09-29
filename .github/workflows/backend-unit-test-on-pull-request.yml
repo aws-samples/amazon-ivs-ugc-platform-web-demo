@@ -2,7 +2,7 @@ name: On Pull Request Backend Unit Testing Workflow
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/stages]
     types: [opened, reopened, synchronize]
     paths: ['cdk/api/**']
 

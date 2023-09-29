@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../utils';
 import { streamManager as $content } from '../../../../content';
@@ -8,10 +9,6 @@ import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
 import Tooltip from '../../../../components/Tooltip';
-import PropTypes from 'prop-types';
-
-import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const {
@@ -21,24 +18,23 @@ const {
   }
 } = $webBroadcastContent;
 
-const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
+const GoLiveStreamButton = ({
+  tooltipPosition,
+  tooltipCustomTranslate,
+  shouldShowTooltipMessage
+}) => {
   const streamButtonRef = useRef();
   const {
     isBroadcasting,
     startBroadcast,
     stopBroadcast,
     isConnecting,
-    activeDevices
+    hasPermissions
   } = useBroadcast();
-  const {
-    [CAMERA_LAYER_NAME]: activeCamera,
-    [MICROPHONE_AUDIO_INPUT_NAME]: activeMicrophone
-  } = activeDevices;
+
   const { openModal } = useModal();
   const { isLive } = useStreams();
-  const isDisabled =
-    (isLive && !isBroadcasting) || !activeCamera || !activeMicrophone;
-
+  const isDisabled = (isLive && !isBroadcasting) || !hasPermissions;
   const handleStartStopBroadcastingAction = () => {
     if (isBroadcasting) {
       openModal({
@@ -54,9 +50,10 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
   };
 
   let tooltipMessage;
-  if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
-  else if (activeCamera === false || activeMicrophone === false)
-    tooltipMessage = PermissionDenied;
+  if (shouldShowTooltipMessage) {
+    if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
+    else if (!hasPermissions) tooltipMessage = PermissionDenied;
+  }
 
   let buttonTextContent;
   if (isConnecting) {
@@ -89,10 +86,11 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
           'rounded-3xl',
           isBroadcasting && [
             'dark:bg-darkMode-red',
-            'bg-darkMode-red',
+            'bg-lightMode-red',
             'hover:dark:bg-darkMode-red-hover',
-            'hover:bg-darkMode-red-hover',
-            'focus:bg-darkMode-red'
+            'hover:bg-lightMode-red-hover',
+            'focus:bg-lightMode-red',
+            'dark:focus:bg-darkMode-red'
           ]
         ])}
       >
@@ -103,13 +101,15 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
 };
 
 GoLiveStreamButton.defaultProps = {
-  tooltipCustomTranslate: {}
+  tooltipCustomTranslate: {},
+  shouldShowTooltipMessage: true
 };
 
 GoLiveStreamButton.propTypes = {
   tooltipPosition: PropTypes.oneOf(['above', 'below', 'right', 'left'])
     .isRequired,
-  tooltipCustomTranslate: PropTypes.object
+  tooltipCustomTranslate: PropTypes.object,
+  shouldShowTooltipMessage: PropTypes.bool
 };
 
 export default GoLiveStreamButton;

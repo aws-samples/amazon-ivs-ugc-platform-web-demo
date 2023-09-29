@@ -126,15 +126,25 @@ The video bitrate, frame rate, concurrent views and keyframe interval metrics co
 
 ### Stream management
 
-The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, trigger stream overlays, as well as monitor and moderate their chat room. Users can also prepare and save stream overlay configurations for later use.
+The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, start and join a collaborate session, trigger stream overlays, as well as monitor and moderate their chat room. Users can also prepare and save stream overlay configurations for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
 
-#### Web broadcast
+#### IVS web broadcast
 
-Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use this feature. Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
+Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use both low-latency and real-time streaming features.
 
-Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
+##### Low-latency streaming
+
+Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
+
+##### Real-time streaming
+
+Users can toggle their camera and microphone. Inside Settings, users can change the camera and microphone device used. On desktop browser sizes, the "full-screen" view will automatically expand when a collaborate session is joined. The user can invite other users to a session through a session link. A maximum of 12 participants can publish to a session. Once a session is full, any new participant will join as a spectator.
+
+![IVS Real-time](screenshots/architecture/ivs-real-time.png)
+
+Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/).
 
 Read about [web broadcast known issues and limitations](#web-broadcast-known-issues).
 
@@ -532,14 +542,13 @@ The following is a detailed usage-based summary. Use it as a guide to estimate p
 
 ## About Amazon IVS
 
-Amazon Interactive Video Service (Amazon IVS) is a managed live streaming solution that is quick and easy to set up, and ideal for creating interactive video experiences. [Learn more](https://aws.amazon.com/ivs/).
+Amazon Interactive Video Service (IVS) is a managed, live-video streaming service with both low-latency and real-time streaming capabilities. It handles everything from video ingesting and transcoding to global distribution for playback, so you can focus on building your own interactive application and audience experience. With Amazon IVS, you can stream without needing to manage or develop components on your own.
 
-- [Amazon IVS docs](https://docs.aws.amazon.com/ivs/)
-- [User Guide](https://docs.aws.amazon.com/ivs/latest/userguide/)
-- [API Reference](https://docs.aws.amazon.com/ivs/latest/APIReference/)
+- [Amazon IVS documentation](https://docs.aws.amazon.com/ivs/)
 - [Setting Up for Streaming with Amazon Interactive Video Service](https://aws.amazon.com/blogs/media/setting-up-for-streaming-with-amazon-ivs/)
 - [Learn more about Amazon IVS on IVS.rocks](https://ivs.rocks/)
 - [View more demos like this](https://ivs.rocks/examples)
+- [Cost estimator](https://ivs.rocks/calculator)
 
 ## Security
 

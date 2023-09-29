@@ -27,7 +27,8 @@ const DEFAULT_CLIENT_BASE_URLS = ['', 'http://localhost:3000'];
 
 interface UGCDashboardStackProps extends StackProps {
   resourceConfig: UGCResourceWithChannelsConfig;
-  scheduleExp: string;
+  cognitoCleanupScheduleExp: string;
+  stageCleanupScheduleExp: string;
   shouldPublish: boolean;
 }
 
@@ -35,7 +36,7 @@ export class UGCStack extends Stack {
   constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
-    const { resourceConfig, scheduleExp, shouldPublish, tags = {} } = props;
+    const { resourceConfig, cognitoCleanupScheduleExp, stageCleanupScheduleExp, shouldPublish, tags = {} } = props;
     const {
       deploySeparateContainers,
       ivsChannelType,
@@ -135,7 +136,8 @@ export class UGCStack extends Stack {
     // Channels Stack
     const channelsStack = new ChannelsStack(this, 'Channels', {
       resourceConfig,
-      scheduleExp,
+      cognitoCleanupScheduleExp,
+      stageCleanupScheduleExp,
       tags
     });
     const {

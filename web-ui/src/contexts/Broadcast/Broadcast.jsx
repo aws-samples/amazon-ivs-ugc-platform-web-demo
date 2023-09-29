@@ -91,7 +91,6 @@ export const Provider = ({
     toggleLayer,
     updateLayerGroup,
     removeLayer,
-    clearLayers,
     isLayerHidden
   } = useLayers();
   const presetLayers = useMemo(() => {
@@ -111,7 +110,6 @@ export const Provider = ({
     addScreenShareAudioInput,
     toggleMute,
     removeAudioInput,
-    clearAudioInputs,
     isAudioInputMuted
   } = useAudioMixer();
 
@@ -152,6 +150,8 @@ export const Provider = ({
     setError,
     setSuccess
   });
+
+  const hasPermissions = permissions.audio && permissions.video;
 
   /**
    * Camera helpers
@@ -211,7 +211,6 @@ export const Provider = ({
           `Failed to start broadcast stream due to missing required permission(s): ${missingPermissionsStr}.`
         );
       }
-
       connectionTimeoutRef.current = setTimeout(() => {
         stopBroadcast();
         console.error(
@@ -239,52 +238,140 @@ export const Provider = ({
 
   const resetPreview = useCallback(() => {
     if (!client || !previewRef.current) return;
-
     client.detachPreview();
     client.attachPreview(previewRef.current);
   }, [previewRef]);
+
+  // ACTIVE_STATE_CHANGE events indicate that the broadcast start/stop state has changed
+  const onActiveStateChange = (activeState) => setIsBroadcasting(activeState);
+
+  // CONNECTION_STATE_CHANGE events indicate that the WebRTC connection state has changed
+  const onConnectionStateChange = (state) => {
+    const { NEW, CONNECTED, CONNECTING } = ConnectionState;
+    if (state === CONNECTED) clearTimeout(connectionTimeoutRef.current);
+    setIsConnecting([NEW, CONNECTING].includes(state));
+  };
+
+  // ERROR events indicate that the client has encountered an error
+  const onClientError = (clientError) => {
+    console.error(clientError);
+
+    if (clientError.code === 10001) {
+      setError({
+        message: $content.notifications.error.stream_disconnected
+      });
+    }
+  };
+
+  const initializeBroadcastClient = useCallback(async () => {
+    // Create the IVS Web Broadcast client instance
+    client = create({ streamConfig, logLevel });
+
+    // Register the IVS broadcast client event listeners
+    client.on(ACTIVE_STATE_CHANGE, onActiveStateChange);
+    client.on(CONNECTION_STATE_CHANGE, onConnectionStateChange);
+    client.on(ERROR, onClientError);
+
+    // Add a background layer for permissions prompt state
+    await presetLayers.background.add();
+
+    // Attach an HTMLCanvasElement to display a preview of the output
+    client.attachPreview(previewRef.current);
+    setIsBroadcasting(false);
+  }, [presetLayers.background, previewRef]);
+
+  const restartBroadcastClient = useCallback(
+    async (_isCameraHidden = false, _isMicrophoneMuted = false) => {
+      let addDevice, options;
+
+      await initializeBroadcastClient();
+
+      if (_isCameraHidden) presetLayers.noCamera.add();
+
+      // Setup video layer and audio input
+      for (const deviceName in activeDevices) {
+        if (deviceName === CAMERA_LAYER_NAME) {
+          addDevice = addVideoLayer;
+          options = {
+            position: { index: 1 },
+            layerGroupId: CAMERA_LAYER_NAME,
+            hidden: _isCameraHidden
+          };
+        }
+        if (deviceName === MICROPHONE_AUDIO_INPUT_NAME) {
+          addDevice = addMicAudioInput;
+          options = { muted: _isMicrophoneMuted };
+        }
+        if (addDevice) {
+          const didUpdate = await addDevice(deviceName, {
+            deviceId: activeDevices[deviceName].deviceId,
+            ...options
+          });
+
+          if (!didUpdate) {
+            let errorMessage;
+            if (deviceName === CAMERA_LAYER_NAME)
+              errorMessage =
+                $content.notifications.error.failed_to_access_camera;
+            if (deviceName === MICROPHONE_AUDIO_INPUT_NAME)
+              errorMessage = $content.notifications.error.failed_to_access_mic;
+
+            errorMessage && setError({ message: errorMessage });
+          }
+        }
+      }
+      isInitialized = true;
+    },
+    [
+      initializeBroadcastClient,
+      presetLayers.noCamera,
+      activeDevices,
+      addVideoLayer,
+      addMicAudioInput
+    ]
+  );
+
+  const removeBroadcastClient = useCallback(() => {
+    if (!!client) {
+      // Remove all input devices
+      client.disableVideo();
+      client.disableAudio();
+      if (!!client.getVideoInputDevice(CAMERA_LAYER_NAME)) {
+        client.removeVideoInputDevice(CAMERA_LAYER_NAME);
+      }
+      if (!!client.getAudioInputDevice(MICROPHONE_AUDIO_INPUT_NAME)) {
+        client.removeAudioInputDevice(MICROPHONE_AUDIO_INPUT_NAME);
+      }
+
+      clearTimeout(connectionTimeoutRef.current);
+      stopScreenShare();
+      stopBroadcast(); // Stop the broadcast
+
+      client?.off(ACTIVE_STATE_CHANGE, onActiveStateChange);
+      client?.off(CONNECTION_STATE_CHANGE, onConnectionStateChange);
+      client?.off(ERROR, onClientError);
+
+      client.delete(); // Explicitly stop and/or free internal client components that would otherwise leak
+      client = undefined;
+      isInitialized = false;
+
+      // Set preview canvas initial black background
+      if (previewRef && previewRef.current) {
+        const canvas = previewRef.current;
+        const canvasContext = previewRef.current.getContext('2d');
+
+        canvasContext.fillStyle = 'black';
+        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  }, [previewRef, stopBroadcast, stopScreenShare]);
 
   /**
    * Initialize client, request permissions and refresh devices
    */
   useEffect(() => {
-    // ACTIVE_STATE_CHANGE events indicate that the broadcast start/stop state has changed
-    const onActiveStateChange = (activeState) => setIsBroadcasting(activeState);
-
-    // CONNECTION_STATE_CHANGE events indicate that the WebRTC connection state has changed
-    const onConnectionStateChange = (state) => {
-      const { NEW, CONNECTED, CONNECTING } = ConnectionState;
-      if (state === CONNECTED) clearTimeout(connectionTimeoutRef.current);
-      setIsConnecting([NEW, CONNECTING].includes(state));
-    };
-
-    // ERROR events indicate that the client has encountered an error
-    const onClientError = (clientError) => {
-      console.error(clientError);
-
-      if (clientError.code === 10001) {
-        setError({
-          message: $content.notifications.error.stream_disconnected
-        });
-      }
-    };
-
     if (!isInitialized && previewRef.current) {
-      (async function init() {
-        // Create the IVS Web Broadcast client instance
-        client = create({ streamConfig, logLevel });
-
-        // Register the IVS broadcast client event listeners
-        client.on(ACTIVE_STATE_CHANGE, onActiveStateChange);
-        client.on(CONNECTION_STATE_CHANGE, onConnectionStateChange);
-        client.on(ERROR, onClientError);
-
-        // Add a background layer for permissions prompt state
-        await presetLayers.background.add();
-
-        // Attach an HTMLCanvasElement to display a preview of the output
-        client.attachPreview(previewRef.current);
-      })();
+      initializeBroadcastClient();
 
       isInitialized = true;
     }
@@ -292,28 +379,9 @@ export const Provider = ({
     return () => {
       if (!isMounted()) return;
 
-      clearTimeout(connectionTimeoutRef.current);
-      stopScreenShare();
-      stopBroadcast(); // Stop the broadcast
-      clearLayers(); // Remove all video layers and resets state map
-      clearAudioInputs(); // Remove all audio inputs and resets state map
-
-      client?.off(ACTIVE_STATE_CHANGE, onActiveStateChange);
-      client?.off(CONNECTION_STATE_CHANGE, onConnectionStateChange);
-      client?.off(ERROR, onClientError);
-      client?.delete(); // Explicitly stop and/or free internal client components that would otherwise leak
-      client = undefined;
-      isInitialized = false;
+      removeBroadcastClient();
     };
-  }, [
-    clearAudioInputs,
-    clearLayers,
-    isMounted,
-    presetLayers.background,
-    previewRef,
-    stopBroadcast,
-    stopScreenShare
-  ]);
+  }, [initializeBroadcastClient, isMounted, previewRef, removeBroadcastClient]);
 
   useEffect(() => {
     if (error) {
@@ -362,6 +430,7 @@ export const Provider = ({
       activeDevices,
       updateActiveDevice,
       permissions,
+      hasPermissions,
       initializeDevices,
       // Layers
       toggleCamera: toggleCameraThrottled,
@@ -381,12 +450,15 @@ export const Provider = ({
       // Indicators
       isBroadcasting,
       isConnecting,
-      error
+      error,
+      // Client
+      restartBroadcastClient,
+      removeBroadcastClient
     }),
     [
       activeDevices,
-      error,
       devices,
+      error,
       initializeDevices,
       isBroadcasting,
       isCameraHidden,
@@ -395,15 +467,18 @@ export const Provider = ({
       isScreenSharing,
       permissions,
       presetLayers,
+      removeBroadcastClient,
       resetPreview,
-      updateShouldShowCameraOnScreenShare,
+      restartBroadcastClient,
       shouldShowCameraOnScreenShare,
       startBroadcast,
       stopBroadcast,
       toggleCameraThrottled,
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
-      updateActiveDevice
+      updateActiveDevice,
+      updateShouldShowCameraOnScreenShare,
+      hasPermissions
     ]
   );
 

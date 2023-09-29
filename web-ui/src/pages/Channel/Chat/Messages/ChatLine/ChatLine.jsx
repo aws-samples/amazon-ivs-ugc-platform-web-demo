@@ -10,7 +10,7 @@ import {
   TEXT_BASE_CLASSES as chatTextBaseClasses,
   TEXT_VARIANT_CLASSES as chatTextVariantClasses
 } from './ChatLineTheme';
-import { clsm } from '../../../../../utils';
+import { clsm, containsURL } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useLastFocusedElement } from '../../../../../contexts/LastFocusedElement';
 import UserAvatar from '../../../../../components/UserAvatar';
@@ -49,6 +49,54 @@ const ChatLine = ({
     [onClick, setLastFocusedElement]
   );
 
+  const enhanceHref = (url) => {
+    // Anchor tag URL does not contain http / https
+    if (!/^https?:\/\//i.test(url)) {
+      return 'http://' + url;
+    }
+
+    return url;
+  };
+
+  const renderTextWithUrls = (text) => {
+    const textArr = text.split(' ');
+
+    return textArr.map((txt) => {
+      return (
+        <>
+          {containsURL(txt) ? (
+            <a
+              onClick={(e) => e.stopPropagation()}
+              className={clsm([
+                'rounded',
+                'hover:underline',
+                'focus:outline-none',
+                'focus:ring',
+                'focus:ring-white',
+                'focus:ring-2',
+                'text-blue',
+                'hover:text-darkMode-blue-hover'
+              ])}
+              href={enhanceHref(txt)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {txt}
+            </a>
+          ) : (
+            txt
+          )}{' '}
+        </>
+      );
+    });
+  };
+
+  const decodedMessage = decode(message).replace(/\\/g, '\\\\');
+
+  const renderText = containsURL(decodedMessage)
+    ? renderTextWithUrls(decodedMessage)
+    : decodedMessage;
+
   return (
     <ChatLineWrapper
       {...createAnimationProps({
@@ -74,7 +122,7 @@ const ChatLine = ({
         size={variant === CHAT_LINE_VARIANT.MESSAGE ? 'sm' : 'md'}
       />
       <p className={chatTextClasses}>
-        <b>{displayName}</b> {decode(message).replace(/\\/g, '\\\\')}
+        <b>{displayName}</b> {renderText}
       </p>
     </ChatLineWrapper>
   );

@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useState } from 'react';
+import { forwardRef, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -7,37 +7,32 @@ import {
   getDefaultBounceTransition
 } from '../../../../helpers/animationPropsHelper';
 import { clsm, noop } from '../../../../utils';
-import { Settings } from '../../../../assets/icons';
-import { streamManager as $content } from '../../../../content';
+import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds/StageVideoFeeds';
+import {
+  STREAM_BUTTON_ANIMATION_DURATION,
+  useBroadcastFullScreen
+} from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
-import { useModal, MODAL_TYPE } from '../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import useLatest from '../../../../hooks/useLatest';
+import { useStage } from '../../../../contexts/Stage/Stage';
+import BroadcastControlWrapper from './BroadcastControl';
+import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
-import WebBroadcastControl from './WebBroadcastControl';
-
-const $webBroadcastContent = $content.stream_manager_web_broadcast;
+import StageControl from './StageControl';
+import StageVideoFeeds from './StageVideoFeeds';
+import useLatest from '../../../../hooks/useLatest';
 
 const GoLiveContainer = forwardRef(
-  (
-    {
-      isBroadcastCardOpen,
-      isOpen,
-      onCollapse,
-      setIsWebBroadcastAnimating,
-      webBroadcastContainerRef,
-      webBroadcastControllerButtons,
-      webBroadcastParentContainerRef
-    },
-    previewRef
-  ) => {
-    const [isFullScreen, setIsFullScreen] = useState(false);
-    const settingsButtonRef = useRef();
-    const shouldAnimateStreamingButton = useLatest(false);
+  ({ isOpen, onCollapse, setIsWebBroadcastAnimating }, previewRef) => {
     const { isBroadcasting } = useBroadcast();
-    const { openModal } = useModal();
-    const { isDesktopView } = useResponsiveDevice();
+    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
+    const { isStageActive, animateCollapseStageContainerWithDelay } =
+      useStage();
+
+    const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
+    const shouldAnimateStreamingButton = useLatest(false);
+    const shouldShowTooltipMessageRef = useRef();
 
     const handleOnCollapse = () => {
       shouldAnimateStreamingButton.current = false;
@@ -45,78 +40,30 @@ const GoLiveContainer = forwardRef(
       onCollapse();
     };
 
-    const handleSettingsClick = () => {
-      openModal({
-        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-        lastFocusedElement: settingsButtonRef
-      });
-    };
+    const controllerCalculatedWidth = currentBreakpoint
+      ? `w-[calc(100%_-_44px_-_32px_+_1px)]` // Width of icon (44px) - Divider padding (32px) + Divider width (1px)
+      : `w-[calc(100%_-_44px_-_16px_+_1px)]`; // Width of icon (44px) - Divider padding (16px for xs screens) + Divider width (1px)
 
-    const webBroadcastControllerWithSettingsButton = [
-      ...webBroadcastControllerButtons,
-      {
-        onClick: handleSettingsClick,
-        ariaLabel: 'Open video and audio settings modal',
-        withRef: true,
-        icon: <Settings />,
-        tooltip: $webBroadcastContent.open_settings
-      }
-    ];
-
-    return (
-      <AnimatePresence initial={false}>
-        <motion.div
-          key="webBroadcast"
-          className="overflow-hidden"
-          {...(isDesktopView &&
-            createAnimationProps({
-              animations: ['fadeIn-full'],
-              transition: 'bounce',
+    const startStreamButtonAnimationProps = useMemo(
+      () =>
+        isStageActive
+          ? createAnimationProps({
               customVariants: {
                 hidden: {
-                  height: 0,
-                  transitionEnd: { display: 'none' }
+                  width: '100%'
                 },
                 visible: {
-                  height: 'auto',
-                  display: 'block',
-                  transition: {
-                    ...getDefaultBounceTransition(isOpen),
-                    opacity: { delay: 0.25 }
-                  }
+                  width: 'calc(100% - 44px - 32px + 1px)'
+                },
+                transition: {
+                  duration: STREAM_BUTTON_ANIMATION_DURATION
                 }
               },
               options: {
-                isVisible: isOpen
+                isVisible: animateCollapseStageContainerWithDelay
               }
-            }))}
-          onAnimationStart={() => setIsWebBroadcastAnimating(true)}
-          onAnimationComplete={() => setIsWebBroadcastAnimating(false)}
-        >
-          {isDesktopView && (
-            <GoLiveHeader
-              ref={previewRef}
-              onCollapse={handleOnCollapse}
-              isFullScreen={isFullScreen}
-              setIsFullScreen={setIsFullScreen}
-              webBroadcastControllerButtons={webBroadcastControllerButtons}
-              webBroadcastParentContainerRef={webBroadcastParentContainerRef}
-              webBroadcastContainerRef={webBroadcastContainerRef}
-            />
-          )}
-          <canvas
-            ref={!isFullScreen ? previewRef : null}
-            className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
-          />
-          <WebBroadcastControl
-            ref={settingsButtonRef}
-            isOpen={isOpen}
-            buttons={webBroadcastControllerWithSettingsButton}
-          />
-        </motion.div>
-        {(isOpen || !isDesktopView) && (
-          <motion.div
-            {...createAnimationProps({
+            })
+          : createAnimationProps({
               customVariants: {
                 hidden: {
                   clipPath: 'inset(0 0 0 100%)'
@@ -129,27 +76,122 @@ const GoLiveContainer = forwardRef(
                 shouldAnimate:
                   shouldAnimateStreamingButton.current && !isBroadcasting
               }
-            })}
+            }),
+      [
+        isStageActive,
+        animateCollapseStageContainerWithDelay,
+        isBroadcasting,
+        shouldAnimateStreamingButton
+      ]
+    );
+
+    const onAnimationComplete = () => {
+      setIsWebBroadcastAnimating(false);
+      shouldShowTooltipMessageRef.current = true;
+    };
+
+    const onAnimationStart = () => {
+      setIsWebBroadcastAnimating(true);
+      shouldShowTooltipMessageRef.current = false;
+    };
+
+    return (
+      <>
+        <AnimatePresence initial={false}>
+          <motion.div
+            key="web-broadcast"
+            className={!isStageActive ? 'overflow-hidden' : undefined}
+            {...(isDesktopView &&
+              createAnimationProps({
+                animations: ['fadeIn-full'],
+                transition: 'bounce',
+                customVariants: {
+                  hidden: {
+                    height: 0,
+                    transitionEnd: { display: 'none' }
+                  },
+                  visible: {
+                    height: 'auto',
+                    display: 'block',
+                    transition: {
+                      ...getDefaultBounceTransition(isOpen),
+                      opacity: { delay: 0.25 }
+                    }
+                  }
+                },
+                options: {
+                  ...(isDesktopView
+                    ? { isVisible: isOpen }
+                    : { isVisible: true })
+                }
+              }))}
+            onAnimationStart={onAnimationStart}
+            onAnimationComplete={onAnimationComplete}
           >
-            <GoLiveStreamButton
-              tooltipPosition="below"
-              tooltipCustomTranslate={{ y: -2 }}
-            />
+            {isDesktopView && <GoLiveHeader onCollapse={handleOnCollapse} />}
+            {isStageActive ? (
+              <div className={clsm(['flex', 'aspect-video'])}>
+                <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.GO_LIVE} />
+              </div>
+            ) : (
+              <canvas
+                ref={!isFullScreenViewOpen ? previewRef : null}
+                className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
+                aria-label="Amazon IVS web broadcast video and audio stream"
+              />
+            )}
+
+            <div
+              className={clsm([
+                'relative',
+                'flex',
+                'flex-row',
+                !isOpen && isDesktopView && 'hidden'
+              ])}
+            >
+              <div
+                className={clsm([
+                  'flex',
+                  'justify-center',
+                  controllerCalculatedWidth
+                ])}
+              >
+                <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
+              </div>
+              <StageControl />
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+          {(isOpen || !isDesktopView) && (
+            <motion.div
+              className={clsm(!isStageActive && '!w-full')}
+              {...startStreamButtonAnimationProps}
+            >
+              <GoLiveStreamButton
+                tooltipPosition="below"
+                tooltipCustomTranslate={{ y: -2 }}
+                shouldShowTooltipMessage={shouldShowTooltipMessageRef.current}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {isFullScreenViewOpen && isDesktopView && (
+            <FullScreenView
+              isOpen={isFullScreenViewOpen}
+              parentEl={document.body}
+              dimensions={dimensions}
+            />
+          )}
+        </AnimatePresence>
+      </>
     );
   }
 );
 
 GoLiveContainer.propTypes = {
-  isBroadcastCardOpen: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool.isRequired,
   onCollapse: PropTypes.func.isRequired,
-  setIsWebBroadcastAnimating: PropTypes.func,
-  webBroadcastContainerRef: PropTypes.object.isRequired,
-  webBroadcastControllerButtons: PropTypes.array.isRequired,
-  webBroadcastParentContainerRef: PropTypes.object.isRequired
+  setIsWebBroadcastAnimating: PropTypes.func
 };
 
 GoLiveContainer.defaultProps = {

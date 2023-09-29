@@ -35,6 +35,16 @@ const useDevices = ({
   });
   const [activeDevices, setActiveDevices] =
     useStateWithCallback(defaultActiveDevices);
+  const hasDevicesReset = useRef(false);
+
+  const resetDevices = useCallback(() => {
+    setDevices({
+      [CAMERA_LAYER_NAME]: [],
+      [MICROPHONE_AUDIO_INPUT_NAME]: []
+    });
+    setActiveDevices(defaultActiveDevices);
+    hasDevicesReset.current = true;
+  }, [setActiveDevices]);
 
   const updateActiveDevice = useCallback(
     ({ deviceName, device, options }) => {
@@ -89,13 +99,22 @@ const useDevices = ({
                 errorMessage = permissions.audio
                   ? $content.notifications.error.failed_to_change_mic
                   : $content.notifications.error.failed_to_access_mic;
-              errorMessage && setError({ message: errorMessage });
+              errorMessage &&
+                !hasDevicesReset.current &&
+                setError({ message: errorMessage });
             }
           }
         );
       }
     },
-    [addVideoLayer, addMicAudioInput, setActiveDevices, permissions, setError]
+    [
+      addVideoLayer,
+      addMicAudioInput,
+      setActiveDevices,
+      permissions,
+      setError,
+      hasDevicesReset
+    ]
   );
 
   const isRefreshingDevices = useRef(false);
@@ -240,6 +259,7 @@ const useDevices = ({
   );
 
   const initializeDevices = useCallback(async () => {
+    hasDevicesReset.current = false;
     let mediaDevices = {};
 
     const onPermissionsGranted = async (permissions) => {
@@ -330,7 +350,8 @@ const useDevices = ({
     devices,
     activeDevices,
     updateActiveDevice,
-    detectDevicePermissions
+    detectDevicePermissions,
+    resetDevices
   };
 };
 

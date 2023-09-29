@@ -321,6 +321,9 @@ export const STREAM_MANAGER_ACTION_LIMITS = {
   }
 };
 
+/**
+ * AMAZON IVS LOW-LATENCY STREAMING
+ */
 const ADVANCED_DEFAULT_CONFIG = {
   maxBitrate: 3500,
   maxFramerate: 30,
@@ -353,11 +356,15 @@ export const BROADCAST_STREAM_CONFIG_PRESETS = {
 };
 
 /**
+ * AMAZON IVS REAL-TIME STREAMING
+ */
+export const LOCAL_STAGE_STREAM_OPTIONS = {
+  simulcast: {
+    enabled: true
+  }
+};
+
+/**
  * CHANNEL DIRECTORY, FOLLOWING
  */
 export const MAX_AVATAR_COUNT = 14;
-
-/**
- * Stream Manager page, Following section
- */
-export const STREAM_MANAGER_DEFAULT_TAB = 0;

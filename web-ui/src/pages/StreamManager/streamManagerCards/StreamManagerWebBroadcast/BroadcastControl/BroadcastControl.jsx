@@ -1,10 +1,12 @@
 import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { clsm } from '../../../../utils';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import Button from '../../../../components/Button';
-import Tooltip from '../../../../components/Tooltip';
+import { clsm } from '../../../../../utils';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import Button from '../../../../../components/Button';
+import Tooltip from '../../../../../components/Tooltip';
+import { CONTROLLER_BUTTON_THEME } from './BroadcastControllerTheme';
+import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 
 const ACTIVE_BUTTON_COLORS = [
   'bg-darkMode-blue',
@@ -15,18 +17,19 @@ const ACTIVE_BUTTON_COLORS = [
   'hover:bg-lightMode-blue-hover',
   '[&>svg]:fill-white'
 ];
-const INACTIVE_BUTTON_COLORS = [
-  'bg-darkMode-red',
-  'dark:bg-darkMode-red',
-  'dark:hover:bg-darkMode-red-hover',
-  'focus:bg-darkMode-red',
-  'focus:dark:bg-darkMode-red',
-  'hover:bg-lightMode-red-hover',
-  '[&>svg]:fill-white'
-];
 
-const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
+const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
   const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
+  const { isFullScreenViewOpen } = useBroadcastFullScreen();
+
+  const getSpaceBetween = () => {
+    if (isFullScreenViewOpen) {
+      return ['space-x-4'];
+    }
+    return isOpen || !isDesktopView
+      ? ['space-x-5', 'xs:space-x-2']
+      : 'space-x-3';
+  };
 
   return (
     <div
@@ -35,7 +38,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
         'justify-center',
         'mt-5',
         'mb-5',
-        isOpen || !isDesktopView ? 'space-x-5' : 'space-x-3'
+        getSpaceBetween()
       ])}
     >
       {buttons
@@ -73,18 +76,11 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
                   'h-11',
                   'dark:[&>svg]:fill-white',
                   '[&>svg]:fill-black',
-                  'dark:bg-darkMode-gray-medium',
-                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                  'dark:focus:bg-darkMode-gray-medium',
-                  'bg-lightMode-gray',
-                  isDeviceControl &&
-                    !isActive && [
-                      INACTIVE_BUTTON_COLORS,
-                      isTouchscreenDevice && [
-                        'hover:bg-darkMode-red',
-                        'dark:hover:dark:bg-darkMode-red'
-                      ]
-                    ],
+                  !isTouchscreenDevice && [
+                    'hover:bg-lightMode-gray-hover',
+                    'dark:hover:bg-darkMode-gray-hover'
+                  ],
+                  CONTROLLER_BUTTON_THEME,
                   !isDeviceControl &&
                     isActive && [
                       ACTIVE_BUTTON_COLORS,
@@ -104,9 +100,9 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
   );
 });
 
-WebBroadcastControl.propTypes = {
+BroadcastControl.propTypes = {
   buttons: PropTypes.array.isRequired,
   isOpen: PropTypes.bool.isRequired
 };
 
-export default WebBroadcastControl;
+export default BroadcastControl;

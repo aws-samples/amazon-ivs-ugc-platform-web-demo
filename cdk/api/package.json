@@ -19,6 +19,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.218.0",
     "@aws-sdk/client-dynamodb": "^3.218.0",
     "@aws-sdk/client-ivs": "^3.218.0",
+    "@aws-sdk/client-ivs-realtime": "^3.370.0",
     "@aws-sdk/client-ivschat": "^3.218.0",
     "@aws-sdk/client-s3": "^3.218.0",
     "@aws-sdk/client-secrets-manager": "^3.218.0",

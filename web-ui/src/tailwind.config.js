@@ -37,6 +37,12 @@ module.exports = {
       ]
     },
     extend: {
+      containers: {
+        'stage-video-xl': '320px',
+        'stage-video-lg': '240px',
+        'stage-video-md': '180px',
+        'stage-video-sm': '120px'
+      },
       animation,
       transitionDuration: { 0: '0ms' },
       boxShadow: {
@@ -94,6 +100,11 @@ module.exports = {
   },
   safelist,
   plugins: [
+    /**
+     * A plugin for Tailwind CSS v3.2+ that provides utilities for container queries.
+     * https://github.com/tailwindlabs/tailwindcss-container-queries
+     */
+    require('@tailwindcss/container-queries'),
     /**
      * A plugin that provides utilities for visually truncating text after a fixed number of lines.
      * https://github.com/tailwindlabs/tailwindcss-line-clamp
