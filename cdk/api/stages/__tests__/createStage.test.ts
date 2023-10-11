@@ -1,7 +1,6 @@
 import buildServer from '../../buildServer';
 import { injectAuthorizedRequest } from '../../testUtils';
 import userInfo from '../../__mocks__/userInfo.json';
-import { getUser } from '../../channel/helpers';
 import { handleCreateStage, handleCreateStageParams } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import createStageParamsMock from '../__mocks__/createStageParamsMock.json';

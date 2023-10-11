@@ -93,3 +93,6 @@ export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
  * Stages
  */
 export const STAGE_TOKEN_DURATION = 1440; // Minutes
+export const STAGE_PARTICIPANT_TYPES = {
+  HOST: 'host'
+};

@@ -1,7 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 
-import { UNEXPECTED_EXCEPTION } from '../shared/constants';
+import {
+  STAGE_PARTICIPANT_TYPES,
+  UNEXPECTED_EXCEPTION
+} from '../shared/constants';
 import { UserContext } from '../channel/authorizer';
 import { handleCreateStageParams, handleCreateStage } from './helpers';
 
@@ -26,7 +29,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
             username: preferredUsername || username,
             profileColor,
             avatar,
-            channelAssetsAvatarUrlPath
+            channelAssetsAvatarUrlPath,
+            type: STAGE_PARTICIPANT_TYPES.HOST
           },
           capabilities,
           duration,
