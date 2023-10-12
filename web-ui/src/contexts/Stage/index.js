@@ -1,15 +1,9 @@
-import {
+export {
   Provider as GlobalStageProvider,
   useGlobal as useGlobalStage
 } from './Global';
-import {
+
+export {
   Provider as StreamManagerStageProvider,
   useStage as useStreamManagerStage
 } from './StreamManager';
-
-export {
-  GlobalStageProvider,
-  useGlobalStage,
-  StreamManagerStageProvider,
-  useStreamManagerStage
-};

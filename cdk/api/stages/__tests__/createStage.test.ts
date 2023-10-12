@@ -11,7 +11,8 @@ const stageId = 'expectedStageId';
 
 jest.mock('../../shared/helpers', () => ({
   ...jest.requireActual('../../shared/helpers'),
-  getSecrets: jest.fn()
+  getSecrets: jest.fn(),
+  updateDynamoItemAttributes: jest.fn()
 }));
 
 jest.mock('../helpers');

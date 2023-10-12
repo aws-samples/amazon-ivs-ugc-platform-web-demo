@@ -96,3 +96,7 @@ export const STAGE_TOKEN_DURATION = 1440; // Minutes
 export const STAGE_PARTICIPANT_TYPES = {
   HOST: 'host'
 };
+export const CHANNELS_TABLE_STAGE_FIELDS = {
+  STAGE_ID: 'stageId',
+  STAGE_CREATION_DATE: 'stageCreationDate'
+};

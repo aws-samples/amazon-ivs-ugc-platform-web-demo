@@ -7,7 +7,10 @@ import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { generateDeterministicId, getUser } from '../helpers';
-import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import {
+  CHANNELS_TABLE_STAGE_FIELDS,
+  UNEXPECTED_EXCEPTION
+} from '../../shared/constants';
 import {
   ivsChatClient,
   ivsClient,
@@ -98,7 +101,15 @@ const handler = async (
         { key: 'playbackUrl', value: playbackUrl },
         { key: 'streamKeyArn', value: streamKeyArn },
         { key: 'streamKeyValue', value: streamKeyValue },
-        { key: 'trackingId', value: trackingId }
+        { key: 'trackingId', value: trackingId },
+        {
+          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID,
+          value: null
+        },
+        {
+          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
+          value: null
+        }
       ],
       primaryKey: { key: 'id', value: sub },
       tableName: process.env.CHANNELS_TABLE_NAME as string

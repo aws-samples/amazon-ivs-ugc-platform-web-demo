@@ -41,6 +41,11 @@ export interface ResponseBody {
   [key: string]: any;
 }
 
+export interface ChannelStageAttributes {
+  stageId: string | null;
+  creationTime: string | null;
+}
+
 export type Period = 3600 | 300 | 60 | 5;
 
 export type FormattedMetricData = {
