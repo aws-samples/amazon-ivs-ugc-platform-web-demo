@@ -9,7 +9,7 @@ import {
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useModal } from '../../../../../contexts/Modal';
-import { useStage } from '../../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import StageVideoFeeds, {
   STAGE_VIDEO_FEEDS_TYPES
 } from '../StageVideoFeeds/StageVideoFeeds';
@@ -20,7 +20,7 @@ import Footer from './Footer';
 import Header from './Header';
 
 const FullScreenView = ({ dimensions }) => {
-  const { isStageActive } = useStage();
+  const { isStageActive } = useStreamManagerStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
   const { isModalOpen } = useModal();

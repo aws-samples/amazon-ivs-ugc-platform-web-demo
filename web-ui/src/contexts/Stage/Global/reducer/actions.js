@@ -1,23 +1,8 @@
 import actionTypes from './actionTypes';
 
-export const resetStageState = (propertiesToOmit = []) => ({
-  type: actionTypes.RESET_STAGE_STATE,
-  payload: propertiesToOmit
-});
-
 export const creatingStage = (isCreating) => ({
   type: actionTypes.CREATING_STAGE,
   payload: isCreating
-});
-
-export const updateError = (error) => ({
-  type: actionTypes.UPDATE_ERROR,
-  payload: error
-});
-
-export const updateSuccess = (msg) => ({
-  type: actionTypes.UPDATE_SUCCESS,
-  payload: msg
 });
 
 export const updateStageId = (stageId) => ({
@@ -44,7 +29,28 @@ export const updateShouldDisableStageButtonWithDelay = (
   payload: shouldDisableStageButtonWithDelay
 });
 
+export const resetStageState = (propertiesToOmit = []) => ({
+  type: actionTypes.RESET_STAGE_STATE,
+  payload: propertiesToOmit
+});
+
+export const updateError = (error) => ({
+  type: actionTypes.UPDATE_ERROR,
+  payload: error
+});
+
+export const updateSuccess = (msg) => ({
+  type: actionTypes.UPDATE_SUCCESS,
+  payload: msg
+});
+
+export const updateIsBlockingRoute = (bool) => ({
+  type: actionTypes.UPDATE_IS_BLOCKING_ROUTE,
+  payload: bool
+});
+
 // Participants
+
 export const updateStreams = (key, streams) => ({
   type: actionTypes.UPDATE_PARTICIPANT_STREAMS,
   payload: { key, streams }
@@ -75,12 +81,11 @@ export const toggleMicrophoneState = (key, isMuted = null) => ({
   payload: { key, isMuted }
 });
 
-export const updateIsBlockingRoute = (bool) => ({
-  type: actionTypes.UPDATE_IS_BLOCKING_ROUTE,
-  payload: bool
-});
-
 export const updateIsSpectator = (bool) => ({
   type: actionTypes.UPDATE_IS_SPECTATOR,
   payload: bool
+});
+
+export const resetParticipants = () => ({
+  type: actionTypes.RESET_PARTICIPANTS
 });

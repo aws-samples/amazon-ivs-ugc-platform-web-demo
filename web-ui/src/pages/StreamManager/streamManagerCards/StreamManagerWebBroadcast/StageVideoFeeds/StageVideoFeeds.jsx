@@ -1,8 +1,6 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-
-import { useStage } from '../../../../../contexts/Stage/Stage';
 import StageVideo from './StageVideo';
 
 import { clsm } from '../../../../../utils';
@@ -10,6 +8,7 @@ import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscr
 import InviteParticipant from './InviteParticipant';
 import './StageVideoGrid.css';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -18,7 +17,7 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ type }) => {
-  const { participants } = useStage();
+  const { participants } = useGlobalStage();
   const {
     isFullScreenViewOpen,
     fullscreenAnimationControls,

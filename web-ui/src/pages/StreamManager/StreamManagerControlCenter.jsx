@@ -15,7 +15,7 @@ import { useBroadcast } from '../../contexts/Broadcast';
 import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { useStage } from '../../contexts/Stage';
+import { useStreamManagerStage } from '../../contexts/Stage';
 import { useStreams } from '../../contexts/Streams';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
@@ -45,7 +45,8 @@ const StreamManagerControlCenter = forwardRef(
       restartBroadcastClient,
       removeBroadcastClient
     } = useBroadcast();
-    const { handleParticipantInvite, isStageActive, updateError } = useStage();
+    const { handleParticipantInvite, isStageActive, updateError } =
+      useStreamManagerStage();
     const { channelData } = useChannel();
     const [searchParams] = useSearchParams();
     const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);

@@ -11,9 +11,9 @@ import { useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { useResponsiveDevice } from './ResponsiveDevice';
-import { useStage } from './Stage';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
+import { useGlobalStage } from './Stage';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -39,12 +39,12 @@ export const Provider = ({ children, previewRef }) => {
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
   const {
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
     isStageActive,
+    collaborateButtonAnimationControls,
+    animationCollapseStageControlsStart,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon
-  } = useStage();
+  } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),

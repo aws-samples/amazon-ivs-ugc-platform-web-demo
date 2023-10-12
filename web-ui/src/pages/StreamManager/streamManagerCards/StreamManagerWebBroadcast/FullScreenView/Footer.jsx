@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
 
-import { useStage } from '../../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../utils';
@@ -22,6 +22,7 @@ import {
   PersonAdd
 } from '../../../../../assets/icons';
 import { CONTROLLER_BUTTON_THEME } from '../BroadcastControl/BroadcastControllerTheme';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -30,16 +31,18 @@ const Footer = () => {
 
   const {
     initializeStageClient,
-    isCreatingStage,
     isStageActive,
-    collaborateButtonAnimationControls,
     handleOnConfirmLeaveStage,
-    shouldDisableStageButtonWithDelay,
     handleCopyJoinParticipantLinkAndNotify,
     shouldDisableCollaborateButton,
     hasPermissions,
     shouldDisableCopyLinkButton
-  } = useStage();
+  } = useStreamManagerStage();
+  const {
+    collaborateButtonAnimationControls,
+    shouldDisableStageButtonWithDelay,
+    isCreatingStage
+  } = useGlobalStage();
   const {
     setIsFullScreenViewOpen,
     shouldRenderFullScreenCollaborateButton,

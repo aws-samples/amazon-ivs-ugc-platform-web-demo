@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import BroadcastControl from './BroadcastControl';
-import { useStage } from '../../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import {
   MicOff,
   MicOn,
@@ -19,6 +19,7 @@ import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/u
 import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -29,11 +30,13 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
   const {
     isStageActive,
     toggleMicrophone: toggleStageMicrophone,
+    toggleCamera: toggleStageCamera
+  } = useStreamManagerStage();
+  const {
     localParticipant,
-    toggleCamera: toggleStageCamera,
-    animateCollapseStageContainerWithDelay,
-    isSpectator: isStageSpectator
-  } = useStage();
+    isSpectator: isStageSpectator,
+    animateCollapseStageContainerWithDelay
+  } = useGlobalStage();
   const {
     isMicrophoneMuted: isStageMicrophoneMuted,
     isCameraHidden: isStageCameraHidden

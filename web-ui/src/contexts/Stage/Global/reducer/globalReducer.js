@@ -1,3 +1,21 @@
+/**
+ * @typedef {Object} ParticipantAttributes
+ * @property {string} avatar
+ * @property {string} color
+ * @property {string} displayName
+ *
+ * @typedef {Map} Participant
+ * @property {Boolean} isCameraHidden
+ * @property {Boolean} isLocal
+ * @property {Boolean} isMicrophoneMuted
+ * @property {MediaStreamTrack[]} streams
+ * @property {ParticipantAttributes} attributes
+ * @property {String} userId
+
+ *
+ * @typedef {Map<Participant>} Participants
+ */
+
 import actionTypes from './actionTypes';
 
 export const LOCAL_KEY = 'LOCAL';
@@ -16,62 +34,98 @@ export const defaultParticipant = {
   streams: null
 };
 
-/**
- * @typedef {Object} ParticipantAttributes
- * @property {string} avatar
- * @property {string} color
- * @property {string} displayName
- *
- * @typedef {Map} Participant
- * @property {Boolean} isCameraHidden
- * @property {Boolean} isLocal
- * @property {Boolean} isMicrophoneMuted
- * @property {MediaStreamTrack[]} streams
- * @property {ParticipantAttributes} attributes
- * @property {String} userId
-
- *
- * @typedef {Map<Participant>} Participants
- */
-const defaultParticipantsState = new Map();
-
 export const STATE_KEYS = {
+  PARTICIPANTS: 'participants',
   IS_SPECTATOR: 'isSpectator',
   IS_CREATING_STAGE: 'isCreatingStage',
   STAGE_ID: 'stageId',
-  SUCCESS: 'success',
-  ERROR: 'error',
   ANIMATE_COLLAPSE_STAGE_CONTAINER_WITH_DELAY:
     'animateCollapseStageContainerWithDelay',
   SHOULD_ANIMATE_GO_LIVE_BUTTON_CHEVRON_ICON:
     'shouldAnimateGoLiveButtonChevronIcon',
-  PARTICIPANTS: 'participants',
   SHOULD_DISABLE_STAGE_BUTTON_WITH_DELAY: 'shouldDisableStageButtonWithDelay',
+  SUCCESS: 'success',
+  ERROR: 'error',
   IS_BLOCKING_ROUTE: 'isBlockingRoute'
 };
 
-const defaultRootState = {
+const defaultStageReducerState = {
+  [STATE_KEYS.PARTICIPANTS]: new Map(),
   [STATE_KEYS.IS_SPECTATOR]: false,
-  [STATE_KEYS.IS_CREATING_STAGE]: false,
   [STATE_KEYS.STAGE_ID]: null,
+  [STATE_KEYS.IS_CREATING_STAGE]: false,
   [STATE_KEYS.SUCCESS]: null,
   [STATE_KEYS.ERROR]: null,
-  [STATE_KEYS.ANIMATE_COLLAPSE_STAGE_CONTAINER_WITH_DELAY]: false,
-  [STATE_KEYS.SHOULD_ANIMATE_GO_LIVE_BUTTON_CHEVRON_ICON]: false,
-  [STATE_KEYS.SHOULD_DISABLE_STAGE_BUTTON_WITH_DELAY]: true,
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false
 };
 
-export const defaultStageReducerState = {
-  ...defaultRootState,
-  [STATE_KEYS.PARTICIPANTS]: defaultParticipantsState
+const stageAnimationReducerState = {
+  [STATE_KEYS.ANIMATE_COLLAPSE_STAGE_CONTAINER_WITH_DELAY]: false,
+  [STATE_KEYS.SHOULD_ANIMATE_GO_LIVE_BUTTON_CHEVRON_ICON]: false,
+  [STATE_KEYS.SHOULD_DISABLE_STAGE_BUTTON_WITH_DELAY]: true
 };
 
-const stageReducer = (state = defaultStageReducerState, action) => {
+export const defaultReducerState = {
+  ...defaultStageReducerState,
+  ...stageAnimationReducerState
+};
+
+const globalReducer = (state = defaultReducerState, action) => {
   const currentParticipants = new Map(state.participants);
   let currentParticipant;
 
   switch (action.type) {
+    case actionTypes.UPDATE_ERROR: {
+      return {
+        ...state,
+        [STATE_KEYS.ERROR]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_SUCCESS: {
+      return {
+        ...state,
+        [STATE_KEYS.SUCCESS]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_IS_BLOCKING_ROUTE: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_BLOCKING_ROUTE]: action.payload
+      };
+    }
+
+    case actionTypes.RESET_STAGE_STATE: {
+      const propertiesToOmit = action.payload;
+
+      const propertiesToOmitArray =
+        typeof propertiesToOmit === 'string'
+          ? [propertiesToOmit]
+          : propertiesToOmit || [];
+
+      const statesToOmit = propertiesToOmitArray.reduce((acc, key) => {
+        if (state[key] !== undefined) {
+          acc[key] = state[key];
+        }
+        return acc;
+      }, {});
+
+      return { ...defaultStageReducerState, ...statesToOmit };
+    }
+
+    case actionTypes.CREATING_STAGE: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_CREATING_STAGE]: action.payload
+      };
+    }
+    case actionTypes.UPDATE_STAGE_ID: {
+      return {
+        ...state,
+        [STATE_KEYS.STAGE_ID]: action.payload
+      };
+    }
     case actionTypes.ADD_PARTICIPANT: {
       const { isLocal, userId } = action.payload;
       const newParticipantObject = {
@@ -188,31 +242,23 @@ const stageReducer = (state = defaultStageReducerState, action) => {
       };
     }
 
-    case actionTypes.CREATING_STAGE: {
+    case actionTypes.UPDATE_IS_SPECTATOR: {
+      const isSpectator = action.payload;
+
+      if (isSpectator) {
+        currentParticipants.delete(LOCAL_KEY);
+      }
+
       return {
         ...state,
-        [STATE_KEYS.IS_CREATING_STAGE]: action.payload
+        [STATE_KEYS.IS_SPECTATOR]: action.payload,
+        [STATE_KEYS.PARTICIPANTS]: currentParticipants
       };
     }
 
-    case actionTypes.UPDATE_ERROR: {
+    case actionTypes.RESET_PARTICIPANTS: {
       return {
-        ...state,
-        [STATE_KEYS.ERROR]: action.payload
-      };
-    }
-
-    case actionTypes.UPDATE_SUCCESS: {
-      return {
-        ...state,
-        [STATE_KEYS.SUCCESS]: action.payload
-      };
-    }
-
-    case actionTypes.UPDATE_STAGE_ID: {
-      return {
-        ...state,
-        [STATE_KEYS.STAGE_ID]: action.payload
+        participants: defaultStageReducerState.participants
       };
     }
 
@@ -237,48 +283,9 @@ const stageReducer = (state = defaultStageReducerState, action) => {
       };
     }
 
-    case actionTypes.UPDATE_IS_BLOCKING_ROUTE: {
-      return {
-        ...state,
-        [STATE_KEYS.IS_BLOCKING_ROUTE]: action.payload
-      };
-    }
-
-    case actionTypes.UPDATE_IS_SPECTATOR: {
-      const isSpectator = action.payload;
-
-      if (isSpectator) {
-        currentParticipants.delete(LOCAL_KEY);
-      }
-
-      return {
-        ...state,
-        [STATE_KEYS.IS_SPECTATOR]: action.payload,
-        [STATE_KEYS.PARTICIPANTS]: currentParticipants
-      };
-    }
-
-    case actionTypes.RESET_STAGE_STATE: {
-      const propertiesToOmit = action.payload;
-
-      const propertiesToOmitArray =
-        typeof propertiesToOmit === 'string'
-          ? [propertiesToOmit]
-          : propertiesToOmit || [];
-
-      const statesToOmit = propertiesToOmitArray.reduce((acc, key) => {
-        if (state[key] !== undefined) {
-          acc[key] = state[key];
-        }
-        return acc;
-      }, {});
-
-      return { ...defaultStageReducerState, ...statesToOmit };
-    }
-
     default:
       return state;
   }
 };
 
-export default stageReducer;
+export default globalReducer;

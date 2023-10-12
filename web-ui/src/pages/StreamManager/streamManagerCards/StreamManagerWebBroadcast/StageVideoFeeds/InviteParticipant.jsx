@@ -6,7 +6,7 @@ import { createAnimationProps } from '../../../../../helpers/animationPropsHelpe
 import { PersonAdd } from '../../../../../assets/icons';
 import { streamManager as $content } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import { useStage } from '../../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import Button from '../../../../../components/Button/Button';
 import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
@@ -17,7 +17,7 @@ const InviteParticipant = ({ type }) => {
     useResponsiveDevice();
   const isFullscreenType = type === 'fullscreen';
 
-  const { handleCopyJoinParticipantLinkAndNotify } = useStage();
+  const { handleCopyJoinParticipantLinkAndNotify } = useStreamManagerStage();
   const shouldRenderInviteParticipantText = isDesktopView
     ? isFullscreenType
     : !isDefaultResponsiveView;

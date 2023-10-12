@@ -12,9 +12,9 @@ import { createAnimationProps } from '../../../../../helpers/animationPropsHelpe
 import { getAvatarSrc } from '../../../../../helpers';
 import { MicOff, VideoCameraOff } from '../../../../../assets/icons';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
-import { useStage } from '../../../../../contexts/Stage';
 import StageProfilePill from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -24,7 +24,7 @@ const SIZE_VARIANTS = {
 
 const StageVideo = ({ type, participantKey, className }) => {
   const videoRef = useRef(null);
-  const { participants } = useStage();
+  const { participants } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 

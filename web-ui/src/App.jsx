@@ -17,6 +17,7 @@ import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
+import { GlobalStageProvider } from './contexts/Stage';
 
 // Pages
 import {
@@ -75,9 +76,11 @@ const router = createBrowserRouter(
       <Route
         element={
           <StreamsProvider>
-            <ChannelProvider>
-              <AppLayoutWithNavbar />
-            </ChannelProvider>
+            <GlobalStageProvider>
+              <ChannelProvider>
+                <AppLayoutWithNavbar />
+              </ChannelProvider>
+            </GlobalStageProvider>
           </StreamsProvider>
         }
       >

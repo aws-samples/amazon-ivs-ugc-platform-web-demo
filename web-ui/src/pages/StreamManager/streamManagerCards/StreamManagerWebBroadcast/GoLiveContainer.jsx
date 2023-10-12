@@ -14,7 +14,7 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStage } from '../../../../contexts/Stage/Stage';
+import { useStreamManagerStage } from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
 import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
@@ -22,13 +22,14 @@ import GoLiveStreamButton from './GoLiveStreamButton';
 import StageControl from './StageControl';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
+import { useGlobalStage } from '../../../../contexts/Stage';
 
 const GoLiveContainer = forwardRef(
   ({ isOpen, onCollapse, setIsWebBroadcastAnimating }, previewRef) => {
     const { isBroadcasting } = useBroadcast();
     const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
-    const { isStageActive, animateCollapseStageContainerWithDelay } =
-      useStage();
+    const { isStageActive } = useStreamManagerStage();
+    const { animateCollapseStageContainerWithDelay } = useGlobalStage();
 
     const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
     const shouldAnimateStreamingButton = useLatest(false);

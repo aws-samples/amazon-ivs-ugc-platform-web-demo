@@ -444,6 +444,7 @@ export const Provider = ({
       isMicrophoneMuted,
       toggleMicrophone: toggleMicrophoneThrottled,
       // Controls
+      previewRef,
       startBroadcast,
       stopBroadcast,
       resetPreview,
@@ -459,6 +460,7 @@ export const Provider = ({
       activeDevices,
       devices,
       error,
+      hasPermissions,
       initializeDevices,
       isBroadcasting,
       isCameraHidden,
@@ -467,6 +469,7 @@ export const Provider = ({
       isScreenSharing,
       permissions,
       presetLayers,
+      previewRef,
       removeBroadcastClient,
       resetPreview,
       restartBroadcastClient,
@@ -477,8 +480,7 @@ export const Provider = ({
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
       updateActiveDevice,
-      updateShouldShowCameraOnScreenShare,
-      hasPermissions
+      updateShouldShowCameraOnScreenShare
     ]
   );
 

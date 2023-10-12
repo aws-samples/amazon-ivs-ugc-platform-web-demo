@@ -1,16 +1,17 @@
 import { useCallback, useEffect } from 'react';
 
-import { BREAKPOINTS } from '../../constants';
-import { CAMERA_LAYER_NAME } from '../Broadcast/useLayers';
-import { LOCAL_KEY } from './reducer';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../Broadcast/useAudioMixer';
-import { noop } from '../../utils';
-import { streamManager as $streamManagerContent } from '../../content';
-import { useModal } from '../Modal';
-import { useResponsiveDevice } from '../ResponsiveDevice';
-import usePrompt from '../../hooks/usePrompt';
-import useThrottledCallback from '../../hooks/useThrottledCallback';
-import usePrevious from '../../hooks/usePrevious';
+import { BREAKPOINTS } from '../../../constants';
+
+import { streamManager as $streamManagerContent } from '../../../content';
+import { LOCAL_KEY } from '../Global/reducer/globalReducer';
+import usePrevious from '../../../hooks/usePrevious';
+import useThrottledCallback from '../../../hooks/useThrottledCallback';
+import usePrompt from '../../../hooks/usePrompt';
+import { useModal } from '../../Modal';
+import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
+import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
+import { useResponsiveDevice } from '../../ResponsiveDevice';
+import { noop } from '../../../utils';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;

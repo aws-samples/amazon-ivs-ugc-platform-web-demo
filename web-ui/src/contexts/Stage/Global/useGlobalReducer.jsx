@@ -1,9 +1,11 @@
 import { useReducer, useMemo, useCallback } from 'react';
 
-import { stageReducer, defaultStageReducerState, actions } from './reducer';
+import { globalReducer, defaultReducerState, actions } from './reducer';
 
-const useStageReducers = () => {
-  const [state, dispatch] = useReducer(stageReducer, defaultStageReducerState);
+const DELAY_COLLAPSE_ANIMATION = 500;
+
+const useGlobalReducers = () => {
+  const [state, dispatch] = useReducer(globalReducer, defaultReducerState);
 
   const addParticipant = useCallback((participantObj) => {
     dispatch(actions.addParticipant(participantObj));
@@ -17,8 +19,33 @@ const useStageReducers = () => {
     dispatch(actions.updateParticipant(key, participantObj));
   }, []);
 
+  const updateStreams = useCallback((key, participantObj) => {
+    dispatch(actions.updateStreams(key, participantObj));
+  }, []);
+
+  const toggleCameraState = useCallback((key, isCameraHidden = null) => {
+    dispatch(actions.toggleCameraState(key, isCameraHidden));
+  }, []);
+
+  const toggleMicrophoneState = useCallback((key, isMuted = null) => {
+    dispatch(actions.toggleMicrophoneState(key, isMuted));
+  }, []);
+
+  const updateIsSpectator = useCallback((bool) => {
+    dispatch(actions.updateIsSpectator(bool));
+  }, []);
+
+  const resetParticipants = useCallback(() => {
+    dispatch(actions.resetParticipants());
+  }, []);
+
+  // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
+  }, []);
+
+  const updateStageId = useCallback((stageId) => {
+    dispatch(actions.updateStageId(stageId));
   }, []);
 
   const updateAnimateCollapseStageContainerWithDelay = useCallback(
@@ -49,28 +76,23 @@ const useStageReducers = () => {
     []
   );
 
+  const animationCollapseStageControlsStart = useCallback(() => {
+    updateShouldAnimateGoLiveButtonChevronIcon(true);
+
+    setTimeout(() => {
+      updateAnimateCollapseStageContainerWithDelay(true);
+    }, DELAY_COLLAPSE_ANIMATION);
+  }, [
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon
+  ]);
+
   const updateError = useCallback((error) => {
     dispatch(actions.updateError(error));
   }, []);
 
-  const updateStageId = useCallback((stageId) => {
-    dispatch(actions.updateStageId(stageId));
-  }, []);
-
   const updateSuccess = useCallback((msg) => {
     dispatch(actions.updateSuccess(msg));
-  }, []);
-
-  const toggleCameraState = useCallback((key, isCameraHidden = null) => {
-    dispatch(actions.toggleCameraState(key, isCameraHidden));
-  }, []);
-
-  const toggleMicrophoneState = useCallback((key, isMuted = null) => {
-    dispatch(actions.toggleMicrophoneState(key, isMuted));
-  }, []);
-
-  const updateStreams = useCallback((key, streams) => {
-    dispatch(actions.updateStreams(key, streams));
   }, []);
 
   const resetStageState = useCallback(({ omit: propertiesToOmit } = {}) => {
@@ -81,50 +103,50 @@ const useStageReducers = () => {
     dispatch(actions.updateIsBlockingRoute(bool));
   }, []);
 
-  const updateIsSpectator = useCallback((bool) => {
-    dispatch(actions.updateIsSpectator(bool));
-  }, []);
-
   return useMemo(
     () => ({
       state,
       addParticipant,
       removeParticipant,
       updateParticipant,
-      creatingStage,
-      updateAnimateCollapseStageContainerWithDelay,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      updateShouldDisableStageButtonWithDelay,
-      updateError,
-      updateStageId,
-      updateSuccess,
-      resetStageState,
+      resetParticipants,
       toggleCameraState,
       toggleMicrophoneState,
-      updateStreams,
       updateIsSpectator,
+      updateStageId,
+      updateShouldDisableStageButtonWithDelay,
+      animationCollapseStageControlsStart,
+      updateAnimateCollapseStageContainerWithDelay,
+      updateStreams,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      creatingStage,
+      updateError,
+      updateSuccess,
+      resetStageState,
       updateIsBlockingRoute
     }),
     [
+      state,
       addParticipant,
       removeParticipant,
       updateParticipant,
-      creatingStage,
-      resetStageState,
-      state,
+      resetParticipants,
       toggleCameraState,
       toggleMicrophoneState,
-      updateAnimateCollapseStageContainerWithDelay,
-      updateError,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      updateStageId,
-      updateStreams,
-      updateSuccess,
-      updateShouldDisableStageButtonWithDelay,
       updateIsSpectator,
+      updateStageId,
+      updateShouldDisableStageButtonWithDelay,
+      animationCollapseStageControlsStart,
+      updateAnimateCollapseStageContainerWithDelay,
+      updateStreams,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      creatingStage,
+      updateError,
+      updateSuccess,
+      resetStageState,
       updateIsBlockingRoute
     ]
   );
 };
 
-export default useStageReducers;
+export default useGlobalReducers;

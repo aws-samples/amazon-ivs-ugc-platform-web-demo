@@ -16,7 +16,7 @@ import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStage } from '../../../../contexts/Stage/Stage';
+import { useStreamManagerStage } from '../../../../contexts/Stage';
 import Button from '../../../../components/Button';
 import Dropdown from '../../../../components/Dropdown';
 import Modal from '../../../../components/Modal';
@@ -41,7 +41,7 @@ const WebBroadcastSettingsModal = () => {
     updateShouldShowCameraOnScreenShare
   } = useBroadcast();
 
-  const { isStageActive } = useStage();
+  const { isStageActive } = useStreamManagerStage();
 
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const mainContentRef = useRef();

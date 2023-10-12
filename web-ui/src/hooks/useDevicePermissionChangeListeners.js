@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { updateIsBlockingRoute } from '../contexts/Stage/reducer/actions';
+import { updateIsBlockingRoute } from '../contexts/Stage/Global/reducer/actions';
 
 const useDevicePermissionChangeListeners = () => {
   const cameraPermissionRef = useRef();

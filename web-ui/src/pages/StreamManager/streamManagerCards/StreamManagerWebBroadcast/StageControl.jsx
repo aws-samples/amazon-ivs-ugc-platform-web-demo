@@ -7,10 +7,11 @@ import { CreateStage, LeaveSession, PersonAdd } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStage } from '../../../../contexts/Stage/Stage';
+import { useStreamManagerStage } from '../../../../contexts/Stage';
 import Button from '../../../../components/Button/Button';
 import Spinner from '../../../../components/Spinner';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
+import { useGlobalStage } from '../../../../contexts/Stage';
 
 const $stageContent = $content.stream_manager_stage;
 const {
@@ -33,16 +34,18 @@ const StageControl = () => {
     initializeStageClient,
     isStageActive,
     isCreatingStage,
-    animateCollapseStageContainerWithDelay,
-    updateAnimateCollapseStageContainerWithDelay,
-    collaborateButtonAnimationControls,
     handleOnConfirmLeaveStage,
-    shouldDisableStageButtonWithDelay,
     handleCopyJoinParticipantLinkAndNotify,
     shouldDisableCollaborateButton,
     hasPermissions,
     shouldDisableCopyLinkButton
-  } = useStage();
+  } = useStreamManagerStage();
+  const {
+    collaborateButtonAnimationControls,
+    updateAnimateCollapseStageContainerWithDelay,
+    animateCollapseStageContainerWithDelay,
+    shouldDisableStageButtonWithDelay
+  } = useGlobalStage();
   const { handleToggleFullscreen } = useBroadcastFullScreen();
   const isCollaborateDisabled =
     shouldDisableCollaborateButton ||
