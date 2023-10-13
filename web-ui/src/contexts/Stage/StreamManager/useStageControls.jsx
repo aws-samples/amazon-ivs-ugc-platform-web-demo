@@ -38,6 +38,7 @@ const useStageControls = ({
   const prevActiveMicrophoneDevice = usePrevious(activeMicrophoneDevice);
   const { currentBreakpoint } = useResponsiveDevice();
   const isMobile = currentBreakpoint < BREAKPOINTS.sm;
+  const isStageHost = localParticipant?.attributes?.type === 'host';
 
   const toggleCamera = useThrottledCallback(() => {
     toggleCameraState(LOCAL_KEY);
@@ -52,11 +53,15 @@ const useStageControls = ({
       closeFullscreenAndAnimateCollaborateButtonCallback = undefined,
       lastFocusedElementRef = {}
     } = {}) => {
+      const message = isStageHost
+        ? $contentStageConfirmationModal.exit_stage_session_host
+        : $contentStageConfirmationModal.exit_stage_session;
+
       openModal({
         content: {
           confirmText: $contentStageConfirmationModal.confirm_exit,
           isDestructive: true,
-          message: $contentStageConfirmationModal.exit_stage_session
+          message
         },
         onConfirm: () => {
           if (
@@ -71,7 +76,7 @@ const useStageControls = ({
         lastFocusedElement: lastFocusedElementRef
       });
     },
-    [closeModal, leaveStage, openModal]
+    [closeModal, isStageHost, leaveStage, openModal]
   );
 
   useEffect(() => {
