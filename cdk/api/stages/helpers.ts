@@ -4,6 +4,7 @@ import {
   CreateParticipantTokenCommandInput,
   CreateStageCommand,
   CreateStageCommandInput,
+  DeleteStageCommand,
   GetStageCommand,
   IVSRealTimeClient
 } from '@aws-sdk/client-ivs-realtime';
@@ -38,6 +39,14 @@ export const handleCreateStage = async (input: CreateStageCommandInput) => {
     token,
     stageId
   };
+};
+
+export const handleDeleteStage = async (stageId: string) => {
+  const stageArn = buildStageArn(stageId);
+
+  const deleteStageCommand = new DeleteStageCommand({ arn: stageArn });
+
+  await client.send(deleteStageCommand);
 };
 
 export const handleCreateParticipantToken = async (

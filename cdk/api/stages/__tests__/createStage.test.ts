@@ -1,14 +1,15 @@
-import buildServer from '../../buildServer';
-import { injectAuthorizedRequest } from '../../testUtils';
-import userInfo from '../../__mocks__/userInfo.json';
 import { handleCreateStage, handleCreateStageParams } from '../helpers';
+import { injectAuthorizedRequest } from '../../testUtils';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import * as helpers from '../../channel/helpers';
+import buildServer from '../../buildServer';
 import createStageParamsMock from '../__mocks__/createStageParamsMock.json';
-import { GetItemCommandOutput } from '@aws-sdk/client-dynamodb';
+import mockUserData from '../__mocks__/mockUserData.json';
+import userInfo from '../../__mocks__/userInfo.json';
 import * as utilDynamoDB from '@aws-sdk/util-dynamodb';
+import { GetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 
-interface IMockUnmarshalledUserData {
+export interface IMockUnmarshalledUserData {
   chatRoomArn: string;
   username: string;
   channelArn: string;
@@ -20,14 +21,6 @@ interface IMockUnmarshalledUserData {
 const { UserItem } = userInfo;
 const token = 'expectedToken';
 const stageId = 'expectedStageId';
-
-const mockUserData = {
-  chatRoomArn: 'chatRoomArn',
-  username: 'username',
-  channelArn: 'channelArn',
-  id: 'id',
-  $metadata: {}
-};
 
 jest.mock('../../shared/helpers', () => ({
   ...jest.requireActual('../../shared/helpers'),
