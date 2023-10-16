@@ -6,13 +6,28 @@ import {
   STAGE_PARTICIPANT_TYPES,
   UNEXPECTED_EXCEPTION
 } from '../shared/constants';
-import { UserContext } from '../channel/authorizer';
+import { getUser } from '../channel/helpers';
 import { handleCreateStageParams, handleCreateStage } from './helpers';
-import { updateDynamoItemAttributes } from '../shared/helpers';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { getChannelId, updateDynamoItemAttributes } from '../shared/helpers';
+import { UserContext } from '../channel/authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const { sub, username } = request.requestContext.get('user') as UserContext;
+    const { Item: UserItem = {} } = await getUser(sub);
+    const { channelArn, stageId: channelTableStageId = null } =
+      unmarshall(UserItem);
+
+    if (channelTableStageId) {
+      throw new Error('Operation cannot be completed. active stage found.');
+    }
+
+    if (!channelArn) {
+      throw new Error('No IVS resources have been created for this user.');
+    }
+
+    const channelId = getChannelId(channelArn);
     const {
       username: preferredUsername,
       profileColor,
@@ -41,7 +56,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         }
       ],
       tags: {
-        creationDate: stageCreationDate
+        creationDate: stageCreationDate,
+        stageOwnerChannelId: channelId
       }
     };
 

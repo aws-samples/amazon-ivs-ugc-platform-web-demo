@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
-  IVSRealTimeClient,
+  CreateParticipantTokenCommand,
+  CreateParticipantTokenCommandInput,
   CreateStageCommand,
   CreateStageCommandInput,
-  CreateParticipantTokenCommand,
-  CreateParticipantTokenCommandInput
+  GetStageCommand,
+  IVSRealTimeClient
 } from '@aws-sdk/client-ivs-realtime';
 import { ChannelAssets, getChannelAssetUrls } from '../shared/helpers';
 import {
@@ -50,6 +51,15 @@ export const handleCreateParticipantToken = async (
 
 export const buildStageArn = (stageId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}${USER_STAGE_ID_SEPARATOR}${stageId}`;
+
+export const getStage = async (stageId: string) => {
+  const stageArn = buildStageArn(stageId);
+
+  const getStageCommand = new GetStageCommand({ arn: stageArn });
+  const stage = await client.send(getStageCommand);
+
+  return stage;
+};
 
 export const getChannelAssetAvatarURL = (
   channelAssets: ChannelAssets,

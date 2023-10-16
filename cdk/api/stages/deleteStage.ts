@@ -1,16 +1,29 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   CHANNELS_TABLE_STAGE_FIELDS,
   UNEXPECTED_EXCEPTION
 } from '../shared/constants';
+import { getStage } from './helpers';
+import { getUser } from '../channel/helpers';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { getChannelId, updateDynamoItemAttributes } from '../shared/helpers';
 import { UserContext } from '../channel/authorizer';
-import { updateDynamoItemAttributes } from '../shared/helpers';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const { sub } = request.requestContext.get('user') as UserContext;
+    const { Item: UserItem = {} } = await getUser(sub);
+    const { stageId, channelArn } = unmarshall(UserItem);
+    const channelId = getChannelId(channelArn);
+
+    const { stage } = await getStage(stageId);
+    const stageOwnerChannelId = stage?.tags?.stageOwnerChannelId;
+    const isStageHost = stageOwnerChannelId === channelId;
+
+    if (!isStageHost) {
+      throw new Error('Channel ownership verification failed.');
+    }
 
     await updateDynamoItemAttributes({
       attributes: [
@@ -22,7 +35,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     });
 
     reply.statusCode = 200;
-    return reply.send({ message: 'You have left the stage.' });
+    return reply.send({ message: 'You have deleted the stage.' });
   } catch (error) {
     console.error(error);
 
