@@ -65,6 +65,7 @@
     },
     "leave_stage_modal": {
       "exit_stage_session": "Are you sure you want to exit the session?",
+      "exit_stage_session_host": "Leave and end session for everyone?",
       "confirm_exit": "Leave",
       "leave_page": "Leave page",
       "confirm_leave_page_L1": "Are you sure you want to leave this page?",
