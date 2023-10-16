@@ -11,23 +11,20 @@ import { useResponsiveDevice } from '../../ResponsiveDevice';
 import usePrevious from '../../../hooks/usePrevious';
 import usePrompt from '../../../hooks/usePrompt';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
+import { useGlobalStage } from '..';
+import { useBroadcast } from '../../Broadcast';
+import { useStage } from './Stage';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
 
-const useStageControls = ({
-  isStageActive,
-  leaveStage,
-  localParticipant,
-  isBlockingRoute,
-  resetStage,
-  strategy,
-  toggleCameraState,
-  toggleMicrophoneState,
-  activeCameraDevice,
-  activeMicrophoneDevice,
-  devices
-}) => {
+const useStageControls = () => {
+  const { isBlockingRoute, isStageActive, localParticipant, strategy, toggleCameraState, toggleMicrophoneState } = useGlobalStage()
+  const { leaveStage, resetStage } = useStage()
+  const { activeDevices, devices } = useBroadcast()
+  const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
+  const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
+
   const { openModal, closeModal } = useModal();
   const { isBlocked, onCancel, onConfirm } = usePrompt(isBlockingRoute, false);
   const cameraDevices = devices?.[CAMERA_LAYER_NAME];

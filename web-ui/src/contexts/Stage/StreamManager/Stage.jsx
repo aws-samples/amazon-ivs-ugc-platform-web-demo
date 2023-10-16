@@ -89,9 +89,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
 
-  const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
-  const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
-
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({ updateSuccess, updateError, isDevicesInitializedRef });
 
@@ -289,19 +286,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
-    useStageControls({
-      localParticipant,
-      resetStage,
-      strategy,
-      toggleCameraState,
-      toggleMicrophoneState,
-      leaveStage,
-      isStageActive,
-      isBlockingRoute,
-      activeCameraDevice,
-      activeMicrophoneDevice,
-      devices
-    });
+    useStageControls();
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
   useEffect(() => {
