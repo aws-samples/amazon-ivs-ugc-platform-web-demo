@@ -17,10 +17,14 @@ const verifier = CognitoJwtVerifier.create({
 const isBeaconRoute = (url: string) => ['/stages/disconnect'].includes(url)
 
 const getAuthorizationToken = (request: FastifyRequest) => {
+  const { authorization: authTokenFromHeaders } = request?.headers;
+
+  if (authTokenFromHeaders) return authTokenFromHeaders
+
   let authTokenFromBeaconRequest
 
   // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
-  if (isBeaconRoute(request.url)) {
+  if (isBeaconRoute(request.url) && request.body) {
     const parsedBody = JSON.parse(request.body as any)
     const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest
 
@@ -28,8 +32,6 @@ const getAuthorizationToken = (request: FastifyRequest) => {
       authTokenFromBeaconRequest = authTokenFromBeacon
     }
   }
-
-  const { authorization: authTokenFromHeaders } = request?.headers;
 
   return authTokenFromHeaders || authTokenFromBeaconRequest
 }

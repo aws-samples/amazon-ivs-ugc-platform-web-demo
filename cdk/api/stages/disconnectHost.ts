@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+    console.log('HOST DISCONNECTED CALL SQS')
     // TODO: call SQS here!
     reply.send(200)
 }

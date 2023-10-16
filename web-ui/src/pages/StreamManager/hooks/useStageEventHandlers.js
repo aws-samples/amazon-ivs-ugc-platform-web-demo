@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
+import { apiBaseUrl, authFetch } from '../../../api/utils';
 
 const {
   StageEvents,
@@ -108,10 +109,17 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     [strategy, client]
   );
 
+  const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
+    if (state === 'disconnected') {
+      // Does not execute on Firefox
+      await authFetch({ method: 'POST', url: `${apiBaseUrl}/stages/disconnect`, keepalive: true })
+    }
+  }, [])
+
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
-
+      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, handleParticipantConnectionChangedEvent)
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent
@@ -140,7 +148,8 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
       handleParticipantPublishStateChangedEvent,
       handleParticipantSubscribeStateChangeEvent,
       handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent
+      handleStreamMuteChangeEvent,
+      handleParticipantConnectionChangedEvent
     ]
   );
 
