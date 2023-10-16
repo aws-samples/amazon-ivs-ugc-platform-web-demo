@@ -5,9 +5,9 @@ export const createStage = async () =>
     url: `${apiBaseUrl}/stages/create`
   });
 
-export const leaveStage = async () =>
+export const deleteStage = async () =>
   await authFetch({
-    url: `${apiBaseUrl}/stages/leave`,
+    url: `${apiBaseUrl}/stages/delete`,
     method: 'PUT'
   });
 

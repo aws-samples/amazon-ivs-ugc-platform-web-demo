@@ -823,6 +823,22 @@
             "description": "This endpoint creates a new Amazon IVS Stage participant token."
           },
           "response": []
+        },
+        {
+          "name": "/stages/delete",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{apiBaseUrl}}/stages/delete",
+              "host": ["{{apiBaseUrl}}"],
+              "path": ["stages", "delete"],
+              "query": [],
+              "variable": []
+            },
+            "description": "This endpoint both deletes an Amazon IVS Stage and updates the user's Channel DynamoDB table."
+          },
+          "response": []
         }
       ],
       "description": "This API serves the purpose of creating an Amazon IVS stage and providing the client with a stage id and token to enter the stage."
