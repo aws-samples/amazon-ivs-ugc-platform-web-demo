@@ -282,7 +282,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
-    useStageControls();
+    useStageControls({ leaveStage, resetStage });
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
   useEffect(() => {

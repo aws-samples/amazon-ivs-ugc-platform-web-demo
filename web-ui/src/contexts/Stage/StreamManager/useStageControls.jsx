@@ -13,12 +13,11 @@ import usePrompt from '../../../hooks/usePrompt';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
 import { useGlobalStage } from '..';
 import { useBroadcast } from '../../Broadcast';
-import { useStage } from './Stage';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
 
-const useStageControls = () => {
+const useStageControls = ({ leaveStage, resetStage }) => {
   const {
     isBlockingRoute,
     isStageActive,
@@ -27,7 +26,6 @@ const useStageControls = () => {
     toggleCameraState,
     toggleMicrophoneState
   } = useGlobalStage();
-  const { leaveStage, resetStage } = useStage();
   const { activeDevices, devices } = useBroadcast();
   const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
   const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
