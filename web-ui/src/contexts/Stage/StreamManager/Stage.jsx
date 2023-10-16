@@ -41,8 +41,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     participants,
     addParticipant,
     updateParticipant,
-    toggleCameraState,
-    toggleMicrophoneState,
     isStageActive,
     stageId,
     updateStageId,
@@ -57,7 +55,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     localParticipant,
     error,
     success,
-    isBlockingRoute,
     isSpectator,
     shouldDisableStageButtonWithDelay,
     isCreatingStage
@@ -71,7 +68,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     // Devices
     isCameraHidden: isBroadcastCameraHidden,
     isMicrophoneMuted: isBroadcastMicrophoneMuted,
-    activeDevices,
     devices,
     initializeDevices,
     hasPermissions
