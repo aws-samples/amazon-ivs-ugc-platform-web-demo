@@ -19,9 +19,16 @@ const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
 
 const useStageControls = () => {
-  const { isBlockingRoute, isStageActive, localParticipant, strategy, toggleCameraState, toggleMicrophoneState } = useGlobalStage()
-  const { leaveStage, resetStage } = useStage()
-  const { activeDevices, devices } = useBroadcast()
+  const {
+    isBlockingRoute,
+    isStageActive,
+    localParticipant,
+    strategy,
+    toggleCameraState,
+    toggleMicrophoneState
+  } = useGlobalStage();
+  const { leaveStage, resetStage } = useStage();
+  const { activeDevices, devices } = useBroadcast();
   const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
   const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
 
