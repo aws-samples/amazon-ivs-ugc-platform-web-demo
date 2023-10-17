@@ -5,16 +5,22 @@ import { useGlobalStage } from '../../../contexts/Stage';
 
 const { Stage } = window.IVSBroadcastClient;
 
-const useStageClient = ({ updateSuccess, updateError }) => {
+const useStageClient = ({
+  updateSuccess,
+  updateError,
+  leaveStage,
+  setShouldCloseFullScreenView
+}) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
   const { resetParticipants, strategy, resetStageState } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
-    updateError
+    updateError,
+    leaveStage,
+    setShouldCloseFullScreenView
   });
-
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
       clientRef.current = new Stage(token, strategy);

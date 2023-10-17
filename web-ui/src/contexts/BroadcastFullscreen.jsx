@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import { useResponsiveDevice } from './ResponsiveDevice';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
-import { useGlobalStage } from './Stage';
+import { useGlobalStage, useStreamManagerStage } from './Stage';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -26,9 +26,34 @@ const Context = createContext(null);
 Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
+  const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
+  const { shouldCloseFullScreenView } = useStreamManagerStage();
+  const {
+    isStageActive,
+    collaborateButtonAnimationControls,
+    animationCollapseStageControlsStart,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon
+  } = useGlobalStage();
+
+  useEffect(() => {
+    if (shouldCloseFullScreenView) {
+      const func = async () => {
+        setIsFullScreenViewOpen(false);
+        await collaborateButtonAnimationControls.start({
+          zIndex: 1000,
+          opacity: 1,
+          transition: { duration: 0.45 }
+        });
+        collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+      };
+
+      func();
+    }
+  }, [collaborateButtonAnimationControls, shouldCloseFullScreenView]);
+
   const webBroadcastParentContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
-  const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton
@@ -38,13 +63,6 @@ export const Provider = ({ children, previewRef }) => {
   const { isDesktopView } = useResponsiveDevice();
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
-  const {
-    isStageActive,
-    collaborateButtonAnimationControls,
-    animationCollapseStageControlsStart,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
-  } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),

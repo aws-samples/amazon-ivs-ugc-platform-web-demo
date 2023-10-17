@@ -1,4 +1,11 @@
-import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import copyToClipboard from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
@@ -72,7 +79,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     initializeDevices,
     hasPermissions
   } = useBroadcast();
-  const { notifyError, notifySuccess } = useNotif();
+  const { notifyError, notifySuccess, notifyNeutral } = useNotif();
   const { isLive } = useStreams();
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
@@ -85,8 +92,78 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
 
+  // shouldCloseFullScreenView
+  const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
+    useState(false);
+
+  const leaveStage = useCallback(async () => {
+    try {
+      const {
+        attributes: { type = undefined }
+      } = localParticipant;
+      console.log('LEAVING @@@@@@@@@@@@@');
+      let result;
+      const isHost = type === PARTICIPANT_TYPES.HOST;
+
+      // Check if the user is the host
+      if (isHost) {
+        ({ result } = await retryWithExponentialBackoff({
+          promiseFn: () => stagesAPI.deleteStage(),
+          maxRetries: 2
+        }));
+      }
+
+      const isDeleteStageSuccessful = !!result;
+
+      if (isDeleteStageSuccessful || !isHost) {
+        // result = isHost || !host
+        // if (isHost) {
+        //   notifyNeutral($contentNotification.info.the_session_ended)
+        // }
+
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
+
+        // Animate stage control buttons
+        updateAnimateCollapseStageContainerWithDelay(false);
+        updateShouldAnimateGoLiveButtonChevronIcon(false);
+
+        setTimeout(() => {
+          resetStage(true);
+
+          if (stageIdUrlParam) navigate('/manager');
+          broadcastDevicesStateObjRef.current = {
+            isCameraHidden: localParticipant?.isCameraHidden || false,
+            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+          };
+        }, 350);
+      }
+    } catch (err) {
+      updateError({
+        message: $contentNotification.error.unable_to_leave_session,
+        err
+      });
+    }
+  }, [
+    localParticipant,
+    notifyNeutral,
+    updateIsBlockingRoute,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    resetStage,
+    stageIdUrlParam,
+    navigate,
+    updateError
+  ]);
+
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
-    useStageClient({ updateSuccess, updateError, isDevicesInitializedRef });
+    useStageClient({
+      updateSuccess,
+      updateError,
+      isDevicesInitializedRef,
+      leaveStage,
+      setShouldCloseFullScreenView
+    });
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -229,58 +306,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
-  const leaveStage = useCallback(async () => {
-    try {
-      const {
-        attributes: { type = undefined }
-      } = localParticipant;
-
-      let result;
-      const isHost = type === PARTICIPANT_TYPES.HOST;
-
-      // Check if the user is the host
-      if (isHost) {
-        ({ result } = await retryWithExponentialBackoff({
-          promiseFn: () => stagesAPI.deleteStage(),
-          maxRetries: 2
-        }));
-      }
-
-      if (result || !isHost) {
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
-
-        // Animate stage control buttons
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
-
-        setTimeout(() => {
-          resetStage(true);
-
-          if (stageIdUrlParam) navigate('/manager');
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }, 350);
-      }
-    } catch (err) {
-      updateError({
-        message: $contentNotification.error.unable_to_leave_session,
-        err
-      });
-    }
-  }, [
-    localParticipant,
-    updateIsBlockingRoute,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    resetStage,
-    stageIdUrlParam,
-    navigate,
-    updateError
-  ]);
-
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
     useStageControls({ leaveStage, resetStage });
 
@@ -376,7 +401,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       leaveStage,
       toggleCamera,
       toggleMicrophone,
-      handleOnConfirmLeaveStage
+      handleOnConfirmLeaveStage,
+      shouldCloseFullScreenView
     }),
     [
       initializeStageClient,
@@ -396,7 +422,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateError,
       resetStage,
       isSpectator,
-      hasPermissions
+      hasPermissions,
+      shouldCloseFullScreenView
     ]
   );
 

@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
+import { useNotif } from '../../../contexts/Notification';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
 const {
   StageEvents,
@@ -9,7 +11,12 @@ const {
   StageParticipantSubscribeState
 } = window.IVSBroadcastClient;
 
-const useStageEventHandlers = ({ client, updateSuccess }) => {
+const useStageEventHandlers = ({
+  client,
+  updateSuccess,
+  leaveStage,
+  setShouldCloseFullScreenView
+}) => {
   const {
     addParticipant,
     localParticipant,
@@ -21,6 +28,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     removeParticipant,
     strategy
   } = useGlobalStage();
+  const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -107,11 +115,22 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     },
     [strategy, client]
   );
+  const { notifyNeutral } = useNotif();
 
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
+      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, (state) => {
+        if (state === 'errored') {
+          // if (!isHost) {
+          notifyNeutral('Session has ended', { asPortal: true });
 
+          setShouldCloseFullScreenView(true);
+          leaveStage();
+          // setIsFullScreenViewOpen(false);
+          // }
+        }
+      });
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent
@@ -140,7 +159,11 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
       handleParticipantPublishStateChangedEvent,
       handleParticipantSubscribeStateChangeEvent,
       handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent
+      handleStreamMuteChangeEvent,
+      isHost,
+      leaveStage,
+      notifyNeutral,
+      setShouldCloseFullScreenView
     ]
   );
 
