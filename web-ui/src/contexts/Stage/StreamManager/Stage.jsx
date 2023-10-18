@@ -113,11 +113,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       const isDeleteStageSuccessful = !!result;
 
       if (isDeleteStageSuccessful || !isHost) {
-        // result = isHost || !host
-        // if (isHost) {
-        //   notifyNeutral($contentNotification.info.the_session_ended)
-        // }
-
         // Disable usePrompt
         updateIsBlockingRoute(false);
 

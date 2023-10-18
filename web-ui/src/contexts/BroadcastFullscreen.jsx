@@ -36,22 +36,6 @@ export const Provider = ({ children, previewRef }) => {
     updateShouldAnimateGoLiveButtonChevronIcon
   } = useGlobalStage();
 
-  useEffect(() => {
-    if (shouldCloseFullScreenView) {
-      const func = async () => {
-        setIsFullScreenViewOpen(false);
-        await collaborateButtonAnimationControls.start({
-          zIndex: 1000,
-          opacity: 1,
-          transition: { duration: 0.45 }
-        });
-        collaborateButtonAnimationControls.start({ zIndex: 'unset' });
-      };
-
-      func();
-    }
-  }, [collaborateButtonAnimationControls, shouldCloseFullScreenView]);
-
   const webBroadcastParentContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
   const [
@@ -182,6 +166,22 @@ export const Provider = ({ children, previewRef }) => {
     isFullScreenViewOpen,
     handleToggleFullscreen
   ]);
+
+  useEffect(() => {
+    if (shouldCloseFullScreenView) {
+      const closeFullScreen = async () => {
+        setIsFullScreenViewOpen(false);
+        await collaborateButtonAnimationControls.start({
+          zIndex: 1000,
+          opacity: 1,
+          transition: { duration: 0.45 }
+        });
+        collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+      };
+
+      closeFullScreen();
+    }
+  }, [collaborateButtonAnimationControls, shouldCloseFullScreenView]);
 
   const value = useMemo(
     () => ({
