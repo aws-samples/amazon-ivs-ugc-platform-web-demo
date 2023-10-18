@@ -95,7 +95,8 @@ const GoLiveContainer = forwardRef(
       setIsWebBroadcastAnimating(true);
       shouldShowTooltipMessageRef.current = false;
     };
-
+    console.log('isDesktopView', isDesktopView)
+    console.log('go live container ->', isFullScreenViewOpen)
     return (
       <>
         <AnimatePresence initial={false}>
@@ -175,15 +176,15 @@ const GoLiveContainer = forwardRef(
             </motion.div>
           )}
         </AnimatePresence>
-        <AnimatePresence>
-          {isFullScreenViewOpen && isDesktopView && (
+        {/* <AnimatePresence> */}
+          {isDesktopView && (
             <FullScreenView
-              isOpen={isFullScreenViewOpen}
+              isOpen={true}
               parentEl={document.body}
               dimensions={dimensions}
             />
           )}
-        </AnimatePresence>
+        {/* </AnimatePresence> */}
       </>
     );
   }

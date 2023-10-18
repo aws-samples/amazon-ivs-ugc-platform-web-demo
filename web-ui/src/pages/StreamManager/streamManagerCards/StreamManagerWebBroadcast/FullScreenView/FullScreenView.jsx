@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useRef } from 'react';
 import PropTypes from 'prop-types';
 
@@ -18,6 +18,7 @@ import withPortal from '../../../../../components/withPortal';
 import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive } = useStreamManagerStage();
@@ -42,8 +43,10 @@ const FullScreenView = ({ dimensions }) => {
     animationInitialHeight
   } = dimensions;
 
+  console.log('fullscreenview', isFullScreenViewOpen)
   return (
     <motion.div
+      style={{ border: '2px solid blue' }}
       ref={fullScreenViewContainerRef}
       key="full-screen-view"
       {...createAnimationProps({
@@ -77,6 +80,7 @@ const FullScreenView = ({ dimensions }) => {
       ])}
     >
       <Header />
+      <AnimatePresence>
       <motion.div
         className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
         {...createAnimationProps({
@@ -100,6 +104,7 @@ const FullScreenView = ({ dimensions }) => {
         {content}
         <Footer />
       </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 };
