@@ -79,7 +79,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     initializeDevices,
     hasPermissions
   } = useBroadcast();
-  const { notifyError, notifySuccess, notifyNeutral } = useNotif();
+  const { notifyError, notifySuccess } = useNotif();
   const { isLive } = useStreams();
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
@@ -92,16 +92,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
 
-  // shouldCloseFullScreenView
   const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
     useState(false);
-
   const leaveStage = useCallback(async () => {
     try {
       const {
         attributes: { type = undefined }
       } = localParticipant;
-      console.log('LEAVING @@@@@@@@@@@@@');
       let result;
       const isHost = type === PARTICIPANT_TYPES.HOST;
 
@@ -146,7 +143,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     }
   }, [
     localParticipant,
-    notifyNeutral,
     updateIsBlockingRoute,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,

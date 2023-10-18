@@ -3,13 +3,17 @@ import { useCallback } from 'react';
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
 import { useNotif } from '../../../contexts/Notification';
-import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+import { streamManager as $streamManagerContent } from '../../../content'
 
 const {
   StageEvents,
   StageParticipantPublishState,
-  StageParticipantSubscribeState
+  StageParticipantSubscribeState,
+  StageConnectionState
 } = window.IVSBroadcastClient;
+
+const $contentNotification =
+  $streamManagerContent.stream_manager_stage.notifications;
 
 const useStageEventHandlers = ({
   client,
@@ -28,7 +32,7 @@ const useStageEventHandlers = ({
     removeParticipant,
     strategy
   } = useGlobalStage();
-  const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
+  const { notifyNeutral } = useNotif();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -115,22 +119,21 @@ const useStageEventHandlers = ({
     },
     [strategy, client]
   );
-  const { notifyNeutral } = useNotif();
+
+  const handleParticipantConnectionChangeEvent = useCallback(
+    (state) => {
+      if (state === StageConnectionState.ERRORED) {
+        notifyNeutral($contentNotification.info.the_session_ended, { asPortal: true });
+
+        setShouldCloseFullScreenView(true);
+        leaveStage();
+      }
+    }, [leaveStage, notifyNeutral, setShouldCloseFullScreenView])
 
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
-      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, (state) => {
-        if (state === 'errored') {
-          // if (!isHost) {
-          notifyNeutral('Session has ended', { asPortal: true });
-
-          setShouldCloseFullScreenView(true);
-          leaveStage();
-          // setIsFullScreenViewOpen(false);
-          // }
-        }
-      });
+      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, handleParticipantConnectionChangeEvent);
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent
@@ -153,18 +156,7 @@ const useStageEventHandlers = ({
         handleParticipantSubscribeStateChangeEvent
       );
     },
-    [
-      handleParticipantJoinEvent,
-      handleParticipantLeftEvent,
-      handleParticipantPublishStateChangedEvent,
-      handleParticipantSubscribeStateChangeEvent,
-      handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent,
-      isHost,
-      leaveStage,
-      notifyNeutral,
-      setShouldCloseFullScreenView
-    ]
+    [handleParticipantConnectionChangeEvent, handleParticipantJoinEvent, handleParticipantLeftEvent, handleParticipantPublishStateChangedEvent, handleParticipantSubscribeStateChangeEvent, handlePartipantStreamsAddedEvent, handleStreamMuteChangeEvent]
   );
 
   return { attachStageEvents };
