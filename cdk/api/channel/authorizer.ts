@@ -21,19 +21,17 @@ const getAuthorizationToken = (request: FastifyRequest) => {
 
   if (authTokenFromHeaders) return authTokenFromHeaders
 
-  let authTokenFromBeaconRequest
-
   // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
   if (isBeaconRoute(request.url) && request.body) {
     const parsedBody = JSON.parse(request.body as any)
     const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest
 
     if (authTokenFromBeacon) {
-      authTokenFromBeaconRequest = authTokenFromBeacon
+      return authTokenFromBeacon
     }
   }
 
-  return authTokenFromHeaders || authTokenFromBeaconRequest
+  return null
 }
 
 const authorizer = async (request: FastifyRequest) => {
