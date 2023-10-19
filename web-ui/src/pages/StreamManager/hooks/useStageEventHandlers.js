@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
 import { useNotif } from '../../../contexts/Notification';
-import { streamManager as $streamManagerContent } from '../../../content'
+import { streamManager as $streamManagerContent } from '../../../content';
 
 const {
   StageEvents,
@@ -123,17 +123,24 @@ const useStageEventHandlers = ({
   const handleParticipantConnectionChangeEvent = useCallback(
     (state) => {
       if (state === StageConnectionState.ERRORED) {
-        notifyNeutral($contentNotification.info.the_session_ended, { asPortal: true });
+        notifyNeutral($contentNotification.info.the_session_ended, {
+          asPortal: true
+        });
 
         setShouldCloseFullScreenView(true);
         leaveStage();
       }
-    }, [leaveStage, notifyNeutral, setShouldCloseFullScreenView])
+    },
+    [leaveStage, notifyNeutral, setShouldCloseFullScreenView]
+  );
 
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
-      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, handleParticipantConnectionChangeEvent);
+      client.on(
+        StageEvents.STAGE_CONNECTION_STATE_CHANGED,
+        handleParticipantConnectionChangeEvent
+      );
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent
@@ -156,7 +163,15 @@ const useStageEventHandlers = ({
         handleParticipantSubscribeStateChangeEvent
       );
     },
-    [handleParticipantConnectionChangeEvent, handleParticipantJoinEvent, handleParticipantLeftEvent, handleParticipantPublishStateChangedEvent, handleParticipantSubscribeStateChangeEvent, handlePartipantStreamsAddedEvent, handleStreamMuteChangeEvent]
+    [
+      handleParticipantConnectionChangeEvent,
+      handleParticipantJoinEvent,
+      handleParticipantLeftEvent,
+      handleParticipantPublishStateChangedEvent,
+      handleParticipantSubscribeStateChangeEvent,
+      handlePartipantStreamsAddedEvent,
+      handleStreamMuteChangeEvent
+    ]
   );
 
   return { attachStageEvents };

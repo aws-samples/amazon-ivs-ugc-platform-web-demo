@@ -57,8 +57,8 @@ const InlineNotification = ({
           'dark:bg-darkMode-turquoise'
         ],
         type === NOTIF_TYPES.NEUTRAL && [
-          'bg-lightMode-gray-light',
-          // 'dark:bg-darkMode-gray',
+          'bg-lightMode-gray-medium',
+          'dark:bg-darkMode-gray-light'
         ]
       ])}
     >

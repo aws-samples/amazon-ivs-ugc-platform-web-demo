@@ -47,7 +47,6 @@ export const Provider = ({ children, previewRef }) => {
   const { isDesktopView } = useResponsiveDevice();
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
-  console.log('isFullScreenViewOpen Provider', isFullScreenViewOpen)
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     {
