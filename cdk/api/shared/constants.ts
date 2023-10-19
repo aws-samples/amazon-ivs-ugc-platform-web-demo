@@ -102,6 +102,4 @@ export const CHANNELS_TABLE_STAGE_FIELDS = {
   STAGE_CREATION_DATE: 'stageCreationDate'
 };
 
-export const BEACON_API_ROUTES = [
-  '/stages/disconnect'
-]
+export const BEACON_API_ROUTES = ['/stages/disconnect'];
