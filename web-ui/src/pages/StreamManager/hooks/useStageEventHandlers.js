@@ -113,15 +113,22 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
   const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
     if (state === StageConnectionState.DISCONNECTED) {
       // Does not execute on Firefox
-      await authFetch({ method: 'POST', url: `${apiBaseUrl}/stages/disconnect`, keepalive: true })
+      await authFetch({
+        method: 'POST',
+        url: `${apiBaseUrl}/stages/disconnect`,
+        keepalive: true
+      });
     }
-  }, [])
+  }, []);
 
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
 
-      client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, handleParticipantConnectionChangedEvent)
+      client.on(
+        StageEvents.STAGE_CONNECTION_STATE_CHANGED,
+        handleParticipantConnectionChangedEvent
+      );
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent

@@ -179,18 +179,18 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
 };
 
 export const sendBeaconRequest = async (url, shouldSendAuthToken) => {
-  let data = {}
+  let data = {};
 
   if (shouldSendAuthToken) {
-    const { result: session } = await getCurrentSession();    
+    const { result: session } = await getCurrentSession();
     const authTokenFromBeaconRequest = session.getAccessToken().getJwtToken();
     data = {
       authTokenFromBeaconRequest
-    }
+    };
   }
 
-  navigator.sendBeacon(url, JSON.stringify(data))
-}
+  navigator.sendBeacon(url, JSON.stringify(data));
+};
 
 export const generatePresignedPost = ({ assetType, contentType }) =>
   authFetch({

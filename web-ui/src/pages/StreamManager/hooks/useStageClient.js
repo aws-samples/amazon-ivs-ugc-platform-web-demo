@@ -48,15 +48,17 @@ const useStageClient = ({ updateSuccess, updateError }) => {
   useEffect(() => {
     if (isClientDefined && clientRef.current) {
       window.addEventListener('beforeunload', () => {
-        queueMicrotask(setTimeout(() => {
-          try {
-            sendBeaconRequest(`${apiBaseUrl}/stages/disconnect`, true)
-          } catch (e) {
-            // Fail silently...
-          }
+        queueMicrotask(
+          setTimeout(() => {
+            try {
+              sendBeaconRequest(`${apiBaseUrl}/stages/disconnect`, true);
+            } catch (e) {
+              // Fail silently...
+            }
 
-          clientRef.current.leave()
-        }, 0));
+            clientRef.current.leave();
+          }, 0)
+        );
       });
     }
   }, [isClientDefined]);
