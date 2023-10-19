@@ -24,7 +24,7 @@ const getAuthorizationToken = (request: FastifyRequest) => {
 
   // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
   if (BEACON_API_ROUTES.includes(request.url)) {
-    const parsedBody = JSON.parse(request.body as any);
+    const parsedBody = JSON.parse(request.body as string)
     const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest;
 
     if (authTokenFromBeacon) {
