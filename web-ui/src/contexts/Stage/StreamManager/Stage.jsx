@@ -95,6 +95,61 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
     useState(false);
 
+  const leaveStage = useCallback(async () => {
+    try {
+      const {
+        attributes: { type = undefined }
+      } = localParticipant;
+
+      let result;
+      const isHost = type === PARTICIPANT_TYPES.HOST;
+
+      // Check if the user is the host
+      if (isHost) {
+        ({ result } = await retryWithExponentialBackoff({
+          promiseFn: () => stagesAPI.deleteStage(),
+          maxRetries: 2
+        }));
+      }
+
+      const isDeleteStageSuccessful = !!result;
+
+      if (isDeleteStageSuccessful || !isHost) {
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
+
+        // Animate stage control buttons
+        updateAnimateCollapseStageContainerWithDelay(false);
+        updateShouldAnimateGoLiveButtonChevronIcon(false);
+
+        setTimeout(() => {
+          resetStage(true);
+
+          if (stageIdUrlParam) navigate('/manager');
+          broadcastDevicesStateObjRef.current = {
+            isCameraHidden: localParticipant?.isCameraHidden || false,
+            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+          };
+        }, 350);
+      }
+    } catch (err) {
+      updateError({
+        message: $contentNotification.error.unable_to_leave_session,
+        err
+      });
+    }
+  }, [
+    localParticipant,
+    updateIsBlockingRoute,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    // eslint-disable-next-line no-use-before-define
+    resetStage,
+    stageIdUrlParam,
+    navigate,
+    updateError
+  ]);
+
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
       updateSuccess,
@@ -244,60 +299,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       $contentNotification.success.session_link_has_been_copied_to_clipboard
     );
   }, [joinParticipantLinkRef, updateSuccess]);
-
-  const leaveStage = useCallback(async () => {
-    try {
-      const {
-        attributes: { type = undefined }
-      } = localParticipant;
-      let result;
-      const isHost = type === PARTICIPANT_TYPES.HOST;
-
-      // Check if the user is the host
-      if (isHost) {
-        ({ result } = await retryWithExponentialBackoff({
-          promiseFn: () => stagesAPI.deleteStage(),
-          maxRetries: 2
-        }));
-      }
-
-      const isDeleteStageSuccessful = !!result;
-
-      if (isDeleteStageSuccessful || !isHost) {
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
-
-        // Animate stage control buttons
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
-
-        setTimeout(() => {
-          resetStage(true);
-
-          if (stageIdUrlParam) navigate('/manager');
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }, 350);
-      }
-    } catch (err) {
-      updateError({
-        message: $contentNotification.error.unable_to_leave_session,
-        err
-      });
-    }
-  }, [
-    localParticipant,
-    updateIsBlockingRoute,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    // eslint-disable-next-line no-use-before-define
-    resetStage,
-    stageIdUrlParam,
-    navigate,
-    updateError
-  ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
     useStageControls({ leaveStage, resetStage });
