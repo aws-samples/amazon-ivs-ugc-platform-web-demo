@@ -95,6 +95,7 @@ const GoLiveContainer = forwardRef(
       setIsWebBroadcastAnimating(true);
       shouldShowTooltipMessageRef.current = false;
     };
+
     return (
       <>
         <AnimatePresence initial={false}>

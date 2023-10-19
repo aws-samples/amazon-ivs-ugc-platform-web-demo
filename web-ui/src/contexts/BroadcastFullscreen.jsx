@@ -46,6 +46,7 @@ export const Provider = ({ children, previewRef }) => {
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon
   } = useGlobalStage();
+
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     {

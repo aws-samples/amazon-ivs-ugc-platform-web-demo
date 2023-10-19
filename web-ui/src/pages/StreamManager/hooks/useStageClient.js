@@ -21,6 +21,7 @@ const useStageClient = ({
     leaveStage,
     setShouldCloseFullScreenView
   });
+
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
       clientRef.current = new Stage(token, strategy);

@@ -137,6 +137,7 @@ const useStageEventHandlers = ({
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
+
       client.on(
         StageEvents.STAGE_CONNECTION_STATE_CHANGED,
         handleParticipantConnectionChangeEvent

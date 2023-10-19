@@ -104,7 +104,7 @@ export const Provider = ({ children }) => {
       notifySuccess,
       notifyNeutral
     }),
-    [dismissNotif, notif, notifyError, notifyInfo, notifySuccess, notifyNeutral]
+    [dismissNotif, notif, notifyError, notifySuccess, notifyInfo, notifyNeutral]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
