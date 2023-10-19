@@ -27,6 +27,7 @@ export const FOLLOWING_LIST_DUPLICATE_EXCEPTION =
   'FollowingListDuplicateException';
 export const SORT_PRODUCTS_EXCEPTION = 'SortProductsException';
 export const TOO_MANY_REQUESTS_EXCEPTION = 'TooManyRequestsException';
+export const STAGE_DELETION_EXCEPTION = 'StageDeletionException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';

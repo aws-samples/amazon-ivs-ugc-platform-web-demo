@@ -11,23 +11,25 @@ import { useResponsiveDevice } from '../../ResponsiveDevice';
 import usePrevious from '../../../hooks/usePrevious';
 import usePrompt from '../../../hooks/usePrompt';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
+import { useGlobalStage } from '..';
+import { useBroadcast } from '../../Broadcast';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
 
-const useStageControls = ({
-  isStageActive,
-  leaveStage,
-  localParticipant,
-  isBlockingRoute,
-  resetStage,
-  strategy,
-  toggleCameraState,
-  toggleMicrophoneState,
-  activeCameraDevice,
-  activeMicrophoneDevice,
-  devices
-}) => {
+const useStageControls = ({ leaveStage, resetStage }) => {
+  const {
+    isBlockingRoute,
+    isStageActive,
+    localParticipant,
+    strategy,
+    toggleCameraState,
+    toggleMicrophoneState
+  } = useGlobalStage();
+  const { activeDevices, devices } = useBroadcast();
+  const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
+  const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
+
   const { openModal, closeModal } = useModal();
   const { isBlocked, onCancel, onConfirm } = usePrompt(isBlockingRoute, false);
   const cameraDevices = devices?.[CAMERA_LAYER_NAME];
@@ -38,6 +40,7 @@ const useStageControls = ({
   const prevActiveMicrophoneDevice = usePrevious(activeMicrophoneDevice);
   const { currentBreakpoint } = useResponsiveDevice();
   const isMobile = currentBreakpoint < BREAKPOINTS.sm;
+  const isStageHost = localParticipant?.attributes?.type === 'host';
 
   const toggleCamera = useThrottledCallback(() => {
     toggleCameraState(LOCAL_KEY);
@@ -52,11 +55,15 @@ const useStageControls = ({
       closeFullscreenAndAnimateCollaborateButtonCallback = undefined,
       lastFocusedElementRef = {}
     } = {}) => {
+      const message = isStageHost
+        ? $contentStageConfirmationModal.exit_stage_session_host
+        : $contentStageConfirmationModal.exit_stage_session;
+
       openModal({
         content: {
           confirmText: $contentStageConfirmationModal.confirm_exit,
           isDestructive: true,
-          message: $contentStageConfirmationModal.exit_stage_session
+          message
         },
         onConfirm: () => {
           if (
@@ -71,7 +78,7 @@ const useStageControls = ({
         lastFocusedElement: lastFocusedElementRef
       });
     },
-    [closeModal, leaveStage, openModal]
+    [closeModal, isStageHost, leaveStage, openModal]
   );
 
   useEffect(() => {

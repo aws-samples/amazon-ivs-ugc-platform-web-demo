@@ -19,6 +19,9 @@
 import actionTypes from './actionTypes';
 
 export const LOCAL_KEY = 'LOCAL';
+export const PARTICIPANT_TYPES = {
+  HOST: 'host'
+};
 
 export const defaultParticipant = {
   isMicrophoneMuted: false,

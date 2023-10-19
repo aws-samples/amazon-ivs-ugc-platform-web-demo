@@ -11,9 +11,10 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
+  PARTICIPANT_TYPES,
   STATE_KEYS
 } from '../Global/reducer/globalReducer';
-import { decodeJWT } from '../../../utils';
+import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
 import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
@@ -40,8 +41,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     participants,
     addParticipant,
     updateParticipant,
-    toggleCameraState,
-    toggleMicrophoneState,
     isStageActive,
     stageId,
     updateStageId,
@@ -56,7 +55,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     localParticipant,
     error,
     success,
-    isBlockingRoute,
     isSpectator,
     shouldDisableStageButtonWithDelay,
     isCreatingStage
@@ -70,7 +68,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     // Devices
     isCameraHidden: isBroadcastCameraHidden,
     isMicrophoneMuted: isBroadcastMicrophoneMuted,
-    activeDevices,
     devices,
     initializeDevices,
     hasPermissions
@@ -87,9 +84,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
-
-  const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
-  const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({ updateSuccess, updateError, isDevicesInitializedRef });
@@ -235,48 +229,60 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
-  const leaveStage = useCallback(() => {
-    // Disable usePrompt
-    updateIsBlockingRoute(false);
+  const leaveStage = useCallback(async () => {
+    try {
+      const {
+        attributes: { type = undefined }
+      } = localParticipant;
 
-    // Animate stage control buttons
-    updateAnimateCollapseStageContainerWithDelay(false);
-    updateShouldAnimateGoLiveButtonChevronIcon(false);
+      let result;
+      const isHost = type === PARTICIPANT_TYPES.HOST;
 
-    setTimeout(() => {
-      resetStage(true);
-      if (stageIdUrlParam) navigate('/manager');
-      broadcastDevicesStateObjRef.current = {
-        isCameraHidden: localParticipant?.isCameraHidden || false,
-        isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-      };
-    }, 350);
+      // Check if the user is the host
+      if (isHost) {
+        ({ result } = await retryWithExponentialBackoff({
+          promiseFn: () => stagesAPI.deleteStage(),
+          maxRetries: 2
+        }));
+      }
+
+      if (result || !isHost) {
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
+
+        // Animate stage control buttons
+        updateAnimateCollapseStageContainerWithDelay(false);
+        updateShouldAnimateGoLiveButtonChevronIcon(false);
+
+        setTimeout(() => {
+          resetStage(true);
+
+          if (stageIdUrlParam) navigate('/manager');
+          broadcastDevicesStateObjRef.current = {
+            isCameraHidden: localParticipant?.isCameraHidden || false,
+            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+          };
+        }, 350);
+      }
+    } catch (err) {
+      updateError({
+        message: $contentNotification.error.unable_to_leave_session,
+        err
+      });
+    }
   }, [
+    localParticipant,
     updateIsBlockingRoute,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,
     resetStage,
     stageIdUrlParam,
     navigate,
-    localParticipant?.isCameraHidden,
-    localParticipant?.isMicrophoneMuted,
-    broadcastDevicesStateObjRef
+    updateError
   ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
-    useStageControls({
-      localParticipant,
-      resetStage,
-      strategy,
-      toggleCameraState,
-      toggleMicrophoneState,
-      leaveStage,
-      isStageActive,
-      isBlockingRoute,
-      activeCameraDevice,
-      activeMicrophoneDevice,
-      devices
-    });
+    useStageControls({ leaveStage, resetStage });
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
   useEffect(() => {
