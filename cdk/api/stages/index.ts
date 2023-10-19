@@ -10,10 +10,10 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.register(fastifyRequestContextPlugin, { hook: 'preHandler' });
   resource.addHook('preHandler', authorizer);
 
-  resource.post('/disconnect', disconnectHost)
   resource.get('/create', createStage);
   resource.get('/createParticipantToken/:stageId', createParticipantToken);
   resource.put('/delete', deleteStage);
+  resource.post('/disconnect', disconnectHost)
 };
 
 export default router;

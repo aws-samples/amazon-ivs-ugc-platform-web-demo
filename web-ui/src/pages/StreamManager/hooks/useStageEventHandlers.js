@@ -7,7 +7,8 @@ import { apiBaseUrl, authFetch } from '../../../api/utils';
 const {
   StageEvents,
   StageParticipantPublishState,
-  StageParticipantSubscribeState
+  StageParticipantSubscribeState,
+  StageConnectionState
 } = window.IVSBroadcastClient;
 
 const useStageEventHandlers = ({ client, updateSuccess }) => {
@@ -110,7 +111,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
   );
 
   const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
-    if (state === 'disconnected') {
+    if (state === StageConnectionState.DISCONNECTED) {
       // Does not execute on Firefox
       await authFetch({ method: 'POST', url: `${apiBaseUrl}/stages/disconnect`, keepalive: true })
     }
@@ -119,6 +120,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
+
       client.on(StageEvents.STAGE_CONNECTION_STATE_CHANGED, handleParticipantConnectionChangedEvent)
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
