@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 
 import useStageEventHandlers from './useStageEventHandlers';
 import { useGlobalStage } from '../../../contexts/Stage';
-import { apiBaseUrl, sendBeaconRequest } from '../../../api/utils';
+import { apiBaseUrl } from '../../../api/utils';
 
 const { Stage } = window.IVSBroadcastClient;
 
@@ -50,11 +50,7 @@ const useStageClient = ({ updateSuccess, updateError }) => {
       window.addEventListener('beforeunload', () => {
         queueMicrotask(
           setTimeout(() => {
-            try {
-              sendBeaconRequest(`${apiBaseUrl}/stages/disconnect`, true);
-            } catch (e) {
-              // Fail silently...
-            }
+            navigator.sendBeacon(`${apiBaseUrl}/stages/disconnect`);
 
             clientRef.current.leave();
           }, 0)

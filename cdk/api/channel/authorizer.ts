@@ -14,28 +14,8 @@ const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.USER_POOL_ID as string
 });
 
-const getAuthorizationToken = (request: FastifyRequest) => {
-  const { authorization: authTokenFromHeaders } = request?.headers;
-
-  if (authTokenFromHeaders) {
-    return authTokenFromHeaders;
-  }
-
-  // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
-  if (BEACON_API_ROUTES.includes(request.url)) {
-    const parsedBody = JSON.parse(request.body as string);
-    const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest;
-
-    if (authTokenFromBeacon) {
-      return authTokenFromBeacon;
-    }
-  }
-
-  return null;
-};
-
 const authorizer = async (request: FastifyRequest) => {
-  const authorizationToken = getAuthorizationToken(request);
+  const { authorization: authorizationToken } = request.headers;
 
   if (!authorizationToken || typeof authorizationToken !== 'string')
     throw new Error(UNAUTHORIZED_EXCEPTION);
