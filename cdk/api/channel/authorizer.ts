@@ -14,28 +14,28 @@ const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.USER_POOL_ID as string
 });
 
-const isBeaconRoute = (url: string) => ['/stages/disconnect'].includes(url)
+const isBeaconRoute = (url: string) => ['/stages/disconnect'].includes(url);
 
 const getAuthorizationToken = (request: FastifyRequest) => {
   const { authorization: authTokenFromHeaders } = request?.headers;
 
-  if (authTokenFromHeaders) return authTokenFromHeaders
+  if (authTokenFromHeaders) return authTokenFromHeaders;
 
   // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
   if (isBeaconRoute(request.url) && request.body) {
-    const parsedBody = JSON.parse(request.body as any)
-    const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest
+    const parsedBody = JSON.parse(request.body as any);
+    const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest;
 
     if (authTokenFromBeacon) {
-      return authTokenFromBeacon
+      return authTokenFromBeacon;
     }
   }
 
-  return null
-}
+  return null;
+};
 
 const authorizer = async (request: FastifyRequest) => {
-  const authorizationToken = getAuthorizationToken(request)
+  const authorizationToken = getAuthorizationToken(request);
 
   if (!authorizationToken || typeof authorizationToken !== 'string')
     throw new Error(UNAUTHORIZED_EXCEPTION);
