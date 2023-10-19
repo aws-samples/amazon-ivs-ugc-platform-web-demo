@@ -178,7 +178,7 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
   return { result, error };
 };
 
-export const sendBeaconRequest = async (url, shouldSendAuthToken) => {
+export const sendBeaconRequest = async (url, shouldSendAuthToken = false) => {
   let data = {};
 
   if (shouldSendAuthToken) {

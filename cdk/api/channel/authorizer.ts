@@ -1,7 +1,7 @@
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { FastifyRequest } from 'fastify';
 
-import { UNAUTHORIZED_EXCEPTION } from '../shared/constants';
+import { BEACON_API_ROUTES, UNAUTHORIZED_EXCEPTION } from '../shared/constants';
 
 export type UserContext = {
   sub: string;
@@ -14,15 +14,16 @@ const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.USER_POOL_ID as string
 });
 
-const isBeaconRoute = (url: string) => ['/stages/disconnect'].includes(url);
 
 const getAuthorizationToken = (request: FastifyRequest) => {
   const { authorization: authTokenFromHeaders } = request?.headers;
 
-  if (authTokenFromHeaders) return authTokenFromHeaders;
+  if (authTokenFromHeaders) {
+    return authTokenFromHeaders
+  }
 
   // Beacon requests cannot pass auth token via request header, therefore, token is passed through the body
-  if (isBeaconRoute(request.url) && request.body) {
+  if (BEACON_API_ROUTES.includes(request.url)) {
     const parsedBody = JSON.parse(request.body as any);
     const authTokenFromBeacon = parsedBody?.authTokenFromBeaconRequest;
 
