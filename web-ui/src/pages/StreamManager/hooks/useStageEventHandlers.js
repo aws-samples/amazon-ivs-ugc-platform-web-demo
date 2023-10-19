@@ -123,7 +123,7 @@ const useStageEventHandlers = ({
   const handleParticipantConnectionChangeEvent = useCallback(
     (state) => {
       if (state === StageConnectionState.ERRORED) {
-        notifyNeutral($contentNotification.info.the_session_ended, {
+        notifyNeutral($contentNotification.neutral.the_session_ended, {
           asPortal: true
         });
 

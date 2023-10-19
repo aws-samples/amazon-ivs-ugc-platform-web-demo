@@ -26,18 +26,10 @@ const Context = createContext(null);
 Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
-  const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const { shouldCloseFullScreenView } = useStreamManagerStage();
-  const {
-    isStageActive,
-    collaborateButtonAnimationControls,
-    animationCollapseStageControlsStart,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
-  } = useGlobalStage();
-
   const webBroadcastParentContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
+  const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton
@@ -47,6 +39,13 @@ export const Provider = ({ children, previewRef }) => {
   const { isDesktopView } = useResponsiveDevice();
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
+  const {
+    isStageActive,
+    collaborateButtonAnimationControls,
+    animationCollapseStageControlsStart,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon
+  } = useGlobalStage();
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     {

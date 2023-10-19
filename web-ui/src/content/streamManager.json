@@ -52,7 +52,7 @@
     "copy_link": "Copy link",
     "invite_participant": "Invite participant",
     "notifications": {
-      "info": {
+      "neutral": {
         "the_session_ended": "The session ended"
       },
       "success": {

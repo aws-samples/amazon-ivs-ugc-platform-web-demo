@@ -19,13 +19,13 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     const { channelArn, stageId: channelTableStageId = null } =
       unmarshall(UserItem);
 
-    // if (channelTableStageId) {
-    //   throw new Error('Operation cannot be completed. active stage found.');
-    // }
+    if (channelTableStageId) {
+      throw new Error('Operation cannot be completed. active stage found.');
+    }
 
-    // if (!channelArn) {
-    //   throw new Error('No IVS resources have been created for this user.');
-    // }
+    if (!channelArn) {
+      throw new Error('No IVS resources have been created for this user.');
+    }
 
     const channelId = getChannelId(channelArn);
     const {
