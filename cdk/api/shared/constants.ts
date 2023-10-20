@@ -101,4 +101,3 @@ export const CHANNELS_TABLE_STAGE_FIELDS = {
   STAGE_ID: 'stageId',
   STAGE_CREATION_DATE: 'stageCreationDate'
 };
-
