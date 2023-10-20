@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
-import { apiBaseUrl, authFetch } from '../../../api/utils';
+import { stagesAPI } from '../../../api';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
 const {
   StageEvents,
@@ -12,6 +13,8 @@ const {
 } = window.IVSBroadcastClient;
 
 const useStageEventHandlers = ({ client, updateSuccess }) => {
+  const isLocalParticipantAHost = useRef(false)
+
   const {
     addParticipant,
     localParticipant,
@@ -28,12 +31,20 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     (participant) => {
       const {
         attributes: {
+          type,
           username: participantUsername,
           participantTokenCreationDate = undefined // participantTokenCreationDate is undefined for stage creator
         },
         isLocal
       } = participant;
-      if (isLocal) return;
+
+      if (isLocal) {
+        if (type === PARTICIPANT_TYPES.HOST) {
+          isLocalParticipantAHost.current = true
+        }
+
+        return
+      }
       addParticipant(participant);
       /**
        * the "if" statement assesses participant timing compared to the local participant.
@@ -112,12 +123,12 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
 
   const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
     if (state === StageConnectionState.DISCONNECTED) {
-      // Does not execute on Firefox
-      await authFetch({
-        method: 'POST',
-        url: `${apiBaseUrl}/stages/disconnect`,
-        keepalive: true
-      });
+      if (isLocalParticipantAHost.current) {
+        // Does not execute on Firefox
+        await stagesAPI.disconnectFromStage();
+
+        isLocalParticipantAHost.current = false
+      }
     }
   }, []);
 

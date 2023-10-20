@@ -15,3 +15,11 @@ export const getParticipationToken = async (stageId) =>
   await authFetch({
     url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}`
   });
+
+export const disconnectFromStage = async () => {
+  await authFetch({
+    method: 'POST',
+    url: `${apiBaseUrl}/stages/disconnect`,
+    keepalive: true
+  });
+};

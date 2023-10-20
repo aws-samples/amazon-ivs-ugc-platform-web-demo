@@ -1,7 +1,7 @@
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { FastifyRequest } from 'fastify';
 
-import { BEACON_API_ROUTES, UNAUTHORIZED_EXCEPTION } from '../shared/constants';
+import { UNAUTHORIZED_EXCEPTION } from '../shared/constants';
 
 export type UserContext = {
   sub: string;
