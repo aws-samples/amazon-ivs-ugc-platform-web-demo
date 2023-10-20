@@ -167,7 +167,7 @@ export const Provider = ({ children, previewRef }) => {
   ]);
 
   useEffect(() => {
-    if (!shouldCloseFullScreenView) return
+    if (!shouldCloseFullScreenView) return;
 
     if (shouldCloseFullScreenView) {
       const closeFullScreen = async () => {
