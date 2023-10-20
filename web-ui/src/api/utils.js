@@ -178,7 +178,6 @@ export const unauthFetch = async ({ url, method = 'GET', body, signal }) => {
   return { result, error };
 };
 
-
 export const generatePresignedPost = ({ assetType, contentType }) =>
   authFetch({
     method: 'POST',

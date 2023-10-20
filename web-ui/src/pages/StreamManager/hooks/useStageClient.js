@@ -10,14 +10,15 @@ const { Stage } = window.IVSBroadcastClient;
 const useStageClient = ({ updateSuccess, updateError }) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState, localParticipant } = useGlobalStage();
+  const { resetParticipants, strategy, resetStageState, localParticipant } =
+    useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
     updateError
   });
   const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
-  
+
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
       clientRef.current = new Stage(token, strategy);
