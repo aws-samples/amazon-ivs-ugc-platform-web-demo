@@ -167,13 +167,22 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateError
   ]);
 
+  const stageConnectionErroredEventCallback = useCallback(() => {
+    notifyNeutral($contentNotification.neutral.the_session_ended, {
+      asPortal: true
+    });
+
+    setShouldCloseFullScreenView(true);
+    leaveStage();
+  }, [leaveStage, notifyNeutral]);
+
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
       updateSuccess,
       updateError,
       isDevicesInitializedRef,
       leaveStage,
-      setShouldCloseFullScreenView
+      stageConnectionErroredEventCallback
     });
 
   const { updateLocalStrategy } = useStageStrategy({

@@ -11,7 +11,7 @@ const useStageClient = ({
   updateSuccess,
   updateError,
   leaveStage,
-  setShouldCloseFullScreenView
+  stageConnectionErroredEventCallback
 }) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
@@ -22,7 +22,7 @@ const useStageClient = ({
     updateSuccess,
     updateError,
     leaveStage,
-    setShouldCloseFullScreenView
+    stageConnectionErroredEventCallback
   });
   const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
 

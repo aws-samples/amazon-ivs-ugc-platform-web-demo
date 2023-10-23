@@ -2,8 +2,6 @@ import { useCallback, useRef } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
-import { useNotif } from '../../../contexts/Notification';
-import { streamManager as $streamManagerContent } from '../../../content';
 import { stagesAPI } from '../../../api';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
@@ -14,14 +12,10 @@ const {
   StageConnectionState
 } = window.IVSBroadcastClient;
 
-const $contentNotification =
-  $streamManagerContent.stream_manager_stage.notifications;
-
 const useStageEventHandlers = ({
   client,
   updateSuccess,
-  leaveStage,
-  setShouldCloseFullScreenView
+  stageConnectionErroredEventCallback
 }) => {
   const isHost = useRef(false);
 
@@ -36,7 +30,6 @@ const useStageEventHandlers = ({
     removeParticipant,
     strategy
   } = useGlobalStage();
-  const { notifyNeutral } = useNotif();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -144,15 +137,10 @@ const useStageEventHandlers = ({
       }
 
       if (state === StageConnectionState.ERRORED) {
-        notifyNeutral($contentNotification.neutral.the_session_ended, {
-          asPortal: true
-        });
-
-        setShouldCloseFullScreenView(true);
-        leaveStage();
+        stageConnectionErroredEventCallback();
       }
     },
-    [leaveStage, notifyNeutral, setShouldCloseFullScreenView]
+    [stageConnectionErroredEventCallback]
   );
 
   const attachStageEvents = useCallback(

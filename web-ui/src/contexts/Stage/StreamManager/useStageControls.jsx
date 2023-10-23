@@ -67,8 +67,7 @@ const useStageControls = ({ leaveStage, resetStage }) => {
         },
         onConfirm: () => {
           if (
-            typeof closeFullscreenAndAnimateCollaborateButton ===
-            'function'
+            typeof closeFullscreenAndAnimateCollaborateButton === 'function'
           ) {
             closeFullscreenAndAnimateCollaborateButton();
           }

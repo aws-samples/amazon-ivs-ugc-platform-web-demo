@@ -185,9 +185,13 @@ export const Provider = ({ children, previewRef }) => {
     if (!shouldCloseFullScreenView) return;
 
     if (shouldCloseFullScreenView) {
-      closeFullscreenAndAnimateCollaborateButton()
+      closeFullscreenAndAnimateCollaborateButton();
     }
-  }, [closeFullscreenAndAnimateCollaborateButton, collaborateButtonAnimationControls, shouldCloseFullScreenView]);
+  }, [
+    closeFullscreenAndAnimateCollaborateButton,
+    collaborateButtonAnimationControls,
+    shouldCloseFullScreenView
+  ]);
 
   const value = useMemo(
     () => ({
