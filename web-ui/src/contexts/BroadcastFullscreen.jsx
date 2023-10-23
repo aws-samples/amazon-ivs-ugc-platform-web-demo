@@ -152,6 +152,16 @@ export const Provider = ({ children, previewRef }) => {
     setIsFullScreenViewOpen(true);
   }, [initializeGoLiveContainerDimensions]);
 
+  const closeFullscreenAndAnimateCollaborateButtonCallback = useCallback(async () => {
+    setIsFullScreenViewOpen(false);
+    await collaborateButtonAnimationControls.start({
+      zIndex: 1000,
+      opacity: 1,
+      transition: { duration: 0.45 }
+    });
+    collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+  }, [collaborateButtonAnimationControls]);
+
   useEffect(() => {
     if (!isDesktopView) {
       if (isFullScreenViewOpen) {
@@ -175,19 +185,9 @@ export const Provider = ({ children, previewRef }) => {
     if (!shouldCloseFullScreenView) return;
 
     if (shouldCloseFullScreenView) {
-      const closeFullScreen = async () => {
-        setIsFullScreenViewOpen(false);
-        await collaborateButtonAnimationControls.start({
-          zIndex: 1000,
-          opacity: 1,
-          transition: { duration: 0.45 }
-        });
-        collaborateButtonAnimationControls.start({ zIndex: 'unset' });
-      };
-
-      closeFullScreen();
+      closeFullscreenAndAnimateCollaborateButtonCallback()
     }
-  }, [collaborateButtonAnimationControls, shouldCloseFullScreenView]);
+  }, [closeFullscreenAndAnimateCollaborateButtonCallback, collaborateButtonAnimationControls, shouldCloseFullScreenView]);
 
   const value = useMemo(
     () => ({
@@ -211,7 +211,8 @@ export const Provider = ({ children, previewRef }) => {
       shouldRenderFullScreenCollaborateButton,
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
-      handleOpenFullScreenView
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButtonCallback
     }),
     [
       collaborateButtonAnimationControls,
@@ -227,7 +228,8 @@ export const Provider = ({ children, previewRef }) => {
       dimensionClasses,
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
-      handleOpenFullScreenView
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButtonCallback
     ]
   );
 

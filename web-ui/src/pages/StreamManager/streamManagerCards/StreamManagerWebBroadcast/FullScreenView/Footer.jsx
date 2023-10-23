@@ -44,22 +44,13 @@ const Footer = () => {
     isCreatingStage
   } = useGlobalStage();
   const {
-    setIsFullScreenViewOpen,
     shouldRenderFullScreenCollaborateButton,
-    setShouldRenderFullScreenCollaborateButton
+    setShouldRenderFullScreenCollaborateButton,
+    closeFullscreenAndAnimateCollaborateButtonCallback
   } = useBroadcastFullScreen();
   const { isTouchscreenDevice } = useResponsiveDevice();
 
   const handleLeaveSession = () => {
-    const closeFullscreenAndAnimateCollaborateButtonCallback = async () => {
-      setIsFullScreenViewOpen(false);
-      await collaborateButtonAnimationControls.start({
-        zIndex: 1000,
-        opacity: 1,
-        transition: { duration: 0.45 }
-      });
-      collaborateButtonAnimationControls.start({ zIndex: 'unset' });
-    };
     handleOnConfirmLeaveStage({
       closeFullscreenAndAnimateCollaborateButtonCallback,
       lastFocusedElementRef: leaveStageButtonRef
