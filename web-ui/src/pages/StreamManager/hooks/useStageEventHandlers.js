@@ -1,15 +1,20 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
+import { stagesAPI } from '../../../api';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
 const {
   StageEvents,
   StageParticipantPublishState,
-  StageParticipantSubscribeState
+  StageParticipantSubscribeState,
+  StageConnectionState
 } = window.IVSBroadcastClient;
 
 const useStageEventHandlers = ({ client, updateSuccess }) => {
+  const isHost = useRef(false);
+
   const {
     addParticipant,
     localParticipant,
@@ -26,12 +31,20 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     (participant) => {
       const {
         attributes: {
+          type,
           username: participantUsername,
           participantTokenCreationDate = undefined // participantTokenCreationDate is undefined for stage creator
         },
         isLocal
       } = participant;
-      if (isLocal) return;
+
+      if (isLocal) {
+        if (type === PARTICIPANT_TYPES.HOST) {
+          isHost.current = true;
+        }
+
+        return;
+      }
       addParticipant(participant);
       /**
        * the "if" statement assesses participant timing compared to the local participant.
@@ -108,10 +121,25 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     [strategy, client]
   );
 
+  const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
+    if (state === StageConnectionState.DISCONNECTED) {
+      if (isHost.current) {
+        // Does not execute on Firefox
+        await stagesAPI.disconnectFromStage();
+
+        isHost.current = false;
+      }
+    }
+  }, []);
+
   const attachStageEvents = useCallback(
     (client) => {
       if (!client) return;
 
+      client.on(
+        StageEvents.STAGE_CONNECTION_STATE_CHANGED,
+        handleParticipantConnectionChangedEvent
+      );
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
         handleParticipantJoinEvent
@@ -140,7 +168,8 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
       handleParticipantPublishStateChangedEvent,
       handleParticipantSubscribeStateChangeEvent,
       handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent
+      handleStreamMuteChangeEvent,
+      handleParticipantConnectionChangedEvent
     ]
   );
 

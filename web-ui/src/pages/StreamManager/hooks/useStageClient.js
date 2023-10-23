@@ -2,18 +2,22 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 
 import useStageEventHandlers from './useStageEventHandlers';
 import { useGlobalStage } from '../../../contexts/Stage';
+import { apiBaseUrl } from '../../../api/utils';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
 const { Stage } = window.IVSBroadcastClient;
 
 const useStageClient = ({ updateSuccess, updateError }) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState } = useGlobalStage();
+  const { resetParticipants, strategy, resetStageState, localParticipant } =
+    useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
     updateError
   });
+  const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
 
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
@@ -47,10 +51,18 @@ const useStageClient = ({ updateSuccess, updateError }) => {
   useEffect(() => {
     if (isClientDefined && clientRef.current) {
       window.addEventListener('beforeunload', () => {
-        queueMicrotask(setTimeout(() => clientRef.current.leave(), 0));
+        queueMicrotask(
+          setTimeout(() => {
+            if (isHost) {
+              navigator.sendBeacon(`${apiBaseUrl}/stages/disconnect`);
+            }
+
+            clientRef.current.leave();
+          }, 0)
+        );
       });
     }
-  }, [isClientDefined]);
+  }, [isClientDefined, isHost]);
 
   return {
     client: clientRef.current,
