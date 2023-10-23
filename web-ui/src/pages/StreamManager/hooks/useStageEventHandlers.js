@@ -13,7 +13,7 @@ const {
 } = window.IVSBroadcastClient;
 
 const useStageEventHandlers = ({ client, updateSuccess }) => {
-  const isLocalParticipantAHost = useRef(false);
+  const isHost = useRef(false);
 
   const {
     addParticipant,
@@ -40,7 +40,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
 
       if (isLocal) {
         if (type === PARTICIPANT_TYPES.HOST) {
-          isLocalParticipantAHost.current = true;
+          isHost.current = true;
         }
 
         return;
@@ -123,11 +123,11 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
 
   const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
     if (state === StageConnectionState.DISCONNECTED) {
-      if (isLocalParticipantAHost.current) {
+      if (isHost.current) {
         // Does not execute on Firefox
         await stagesAPI.disconnectFromStage();
 
-        isLocalParticipantAHost.current = false;
+        isHost.current = false;
       }
     }
   }, []);
