@@ -5,11 +5,16 @@ import { UserContext } from '../channel/authorizer';
 import {
   buildStageArn,
   handleCreateStageParams,
-  handleCreateParticipantToken
+  handleCreateParticipantToken,
+  ParticipantType,
+  isUserInStage,
+  PARTICIPANT_USER_TYPES,
+  validateRequestParams
 } from './helpers';
 
 interface GetParticipantTokenParams {
   stageId: string;
+  participantType: ParticipantType;
 }
 
 const handler = async (
@@ -19,8 +24,21 @@ const handler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { stageId } = request.params;
+    const { stageId, participantType } = request.params;
+
+    const missingParams = validateRequestParams(stageId, participantType);
+    if (missingParams) {
+      throw new Error(`Missing ${missingParams}`);
+    }
+
     const { sub, username } = request.requestContext.get('user') as UserContext;
+
+    let isHostInStage = false;
+    if (participantType === PARTICIPANT_USER_TYPES.HOST) {
+      // Check for host presence
+      isHostInStage = await isUserInStage(stageId, sub);
+    }
+
     const {
       username: preferredUsername,
       profileColor,
@@ -28,8 +46,13 @@ const handler = async (
       channelAssetsAvatarUrlPath,
       duration,
       userId,
-      capabilities
-    } = await handleCreateStageParams(sub);
+      capabilities,
+      userType: type
+    } = await handleCreateStageParams({
+      userSub: sub,
+      participantType,
+      isHostInStage
+    });
 
     const stageArn = buildStageArn(stageId);
 
@@ -42,7 +65,8 @@ const handler = async (
         profileColor,
         avatar,
         channelAssetsAvatarUrlPath,
-        participantTokenCreationDate: Date.now().toString()
+        participantTokenCreationDate: Date.now().toString(),
+        type
       },
       capabilities
     };

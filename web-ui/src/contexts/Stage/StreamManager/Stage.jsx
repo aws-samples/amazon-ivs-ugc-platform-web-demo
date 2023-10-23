@@ -20,6 +20,7 @@ import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useBroadcast } from '../../Broadcast';
+import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
 import { useNotif } from '../../Notification';
 import { useStreams } from '../../Streams';
@@ -59,6 +60,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     shouldDisableStageButtonWithDelay,
     isCreatingStage
   } = useGlobalStage();
+
   const [searchParams] = useSearchParams();
   const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
   const {
@@ -76,11 +78,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const { isLive } = useStreams();
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
+  const { refreshChannelData } = useChannel();
 
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
   const broadcastDevicesStateObjRef = useRef(null);
   const shouldGetParticipantTokenRef = useRef(false);
+  const shouldGetHostRejoinTokenRef = useRef(true);
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
@@ -189,8 +193,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       if (localParticipant?.streams)
         localParticipant?.streams[0].mediaStreamTrack.stop();
 
-      leaveStageClient();
-
       if (showSuccess) {
         updateSuccess($contentNotification.success.you_have_left_the_session);
         resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
@@ -206,7 +208,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       broadcastDevicesStateObjRef,
       isDevicesInitializedRef,
       joinParticipantLinkRef,
-      leaveStageClient,
       localParticipant?.streams,
       resetAllStageState,
       shouldGetParticipantTokenRef,
@@ -232,11 +233,14 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const leaveStage = useCallback(async () => {
     try {
       const {
-        attributes: { type = undefined }
+        attributes: { type }
       } = localParticipant;
 
       let result;
       const isHost = type === PARTICIPANT_TYPES.HOST;
+
+      // Client.leave() should be called before deleting the stage
+      leaveStageClient();
 
       // Check if the user is the host
       if (isHost) {
@@ -244,6 +248,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
           promiseFn: () => stagesAPI.deleteStage(),
           maxRetries: 2
         }));
+
+        // Fetch updated channel data
+        refreshChannelData();
       }
 
       if (result || !isHost) {
@@ -272,6 +279,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     }
   }, [
     localParticipant,
+    leaveStageClient,
+    refreshChannelData,
     updateIsBlockingRoute,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,
@@ -376,7 +385,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       leaveStage,
       toggleCamera,
       toggleMicrophone,
-      handleOnConfirmLeaveStage
+      handleOnConfirmLeaveStage,
+      broadcastDevicesStateObjRef,
+      createStageInstanceAndJoin,
+      shouldGetHostRejoinTokenRef
     }),
     [
       initializeStageClient,
@@ -396,7 +408,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateError,
       resetStage,
       isSpectator,
-      hasPermissions
+      hasPermissions,
+      createStageInstanceAndJoin,
+      shouldGetHostRejoinTokenRef
     ]
   );
 

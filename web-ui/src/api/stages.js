@@ -11,9 +11,9 @@ export const deleteStage = async () =>
     method: 'PUT'
   });
 
-export const getParticipationToken = async (stageId) =>
+export const getParticipationToken = async (stageId, participantType) =>
   await authFetch({
-    url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}`
+    url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}/${participantType}`
   });
 
 export const disconnectFromStage = async () => {

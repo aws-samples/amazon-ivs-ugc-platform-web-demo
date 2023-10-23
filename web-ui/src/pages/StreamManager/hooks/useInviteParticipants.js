@@ -1,10 +1,15 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-import { useBroadcast } from '../../../contexts/Broadcast';
-import { useGlobalStage } from '../../../contexts/Stage';
 import { getParticipationToken } from '../../../api/stages';
 import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../../../helpers/stagesHelpers';
+import { streamManager as $streamManagerContent } from '../../../content';
+import { useBroadcast } from '../../../contexts/Broadcast';
+import { useGlobalStage } from '../../../contexts/Stage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+
+const $contentNotification =
+  $streamManagerContent.stream_manager_stage.notifications;
 
 const useInviteParticipants = ({
   shouldGetParticipantTokenRef,
@@ -31,7 +36,7 @@ const useInviteParticipants = ({
       if (isLive || isBroadcasting) {
         restartBroadcastClient();
         updateError({
-          message: '$contentNotification.error.unable_to_join_session'
+          message: $contentNotification.error.unable_to_join_session
         });
         navigate('/manager');
       } else {
@@ -71,7 +76,10 @@ const useInviteParticipants = ({
     if (shouldGetParticipantTokenRef.current && hasPermissions && stageId) {
       shouldGetParticipantTokenRef.current = false;
       (async function () {
-        const { result, error } = await getParticipationToken(stageId);
+        const { result, error } = await getParticipationToken(
+          stageId,
+          PARTICIPANT_TYPES.INVITED
+        );
 
         if (result?.token) {
           await createStageInstanceAndJoin(result.token, stageId);
@@ -83,7 +91,7 @@ const useInviteParticipants = ({
         if (error) {
           resetStage();
           updateError({
-            message: '$contentNotification.error.unable_to_join_session',
+            message: $contentNotification.error.unable_to_join_session,
             err: error
           });
           navigate('/manager');

@@ -6,9 +6,15 @@ import {
   CreateStageCommandInput,
   DeleteStageCommand,
   GetStageCommand,
-  IVSRealTimeClient
+  IVSRealTimeClient,
+  ListParticipantsCommand,
+  ListParticipantsCommandInput
 } from '@aws-sdk/client-ivs-realtime';
-import { ChannelAssets, getChannelAssetUrls } from '../shared/helpers';
+import {
+  ChannelAssets,
+  getChannelAssetUrls,
+  getChannelId
+} from '../shared/helpers';
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
   CUSTOM_AVATAR_NAME,
@@ -19,7 +25,43 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
+
+interface HandleCreateStageParams {
+  userSub: string;
+  participantType: string;
+  isHostInStage?: boolean;
+}
+
 const CHANNEL_ASSET_AVATAR_DELIMITER = 'https://';
+
+export enum PARTICIPANT_TYPES {
+  HOST = 'host',
+  SPECTATOR = 'spectator',
+  INVITED = 'invited',
+  REQUESTED = 'requested'
+}
+
+export const PARTICIPANT_USER_TYPES = {
+  HOST: 'host',
+  SPECTATOR: 'spectator',
+  INVITED: 'invited',
+  REQUESTED: 'requested'
+};
+
+const PARTICIPANT_CONNECTION_STATES = {
+  CONNECTED: 'CONNECTED'
+};
+
+const shouldFetchUserData = [
+  PARTICIPANT_USER_TYPES.HOST,
+  PARTICIPANT_USER_TYPES.INVITED
+];
+
+export type ParticipantType =
+  | PARTICIPANT_TYPES.HOST
+  | PARTICIPANT_TYPES.SPECTATOR
+  | PARTICIPANT_TYPES.INVITED
+  | PARTICIPANT_TYPES.REQUESTED;
 
 const client = new IVSRealTimeClient({});
 
@@ -82,18 +124,51 @@ export const getChannelAssetAvatarURL = (
     : '';
 };
 
-export const handleCreateStageParams = async (userSub: string) => {
-  const { Item: UserItem = {} } = await getUser(userSub);
-  const {
+export const handleCreateStageParams = async ({
+  userSub,
+  participantType,
+  isHostInStage = false
+}: HandleCreateStageParams) => {
+  const shouldCreateHostUserType =
+    participantType === PARTICIPANT_USER_TYPES.HOST && !isHostInStage;
+
+  let username,
+    profileColor,
     avatar,
-    color: profileColor,
     channelAssets,
-    username
-  } = unmarshall(UserItem);
-  const channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
-    channelAssets,
-    avatar
-  );
+    channelArn,
+    channelAssetsAvatarUrlPath = '';
+
+  if (shouldFetchUserData.includes(participantType)) {
+    const { Item: UserItem = {} } = await getUser(userSub);
+    ({
+      avatar,
+      color: profileColor,
+      channelAssets,
+      username,
+      channelArn
+    } = unmarshall(UserItem));
+    channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
+      channelAssets,
+      avatar
+    );
+  }
+
+  const capabilities =
+    participantType === PARTICIPANT_USER_TYPES.SPECTATOR
+      ? [ParticipantTokenCapability.SUBSCRIBE]
+      : [
+          ParticipantTokenCapability.PUBLISH,
+          ParticipantTokenCapability.SUBSCRIBE
+        ];
+
+  const userId = shouldCreateHostUserType
+    ? generateHostUserId(channelArn)
+    : uuidv4();
+
+  const userType = shouldCreateHostUserType
+    ? PARTICIPANT_USER_TYPES.HOST
+    : PARTICIPANT_USER_TYPES.INVITED;
 
   return {
     username,
@@ -101,10 +176,60 @@ export const handleCreateStageParams = async (userSub: string) => {
     avatar,
     channelAssetsAvatarUrlPath,
     duration: STAGE_TOKEN_DURATION,
-    userId: uuidv4(),
-    capabilities: [
-      ParticipantTokenCapability.PUBLISH,
-      ParticipantTokenCapability.SUBSCRIBE
-    ]
+    userId,
+    capabilities,
+    userType
   };
+};
+
+// participants
+const listParticipants = async (input: ListParticipantsCommandInput) => {
+  const listParticipantsCommand = new ListParticipantsCommand(input);
+
+  return await client.send(listParticipantsCommand);
+};
+
+export const generateHostUserId = (channelArn: string) => {
+  const channelId = getChannelId(channelArn);
+
+  return `${PARTICIPANT_USER_TYPES.HOST}:${channelId}`;
+};
+
+export const isUserInStage = async (stageId: string, userSub: string) => {
+  const { stage } = await getStage(stageId);
+  const { Item: UserItem = {} } = await getUser(userSub);
+  const { channelArn } = unmarshall(UserItem);
+  const hostUserId = generateHostUserId(channelArn);
+  const stageArn = buildStageArn(stageId);
+
+  const { participants } = await listParticipants({
+    stageArn,
+    sessionId: stage?.activeSessionId,
+    filterByUserId: hostUserId
+  });
+
+  if (!participants) return false;
+
+  return participants.some(
+    ({ state }) => state === PARTICIPANT_CONNECTION_STATES.CONNECTED
+  );
+};
+
+export const validateRequestParams = (...requestParams: string[]) => {
+  let misssingParams: string[] = [];
+
+  requestParams.forEach((paramName) => {
+    if (
+      paramName === 'undefined' ||
+      paramName === 'null' ||
+      paramName.trim() === ''
+    ) {
+      misssingParams.push(paramName);
+    }
+  });
+
+  return (
+    misssingParams.length &&
+    misssingParams.join(misssingParams.length > 1 ? ', ' : '')
+  );
 };
