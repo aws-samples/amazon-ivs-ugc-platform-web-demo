@@ -81,7 +81,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     initializeDevices,
     hasPermissions
   } = useBroadcast();
-  const { notifyError, notifySuccess } = useNotif();
+  const { notifyError, notifySuccess, notifyNeutral } = useNotif();
   const { isLive } = useStreams();
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
@@ -99,65 +99,73 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
     useState(false);
 
-    const leaveStage = useCallback(async () => {
-      try {
-        const {
-          attributes: { type }
-        } = localParticipant;
-  
-        let result;
-        const isHost = type === PARTICIPANT_TYPES.HOST;
-  
-        // Client.leave() should be called before deleting the stage
-        leaveStageClient();
-  
-        // Check if the user is the host
-        if (isHost) {
-          ({ result } = await retryWithExponentialBackoff({
-            promiseFn: () => stagesAPI.deleteStage(),
-            maxRetries: 2
-          }));
-  
-          // Fetch updated channel data
-          refreshChannelData();
-        }
-  
-        if (result || !isHost) {
-          // Disable usePrompt
-          updateIsBlockingRoute(false);
-  
-          // Animate stage control buttons
-          updateAnimateCollapseStageContainerWithDelay(false);
-          updateShouldAnimateGoLiveButtonChevronIcon(false);
-  
-          setTimeout(() => {
-            resetStage(true);
-  
-            if (stageIdUrlParam) navigate('/manager');
-            broadcastDevicesStateObjRef.current = {
-              isCameraHidden: localParticipant?.isCameraHidden || false,
-              isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-            };
-          }, 350);
-        }
-      } catch (err) {
-        updateError({
-          message: $contentNotification.error.unable_to_leave_session,
-          err
-        });
+  const leaveStage = useCallback(async () => {
+    try {
+      const {
+        attributes: { type }
+      } = localParticipant;
+
+      let result;
+      const isHost = type === PARTICIPANT_TYPES.HOST;
+
+      // Client.leave() should be called before deleting the stage
+      leaveStageClient();
+
+      // Check if the user is the host
+      if (isHost) {
+        ({ result } = await retryWithExponentialBackoff({
+          promiseFn: () => stagesAPI.deleteStage(),
+          maxRetries: 2
+        }));
+
+        // Fetch updated channel data
+        refreshChannelData();
       }
-    }, [
-      localParticipant,
-      leaveStageClient,
-      refreshChannelData,
-      updateIsBlockingRoute,
-      updateAnimateCollapseStageContainerWithDelay,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      resetStage,
-      stageIdUrlParam,
-      navigate,
-      updateError
-    ]);
+
+      if (result || !isHost) {
+        if (isHost) {
+          notifyNeutral($contentNotification.neutral.the_session_ended, {
+            asPortal: true
+          });
+        }
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
+
+        // Animate stage control buttons
+        updateAnimateCollapseStageContainerWithDelay(false);
+        updateShouldAnimateGoLiveButtonChevronIcon(false);
+
+        setTimeout(() => {
+          resetStage(true);
+
+          if (stageIdUrlParam) navigate('/manager');
+          broadcastDevicesStateObjRef.current = {
+            isCameraHidden: localParticipant?.isCameraHidden || false,
+            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+          };
+        }, 350);
+      }
+    } catch (err) {
+      updateError({
+        message: $contentNotification.error.unable_to_leave_session,
+        err
+      });
+    }
+  }, [
+    localParticipant,
+    // eslint-disable-next-line no-use-before-define
+    leaveStageClient,
+    refreshChannelData,
+    updateIsBlockingRoute,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    notifyNeutral,
+    // eslint-disable-next-line no-use-before-define
+    resetStage,
+    stageIdUrlParam,
+    navigate,
+    updateError
+  ]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
