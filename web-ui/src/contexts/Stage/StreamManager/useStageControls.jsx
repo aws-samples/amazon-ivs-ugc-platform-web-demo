@@ -52,7 +52,7 @@ const useStageControls = ({ leaveStage, resetStage }) => {
 
   const handleOnConfirmLeaveStage = useCallback(
     ({
-      closeFullscreenAndAnimateCollaborateButtonCallback = undefined,
+      closeFullscreenAndAnimateCollaborateButton = undefined,
       lastFocusedElementRef = {}
     } = {}) => {
       const message = isStageHost
@@ -67,10 +67,10 @@ const useStageControls = ({ leaveStage, resetStage }) => {
         },
         onConfirm: () => {
           if (
-            typeof closeFullscreenAndAnimateCollaborateButtonCallback ===
+            typeof closeFullscreenAndAnimateCollaborateButton ===
             'function'
           ) {
-            closeFullscreenAndAnimateCollaborateButtonCallback();
+            closeFullscreenAndAnimateCollaborateButton();
           }
           leaveStage();
         },

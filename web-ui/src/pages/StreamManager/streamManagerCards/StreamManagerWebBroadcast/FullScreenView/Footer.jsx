@@ -46,13 +46,13 @@ const Footer = () => {
   const {
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton,
-    closeFullscreenAndAnimateCollaborateButtonCallback
+    closeFullscreenAndAnimateCollaborateButton
   } = useBroadcastFullScreen();
   const { isTouchscreenDevice } = useResponsiveDevice();
 
   const handleLeaveSession = () => {
     handleOnConfirmLeaveStage({
-      closeFullscreenAndAnimateCollaborateButtonCallback,
+      closeFullscreenAndAnimateCollaborateButton,
       lastFocusedElementRef: leaveStageButtonRef
     });
   };

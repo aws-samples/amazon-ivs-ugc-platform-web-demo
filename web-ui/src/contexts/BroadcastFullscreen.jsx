@@ -152,7 +152,7 @@ export const Provider = ({ children, previewRef }) => {
     setIsFullScreenViewOpen(true);
   }, [initializeGoLiveContainerDimensions]);
 
-  const closeFullscreenAndAnimateCollaborateButtonCallback = useCallback(async () => {
+  const closeFullscreenAndAnimateCollaborateButton = useCallback(async () => {
     setIsFullScreenViewOpen(false);
     await collaborateButtonAnimationControls.start({
       zIndex: 1000,
@@ -185,9 +185,9 @@ export const Provider = ({ children, previewRef }) => {
     if (!shouldCloseFullScreenView) return;
 
     if (shouldCloseFullScreenView) {
-      closeFullscreenAndAnimateCollaborateButtonCallback()
+      closeFullscreenAndAnimateCollaborateButton()
     }
-  }, [closeFullscreenAndAnimateCollaborateButtonCallback, collaborateButtonAnimationControls, shouldCloseFullScreenView]);
+  }, [closeFullscreenAndAnimateCollaborateButton, collaborateButtonAnimationControls, shouldCloseFullScreenView]);
 
   const value = useMemo(
     () => ({
@@ -212,7 +212,7 @@ export const Provider = ({ children, previewRef }) => {
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
       handleOpenFullScreenView,
-      closeFullscreenAndAnimateCollaborateButtonCallback
+      closeFullscreenAndAnimateCollaborateButton
     }),
     [
       collaborateButtonAnimationControls,
@@ -229,7 +229,7 @@ export const Provider = ({ children, previewRef }) => {
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
       handleOpenFullScreenView,
-      closeFullscreenAndAnimateCollaborateButtonCallback
+      closeFullscreenAndAnimateCollaborateButton
     ]
   );
 
