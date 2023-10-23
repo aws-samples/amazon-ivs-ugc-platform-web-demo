@@ -147,6 +147,11 @@ export const Provider = ({ children, previewRef }) => {
     fullscreenAnimationControls
   ]);
 
+  const handleOpenFullScreenView = useCallback(() => {
+    initializeGoLiveContainerDimensions();
+    setIsFullScreenViewOpen(true);
+  }, [initializeGoLiveContainerDimensions]);
+
   useEffect(() => {
     if (!isDesktopView) {
       if (isFullScreenViewOpen) {
@@ -205,7 +210,8 @@ export const Provider = ({ children, previewRef }) => {
       setShouldRenderFullScreenCollaborateButton,
       shouldRenderFullScreenCollaborateButton,
       webBroadcastContainerRef,
-      webBroadcastParentContainerRef
+      webBroadcastParentContainerRef,
+      handleOpenFullScreenView
     }),
     [
       collaborateButtonAnimationControls,
@@ -220,7 +226,8 @@ export const Provider = ({ children, previewRef }) => {
       fullscreenAnimationControls,
       dimensionClasses,
       webBroadcastContainerRef,
-      webBroadcastParentContainerRef
+      webBroadcastParentContainerRef,
+      handleOpenFullScreenView
     ]
   );
 

@@ -15,12 +15,13 @@ import { useBroadcast } from '../../contexts/Broadcast';
 import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
 import { useChannel } from '../../contexts/Channel';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../contexts/Stage';
+import { useGlobalStage, useStreamManagerStage } from '../../contexts/Stage';
 import { useStreams } from '../../contexts/Streams';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
+import useHostRejoin from './hooks/useHostRejoin';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -28,12 +29,15 @@ const GO_LIVE_TAB_INDEX = 1;
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     useDevicePermissionChangeListeners();
+    const { isStageActive } = useGlobalStage();
+    const { handleHostRejoin } = useHostRejoin();
     const { isLive } = useStreams();
     const {
       webBroadcastParentContainerRef,
       isFullScreenViewOpen,
       setIsFullScreenViewOpen,
-      initializeGoLiveContainerDimensions
+      initializeGoLiveContainerDimensions,
+      handleOpenFullScreenView
     } = useBroadcastFullScreen();
     const { state } = useLocation();
     const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
@@ -45,9 +49,13 @@ const StreamManagerControlCenter = forwardRef(
       restartBroadcastClient,
       removeBroadcastClient
     } = useBroadcast();
-    const { handleParticipantInvite, isStageActive, updateError } =
-      useStreamManagerStage();
+    const {
+      handleParticipantInvite,
+      updateError,
+      shouldGetHostRejoinTokenRef
+    } = useStreamManagerStage();
     const { channelData } = useChannel();
+    const { stageId: channelTableStageId } = channelData || {};
     const [searchParams] = useSearchParams();
     const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
 
@@ -128,13 +136,8 @@ const StreamManagerControlCenter = forwardRef(
           isBroadcasting,
           profileData,
           openFullscreenView: () => {
-            if (
-              isDesktopView &&
-              initializeGoLiveContainerDimensions &&
-              setIsFullScreenViewOpen
-            ) {
-              initializeGoLiveContainerDimensions();
-              setIsFullScreenViewOpen(true);
+            if (isDesktopView && handleOpenFullScreenView) {
+              handleOpenFullScreenView();
             }
           }
         });
@@ -152,7 +155,29 @@ const StreamManagerControlCenter = forwardRef(
       updateError,
       restartBroadcastClient,
       resetPreview,
-      removeBroadcastClient
+      removeBroadcastClient,
+      handleOpenFullScreenView
+    ]);
+
+    useEffect(() => {
+      if (
+        channelTableStageId &&
+        !isStageActive &&
+        !stageIdUrlParam &&
+        shouldGetHostRejoinTokenRef.current
+      ) {
+        shouldGetHostRejoinTokenRef.current = false;
+        setIsBroadcastCardOpen(true);
+
+        handleHostRejoin(handleOpenFullScreenView);
+      }
+    }, [
+      channelTableStageId,
+      handleHostRejoin,
+      handleOpenFullScreenView,
+      isStageActive,
+      shouldGetHostRejoinTokenRef,
+      stageIdUrlParam
     ]);
 
     return (

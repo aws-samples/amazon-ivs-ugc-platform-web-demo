@@ -132,25 +132,28 @@ const useStageEventHandlers = ({
     [strategy, client]
   );
 
-  const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
-    if (state === StageConnectionState.DISCONNECTED) {
-      if (isHost.current) {
-        // Does not execute on Firefox
-        await stagesAPI.disconnectFromStage();
+  const handleParticipantConnectionChangedEvent = useCallback(
+    async (state) => {
+      if (state === StageConnectionState.DISCONNECTED) {
+        if (isHost.current) {
+          // Does not execute on Firefox
+          await stagesAPI.disconnectFromStage();
 
-        isHost.current = false;
+          isHost.current = false;
+        }
       }
-    }
 
-    if (state === StageConnectionState.ERRORED) {
-      notifyNeutral($contentNotification.neutral.the_session_ended, {
-        asPortal: true
-      });
+      if (state === StageConnectionState.ERRORED) {
+        notifyNeutral($contentNotification.neutral.the_session_ended, {
+          asPortal: true
+        });
 
-      setShouldCloseFullScreenView(true);
-      leaveStage();
-    }
-  }, [leaveStage, notifyNeutral, setShouldCloseFullScreenView]);
+        setShouldCloseFullScreenView(true);
+        leaveStage();
+      }
+    },
+    [leaveStage, notifyNeutral, setShouldCloseFullScreenView]
+  );
 
   const attachStageEvents = useCallback(
     (client) => {
@@ -182,7 +185,15 @@ const useStageEventHandlers = ({
         handleParticipantSubscribeStateChangeEvent
       );
     },
-    [handleParticipantConnectionChangedEvent, handleParticipantJoinEvent, handleParticipantLeftEvent, handleParticipantPublishStateChangedEvent, handleParticipantSubscribeStateChangeEvent, handlePartipantStreamsAddedEvent, handleStreamMuteChangeEvent]
+    [
+      handleParticipantConnectionChangedEvent,
+      handleParticipantJoinEvent,
+      handleParticipantLeftEvent,
+      handleParticipantPublishStateChangedEvent,
+      handleParticipantSubscribeStateChangeEvent,
+      handlePartipantStreamsAddedEvent,
+      handleStreamMuteChangeEvent
+    ]
   );
 
   return { attachStageEvents };

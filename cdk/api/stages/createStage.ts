@@ -3,11 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   CHANNELS_TABLE_STAGE_FIELDS,
-  STAGE_PARTICIPANT_TYPES,
   UNEXPECTED_EXCEPTION
 } from '../shared/constants';
 import { getUser } from '../channel/helpers';
-import { handleCreateStageParams, handleCreateStage } from './helpers';
+import {
+  handleCreateStageParams,
+  handleCreateStage,
+  PARTICIPANT_USER_TYPES
+} from './helpers';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { getChannelId, updateDynamoItemAttributes } from '../shared/helpers';
 import { UserContext } from '../channel/authorizer';
@@ -35,8 +38,12 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       channelAssetsAvatarUrlPath,
       duration,
       userId,
-      capabilities
-    } = await handleCreateStageParams(sub);
+      capabilities,
+      userType: type
+    } = await handleCreateStageParams({
+      userSub: sub,
+      participantType: PARTICIPANT_USER_TYPES.HOST
+    });
     const stageCreationDate = Date.now().toString();
 
     const params = {
@@ -48,7 +55,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
             profileColor,
             avatar,
             channelAssetsAvatarUrlPath,
-            type: STAGE_PARTICIPANT_TYPES.HOST
+            type
           },
           capabilities,
           duration,
