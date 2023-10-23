@@ -1,9 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../../contexts/Stage';
 import { useNotif } from '../../../contexts/Notification';
 import { streamManager as $streamManagerContent } from '../../../content';
+import { stagesAPI } from '../../../api';
+import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 
 const {
   StageEvents,
@@ -21,6 +23,8 @@ const useStageEventHandlers = ({
   leaveStage,
   setShouldCloseFullScreenView
 }) => {
+  const isHost = useRef(false);
+
   const {
     addParticipant,
     localParticipant,
@@ -38,12 +42,20 @@ const useStageEventHandlers = ({
     (participant) => {
       const {
         attributes: {
+          type,
           username: participantUsername,
           participantTokenCreationDate = undefined // participantTokenCreationDate is undefined for stage creator
         },
         isLocal
       } = participant;
-      if (isLocal) return;
+
+      if (isLocal) {
+        if (type === PARTICIPANT_TYPES.HOST) {
+          isHost.current = true;
+        }
+
+        return;
+      }
       addParticipant(participant);
       /**
        * the "if" statement assesses participant timing compared to the local participant.
@@ -120,19 +132,25 @@ const useStageEventHandlers = ({
     [strategy, client]
   );
 
-  const handleParticipantConnectionChangeEvent = useCallback(
-    (state) => {
-      if (state === StageConnectionState.ERRORED) {
-        notifyNeutral($contentNotification.neutral.the_session_ended, {
-          asPortal: true
-        });
+  const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
+    if (state === StageConnectionState.DISCONNECTED) {
+      if (isHost.current) {
+        // Does not execute on Firefox
+        await stagesAPI.disconnectFromStage();
 
-        setShouldCloseFullScreenView(true);
-        leaveStage();
+        isHost.current = false;
       }
-    },
-    [leaveStage, notifyNeutral, setShouldCloseFullScreenView]
-  );
+    }
+
+    if (state === StageConnectionState.ERRORED) {
+      notifyNeutral($contentNotification.neutral.the_session_ended, {
+        asPortal: true
+      });
+
+      setShouldCloseFullScreenView(true);
+      leaveStage();
+    }
+  }, [leaveStage, notifyNeutral, setShouldCloseFullScreenView]);
 
   const attachStageEvents = useCallback(
     (client) => {
@@ -140,7 +158,7 @@ const useStageEventHandlers = ({
 
       client.on(
         StageEvents.STAGE_CONNECTION_STATE_CHANGED,
-        handleParticipantConnectionChangeEvent
+        handleParticipantConnectionChangedEvent
       );
       client.on(
         StageEvents.STAGE_PARTICIPANT_JOINED,
@@ -164,15 +182,7 @@ const useStageEventHandlers = ({
         handleParticipantSubscribeStateChangeEvent
       );
     },
-    [
-      handleParticipantConnectionChangeEvent,
-      handleParticipantJoinEvent,
-      handleParticipantLeftEvent,
-      handleParticipantPublishStateChangedEvent,
-      handleParticipantSubscribeStateChangeEvent,
-      handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent
-    ]
+    [handleParticipantConnectionChangedEvent, handleParticipantJoinEvent, handleParticipantLeftEvent, handleParticipantPublishStateChangedEvent, handleParticipantSubscribeStateChangeEvent, handlePartipantStreamsAddedEvent, handleStreamMuteChangeEvent]
   );
 
   return { attachStageEvents };
