@@ -5,6 +5,7 @@ import createStage from './createStage';
 import disconnectHost from './disconnectHost';
 import deleteStage from './deleteStage';
 import createParticipantToken from './createParticipantToken';
+import sendDeleteStageMessage from './sendDeleteStageMessage';
 
 const router: FastifyPluginAsync = async (resource) => {
   resource.register(fastifyRequestContextPlugin, { hook: 'preHandler' });
@@ -17,6 +18,7 @@ const router: FastifyPluginAsync = async (resource) => {
   );
   resource.put('/delete', deleteStage);
   resource.post('/disconnect', disconnectHost);
+  resource.post('/sendDeleteStageMessage', sendDeleteStageMessage);
 };
 
 export default router;

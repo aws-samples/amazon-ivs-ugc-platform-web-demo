@@ -287,6 +287,42 @@ export class ChannelsStack extends NestedStack {
         }
       );
 
+    const { srcQueue: deleteStageQueue } = new SQSLambdaTrigger(
+      this,
+      `${nestedStackName}-deleteStage-SQSLambdaTrigger`,
+      {
+        name: `${stackNamePrefix}-DeleteStage`,
+        srcHandler: {
+          entryFunctionName: 'deleteStage',
+          description: '',
+          environment: {
+            CHANNEL_ASSETS_BASE_URL: channelAssetsDistributionURL,
+            CHANNELS_TABLE_NAME: channelsTable.tableName
+          },
+          initialPolicy: [
+            new iam.PolicyStatement({
+              actions: ['dynamodb:Query'],
+              effect: iam.Effect.ALLOW,
+              resources: [`${channelsTable.tableArn}/index/channelAssetIdIndex`]
+            }),
+            new iam.PolicyStatement({
+              actions: ['dynamodb:UpdateItem'],
+              effect: iam.Effect.ALLOW,
+              resources: [channelsTable.tableArn]
+            })
+          ]
+        },
+        srcQueueProps: {
+          deliveryDelay: Duration.minutes(3)
+        },
+        dlqHandler: {
+          // TODO: do we need DLQ? Do we need to do anything special when it fails?
+          entryFunctionName: 'deleteStageDlq',
+          description: ''
+        }
+      }
+    );
+
     // Add an S3 Event Notification that publishes an s3:ObjectCreated:* event to the SQS
     // channelAssetsUpdateVersionIdQueue for object keys matching the ALLOWED_CHANNEL_ASSET_TYPES suffixes
     ALLOWED_CHANNEL_ASSET_TYPES.forEach((suffix) => {
@@ -481,7 +517,8 @@ export class ChannelsStack extends NestedStack {
       PROJECT_TAG: tags.project,
       SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-      USER_POOL_ID: userPool.userPoolId
+      USER_POOL_ID: userPool.userPoolId,
+      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl
     };
     this.containerEnv = containerEnv;
 
