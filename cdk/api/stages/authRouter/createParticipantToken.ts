@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { UNEXPECTED_EXCEPTION } from '../shared/constants';
-import { UserContext } from '../channel/authorizer';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { UserContext } from '../../shared/authorizer';
 import {
   buildStageArn,
   handleCreateStageParams,
@@ -10,7 +10,7 @@ import {
   isUserInStage,
   PARTICIPANT_USER_TYPES,
   validateRequestParams
-} from './helpers';
+} from '../helpers';
 
 interface GetParticipantTokenParams {
   stageId: string;

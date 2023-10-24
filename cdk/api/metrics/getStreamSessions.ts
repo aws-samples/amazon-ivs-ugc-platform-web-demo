@@ -10,7 +10,7 @@ import {
 } from './helpers';
 import { getIsLive, StreamSessionDbRecord } from '../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../shared/constants';
-import { UserContext } from '../channel/authorizer';
+import { UserContext } from '../shared/authorizer';
 
 interface GetStreamSessionsResponseBody {
   streamSessions?: StreamSessionSummary[];

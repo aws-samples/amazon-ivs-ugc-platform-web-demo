@@ -60,6 +60,7 @@
       "error": {
         "unable_to_create_session": "Unable to create session",
         "unable_to_join_session": "Unable to join session",
+        "unable_to_leave_session": "Unable to leave session",
         "permissions_denied": "You must allow access to both your camera and microphone"
       }
     },

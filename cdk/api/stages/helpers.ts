@@ -21,13 +21,13 @@ import {
   STAGE_TOKEN_DURATION
 } from '../shared/constants';
 import { getUser } from '../channel/helpers';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
 
 interface HandleCreateStageParams {
-  userSub: string;
+  userSub?: string;
   participantType: string;
   isHostInStage?: boolean;
 }
@@ -139,7 +139,7 @@ export const handleCreateStageParams = async ({
     channelArn,
     channelAssetsAvatarUrlPath = '';
 
-  if (shouldFetchUserData.includes(participantType)) {
+  if (userSub && shouldFetchUserData.includes(participantType)) {
     const { Item: UserItem = {} } = await getUser(userSub);
     ({
       avatar,

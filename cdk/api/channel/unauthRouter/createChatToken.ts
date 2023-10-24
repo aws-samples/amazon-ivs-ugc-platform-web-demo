@@ -13,7 +13,7 @@ import {
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import authorizer from '../authorizer';
+import authorizer from '../../shared/authorizer';
 
 type CreateChatTokenRequestBody = { chatRoomOwnerUsername: string };
 
