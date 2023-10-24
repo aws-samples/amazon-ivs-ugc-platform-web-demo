@@ -8,6 +8,7 @@ import {
   handleCreateParticipantToken,
   ParticipantType,
   isUserInStage,
+  shouldAllowParticipantToJoin,
   PARTICIPANT_USER_TYPES,
   validateRequestParams
 } from '../helpers';
@@ -37,6 +38,13 @@ const handler = async (
     if (participantType === PARTICIPANT_USER_TYPES.HOST) {
       // Check for host presence
       isHostInStage = await isUserInStage(stageId, sub);
+    } else if (participantType === PARTICIPANT_USER_TYPES.INVITED) {
+      const isParticipantAllowedToJoin = await shouldAllowParticipantToJoin(
+        stageId
+      );
+      if (!isParticipantAllowedToJoin) {
+        throw new Error('Stage is at capacity');
+      }
     }
 
     const {
