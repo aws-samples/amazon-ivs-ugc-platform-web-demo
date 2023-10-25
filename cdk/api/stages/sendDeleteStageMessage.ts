@@ -17,17 +17,23 @@ const handler = async (
   const { stageId, sessionId, stageArn } = request.body;
 
   try {
+    const messageParts = [];
+    if (stageId) {
+      messageParts.push(`"stageId": "${stageId}"`);
+    }
+    if (stageArn) {
+      messageParts.push(`"stageArn": "${stageArn}"`);
+    }
+    if (sessionId) {
+      messageParts.push(`"sessionId": "${sessionId}"`);
+    }
+    const messageBody = `{${messageParts.join(', ')}}`;
     const input = {
       QueueUrl: process.env.SQS_DELETE_STAGE_QUEUE_URL,
-      MessageBody: `{
-        ${stageId && `"stageId": ${stageId},`}
-        ${stageArn && `"stageArn": ${stageArn},`}
-        ${sessionId && `"sessionId": ${sessionId}`}
-      }`
+      MessageBody: messageBody
     };
     const command = new SendMessageCommand(input);
     const response = await sqsClient.send(command);
-
     reply.statusCode = 200;
     return reply.send(response);
   } catch (error) {

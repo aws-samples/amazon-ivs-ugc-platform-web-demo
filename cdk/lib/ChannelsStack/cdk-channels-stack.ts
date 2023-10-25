@@ -54,6 +54,8 @@ export class ChannelsStack extends NestedStack {
     super(scope, id, props);
 
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
+    const accountId = Stack.of(this.nestedStackParent!).account;
+    const region = Stack.of(this.nestedStackParent!).region;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
     const {
@@ -296,24 +298,34 @@ export class ChannelsStack extends NestedStack {
           entryFunctionName: 'deleteStage',
           description: '',
           environment: {
-            CHANNEL_ASSETS_BASE_URL: channelAssetsDistributionURL,
-            CHANNELS_TABLE_NAME: channelsTable.tableName
+            CHANNELS_TABLE_NAME: channelsTable.tableName,
+            REGION: region,
+            ACCOUNT_ID: accountId
           },
           initialPolicy: [
             new iam.PolicyStatement({
               actions: ['dynamodb:Query'],
               effect: iam.Effect.ALLOW,
-              resources: [`${channelsTable.tableArn}/index/channelAssetIdIndex`]
+              resources: [`${channelsTable.tableArn}/index/channelArnIndex`]
             }),
             new iam.PolicyStatement({
               actions: ['dynamodb:UpdateItem'],
               effect: iam.Effect.ALLOW,
               resources: [channelsTable.tableArn]
+            }),
+            new iam.PolicyStatement({
+              actions: [
+                'ivs:GetStage',
+                'ivs:ListParticipants',
+                'ivs:DeleteStage'
+              ],
+              effect: iam.Effect.ALLOW,
+              resources: ['*']
             })
           ]
         },
         srcQueueProps: {
-          deliveryDelay: Duration.minutes(3)
+          deliveryDelay: Duration.minutes(0)
         },
         dlqHandler: {
           // TODO: do we need DLQ? Do we need to do anything special when it fails?
