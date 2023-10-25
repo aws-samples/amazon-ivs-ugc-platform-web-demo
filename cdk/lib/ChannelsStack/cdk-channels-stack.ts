@@ -21,6 +21,7 @@ import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import { readFileSync } from 'fs'
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
@@ -512,6 +513,11 @@ export class ChannelsStack extends NestedStack {
 
     const apiKey = new appsync.CfnApiKey(this, 'ChannelApiKey', {
       apiId: api.attrApiId,
+    });
+
+    new appsync.CfnGraphQLSchema(this, 'ChannelApiSchema', {
+      apiId: api.attrApiId,
+      definition: readFileSync('./lib/ChannelsStack/schema.graphql').toString(),
     });
 
     const appSyncGraphQlApi = {

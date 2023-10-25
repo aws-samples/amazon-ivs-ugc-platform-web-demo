@@ -1,0 +1,16 @@
+type Message {
+	name: String!
+	data: AWSJSON!
+}
+
+type Mutation {
+	publish(name: String!, data: AWSJSON!): Message
+}
+
+type Query {
+  # An empty query type with no fields
+}
+
+type Subscription {
+	subscribe(name: String!): Message
+}
