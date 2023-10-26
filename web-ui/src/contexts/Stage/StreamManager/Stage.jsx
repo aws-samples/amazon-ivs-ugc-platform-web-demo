@@ -108,7 +108,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       let result;
       const isHost = type === PARTICIPANT_TYPES.HOST;
 
-      // Client.leave() should be called before deleting the stage
       leaveStageClient();
 
       // Check if the user is the host
