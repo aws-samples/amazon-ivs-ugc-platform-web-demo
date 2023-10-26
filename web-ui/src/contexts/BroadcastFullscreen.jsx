@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import { useResponsiveDevice } from './ResponsiveDevice';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
-import { useGlobalStage, useStreamManagerStage } from './Stage';
+import { useGlobalStage } from './Stage';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -26,7 +26,6 @@ const Context = createContext(null);
 Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
-  const { shouldCloseFullScreenView } = useStreamManagerStage();
   const webBroadcastParentContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
@@ -44,7 +43,8 @@ export const Provider = ({ children, previewRef }) => {
     collaborateButtonAnimationControls,
     animationCollapseStageControlsStart,
     updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    shouldCloseFullScreenView
   } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(

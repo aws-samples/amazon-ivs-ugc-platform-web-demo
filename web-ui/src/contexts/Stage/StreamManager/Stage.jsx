@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import copyToClipboard from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
@@ -65,7 +58,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     success,
     isSpectator,
     shouldDisableStageButtonWithDelay,
-    isCreatingStage
+    isCreatingStage,
+    setShouldCloseFullScreenView,
+    shouldCloseFullScreenView
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -96,16 +91,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
 
-  const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
-    useState(false);
-
   const stageConnectionErroredEventCallback = useCallback(() => {
     notifyNeutral($contentNotification.neutral.the_session_ended, {
       asPortal: true
     });
 
     setShouldCloseFullScreenView(true);
-  }, [notifyNeutral]);
+  }, [notifyNeutral, setShouldCloseFullScreenView]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({

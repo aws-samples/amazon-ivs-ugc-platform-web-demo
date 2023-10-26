@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useAnimationControls } from 'framer-motion';
-import { createContext, useMemo } from 'react';
+import { createContext, useMemo, useState } from 'react';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
@@ -82,6 +82,9 @@ export const Provider = ({ children }) => {
     []
   );
 
+  const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
+    useState(false);
+
   const value = useMemo(() => {
     return {
       // State
@@ -96,6 +99,8 @@ export const Provider = ({ children }) => {
       stageId,
       strategy,
       success,
+      shouldCloseFullScreenView,
+      setShouldCloseFullScreenView,
       // Actions
       addParticipant,
       creatingStage,
@@ -154,7 +159,9 @@ export const Provider = ({ children }) => {
     updateShouldDisableStageButtonWithDelay,
     updateStageId,
     updateStreams,
-    updateSuccess
+    updateSuccess,
+    shouldCloseFullScreenView,
+    setShouldCloseFullScreenView
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
