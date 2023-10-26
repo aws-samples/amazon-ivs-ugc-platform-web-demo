@@ -21,41 +21,60 @@ import {
 import { buildChannelArn } from '../api/metrics/helpers';
 import { CHANNELS_TABLE_STAGE_FIELDS } from '../api/shared/constants';
 
+interface HostDisconnectedEvent {
+  messageId: string;
+  stageArn: string;
+  stageId: string;
+  sessionId?: string;
+  channelId?: string;
+  shouldDeleteStage: boolean;
+}
+
 export const handler: SQSHandler = async (message) => {
   const response: SQSBatchResponse = { batchItemFailures: [] };
   const addBatchItemFailure = (messageId: string) =>
     response.batchItemFailures.push({ itemIdentifier: messageId });
 
-  const hostDisconnectedEvents = message.Records.map(({ body, messageId }) => {
-    let channelId;
-    let { stageId, stageArn, sessionId, userId } = JSON.parse(body);
+  const hostDisconnectedEvents: HostDisconnectedEvent[] = message.Records.map(
+    ({ body, messageId }) => {
+      let channelId;
+      let { stageId, stageArn, sessionId, userId } = JSON.parse(body);
 
-    if (!stageArn && stageId) {
-      stageArn = buildStageArn(stageId);
-    }
-    if (stageArn && !stageId) {
-      stageId = extractStageIdfromStageArn(stageArn);
-    }
+      if (!stageArn && stageId) {
+        stageArn = buildStageArn(stageId);
+      }
+      if (stageArn && !stageId) {
+        stageId = extractStageIdfromStageArn(stageArn);
+      }
 
-    if (userId) {
-      channelId = userId.split('host:')[1];
-    }
+      if (userId) {
+        channelId = userId.split('host:')[1];
+      }
 
-    return {
-      messageId,
-      sessionId,
-      stageArn,
-      stageId,
-      channelId
-    };
-  });
+      return {
+        messageId,
+        sessionId,
+        stageArn,
+        stageId,
+        channelId,
+        shouldDeleteStage: true
+      };
+    }
+  );
 
   const updateChannelPromises = hostDisconnectedEvents.map(
-    ({ stageId, stageArn, sessionId, messageId, channelId }) => {
-      return new Promise(async (resolve, reject) => {
+    ({
+      stageId,
+      stageArn,
+      sessionId,
+      messageId,
+      channelId,
+      shouldDeleteStage: defaultShouldDeleteStage
+    }) => {
+      return new Promise<HostDisconnectedEvent>(async (resolve, reject) => {
         let activeSessionId = sessionId;
         let stageOwnerChannelId = channelId;
-        let shouldDeleteStage = true;
+        let shouldDeleteStage = defaultShouldDeleteStage;
 
         try {
           if (!activeSessionId || !stageOwnerChannelId) {
@@ -65,7 +84,9 @@ export const handler: SQSHandler = async (message) => {
             activeSessionId = stage?.activeSessionId;
             stageOwnerChannelId = stage?.tags?.stageOwnerChannelId;
           }
-          const stageOwnerChannelArn = buildChannelArn(stageOwnerChannelId);
+          const stageOwnerChannelArn = stageOwnerChannelId
+            ? buildChannelArn(stageOwnerChannelId)
+            : '';
 
           if (activeSessionId) {
             const listParticipantsCommand = new ListParticipantsCommand({
@@ -76,9 +97,10 @@ export const handler: SQSHandler = async (message) => {
             const { participants: hosts = [] } = await ivsRealTimeClient.send(
               listParticipantsCommand
             );
-            shouldDeleteStage = hosts.every(
-              (hostData) => hostData.state !== ParticipantState.CONNECTED
-            );
+            shouldDeleteStage =
+              hosts.every(
+                (hostData) => hostData.state !== ParticipantState.CONNECTED
+              ) && !!stageOwnerChannelArn;
           }
 
           if (shouldDeleteStage) {
@@ -122,6 +144,7 @@ export const handler: SQSHandler = async (message) => {
 
           resolve({
             stageArn,
+            stageId,
             messageId,
             shouldDeleteStage
           });
@@ -139,11 +162,11 @@ export const handler: SQSHandler = async (message) => {
     }
 
     if (isFulfilled(result)) {
-      const { stageArn, messageId, shouldDeleteStage } = result.value as any;
+      const { stageArn, messageId, shouldDeleteStage } = result.value;
 
       if (shouldDeleteStage) {
         acc.push(
-          new Promise(async (resolve, reject) => {
+          new Promise<{}>(async (resolve, reject) => {
             try {
               const deleteStageCommand = new DeleteStageCommand({
                 arn: stageArn
@@ -160,7 +183,7 @@ export const handler: SQSHandler = async (message) => {
     }
 
     return acc;
-  }, [] as any);
+  }, [] as Promise<Awaited<{}>>[]);
 
   if (deleteStagePromises.length) {
     const deleteStageResults = await Promise.allSettled(deleteStagePromises);
