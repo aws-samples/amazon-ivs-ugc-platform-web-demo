@@ -10,6 +10,8 @@ const Context = createContext(null);
 Context.displayName = 'AppSync';
 
 export const Provider = ({ children }) => {
+  const { userData } = useUser();
+
   /**
    * @param  {string} name the name of the channel
    * @param  {Object} data the data to publish to the channel
@@ -33,7 +35,6 @@ export const Provider = ({ children }) => {
     });
   }, []);
 
-  const { userData } = useUser();
   useEffect(() => {
     if (!userData?.username) return;
 
@@ -41,10 +42,9 @@ export const Provider = ({ children }) => {
     const subscription = subscribe(channel, ({ data }) => {
       const messageReceived = JSON.parse(data);
 
-      console.log('Message received', messageReceived)
+      console.log('Message received', messageReceived);
 
       // TODO: parse messages here
-
     });
     return () => subscription.unsubscribe();
   }, [subscribe, userData?.username]);
