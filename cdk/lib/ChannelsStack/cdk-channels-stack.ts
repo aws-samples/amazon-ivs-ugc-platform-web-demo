@@ -446,6 +446,11 @@ export class ChannelsStack extends NestedStack {
       effect: iam.Effect.ALLOW,
       resources: [userPool.userPoolArn]
     });
+    const sqsDeleteStagePolicyStatement = new iam.PolicyStatement({
+      actions: ['sqs:SendMessage'],
+      effect: iam.Effect.ALLOW,
+      resources: [deleteStageQueue.queueArn]
+    });
     policies.push(
       channelAssetsBucketPolicyStatement,
       channelAssetsObjectPolicyStatement,
@@ -455,7 +460,8 @@ export class ChannelsStack extends NestedStack {
       forgotPasswordPolicyStatement,
       ivsChatPolicyStatement,
       ivsPolicyStatement,
-      secretsManagerPolicyStatement
+      secretsManagerPolicyStatement,
+      sqsDeleteStagePolicyStatement
     );
     this.policies = policies;
 
@@ -560,22 +566,22 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Add AppSync GraphQL API
-    const authType = 'API_KEY'
+    const authType = 'API_KEY';
 
     const api = new appsync.CfnGraphQLApi(this, 'ChannelGraphQLApi', {
       name: `${nestedStackName}-Channel-GraphQL-Api`,
       authenticationType: authType
-    })
+    });
 
     const apiKey = new appsync.CfnApiKey(this, 'ChannelGraphQLApiKey', {
-      apiId: api.attrApiId,
+      apiId: api.attrApiId
     });
 
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,
       endpoint: api.attrGraphQlUrl,
       authType
-    }
+    };
 
     // Stack Outputs
     this.outputs = {
