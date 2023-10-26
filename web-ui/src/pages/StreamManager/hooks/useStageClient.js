@@ -55,7 +55,7 @@ const useStageClient = ({ updateSuccess, updateError }) => {
           setTimeout(() => {
             if (isHost) {
               navigator.sendBeacon(
-                `${apiBaseUrl}/stages/sendHostDisconnectMessage`
+                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`
               );
             }
 

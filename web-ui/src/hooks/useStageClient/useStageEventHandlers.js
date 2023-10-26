@@ -125,7 +125,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     if (state === StageConnectionState.DISCONNECTED) {
       if (isHost.current) {
         // Does not execute on Firefox
-        await stagesAPI.sendHostDisconnectMessage();
+        await stagesAPI.sendHostDisconnectedMessage();
 
         isHost.current = false;
       }

@@ -1,11 +1,11 @@
 import { FastifyPluginAsync } from 'fastify';
 import createSpectatorToken from './createSpectatorToken';
-import sendHostDisconnectMessage from './sendHostDisconnectMessage';
+import sendHostDisconnectedMessage from './sendHostDisconnectedMessage';
 
 const router: FastifyPluginAsync = async (resource) => {
   resource.get('/createSpectatorToken/:stageId', createSpectatorToken);
 
-  resource.post('/sendHostDisconnectMessage', sendHostDisconnectMessage);
+  resource.post('/sendHostDisconnectedMessage', sendHostDisconnectedMessage);
 };
 
 export default router;

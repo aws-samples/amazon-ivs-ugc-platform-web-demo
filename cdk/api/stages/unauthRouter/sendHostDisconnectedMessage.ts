@@ -2,17 +2,28 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 
-type HostDisconnectMessageRequestBody = {
-  stageId?: string;
+interface MessageWithStageId {
+  stageId: string;
   stageArn?: string;
   sessionId?: string;
   userId?: string;
-};
+}
+
+interface MessageWithStageArn {
+  stageId?: string;
+  stageArn: string;
+  sessionId?: string;
+  userId?: string;
+}
+
+type HostDisconnectedMessageRequestBody =
+  | MessageWithStageId
+  | MessageWithStageArn;
 
 const sqsClient = new SQSClient();
 
 const handler = async (
-  request: FastifyRequest<{ Body: HostDisconnectMessageRequestBody }>,
+  request: FastifyRequest<{ Body: HostDisconnectedMessageRequestBody }>,
   reply: FastifyReply
 ) => {
   const { stageId, sessionId, stageArn, userId } = request.body;
