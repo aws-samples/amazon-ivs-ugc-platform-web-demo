@@ -18,7 +18,6 @@ import {
   Stack,
   SecretValue
 } from 'aws-cdk-lib';
-// import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
