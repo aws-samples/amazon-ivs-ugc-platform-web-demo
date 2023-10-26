@@ -40,6 +40,11 @@ export const Provider = ({ children }) => {
     const channel = userData?.username;
     const subscription = subscribe(channel, ({ data }) => {
       const messageReceived = JSON.parse(data);
+
+      console.log('Message received', messageReceived)
+
+      // TODO: parse messages here
+
     });
     return () => subscription.unsubscribe();
   }, [subscribe, userData?.username]);
