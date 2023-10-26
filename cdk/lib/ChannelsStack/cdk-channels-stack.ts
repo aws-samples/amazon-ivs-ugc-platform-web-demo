@@ -505,12 +505,12 @@ export class ChannelsStack extends NestedStack {
     // Add AppSync GraphQL API
     const authType = 'API_KEY'
 
-    const api = new appsync.CfnGraphQLApi(this, 'ChannelApi', {
-      name: 'channel-api',
+    const api = new appsync.CfnGraphQLApi(this, 'ChannelGraphQLApi', {
+      name: `${nestedStackName}-Channel-GraphQL-Api`,
       authenticationType: authType
     })
 
-    const apiKey = new appsync.CfnApiKey(this, 'ChannelApiKey', {
+    const apiKey = new appsync.CfnApiKey(this, 'ChannelGraphQLApiKey', {
       apiId: api.attrApiId,
     });
 
