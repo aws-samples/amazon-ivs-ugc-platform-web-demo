@@ -8,7 +8,7 @@ type Mutation {
 }
 
 type Query {
-  # CDK deployment will fail without it.
+	getChannel: Channel
 }
 
 type Subscription {
