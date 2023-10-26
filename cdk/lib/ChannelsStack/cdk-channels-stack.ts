@@ -517,7 +517,12 @@ export class ChannelsStack extends NestedStack {
       type: 'NONE',
     });
 
-    new appsync.CfnResolver(this, 'PublishMutationResolver', {
+    const schema = new appsync.CfnGraphQLSchema(this, 'ChannelApiSchema', {
+      apiId: api.attrApiId,
+      definition: readFileSync('./lib/ChannelsStack/schema.graphql').toString(),
+    });
+
+    const resolver = new appsync.CfnResolver(this, 'PublishMutationResolver', {
       apiId: api.attrApiId,
       typeName: 'Mutation',
       fieldName: 'publish',
@@ -525,21 +530,20 @@ export class ChannelsStack extends NestedStack {
       requestMappingTemplate: `{
         "version": "2017-02-28",
         "payload": {
-          "name": $util.toJson($context.arguments.name),
+          "name": "$context.arguments.name",
           "data": $util.toJson($context.arguments.data)
         }
       }`,
       responseMappingTemplate: `$util.toJson($context.result)`,
     });
 
+    resolver.addDependsOn(schema)
+    resolver.addDependsOn(noneDataSource)
+
     const apiKey = new appsync.CfnApiKey(this, 'ChannelApiKey', {
       apiId: api.attrApiId,
     });
 
-    new appsync.CfnGraphQLSchema(this, 'ChannelApiSchema', {
-      apiId: api.attrApiId,
-      definition: readFileSync('./lib/ChannelsStack/schema.graphql').toString(),
-    });
 
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,
