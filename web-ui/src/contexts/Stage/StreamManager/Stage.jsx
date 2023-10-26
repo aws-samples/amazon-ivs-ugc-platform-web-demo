@@ -99,6 +99,50 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
     useState(false);
 
+  const stageConnectionErroredEventCallback = useCallback(() => {
+    notifyNeutral($contentNotification.neutral.the_session_ended, {
+      asPortal: true
+    });
+
+    setShouldCloseFullScreenView(true);
+  }, [notifyNeutral]);
+
+  const { joinStageClient, resetAllStageState, leaveStageClient, client } =
+    useStageClient({
+      updateSuccess,
+      updateError,
+      isDevicesInitializedRef,
+      stageConnectionErroredEventCallback
+    });
+
+  const resetStage = useCallback(
+    (showSuccess = false) => {
+      // Stop all tracks
+      if (localParticipant?.streams)
+        localParticipant?.streams[0].mediaStreamTrack.stop();
+
+      if (showSuccess) {
+        updateSuccess($contentNotification.success.you_have_left_the_session);
+        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
+      } else {
+        resetAllStageState();
+      }
+      joinParticipantLinkRef.current = undefined;
+      isDevicesInitializedRef.current = false;
+      broadcastDevicesStateObjRef.current = null;
+      shouldGetParticipantTokenRef.current = false;
+    },
+    [
+      broadcastDevicesStateObjRef,
+      isDevicesInitializedRef,
+      joinParticipantLinkRef,
+      localParticipant?.streams,
+      resetAllStageState,
+      shouldGetParticipantTokenRef,
+      updateSuccess
+    ]
+  );
+
   const leaveStage = useCallback(async () => {
     try {
       const {
@@ -166,23 +210,11 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateError
   ]);
 
-  const stageConnectionErroredEventCallback = useCallback(() => {
-    notifyNeutral($contentNotification.neutral.the_session_ended, {
-      asPortal: true
-    });
-
-    setShouldCloseFullScreenView(true);
-    leaveStage();
-  }, [leaveStage, notifyNeutral]);
-
-  const { joinStageClient, resetAllStageState, leaveStageClient, client } =
-    useStageClient({
-      updateSuccess,
-      updateError,
-      isDevicesInitializedRef,
-      leaveStage,
-      stageConnectionErroredEventCallback
-    });
+  useEffect(() => {
+    if (shouldCloseFullScreenView) {
+      leaveStage();
+    }
+  }, [leaveStage, shouldCloseFullScreenView]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -276,34 +308,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       createStageInstanceAndJoin,
       updateError,
       updateShouldDisableStageButtonWithDelay
-    ]
-  );
-
-  const resetStage = useCallback(
-    (showSuccess = false) => {
-      // Stop all tracks
-      if (localParticipant?.streams)
-        localParticipant?.streams[0].mediaStreamTrack.stop();
-
-      if (showSuccess) {
-        updateSuccess($contentNotification.success.you_have_left_the_session);
-        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
-      } else {
-        resetAllStageState();
-      }
-      joinParticipantLinkRef.current = undefined;
-      isDevicesInitializedRef.current = false;
-      broadcastDevicesStateObjRef.current = null;
-      shouldGetParticipantTokenRef.current = false;
-    },
-    [
-      broadcastDevicesStateObjRef,
-      isDevicesInitializedRef,
-      joinParticipantLinkRef,
-      localParticipant?.streams,
-      resetAllStageState,
-      shouldGetParticipantTokenRef,
-      updateSuccess
     ]
   );
 
