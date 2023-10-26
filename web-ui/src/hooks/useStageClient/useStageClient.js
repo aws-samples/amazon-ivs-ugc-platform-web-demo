@@ -1,15 +1,14 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 
 import useStageEventHandlers from './useStageEventHandlers';
-import { useGlobalStage } from '../../../contexts/Stage';
-import { apiBaseUrl } from '../../../api/utils';
-import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+import { apiBaseUrl } from '../../api/utils';
+import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
+import { useGlobalStage } from '../../contexts/Stage';
 
 const { Stage } = window.IVSBroadcastClient;
 
 const useStageClient = ({
   updateSuccess,
-  updateError,
   stageConnectionErroredEventCallback
 }) => {
   const clientRef = useRef();
@@ -19,13 +18,10 @@ const useStageClient = ({
     strategy,
     resetStageState,
     localParticipant,
-    leaveStage
   } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
-    updateError,
-    leaveStage,
     stageConnectionErroredEventCallback
   });
   const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
@@ -52,7 +48,7 @@ const useStageClient = ({
   }, [strategy]);
 
   const resetAllStageState = useCallback(
-    ({ omit }) => {
+    ({ omit } = {}) => {
       resetStageState({ omit });
       resetParticipants();
     },

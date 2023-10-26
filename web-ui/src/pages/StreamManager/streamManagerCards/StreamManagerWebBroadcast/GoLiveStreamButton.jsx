@@ -5,6 +5,7 @@ import { clsm } from '../../../../utils';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useModal } from '../../../../contexts/Modal';
+import { useChannel } from '../../../../contexts/Channel';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
@@ -31,10 +32,11 @@ const GoLiveStreamButton = ({
     isConnecting,
     hasPermissions
   } = useBroadcast();
-
   const { openModal } = useModal();
   const { isLive } = useStreams();
-  const isDisabled = (isLive && !isBroadcasting) || !hasPermissions;
+  const { channelData: { stageId = null } = {} } = useChannel();
+  const isStreaming = (isLive && !isBroadcasting) || !!stageId;
+  const isDisabled = isStreaming || !hasPermissions;
   const handleStartStopBroadcastingAction = () => {
     if (isBroadcasting) {
       openModal({
@@ -51,7 +53,7 @@ const GoLiveStreamButton = ({
 
   let tooltipMessage;
   if (shouldShowTooltipMessage) {
-    if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
+    if (isStreaming) tooltipMessage = YourChannelIsAlreadyLive;
     else if (!hasPermissions) tooltipMessage = PermissionDenied;
   }
 

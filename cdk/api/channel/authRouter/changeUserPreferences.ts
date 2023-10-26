@@ -4,7 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { CHANGE_USER_PREFERENCES_EXCEPTION } from '../../shared/constants';
 import { updateDynamoItemAttributes } from '../../shared/helpers';
 import { processAssetPreference, Preference } from '../helpers';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 interface ChangeUserPreferencesRequestBody {
   [key: string]: Preference;

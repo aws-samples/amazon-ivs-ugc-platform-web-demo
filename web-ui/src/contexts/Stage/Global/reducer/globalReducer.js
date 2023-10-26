@@ -50,7 +50,8 @@ export const STATE_KEYS = {
   SHOULD_DISABLE_STAGE_BUTTON_WITH_DELAY: 'shouldDisableStageButtonWithDelay',
   SUCCESS: 'success',
   ERROR: 'error',
-  IS_BLOCKING_ROUTE: 'isBlockingRoute'
+  IS_BLOCKING_ROUTE: 'isBlockingRoute',
+  IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted'
 };
 
 const defaultStageReducerState = {
@@ -60,7 +61,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_CREATING_STAGE]: false,
   [STATE_KEYS.SUCCESS]: null,
   [STATE_KEYS.ERROR]: null,
-  [STATE_KEYS.IS_BLOCKING_ROUTE]: false
+  [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
+  [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true
 };
 
 const stageAnimationReducerState = {
@@ -284,6 +286,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.SHOULD_DISABLE_STAGE_BUTTON_WITH_DELAY]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: action.payload
       };
     }
 

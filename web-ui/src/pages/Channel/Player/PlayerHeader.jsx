@@ -109,9 +109,11 @@ const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
 
   const { isOverlayVisible } = usePlayerContext();
   const { isSessionValid } = useUser();
-  const { channelData: { isLive } = {} } = useChannel();
+  const { channelData: { isLive: isBroadcastLive, stageId } = {} } =
+    useChannel();
   const layoutDependency = useRef(null);
   const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
+  const isLive = isBroadcastLive || !!stageId;
   const shouldShowHeaderOverlay =
     isOverlayVisible || isLive === false || isProfileViewExpanded;
 

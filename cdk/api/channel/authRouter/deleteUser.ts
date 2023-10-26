@@ -14,7 +14,7 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ACCOUNT_DELETION_EXCEPTION } from '../../shared/constants';
 import { cognitoClient, ivsChatClient, ivsClient } from '../../shared/helpers';
 import { deleteS3ObjectsWithPrefix, deleteUser, getUser } from '../helpers';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub, username } = request.requestContext.get('user') as UserContext;

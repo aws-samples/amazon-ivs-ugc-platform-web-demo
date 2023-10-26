@@ -17,7 +17,7 @@ import {
   updateDynamoItemAttributes,
   getChannelId
 } from '../../shared/helpers';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 type CreateResourcesRequestBody = { email: string | undefined };
 

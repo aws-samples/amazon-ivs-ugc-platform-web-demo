@@ -8,7 +8,8 @@ import {
   GetStageCommand,
   IVSRealTimeClient,
   ListParticipantsCommand,
-  ListParticipantsCommandInput
+  ListParticipantsCommandInput,
+  ParticipantSummary
 } from '@aws-sdk/client-ivs-realtime';
 import {
   ChannelAssets,
@@ -21,18 +22,22 @@ import {
   STAGE_TOKEN_DURATION
 } from '../shared/constants';
 import { getUser } from '../channel/helpers';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
 
 interface HandleCreateStageParams {
-  userSub: string;
+  userSub?: string;
   participantType: string;
   isHostInStage?: boolean;
 }
 
 const CHANNEL_ASSET_AVATAR_DELIMITER = 'https://';
+
+const STAGE_CONNECTION_STATES = {
+  CONNECTED: 'CONNECTED'
+};
 
 export enum PARTICIPANT_TYPES {
   HOST = 'host',
@@ -139,7 +144,7 @@ export const handleCreateStageParams = async ({
     channelArn,
     channelAssetsAvatarUrlPath = '';
 
-  if (shouldFetchUserData.includes(participantType)) {
+  if (userSub && shouldFetchUserData.includes(participantType)) {
     const { Item: UserItem = {} } = await getUser(userSub);
     ({
       avatar,
@@ -213,6 +218,53 @@ export const isUserInStage = async (stageId: string, userSub: string) => {
   return participants.some(
     ({ state }) => state === PARTICIPANT_CONNECTION_STATES.CONNECTED
   );
+};
+
+const getNumberOfParticipantsInStage = (
+  participants: ParticipantSummary[] | undefined
+) => {
+  if (!participants) return 0;
+
+  const participantList = new Set();
+  const participantIds = new Map();
+
+  for (const participant of participants) {
+    const { participantId } = participant;
+    if (!participantIds.has(participantId)) {
+      participantIds.set(participantId, true);
+      participantList.add(participant);
+    }
+  }
+
+  return participantList.size;
+};
+
+export const shouldAllowParticipantToJoin = async (stageId: string) => {
+  const { stage } = await getStage(stageId);
+  const stageArn = buildStageArn(stageId);
+  const { participants } = await listParticipants({
+    stageArn,
+    sessionId: stage?.activeSessionId,
+    filterByPublished: true
+  });
+
+  const isHostInStage = participants?.find(
+    (participant) =>
+      participant.userId?.includes(PARTICIPANT_USER_TYPES.HOST) &&
+      participant.state === STAGE_CONNECTION_STATES.CONNECTED
+  );
+
+  if (!isHostInStage) {
+    const numberOfParticipantInStage =
+      getNumberOfParticipantsInStage(participants);
+
+    // save the last spot for the host
+    if (numberOfParticipantInStage >= 11) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 export const validateRequestParams = (...requestParams: string[]) => {

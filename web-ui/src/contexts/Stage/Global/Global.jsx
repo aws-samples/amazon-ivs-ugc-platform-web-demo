@@ -45,7 +45,8 @@ export const Provider = ({ children }) => {
     isCreatingStage,
     error,
     success,
-    isBlockingRoute
+    isBlockingRoute,
+    isChannelStagePlayerMuted
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -86,6 +87,7 @@ export const Provider = ({ children }) => {
       // State
       error,
       isBlockingRoute,
+      isChannelStagePlayerMuted,
       isCreatingStage,
       isSpectator,
       isStageActive,
@@ -120,38 +122,39 @@ export const Provider = ({ children }) => {
       shouldDisableStageButtonWithDelay
     };
   }, [
+    addParticipant,
+    animateCollapseStageContainerWithDelay,
+    animationCollapseStageControlsStart,
+    collaborateButtonAnimationControls,
     creatingStage,
     error,
     isBlockingRoute,
+    isChannelStagePlayerMuted,
     isCreatingStage,
     isSpectator,
     isStageActive,
     localParticipant,
     participants,
-    stageId,
-    addParticipant,
     removeParticipant,
     resetParticipants,
     resetStageState,
+    shouldAnimateGoLiveButtonChevronIcon,
+    shouldDisableStageButtonWithDelay,
+    stageId,
     strategy,
     success,
     toggleCameraState,
     toggleMicrophoneState,
+    updateAnimateCollapseStageContainerWithDelay,
     updateError,
     updateIsBlockingRoute,
     updateIsSpectator,
     updateParticipant,
-    updateStageId,
-    updateStreams,
-    updateSuccess,
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
-    animateCollapseStageContainerWithDelay,
-    shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay
+    updateStageId,
+    updateStreams,
+    updateSuccess
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

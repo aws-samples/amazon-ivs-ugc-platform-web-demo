@@ -89,3 +89,9 @@ export const updateIsSpectator = (bool) => ({
 export const resetParticipants = () => ({
   type: actionTypes.RESET_PARTICIPANTS
 });
+
+// Channel page
+export const updateIsChannelStagePlayerMuted = (bool) => ({
+  type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,
+  payload: bool
+});
