@@ -4,6 +4,7 @@ import { graphqlOperation, API } from '@aws-amplify/api';
 
 import { publishDoc, subscribeDoc } from './graphql';
 import useContextHook from '../useContextHook';
+import { useUser } from '../User';
 
 const Context = createContext(null);
 Context.displayName = 'AppSync';
@@ -32,14 +33,16 @@ export const Provider = ({ children }) => {
     });
   }, []);
 
+  const { userData } = useUser();
   useEffect(() => {
-    // console.log('userData.username ==>', userData?.username)
-    const subscription = subscribe('/channel', ({ data }) => {
-      // TODO: Published events to your channel will be processed here
-      console.log('Event published to your channel ==>', data);
+    if (!userData?.username) return;
+
+    const channel = userData?.username;
+    const subscription = subscribe(channel, ({ data }) => {
+      const messageReceived = JSON.parse(data);
     });
     return () => subscription.unsubscribe();
-  }, [subscribe]);
+  }, [subscribe, userData?.username]);
 
   const value = useMemo(
     () => ({

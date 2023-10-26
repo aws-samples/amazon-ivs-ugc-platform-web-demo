@@ -503,13 +503,34 @@ export class ChannelsStack extends NestedStack {
       }
     });
 
-    // Add AppSync GraphQL API
+    // Create AppSync GraphQL API
     const authType = 'API_KEY'
 
     const api = new appsync.CfnGraphQLApi(this, 'ChannelApi', {
       name: 'channel-api',
       authenticationType: authType
     })
+
+    const noneDataSource = new appsync.CfnDataSource(this, 'NoneDataSource', {
+      apiId: api.attrApiId,
+      name: 'NoneDataSourceName',
+      type: 'NONE',
+    });
+
+    new appsync.CfnResolver(this, 'PublishMutationResolver', {
+      apiId: api.attrApiId,
+      typeName: 'Mutation',
+      fieldName: 'publish',
+      dataSourceName: noneDataSource.name,
+      requestMappingTemplate: `{
+        "version": "2017-02-28",
+        "payload": {
+          "name": $util.toJson($context.arguments.name),
+          "data": $util.toJson($context.arguments.data)
+        }
+      }`,
+      responseMappingTemplate: `$util.toJson($context.result)`,
+    });
 
     const apiKey = new appsync.CfnApiKey(this, 'ChannelApiKey', {
       apiId: api.attrApiId,

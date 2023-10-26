@@ -1,16 +1,17 @@
-type Message {
+type Channel {
 	name: String!
 	data: AWSJSON!
 }
 
 type Mutation {
-	publish(name: String!, data: AWSJSON!): Message
+	publish(name: String!, data: AWSJSON!): Channel
 }
 
 type Query {
-  # An empty query type with no fields
+  # CDK deployment will fail without it.
 }
 
 type Subscription {
-	subscribe(name: String!): Message
+	subscribe(name: String!): Channel
+		@aws_subscribe(mutations: ["publish"])
 }
