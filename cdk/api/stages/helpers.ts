@@ -65,7 +65,9 @@ export type ParticipantType =
 
 const client = new IVSRealTimeClient({});
 
-const extractStageIdfromStageArn = (userStageArn: string | undefined) => {
+export const extractStageIdfromStageArn = (
+  userStageArn: string | undefined
+) => {
   if (!userStageArn) return '';
   return userStageArn.split(USER_STAGE_ID_SEPARATOR)[1];
 };
