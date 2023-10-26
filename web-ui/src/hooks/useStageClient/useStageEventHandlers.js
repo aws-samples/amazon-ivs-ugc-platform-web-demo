@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 
-import { createUserJoinedSuccessMessage } from '../../../helpers/stagesHelpers';
-import { useGlobalStage } from '../../../contexts/Stage';
-import { stagesAPI } from '../../../api';
-import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
+import { useGlobalStage } from '../../contexts/Stage';
+import { stagesAPI } from '../../api';
+import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
 
 const {
   StageEvents,
@@ -125,7 +125,7 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     if (state === StageConnectionState.DISCONNECTED) {
       if (isHost.current) {
         // Does not execute on Firefox
-        await stagesAPI.disconnectFromStage();
+        await stagesAPI.sendHostDisconnectMessage();
 
         isHost.current = false;
       }

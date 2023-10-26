@@ -11,7 +11,7 @@ import {
   TOO_MANY_REQUESTS_EXCEPTION,
   UNEXPECTED_EXCEPTION
 } from '../shared/constants';
-import { UserContext } from '../channel/authorizer';
+import { UserContext } from '../shared/authorizer';
 
 interface GetProductsQuerystring {
   sort?: string;

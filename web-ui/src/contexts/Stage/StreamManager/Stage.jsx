@@ -27,7 +27,7 @@ import { useStreams } from '../../Streams';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
-import useStageClient from '../../../pages/StreamManager/hooks/useStageClient';
+import useStageClient from '../../../hooks/useStageClient';
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
 
@@ -278,16 +278,17 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       });
     }
   }, [
-    localParticipant,
+    broadcastDevicesStateObjRef,
     leaveStageClient,
+    localParticipant,
+    navigate,
     refreshChannelData,
-    updateIsBlockingRoute,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
     resetStage,
     stageIdUrlParam,
-    navigate,
-    updateError
+    updateAnimateCollapseStageContainerWithDelay,
+    updateError,
+    updateIsBlockingRoute,
+    updateShouldAnimateGoLiveButtonChevronIcon
   ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =

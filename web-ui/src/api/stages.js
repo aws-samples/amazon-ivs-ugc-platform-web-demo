@@ -1,4 +1,9 @@
-import { apiBaseUrl, authFetch } from './utils';
+import { apiBaseUrl, authFetch, unauthFetch } from './utils';
+
+export const getSpectatorToken = async (stageId) =>
+  await unauthFetch({
+    url: `${apiBaseUrl}/stages/createSpectatorToken/${stageId}`
+  });
 
 export const createStage = async () =>
   await authFetch({
@@ -16,10 +21,10 @@ export const getParticipationToken = async (stageId, participantType) =>
     url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}/${participantType}`
   });
 
-export const disconnectFromStage = async () => {
+export const sendHostDisconnectMessage = async () => {
   await authFetch({
     method: 'POST',
-    url: `${apiBaseUrl}/stages/disconnect`,
+    url: `${apiBaseUrl}/stages/sendHostDisconnectMessage`,
     keepalive: true
   });
 };

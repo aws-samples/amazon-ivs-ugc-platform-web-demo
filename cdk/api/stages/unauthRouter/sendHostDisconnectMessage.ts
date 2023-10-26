@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { UNEXPECTED_EXCEPTION } from '../shared/constants';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 
-type DeleteStageMessageRequestBody = {
+type HostDisconnectMessageRequestBody = {
   stageId?: string;
   stageArn?: string;
   sessionId?: string;
@@ -12,7 +12,7 @@ type DeleteStageMessageRequestBody = {
 const sqsClient = new SQSClient();
 
 const handler = async (
-  request: FastifyRequest<{ Body: DeleteStageMessageRequestBody }>,
+  request: FastifyRequest<{ Body: HostDisconnectMessageRequestBody }>,
   reply: FastifyReply
 ) => {
   const { stageId, sessionId, stageArn, userId } = request.body;

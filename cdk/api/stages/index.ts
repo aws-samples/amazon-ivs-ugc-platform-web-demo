@@ -1,24 +1,14 @@
 import { FastifyPluginAsync } from 'fastify';
-import { fastifyRequestContextPlugin } from '@fastify/request-context';
-import authorizer from '../channel/authorizer';
-import createStage from './createStage';
-import disconnectHost from './disconnectHost';
-import deleteStage from './deleteStage';
-import createParticipantToken from './createParticipantToken';
-import sendDeleteStageMessage from './sendDeleteStageMessage';
+
+import stageAuthRouter from './authRouter';
+import stageUnauthRouter from './unauthRouter';
 
 const router: FastifyPluginAsync = async (resource) => {
-  resource.register(fastifyRequestContextPlugin, { hook: 'preHandler' });
-  resource.addHook('preHandler', authorizer);
+  // Create /stage authenticated resource
+  resource.register(stageAuthRouter);
 
-  resource.get('/create', createStage);
-  resource.get(
-    '/createParticipantToken/:stageId/:participantType',
-    createParticipantToken
-  );
-  resource.put('/delete', deleteStage);
-  resource.post('/disconnect', disconnectHost);
-  resource.post('/sendDeleteStageMessage', sendDeleteStageMessage);
+  // Create /stage unauthenticated resource
+  resource.register(stageUnauthRouter);
 };
 
 export default router;

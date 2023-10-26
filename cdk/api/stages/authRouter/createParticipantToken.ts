@@ -1,16 +1,17 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { UNEXPECTED_EXCEPTION } from '../shared/constants';
-import { UserContext } from '../channel/authorizer';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { UserContext } from '../../shared/authorizer';
 import {
   buildStageArn,
   handleCreateStageParams,
   handleCreateParticipantToken,
   ParticipantType,
   isUserInStage,
+  shouldAllowParticipantToJoin,
   PARTICIPANT_USER_TYPES,
   validateRequestParams
-} from './helpers';
+} from '../helpers';
 
 interface GetParticipantTokenParams {
   stageId: string;
@@ -37,6 +38,13 @@ const handler = async (
     if (participantType === PARTICIPANT_USER_TYPES.HOST) {
       // Check for host presence
       isHostInStage = await isUserInStage(stageId, sub);
+    } else if (participantType === PARTICIPANT_USER_TYPES.INVITED) {
+      const isParticipantAllowedToJoin = await shouldAllowParticipantToJoin(
+        stageId
+      );
+      if (!isParticipantAllowedToJoin) {
+        throw new Error('Stage is at capacity');
+      }
     }
 
     const {

@@ -23,7 +23,7 @@ import {
   updateDynamoItemAttributes,
   updateIngestConfiguration
 } from '../shared/helpers';
-import { UserContext } from '../channel/authorizer';
+import { UserContext } from '../shared/authorizer';
 
 export interface GetStreamSessionResponseBody {
   channel: { type: ChannelType };

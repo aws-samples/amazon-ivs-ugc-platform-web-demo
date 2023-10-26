@@ -1,21 +1,21 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 
 import useStageEventHandlers from './useStageEventHandlers';
-import { useGlobalStage } from '../../../contexts/Stage';
-import { apiBaseUrl } from '../../../api/utils';
-import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+import { apiBaseUrl } from '../../api/utils';
+import { noop } from '../../utils';
+import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
+import { useGlobalStage } from '../../contexts/Stage';
 
 const { Stage } = window.IVSBroadcastClient;
 
-const useStageClient = ({ updateSuccess, updateError }) => {
+const useStageClient = ({ updateSuccess } = { updateSuccess: noop }) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
   const { resetParticipants, strategy, resetStageState, localParticipant } =
     useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
-    updateSuccess,
-    updateError
+    updateSuccess
   });
   const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
 
@@ -41,7 +41,7 @@ const useStageClient = ({ updateSuccess, updateError }) => {
   }, [strategy]);
 
   const resetAllStageState = useCallback(
-    ({ omit }) => {
+    ({ omit } = {}) => {
       resetStageState({ omit });
       resetParticipants();
     },
@@ -55,7 +55,7 @@ const useStageClient = ({ updateSuccess, updateError }) => {
           setTimeout(() => {
             if (isHost) {
               navigator.sendBeacon(
-                `${apiBaseUrl}/stages/sendHostDisconnectMessage`
+                `${apiBaseUrl}/stages/sendDeleteStageMessage`
               );
             }
 

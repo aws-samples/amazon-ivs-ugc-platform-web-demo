@@ -13,10 +13,11 @@ import { useGlobalStage } from '../../../../../contexts/Stage';
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
   GO_LIVE: 'golive',
-  FULL_SCREEN: 'fullscreen'
+  FULL_SCREEN: 'fullscreen',
+  CHANNEL: 'channel'
 };
 
-const StageVideoFeeds = ({ type }) => {
+const StageVideoFeeds = ({ styles, type }) => {
   const { participants } = useGlobalStage();
   const {
     isFullScreenViewOpen,
@@ -29,6 +30,15 @@ const StageVideoFeeds = ({ type }) => {
   const { parentRef: containerRef } = useCalculatedAspectRatio({
     childRef: stageVideoFeedsRef
   });
+  const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
+
+  let gridItemCountClasses =
+    participantSize > 2
+      ? `grid-${participantSize}`
+      : ['grid-rows-1', 'grid-cols-2'];
+  if (isChannelType) {
+    gridItemCountClasses = `grid-${participantSize}`;
+  }
 
   return (
     <div
@@ -42,7 +52,8 @@ const StageVideoFeeds = ({ type }) => {
         'relative',
         'rounded-xl',
         'w-full',
-        isFullScreenViewOpen && 'min-h-[200px]'
+        (isFullScreenViewOpen || isChannelType) && 'min-h-[200px]',
+        styles
       ])}
       ref={containerRef}
     >
@@ -58,10 +69,8 @@ const StageVideoFeeds = ({ type }) => {
           'overflow-hidden',
           'top-1/2',
           'w-full',
-          isFullScreenViewOpen ? 'gap-4' : 'gap-1',
-          participantSize > 2
-            ? `grid-${participantSize}`
-            : ['grid-rows-1', 'grid-cols-2'],
+          isFullScreenViewOpen || isChannelType ? 'gap-4' : 'gap-1',
+          gridItemCountClasses,
           dimensionClasses
         ])}
       >
@@ -73,13 +82,20 @@ const StageVideoFeeds = ({ type }) => {
             className={clsm([participantSize > 2 && `slot-${index + 1}`])}
           />
         ))}
-        {participantSize <= 1 && <InviteParticipant type={type} />}
+        {!isChannelType && participantSize <= 1 && (
+          <InviteParticipant type={type} />
+        )}
       </motion.div>
     </div>
   );
 };
 
+StageVideoFeeds.defaultProps = {
+  styles: ''
+};
+
 StageVideoFeeds.propTypes = {
+  styles: PropTypes.string,
   type: PropTypes.oneOf(Object.values(STAGE_VIDEO_FEEDS_TYPES)).isRequired
 };
 

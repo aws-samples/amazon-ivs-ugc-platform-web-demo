@@ -19,7 +19,7 @@ import {
 } from '../shared/helpers';
 import { getUser, getUserByUsername } from '../channel/helpers';
 import { StreamSessionDbRecord } from '../shared/helpers';
-import authorizer from '../channel/authorizer';
+import authorizer from '../shared/authorizer';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;

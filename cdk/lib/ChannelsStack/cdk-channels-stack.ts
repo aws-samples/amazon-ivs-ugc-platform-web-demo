@@ -17,6 +17,7 @@ import {
   Stack,
   SecretValue
 } from 'aws-cdk-lib';
+import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
@@ -47,6 +48,11 @@ export class ChannelsStack extends NestedStack {
     userPoolId: string;
     channelsTable: dynamodb.Table;
     productApiSecretName: string;
+    appSyncGraphQlApi: {
+      apiKey: string;
+      endpoint: string;
+      authType: string;
+    };
   };
   public readonly policies: iam.PolicyStatement[];
 
@@ -407,7 +413,9 @@ export class ChannelsStack extends NestedStack {
         'ivs:CreateStage',
         'ivs:CreateStreamKey',
         'ivs:DeleteChannel',
+        'ivs:DeleteStage',
         'ivs:DeleteStreamKey',
+        'ivs:GetStage',
         'ivs:PutMetadata',
         'ivs:StopStream',
         'ivs:TagResource'
@@ -551,12 +559,31 @@ export class ChannelsStack extends NestedStack {
       }
     });
 
+    // Add AppSync GraphQL API
+    const authType = 'API_KEY'
+
+    const api = new appsync.CfnGraphQLApi(this, 'ChannelGraphQLApi', {
+      name: `${nestedStackName}-Channel-GraphQL-Api`,
+      authenticationType: authType
+    })
+
+    const apiKey = new appsync.CfnApiKey(this, 'ChannelGraphQLApiKey', {
+      apiId: api.attrApiId,
+    });
+
+    const appSyncGraphQlApi = {
+      apiKey: apiKey.attrApiKey,
+      endpoint: api.attrGraphQlUrl,
+      authType
+    }
+
     // Stack Outputs
     this.outputs = {
       userPoolClientId: userPoolClient.userPoolClientId,
       userPoolId: userPool.userPoolId,
       channelsTable,
-      productApiSecretName: productApiSecret.secretName
+      productApiSecretName: productApiSecret.secretName,
+      appSyncGraphQlApi
     };
   }
 }
