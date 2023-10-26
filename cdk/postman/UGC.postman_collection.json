@@ -1,935 +1,1118 @@
 {
-  "info": {
-    "_postman_id": "6d1e7d79-3943-45a0-bb3f-e4ad0e04816f",
-    "name": "UGC",
-    "description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "2715579"
-  },
-  "item": [
-    {
-      "name": "Channel",
-      "item": [
-        {
-          "name": "Products",
-          "description": "This folder provides operations used to retrieve products from the Product Advertising API",
-          "item": [
-            {
-              "name": "/products",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{apiBaseUrl}}/products/:keyword",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["products", ":keyword"],
-                  "query": [
-                    {
-                      "key": "page",
-                      "value": "1"
-                    },
-                    {
-                      "key": "sort",
-                      "value": "Featured"
-                    }
-                  ],
-                  "variable": [
-                    {
-                      "key": "keyword",
-                      "value": "Avengers"
-                    }
-                  ]
-                },
-                "description": "This endpoint fetches a list of products."
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Chat",
-          "item": [
-            {
-              "name": "/channel/chatToken/create",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "const { token: privateToken } = JSON.parse(responseBody);",
-                      "",
-                      "if (privateToken) {",
-                      "    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
-                      "}"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "",
-                    "value": "",
-                    "type": "text",
-                    "disabled": true
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/chatToken/create",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "chatToken", "create"]
-                },
-                "description": "This endpoint will generate an IVS chat room token that can be used to establish a connection with the Amazon IVS Chat Messaging API. Specifically, the token can connect a user to an IVS chat room, whether that be their own chat room or that of another user's.\n\nIf the token is not used to establish a connection before the expiration time lapses, the token becomes invalid. Tokens are valid for one minute from the time of creation and can only be used one time to establish a connection.\n\nThe established connection, or \"session\", remains active for 60 minutes, at which point it is automatically terminated by the Amazon IVS Chat Messaging API. Once the session expires, a new token must be generated to establish a new connection.\n\nThe generated token can have a set of capabilities associated with it, providing it with certain permissions. The permission to view messages is implicitly provided with all generated tokens.\n\nIf a **valid** access token is provided with the request, then the token will be generated with the SEND_MESSAGE capability. In the instance that the token corresponds to the user's own chat room, additional DELETE_MESSAGE and DISCONNECT_USER moderation capabilities are attached to the token.\n\nIf no access token is provided with the request, then the token will be generated with no additional permissions other than the implicit permission to view messages."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/ban",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/ban",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "ban"]
-                },
-                "description": "This endpoint is used to ban a user from a channel.\n\nOnce a user is banned from a channel, they are immediately disconnected from the chat room and an event is broadcasted to all users to delete all messages sent by the banned user to the chat room.\n\nAdditionally, a chat token request made by a banned user will result in a **403 Forbidden** response. Lastly, requests made by a banned user to retrieve channel data are allowed but the response will not include stream-related data (i.e. `isLive` and `playbackUrl` are omitted from the response) in order to prohibit them from watching a livestream on that channel.\n\nNote that a user is not allowed to ban themselves from their own channel."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/unban",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/unban",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "unban"]
-                },
-                "description": "This endpoint is used to unban a user from a channel.\n\nOnce a user is unbanned from a channel, they will be permitted to request chat tokens and retrieve stream-related data (i.e. `isLive` and `playbackUrl`) from the channel info endpoint."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/actions/send",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"metadata\": \"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/actions/send",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "actions", "send"]
-                },
-                "description": "This endpoint is used to send a stream action as a timed metadata event to the user's channel.\n\nSample product action:\n\n```\n\"N4IgdghgtgpiBcIAOAnA9gEwK4GMAuIANCBhHhAqHgJZ4A2ciAymDBANYwoDORJM3HCmpIaaMAhABNNFhQACbnhRtYKAOTd5AMwgA3NMLwxFrDl17FU1HIxAASAEwBWAAx9qUCAHMYAVRQ6SQALPDwkbngAeiiIJGoAOjpDGCgE7iQIWyjPHxgo7mC0AQB+AHcAXgBGV0cAFgAyYOraupAAX3agA\"\n\n```\n\nSample quiz action:\n\n```\n\"N4IgdghgtgpiBcICOBXAlgLxAGhAEwgBcIFQ8UAnItAezAQEYAGXVGAZ0NvsQHUALIgAJ+NFOxhDhACRoBzAO4QKhdkLw0OQ6cooBPIQCMYAGzpyhhGgH4cIAMY0KFGPcIBBMOwUwKASTA8GAAPRlwILx8KdgQAbRAAZRM9Qn5fNHpcAHF9ADNcjI0KO2kUfJMYAAcy3LsAJQgANxgwexMIBRAAXQBfHqA==\"\n\n```\n\nSample celebration action:\n\n```\n\"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
-              },
-              "response": []
-            }
-          ],
-          "description": "This folder provides operations used to manage the user's IVS chat room resource."
-        },
-        {
-          "name": "Settings",
-          "item": [
-            {
-              "name": "/channel/password/reset",
-              "request": {
-                "auth": {
-                  "type": "noauth"
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/password/reset",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "password", "reset"]
-                },
-                "description": "This endpoint starts a forgot password flow, which will send an email to the account holder containing a link to reset their password.\n\nIf the email is not associated with an existing account, no further action is taken."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/username/update",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"newUsername\": \"not{{username}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/username/update",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "username", "update"]
-                },
-                "description": "This endpoint will update the username for a user."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/preferences/update",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "const { avatar, color } = JSON.parse(responseBody);",
-                      "",
-                      "if (avatar) {",
-                      "    pm.environment.set('avatar', avatar);",
-                      "}",
-                      "",
-                      "if (color) {",
-                      "    pm.environment.set('color', color);",
-                      "}"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"avatar\": {\n        \"name\": \"not{{avatar}}\"\n    },\n    \"color\": {\n        \"name\": \"not{{color}}\"\n    }\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/preferences/update",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "preferences", "update"]
-                },
-                "description": "This endpoint is used to update the user's profile preferences, particularly the user's avatar and color values.\n\nWhen updating the user's avatar to a custom upload, the request must include the `previewUrl` and the `uploadDateTime`, which are returned in the response headers by S3 upon successful completion of the upload request.\n\n``` json\n{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": \"https://ugc-channels-channelassets.s3.us-west-2.amazonaws.com/93945bab-7da5-527a-943a-6e83bdedd104/avatar?versionId=GNLD5vkSsU5GPCkdRyfC9VUcZo5ASt7R\",\n        \"uploadDateTime\": \"Wed, 07 Dec 2022 22:27:57 GMT\"\n    }\n}\n\n```"
-              },
-              "response": [
-                {
-                  "name": "Custom Avatar Example",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{apiBaseUrl}}/channel/preferences/update",
-                      "host": ["{{apiBaseUrl}}"],
-                      "path": ["channel", "preferences", "update"]
-                    }
-                  },
-                  "_postman_previewlanguage": "Text",
-                  "header": [],
-                  "cookie": [],
-                  "body": ""
-                },
-                {
-                  "name": "Custom Banner Example",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"banner\": {\n         \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{apiBaseUrl}}/channel/preferences/update",
-                      "host": ["{{apiBaseUrl}}"],
-                      "path": ["channel", "preferences", "update"]
-                    }
-                  },
-                  "_postman_previewlanguage": "Text",
-                  "header": [],
-                  "cookie": [],
-                  "body": ""
-                }
-              ]
-            },
-            {
-              "name": "/channel",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel"]
-                },
-                "description": "This endpoint will delete all of the resources associated with the corresponding user account, along with the Cognito user account itself."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/streamKey/reset",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/streamKey/reset",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "streamKey", "reset"]
-                },
-                "description": "This endpoint will destroy the existing stream key and create a new one."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/assets/presignedPost/create",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "const { url, fields } = JSON.parse(responseBody);",
-                      "",
-                      "if (!url || !fields) return;",
-                      "",
-                      "pm.collectionVariables.set('presignedPostUrl', url);",
-                      "Object.entries(fields).forEach(([key, val]) => {",
-                      "    pm.collectionVariables.set(`presignedPost:${key}`, val);",
-                      "})",
-                      ""
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"assetType\": \"avatar\",\n    \"contentType\": \"image/jpeg\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/assets/imagePresignedPost/create",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "assets", "imagePresignedPost", "create"]
-                },
-                "description": "This endpoint generates a new S3 Presigned Post object that can be used to upload files to the Channel Assets S3 bucket.\n\nThe Presigned Post expires 5 seconds after being generated, and the `Policy` attached to the Post restricts the upload to the provided content type and maximum file size in the request body.\n\nThe `assetType` value in the request body is used as part of the Object key in the Channel Assets bucket and describes the type of channel asset the user wishes to upload (i.e. avatar, banner, etc.). The key is formatted as follows: `/`.\n\nOnce the request returns with the generated Presigned Post, the returned url and forms fields are set to individual Postman collection variables. These collection variables are used in the `uploadToS3` request to pre-fill the form-data body."
-              },
-              "response": []
-            },
-            {
-              "name": "uploadToS3",
-              "request": {
-                "auth": {
-                  "type": "noauth"
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "acl",
-                      "value": "{{presignedPost:acl}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "bucket",
-                      "value": "{{presignedPost:bucket}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "X-Amz-Algorithm",
-                      "value": "{{presignedPost:X-Amz-Algorithm}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "X-Amz-Credential",
-                      "value": "{{presignedPost:X-Amz-Credential}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "X-Amz-Date",
-                      "value": "{{presignedPost:X-Amz-Date}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "X-Amz-Security-Token",
-                      "value": "{{presignedPost:X-Amz-Security-Token}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "key",
-                      "value": "{{presignedPost:key}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "Policy",
-                      "value": "{{presignedPost:Policy}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "X-Amz-Signature",
-                      "value": "{{presignedPost:X-Amz-Signature}}",
-                      "type": "text"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "image/jpeg",
-                      "type": "text"
-                    },
-                    {
-                      "key": "file",
-                      "type": "file",
-                      "src": []
-                    }
-                  ]
-                },
-                "url": {
-                  "raw": "{{presignedPostUrl}}",
-                  "host": ["{{presignedPostUrl}}"]
-                },
-                "description": "This is a pre-filled Presigned Post request that uploads a file to an S3 bucket.\n\nBefore using this endpoint, the user must first run the `/channel/presignedPost/create` request in order to generate the Presigned Post request data (i.e. url and form-data fields). Then, a `Content-Type` form field must be added that matches the MIME type of the file you wish to upload. Finally, a `file` form field must be added as the last element to the form-data body containing the file contents to upload.\n\nSince the Presigned Post is only valid for 5 seconds, it is recommended that you fill out the `Content-Type` and `file` form-data fields prior to making the `/channel/presignedPost/create` request."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/asset",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"assetType\": \"avatar\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/asset",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "asset"]
-                },
-                "description": "This endpoint deletes a channel asset from the Channel Assets S3 bucket and removes the corresponding channel asset data from the DynamoDB Channels table.\n\nIf no upload exists with the provided `assetType`, then a `204` response is returned and no action is taken."
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Following",
-          "item": [
-            {
-              "name": "/channel/followingList/add",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/followingList/add",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "followingList", "add"]
-                },
-                "description": "This endpoint will add a channel to the authorized user's following list.\n\nThe to be followed channel's username is used to add the channel to the following list."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/followingList/remove",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/followingList/remove",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "followingList", "remove"]
-                },
-                "description": "This endpoint will remove a channel from the authorized user's following list.\n\nThe to be followed channel's username is used to remove the channel from the following list."
-              },
-              "response": []
-            },
-            {
-              "name": "/channel/followingList",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{apiBaseUrl}}/channel/followingList",
-                  "host": ["{{apiBaseUrl}}"],
-                  "path": ["channel", "followingList"]
-                },
-                "description": "This endpoint will return the authorized user's following list channel data. Each item consist of the channel data and an `isLive` value that differentiates the live and offline channels.\n\nThe followed live channels are sorted by start time while the followed offline channels are in sorted in order of added time."
-              },
-              "response": []
-            }
-          ],
-          "description": "This folder provides operations used to manage the authorized channel's following list records."
-        },
-        {
-          "name": "/channel/register",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"avatar\": \"{{avatar}}\",\n    \"color\": \"{{color}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{password}}\",\n    \"username\": \"{{username}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{apiBaseUrl}}/channel/register",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["channel", "register"]
-            },
-            "description": "This endpoint creates a new user in the Cognito user pool. This new user will be auto verified in stage `dev`. In stage `prod`, the registration process requires the user to confirm their email."
-          },
-          "response": []
-        },
-        {
-          "name": "/channel/resources/create",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{apiBaseUrl}}/channel/resources/create",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["channel", "resources", "create"]
-            },
-            "description": "This endpoint creates the following resources for the corresponding user account:\n\n*   an IVS channel\n*   a DynamoDB record with the user's account information and channel details\n    \n\nIt should only be called once, particularly when the user first signs in."
-          },
-          "response": []
-        },
-        {
-          "name": "/channel",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const { channelResourceId } = JSON.parse(responseBody);",
-                  "",
-                  "if (channelResourceId) {",
-                  "    pm.environment.set('channelResourceId', channelResourceId);",
-                  "}",
-                  ""
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/channel",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["channel"]
-            },
-            "description": "This endpoint fetches a set of fields stored in the DynamoDB table for the authenticated user.\n\nThe response will contain the `channelResourceId` which is required for other endpoints. Alternatively, Postman will set this variable to your environment after a successful response."
-          },
-          "response": []
-        }
-      ],
-      "description": "This API serves the purpose of creating new users and providing operations to manage their account information and associated AWS resources, such as their IVS channel and chat room resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation. Some endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n\n``` shell\naws cognito-idp initiate-auth --client-id  --auth-parameters USERNAME=,PASSWORD= --auth-flow USER_PASSWORD_AUTH --client-metadata submittedUsername=\n\n```\n\nThis command will give you an `AccessToken`, paste its value in the corresponding environment variable attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id  --username  --confirmation-code \n\n```\n\nYou will find the `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage configuration.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id  --username  --confirmation-code  --password \n\n```\n\nYou will find `confirmation-code` in the confirmation email sent by calling the `/user/password/reset` endpoint.",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Metrics",
-      "item": [
-        {
-          "name": "/metrics/:channelResourceId/streamSessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const { nextToken, streamSessions } = JSON.parse(responseBody);",
-                  "",
-                  "if (streamSessions.length > 0) {",
-                  "  pm.environment.set('streamSessionId', streamSessions[0].streamId);",
-                  "}",
-                  "",
-                  "if (nextToken) {",
-                  "    pm.environment.set('nextToken', nextToken);",
-                  "} else {",
-                  "    pm.environment.set('nextToken', '');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions?nextToken={{nextToken}}",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["metrics", ":channelResourceId", "streamSessions"],
-              "query": [
-                {
-                  "key": "nextToken",
-                  "value": "{{nextToken}}"
-                }
-              ],
-              "variable": [
-                {
-                  "key": "channelResourceId",
-                  "value": "{{channelResourceId}}"
-                }
-              ]
-            },
-            "description": "This endpoint will return a list of all the past and present streams.\n\nEvery stream session object in the list will contain a `streamId` which is required for other endpoints. Alternatively, Postman will set the latest stream's ID to your environment after a successful response."
-          },
-          "response": []
-        },
-        {
-          "name": "/metrics/:channelResourceId/streamSessions/:streamSessionId",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId",
-              "host": ["{{apiBaseUrl}}"],
-              "path": [
-                "metrics",
-                ":channelResourceId",
-                "streamSessions",
-                ":streamSessionId"
-              ],
-              "variable": [
-                {
-                  "key": "channelResourceId",
-                  "value": "{{channelResourceId}}"
-                },
-                {
-                  "key": "streamSessionId",
-                  "value": "{{streamSessionId}}"
-                }
-              ]
-            },
-            "description": "This endpoint gets metadata and CloudWatch metrics data of a specified stream. The metadata includes start and end time, the ingest configuration and the truncated stream events.\n\nThe metrics include the Video Bitrate, the Frame Rate and the average Keyframe Interval will be returned.\n\nThe metrics data will be an array of `FormattedMetricData` objects:\n\n``` typescript\ntype FormattedMetricData = {\n  data: { timestamp: Date; value: number }[];\n  label: string;\n};\n\n```"
-          },
-          "response": []
-        }
-      ],
-      "description": "This API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated Channel endpoints.",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Channels",
-      "item": [
-        {
-          "name": "/channels/:channelOwnerUsername",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/channels/:channelOwnerUsername",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["channels", ":channelOwnerUsername"],
-              "variable": [
-                {
-                  "key": "channelOwnerUsername",
-                  "value": "{{username}}"
-                }
-              ]
-            },
-            "description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
-          },
-          "response": []
-        },
-        {
-          "name": "/channels",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/channels?isLive=true",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["channels"],
-              "query": [
-                {
-                  "key": "isLive",
-                  "value": "true"
-                }
-              ]
-            },
-            "description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Stages",
-      "item": [
-        {
-          "name": "/stages/create",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/stages/create",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["stages", "create"],
-              "query": [],
-              "variable": []
-            },
-            "description": "This endpoint creates a new Amazon IVS Stage."
-          },
-          "response": []
-        },
-        {
-          "name": "/stages/createParticipantToken/:stageId",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/stages/createParticipantToken/:stageId",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["stages", "createParticipantToken", ":stageId"],
-              "query": [],
-              "variable": []
-            },
-            "description": "This endpoint creates a new Amazon IVS Stage participant token."
-          },
-          "response": []
-        },
-        {
-          "name": "/stages/delete",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "url": {
-              "raw": "{{apiBaseUrl}}/stages/delete",
-              "host": ["{{apiBaseUrl}}"],
-              "path": ["stages", "delete"],
-              "query": [],
-              "variable": []
-            },
-            "description": "This endpoint both deletes an Amazon IVS Stage and updates the user's Channel DynamoDB table."
-          },
-          "response": []
-        }
-      ],
-      "description": "This API serves the purpose of creating an Amazon IVS stage and providing the client with a stage id and token to enter the stage."
-    }
-  ],
-  "auth": {
-    "type": "oauth2",
-    "oauth2": [
-      {
-        "key": "grant_type",
-        "value": "password_credentials",
-        "type": "string"
-      },
-      {
-        "key": "headerPrefix",
-        "value": "",
-        "type": "string"
-      },
-      {
-        "key": "tokenType",
-        "value": "",
-        "type": "string"
-      },
-      {
-        "key": "accessToken",
-        "value": "{{accessToken}}",
-        "type": "string"
-      },
-      {
-        "key": "addTokenTo",
-        "value": "header",
-        "type": "string"
-      }
-    ]
-  },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    }
-  ],
-  "variable": [
-    {
-      "key": "presignedPostUrl",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:acl",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:bucket",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:X-Amz-Algorithm",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:X-Amz-Credential",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:X-Amz-Date",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:X-Amz-Security-Token",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:key",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:Policy",
-      "value": ""
-    },
-    {
-      "key": "presignedPost:X-Amz-Signature",
-      "value": ""
-    }
-  ]
+	"info": {
+		"_postman_id": "2b194dd2-111c-46b8-b2fd-3d847ee830da",
+		"name": "UGC",
+		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2715579"
+	},
+	"item": [
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "/products",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/products/:keyword?page=1&sort=Featured",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"products",
+										":keyword"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "sort",
+											"value": "Featured"
+										}
+									],
+									"variable": [
+										{
+											"key": "keyword",
+											"value": "Avengers"
+										}
+									]
+								},
+								"description": "This endpoint fetches a list of products."
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to retrieve products from the Product Advertising API"
+				},
+				{
+					"name": "Chat",
+					"item": [
+						{
+							"name": "/channel/chatToken/create",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { token: privateToken } = JSON.parse(responseBody);",
+											"",
+											"if (privateToken) {",
+											"    pm.environment.set('secureWebSocketProtocolToken', privateToken);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"chatRoomOwnerUsername\": \"{{username}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/chatToken/create",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"chatToken",
+										"create"
+									]
+								},
+								"description": "This endpoint will generate an IVS chat room token that can be used to establish a connection with the Amazon IVS Chat Messaging API. Specifically, the token can connect a user to an IVS chat room, whether that be their own chat room or that of another user's.\n\nIf the token is not used to establish a connection before the expiration time lapses, the token becomes invalid. Tokens are valid for one minute from the time of creation and can only be used one time to establish a connection.\n\nThe established connection, or \"session\", remains active for 60 minutes, at which point it is automatically terminated by the Amazon IVS Chat Messaging API. Once the session expires, a new token must be generated to establish a new connection.\n\nThe generated token can have a set of capabilities associated with it, providing it with certain permissions. The permission to view messages is implicitly provided with all generated tokens.\n\nIf a **valid** access token is provided with the request, then the token will be generated with the SEND_MESSAGE capability. In the instance that the token corresponds to the user's own chat room, additional DELETE_MESSAGE and DISCONNECT_USER moderation capabilities are attached to the token.\n\nIf no access token is provided with the request, then the token will be generated with no additional permissions other than the implicit permission to view messages."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/ban",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/ban",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"ban"
+									]
+								},
+								"description": "This endpoint is used to ban a user from a channel.\n\nOnce a user is banned from a channel, they are immediately disconnected from the chat room and an event is broadcasted to all users to delete all messages sent by the banned user to the chat room.\n\nAdditionally, a chat token request made by a banned user will result in a **403 Forbidden** response. Lastly, requests made by a banned user to retrieve channel data are allowed but the response will not include stream-related data (i.e. `isLive` and `playbackUrl` are omitted from the response) in order to prohibit them from watching a livestream on that channel.\n\nNote that a user is not allowed to ban themselves from their own channel."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/unban",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"bannedChannelArn\": \"{{bannedChannelArn}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/unban",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"unban"
+									]
+								},
+								"description": "This endpoint is used to unban a user from a channel.\n\nOnce a user is unbanned from a channel, they will be permitted to request chat tokens and retrieve stream-related data (i.e. `isLive` and `playbackUrl`) from the channel info endpoint."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/actions/send",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"metadata\": \"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/actions/send",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"actions",
+										"send"
+									]
+								},
+								"description": "This endpoint is used to send a stream action as a timed metadata event to the user's channel.\n\nSample product action:\n\n```\n\"N4IgdghgtgpiBcIAOAnA9gEwK4GMAuIANCBhHhAqHgJZ4A2ciAymDBANYwoDORJM3HCmpIaaMAhABNNFhQACbnhRtYKAOTd5AMwgA3NMLwxFrDl17FU1HIxAASAEwBWAAx9qUCAHMYAVRQ6SQALPDwkbngAeiiIJGoAOjpDGCgE7iQIWyjPHxgo7mC0AQB+AHcAXgBGV0cAFgAyYOraupAAX3agA\"\n\n```\n\nSample quiz action:\n\n```\n\"N4IgdghgtgpiBcICOBXAlgLxAGhAEwgBcIFQ8UAnItAezAQEYAGXVGAZ0NvsQHUALIgAJ+NFOxhDhACRoBzAO4QKhdkLw0OQ6cooBPIQCMYAGzpyhhGgH4cIAMY0KFGPcIBBMOwUwKASTA8GAAPRlwILx8KdgQAbRAAZRM9Qn5fNHpcAHF9ADNcjI0KO2kUfJMYAAcy3LsAJQgANxgwexMIBRAAXQBfHqA==\"\n\n```\n\nSample celebration action:\n\n```\n\"N4IgdghgtgpiBcIDGMA2MBGAnCAXAlgPZggA0IAJnhAqBQK44HEICMADAL6dA===\"\n\n```\n\nCancel any action:\n\n```\n\"{}\"\n\n```"
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to manage the user's IVS chat room resource."
+				},
+				{
+					"name": "Settings",
+					"item": [
+						{
+							"name": "/channel/password/reset",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/password/reset",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"password",
+										"reset"
+									]
+								},
+								"description": "This endpoint starts a forgot password flow, which will send an email to the account holder containing a link to reset their password.\n\nIf the email is not associated with an existing account, no further action is taken."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/username/update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"newUsername\": \"not{{username}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/username/update",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"username",
+										"update"
+									]
+								},
+								"description": "This endpoint will update the username for a user."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/preferences/update",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { avatar, color } = JSON.parse(responseBody);",
+											"",
+											"if (avatar) {",
+											"    pm.environment.set('avatar', avatar);",
+											"}",
+											"",
+											"if (color) {",
+											"    pm.environment.set('color', color);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"avatar\": {\n        \"name\": \"not{{avatar}}\"\n    },\n    \"color\": {\n        \"name\": \"not{{color}}\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/preferences/update",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"preferences",
+										"update"
+									]
+								},
+								"description": "This endpoint is used to update the user's profile preferences, particularly the user's avatar and color values.\n\nWhen updating the user's avatar to a custom upload, the request must include the `previewUrl` and the `uploadDateTime`, which are returned in the response headers by S3 upon successful completion of the upload request.\n\n``` json\n{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": \"https://ugc-channels-channelassets.s3.us-west-2.amazonaws.com/93945bab-7da5-527a-943a-6e83bdedd104/avatar?versionId=GNLD5vkSsU5GPCkdRyfC9VUcZo5ASt7R\",\n        \"uploadDateTime\": \"Wed, 07 Dec 2022 22:27:57 GMT\"\n    }\n}\n\n```"
+							},
+							"response": [
+								{
+									"name": "Custom Avatar Example",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"avatar\": {\n        \"name\": \"custom\",\n        \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{apiBaseUrl}}/channel/preferences/update",
+											"host": [
+												"{{apiBaseUrl}}"
+											],
+											"path": [
+												"channel",
+												"preferences",
+												"update"
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Custom Banner Example",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"banner\": {\n         \"previewUrl\": {{previewUrl}},\n        \"uploadDateTime\": {{uploadDateTime}}\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{apiBaseUrl}}/channel/preferences/update",
+											"host": [
+												"{{apiBaseUrl}}"
+											],
+											"path": [
+												"channel",
+												"preferences",
+												"update"
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "/channel",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel"
+									]
+								},
+								"description": "This endpoint will delete all of the resources associated with the corresponding user account, along with the Cognito user account itself."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/streamKey/reset",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/streamKey/reset",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"streamKey",
+										"reset"
+									]
+								},
+								"description": "This endpoint will destroy the existing stream key and create a new one."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/assets/presignedPost/create",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const { url, fields } = JSON.parse(responseBody);",
+											"",
+											"if (!url || !fields) return;",
+											"",
+											"pm.collectionVariables.set('presignedPostUrl', url);",
+											"Object.entries(fields).forEach(([key, val]) => {",
+											"    pm.collectionVariables.set(`presignedPost:${key}`, val);",
+											"})",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"assetType\": \"avatar\",\n    \"contentType\": \"image/jpeg\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/assets/imagePresignedPost/create",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"assets",
+										"imagePresignedPost",
+										"create"
+									]
+								},
+								"description": "This endpoint generates a new S3 Presigned Post object that can be used to upload files to the Channel Assets S3 bucket.\n\nThe Presigned Post expires 5 seconds after being generated, and the `Policy` attached to the Post restricts the upload to the provided content type and maximum file size in the request body.\n\nThe `assetType` value in the request body is used as part of the Object key in the Channel Assets bucket and describes the type of channel asset the user wishes to upload (i.e. avatar, banner, etc.). The key is formatted as follows: `/`.\n\nOnce the request returns with the generated Presigned Post, the returned url and forms fields are set to individual Postman collection variables. These collection variables are used in the `uploadToS3` request to pre-fill the form-data body."
+							},
+							"response": []
+						},
+						{
+							"name": "uploadToS3",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "acl",
+											"value": "{{presignedPost:acl}}",
+											"type": "text"
+										},
+										{
+											"key": "bucket",
+											"value": "{{presignedPost:bucket}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Algorithm",
+											"value": "{{presignedPost:X-Amz-Algorithm}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Credential",
+											"value": "{{presignedPost:X-Amz-Credential}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Date",
+											"value": "{{presignedPost:X-Amz-Date}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Security-Token",
+											"value": "{{presignedPost:X-Amz-Security-Token}}",
+											"type": "text"
+										},
+										{
+											"key": "key",
+											"value": "{{presignedPost:key}}",
+											"type": "text"
+										},
+										{
+											"key": "Policy",
+											"value": "{{presignedPost:Policy}}",
+											"type": "text"
+										},
+										{
+											"key": "X-Amz-Signature",
+											"value": "{{presignedPost:X-Amz-Signature}}",
+											"type": "text"
+										},
+										{
+											"key": "Content-Type",
+											"value": "image/jpeg",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{presignedPostUrl}}",
+									"host": [
+										"{{presignedPostUrl}}"
+									]
+								},
+								"description": "This is a pre-filled Presigned Post request that uploads a file to an S3 bucket.\n\nBefore using this endpoint, the user must first run the `/channel/presignedPost/create` request in order to generate the Presigned Post request data (i.e. url and form-data fields). Then, a `Content-Type` form field must be added that matches the MIME type of the file you wish to upload. Finally, a `file` form field must be added as the last element to the form-data body containing the file contents to upload.\n\nSince the Presigned Post is only valid for 5 seconds, it is recommended that you fill out the `Content-Type` and `file` form-data fields prior to making the `/channel/presignedPost/create` request."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/asset",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"assetType\": \"avatar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/asset",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"asset"
+									]
+								},
+								"description": "This endpoint deletes a channel asset from the Channel Assets S3 bucket and removes the corresponding channel asset data from the DynamoDB Channels table.\n\nIf no upload exists with the provided `assetType`, then a `204` response is returned and no action is taken."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Following",
+					"item": [
+						{
+							"name": "/channel/followingList/add",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList/add",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList",
+										"add"
+									]
+								},
+								"description": "This endpoint will add a channel to the authorized user's following list.\n\nThe to be followed channel's username is used to add the channel to the following list."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/followingList/remove",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"followedUsername\": \"{{followedUsername}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList/remove",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList",
+										"remove"
+									]
+								},
+								"description": "This endpoint will remove a channel from the authorized user's following list.\n\nThe to be followed channel's username is used to remove the channel from the following list."
+							},
+							"response": []
+						},
+						{
+							"name": "/channel/followingList",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{apiBaseUrl}}/channel/followingList",
+									"host": [
+										"{{apiBaseUrl}}"
+									],
+									"path": [
+										"channel",
+										"followingList"
+									]
+								},
+								"description": "This endpoint will return the authorized user's following list channel data. Each item consist of the channel data and an `isLive` value that differentiates the live and offline channels.\n\nThe followed live channels are sorted by start time while the followed offline channels are in sorted in order of added time."
+							},
+							"response": []
+						}
+					],
+					"description": "This folder provides operations used to manage the authorized channel's following list records."
+				},
+				{
+					"name": "/channel/register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"avatar\": \"{{avatar}}\",\n    \"color\": \"{{color}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{password}}\",\n    \"username\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/channel/register",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"channel",
+								"register"
+							]
+						},
+						"description": "This endpoint creates a new user in the Cognito user pool. This new user will be auto verified in stage `dev`. In stage `prod`, the registration process requires the user to confirm their email."
+					},
+					"response": []
+				},
+				{
+					"name": "/channel/resources/create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/channel/resources/create",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"channel",
+								"resources",
+								"create"
+							]
+						},
+						"description": "This endpoint creates the following resources for the corresponding user account:\n\n*   an IVS channel\n*   a DynamoDB record with the user's account information and channel details\n    \n\nIt should only be called once, particularly when the user first signs in."
+					},
+					"response": []
+				},
+				{
+					"name": "/channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { channelResourceId } = JSON.parse(responseBody);",
+									"",
+									"if (channelResourceId) {",
+									"    pm.environment.set('channelResourceId', channelResourceId);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/channel",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"channel"
+							]
+						},
+						"description": "This endpoint fetches a set of fields stored in the DynamoDB table for the authenticated user.\n\nThe response will contain the `channelResourceId` which is required for other endpoints. Alternatively, Postman will set this variable to your environment after a successful response."
+					},
+					"response": []
+				}
+			],
+			"description": "This API serves the purpose of creating new users and providing operations to manage their account information and associated AWS resources, such as their IVS channel and chat room resources.\n\nSome of the operations in this API are supplemented by the [Cognito Identity SDK](https://www.npmjs.com/package/amazon-cognito-identity-js), which we use on the frontend.\n\nYou'll find more information about each endpoint in its corresponding documentation. Some endpoints require the use of an Access Token, which you will get after signing in a user, either by using the Cognito Identity SDK or by using the AWS CLI command provided below.\n\n### Helper Commands\n\nThe following commands are provided for convenience if you want to make API requests without using the Cognito Identity SDK. You will get the Cognito client ID as part of the output of the stack.\n\n#### Authenticate the newly created user\n\n``` shell\naws cognito-idp initiate-auth --client-id  --auth-parameters USERNAME=,PASSWORD= --auth-flow USER_PASSWORD_AUTH --client-metadata submittedUsername=\n\n```\n\nThis command will give you an `AccessToken`, paste its value in the corresponding environment variable attached to this collection.\n\n#### Verify the email for a newly registered user\n\n``` shell\naws cognito-idp confirm-sign-up --client-id  --username  --confirmation-code \n\n```\n\nYou will find the `confirmation-code` in the confirmation email sent upon registration. This is only required when you deploy the stack with the `prod` stage configuration.\n\n#### Completing a forgot password flow\n\n``` shell\naws cognito-idp confirm-forgot-password --client-id  --username  --confirmation-code  --password \n\n```\n\nYou will find `confirmation-code` in the confirmation email sent by calling the `/user/password/reset` endpoint.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Metrics",
+			"item": [
+				{
+					"name": "/metrics/:channelResourceId/streamSessions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { nextToken, streamSessions } = JSON.parse(responseBody);",
+									"",
+									"if (streamSessions.length > 0) {",
+									"  pm.environment.set('streamSessionId', streamSessions[0].streamId);",
+									"}",
+									"",
+									"if (nextToken) {",
+									"    pm.environment.set('nextToken', nextToken);",
+									"} else {",
+									"    pm.environment.set('nextToken', '');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions?nextToken={{nextToken}}",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"metrics",
+								":channelResourceId",
+								"streamSessions"
+							],
+							"query": [
+								{
+									"key": "nextToken",
+									"value": "{{nextToken}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "channelResourceId",
+									"value": "{{channelResourceId}}"
+								}
+							]
+						},
+						"description": "This endpoint will return a list of all the past and present streams.\n\nEvery stream session object in the list will contain a `streamId` which is required for other endpoints. Alternatively, Postman will set the latest stream's ID to your environment after a successful response."
+					},
+					"response": []
+				},
+				{
+					"name": "/metrics/:channelResourceId/streamSessions/:streamSessionId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/metrics/:channelResourceId/streamSessions/:streamSessionId",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"metrics",
+								":channelResourceId",
+								"streamSessions",
+								":streamSessionId"
+							],
+							"variable": [
+								{
+									"key": "channelResourceId",
+									"value": "{{channelResourceId}}"
+								},
+								{
+									"key": "streamSessionId",
+									"value": "{{streamSessionId}}"
+								}
+							]
+						},
+						"description": "This endpoint gets metadata and CloudWatch metrics data of a specified stream. The metadata includes start and end time, the ingest configuration and the truncated stream events.\n\nThe metrics include the Video Bitrate, the Frame Rate and the average Keyframe Interval will be returned.\n\nThe metrics data will be an array of `FormattedMetricData` objects:\n\n``` typescript\ntype FormattedMetricData = {\n  data: { timestamp: Date; value: number }[];\n  label: string;\n};\n\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "This API serves the purpose of fetching stream related data and CloudWatch metrics.\n\nAll of the endpoints in this API are authenticated using the same Access Token used to call authenticated Channel endpoints.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Channels",
+			"item": [
+				{
+					"name": "/channels/:channelOwnerUsername",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/channels/:channelOwnerUsername",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"channels",
+								":channelOwnerUsername"
+							],
+							"variable": [
+								{
+									"key": "channelOwnerUsername",
+									"value": "{{username}}"
+								}
+							]
+						},
+						"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
+					},
+					"response": []
+				},
+				{
+					"name": "/channels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/channels?isLive=true",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"channels"
+							],
+							"query": [
+								{
+									"key": "isLive",
+									"value": "true"
+								}
+							]
+						},
+						"description": "This unauthenticated endpoint fetches a set of channel-related data fields stored in the DynamoDB User table for the **requested** channel owner.\n\nIf the requesting user, or \"viewer\", is banned from the channel, then no stream-related data is returned as part of the response (i.e. `isLive` and `playbackUrl` are omitted from the response)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stages",
+			"item": [
+				{
+					"name": "/stages/create",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/create",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"create"
+							]
+						},
+						"description": "This endpoint creates a new Amazon IVS Stage."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/createParticipantToken/:stageId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/createParticipantToken/:stageId",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"createParticipantToken",
+								":stageId"
+							],
+							"variable": [
+								{
+									"key": "stageId"
+								}
+							]
+						},
+						"description": "This endpoint creates a new Amazon IVS Stage participant token."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/delete",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/delete",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"delete"
+							]
+						},
+						"description": "This endpoint both deletes an Amazon IVS Stage and updates the user's Channel DynamoDB table."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/createSpectatorToken",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/createSpectatorToken/:stageId",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"createSpectatorToken",
+								":stageId"
+							],
+							"variable": [
+								{
+									"key": "stageId",
+									"value": ""
+								}
+							]
+						},
+						"description": "This unauthenticated endpoint fetches a AWS IVS real-time participant token. The token is for a spectator partipant type that can view a real-time stream on the UGC channel page."
+					},
+					"response": []
+				}
+			],
+			"description": "This API serves the purpose of creating an Amazon IVS stage and providing the client with a stage id and token to enter the stage."
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "grant_type",
+				"value": "password_credentials",
+				"type": "string"
+			},
+			{
+				"key": "headerPrefix",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "accessToken",
+				"value": "{{accessToken}}",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "presignedPostUrl",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:acl",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:bucket",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:X-Amz-Algorithm",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:X-Amz-Credential",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:X-Amz-Date",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:X-Amz-Security-Token",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:key",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:Policy",
+			"value": ""
+		},
+		{
+			"key": "presignedPost:X-Amz-Signature",
+			"value": ""
+		}
+	]
 }

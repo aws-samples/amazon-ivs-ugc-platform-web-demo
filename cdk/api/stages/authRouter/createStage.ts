@@ -4,16 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   CHANNELS_TABLE_STAGE_FIELDS,
   UNEXPECTED_EXCEPTION
-} from '../shared/constants';
-import { getUser } from '../channel/helpers';
+} from '../../shared/constants';
+import { getUser } from '../../channel/helpers';
 import {
   handleCreateStageParams,
   handleCreateStage,
   PARTICIPANT_USER_TYPES
-} from './helpers';
+} from '../helpers';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { getChannelId, updateDynamoItemAttributes } from '../shared/helpers';
-import { UserContext } from '../channel/authorizer';
+import { getChannelId, updateDynamoItemAttributes } from '../../shared/helpers';
+import { UserContext } from '../../shared/authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {

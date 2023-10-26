@@ -1,4 +1,9 @@
-import { apiBaseUrl, authFetch } from './utils';
+import { apiBaseUrl, authFetch, unauthFetch } from './utils';
+
+export const getSpectatorToken = async (stageId) =>
+  await unauthFetch({
+    url: `${apiBaseUrl}/stages/createSpectatorToken/${stageId}`
+  });
 
 export const createStage = async () =>
   await authFetch({

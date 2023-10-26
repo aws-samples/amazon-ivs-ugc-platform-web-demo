@@ -8,7 +8,7 @@ import {
   StreamSessionDbRecord
 } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 import { getUser } from '../helpers';
 import { buildChannelArn } from '../../metrics/helpers';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';

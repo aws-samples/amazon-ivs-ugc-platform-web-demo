@@ -26,6 +26,9 @@ import VolumeSetting, {
 const Controls = ({
   areControlsContained,
   isFullscreenEnabled,
+  isPlayPauseEnabled,
+  isRenditionSettingEnabled,
+  isVolumeSettingEnabled,
   onClickFullscreenHandler,
   openPopupIds,
   selectedQualityName,
@@ -117,27 +120,31 @@ const Controls = ({
       ])}
     >
       <div className={clsm(['flex', 'space-x-4', 'items-end'])}>
-        <button
-          ref={subscribeOverlayControl}
-          aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
-          className={clsm(
-            CONTROLS_BUTTON_BASE_CLASSES,
-            mobileSVGOpacity,
-            'h-12'
-          )}
-          disabled={isViewerBanned}
-          onClick={onClickPlayPauseHandler}
-        >
-          {isPaused ? <PlaySvg /> : <PauseSvg />}
-        </button>
-        <VolumeSetting
-          className={clsm(mobileSVGOpacity)}
-          isDisabled={isViewerBanned}
-          isExpanded={isVolumeSettingPopupExpanded}
-          setOpenPopupIds={setOpenPopupIds}
-          updateVolume={updateVolume}
-          volumeLevel={volumeLevel}
-        />
+        {isPlayPauseEnabled && (
+          <button
+            ref={subscribeOverlayControl}
+            aria-label={isPaused ? 'Play the stream' : 'Pause the stream'}
+            className={clsm(
+              CONTROLS_BUTTON_BASE_CLASSES,
+              mobileSVGOpacity,
+              'h-12'
+            )}
+            disabled={isViewerBanned}
+            onClick={onClickPlayPauseHandler}
+          >
+            {isPaused ? <PlaySvg /> : <PauseSvg />}
+          </button>
+        )}
+        {isVolumeSettingEnabled && (
+          <VolumeSetting
+            className={clsm(mobileSVGOpacity)}
+            isDisabled={isViewerBanned}
+            isExpanded={isVolumeSettingPopupExpanded}
+            setOpenPopupIds={setOpenPopupIds}
+            updateVolume={updateVolume}
+            volumeLevel={volumeLevel}
+          />
+        )}
       </div>
       <div className="flex space-x-4">
         {isSplitView && !isFullscreenEnabled && !areControlsContained && (
@@ -151,15 +158,17 @@ const Controls = ({
             {isChatVisible ? <ChatOpenSVG /> : <ChatClosedSVG />}
           </button>
         )}
-        <RenditionSetting
-          className={clsm(mobileSVGOpacity)}
-          isDisabled={isViewerBanned}
-          isExpanded={isRenditionSettingPopupExpanded}
-          qualities={qualities}
-          selectedQualityName={selectedQualityName}
-          setOpenPopupIds={setOpenPopupIds}
-          updateQuality={updateQuality}
-        />
+        {isRenditionSettingEnabled && (
+          <RenditionSetting
+            className={clsm(mobileSVGOpacity)}
+            isDisabled={isViewerBanned}
+            isExpanded={isRenditionSettingPopupExpanded}
+            qualities={qualities}
+            selectedQualityName={selectedQualityName}
+            setOpenPopupIds={setOpenPopupIds}
+            updateQuality={updateQuality}
+          />
+        )}
         {!areControlsContained && (
           <button
             ref={subscribeOverlayControl}
@@ -181,6 +190,9 @@ const Controls = ({
 Controls.propTypes = {
   areControlsContained: PropTypes.bool,
   isFullscreenEnabled: PropTypes.bool,
+  isPlayPauseEnabled: PropTypes.bool,
+  isRenditionSettingEnabled: PropTypes.bool,
+  isVolumeSettingEnabled: PropTypes.bool,
   onClickFullscreenHandler: PropTypes.func.isRequired,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedQualityName: PropTypes.string.isRequired,
@@ -189,7 +201,10 @@ Controls.propTypes = {
 
 Controls.defaultProps = {
   areControlsContained: false,
-  isFullscreenEnabled: false
+  isFullscreenEnabled: false,
+  isPlayPauseEnabled: true,
+  isRenditionSettingEnabled: true,
+  isVolumeSettingEnabled: true
 };
 
 export default Controls;

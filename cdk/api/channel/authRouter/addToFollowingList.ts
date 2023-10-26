@@ -14,7 +14,7 @@ import {
   getChannelId
 } from '../../shared/helpers';
 import { getUser, getUserByUsername } from '../helpers';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 export const getFollowingChannelArn = async ({
   reply,

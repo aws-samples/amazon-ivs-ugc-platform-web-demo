@@ -10,9 +10,7 @@ const StatusItemWrapper = ({ isActionable, children, itemButtonProps }) => {
   const defaultClasses = clsm([
     'flex',
     'items-center',
-    'space-x-2',
     'py-1',
-    'px-2',
     'overflow-hidden',
     isStreamHealthPage && 'min-w-[80px]'
   ]);

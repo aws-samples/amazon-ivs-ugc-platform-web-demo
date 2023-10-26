@@ -103,48 +103,55 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsBlockingRoute(bool));
   }, []);
 
+  // Channel page
+  const updateIsChannelStagePlayerMuted = useCallback((bool) => {
+    dispatch(actions.updateIsChannelStagePlayerMuted(bool));
+  }, []);
+
   return useMemo(
     () => ({
       state,
       addParticipant,
+      animationCollapseStageControlsStart,
+      creatingStage,
       removeParticipant,
-      updateParticipant,
       resetParticipants,
+      resetStageState,
       toggleCameraState,
       toggleMicrophoneState,
-      updateIsSpectator,
-      updateStageId,
-      updateShouldDisableStageButtonWithDelay,
-      animationCollapseStageControlsStart,
       updateAnimateCollapseStageContainerWithDelay,
-      updateStreams,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      creatingStage,
       updateError,
-      updateSuccess,
-      resetStageState,
-      updateIsBlockingRoute
+      updateIsBlockingRoute,
+      updateIsChannelStagePlayerMuted,
+      updateIsSpectator,
+      updateParticipant,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      updateShouldDisableStageButtonWithDelay,
+      updateStageId,
+      updateStreams,
+      updateSuccess
     }),
     [
       state,
       addParticipant,
+      animationCollapseStageControlsStart,
+      creatingStage,
       removeParticipant,
-      updateParticipant,
       resetParticipants,
+      resetStageState,
       toggleCameraState,
       toggleMicrophoneState,
-      updateIsSpectator,
-      updateStageId,
-      updateShouldDisableStageButtonWithDelay,
-      animationCollapseStageControlsStart,
       updateAnimateCollapseStageContainerWithDelay,
-      updateStreams,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      creatingStage,
       updateError,
-      updateSuccess,
-      resetStageState,
-      updateIsBlockingRoute
+      updateIsBlockingRoute,
+      updateIsChannelStagePlayerMuted,
+      updateIsSpectator,
+      updateParticipant,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      updateShouldDisableStageButtonWithDelay,
+      updateStageId,
+      updateStreams,
+      updateSuccess
     ]
   );
 };

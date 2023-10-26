@@ -3,10 +3,11 @@ import { injectAuthorizedRequest } from '../../testUtils';
 import userInfo from '../../__mocks__/userInfo.json';
 import { getUser } from '../../channel/helpers';
 import {
+  PARTICIPANT_USER_TYPES,
   handleCreateParticipantToken,
   handleCreateStageParams,
   isUserInStage,
-  validateRequestParams
+  shouldAllowParticipantToJoin
 } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import createStageParamsMock from '../__mocks__/createStageParamsMock.json';
@@ -37,6 +38,8 @@ describe('createParticipantToken controller', () => {
   });
 
   describe('error handling', () => {
+    const mockShouldAllowParticipantToJoin =
+      shouldAllowParticipantToJoin as jest.Mock;
     beforeAll(() => {
       const fetchUser = getUser as jest.Mock;
       const createParticipantToken = handleCreateParticipantToken as jest.Mock;
@@ -127,6 +130,19 @@ describe('createParticipantToken controller', () => {
         server,
         defaultRequestParams
       );
+
+      const { __type: errType } = JSON.parse(response.payload);
+
+      expect(response.statusCode).toBe(500);
+      expect(errType).toBe(UNEXPECTED_EXCEPTION);
+    });
+
+    it('should return an error if host is not in the stage and there is only one spot left in the stage', async () => {
+      mockShouldAllowParticipantToJoin.mockImplementation(() => false);
+      const response = await injectAuthorizedRequest(server, {
+        ...defaultRequestParams,
+        url: `/stages/createParticipantToken/${mockStageId}/${PARTICIPANT_USER_TYPES.INVITED}`
+      });
 
       const { __type: errType } = JSON.parse(response.payload);
 

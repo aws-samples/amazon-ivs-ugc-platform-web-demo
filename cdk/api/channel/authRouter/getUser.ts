@@ -8,7 +8,7 @@ import {
   ResponseBody
 } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   avatar?: string;

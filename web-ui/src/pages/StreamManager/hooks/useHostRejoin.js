@@ -1,8 +1,9 @@
+import { useCallback } from 'react';
+
 import { getParticipationToken } from '../../../api/stages';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useBroadcast } from '../../../contexts/Broadcast';
-import { useCallback } from 'react';
 import { useChannel } from '../../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
