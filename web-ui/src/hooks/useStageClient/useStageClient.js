@@ -13,12 +13,8 @@ const useStageClient = ({
 }) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const {
-    resetParticipants,
-    strategy,
-    resetStageState,
-    localParticipant,
-  } = useGlobalStage();
+  const { resetParticipants, strategy, resetStageState, localParticipant } =
+    useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
