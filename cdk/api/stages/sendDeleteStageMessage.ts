@@ -40,7 +40,8 @@ const handler = async (
 
     const input = {
       QueueUrl: process.env.SQS_DELETE_STAGE_QUEUE_URL,
-      MessageBody: messageBody
+      MessageBody: messageBody,
+      MessageGroupId: stageId
     };
     const command = new SendMessageCommand(input);
     const response = await sqsClient.send(command);

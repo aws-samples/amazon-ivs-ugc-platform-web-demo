@@ -330,6 +330,9 @@ export class ChannelsStack extends NestedStack {
           contentBasedDeduplication: true,
           deliveryDelay: Duration.minutes(3)
         },
+        dlqQueueProps: {
+          fifo: true
+        },
         dlqHandler: {
           entryFunctionName: 'deleteStageDlq',
           description:
