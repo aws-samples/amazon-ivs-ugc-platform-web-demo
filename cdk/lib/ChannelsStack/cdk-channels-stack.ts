@@ -1,4 +1,5 @@
 import {
+  aws_appsync as appsync,
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins as origins,
   aws_cognito as cognito,
@@ -17,7 +18,7 @@ import {
   Stack,
   SecretValue
 } from 'aws-cdk-lib';
-import * as appsync from 'aws-cdk-lib/aws-appsync';
+// import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
@@ -506,23 +507,23 @@ export class ChannelsStack extends NestedStack {
     // Create AppSync GraphQL API
     const authType = 'API_KEY'
 
-    const api = new appsync.CfnGraphQLApi(this, 'ChannelApi', {
-      name: 'channel-api',
+    const api = new appsync.CfnGraphQLApi(this, `${stackNamePrefix}-AppSyncGraphQLChannelApi`, {
+      name: 'ChannelGraphQLApi',
       authenticationType: authType
     })
 
-    const noneDataSource = new appsync.CfnDataSource(this, 'NoneDataSource', {
+    const noneDataSource = new appsync.CfnDataSource(this, `${stackNamePrefix}-AppSyncGraphQLNoneDataSource`, {
       apiId: api.attrApiId,
       name: 'NoneDataSourceName',
       type: 'NONE',
     });
 
-    const schema = new appsync.CfnGraphQLSchema(this, 'ChannelApiSchema', {
+    const schema = new appsync.CfnGraphQLSchema(this, `${stackNamePrefix}-AppSyncGraphQLChannelAPISchema`, {
       apiId: api.attrApiId,
       definition: readFileSync('./lib/ChannelsStack/schema.graphql').toString(),
     });
 
-    const resolver = new appsync.CfnResolver(this, 'PublishMutationResolver', {
+    const resolver = new appsync.CfnResolver(this, `${stackNamePrefix}-AppSyncGraphQLPublishMutationResolver`, {
       apiId: api.attrApiId,
       typeName: 'Mutation',
       fieldName: 'publish',
@@ -540,7 +541,7 @@ export class ChannelsStack extends NestedStack {
     resolver.addDependsOn(schema)
     resolver.addDependsOn(noneDataSource)
 
-    const apiKey = new appsync.CfnApiKey(this, 'ChannelApiKey', {
+    const apiKey = new appsync.CfnApiKey(this, `${stackNamePrefix}-AppSyncGraphQLApiKey`, {
       apiId: api.attrApiId,
     });
 
