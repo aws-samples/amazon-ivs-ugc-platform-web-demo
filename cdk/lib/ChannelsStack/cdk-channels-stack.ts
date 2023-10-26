@@ -296,7 +296,8 @@ export class ChannelsStack extends NestedStack {
         name: `${stackNamePrefix}-DeleteStage`,
         srcHandler: {
           entryFunctionName: 'deleteStage',
-          description: '',
+          description:
+            'Triggered by Amazon SQS when new IVS Real-time session host disconnected event messages arrive in the queue to update channel stage fields to null and delete IVS stage',
           environment: {
             CHANNELS_TABLE_NAME: channelsTable.tableName,
             REGION: region,
@@ -325,12 +326,14 @@ export class ChannelsStack extends NestedStack {
           ]
         },
         srcQueueProps: {
-          deliveryDelay: Duration.minutes(0)
+          fifo: true,
+          contentBasedDeduplication: true,
+          deliveryDelay: Duration.minutes(3)
         },
         dlqHandler: {
-          // TODO: do we need DLQ? Do we need to do anything special when it fails?
           entryFunctionName: 'deleteStageDlq',
-          description: ''
+          description:
+            'Triggered by an Amazon SQS DLQ to handle IVS Real-time session host disconnected event messages consumption failures and to manage the life cycle of unconsumed messages'
         }
       }
     );
