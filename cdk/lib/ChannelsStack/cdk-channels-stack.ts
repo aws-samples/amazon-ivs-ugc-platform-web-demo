@@ -544,7 +544,6 @@ export class ChannelsStack extends NestedStack {
       apiId: api.attrApiId,
     });
 
-
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,
       endpoint: api.attrGraphQlUrl,
