@@ -12,7 +12,11 @@ const {
   StageConnectionState
 } = window.IVSBroadcastClient;
 
-const useStageEventHandlers = ({ client, updateSuccess }) => {
+const useStageEventHandlers = ({
+  client,
+  updateSuccess,
+  stageConnectionErroredEventCallback
+}) => {
   const isHost = useRef(false);
 
   const {
@@ -121,16 +125,23 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
     [strategy, client]
   );
 
-  const handleParticipantConnectionChangedEvent = useCallback(async (state) => {
-    if (state === StageConnectionState.DISCONNECTED) {
-      if (isHost.current) {
-        // Does not execute on Firefox
-        await stagesAPI.disconnectFromStage();
+  const handleParticipantConnectionChangedEvent = useCallback(
+    async (state) => {
+      if (state === StageConnectionState.DISCONNECTED) {
+        if (isHost.current) {
+          // Does not execute on Firefox
+          await stagesAPI.disconnectFromStage();
 
-        isHost.current = false;
+          isHost.current = false;
+        }
       }
-    }
-  }, []);
+
+      if (state === StageConnectionState.ERRORED) {
+        stageConnectionErroredEventCallback();
+      }
+    },
+    [stageConnectionErroredEventCallback]
+  );
 
   const attachStageEvents = useCallback(
     (client) => {
@@ -163,13 +174,13 @@ const useStageEventHandlers = ({ client, updateSuccess }) => {
       );
     },
     [
+      handleParticipantConnectionChangedEvent,
       handleParticipantJoinEvent,
       handleParticipantLeftEvent,
       handleParticipantPublishStateChangedEvent,
       handleParticipantSubscribeStateChangeEvent,
       handlePartipantStreamsAddedEvent,
-      handleStreamMuteChangeEvent,
-      handleParticipantConnectionChangedEvent
+      handleStreamMuteChangeEvent
     ]
   );
 

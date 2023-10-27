@@ -52,6 +52,9 @@
     "copy_link": "Copy link",
     "invite_participant": "Invite participant",
     "notifications": {
+      "neutral": {
+        "the_session_ended": "The session ended"
+      },
       "success": {
         "you_have_left_the_session": "You have left the session",
         "session_link_has_been_copied_to_clipboard": "Session link has been copied to clipboard",

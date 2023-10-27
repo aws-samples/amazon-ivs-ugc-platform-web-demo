@@ -43,7 +43,8 @@ export const Provider = ({ children, previewRef }) => {
     collaborateButtonAnimationControls,
     animationCollapseStageControlsStart,
     updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    shouldCloseFullScreenViewOnHostLeave
   } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
@@ -151,6 +152,16 @@ export const Provider = ({ children, previewRef }) => {
     setIsFullScreenViewOpen(true);
   }, [initializeGoLiveContainerDimensions]);
 
+  const closeFullscreenAndAnimateCollaborateButton = useCallback(async () => {
+    setIsFullScreenViewOpen(false);
+    await collaborateButtonAnimationControls.start({
+      zIndex: 1000,
+      opacity: 1,
+      transition: { duration: 0.45 }
+    });
+    collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+  }, [collaborateButtonAnimationControls]);
+
   useEffect(() => {
     if (!isDesktopView) {
       if (isFullScreenViewOpen) {
@@ -168,6 +179,16 @@ export const Provider = ({ children, previewRef }) => {
     updateShouldAnimateGoLiveButtonChevronIcon,
     isFullScreenViewOpen,
     handleToggleFullscreen
+  ]);
+
+  useEffect(() => {
+    if (!shouldCloseFullScreenViewOnHostLeave) return;
+
+    closeFullscreenAndAnimateCollaborateButton();
+  }, [
+    closeFullscreenAndAnimateCollaborateButton,
+    collaborateButtonAnimationControls,
+    shouldCloseFullScreenViewOnHostLeave
   ]);
 
   const value = useMemo(
@@ -192,7 +213,8 @@ export const Provider = ({ children, previewRef }) => {
       shouldRenderFullScreenCollaborateButton,
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
-      handleOpenFullScreenView
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButton
     }),
     [
       collaborateButtonAnimationControls,
@@ -208,7 +230,8 @@ export const Provider = ({ children, previewRef }) => {
       dimensionClasses,
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
-      handleOpenFullScreenView
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButton
     ]
   );
 
