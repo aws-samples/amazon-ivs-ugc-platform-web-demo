@@ -6,8 +6,10 @@ import {
   createAnimationProps,
   getDefaultBounceTransition
 } from '../../../../helpers/animationPropsHelper';
+import { BREAKPOINTS } from '../../../../constants';
 import { clsm, noop } from '../../../../utils';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds/StageVideoFeeds';
+import { StageControl } from './StageControl';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
@@ -16,10 +18,8 @@ import BroadcastControlWrapper from './BroadcastControl';
 import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
-import StageControl from './StageControl';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
-import { BREAKPOINTS } from '../../../../constants';
 
 const GoLiveContainer = forwardRef(
   ({ isOpen, onCollapse, setIsWebBroadcastAnimating }, previewRef) => {

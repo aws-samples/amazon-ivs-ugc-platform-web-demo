@@ -17,7 +17,28 @@ const PROFILE_COLOR_CLASSNAME_MAPPER = {
   lavender: '@stage-video-lg/video:bg-profile-lavender'
 };
 
-const StageProfilePill = ({ profileColor, avatarSrc, username }) => {
+const MODAL_PROFILE_COLOR_CLASSNAME_MAPPER = {
+  blue: '[&>img]:ring-profile-blue',
+  purple: '[&>img]:ring-profile-purple',
+  yellow: '[&>img]:ring-profile-yellow',
+  green: '[&>img]:ring-profile-green',
+  salmon: '[&>img]:ring-profile-salmon',
+  turquoise: '[&>img]:ring-profile-turquoise',
+  lavender: '[&>img]:ring-profile-lavender'
+};
+
+export const STAGE_PROFILE_TYPES = {
+  FULLSCREEN_VIDEO_FEED: 'fullScreenVideoFeed',
+  PARTICIPANTS_MODAL: 'participantsModal'
+};
+
+const StageProfilePill = ({
+  profileColor,
+  avatarSrc,
+  username,
+  type,
+  className
+}) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
 
   return (
@@ -27,34 +48,41 @@ const StageProfilePill = ({ profileColor, avatarSrc, username }) => {
         '[&>h3]:font-bold',
         '[&>h3]:text-p2',
         '[&>h3]:truncate',
-        '[&>img]:hidden',
         '[&>img]:rounded-full',
-        '@stage-video-lg/video:[&>h3]:drop-shadow-none',
-        '@stage-video-lg/video:[&>img]:block',
-        '@stage-video-lg/video:[&>img]:h-6',
-        '@stage-video-lg/video:[&>img]:w-6',
-        '@stage-video-lg/video:max-w-[120px]',
-        '@stage-video-lg/video:pl-1',
-        '@stage-video-lg/video:pr-2',
-        '@stage-video-lg/video:py-1',
-        '@stage-video-md/video:visible',
-        '@stage-video-xl/video:[&>h3]:font-bold',
-        '@stage-video-xl/video:[&>h3]:text-p1',
-        '@stage-video-xl/video:[&>img]:h-8',
-        '@stage-video-xl/video:[&>img]:w-8',
-        '@stage-video-xl/video:max-w-[168px]',
+        type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+          '[&>img]:hidden',
+          '@stage-video-lg/video:[&>h3]:drop-shadow-none',
+          '@stage-video-lg/video:[&>img]:block',
+          '@stage-video-lg/video:[&>img]:h-6',
+          '@stage-video-lg/video:[&>img]:w-6',
+          '@stage-video-lg/video:max-w-[120px]',
+          '@stage-video-lg/video:pl-1',
+          '@stage-video-lg/video:pr-2',
+          '@stage-video-lg/video:py-1',
+          '@stage-video-md/video:visible',
+          '@stage-video-xl/video:[&>h3]:font-bold',
+          '@stage-video-xl/video:[&>h3]:text-p1',
+          '@stage-video-xl/video:[&>img]:h-8',
+          '@stage-video-xl/video:[&>img]:w-8',
+          '@stage-video-xl/video:max-w-[168px]',
+          'invisible',
+          shouldInvertColors
+            ? '@stage-video-lg/video:text-white'
+            : '@stage-video-lg/video:text-black'
+        ],
         'flex',
         'gap-1',
-        'invisible',
         'items-center',
         'max-w-[80px]',
         'rounded-3xl',
         'text-white',
         'w-auto',
-        shouldInvertColors
-          ? '@stage-video-lg/video:text-white'
-          : '@stage-video-lg/video:text-black',
-        PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+        STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
+          '[&>img]:ring-2',
+          MODAL_PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+        ],
+        PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
+        className
       ])}
     >
       <img src={avatarSrc} alt="" />
@@ -63,10 +91,16 @@ const StageProfilePill = ({ profileColor, avatarSrc, username }) => {
   );
 };
 
+StageProfilePill.defaultProps = {
+  type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
+  className: ''
+};
 StageProfilePill.propTypes = {
   profileColor: PropTypes.string.isRequired,
   avatarSrc: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired
+  username: PropTypes.string.isRequired,
+  type: PropTypes.string,
+  className: PropTypes.string
 };
 
 export default StageProfilePill;

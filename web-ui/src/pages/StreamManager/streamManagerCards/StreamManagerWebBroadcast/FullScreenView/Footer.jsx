@@ -29,7 +29,6 @@ const Footer = () => {
   } = useStreamManagerStage();
   const { collaborateButtonAnimationControls, isCreatingStage } =
     useGlobalStage();
-
   const {
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton

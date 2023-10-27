@@ -2,20 +2,22 @@ import { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { clsm } from '../../../../utils';
-import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { CreateStage, Menu } from '../../../../assets/icons';
-import { streamManager as $content } from '../../../../content';
-import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
-import Button from '../../../../components/Button/Button';
-import Spinner from '../../../../components/Spinner';
-import Tooltip from '../../../../components/Tooltip/Tooltip';
-import { useGlobalStage } from '../../../../contexts/Stage';
-import StageMenu from './StageVideoFeeds/StageMenu';
-import StageControls from './FullScreenView/StageControls';
-import { BREAKPOINTS } from '../../../../constants';
+import { streamManager as $content } from '../../../../../content';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../../contexts/Stage';
+import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import Spinner from '../../../../../components/Spinner';
+import { clsm } from '../../../../../utils';
+import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
+import { CreateStage, Menu } from '../../../../../assets/icons';
+import StageMenu from './StageMenu';
+import { BREAKPOINTS } from '../../../../../constants';
+import Tooltip from '../../../../../components/Tooltip';
+import Button from '../../../../../components/Button';
+import StageControls from '../FullScreenView/StageControls';
 
 const $stageContent = $content.stream_manager_stage;
 const {
@@ -26,6 +28,10 @@ const {
 
 const StageControl = ({ goLiveContainerVideoContainerRef }) => {
   const stageMenuToggleBtnRef = useRef();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const handleToggleStageMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
     useResponsiveDevice();
 
@@ -57,12 +63,6 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
       : $stageContent.collaborate;
 
   let icon;
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleToggleStageMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   if (isCreatingStage) {
     icon = <Spinner variant="light" />;

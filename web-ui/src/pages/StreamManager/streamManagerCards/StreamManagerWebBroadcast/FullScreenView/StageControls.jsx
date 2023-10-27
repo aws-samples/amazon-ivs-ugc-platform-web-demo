@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { motion } from 'framer-motion';
-import { clsm, noop } from '../../../../../utils';
+import { clsm } from '../../../../../utils';
 import { streamManager as $content } from '../../../../../content';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { ANIMATION_DURATION } from '../../../../../contexts/BroadcastFullscreen';
@@ -15,17 +15,26 @@ import {
   useGlobalStage,
   useStreamManagerStage
 } from '../../../../../contexts/Stage';
+import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 
 const $stageContent = $content.stream_manager_stage;
 
 const StageControls = ({ shouldShowCopyLinkText }) => {
   const participantsButtonRef = useRef();
+  const { openModal } = useModal();
   const { isTouchscreenDevice } = useResponsiveDevice();
   const {
     handleCopyJoinParticipantLinkAndNotify,
     shouldDisableCopyLinkButton
   } = useStreamManagerStage();
   const { isStageActive, isHost } = useGlobalStage();
+
+  const handleOpenParticipantsModal = () => {
+    openModal({
+      type: MODAL_TYPE.STAGE_PARTICIPANTS,
+      lastFocusedElement: participantsButtonRef
+    });
+  };
 
   const shouldDisplayInviteParticipantButton = isStageActive && isHost;
 
@@ -67,7 +76,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
               key="stage-participants-control-btn"
               variant="icon"
               ref={participantsButtonRef}
-              onClick={noop}
+              onClick={handleOpenParticipantsModal}
               className={clsm([
                 'w-11',
                 'h-11',
