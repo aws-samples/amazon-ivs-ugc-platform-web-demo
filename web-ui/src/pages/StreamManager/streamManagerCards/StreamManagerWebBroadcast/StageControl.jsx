@@ -1,9 +1,10 @@
+import { useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRef } from 'react';
 
 import { clsm } from '../../../../utils';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { CreateStage, LeaveSession, PersonAdd } from '../../../../assets/icons';
+import { CreateStage, Menu } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
@@ -12,6 +13,9 @@ import Button from '../../../../components/Button/Button';
 import Spinner from '../../../../components/Spinner';
 import Tooltip from '../../../../components/Tooltip/Tooltip';
 import { useGlobalStage } from '../../../../contexts/Stage';
+import StageMenu from './StageVideoFeeds/StageMenu';
+import StageControls from './FullScreenView/StageControls';
+import { BREAKPOINTS } from '../../../../constants';
 
 const $stageContent = $content.stream_manager_stage;
 const {
@@ -20,22 +24,15 @@ const {
   }
 } = $content.stream_manager_stage;
 
-const ANIMATION_TRANSITION = {
-  delay: 0.1,
-  duration: 0.1
-};
-
-const StageControl = () => {
-  const leaveStageButtonRef = useRef();
-
-  const { isTouchscreenDevice, isDesktopView } = useResponsiveDevice();
+const StageControl = ({ goLiveContainerVideoContainerRef }) => {
+  const stageMenuToggleBtnRef = useRef();
+  const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
+    useResponsiveDevice();
 
   const {
     initializeStageClient,
     isStageActive,
     isCreatingStage,
-    handleOnConfirmLeaveStage,
-    handleCopyJoinParticipantLinkAndNotify,
     shouldDisableCollaborateButton,
     hasPermissions,
     shouldDisableCopyLinkButton
@@ -43,8 +40,7 @@ const StageControl = () => {
   const {
     collaborateButtonAnimationControls,
     updateAnimateCollapseStageContainerWithDelay,
-    animateCollapseStageContainerWithDelay,
-    shouldDisableStageButtonWithDelay
+    animateCollapseStageContainerWithDelay
   } = useGlobalStage();
   const { handleToggleFullscreen } = useBroadcastFullScreen();
   const isCollaborateDisabled =
@@ -61,6 +57,12 @@ const StageControl = () => {
       : $stageContent.collaborate;
 
   let icon;
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleToggleStageMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   if (isCreatingStage) {
     icon = <Spinner variant="light" />;
@@ -79,7 +81,27 @@ const StageControl = () => {
             controls: { opacity: 1 }
           })}
         >
-          <PersonAdd />
+          <Menu
+            className={clsm([
+              'dark:fill-white',
+              'fill-white-player',
+              'h-6',
+              'w-6'
+            ])}
+          />
+          <StageMenu
+            containerClasses={clsm(
+              'absolute',
+              'z-10',
+              !isDesktopView || currentBreakpoint === BREAKPOINTS.xxs
+                ? ['right-[87px]', 'bottom-[132px]']
+                : ['bottom-[-66px]', 'right-[118px]']
+            )}
+            isOpen={isMenuOpen}
+            parentEl={goLiveContainerVideoContainerRef.current}
+            toggleBtnRef={stageMenuToggleBtnRef}
+            toggleMenu={handleToggleStageMenu}
+          />
         </motion.div>
       </AnimatePresence>
     ) : (
@@ -106,36 +128,7 @@ const StageControl = () => {
   };
 
   return (
-    <motion.div
-      className={clsm([
-        'grid',
-        'gap-5',
-        'mt-5',
-        'absolute',
-        'right-0',
-        'top-1',
-        'pl-4',
-        'xs:pl-[7px]',
-        'ml-4',
-        'xs:ml-1',
-        'border-l-[1px]',
-        'border-darkMode-gray-medium'
-      ])}
-      {...createAnimationProps({
-        customVariants: {
-          hidden: {
-            height: 36
-          },
-          visible: {
-            height: 'auto',
-            transition: ANIMATION_TRANSITION
-          }
-        },
-        options: {
-          isVisible: animateCollapseStageContainerWithDelay
-        }
-      })}
-    >
+    <motion.div className={clsm(['flex', 'items-center'])}>
       <Tooltip
         key="stage-control-tooltip-collaborate"
         position="above"
@@ -143,102 +136,75 @@ const StageControl = () => {
         message={
           !shouldDisableCollaborateButton &&
           !shouldDisableCopyLinkButton &&
+          !isStageActive &&
           collaborateButtonContent
         }
       >
         <AnimatePresence>
           <motion.div
-            style={{ position: 'inherit' }}
             animate={collaborateButtonAnimationControls}
-          >
-            <Button
-              ariaLabel={collaborateButtonContent}
-              key="create-stage-control-btn"
-              variant="icon"
-              onClick={
-                isStageActive
-                  ? handleCopyJoinParticipantLinkAndNotify
-                  : handleOpenStageFullScreen
-              }
-              isDisabled={isCollaborateDisabled}
-              disableHover={isTouchscreenDevice}
-              className={clsm([
-                '-mt-1',
-                'w-11',
-                'h-11',
-                'dark:[&>svg]:fill-white',
-                '[&>svg]:fill-black',
-                'dark:bg-darkMode-gray',
-                !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                'dark:focus:bg-darkMode-gray',
-                'bg-lightMode-gray'
-              ])}
-            >
-              {icon}
-            </Button>
-          </motion.div>
-        </AnimatePresence>
-      </Tooltip>
-      <AnimatePresence>
-        {animateCollapseStageContainerWithDelay && (
-          <motion.div
+            className={clsm([
+              'border-l-[1px]',
+              'border-darkMode-gray-medium',
+              'pl-3',
+              'mt-1'
+            ])}
             {...createAnimationProps({
-              customVariants: {
-                animations: ['fadeIn-full'],
-                hidden: {
-                  opacity: 0
-                },
-                visible: {
-                  opacity: 1,
-                  transition: ANIMATION_TRANSITION
-                }
+              transition: { type: 'easeInOut', from: 0.6, duration: 0.8 },
+              controls: { opacity: 1 },
+              options: {
+                isVisible: isStageActive
               }
             })}
           >
-            <Tooltip
-              key="stage-control-tooltip-leave"
-              position="above"
-              translate={{ y: 2 }}
-              message={
-                !shouldDisableStageButtonWithDelay &&
-                $stageContent.leave_session
-              }
-            >
+            {!isStageActive ||
+            isDesktopView ||
+            currentBreakpoint === BREAKPOINTS.xxs ? (
               <Button
-                ref={leaveStageButtonRef}
-                ariaLabel={$stageContent.leave_session}
+                ariaLabel={collaborateButtonContent}
+                ref={stageMenuToggleBtnRef}
                 key="create-stage-control-btn"
                 variant="icon"
-                isDisabled={shouldDisableStageButtonWithDelay}
-                onClick={() =>
-                  handleOnConfirmLeaveStage({
-                    lastFocusedElementRef: leaveStageButtonRef
-                  })
+                onClick={
+                  isStageActive
+                    ? handleToggleStageMenu
+                    : handleOpenStageFullScreen
                 }
+                isDisabled={isCollaborateDisabled}
                 disableHover={isTouchscreenDevice}
                 className={clsm([
+                  '-mt-1',
                   'w-11',
                   'h-11',
                   'dark:[&>svg]:fill-white',
-                  '[&>svg]:fill-white',
-                  !isTouchscreenDevice && [
-                    'hover:dark:bg-darkMode-red-hover',
-                    'hover:bg-lightMode-red-hover'
-                  ],
-                  'dark:bg-darkMode-red',
-                  'bg-lightMode-red',
-                  'focus:bg-lightMode-red',
-                  'dark:focus:bg-darkMode-red'
+                  '[&>svg]:fill-black',
+                  'dark:bg-darkMode-gray',
+                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                  'dark:focus:bg-darkMode-gray',
+                  'bg-lightMode-gray'
                 ])}
               >
-                <LeaveSession />
+                {icon}
               </Button>
-            </Tooltip>
+            ) : (
+              <motion.div
+                {...createAnimationProps({
+                  transition: { type: 'easeInOut', from: 0.6, duration: 0.8 },
+                  controls: { opacity: 1 }
+                })}
+              >
+                <StageControls shouldShowCopyLinkText={false} />
+              </motion.div>
+            )}
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </Tooltip>
     </motion.div>
   );
+};
+
+StageControl.propTypes = {
+  goLiveContainerVideoContainerRef: PropTypes.object.isRequired
 };
 
 export default StageControl;

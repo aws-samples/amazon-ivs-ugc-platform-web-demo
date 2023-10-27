@@ -31,6 +31,7 @@ export { ReactComponent as Feed } from './feed.svg';
 export { ReactComponent as Filter } from './filter.svg';
 export { ReactComponent as FullScreen } from './fullscreen.svg';
 export { ReactComponent as FullScreenExit } from './fullscreen-exit.svg';
+export { ReactComponent as Group } from './group.svg';
 export { ReactComponent as Home } from './home.svg';
 export { ReactComponent as Hourglass } from './hourglass.svg';
 export { ReactComponent as LeaveSession } from './leave-session.svg';

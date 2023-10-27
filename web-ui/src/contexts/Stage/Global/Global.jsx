@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import { useAnimationControls } from 'framer-motion';
-import { createContext, useMemo, useState } from 'react';
+import { createContext, useMemo } from 'react';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
-import { LOCAL_KEY } from './reducer/globalReducer';
+import { LOCAL_KEY, PARTICIPANT_TYPES } from './reducer/globalReducer';
 
 const Context = createContext(null);
 Context.displayName = 'Global';
@@ -84,6 +84,9 @@ export const Provider = ({ children }) => {
     []
   );
 
+  const { type = undefined } = localParticipant?.attributes || {};
+  const isHost = type === PARTICIPANT_TYPES.HOST;
+
   const value = useMemo(() => {
     return {
       // State
@@ -98,6 +101,7 @@ export const Provider = ({ children }) => {
       stageId,
       strategy,
       success,
+      isHost,
       shouldCloseFullScreenViewOnHostLeave,
       // Actions
       addParticipant,
@@ -149,6 +153,9 @@ export const Provider = ({ children }) => {
     updateIsBlockingRoute,
     updateIsSpectator,
     updateParticipant,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    updateShouldDisableStageButtonWithDelay,
+    isHost,
     updateStageId,
     updateStreams,
     updateSuccess,
@@ -156,8 +163,6 @@ export const Provider = ({ children }) => {
     animationCollapseStageControlsStart,
     collaborateButtonAnimationControls,
     updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldDisableStageButtonWithDelay,
     animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon,
     shouldDisableStageButtonWithDelay

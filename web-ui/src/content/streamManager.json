@@ -46,8 +46,10 @@
     }
   },
   "stream_manager_stage": {
+    "participants": "Participants",
     "collaborate": "Collaborate",
     "leave_session": "Leave session",
+    "end_session": "End session",
     "copy_session_link": "Copy session link",
     "copy_link": "Copy link",
     "invite_participant": "Invite participant",

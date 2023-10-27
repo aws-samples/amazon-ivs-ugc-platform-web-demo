@@ -2,9 +2,8 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 
 import useStageEventHandlers from './useStageEventHandlers';
 import { apiBaseUrl } from '../../api/utils';
-import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
-import { useGlobalStage } from '../../contexts/Stage';
 import { noop } from '../../utils';
+import { useGlobalStage } from '../../contexts/Stage';
 
 const { Stage } = window.IVSBroadcastClient;
 
@@ -16,14 +15,13 @@ const useStageClient = (
 ) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState, localParticipant } =
+  const { resetParticipants, strategy, resetStageState, isHost } =
     useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
     stageConnectionErroredEventCallback
   });
-  const isHost = localParticipant?.attributes?.type === PARTICIPANT_TYPES.HOST;
 
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {

@@ -236,7 +236,7 @@ const StreamManagerControlCenter = forwardRef(
             >
               <div
                 className={clsm([
-                  'overflow-hidden',
+                  !isStageActive && 'overflow-hidden',
                   'h-full',
                   'relative',
                   'rounded-3xl',

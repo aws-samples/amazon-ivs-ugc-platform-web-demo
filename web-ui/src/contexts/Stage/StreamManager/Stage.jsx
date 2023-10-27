@@ -11,7 +11,6 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
-  PARTICIPANT_TYPES,
   STATE_KEYS
 } from '../Global/reducer/globalReducer';
 import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
@@ -59,6 +58,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isSpectator,
     shouldDisableStageButtonWithDelay,
     isCreatingStage,
+    isHost,
     updateShouldCloseFullScreenViewOnHostLeave,
     shouldCloseFullScreenViewOnHostLeave
   } = useGlobalStage();
@@ -137,12 +137,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const leaveStage = useCallback(async () => {
     try {
-      const {
-        attributes: { type }
-      } = localParticipant;
-
       let result;
-      const isHost = type === PARTICIPANT_TYPES.HOST;
 
       leaveStageClient();
 
@@ -197,7 +192,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     resetStage,
     stageIdUrlParam,
     navigate,
-    updateError
+    updateError,
+    isHost
   ]);
 
   useEffect(() => {
