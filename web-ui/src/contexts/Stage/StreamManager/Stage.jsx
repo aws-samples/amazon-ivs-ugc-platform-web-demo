@@ -59,8 +59,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isSpectator,
     shouldDisableStageButtonWithDelay,
     isCreatingStage,
-    setShouldCloseFullScreenView,
-    shouldCloseFullScreenView
+    updateShouldCloseFullScreenViewOnHostLeave,
+    shouldCloseFullScreenViewOnHostLeave
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -96,8 +96,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       asPortal: true
     });
 
-    setShouldCloseFullScreenView(true);
-  }, [notifyNeutral, setShouldCloseFullScreenView]);
+    updateShouldCloseFullScreenViewOnHostLeave(true);
+  }, [notifyNeutral, updateShouldCloseFullScreenViewOnHostLeave]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
@@ -201,10 +201,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   ]);
 
   useEffect(() => {
-    if (shouldCloseFullScreenView) {
-      leaveStage();
-    }
-  }, [leaveStage, shouldCloseFullScreenView]);
+    if (!shouldCloseFullScreenViewOnHostLeave) return
+    leaveStage();
+  }, [leaveStage, shouldCloseFullScreenViewOnHostLeave]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -412,7 +411,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleCamera,
       toggleMicrophone,
       handleOnConfirmLeaveStage,
-      shouldCloseFullScreenView,
+      shouldCloseFullScreenViewOnHostLeave,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
@@ -436,7 +435,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       resetStage,
       isSpectator,
       hasPermissions,
-      shouldCloseFullScreenView,
+      shouldCloseFullScreenViewOnHostLeave,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
     ]

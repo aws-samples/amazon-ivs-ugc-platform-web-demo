@@ -33,7 +33,8 @@ export const Provider = ({ children }) => {
     updateShouldDisableStageButtonWithDelay,
     updateStageId,
     updateStreams,
-    updateSuccess
+    updateSuccess,
+    updateShouldCloseFullScreenViewOnHostLeave
   } = useGlobalReducers();
   const {
     participants,
@@ -46,7 +47,8 @@ export const Provider = ({ children }) => {
     error,
     success,
     isBlockingRoute,
-    isChannelStagePlayerMuted
+    isChannelStagePlayerMuted,
+    shouldCloseFullScreenViewOnHostLeave
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -82,9 +84,6 @@ export const Provider = ({ children }) => {
     []
   );
 
-  const [shouldCloseFullScreenView, setShouldCloseFullScreenView] =
-    useState(false);
-
   const value = useMemo(() => {
     return {
       // State
@@ -99,8 +98,7 @@ export const Provider = ({ children }) => {
       stageId,
       strategy,
       success,
-      shouldCloseFullScreenView,
-      setShouldCloseFullScreenView,
+      shouldCloseFullScreenViewOnHostLeave,
       // Actions
       addParticipant,
       creatingStage,
@@ -116,6 +114,7 @@ export const Provider = ({ children }) => {
       updateStageId,
       updateStreams,
       updateSuccess,
+      updateShouldCloseFullScreenViewOnHostLeave,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -126,43 +125,7 @@ export const Provider = ({ children }) => {
       shouldAnimateGoLiveButtonChevronIcon,
       shouldDisableStageButtonWithDelay
     };
-  }, [
-    addParticipant,
-    animateCollapseStageContainerWithDelay,
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    creatingStage,
-    error,
-    isBlockingRoute,
-    isChannelStagePlayerMuted,
-    isCreatingStage,
-    isSpectator,
-    isStageActive,
-    localParticipant,
-    participants,
-    removeParticipant,
-    resetParticipants,
-    resetStageState,
-    shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay,
-    stageId,
-    strategy,
-    success,
-    toggleCameraState,
-    toggleMicrophoneState,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateError,
-    updateIsBlockingRoute,
-    updateIsSpectator,
-    updateParticipant,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldDisableStageButtonWithDelay,
-    updateStageId,
-    updateStreams,
-    updateSuccess,
-    shouldCloseFullScreenView,
-    setShouldCloseFullScreenView
-  ]);
+  }, [error, isBlockingRoute, isChannelStagePlayerMuted, isCreatingStage, isSpectator, isStageActive, localParticipant, participants, stageId, strategy, success, shouldCloseFullScreenViewOnHostLeave, addParticipant, creatingStage, removeParticipant, resetParticipants, resetStageState, toggleCameraState, toggleMicrophoneState, updateError, updateIsBlockingRoute, updateIsSpectator, updateParticipant, updateStageId, updateStreams, updateSuccess, updateShouldCloseFullScreenViewOnHostLeave, animationCollapseStageControlsStart, collaborateButtonAnimationControls, updateAnimateCollapseStageContainerWithDelay, updateShouldAnimateGoLiveButtonChevronIcon, updateShouldDisableStageButtonWithDelay, animateCollapseStageContainerWithDelay, shouldAnimateGoLiveButtonChevronIcon, shouldDisableStageButtonWithDelay]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

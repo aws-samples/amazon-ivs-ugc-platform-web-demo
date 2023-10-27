@@ -44,7 +44,7 @@ export const Provider = ({ children, previewRef }) => {
     animationCollapseStageControlsStart,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,
-    shouldCloseFullScreenView
+    shouldCloseFullScreenViewOnHostLeave
   } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
@@ -182,13 +182,13 @@ export const Provider = ({ children, previewRef }) => {
   ]);
 
   useEffect(() => {
-    if (shouldCloseFullScreenView) {
-      closeFullscreenAndAnimateCollaborateButton();
-    }
+    if (!shouldCloseFullScreenViewOnHostLeave) return
+
+    closeFullscreenAndAnimateCollaborateButton();
   }, [
     closeFullscreenAndAnimateCollaborateButton,
     collaborateButtonAnimationControls,
-    shouldCloseFullScreenView
+    shouldCloseFullScreenViewOnHostLeave
   ]);
 
   const value = useMemo(
