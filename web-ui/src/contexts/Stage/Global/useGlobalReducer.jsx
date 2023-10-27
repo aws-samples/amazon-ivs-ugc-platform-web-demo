@@ -8,8 +8,8 @@ const useGlobalReducers = () => {
   const [state, dispatch] = useReducer(globalReducer, defaultReducerState);
 
   const updateShouldCloseFullScreenViewOnHostLeave = useCallback((value) => {
-    dispatch(actions.updateShouldCloseFullScreenViewOnHostLeave(value))
-  }, [])
+    dispatch(actions.updateShouldCloseFullScreenViewOnHostLeave(value));
+  }, []);
 
   const addParticipant = useCallback((participantObj) => {
     dispatch(actions.addParticipant(participantObj));

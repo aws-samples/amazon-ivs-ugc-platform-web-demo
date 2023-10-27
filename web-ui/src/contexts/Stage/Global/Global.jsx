@@ -125,7 +125,43 @@ export const Provider = ({ children }) => {
       shouldAnimateGoLiveButtonChevronIcon,
       shouldDisableStageButtonWithDelay
     };
-  }, [error, isBlockingRoute, isChannelStagePlayerMuted, isCreatingStage, isSpectator, isStageActive, localParticipant, participants, stageId, strategy, success, shouldCloseFullScreenViewOnHostLeave, addParticipant, creatingStage, removeParticipant, resetParticipants, resetStageState, toggleCameraState, toggleMicrophoneState, updateError, updateIsBlockingRoute, updateIsSpectator, updateParticipant, updateStageId, updateStreams, updateSuccess, updateShouldCloseFullScreenViewOnHostLeave, animationCollapseStageControlsStart, collaborateButtonAnimationControls, updateAnimateCollapseStageContainerWithDelay, updateShouldAnimateGoLiveButtonChevronIcon, updateShouldDisableStageButtonWithDelay, animateCollapseStageContainerWithDelay, shouldAnimateGoLiveButtonChevronIcon, shouldDisableStageButtonWithDelay]);
+  }, [
+    error,
+    isBlockingRoute,
+    isChannelStagePlayerMuted,
+    isCreatingStage,
+    isSpectator,
+    isStageActive,
+    localParticipant,
+    participants,
+    stageId,
+    strategy,
+    success,
+    shouldCloseFullScreenViewOnHostLeave,
+    addParticipant,
+    creatingStage,
+    removeParticipant,
+    resetParticipants,
+    resetStageState,
+    toggleCameraState,
+    toggleMicrophoneState,
+    updateError,
+    updateIsBlockingRoute,
+    updateIsSpectator,
+    updateParticipant,
+    updateStageId,
+    updateStreams,
+    updateSuccess,
+    updateShouldCloseFullScreenViewOnHostLeave,
+    animationCollapseStageControlsStart,
+    collaborateButtonAnimationControls,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    updateShouldDisableStageButtonWithDelay,
+    animateCollapseStageContainerWithDelay,
+    shouldAnimateGoLiveButtonChevronIcon,
+    shouldDisableStageButtonWithDelay
+  ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

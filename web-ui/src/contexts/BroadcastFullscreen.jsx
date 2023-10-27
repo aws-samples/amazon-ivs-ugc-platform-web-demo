@@ -182,7 +182,7 @@ export const Provider = ({ children, previewRef }) => {
   ]);
 
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnHostLeave) return
+    if (!shouldCloseFullScreenViewOnHostLeave) return;
 
     closeFullscreenAndAnimateCollaborateButton();
   }, [

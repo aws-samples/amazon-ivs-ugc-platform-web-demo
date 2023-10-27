@@ -201,7 +201,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   ]);
 
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnHostLeave) return
+    if (!shouldCloseFullScreenViewOnHostLeave) return;
     leaveStage();
   }, [leaveStage, shouldCloseFullScreenViewOnHostLeave]);
 

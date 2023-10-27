@@ -52,7 +52,8 @@ export const STATE_KEYS = {
   ERROR: 'error',
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
-  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_HOST_LEAVE: 'shouldCloseFullScreenViewOnHostLeave'
+  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_HOST_LEAVE:
+    'shouldCloseFullScreenViewOnHostLeave'
 };
 
 const defaultStageReducerState = {
@@ -302,7 +303,7 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_HOST_LEAVE]: action.payload
-      }
+      };
     }
 
     default:

@@ -93,7 +93,7 @@ export const resetParticipants = () => ({
 export const updateShouldCloseFullScreenViewOnHostLeave = (bool) => ({
   type: actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_HOST_LEAVE,
   payload: bool
-})
+});
 
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
