@@ -18,6 +18,11 @@ import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
 import Notification from '../../../components/Notification';
 import useResizeObserver from '../../../hooks/useResizeObserver';
+import Button from '../../../components/Button/Button';
+import { useAppSync } from '../../../contexts/AppSync';
+import { RequestInvite } from '../../../assets/icons';
+import channelEvents from '../../../contexts/AppSync/channelEvents';
+import { useGlobalStage } from '../../../contexts/Stage';
 
 const $content = $channelContent.chat;
 
@@ -25,7 +30,7 @@ const Chat = ({ shouldRunCelebration }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading } = useChannel();
 
-  const { color: channelColor } = channelData || {};
+  const { color: channelColor, isViewerBanned } = channelData || {};
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifySuccess, notifyInfo } = useNotif();
   const {
@@ -106,6 +111,8 @@ const Chat = ({ shouldRunCelebration }) => {
       updateChatContainerDimensions(chatSectionRef.current);
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
+  const { publish } = useAppSync()
+  const { isHost, participants } = useGlobalStage()
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
@@ -164,6 +171,30 @@ const Chat = ({ shouldRunCelebration }) => {
           color={channelColor}
           shouldRun={shouldRunCelebration}
         />
+          {/* <Tooltip
+            key="stage-control-tooltip-collaborate"
+            position="above"
+            translate={{ y: 2 }}
+            message="Request to join"
+          > */}
+          {!isHost && channelData?.stageId && userData?.username && !isViewerBanned &&
+            <Button
+              ariaLabel={"test"}
+              key="create-stage-control-btn"
+              variant="icon"
+              onClick={() => {
+                console.log('channel data -->', channelData)
+                publish(channelData.username, JSON.stringify({ type: channelEvents.STAGE_REQUEST_TO_JOIN, username: userData.username, sent: new Date().toString() }))
+              }}
+              className={clsm([
+                'bg-lightMode-gray'
+              ])}
+              isDisabled={participants?.size >= 12}
+            >
+              <RequestInvite />
+            </Button>
+            }
+          {/* </Tooltip> */}
         <ConnectingOverlay isLoading={isLoading} />
         {(!isMobileView || isSessionValid) && (
           <Composer

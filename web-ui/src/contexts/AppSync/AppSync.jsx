@@ -52,6 +52,13 @@ export const Provider = ({ children }) => {
       const channelEvent = JSON.parse(data);
 
       switch (channelEvent?.type) {
+        case channelEvents.STAGE_REQUEST_TO_JOIN:
+          if (isHost) {
+            const { username, type, sent } = channelEvent  
+            // process here
+            
+          }
+          break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
             notifyNeutral(
