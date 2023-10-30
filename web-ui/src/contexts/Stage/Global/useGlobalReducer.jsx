@@ -7,9 +7,14 @@ const DELAY_COLLAPSE_ANIMATION = 500;
 const useGlobalReducers = () => {
   const [state, dispatch] = useReducer(globalReducer, defaultReducerState);
 
-  const updateShouldCloseFullScreenViewOnHostLeave = useCallback((value) => {
-    dispatch(actions.updateShouldCloseFullScreenViewOnHostLeave(value));
-  }, []);
+  const updateShouldCloseFullScreenViewOnKickedOrHostLeave = useCallback(
+    (value) => {
+      dispatch(
+        actions.updateShouldCloseFullScreenViewOnKickedOrHostLeave(value)
+      );
+    },
+    []
+  );
 
   const addParticipant = useCallback((participantObj) => {
     dispatch(actions.addParticipant(participantObj));
@@ -134,7 +139,7 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnHostLeave
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave
     }),
     [
       state,
@@ -157,7 +162,7 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnHostLeave
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave
     ]
   );
 };

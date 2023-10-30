@@ -28,3 +28,11 @@ export const disconnectFromStage = async () => {
     keepalive: true
   });
 };
+
+export const disconnectParticipant = async (participantId) => {
+  return await authFetch({
+    url: `${apiBaseUrl}/stages/disconnectParticipant`,
+    method: 'PUT',
+    body: { participantId }
+  });
+};

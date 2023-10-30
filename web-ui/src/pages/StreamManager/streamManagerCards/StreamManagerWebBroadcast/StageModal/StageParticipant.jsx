@@ -11,24 +11,35 @@ import {
 import StageProfilePill, {
   STAGE_PROFILE_TYPES
 } from '../StageVideoFeeds/StageProfilePill';
-import { clsm, noop } from '../../../../../utils';
+import { clsm } from '../../../../../utils';
 import { getAvatarSrc } from '../../../../../helpers';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { BREAKPOINTS } from '../../../../../constants';
+import * as stagesAPI from '../../../../../api/stages';
+import { useAppSync } from '../../../../../contexts/AppSync';
+import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 
 const StageParticipant = ({ participant }) => {
   const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
     useResponsiveDevice();
-  const { participantId, attributes, isCameraHidden, isMicrophoneMuted } =
-    participant;
+  const { id, attributes, isCameraHidden, isMicrophoneMuted } = participant;
   const { username, profileColor } = attributes;
   const avatarSrc = getAvatarSrc(attributes);
+  const { publish } = useAppSync();
+
+  const handleDisconnectParticipant = async () => {
+    const { result } = await stagesAPI.disconnectParticipant(id);
+
+    if (result?.message) {
+      publish(
+        username,
+        JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
+      );
+    }
+  };
 
   return (
-    <div
-      className={clsm(['flex', 'h-11', 'items-center', 'my-8'])}
-      key={participantId}
-    >
+    <div className={clsm(['flex', 'h-11', 'items-center', 'my-8'])} key={id}>
       <StageProfilePill
         avatarSrc={avatarSrc}
         profileColor={profileColor}
@@ -80,7 +91,7 @@ const StageParticipant = ({ participant }) => {
           'dark:focus:bg-darkMode-gray',
           'bg-lightMode-gray'
         ])}
-        onClick={noop}
+        onClick={handleDisconnectParticipant}
         variant="icon"
       >
         <Close />
@@ -91,7 +102,7 @@ const StageParticipant = ({ participant }) => {
 
 StageParticipant.propTypes = {
   participant: PropTypes.shape({
-    participantId: PropTypes.string,
+    id: PropTypes.string,
     attributes: PropTypes.shape({
       username: PropTypes.string,
       profileColor: PropTypes.string

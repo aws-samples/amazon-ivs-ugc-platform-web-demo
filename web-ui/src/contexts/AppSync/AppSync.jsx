@@ -5,6 +5,12 @@ import { graphqlOperation, API } from '@aws-amplify/api';
 import { publishDoc, subscribeDoc } from './graphql';
 import useContextHook from '../useContextHook';
 import { useUser } from '../User';
+import { useNotif } from '../Notification';
+import channelEvents from './channelEvents';
+import { streamManager as $streamManagerContent } from '../../content';
+
+const $contentNotification =
+  $streamManagerContent.stream_manager_stage.notifications;
 
 const Context = createContext(null);
 Context.displayName = 'AppSync';
@@ -35,19 +41,35 @@ export const Provider = ({ children }) => {
     });
   }, []);
 
+  const { notifyNeutral } = useNotif();
+
   useEffect(() => {
     if (!userData?.username) return;
 
     const channel = userData?.username;
     const subscription = subscribe(channel, ({ data }) => {
-      const messageReceived = JSON.parse(data);
+      const channelEvent = JSON.parse(data);
 
-      console.log('Message received', messageReceived);
-
-      // TODO: parse messages here
+      switch (channelEvent?.type) {
+        case channelEvents.STAGE_PARTICIPANT_KICKED:
+          notifyNeutral(
+            $contentNotification.error.you_were_removed_from_the_session,
+            {
+              asPortal: true
+            }
+          );
+          break;
+        case channelEvents.STAGE_SESSION_HAS_ENDED:
+          notifyNeutral($contentNotification.neutral.the_session_ended, {
+            asPortal: true
+          });
+          break;
+        default:
+          return;
+      }
     });
     return () => subscription.unsubscribe();
-  }, [subscribe, userData?.username]);
+  }, [notifyNeutral, subscribe, userData?.username]);
 
   const value = useMemo(
     () => ({

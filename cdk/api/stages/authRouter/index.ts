@@ -4,6 +4,7 @@ import authorizer from '../../shared/authorizer';
 import createStage from './createStage';
 import deleteStage from './deleteStage';
 import createParticipantToken from './createParticipantToken';
+import disconnectParticipant from './disconnectParticipant';
 
 const router: FastifyPluginAsync = async (resource) => {
   resource.register(fastifyRequestContextPlugin, { hook: 'preHandler' });
@@ -15,6 +16,7 @@ const router: FastifyPluginAsync = async (resource) => {
     createParticipantToken
   );
   resource.put('/delete', deleteStage);
+  resource.put('/disconnectParticipant', disconnectParticipant);
 };
 
 export default router;

@@ -63,6 +63,7 @@
         "user_has_joined_the_session": "USERNAME has joined the session"
       },
       "error": {
+        "you_were_removed_from_the_session": "You were removed from the session",
         "unable_to_create_session": "Unable to create session",
         "unable_to_join_session": "Unable to join session",
         "unable_to_leave_session": "Unable to leave session",
