@@ -19,7 +19,7 @@ Context.displayName = 'AppSync';
 export const Provider = ({ children }) => {
   const { userData } = useUser();
   const { notifyNeutral } = useNotif();
-  const { isHost } = useGlobalStage()
+  const { isHost } = useGlobalStage();
 
   /**
    * @param  {string} name the name of the channel

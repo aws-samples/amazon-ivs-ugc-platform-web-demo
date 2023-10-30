@@ -30,16 +30,15 @@ const StageParticipant = ({ participant }) => {
   const { username, profileColor } = attributes;
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
-  const { closeModal, openModal } = useModal()
-  const REPLACEMENT_TEXT = 'USERNAME'
+  const { closeModal, openModal } = useModal();
+  const REPLACEMENT_TEXT = 'USERNAME';
   const message = $stageContent.remove_participant_confirmation_text.replace(
     REPLACEMENT_TEXT,
     username
   );
 
   const handleDisconnectParticipant = () => {
-
-    closeModal()
+    closeModal();
 
     openModal({
       content: {
@@ -48,7 +47,7 @@ const StageParticipant = ({ participant }) => {
         message
       },
       onConfirm: async () => {
-        const { result } = await stagesAPI.disconnectParticipant(id)
+        const { result } = await stagesAPI.disconnectParticipant(id);
         if (result?.message) {
           publish(
             username,
