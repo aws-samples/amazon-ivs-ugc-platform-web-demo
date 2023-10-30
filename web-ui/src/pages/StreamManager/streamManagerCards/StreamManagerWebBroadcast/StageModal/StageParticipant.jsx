@@ -18,6 +18,10 @@ import { BREAKPOINTS } from '../../../../../constants';
 import * as stagesAPI from '../../../../../api/stages';
 import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
+import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
+import { streamManager as $content } from '../../../../../content';
+
+const $stageContent = $content.stream_manager_stage;
 
 const StageParticipant = ({ participant }) => {
   const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
@@ -26,16 +30,38 @@ const StageParticipant = ({ participant }) => {
   const { username, profileColor } = attributes;
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
+  const { closeModal, openModal } = useModal()
+  const REPLACEMENT_TEXT = 'USERNAME'
+  const message = $stageContent.remove_participant_confirmation_text.replace(
+    REPLACEMENT_TEXT,
+    username
+  );
 
-  const handleDisconnectParticipant = async () => {
-    const { result } = await stagesAPI.disconnectParticipant(id);
+  const handleDisconnectParticipant = () => {
 
-    if (result?.message) {
-      publish(
-        username,
-        JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
-      );
-    }
+    closeModal()
+
+    openModal({
+      content: {
+        confirmText: $stageContent.remove_participant,
+        isDestructive: true,
+        message
+      },
+      onConfirm: async () => {
+        const { result } = await stagesAPI.disconnectParticipant(id)
+        if (result?.message) {
+          publish(
+            username,
+            JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
+          );
+        }
+      },
+      onCancel: () => {
+        openModal({
+          type: MODAL_TYPE.STAGE_PARTICIPANTS
+        });
+      }
+    });
   };
 
   return (

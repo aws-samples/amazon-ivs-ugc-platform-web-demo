@@ -53,6 +53,8 @@
     "copy_session_link": "Copy session link",
     "copy_link": "Copy link",
     "invite_participant": "Invite participant",
+    "remove_participant": "Remove",
+    "remove_participant_confirmation_text": "Are you sure you want to remove USERNAME from the session?",
     "notifications": {
       "neutral": {
         "the_session_ended": "The session ended"
