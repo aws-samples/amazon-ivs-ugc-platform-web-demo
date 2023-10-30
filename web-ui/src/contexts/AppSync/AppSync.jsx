@@ -8,6 +8,7 @@ import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import { streamManager as $streamManagerContent } from '../../content';
+import { useGlobalStage } from '../Stage';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -18,6 +19,7 @@ Context.displayName = 'AppSync';
 export const Provider = ({ children }) => {
   const { userData } = useUser();
   const { notifyNeutral } = useNotif();
+  const { isHost } = useGlobalStage()
 
   /**
    * @param  {string} name the name of the channel
@@ -51,12 +53,15 @@ export const Provider = ({ children }) => {
 
       switch (channelEvent?.type) {
         case channelEvents.STAGE_PARTICIPANT_KICKED:
-          notifyNeutral(
-            $contentNotification.error.you_were_removed_from_the_session,
-            {
-              asPortal: true
-            }
-          );
+          if (!isHost) {
+            notifyNeutral(
+              $contentNotification.error.you_were_removed_from_the_session,
+              {
+                asPortal: true
+              }
+            );
+          }
+
           break;
         case channelEvents.STAGE_SESSION_HAS_ENDED:
           notifyNeutral($contentNotification.neutral.the_session_ended, {
@@ -68,7 +73,7 @@ export const Provider = ({ children }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [notifyNeutral, subscribe, userData?.username]);
+  }, [isHost, notifyNeutral, subscribe, userData?.username]);
 
   const value = useMemo(
     () => ({
