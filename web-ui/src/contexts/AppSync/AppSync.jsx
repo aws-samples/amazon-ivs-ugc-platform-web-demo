@@ -17,6 +17,7 @@ Context.displayName = 'AppSync';
 
 export const Provider = ({ children }) => {
   const { userData } = useUser();
+  const { notifyNeutral } = useNotif();
 
   /**
    * @param  {string} name the name of the channel
@@ -40,8 +41,6 @@ export const Provider = ({ children }) => {
       error: error || console.log
     });
   }, []);
-
-  const { notifyNeutral } = useNotif();
 
   useEffect(() => {
     if (!userData?.username) return;
