@@ -161,7 +161,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
+    <div style={{ border: '1px solid red', width: '100%' }}>
       <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
