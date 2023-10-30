@@ -192,7 +192,23 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         err
       });
     }
-  }, [participants, leaveStageClient, isHost, refreshChannelData, updateIsBlockingRoute, updateAnimateCollapseStageContainerWithDelay, updateShouldAnimateGoLiveButtonChevronIcon, notifyNeutral, publish, resetStage, stageIdUrlParam, navigate, localParticipant?.isCameraHidden, localParticipant?.isMicrophoneMuted, updateError]);
+  }, [
+    participants,
+    leaveStageClient,
+    isHost,
+    refreshChannelData,
+    updateIsBlockingRoute,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    notifyNeutral,
+    publish,
+    resetStage,
+    stageIdUrlParam,
+    navigate,
+    localParticipant?.isCameraHidden,
+    localParticipant?.isMicrophoneMuted,
+    updateError
+  ]);
 
   useEffect(() => {
     if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;

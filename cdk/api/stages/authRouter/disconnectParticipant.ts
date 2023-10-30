@@ -1,12 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  UNEXPECTED_EXCEPTION
-} from '../../shared/constants';
-import {
-  verifyUserIsStageHost,
-  handleDisconnectParticipant
-} from '../helpers';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { verifyUserIsStageHost, handleDisconnectParticipant } from '../helpers';
 import { UserContext } from '../../shared/authorizer';
 
 export type DisconnectParticipantRequestBody = {
