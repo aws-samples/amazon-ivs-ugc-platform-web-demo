@@ -11,7 +11,6 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
-  PARTICIPANT_TYPES,
   STATE_KEYS
 } from '../Global/reducer/globalReducer';
 import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
@@ -58,7 +57,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     success,
     isSpectator,
     shouldDisableStageButtonWithDelay,
-    isCreatingStage
+    isCreatingStage,
+    isHost,
+    updateShouldCloseFullScreenViewOnHostLeave,
+    shouldCloseFullScreenViewOnHostLeave
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -74,7 +76,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     initializeDevices,
     hasPermissions
   } = useBroadcast();
-  const { notifyError, notifySuccess } = useNotif();
+  const { notifyError, notifySuccess, notifyNeutral } = useNotif();
   const { isLive } = useStreams();
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
@@ -89,8 +91,115 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
 
+  const stageConnectionErroredEventCallback = useCallback(() => {
+    notifyNeutral($contentNotification.neutral.the_session_ended, {
+      asPortal: true
+    });
+
+    updateShouldCloseFullScreenViewOnHostLeave(true);
+  }, [notifyNeutral, updateShouldCloseFullScreenViewOnHostLeave]);
+
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
-    useStageClient({ updateSuccess, updateError, isDevicesInitializedRef });
+    useStageClient({
+      updateSuccess,
+      updateError,
+      isDevicesInitializedRef,
+      stageConnectionErroredEventCallback
+    });
+
+  const resetStage = useCallback(
+    (showSuccess = false) => {
+      // Stop all tracks
+      if (localParticipant?.streams)
+        localParticipant?.streams[0].mediaStreamTrack.stop();
+
+      if (showSuccess) {
+        updateSuccess($contentNotification.success.you_have_left_the_session);
+        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
+      } else {
+        resetAllStageState();
+      }
+      joinParticipantLinkRef.current = undefined;
+      isDevicesInitializedRef.current = false;
+      broadcastDevicesStateObjRef.current = null;
+      shouldGetParticipantTokenRef.current = false;
+    },
+    [
+      broadcastDevicesStateObjRef,
+      isDevicesInitializedRef,
+      joinParticipantLinkRef,
+      localParticipant?.streams,
+      resetAllStageState,
+      shouldGetParticipantTokenRef,
+      updateSuccess
+    ]
+  );
+
+  const leaveStage = useCallback(async () => {
+    try {
+      let result;
+
+      leaveStageClient();
+
+      // Check if the user is the host
+      if (isHost) {
+        ({ result } = await retryWithExponentialBackoff({
+          promiseFn: () => stagesAPI.deleteStage(),
+          maxRetries: 2
+        }));
+
+        // Fetch updated channel data
+        refreshChannelData();
+      }
+
+      if (result || !isHost) {
+        if (isHost) {
+          notifyNeutral($contentNotification.neutral.the_session_ended, {
+            asPortal: true
+          });
+        }
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
+
+        // Animate stage control buttons
+        updateAnimateCollapseStageContainerWithDelay(false);
+        updateShouldAnimateGoLiveButtonChevronIcon(false);
+
+        setTimeout(() => {
+          resetStage(true);
+
+          if (stageIdUrlParam) navigate('/manager');
+          broadcastDevicesStateObjRef.current = {
+            isCameraHidden: localParticipant?.isCameraHidden || false,
+            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+          };
+        }, 350);
+      }
+    } catch (err) {
+      updateError({
+        message: $contentNotification.error.unable_to_leave_session,
+        err
+      });
+    }
+  }, [
+    localParticipant,
+    leaveStageClient,
+    refreshChannelData,
+    updateIsBlockingRoute,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    notifyNeutral,
+    resetStage,
+    stageIdUrlParam,
+    navigate,
+    updateError,
+    isHost
+  ]);
+
+  useEffect(() => {
+    if (!shouldCloseFullScreenViewOnHostLeave) return;
+    leaveStage();
+  }, [leaveStage, shouldCloseFullScreenViewOnHostLeave]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -187,34 +296,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     ]
   );
 
-  const resetStage = useCallback(
-    (showSuccess = false) => {
-      // Stop all tracks
-      if (localParticipant?.streams)
-        localParticipant?.streams[0].mediaStreamTrack.stop();
-
-      if (showSuccess) {
-        updateSuccess($contentNotification.success.you_have_left_the_session);
-        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
-      } else {
-        resetAllStageState();
-      }
-      joinParticipantLinkRef.current = undefined;
-      isDevicesInitializedRef.current = false;
-      broadcastDevicesStateObjRef.current = null;
-      shouldGetParticipantTokenRef.current = false;
-    },
-    [
-      broadcastDevicesStateObjRef,
-      isDevicesInitializedRef,
-      joinParticipantLinkRef,
-      localParticipant?.streams,
-      resetAllStageState,
-      shouldGetParticipantTokenRef,
-      updateSuccess
-    ]
-  );
-
   const { handleParticipantInvite } = useInviteParticipants({
     shouldGetParticipantTokenRef,
     createStageInstanceAndJoin,
@@ -229,67 +310,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       $contentNotification.success.session_link_has_been_copied_to_clipboard
     );
   }, [joinParticipantLinkRef, updateSuccess]);
-
-  const leaveStage = useCallback(async () => {
-    try {
-      const {
-        attributes: { type }
-      } = localParticipant;
-
-      let result;
-      const isHost = type === PARTICIPANT_TYPES.HOST;
-
-      // Client.leave() should be called before deleting the stage
-      leaveStageClient();
-
-      // Check if the user is the host
-      if (isHost) {
-        ({ result } = await retryWithExponentialBackoff({
-          promiseFn: () => stagesAPI.deleteStage(),
-          maxRetries: 2
-        }));
-
-        // Fetch updated channel data
-        refreshChannelData();
-      }
-
-      if (result || !isHost) {
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
-
-        // Animate stage control buttons
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
-
-        setTimeout(() => {
-          resetStage(true);
-
-          if (stageIdUrlParam) navigate('/manager');
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }, 350);
-      }
-    } catch (err) {
-      updateError({
-        message: $contentNotification.error.unable_to_leave_session,
-        err
-      });
-    }
-  }, [
-    broadcastDevicesStateObjRef,
-    leaveStageClient,
-    localParticipant,
-    navigate,
-    refreshChannelData,
-    resetStage,
-    stageIdUrlParam,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateError,
-    updateIsBlockingRoute,
-    updateShouldAnimateGoLiveButtonChevronIcon
-  ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
     useStageControls({ leaveStage, resetStage });
@@ -387,6 +407,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleCamera,
       toggleMicrophone,
       handleOnConfirmLeaveStage,
+      shouldCloseFullScreenViewOnHostLeave,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
@@ -410,6 +431,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       resetStage,
       isSpectator,
       hasPermissions,
+      shouldCloseFullScreenViewOnHostLeave,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
     ]

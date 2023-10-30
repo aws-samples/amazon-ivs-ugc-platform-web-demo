@@ -12,7 +12,7 @@ import { createAnimationProps } from '../../../../../helpers/animationPropsHelpe
 import { getAvatarSrc } from '../../../../../helpers';
 import { MicOff, VideoCameraOff } from '../../../../../assets/icons';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
-import StageProfilePill from './StageProfilePill';
+import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 
@@ -148,6 +148,7 @@ const StageVideo = ({ type, participantKey, className }) => {
           >
             {profileColor && username && (
               <StageProfilePill
+                type={STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED}
                 avatarSrc={avatarSrc}
                 profileColor={profileColor}
                 username={username}

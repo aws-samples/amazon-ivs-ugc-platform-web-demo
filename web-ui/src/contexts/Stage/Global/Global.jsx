@@ -4,7 +4,7 @@ import { createContext, useMemo } from 'react';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
-import { LOCAL_KEY } from './reducer/globalReducer';
+import { LOCAL_KEY, PARTICIPANT_TYPES } from './reducer/globalReducer';
 
 const Context = createContext(null);
 Context.displayName = 'Global';
@@ -33,7 +33,8 @@ export const Provider = ({ children }) => {
     updateShouldDisableStageButtonWithDelay,
     updateStageId,
     updateStreams,
-    updateSuccess
+    updateSuccess,
+    updateShouldCloseFullScreenViewOnHostLeave
   } = useGlobalReducers();
   const {
     participants,
@@ -46,7 +47,8 @@ export const Provider = ({ children }) => {
     error,
     success,
     isBlockingRoute,
-    isChannelStagePlayerMuted
+    isChannelStagePlayerMuted,
+    shouldCloseFullScreenViewOnHostLeave
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -82,6 +84,9 @@ export const Provider = ({ children }) => {
     []
   );
 
+  const { type = undefined } = localParticipant?.attributes || {};
+  const isHost = type === PARTICIPANT_TYPES.HOST;
+
   const value = useMemo(() => {
     return {
       // State
@@ -96,6 +101,8 @@ export const Provider = ({ children }) => {
       stageId,
       strategy,
       success,
+      isHost,
+      shouldCloseFullScreenViewOnHostLeave,
       // Actions
       addParticipant,
       creatingStage,
@@ -111,6 +118,7 @@ export const Provider = ({ children }) => {
       updateStageId,
       updateStreams,
       updateSuccess,
+      updateShouldCloseFullScreenViewOnHostLeave,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -122,11 +130,6 @@ export const Provider = ({ children }) => {
       shouldDisableStageButtonWithDelay
     };
   }, [
-    addParticipant,
-    animateCollapseStageContainerWithDelay,
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    creatingStage,
     error,
     isBlockingRoute,
     isChannelStagePlayerMuted,
@@ -135,26 +138,34 @@ export const Provider = ({ children }) => {
     isStageActive,
     localParticipant,
     participants,
-    removeParticipant,
-    resetParticipants,
-    resetStageState,
-    shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay,
     stageId,
     strategy,
     success,
+    shouldCloseFullScreenViewOnHostLeave,
+    addParticipant,
+    creatingStage,
+    removeParticipant,
+    resetParticipants,
+    resetStageState,
     toggleCameraState,
     toggleMicrophoneState,
-    updateAnimateCollapseStageContainerWithDelay,
     updateError,
     updateIsBlockingRoute,
     updateIsSpectator,
     updateParticipant,
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
+    isHost,
     updateStageId,
     updateStreams,
-    updateSuccess
+    updateSuccess,
+    updateShouldCloseFullScreenViewOnHostLeave,
+    animationCollapseStageControlsStart,
+    collaborateButtonAnimationControls,
+    updateAnimateCollapseStageContainerWithDelay,
+    animateCollapseStageContainerWithDelay,
+    shouldAnimateGoLiveButtonChevronIcon,
+    shouldDisableStageButtonWithDelay
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

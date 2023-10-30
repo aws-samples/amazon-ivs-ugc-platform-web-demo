@@ -14,10 +14,11 @@ import { streamManager as $content } from '../../content';
 import { useBroadcast } from '../../contexts/Broadcast';
 import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
 import { useChannel } from '../../contexts/Channel';
-import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useGlobalStage, useStreamManagerStage } from '../../contexts/Stage';
+import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useStreams } from '../../contexts/Streams';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
+import StageParticipantsModal from './streamManagerCards/StreamManagerWebBroadcast/StageModal/StageParticipantsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
@@ -193,6 +194,7 @@ const StreamManagerControlCenter = forwardRef(
           ])}
         >
           <StreamManagerActionModal />
+          <StageParticipantsModal />
           <BroadcastSettingsModal />
           {!isDesktopView && (
             <Tabs.List
@@ -236,7 +238,7 @@ const StreamManagerControlCenter = forwardRef(
             >
               <div
                 className={clsm([
-                  'overflow-hidden',
+                  !isStageActive && 'overflow-hidden',
                   'h-full',
                   'relative',
                   'rounded-3xl',
