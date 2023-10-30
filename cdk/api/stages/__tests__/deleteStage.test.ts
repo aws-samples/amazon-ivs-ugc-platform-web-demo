@@ -36,11 +36,15 @@ const getStageSpy = jest.spyOn(stageHelpers, 'getStage');
 const mockGetStage = (mockData: Promise<GetStageCommandOutput>) =>
   getStageSpy.mockImplementation(() => mockData);
 
-const verifyUserIsStageHostSpy = jest.spyOn(stageHelpers, 'verifyUserIsStageHost');
-const mockVerifyUserIsStageHost = () => verifyUserIsStageHostSpy.mockImplementation(() => {
-  const { channelArn } = mockUserData;
-  return Promise.resolve({ isStageHost: true, stageId: channelArn })
-})
+const verifyUserIsStageHostSpy = jest.spyOn(
+  stageHelpers,
+  'verifyUserIsStageHost'
+);
+const mockVerifyUserIsStageHost = () =>
+  verifyUserIsStageHostSpy.mockImplementation(() => {
+    const { channelArn } = mockUserData;
+    return Promise.resolve({ isStageHost: true, stageId: channelArn });
+  });
 
 jest.mock('../helpers');
 
@@ -147,7 +151,7 @@ describe('deleteStage controller', () => {
           }
         })
       );
-      mockVerifyUserIsStageHost()
+      mockVerifyUserIsStageHost();
 
       const response = await injectAuthorizedRequest(
         server,
