@@ -26,9 +26,10 @@ import { useStreams } from '../../Streams';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
-import useStageClient from '../../../hooks/useStageClient';
+
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
+import useStageClient from '../../../hooks/useStageClient';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -168,11 +169,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         setTimeout(() => {
           resetStage(true);
 
-          if (stageIdUrlParam) navigate('/manager');
+          if (stageIdUrlParam) {
+            // if (isHost) shouldGetHostRejoinTokenRef.current = false
+            navigate('/manager');
+            console.log('isHost', { isHost })
+          } 
           broadcastDevicesStateObjRef.current = {
             isCameraHidden: localParticipant?.isCameraHidden || false,
             isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
           };
+          console.log('here')
         }, 350);
       }
     } catch (err) {
