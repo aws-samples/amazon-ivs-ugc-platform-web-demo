@@ -45,11 +45,14 @@ const StageParticipant = ({ participant }) => {
       />
       <div
         className={clsm([
-          'bg-darkMode-gray-dark',
+          'bg-lightMode-gray-light',
+          'dark:bg-darkMode-gray-dark',
           'flex',
           'gap-3',
           'p-2',
-          '[&>svg]:fill-white',
+          'px-4',
+          'dark:[&>svg]:fill-white',
+          '[&>svg]:fill-black',
           '[&>svg]:w-5',
           '[&>svg]:h-5',
           'rounded-[20px]',

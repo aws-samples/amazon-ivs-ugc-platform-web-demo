@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { BREAKPOINTS } from '../../../../../constants';
 import { Close } from '../../../../../assets/icons';
 import { clsm } from '../../../../../utils';
@@ -15,14 +13,13 @@ import Button from '../../../../../components/Button';
 import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import { useGlobalStage } from '../../../../../contexts/Stage';
-import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
 import StageParticipant from './StageParticipant';
 
 const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
   const { closeModal, isModalOpen, type } = useModal();
-  const { participants } = useGlobalStage();
+  const { participantsArrayExcludingHost } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
 
   const renderStageParticipantsModal = (children) => (
@@ -59,16 +56,7 @@ const StageParticipantsModal = () => {
     </>
   );
 
-  const participantsExcludingHost = useMemo(
-    () =>
-      [...participants].filter(
-        ([_, participant]) =>
-          participant.attributes.type !== PARTICIPANT_TYPES.HOST
-      ),
-    [participants]
-  );
-
-  const availableSpotMessage = `${$content.participants} (${participantsExcludingHost.length}/11)`;
+  const availableSpotMessage = `${$content.participants} (${participantsArrayExcludingHost.length}/11)`;
 
   return (
     type === MODAL_TYPE.STAGE_PARTICIPANTS &&
@@ -99,7 +87,7 @@ const StageParticipantsModal = () => {
           </h2>
           <div className="mt-12">
             <h4>{availableSpotMessage}</h4>
-            {[...participantsExcludingHost].map(([_, participant], i) => (
+            {[...participantsArrayExcludingHost].map(([_, participant]) => (
               <StageParticipant participant={participant} />
             ))}
           </div>

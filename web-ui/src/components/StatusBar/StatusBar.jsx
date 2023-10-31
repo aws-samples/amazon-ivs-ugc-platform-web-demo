@@ -4,7 +4,7 @@ import { app as $appContent } from '../../content';
 import { BREAKPOINTS, CONCURRENT_VIEWS } from '../../constants';
 import { clsm } from '../../utils';
 import { convertConcurrentViews } from '../../utils';
-import { Hourglass, Visibility, SupervisorAccount } from '../../assets/icons';
+import { Hourglass, Visibility, Group } from '../../assets/icons';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useStreams } from '../../contexts/Streams';
 import HealthIndicator from './HealthIndicator';
@@ -27,7 +27,9 @@ const StatusBar = () => {
     hasStreamSessions,
     activeStreamSession
   } = useStreams();
-  const { isStageActive, participants } = useGlobalStage();
+  const { isStageActive, participantsArrayExcludingHost, isHost } =
+    useGlobalStage();
+  const shouldDisplayStageStatusBar = isStageActive && isHost;
   const { currentBreakpoint } = useResponsiveDevice();
   const { channelData } = useChannel();
   const { stageCreationDate } = channelData || {};
@@ -46,6 +48,9 @@ const StatusBar = () => {
 
   const { isHealthy, isLive, metrics, startTime, hasErrorEvent } =
     streamSessionData;
+  const isChannelLive = isLive || shouldDisplayStageStatusBar;
+  const shouldShowStreamHealth =
+    !isStreamHealthPage && !shouldDisplayStageStatusBar;
 
   // Elapsed Stream/Stage Time
   const eventStartTime = isStageActive ? Number(stageCreationDate) : startTime;
@@ -79,7 +84,8 @@ const StatusBar = () => {
   // Streams offline states
   if (
     (!isStreamHealthPage && !isLive && !isStageActive) ||
-    (isStageActive && !elapsedTime)
+    (isStageActive && !elapsedTime) ||
+    (!isStreamHealthPage && isStageActive && !isHost)
   ) {
     elapsedTime = NO_ELAPSED_TIME_VALUE;
     concurrentViewsValue = NO_DATA_VALUE;
@@ -100,9 +106,6 @@ const StatusBar = () => {
     window.open('/health', '_blank');
   }, [streamSessions, updateActiveStreamSession]);
 
-  const isChannelLive = isLive || isStageActive;
-  const shouldShowStreamHealth = !isStreamHealthPage && !isStageActive;
-
   return (
     <div
       className={clsm([
@@ -113,7 +116,7 @@ const StatusBar = () => {
         'items-center',
         'max-w-fit',
         'gap-4',
-        !isStageActive && isCurrentScreenXxs && 'gap-2',
+        currentBreakpoint === BREAKPOINTS.xxs && isLive && 'gap-2',
         'pl-2',
         'rounded-full',
         'w-full',
@@ -137,25 +140,25 @@ const StatusBar = () => {
         role="timer"
         value={elapsedTime}
         className={clsm([
-          elapsedTime === NO_ELAPSED_TIME_VALUE
-            ? 'w-auto'
-            : [isStageActive ? 'w-[82px]' : 'w-[98px]', 'sm:w-[82px]'],
-          isCurrentScreenXxs && 'min-w-[78px]',
-          'sm:[&>div>button]:px-0'
+          'w-[78px]',
+          'max-w-[78px]',
+          (elapsedTime === NO_ELAPSED_TIME_VALUE ||
+            (isStageActive && !isHost)) &&
+            'w-auto'
         ])}
       />
-      {isStageActive && (
+      {shouldDisplayStageStatusBar && (
         <StatusItem
           tooltipText={$content.session_participants}
           dataTestId="status-item-participants-count"
-          icon={<SupervisorAccount />}
+          icon={<Group />}
           isLive={isStageActive}
           itemLabel="Stage participants count"
-          value={participants.size}
+          value={participantsArrayExcludingHost.length}
           className={clsm(['mr-6'])}
         />
       )}
-      {!isStageActive && (
+      {!shouldDisplayStageStatusBar && (
         <StatusItem
           tooltipText={concurrentViewsTooltipText}
           dataTestId="status-item-concurrent-views"
@@ -163,10 +166,10 @@ const StatusBar = () => {
           icon={<Visibility />}
           isLive={isLive}
           itemLabel="Stream concurrent views count"
-          value={isStageActive ? participants.size : concurrentViewsValue}
+          value={concurrentViewsValue}
           className={clsm([
             concurrentViewsValue === NO_DATA_VALUE
-              ? 'w-auto'
+              ? ['w-auto']
               : ['w-[77px]', 'md:w-[62px]', 'sm:w-[77px], xs:w-[62px]'],
             concurrentViewsValue?.length > 4 &&
               concurrentViewsValue !== NO_DATA_VALUE && [
