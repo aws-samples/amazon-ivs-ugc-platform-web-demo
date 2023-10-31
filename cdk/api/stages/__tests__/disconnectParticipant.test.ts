@@ -1,8 +1,7 @@
 import { GetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { GetStageCommandOutput } from '@aws-sdk/client-ivs-realtime';
-import { handleDeleteStage } from '../helpers';
+import { handleDisconnectParticipant } from '../helpers';
 import { injectAuthorizedRequest } from '../../testUtils';
-import { STAGE_DELETION_EXCEPTION } from '../../shared/constants';
 import * as helpers from '../../channel/helpers';
 import * as stageHelpers from '../helpers';
 import buildServer from '../../buildServer';
@@ -54,7 +53,7 @@ const mockGetUnmarshall = (mockData: IMockUnmarshalledUserData) =>
 
 jest.mock('@aws-sdk/util-dynamodb');
 
-const url = '/stages/delete';
+const url = '/stages/disconnectParticipant';
 const defaultRequestParams = { method: 'PUT' as const, url };
 const server = buildServer();
 
@@ -68,9 +67,9 @@ describe('deleteStage controller', () => {
 
   describe('error handling', () => {
     beforeAll(() => {
-      const deleteStage = handleDeleteStage as jest.Mock;
-      deleteStage.mockRejectedValue(
-        'call to ivsrealtime.deleteStage failed to delete the stage'
+      const disconnectParticipant = handleDisconnectParticipant as jest.Mock;
+      disconnectParticipant.mockRejectedValue(
+        'call to ivsrealtime.disconnectParticipant failed to disconnect participant from stage'
       );
     });
     it('should throw an error if unauthenticated', async () => {
@@ -85,7 +84,7 @@ describe('deleteStage controller', () => {
       expect(message).toBe('UnauthorizedException');
     });
 
-    it('should throw an error if deleteStage function fails', async () => {
+    it('should throw an error if disconnectParticipant function fails', async () => {
       const response = await injectAuthorizedRequest(
         server,
         defaultRequestParams
@@ -94,10 +93,10 @@ describe('deleteStage controller', () => {
       const { __type: errType } = JSON.parse(response.payload);
 
       expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
+      expect(errType).toBe('UnexpectedException');
     });
 
-    it('should throw an error if channelArn does not match stage stageOwnerChannelArn', async () => {
+    it('should throw an error if participantId is null', async () => {
       mockGetUser(Promise.resolve(mockUserData));
       mockGetStage(Promise.resolve(mockStageData));
       const response = await injectAuthorizedRequest(
@@ -108,35 +107,21 @@ describe('deleteStage controller', () => {
       const { __type: errType } = JSON.parse(response.payload);
 
       expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
-    });
-    it('should throw an error if stageId is null', async () => {
-      mockGetUser(Promise.resolve(mockUserData));
-      mockGetStage(Promise.resolve(mockStageData));
-      mockGetUnmarshall({ ...mockUserData, stageId: null });
-      const response = await injectAuthorizedRequest(
-        server,
-        defaultRequestParams
-      );
-
-      const { __type: errType } = JSON.parse(response.payload);
-
-      expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
+      expect(errType).toBe('UnexpectedException');
     });
   });
 
   describe('general cases', () => {
     beforeAll(() => {
-      const deleteStage = handleDeleteStage as jest.Mock;
-      deleteStage.mockImplementation(() => ({ statusCode: 200 }));
+      const disconnectParticipant = handleDisconnectParticipant as jest.Mock;
+      disconnectParticipant.mockImplementation(() => ({ statusCode: 200 }));
     });
 
     afterAll(() => {
       jest.resetAllMocks();
     });
 
-    it('should successfully delete the stage and update the channel table', async () => {
+    it('should successfully disconnect the participant', async () => {
       const { channelArn } = mockUserData;
       mockGetUser(Promise.resolve(mockUserData));
       mockGetUnmarshall({ ...mockUserData, stageId: channelArn });
@@ -153,16 +138,18 @@ describe('deleteStage controller', () => {
       );
       mockVerifyUserIsStageHost();
 
-      const response = await injectAuthorizedRequest(
-        server,
-        defaultRequestParams
-      );
+      const participantId = 'participant-id';
+
+      const response = await injectAuthorizedRequest(server, {
+        ...defaultRequestParams,
+        body: { participantId }
+      });
 
       const res = JSON.parse(response.payload);
 
       expect(response.statusCode).toEqual(200);
       expect(res).toEqual({
-        message: `Stage, with stageId: ${channelArn}, has been deleted.`
+        message: `Participant, with participantId: ${participantId}, has been kicked out of the session.`
       });
     });
   });

@@ -9,7 +9,8 @@ import {
   IVSRealTimeClient,
   ListParticipantsCommand,
   ListParticipantsCommandInput,
-  ParticipantSummary
+  ParticipantSummary,
+  DisconnectParticipantCommand
 } from '@aws-sdk/client-ivs-realtime';
 import {
   ChannelAssets,
@@ -59,7 +60,8 @@ const PARTICIPANT_CONNECTION_STATES = {
 
 const shouldFetchUserData = [
   PARTICIPANT_USER_TYPES.HOST,
-  PARTICIPANT_USER_TYPES.INVITED
+  PARTICIPANT_USER_TYPES.INVITED,
+  PARTICIPANT_USER_TYPES.REQUESTED
 ];
 
 export type ParticipantType =
@@ -150,6 +152,7 @@ export const handleCreateStageParams = async ({
     avatar,
     channelAssets,
     channelArn,
+    channelId = '',
     channelAssetsAvatarUrlPath = '';
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
@@ -161,6 +164,11 @@ export const handleCreateStageParams = async ({
       username,
       channelArn
     } = unmarshall(UserItem));
+
+    if (channelArn) {
+      channelId = getChannelId(channelArn);
+    }
+
     channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
       channelAssets,
       avatar
@@ -194,7 +202,8 @@ export const handleCreateStageParams = async ({
     duration: STAGE_TOKEN_DURATION,
     userId,
     capabilities,
-    userType
+    userType,
+    channelId
   };
 };
 
@@ -308,4 +317,41 @@ export const validateRequestParams = (...requestParams: string[]) => {
     misssingParams.length &&
     misssingParams.join(misssingParams.length > 1 ? ', ' : '')
   );
+};
+
+export const verifyUserIsStageHost = async (sub: string) => {
+  const { Item: UserItem = {} } = await getUser(sub);
+  const { stageId = null, channelArn } = unmarshall(UserItem);
+  if (!stageId) {
+    throw new Error('No active stage found.');
+  }
+
+  const { stage } = await getStage(stageId);
+  const channelId = getChannelId(channelArn);
+  const stageOwnerChannelId = stage?.tags?.stageOwnerChannelId;
+  const isStageHost = stageOwnerChannelId === channelId;
+
+  if (!isStageHost) {
+    throw new Error('Channel ownership verification failed.');
+  }
+
+  return {
+    isStageHost,
+    stageId
+  };
+};
+
+export const handleDisconnectParticipant = async (
+  participantId: string,
+  stageId: string
+) => {
+  const stageArn = buildStageArn(stageId);
+
+  const disconnectParticipantCommand = new DisconnectParticipantCommand({
+    participantId,
+    stageArn,
+    reason: 'You have been kicked by the host.'
+  });
+
+  await client.send(disconnectParticipantCommand);
 };

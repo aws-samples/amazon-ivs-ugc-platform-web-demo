@@ -1,0 +1,6 @@
+const channelEvents = {
+  STAGE_PARTICIPANT_KICKED: 'STAGE_PARTICIPANT_KICKED',
+  STAGE_SESSION_HAS_ENDED: 'STAGE_SESSION_HAS_ENDED'
+};
+
+export default channelEvents;

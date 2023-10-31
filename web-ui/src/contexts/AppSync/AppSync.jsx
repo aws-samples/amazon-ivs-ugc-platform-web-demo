@@ -5,12 +5,21 @@ import { graphqlOperation, API } from '@aws-amplify/api';
 import { publishDoc, subscribeDoc } from './graphql';
 import useContextHook from '../useContextHook';
 import { useUser } from '../User';
+import { useNotif } from '../Notification';
+import channelEvents from './channelEvents';
+import { streamManager as $streamManagerContent } from '../../content';
+import { useGlobalStage } from '../Stage';
+
+const $contentNotification =
+  $streamManagerContent.stream_manager_stage.notifications;
 
 const Context = createContext(null);
 Context.displayName = 'AppSync';
 
 export const Provider = ({ children }) => {
   const { userData } = useUser();
+  const { notifyNeutral } = useNotif();
+  const { isHost } = useGlobalStage();
 
   /**
    * @param  {string} name the name of the channel
@@ -36,18 +45,35 @@ export const Provider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!userData?.username) return;
+    if (!userData?.channelId) return;
 
-    const channel = userData?.username;
+    const channel = userData?.channelId;
     const subscription = subscribe(channel, ({ data }) => {
-      const messageReceived = JSON.parse(data);
+      const channelEvent = JSON.parse(data);
 
-      console.log('Message received', messageReceived);
+      switch (channelEvent?.type) {
+        case channelEvents.STAGE_PARTICIPANT_KICKED:
+          if (!isHost) {
+            notifyNeutral(
+              $contentNotification.error.you_were_removed_from_the_session,
+              {
+                asPortal: true
+              }
+            );
+          }
 
-      // TODO: parse messages here
+          break;
+        case channelEvents.STAGE_SESSION_HAS_ENDED:
+          notifyNeutral($contentNotification.neutral.the_session_ended, {
+            asPortal: true
+          });
+          break;
+        default:
+          return;
+      }
     });
     return () => subscription.unsubscribe();
-  }, [subscribe, userData?.username]);
+  }, [isHost, notifyNeutral, subscribe, userData?.channelId]);
 
   const value = useMemo(
     () => ({
