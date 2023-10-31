@@ -109,12 +109,16 @@ export const buildStageArn = (stageId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}${USER_STAGE_ID_SEPARATOR}${stageId}`;
 
 export const getStage = async (stageId: string) => {
-  const stageArn = buildStageArn(stageId);
+  try {
+    const stageArn = buildStageArn(stageId);
 
-  const getStageCommand = new GetStageCommand({ arn: stageArn });
-  const stage = await client.send(getStageCommand);
+    const getStageCommand = new GetStageCommand({ arn: stageArn });
+    const stage = await client.send(getStageCommand);
 
-  return stage;
+    return stage;
+  } catch (err) {
+    throw new Error('Something went wrong');
+  }
 };
 
 export const getChannelAssetAvatarURL = (
@@ -207,6 +211,8 @@ export const isUserInStage = async (stageId: string, userSub: string) => {
   const hostUserId = generateHostUserId(channelArn);
   const stageArn = buildStageArn(stageId);
 
+  if (!stage?.activeSessionId) return false;
+
   const { participants } = await listParticipants({
     stageArn,
     sessionId: stage?.activeSessionId,
@@ -242,6 +248,11 @@ const getNumberOfParticipantsInStage = (
 export const shouldAllowParticipantToJoin = async (stageId: string) => {
   const { stage } = await getStage(stageId);
   const stageArn = buildStageArn(stageId);
+
+  if (stage?.activeSessionId) {
+    throw new Error('Stage is not active');
+  }
+
   const { participants } = await listParticipants({
     stageArn,
     sessionId: stage?.activeSessionId,
