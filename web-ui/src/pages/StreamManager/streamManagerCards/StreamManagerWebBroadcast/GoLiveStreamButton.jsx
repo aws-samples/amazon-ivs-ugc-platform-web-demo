@@ -69,7 +69,7 @@ const GoLiveStreamButton = ({
 
   const handleStartStopBroadcastingAction = () => {
     if (isStageActive) {
-      const closeFullscreenAndAnimateCollaborateButtonCallback = async () => {
+      const closeFullscreenAndAnimateStreamButtonCallback = async () => {
         setIsFullScreenViewOpen(false);
         await collaborateButtonAnimationControls.start({
           zIndex: 1000,
@@ -81,7 +81,7 @@ const GoLiveStreamButton = ({
 
       handleOnConfirmLeaveStage({
         ...(isFullScreenViewOpen && {
-          closeFullscreenAndAnimateCollaborateButtonCallback
+          closeFullscreenAndAnimateStreamButtonCallback
         }),
         lastFocusedElementRef: streamButtonRef
       });

@@ -87,6 +87,15 @@ export const Provider = ({ children }) => {
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
 
+  const participantsArrayExcludingHost = useMemo(
+    () =>
+      [...participants].filter(
+        ([_, participant]) =>
+          participant.attributes.type !== PARTICIPANT_TYPES.HOST
+      ),
+    [participants]
+  );
+
   const value = useMemo(() => {
     return {
       // State
@@ -98,6 +107,7 @@ export const Provider = ({ children }) => {
       isStageActive,
       localParticipant,
       participants,
+      participantsArrayExcludingHost,
       stageId,
       strategy,
       success,
@@ -138,6 +148,7 @@ export const Provider = ({ children }) => {
     isStageActive,
     localParticipant,
     participants,
+    participantsArrayExcludingHost,
     stageId,
     strategy,
     success,

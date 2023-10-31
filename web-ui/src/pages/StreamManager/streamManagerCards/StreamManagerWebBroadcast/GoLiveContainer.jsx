@@ -53,7 +53,6 @@ const GoLiveContainer = forwardRef(
         <AnimatePresence initial={false}>
           <motion.div
             key="web-broadcast"
-            className={!isStageActive ? 'overflow-hidden' : undefined}
             {...(isDesktopView &&
               createAnimationProps({
                 animations: ['fadeIn-full'],
@@ -115,7 +114,7 @@ const GoLiveContainer = forwardRef(
                   'w-full',
                   (!isTouchscreenDevice ||
                     currentBreakpoint === BREAKPOINTS.xxs) &&
-                    'pr-3'
+                    'pr-[6px]'
                 ])}
               >
                 <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
