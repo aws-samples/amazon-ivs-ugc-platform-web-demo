@@ -30,6 +30,7 @@ import { getSpectatorToken } from '../../api/stages';
 import useStageClient from '../../hooks/useStageClient';
 import { Provider as BroadcastFullscreenProvider } from '../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../contexts/Stage';
+import { player as $playerContent } from '../../content';
 import usePrevious from '../../hooks/usePrevious';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
@@ -37,7 +38,7 @@ const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
   const { channelError, channelData: { stageId } = {} } = useChannel();
-  const { strategy, resetParticipants } = useGlobalStage();
+  const { strategy, resetParticipants, updateError } = useGlobalStage();
   const { joinStageClient, leaveStageClient, resetAllStageState } =
     useStageClient();
   const { isLandscape, isMobileView } = useResponsiveDevice();
@@ -61,6 +62,9 @@ const Channel = () => {
   const chatSectionRef = useRef();
   const isMounted = useMount();
   const prevStageId = usePrevious(stageId);
+  const shouldDisplayStagePlayerRef = useRef(false);
+  const shouldDisplayStagePlayer =
+    shouldDisplayStagePlayerRef.current && !!stageId;
 
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
@@ -89,7 +93,6 @@ const Channel = () => {
   }, [isMobileView, isStackedView]);
 
   useResize(updateChatSectionHeight, { shouldCallOnMount: true });
-
   // Ensures we have computed and set the chat section min-height before the first render
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();
@@ -104,7 +107,7 @@ const Channel = () => {
 
     if (isRealTimeStreamActive) {
       (async function () {
-        const { result } = await retryWithExponentialBackoff({
+        const { result, error } = await retryWithExponentialBackoff({
           promiseFn: () => getSpectatorToken(stageId),
           maxRetries: 3
         });
@@ -113,6 +116,14 @@ const Channel = () => {
           await joinStageClient({
             token: result.token,
             strategy
+          });
+          shouldDisplayStagePlayerRef.current = true;
+        }
+
+        if (error) {
+          updateError({
+            message: $playerContent.notification.error.error_loading_stream,
+            err: error
           });
         }
       })();
@@ -129,7 +140,8 @@ const Channel = () => {
     prevStageId,
     stageId,
     strategy,
-    resetParticipants
+    resetParticipants,
+    updateError
   ]);
 
   if (channelError) return <PageUnavailable />;
@@ -162,7 +174,10 @@ const Channel = () => {
           ref={channelRef}
         >
           <NotificationProvider>
-            <Player chatSectionRef={chatSectionRef} isStagePlayer={!!stageId} />
+            <Player
+              chatSectionRef={chatSectionRef}
+              stagePlayerVisible={shouldDisplayStagePlayer}
+            />
           </NotificationProvider>
           <ProductDescriptionModal />
           <motion.section

@@ -99,10 +99,14 @@ export const handleDeleteStage = async (stageId: string) => {
 export const handleCreateParticipantToken = async (
   input: CreateParticipantTokenCommandInput
 ) => {
-  const command = new CreateParticipantTokenCommand(input);
-  const { participantToken } = await client.send(command);
+  try {
+    const command = new CreateParticipantTokenCommand(input);
+    const { participantToken } = await client.send(command);
 
-  return participantToken?.token;
+    return participantToken?.token;
+  } catch (err) {
+    throw new Error('Failed to create token');
+  }
 };
 
 export const buildStageArn = (stageId: string) =>
@@ -175,9 +179,12 @@ export const handleCreateStageParams = async ({
     ? generateHostUserId(channelArn)
     : uuidv4();
 
-  const userType = shouldCreateHostUserType
+  let userType = shouldCreateHostUserType
     ? PARTICIPANT_USER_TYPES.HOST
     : PARTICIPANT_USER_TYPES.INVITED;
+  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR) {
+    userType = PARTICIPANT_USER_TYPES.SPECTATOR;
+  }
 
   return {
     username,
@@ -224,6 +231,12 @@ export const isUserInStage = async (stageId: string, userSub: string) => {
   return participants.some(
     ({ state }) => state === PARTICIPANT_CONNECTION_STATES.CONNECTED
   );
+};
+
+export const isStageActive = async (stageId: string) => {
+  const { stage } = await getStage(stageId);
+
+  return !!stage?.activeSessionId;
 };
 
 const getNumberOfParticipantsInStage = (

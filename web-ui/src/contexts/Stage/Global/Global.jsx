@@ -1,6 +1,7 @@
-import PropTypes from 'prop-types';
-import { useAnimationControls } from 'framer-motion';
 import { createContext, useMemo } from 'react';
+import PropTypes from 'prop-types';
+
+import { useAnimationControls } from 'framer-motion';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
