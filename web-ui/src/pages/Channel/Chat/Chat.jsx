@@ -23,6 +23,7 @@ import { useAppSync } from '../../../contexts/AppSync';
 import { RequestInvite } from '../../../assets/icons';
 import channelEvents from '../../../contexts/AppSync/channelEvents';
 import { useGlobalStage } from '../../../contexts/Stage';
+import Tooltip from '../../../components/Tooltip/Tooltip';
 
 const $content = $channelContent.chat;
 
@@ -38,7 +39,8 @@ const Chat = ({ shouldRunCelebration }) => {
     isMobileView,
     currentBreakpoint,
     mainRef,
-    isProfileMenuOpen
+    isProfileMenuOpen,
+    isTouchscreenDevice
   } = useResponsiveDevice();
   const isSplitView = isMobileView && isLandscape;
   const isStackedView = currentBreakpoint < BREAKPOINTS.lg;
@@ -111,8 +113,8 @@ const Chat = ({ shouldRunCelebration }) => {
       updateChatContainerDimensions(chatSectionRef.current);
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
-  const { publish } = useAppSync()
-  const { isHost, participants } = useGlobalStage()
+  const { publish } = useAppSync();
+  const { isHost, participants } = useGlobalStage();
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
@@ -143,6 +145,11 @@ const Chat = ({ shouldRunCelebration }) => {
     userData
   ]);
 
+  const isRequestButtonVisible = !isHost &&
+  channelData?.stageId &&
+  userData?.username &&
+  !isViewerBanned
+
   return (
     <>
       <div
@@ -171,40 +178,69 @@ const Chat = ({ shouldRunCelebration }) => {
           color={channelColor}
           shouldRun={shouldRunCelebration}
         />
-          {/* <Tooltip
+        {/* <Tooltip
             key="stage-control-tooltip-collaborate"
             position="above"
             translate={{ y: 2 }}
             message="Request to join"
           > */}
-          {!isHost && channelData?.stageId && userData?.username && !isViewerBanned &&
-            <Button
-              ariaLabel={"test"}
-              key="create-stage-control-btn"
-              variant="icon"
-              onClick={() => {
-                console.log('channel data -->', channelData)
-                publish(channelData.username, JSON.stringify({ type: channelEvents.STAGE_REQUEST_TO_JOIN, username: userData.username, sent: new Date().toString() }))
-              }}
-              className={clsm([
-                'bg-lightMode-gray'
-              ])}
-              isDisabled={participants?.size >= 12}
-            >
-              <RequestInvite />
-            </Button>
-            }
-          {/* </Tooltip> */}
+        {/* </Tooltip> */}
         <ConnectingOverlay isLoading={isLoading} />
         {(!isMobileView || isSessionValid) && (
-          <Composer
-            chatUserRole={chatUserRole}
-            isDisabled={hasConnectionError}
-            isFocusable={!isChatPopupOpen}
-            isLoading={isLoading}
-            sendAttemptError={sendAttemptError}
-            sendMessage={actions.sendMessage}
-          />
+          <div
+            style={{ display: 'flex', flexDirection: 'row' }}
+            className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]', 'gap-3'])}
+          >
+            <Composer
+              isRequestButtonVisible={isRequestButtonVisible}
+              chatUserRole={chatUserRole}
+              isDisabled={hasConnectionError}
+              isFocusable={!isChatPopupOpen}
+              isLoading={isLoading}
+              sendAttemptError={sendAttemptError}
+              sendMessage={actions.sendMessage}
+            />
+
+            {isRequestButtonVisible && (
+                <Tooltip
+                  position="above"
+                  translate={{ y: 2 }}
+                  message={'sadasd'}
+                >
+                  <Button
+                className={clsm([
+                  'w-11',
+                  'h-11',
+                  'dark:[&>svg]:fill-white',
+                  '[&>svg]:fill-black',
+                  'dark:bg-darkMode-gray',
+                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                  'dark:focus:bg-darkMode-gray',
+                  'bg-lightMode-gray'
+                ])}
+                 
+                                variant="icon"
+                                // ref={toggleRef}
+                    ariaLabel={'test'}
+                    key="create-stage-control-btn"
+                    // variant="icon"
+                    onClick={() => {
+                      publish(
+                        channelData.username,
+                        JSON.stringify({
+                          type: channelEvents.STAGE_REQUEST_TO_JOIN,
+                          username: userData.username,
+                          sent: new Date().toString()
+                        })
+                      );
+                    }}
+                    isDisabled={participants?.size >= 12}
+                  >
+                    <RequestInvite />
+                  </Button>
+                </Tooltip>
+              )}
+              </div>
         )}
       </div>
       <AnimatePresence>

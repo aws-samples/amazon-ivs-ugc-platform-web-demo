@@ -161,7 +161,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div style={{ border: '1px solid red', width: '100%' }}>
+    <div className={'w-full'}>
       <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
@@ -196,7 +196,7 @@ const Composer = ({
                   'dark:hover:text-white',
                   'dark:placeholder-darkMode-gray-light',
                   'focus:bg-darkMode-gray-medium',
-                  'h-12',
+                  'h-11',
                   'placeholder-lightMode-gray-dark'
                 ],
                 errorMessage && [

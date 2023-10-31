@@ -132,7 +132,7 @@ const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
             onMouseUp: hideTooltip
           }
         : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
-      className={clsm(['min-w-0', 'relative'])}
+      // className={clsm(['min-w-0', 'relative'])}
       ref={parentRef}
     >
       {children}
