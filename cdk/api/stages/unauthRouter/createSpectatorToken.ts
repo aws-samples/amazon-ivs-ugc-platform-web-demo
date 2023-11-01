@@ -5,7 +5,8 @@ import {
   buildStageArn,
   handleCreateStageParams,
   handleCreateParticipantToken,
-  PARTICIPANT_USER_TYPES
+  PARTICIPANT_USER_TYPES,
+  isStageActive
 } from '../helpers';
 
 interface GetParticipantTokenParams {
@@ -22,6 +23,11 @@ const handler = async (
 
   try {
     const { stageId } = request.params;
+    const shouldJoinStage = await isStageActive(stageId);
+    if (!shouldJoinStage) {
+      throw new Error('Stage is empty');
+    }
+
     const { duration, userId, capabilities } = await handleCreateStageParams({
       participantType
     });

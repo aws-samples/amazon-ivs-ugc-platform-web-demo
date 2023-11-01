@@ -7,7 +7,7 @@ import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
 import {
   createJoinParticipantLink,
   JOIN_PARTICIPANT_URL_PARAM_KEY,
-  getStageParticipantsUsername
+  getStageParticipantsChannelIds
 } from '../../../helpers/stagesHelpers';
 import {
   defaultParticipant,
@@ -94,11 +94,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
-  const participantUsernames = useRef([]);
+  const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
+    if (!isHost) shouldGetHostRejoinTokenRef.current = false;
     updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
-  }, [updateShouldCloseFullScreenViewOnKickedOrHostLeave]);
+  }, [updateShouldCloseFullScreenViewOnKickedOrHostLeave, isHost]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
@@ -139,7 +140,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const leaveStage = useCallback(async () => {
     try {
       let result;
-      participantUsernames.current = getStageParticipantsUsername(participants);
+      participantChannels.current =
+        getStageParticipantsChannelIds(participants);
 
       leaveStageClient();
 
@@ -160,10 +162,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
             asPortal: true
           });
 
-          if (participantUsernames.current.length) {
-            participantUsernames.current.forEach((participantUsername) => {
+          if (participantChannels.current.length) {
+            participantChannels.current.forEach((participantChannel) => {
               publish(
-                participantUsername,
+                participantChannel,
                 JSON.stringify({ type: channelEvents.STAGE_SESSION_HAS_ENDED })
               );
             });

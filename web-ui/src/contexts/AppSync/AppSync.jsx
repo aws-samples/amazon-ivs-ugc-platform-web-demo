@@ -45,9 +45,9 @@ export const Provider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!userData?.username) return;
+    if (!userData?.channelId) return;
 
-    const channel = userData?.username;
+    const channel = userData?.channelId;
     const subscription = subscribe(channel, ({ data }) => {
       const channelEvent = JSON.parse(data);
 
@@ -82,7 +82,7 @@ export const Provider = ({ children }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [isHost, notifyNeutral, subscribe, userData?.username]);
+  }, [isHost, notifyNeutral, subscribe, userData?.channelId]);
 
   const value = useMemo(
     () => ({

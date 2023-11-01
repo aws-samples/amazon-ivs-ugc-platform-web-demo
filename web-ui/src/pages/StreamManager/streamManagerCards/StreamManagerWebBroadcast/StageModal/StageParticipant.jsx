@@ -27,7 +27,7 @@ const StageParticipant = ({ participant }) => {
   const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
     useResponsiveDevice();
   const { id, attributes, isCameraHidden, isMicrophoneMuted } = participant;
-  const { username, profileColor } = attributes;
+  const { username, profileColor, channelId } = attributes;
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
   const { closeModal, openModal } = useModal();
@@ -50,7 +50,7 @@ const StageParticipant = ({ participant }) => {
         const { result } = await stagesAPI.disconnectParticipant(id);
         if (result?.message) {
           publish(
-            username,
+            channelId,
             JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
           );
         }
@@ -81,11 +81,14 @@ const StageParticipant = ({ participant }) => {
       />
       <div
         className={clsm([
-          'bg-darkMode-gray-dark',
+          'bg-lightMode-gray-light',
+          'dark:bg-darkMode-gray-dark',
           'flex',
           'gap-3',
           'p-2',
-          '[&>svg]:fill-white',
+          'px-4',
+          'dark:[&>svg]:fill-white',
+          '[&>svg]:fill-black',
           '[&>svg]:w-5',
           '[&>svg]:h-5',
           'rounded-[20px]',
@@ -130,6 +133,7 @@ StageParticipant.propTypes = {
     id: PropTypes.string,
     attributes: PropTypes.shape({
       username: PropTypes.string,
+      channelId: PropTypes.string,
       profileColor: PropTypes.string
     }),
     isCameraHidden: PropTypes.bool,

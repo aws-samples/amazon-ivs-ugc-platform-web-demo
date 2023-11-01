@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { getParticipationToken } from '../../../api/stages';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { streamManager as $streamManagerContent } from '../../../content';
-import { useBroadcast } from '../../../contexts/Broadcast';
 import { useChannel } from '../../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
@@ -14,15 +13,16 @@ const $contentNotification =
 const useHostRejoin = () => {
   const { channelData } = useChannel();
   const { stageId: channelTableStageId = undefined } = channelData || {};
-  const { creatingStage } = useGlobalStage();
+  const { creatingStage, localParticipant } = useGlobalStage();
   const { isDesktopView } = useResponsiveDevice();
-  const { createStageInstanceAndJoin, updateError } = useStreamManagerStage();
-  const { removeBroadcastClient, restartBroadcastClient } = useBroadcast();
+  const {
+    createStageInstanceAndJoin,
+    updateError,
+    broadcastDevicesStateObjRef
+  } = useStreamManagerStage();
 
   const handleHostRejoin = useCallback(
     async (openFullscreenView) => {
-      // Remove broadcast client
-      removeBroadcastClient();
       // Show spinner
       creatingStage(true);
 
@@ -43,21 +43,25 @@ const useHostRejoin = () => {
       }
 
       if (error) {
-        restartBroadcastClient();
         updateError({
           message: $contentNotification.error.unable_to_join_session,
           err: error
         });
+        broadcastDevicesStateObjRef.current = {
+          isCameraHidden: localParticipant?.isCameraHidden || false,
+          isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+        };
       }
     },
     [
+      creatingStage,
       channelTableStageId,
       createStageInstanceAndJoin,
-      creatingStage,
       isDesktopView,
       updateError,
-      removeBroadcastClient,
-      restartBroadcastClient
+      broadcastDevicesStateObjRef,
+      localParticipant?.isCameraHidden,
+      localParticipant?.isMicrophoneMuted
     ]
   );
 

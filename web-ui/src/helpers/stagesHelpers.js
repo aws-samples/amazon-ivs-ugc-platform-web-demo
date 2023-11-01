@@ -43,17 +43,17 @@ export const getVideoConstraints = (cameraDeviceId) => ({
   })
 });
 
-export const getStageParticipantsUsername = (participants) => {
+export const getStageParticipantsChannelIds = (participants) => {
   if (!participants?.size) return [];
 
-  const usernames = [];
+  const channels = [];
 
   const participantValuesArray = Array.from(participants.values());
-  participantValuesArray.forEach(({ attributes: { type, username } }) => {
+  participantValuesArray.forEach(({ attributes: { type, channelId } }) => {
     if (type !== PARTICIPANT_TYPES.HOST) {
-      usernames.push(username);
+      channels.push(channelId);
     }
   });
 
-  return usernames;
+  return channels;
 };

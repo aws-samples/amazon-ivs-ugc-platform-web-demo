@@ -17,7 +17,7 @@ const StreamVideo = forwardRef(
     {
       isFullscreenEnabled,
       isPlayerLoading,
-      isStagePlayer,
+      stagePlayerVisible,
       isVisible,
       onClickFullscreenHandler,
       onClickPlayerHandler,
@@ -41,7 +41,8 @@ const StreamVideo = forwardRef(
     const { channelData: { isViewerBanned } = {} } = useChannel();
     const { isDefaultResponsiveView } = useResponsiveDevice();
     const isPlayerAnimationRunning = runningAnimationIds.includes('player');
-    const isProfileViewStagePlayer = isProfileViewExpanded && isStagePlayer;
+    const isProfileViewStagePlayer =
+      isProfileViewExpanded && stagePlayerVisible;
     const shouldShowControlsOverlay =
       !isProfileViewStagePlayer &&
       isOverlayVisible &&
@@ -80,7 +81,7 @@ const StreamVideo = forwardRef(
 
     return (
       <>
-        {isStagePlayer ? (
+        {stagePlayerVisible ? (
           <motion.div
             {...playerProfileViewAnimationProps}
             className={clsm(videoStyles, isViewerBanned && '!hidden')}
@@ -134,9 +135,9 @@ const StreamVideo = forwardRef(
               openPopupIds={openPopupIds}
               selectedQualityName={selectedQualityName}
               setOpenPopupIds={setOpenPopupIds}
-              isPlayPauseEnabled={!isStagePlayer}
-              isRenditionSettingEnabled={!isStagePlayer}
-              isVolumeSettingEnabled={!isStagePlayer}
+              isPlayPauseEnabled={!stagePlayerVisible}
+              isRenditionSettingEnabled={!stagePlayerVisible}
+              isVolumeSettingEnabled={!stagePlayerVisible}
             />
           </PlayerOverlay>
           {!shouldShowControlsOverlay && (
@@ -160,14 +161,14 @@ StreamVideo.propTypes = {
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   playerProfileViewAnimationProps: PropTypes.object.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired,
-  isStagePlayer: PropTypes.bool
+  stagePlayerVisible: PropTypes.bool
 };
 
 StreamVideo.defaultProps = {
   isFullscreenEnabled: false,
   isPlayerLoading: false,
   isVisible: false,
-  isStagePlayer: false
+  stagePlayerVisible: false
 };
 
 export default StreamVideo;

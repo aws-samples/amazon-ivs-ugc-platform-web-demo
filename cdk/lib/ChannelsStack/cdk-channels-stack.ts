@@ -358,6 +358,8 @@ export class ChannelsStack extends NestedStack {
         'ivs:CreateChannel',
         'ivs:CreateParticipantToken',
         'ivs:CreateStage',
+        'ivs:ListParticipants',
+        'ivs:DisconnectParticipant',
         'ivs:CreateStreamKey',
         'ivs:DeleteChannel',
         'ivs:DeleteStage',

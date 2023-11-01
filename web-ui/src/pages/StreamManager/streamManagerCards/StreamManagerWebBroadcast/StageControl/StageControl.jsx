@@ -146,7 +146,7 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
             className={clsm([
               'border-l-[1px]',
               'border-darkMode-gray-medium',
-              'pl-3',
+              currentBreakpoint === BREAKPOINTS.xxs ? 'pl-[6px]' : 'pl-3',
               'mt-1'
             ])}
             {...createAnimationProps({

@@ -1,6 +1,7 @@
-import PropTypes from 'prop-types';
-import { useAnimationControls } from 'framer-motion';
 import { createContext, useMemo } from 'react';
+import PropTypes from 'prop-types';
+
+import { useAnimationControls } from 'framer-motion';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
@@ -87,6 +88,15 @@ export const Provider = ({ children }) => {
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
 
+  const participantsArrayExcludingHost = useMemo(
+    () =>
+      [...participants].filter(
+        ([_, participant]) =>
+          participant.attributes.type !== PARTICIPANT_TYPES.HOST
+      ),
+    [participants]
+  );
+
   const value = useMemo(() => {
     return {
       // State
@@ -98,6 +108,7 @@ export const Provider = ({ children }) => {
       isStageActive,
       localParticipant,
       participants,
+      participantsArrayExcludingHost,
       stageId,
       strategy,
       success,
@@ -138,6 +149,7 @@ export const Provider = ({ children }) => {
     isStageActive,
     localParticipant,
     participants,
+    participantsArrayExcludingHost,
     stageId,
     strategy,
     success,
