@@ -205,7 +205,6 @@ const Channel = () => {
       <PlayerProvider>
         <Notification />
         <div
-          style={{ border: '2px solid red' }}
           className={clsm([
             'flex',
             'items-center',

@@ -54,11 +54,8 @@ export const Provider = ({ children }) => {
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REQUEST_TO_JOIN:
           if (isHost) {
+            // eslint-disable-next-line no-unused-vars
             const { username, type, sent } = channelEvent;
-            // process here
-            console.log('username -->', username);
-            console.log('type -->', type);
-            console.log('sent -->', sent);
           }
           break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:

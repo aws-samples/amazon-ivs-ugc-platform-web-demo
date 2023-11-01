@@ -70,6 +70,16 @@ const Chat = ({ shouldRunCelebration }) => {
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
+  const { publish } = useAppSync();
+  const {
+    isHost,
+    participants,
+    updateRequestingToJoinStage,
+    requestingToJoinStage,
+    updateError,
+    updateSuccess
+  } = useGlobalStage();
+
   const openChatPopup = useCallback(
     (messageData) => {
       setIsChatPopupOpen(true);
@@ -114,15 +124,6 @@ const Chat = ({ shouldRunCelebration }) => {
       updateChatContainerDimensions(chatSectionRef.current);
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
-  const { publish } = useAppSync();
-  const {
-    isHost,
-    participants,
-    updateRequestingToJoinStage,
-    requestingToJoinStage,
-    updateError,
-    updateSuccess
-  } = useGlobalStage();
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
@@ -154,6 +155,19 @@ const Chat = ({ shouldRunCelebration }) => {
   ]);
 
   const requestToJoin = async () => {
+    if (requestingToJoinStage) {
+      updateRequestingToJoinStage(false);
+      publish(
+        channelData.username,
+        JSON.stringify({
+          type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
+          channelId: userData.channelId
+        })
+      );
+
+      return;
+    }
+
     const { result, error } = await channelAPI.getStreamLiveStatus();
 
     if (result?.isLive) {
@@ -172,7 +186,7 @@ const Chat = ({ shouldRunCelebration }) => {
         channelData.username,
         JSON.stringify({
           type: channelEvents.STAGE_REQUEST_TO_JOIN,
-          username: userData.username,
+          channelId: userData.channelId,
           sent: new Date().toString()
         })
       );
@@ -210,13 +224,6 @@ const Chat = ({ shouldRunCelebration }) => {
           color={channelColor}
           shouldRun={shouldRunCelebration}
         />
-        {/* <Tooltip
-            key="stage-control-tooltip-collaborate"
-            position="above"
-            translate={{ y: 2 }}
-            message="Request to join"
-          > */}
-        {/* </Tooltip> */}
         <ConnectingOverlay isLoading={isLoading} />
         {(!isMobileView || isSessionValid) && (
           <div
@@ -249,7 +256,6 @@ const Chat = ({ shouldRunCelebration }) => {
                     !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
                     'dark:focus:bg-darkMode-gray',
                     'bg-lightMode-gray',
-                    // blue if sent
                     requestingToJoinStage && [
                       'dark:[&>svg]:fill-black',
                       'dark:bg-darkMode-blue',
