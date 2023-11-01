@@ -95,6 +95,11 @@ export const updateShouldCloseFullScreenViewOnKickedOrHostLeave = (bool) => ({
   payload: bool
 });
 
+export const updateRequestingToJoinStage = (bool) => ({
+  type: actionTypes.UPDATE_REQUESTING_TO_JOIN_STAGE,
+  payload: bool
+})
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

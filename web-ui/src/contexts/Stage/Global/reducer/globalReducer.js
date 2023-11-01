@@ -53,7 +53,8 @@ export const STATE_KEYS = {
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
-    'shouldCloseFullScreenViewOnKickedOrHostLeave'
+    'shouldCloseFullScreenViewOnKickedOrHostLeave',
+  REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage'
 };
 
 const defaultStageReducerState = {
@@ -65,7 +66,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.ERROR]: null,
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
-  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false
+  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
+  [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false
 };
 
 const stageAnimationReducerState = {
@@ -305,6 +307,13 @@ const globalReducer = (state = defaultReducerState, action) => {
         [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]:
           action.payload
       };
+    }
+
+    case actionTypes.UPDATE_REQUESTING_TO_JOIN_STAGE: {
+      return {
+        ...state,
+        [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: action.payload
+      }
     }
 
     default:

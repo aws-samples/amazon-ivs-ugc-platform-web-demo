@@ -112,6 +112,10 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsBlockingRoute(bool));
   }, []);
 
+  const updateRequestingToJoinStage = useCallback((bool) => {
+    dispatch(actions.updateRequestingToJoinStage(bool))
+  }, [])
+
   // Channel page
   const updateIsChannelStagePlayerMuted = useCallback((bool) => {
     dispatch(actions.updateIsChannelStagePlayerMuted(bool));
@@ -134,6 +138,7 @@ const useGlobalReducers = () => {
       updateIsChannelStagePlayerMuted,
       updateIsSpectator,
       updateParticipant,
+      updateRequestingToJoinStage,
       updateShouldAnimateGoLiveButtonChevronIcon,
       updateShouldDisableStageButtonWithDelay,
       updateStageId,
@@ -157,6 +162,7 @@ const useGlobalReducers = () => {
       updateIsChannelStagePlayerMuted,
       updateIsSpectator,
       updateParticipant,
+      updateRequestingToJoinStage,
       updateShouldAnimateGoLiveButtonChevronIcon,
       updateShouldDisableStageButtonWithDelay,
       updateStageId,

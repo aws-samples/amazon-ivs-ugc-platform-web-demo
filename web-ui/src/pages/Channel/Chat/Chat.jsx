@@ -115,7 +115,7 @@ const Chat = ({ shouldRunCelebration }) => {
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
   const { publish } = useAppSync();
-  const { isHost, participants } = useGlobalStage();
+  const { isHost, participants, updateRequestingToJoinStage, requestingToJoinStage } = useGlobalStage();
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
@@ -152,6 +152,7 @@ const Chat = ({ shouldRunCelebration }) => {
       if (result?.isLive) {
         // throw error
       } else {
+        updateRequestingToJoinStage(true)
         publish(
           channelData.username,
           JSON.stringify({
@@ -230,6 +231,13 @@ const Chat = ({ shouldRunCelebration }) => {
                     'dark:focus:bg-darkMode-gray',
                     'bg-lightMode-gray',
                     // blue if sent
+                    requestingToJoinStage && [
+                      'dark:[&>svg]:fill-black',
+                      'dark:bg-darkMode-blue',
+                      'dark:focus:bg-darkMode-blue',
+                      'text-black',
+                      'dark:hover:bg-darkMode-blue-hover'
+                    ]
                   ])}
                   variant="icon"
                   // ref={toggleRef}
