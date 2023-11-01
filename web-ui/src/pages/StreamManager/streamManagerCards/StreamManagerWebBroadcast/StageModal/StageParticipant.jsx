@@ -37,7 +37,7 @@ const StageParticipant = ({ participant }) => {
     REPLACEMENT_TEXT,
     username
   );
-  const { notifyError } = useNotif()
+  const { notifyError } = useNotif();
 
   const handleDisconnectParticipant = () => {
     closeModal();
@@ -52,9 +52,12 @@ const StageParticipant = ({ participant }) => {
         const { result, error } = await stagesAPI.disconnectParticipant(id);
 
         if (error) {
-          notifyError($stageContent.notifications.error.failed_to_remove_participant, {
-            asPortal: true
-          })
+          notifyError(
+            $stageContent.notifications.error.failed_to_remove_participant,
+            {
+              asPortal: true
+            }
+          );
         } else {
           if (result?.message) {
             publish(
