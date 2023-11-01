@@ -24,6 +24,7 @@ import { RequestInvite } from '../../../assets/icons';
 import channelEvents from '../../../contexts/AppSync/channelEvents';
 import { useGlobalStage } from '../../../contexts/Stage';
 import Tooltip from '../../../components/Tooltip/Tooltip';
+import { channelAPI } from '../../../api';
 
 const $content = $channelContent.chat;
 
@@ -145,10 +146,25 @@ const Chat = ({ shouldRunCelebration }) => {
     userData
   ]);
 
-  const isRequestButtonVisible = !isHost &&
-  channelData?.stageId &&
-  userData?.username &&
-  !isViewerBanned
+  const requestToJoin = async () => {
+      const { result } = await channelAPI.getStreamLiveStatus();
+      
+      if (result?.isLive) {
+        // throw error
+      } else {
+        publish(
+          channelData.username,
+          JSON.stringify({
+            type: channelEvents.STAGE_REQUEST_TO_JOIN,
+            username: userData.username,
+            sent: new Date().toString()
+          })
+        );
+      }
+  }
+
+  const isRequestButtonVisible =
+    !isHost && channelData?.stageId && userData?.username && !isViewerBanned;
 
   return (
     <>
@@ -202,45 +218,32 @@ const Chat = ({ shouldRunCelebration }) => {
             />
 
             {isRequestButtonVisible && (
-                <Tooltip
-                  position="above"
-                  translate={{ y: 2 }}
-                  message={'sadasd'}
+              <Tooltip position="above" translate={{ y: 2 }} message={"Request to join"}>
+                <Button
+                  className={clsm([
+                    'w-11',
+                    'h-11',
+                    'dark:[&>svg]:fill-white',
+                    '[&>svg]:fill-black',
+                    'dark:bg-darkMode-gray',
+                    !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                    'dark:focus:bg-darkMode-gray',
+                    'bg-lightMode-gray',
+                    // blue if sent
+                  ])}
+                  variant="icon"
+                  // ref={toggleRef}
+                  ariaLabel={'test'}
+                  key="create-stage-control-btn"
+                  // variant="icon"
+                  onClick={requestToJoin}
+                  isDisabled={participants?.size >= 12}
                 >
-                  <Button
-                className={clsm([
-                  'w-11',
-                  'h-11',
-                  'dark:[&>svg]:fill-white',
-                  '[&>svg]:fill-black',
-                  'dark:bg-darkMode-gray',
-                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                  'dark:focus:bg-darkMode-gray',
-                  'bg-lightMode-gray'
-                ])}
-                 
-                                variant="icon"
-                                // ref={toggleRef}
-                    ariaLabel={'test'}
-                    key="create-stage-control-btn"
-                    // variant="icon"
-                    onClick={() => {
-                      publish(
-                        channelData.username,
-                        JSON.stringify({
-                          type: channelEvents.STAGE_REQUEST_TO_JOIN,
-                          username: userData.username,
-                          sent: new Date().toString()
-                        })
-                      );
-                    }}
-                    isDisabled={participants?.size >= 12}
-                  >
-                    <RequestInvite />
-                  </Button>
-                </Tooltip>
-              )}
-              </div>
+                  <RequestInvite />
+                </Button>
+              </Tooltip>
+            )}
+          </div>
         )}
       </div>
       <AnimatePresence>
