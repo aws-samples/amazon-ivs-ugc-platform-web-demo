@@ -20,6 +20,7 @@ import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { streamManager as $content } from '../../../../../content';
+import { useNotif } from '../../../../../contexts/Notification';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -36,6 +37,7 @@ const StageParticipant = ({ participant }) => {
     REPLACEMENT_TEXT,
     username
   );
+  const { notifyError } = useNotif()
 
   const handleDisconnectParticipant = () => {
     closeModal();
@@ -47,12 +49,19 @@ const StageParticipant = ({ participant }) => {
         message
       },
       onConfirm: async () => {
-        const { result } = await stagesAPI.disconnectParticipant(id);
-        if (result?.message) {
-          publish(
-            channelId,
-            JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
-          );
+        const { result, error } = await stagesAPI.disconnectParticipant(id);
+
+        if (error) {
+          notifyError($stageContent.notifications.error.failed_to_remove_participant, {
+            asPortal: true
+          })
+        } else {
+          if (result?.message) {
+            publish(
+              channelId,
+              JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
+            );
+          }
         }
       },
       onCancel: () => {
