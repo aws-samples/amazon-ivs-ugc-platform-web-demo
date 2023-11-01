@@ -9,7 +9,8 @@ import {
   IVSRealTimeClient,
   ListParticipantsCommand,
   ListParticipantsCommandInput,
-  ParticipantSummary
+  ParticipantSummary,
+  DisconnectParticipantCommand
 } from '@aws-sdk/client-ivs-realtime';
 import {
   ChannelAssets,
@@ -59,7 +60,8 @@ const PARTICIPANT_CONNECTION_STATES = {
 
 const shouldFetchUserData = [
   PARTICIPANT_USER_TYPES.HOST,
-  PARTICIPANT_USER_TYPES.INVITED
+  PARTICIPANT_USER_TYPES.INVITED,
+  PARTICIPANT_USER_TYPES.REQUESTED
 ];
 
 export type ParticipantType =
@@ -101,22 +103,30 @@ export const handleDeleteStage = async (stageId: string) => {
 export const handleCreateParticipantToken = async (
   input: CreateParticipantTokenCommandInput
 ) => {
-  const command = new CreateParticipantTokenCommand(input);
-  const { participantToken } = await client.send(command);
+  try {
+    const command = new CreateParticipantTokenCommand(input);
+    const { participantToken } = await client.send(command);
 
-  return participantToken?.token;
+    return participantToken?.token;
+  } catch (err) {
+    throw new Error('Failed to create token');
+  }
 };
 
 export const buildStageArn = (stageId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}${USER_STAGE_ID_SEPARATOR}${stageId}`;
 
 export const getStage = async (stageId: string) => {
-  const stageArn = buildStageArn(stageId);
+  try {
+    const stageArn = buildStageArn(stageId);
 
-  const getStageCommand = new GetStageCommand({ arn: stageArn });
-  const stage = await client.send(getStageCommand);
+    const getStageCommand = new GetStageCommand({ arn: stageArn });
+    const stage = await client.send(getStageCommand);
 
-  return stage;
+    return stage;
+  } catch (err) {
+    throw new Error('Something went wrong');
+  }
 };
 
 export const getChannelAssetAvatarURL = (
@@ -144,6 +154,7 @@ export const handleCreateStageParams = async ({
     avatar,
     channelAssets,
     channelArn,
+    channelId = '',
     channelAssetsAvatarUrlPath = '';
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
@@ -155,6 +166,11 @@ export const handleCreateStageParams = async ({
       username,
       channelArn
     } = unmarshall(UserItem));
+
+    if (channelArn) {
+      channelId = getChannelId(channelArn);
+    }
+
     channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
       channelAssets,
       avatar
@@ -173,9 +189,12 @@ export const handleCreateStageParams = async ({
     ? generateHostUserId(channelArn)
     : uuidv4();
 
-  const userType = shouldCreateHostUserType
+  let userType = shouldCreateHostUserType
     ? PARTICIPANT_USER_TYPES.HOST
     : PARTICIPANT_USER_TYPES.INVITED;
+  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR) {
+    userType = PARTICIPANT_USER_TYPES.SPECTATOR;
+  }
 
   return {
     username,
@@ -185,7 +204,8 @@ export const handleCreateStageParams = async ({
     duration: STAGE_TOKEN_DURATION,
     userId,
     capabilities,
-    userType
+    userType,
+    channelId
   };
 };
 
@@ -209,6 +229,8 @@ export const isUserInStage = async (stageId: string, userSub: string) => {
   const hostUserId = generateHostUserId(channelArn);
   const stageArn = buildStageArn(stageId);
 
+  if (!stage?.activeSessionId) return false;
+
   const { participants } = await listParticipants({
     stageArn,
     sessionId: stage?.activeSessionId,
@@ -220,6 +242,12 @@ export const isUserInStage = async (stageId: string, userSub: string) => {
   return participants.some(
     ({ state }) => state === PARTICIPANT_CONNECTION_STATES.CONNECTED
   );
+};
+
+export const isStageActive = async (stageId: string) => {
+  const { stage } = await getStage(stageId);
+
+  return !!stage?.activeSessionId;
 };
 
 const getNumberOfParticipantsInStage = (
@@ -244,6 +272,11 @@ const getNumberOfParticipantsInStage = (
 export const shouldAllowParticipantToJoin = async (stageId: string) => {
   const { stage } = await getStage(stageId);
   const stageArn = buildStageArn(stageId);
+
+  if (stage?.activeSessionId) {
+    throw new Error('Stage is not active');
+  }
+
   const { participants } = await listParticipants({
     stageArn,
     sessionId: stage?.activeSessionId,
@@ -286,4 +319,41 @@ export const validateRequestParams = (...requestParams: string[]) => {
     misssingParams.length &&
     misssingParams.join(misssingParams.length > 1 ? ', ' : '')
   );
+};
+
+export const verifyUserIsStageHost = async (sub: string) => {
+  const { Item: UserItem = {} } = await getUser(sub);
+  const { stageId = null, channelArn } = unmarshall(UserItem);
+  if (!stageId) {
+    throw new Error('No active stage found.');
+  }
+
+  const { stage } = await getStage(stageId);
+  const channelId = getChannelId(channelArn);
+  const stageOwnerChannelId = stage?.tags?.stageOwnerChannelId;
+  const isStageHost = stageOwnerChannelId === channelId;
+
+  if (!isStageHost) {
+    throw new Error('Channel ownership verification failed.');
+  }
+
+  return {
+    isStageHost,
+    stageId
+  };
+};
+
+export const handleDisconnectParticipant = async (
+  participantId: string,
+  stageId: string
+) => {
+  const stageArn = buildStageArn(stageId);
+
+  const disconnectParticipantCommand = new DisconnectParticipantCommand({
+    participantId,
+    stageArn,
+    reason: 'You have been kicked by the host.'
+  });
+
+  await client.send(disconnectParticipantCommand);
 };

@@ -25,6 +25,7 @@ import StreamVideo from './StreamVideo';
 import useFullscreen from './useFullscreen';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
+import { useGlobalStage } from '../../../contexts/Stage';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -32,7 +33,7 @@ const nonDoubleClickableIds = [
   'rendition-selector-container'
 ];
 
-const Player = ({ chatSectionRef, isStagePlayer }) => {
+const Player = ({ chatSectionRef, stagePlayerVisible }) => {
   const { dismissNotif, notifyError } = useNotif();
   const { isSplitView } = useChannelView();
   const { isLandscape } = useResponsiveDevice();
@@ -69,6 +70,7 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
     },
     setShouldKeepOverlaysVisible
   } = usePlayerContext();
+  const { error: errorLoadingStage } = useGlobalStage();
   const { isActive: isPollActive } = usePoll();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
@@ -103,7 +105,11 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
   const playerProfileViewAnimationProps = useMemo(
     () =>
       getProfileViewAnimationProps(playerAnimationControls, {
-        expanded: { borderRadius: isStagePlayer ? 12 : 24, top: 340, y: 0 },
+        expanded: {
+          borderRadius: stagePlayerVisible ? 12 : 24,
+          top: 340,
+          y: 0
+        },
         collapsed: {
           borderRadius: 0,
           top: '50%',
@@ -111,13 +117,14 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
           stacked: { top: 0, y: 0 }
         }
       }),
-    [getProfileViewAnimationProps, playerAnimationControls, isStagePlayer]
+    [getProfileViewAnimationProps, playerAnimationControls, stagePlayerVisible]
   );
 
   let targetPlayerRef = videoRef;
-  if (!isStagePlayer && isStreamSpinnerVisible) targetPlayerRef = spinnerRef;
+  if (!stagePlayerVisible && isStreamSpinnerVisible)
+    targetPlayerRef = spinnerRef;
   else if (isStreamViewerBannedVisible) targetPlayerRef = bannedRef;
-  else if (!isStagePlayer && isStreamOfflineVisible)
+  else if (!stagePlayerVisible && isStreamOfflineVisible)
     targetPlayerRef = offlineRef;
   useProfileViewPlayerAnimation({
     chatSectionRef,
@@ -203,12 +210,12 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
 
   // Trigger an error notification when there is an error loading the stream
   useEffect(() => {
-    if (hasError) {
+    if (hasError || errorLoadingStage) {
       notifyError($content.notification.error.error_loading_stream, {
         withTimeout: false
       });
     } else dismissNotif();
-  }, [dismissNotif, hasError, notifyError]);
+  }, [dismissNotif, hasError, notifyError, errorLoadingStage]);
 
   // Keep the player overlays visible if a popup is open (e.g. volume or rendition setting popup)
   useEffect(() => {
@@ -250,10 +257,10 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
       />
       <StreamVideo
         ref={videoRef}
-        isStagePlayer={isStagePlayer}
+        stagePlayerVisible={stagePlayerVisible}
         /* Player */
-        isPlayerLoading={!isStagePlayer && isPlayerLoading}
-        isVisible={isStagePlayer || isStreamVideoVisible}
+        isPlayerLoading={!stagePlayerVisible && isPlayerLoading}
+        isVisible={stagePlayerVisible || isStreamVideoVisible}
         onClickPlayerHandler={onClickPlayerHandler}
         /* Controls */
         openPopupIds={openPopupIds}
@@ -264,7 +271,7 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
         /* Profile View Animation */
         playerProfileViewAnimationProps={playerProfileViewAnimationProps}
       />
-      {!isStagePlayer && (
+      {!stagePlayerVisible && (
         <>
           <StreamInfo
             isVisible={isStreamSpinnerVisible}
@@ -342,12 +349,12 @@ const Player = ({ chatSectionRef, isStagePlayer }) => {
 };
 
 Player.defaultProps = {
-  isStagePlayer: false
+  stagePlayerVisible: false
 };
 
 Player.propTypes = {
   chatSectionRef: PropTypes.shape({ current: PropTypes.object }).isRequired,
-  isStagePlayer: PropTypes.bool
+  stagePlayerVisible: PropTypes.bool
 };
 
 export default Player;

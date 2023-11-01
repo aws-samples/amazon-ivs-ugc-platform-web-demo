@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
 import {
   createJoinParticipantLink,
-  JOIN_PARTICIPANT_URL_PARAM_KEY
+  JOIN_PARTICIPANT_URL_PARAM_KEY,
+  getStageParticipantsChannelIds
 } from '../../../helpers/stagesHelpers';
 import {
   defaultParticipant,
@@ -18,6 +19,7 @@ import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
 import { streamManager as $streamManagerContent } from '../../../content';
+import { useAppSync } from '../../AppSync';
 import { useBroadcast } from '../../Broadcast';
 import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
@@ -26,10 +28,10 @@ import { useStreams } from '../../Streams';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
-
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
 import useStageClient from '../../../hooks/useStageClient';
+import channelEvents from '../../AppSync/channelEvents';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -60,8 +62,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     shouldDisableStageButtonWithDelay,
     isCreatingStage,
     isHost,
-    updateShouldCloseFullScreenViewOnHostLeave,
-    shouldCloseFullScreenViewOnHostLeave
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    shouldCloseFullScreenViewOnKickedOrHostLeave
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -82,6 +84,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
   const { refreshChannelData } = useChannel();
+  const { publish } = useAppSync();
 
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
@@ -91,14 +94,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
+  const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
-    notifyNeutral($contentNotification.neutral.the_session_ended, {
-      asPortal: true
-    });
-
-    updateShouldCloseFullScreenViewOnHostLeave(true);
-  }, [notifyNeutral, updateShouldCloseFullScreenViewOnHostLeave]);
+    if (!isHost) shouldGetHostRejoinTokenRef.current = false;
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
+  }, [updateShouldCloseFullScreenViewOnKickedOrHostLeave, isHost]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
@@ -139,6 +140,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const leaveStage = useCallback(async () => {
     try {
       let result;
+      participantChannels.current =
+        getStageParticipantsChannelIds(participants);
 
       leaveStageClient();
 
@@ -158,6 +161,15 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
           notifyNeutral($contentNotification.neutral.the_session_ended, {
             asPortal: true
           });
+
+          if (participantChannels.current.length) {
+            participantChannels.current.forEach((participantChannel) => {
+              publish(
+                participantChannel,
+                JSON.stringify({ type: channelEvents.STAGE_SESSION_HAS_ENDED })
+              );
+            });
+          }
         }
         // Disable usePrompt
         updateIsBlockingRoute(false);
@@ -172,13 +184,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
           if (stageIdUrlParam) {
             // if (isHost) shouldGetHostRejoinTokenRef.current = false
             navigate('/manager');
-            console.log('isHost', { isHost })
-          } 
+            console.log('isHost', { isHost });
+          }
           broadcastDevicesStateObjRef.current = {
             isCameraHidden: localParticipant?.isCameraHidden || false,
             isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
           };
-          console.log('here')
+          console.log('here');
         }, 350);
       }
     } catch (err) {
@@ -188,24 +200,27 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       });
     }
   }, [
-    localParticipant,
+    participants,
     leaveStageClient,
+    isHost,
     refreshChannelData,
     updateIsBlockingRoute,
     updateAnimateCollapseStageContainerWithDelay,
     updateShouldAnimateGoLiveButtonChevronIcon,
     notifyNeutral,
+    publish,
     resetStage,
     stageIdUrlParam,
     navigate,
-    updateError,
-    isHost
+    localParticipant?.isCameraHidden,
+    localParticipant?.isMicrophoneMuted,
+    updateError
   ]);
 
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnHostLeave) return;
+    if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
     leaveStage();
-  }, [leaveStage, shouldCloseFullScreenViewOnHostLeave]);
+  }, [leaveStage, shouldCloseFullScreenViewOnKickedOrHostLeave]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -413,7 +428,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleCamera,
       toggleMicrophone,
       handleOnConfirmLeaveStage,
-      shouldCloseFullScreenViewOnHostLeave,
+      shouldCloseFullScreenViewOnKickedOrHostLeave,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
@@ -437,7 +452,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       resetStage,
       isSpectator,
       hasPermissions,
-      shouldCloseFullScreenViewOnHostLeave,
+      shouldCloseFullScreenViewOnKickedOrHostLeave,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef
     ]

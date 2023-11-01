@@ -1,4 +1,5 @@
 import { streamManager as $streamManagerContent } from '../content';
+import { PARTICIPANT_TYPES } from '../contexts/Stage/Global/reducer/globalReducer';
 import { isiOS } from '../utils';
 
 const userJoinedNotificationContent =
@@ -41,3 +42,18 @@ export const getVideoConstraints = (cameraDeviceId) => ({
     resizeMode: 'none'
   })
 });
+
+export const getStageParticipantsChannelIds = (participants) => {
+  if (!participants?.size) return [];
+
+  const channels = [];
+
+  const participantValuesArray = Array.from(participants.values());
+  participantValuesArray.forEach(({ attributes: { type, channelId } }) => {
+    if (type !== PARTICIPANT_TYPES.HOST) {
+      channels.push(channelId);
+    }
+  });
+
+  return channels;
+};

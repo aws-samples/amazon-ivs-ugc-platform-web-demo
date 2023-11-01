@@ -1,6 +1,7 @@
-import PropTypes from 'prop-types';
-import { useAnimationControls } from 'framer-motion';
 import { createContext, useMemo } from 'react';
+import PropTypes from 'prop-types';
+
+import { useAnimationControls } from 'framer-motion';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
@@ -34,7 +35,7 @@ export const Provider = ({ children }) => {
     updateStageId,
     updateStreams,
     updateSuccess,
-    updateShouldCloseFullScreenViewOnHostLeave
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave
   } = useGlobalReducers();
   const {
     participants,
@@ -48,7 +49,7 @@ export const Provider = ({ children }) => {
     success,
     isBlockingRoute,
     isChannelStagePlayerMuted,
-    shouldCloseFullScreenViewOnHostLeave
+    shouldCloseFullScreenViewOnKickedOrHostLeave
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -112,7 +113,7 @@ export const Provider = ({ children }) => {
       strategy,
       success,
       isHost,
-      shouldCloseFullScreenViewOnHostLeave,
+      shouldCloseFullScreenViewOnKickedOrHostLeave,
       // Actions
       addParticipant,
       creatingStage,
@@ -128,7 +129,7 @@ export const Provider = ({ children }) => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnHostLeave,
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -152,7 +153,7 @@ export const Provider = ({ children }) => {
     stageId,
     strategy,
     success,
-    shouldCloseFullScreenViewOnHostLeave,
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
     addParticipant,
     creatingStage,
     removeParticipant,
@@ -170,7 +171,7 @@ export const Provider = ({ children }) => {
     updateStageId,
     updateStreams,
     updateSuccess,
-    updateShouldCloseFullScreenViewOnHostLeave,
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
     animationCollapseStageControlsStart,
     collaborateButtonAnimationControls,
     updateAnimateCollapseStageContainerWithDelay,

@@ -55,7 +55,8 @@ const handler = async (
       duration,
       userId,
       capabilities,
-      userType: type
+      userType: type,
+      channelId
     } = await handleCreateStageParams({
       userSub: sub,
       participantType,
@@ -69,6 +70,7 @@ const handler = async (
       duration,
       userId,
       attributes: {
+        channelId,
         username: preferredUsername || username,
         profileColor,
         avatar,
