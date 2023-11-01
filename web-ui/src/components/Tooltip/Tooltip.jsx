@@ -8,7 +8,6 @@ import {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { clsm } from '../../utils';
 import { keepWithinViewport } from './utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useTooltips } from '../../contexts/Tooltips';

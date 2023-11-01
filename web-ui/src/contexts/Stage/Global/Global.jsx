@@ -56,7 +56,7 @@ export const Provider = ({ children }) => {
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
   const isStageActive = !!stageId;
-  console.log('requestingToJoinStage -->', requestingToJoinStage)
+
   const strategy = useMemo(
     () => ({
       audioTrack: undefined,

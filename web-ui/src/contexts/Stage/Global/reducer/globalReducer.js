@@ -313,7 +313,7 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: action.payload
-      }
+      };
     }
 
     default:

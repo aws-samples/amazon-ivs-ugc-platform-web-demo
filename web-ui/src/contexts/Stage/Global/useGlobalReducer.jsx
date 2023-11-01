@@ -113,8 +113,8 @@ const useGlobalReducers = () => {
   }, []);
 
   const updateRequestingToJoinStage = useCallback((bool) => {
-    dispatch(actions.updateRequestingToJoinStage(bool))
-  }, [])
+    dispatch(actions.updateRequestingToJoinStage(bool));
+  }, []);
 
   // Channel page
   const updateIsChannelStagePlayerMuted = useCallback((bool) => {

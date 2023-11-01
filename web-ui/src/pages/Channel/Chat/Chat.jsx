@@ -115,7 +115,14 @@ const Chat = ({ shouldRunCelebration }) => {
     }
   }, [chatSectionRef, updateChatContainerDimensions]);
   const { publish } = useAppSync();
-  const { isHost, participants, updateRequestingToJoinStage, requestingToJoinStage } = useGlobalStage();
+  const {
+    isHost,
+    participants,
+    updateRequestingToJoinStage,
+    requestingToJoinStage,
+    updateError,
+    updateSuccess
+  } = useGlobalStage();
 
   useEffect(() => {
     if (deletedMessage && !isModerator) {
@@ -147,22 +154,30 @@ const Chat = ({ shouldRunCelebration }) => {
   ]);
 
   const requestToJoin = async () => {
-      const { result } = await channelAPI.getStreamLiveStatus();
-      
-      if (result?.isLive) {
-        // throw error
-      } else {
-        updateRequestingToJoinStage(true)
-        publish(
-          channelData.username,
-          JSON.stringify({
-            type: channelEvents.STAGE_REQUEST_TO_JOIN,
-            username: userData.username,
-            sent: new Date().toString()
-          })
-        );
-      }
-  }
+    const { result, error } = await channelAPI.getStreamLiveStatus();
+
+    if (result?.isLive) {
+      updateError({
+        message:
+          $channelContent.notifications.error
+            .request_to_join_fail_user_is_streaming,
+        err: error
+      });
+    } else {
+      updateSuccess(
+        $channelContent.notifications.success.request_to_join_stage_success
+      );
+      updateRequestingToJoinStage(true);
+      publish(
+        channelData.username,
+        JSON.stringify({
+          type: channelEvents.STAGE_REQUEST_TO_JOIN,
+          username: userData.username,
+          sent: new Date().toString()
+        })
+      );
+    }
+  };
 
   const isRequestButtonVisible =
     !isHost && channelData?.stageId && userData?.username && !isViewerBanned;
@@ -219,7 +234,11 @@ const Chat = ({ shouldRunCelebration }) => {
             />
 
             {isRequestButtonVisible && (
-              <Tooltip position="above" translate={{ y: 2 }} message={"Request to join"}>
+              <Tooltip
+                position="above"
+                translate={{ y: 2 }}
+                message={'Request to join'}
+              >
                 <Button
                   className={clsm([
                     'w-11',
