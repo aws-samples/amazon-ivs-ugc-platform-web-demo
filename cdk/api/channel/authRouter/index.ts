@@ -16,7 +16,7 @@ import unbanUser from './unbanUser';
 import addToFollowingList from './addToFollowingList';
 import removeFromFollowingList from './removeFromFollowingList';
 import getFollowingChannels from './getFollowingChannels';
-import getStreamLiveStatus from './getStreamLiveStatus'
+import getStreamLiveStatus from './getStreamLiveStatus';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {

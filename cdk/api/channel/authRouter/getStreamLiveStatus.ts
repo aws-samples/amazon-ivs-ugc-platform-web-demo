@@ -23,14 +23,14 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const getStreamCommand = new GetStreamCommand({ channelArn });
       const response = await ivsClient.send(getStreamCommand);
-      const streamStatus = response?.stream?.state
+      const streamStatus = response?.stream?.state;
 
       if (streamStatus === 'LIVE') {
-        responseBody.isLive = true
+        responseBody.isLive = true;
       }
     } catch (error) {
-      if ((error instanceof ChannelNotBroadcasting)) {
-        responseBody.isLive = false
+      if (error instanceof ChannelNotBroadcasting) {
+        responseBody.isLive = false;
       } else {
         throw error;
       }
