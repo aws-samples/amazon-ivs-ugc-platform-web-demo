@@ -4,6 +4,7 @@ import useStageEventHandlers from './useStageEventHandlers';
 import { apiBaseUrl } from '../../api/utils';
 import { noop } from '../../utils';
 import { useGlobalStage } from '../../contexts/Stage';
+import { useUser } from '../../contexts/User';
 
 const { Stage } = window.IVSBroadcastClient;
 
@@ -15,13 +16,19 @@ const useStageClient = (
 ) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState, isHost } =
-    useGlobalStage();
+  const {
+    resetParticipants,
+    strategy,
+    resetStageState,
+    isHost,
+    localParticipant
+  } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
     stageConnectionErroredEventCallback
   });
+  const { userData } = useUser()
 
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
@@ -58,8 +65,13 @@ const useStageClient = (
         queueMicrotask(
           setTimeout(() => {
             if (isHost) {
+              const body = {
+                hostChannelId: localParticipant?.attributes?.channelId || userData?.channelId
+              };
+              // Triggered on Firefox
               navigator.sendBeacon(
-                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`
+                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
+                JSON.stringify(body)
               );
             }
 
@@ -68,7 +80,7 @@ const useStageClient = (
         );
       });
     }
-  }, [isClientDefined, isHost]);
+  }, [isClientDefined, isHost, localParticipant, userData?.channelId]);
 
   return {
     client: clientRef.current,
