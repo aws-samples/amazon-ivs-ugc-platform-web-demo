@@ -47,7 +47,7 @@ const useStageEventHandlers = ({
       if (isLocal) {
         if (type === PARTICIPANT_TYPES.HOST) {
           // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
-          // would've otherwise been reset or lost at that point in time
+          // would've otherwise been reset, lost or inaccessible at that time
           participantInfo.current = {
             isHost: true,
             hostUsername: participant.attributes.username
