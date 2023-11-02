@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2b194dd2-111c-46b8-b2fd-3d847ee830da",
+		"_postman_id": "28e40d14-eb4c-4967-a1a2-40d8bddbc61d",
 		"name": "UGC",
 		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -1016,6 +1016,34 @@
 							]
 						},
 						"description": "This unauthenticated endpoint fetches a AWS IVS real-time participant token. The token is for a spectator partipant type that can view a real-time stream on the UGC channel page."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/sendHostDisconnectedMessage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stageId\": \"{{stageId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/sendHostDisconnectedMessage",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"sendHostDisconnectedMessage"
+							]
+						},
+						"description": "This endpoint sends a new message to the SQS delete stage queue. Either a `stageId` or `stageArn` parameters are required in order to send the message.\n\nThe \"deleteStage\" lambda function trigged by the SQS queue will check if the stage \"host\" is in the list of participants. If the \"host\" is not, the lambda function will update the host's DynamoDB channels record `stageId` and `stageArn` fields to null. Once this is done, the IVS stage is deleted."
 					},
 					"response": []
 				}

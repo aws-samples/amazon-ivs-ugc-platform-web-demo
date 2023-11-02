@@ -4,6 +4,7 @@ import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
 import { stagesAPI } from '../../api';
 import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
+import { useUser } from '../../contexts/User';
 
 const {
   StageEvents,
@@ -17,7 +18,10 @@ const useStageEventHandlers = ({
   updateSuccess,
   stageConnectionErroredEventCallback
 }) => {
-  const isHost = useRef(false);
+  const participantInfo = useRef({
+    isHost: false,
+    hostChannelId: null
+  });
 
   const {
     addParticipant,
@@ -30,6 +34,7 @@ const useStageEventHandlers = ({
     removeParticipant,
     strategy
   } = useGlobalStage();
+  const { userData } = useUser();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -41,10 +46,14 @@ const useStageEventHandlers = ({
         },
         isLocal
       } = participant;
-
       if (isLocal) {
         if (type === PARTICIPANT_TYPES.HOST) {
-          isHost.current = true;
+          // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
+          // would've otherwise been reset, lost or inaccessible at that time
+          participantInfo.current = {
+            isHost: true,
+            hostChannelId: participant.attributes.channelId
+          };
         }
 
         return;
@@ -66,7 +75,11 @@ const useStageEventHandlers = ({
         createUserJoinedSuccessMessage(participantUsername);
       updateSuccess(successMessage);
     },
-    [addParticipant, updateSuccess, localParticipant]
+    [
+      addParticipant,
+      localParticipant?.attributes.participantTokenCreationDate,
+      updateSuccess
+    ]
   );
 
   const handleParticipantLeftEvent = useCallback(
@@ -128,11 +141,18 @@ const useStageEventHandlers = ({
   const handleParticipantConnectionChangedEvent = useCallback(
     async (state) => {
       if (state === StageConnectionState.DISCONNECTED) {
-        if (isHost.current) {
-          // Does not execute on Firefox
-          await stagesAPI.disconnectFromStage();
+        if (participantInfo.current.isHost) {
+          // Provide userData.channelId as fallback for the scenario that host decides to create a stage and exits quickly after
+          const hostChannelId =
+            participantInfo?.current?.hostChannelId || userData?.channelId;
 
-          isHost.current = false;
+          // Does not execute on Firefox
+          await stagesAPI.sendHostDisconnectedMessage(hostChannelId);
+
+          participantInfo.current = {
+            isHost: false,
+            hostChannelId: null
+          };
         }
       }
 
@@ -140,7 +160,7 @@ const useStageEventHandlers = ({
         stageConnectionErroredEventCallback();
       }
     },
-    [stageConnectionErroredEventCallback]
+    [stageConnectionErroredEventCallback, userData]
   );
 
   const attachStageEvents = useCallback(

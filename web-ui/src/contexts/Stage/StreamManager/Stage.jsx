@@ -19,6 +19,7 @@ import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
 import { streamManager as $streamManagerContent } from '../../../content';
+import { useAppSync } from '../../AppSync';
 import { useBroadcast } from '../../Broadcast';
 import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
@@ -27,10 +28,9 @@ import { useStreams } from '../../Streams';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
-import useStageClient from '../../../hooks/useStageClient';
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
-import { useAppSync } from '../../AppSync';
+import useStageClient from '../../../hooks/useStageClient';
 import channelEvents from '../../AppSync/channelEvents';
 
 const $contentNotification =
@@ -181,7 +181,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         setTimeout(() => {
           resetStage(true);
 
-          if (stageIdUrlParam) navigate('/manager');
+          if (stageIdUrlParam) {
+            navigate('/manager');
+          }
           broadcastDevicesStateObjRef.current = {
             isCameraHidden: localParticipant?.isCameraHidden || false,
             isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false

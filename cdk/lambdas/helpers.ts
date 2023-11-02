@@ -1,8 +1,10 @@
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
 import {
+  AttributeValueUpdate,
   BatchWriteItemCommand,
   DynamoDBClient,
   QueryCommand,
+  UpdateItemCommand,
   WriteRequest
 } from '@aws-sdk/client-dynamodb';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
@@ -204,4 +206,44 @@ export const deleteStagesWithRetry = async (stageArns: string[]) => {
 
     analyzeDeleteStageResponse(response, retryBatch, true);
   }
+};
+
+type DynamoKey = { key: string; value: string };
+
+export const updateDynamoItemAttributes = ({
+  attributes = [],
+  primaryKey,
+  sortKey,
+  tableName
+}: {
+  attributes: { key: string; value: any }[];
+  primaryKey: DynamoKey;
+  sortKey?: DynamoKey;
+  tableName: string;
+}) => {
+  if (!attributes.length) return;
+
+  const attributesToUpdate = attributes.reduce(
+    (acc, { key, value }) => ({
+      ...acc,
+      [key]: {
+        Action: 'PUT',
+        Value: convertToAttr(value, {
+          removeUndefinedValues: true
+        })
+      }
+    }),
+    {}
+  ) as { [key: string]: AttributeValueUpdate };
+
+  const putItemCommand = new UpdateItemCommand({
+    AttributeUpdates: attributesToUpdate,
+    Key: {
+      [primaryKey.key]: convertToAttr(primaryKey.value),
+      ...(sortKey ? { [sortKey.key]: convertToAttr(sortKey.value) } : {})
+    },
+    TableName: tableName
+  });
+
+  return dynamoDbClient.send(putItemCommand);
 };
