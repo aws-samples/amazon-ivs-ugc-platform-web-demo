@@ -58,11 +58,11 @@ const useStageClient = (
         queueMicrotask(
           setTimeout(() => {
             if (isHost) {
-              const body = new Blob([JSON.stringify({ hostUsername: localParticipant.attributes.username })], { type: "application/json" });
-
+              const body = { hostChannelId: localParticipant?.attributes?.channelId };
+              // Triggered on Firefox
               navigator.sendBeacon(
                 `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
-                body
+                JSON.stringify(body)
               );
             }
 

@@ -4,6 +4,7 @@ import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
 import { stagesAPI } from '../../api';
 import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
+import { useUser } from '../../contexts/User';
 
 const {
   StageEvents,
@@ -19,7 +20,7 @@ const useStageEventHandlers = ({
 }) => {
   const participantInfo = useRef({
     isHost: false,
-    hostUsername: null
+    hostChannelId: null
   });
 
   const {
@@ -33,6 +34,7 @@ const useStageEventHandlers = ({
     removeParticipant,
     strategy
   } = useGlobalStage();
+  const { userData } = useUser()
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -50,7 +52,7 @@ const useStageEventHandlers = ({
           // would've otherwise been reset, lost or inaccessible at that time
           participantInfo.current = {
             isHost: true,
-            hostUsername: participant.attributes.username
+            hostChannelId: participant.attributes.channelId
           }
         }
 
@@ -136,14 +138,15 @@ const useStageEventHandlers = ({
     async (state) => {
       if (state === StageConnectionState.DISCONNECTED) {
         if (participantInfo.current.isHost) {
-          const hostUsername = participantInfo.current.hostUsername
+          // Provide userData.channelId as fallback for the scenario that host decides to create a stage and exits quickly after
+          const hostChannelId = participantInfo?.current?.hostChannelId || userData?.channelId
 
           // Does not execute on Firefox
-          await stagesAPI.sendHostDisconnectedMessage(hostUsername);
+          await stagesAPI.sendHostDisconnectedMessage(hostChannelId);
 
           participantInfo.current = {
             isHost: false,
-            hostUsername: null
+            hostChannelId: null
           }
         }
       }
@@ -152,7 +155,7 @@ const useStageEventHandlers = ({
         stageConnectionErroredEventCallback();
       }
     },
-    [stageConnectionErroredEventCallback]
+    [stageConnectionErroredEventCallback, userData]
   );
 
   const attachStageEvents = useCallback(
