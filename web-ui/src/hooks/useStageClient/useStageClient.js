@@ -28,7 +28,7 @@ const useStageClient = (
     updateSuccess,
     stageConnectionErroredEventCallback
   });
-  const { userData } = useUser()
+  const { userData } = useUser();
 
   const joinStageClient = useCallback(
     async ({ token, strategy }) => {
@@ -66,7 +66,8 @@ const useStageClient = (
           setTimeout(() => {
             if (isHost) {
               const body = {
-                hostChannelId: localParticipant?.attributes?.channelId || userData?.channelId
+                hostChannelId:
+                  localParticipant?.attributes?.channelId || userData?.channelId
               };
               // Triggered on Firefox
               navigator.sendBeacon(
