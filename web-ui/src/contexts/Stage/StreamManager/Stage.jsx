@@ -188,7 +188,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
             isCameraHidden: localParticipant?.isCameraHidden || false,
             isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
           };
-          console.log('here');
         }, 350);
       }
     } catch (err) {
