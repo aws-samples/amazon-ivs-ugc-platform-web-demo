@@ -273,7 +273,7 @@ export const shouldAllowParticipantToJoin = async (stageId: string) => {
   const { stage } = await getStage(stageId);
   const stageArn = buildStageArn(stageId);
 
-  if (stage?.activeSessionId) {
+  if (!stage?.activeSessionId) {
     throw new Error('Stage is not active');
   }
 
