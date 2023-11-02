@@ -15,7 +15,7 @@ const useStageClient = (
 ) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState, isHost } =
+  const { resetParticipants, strategy, resetStageState, isHost, localParticipant } =
     useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
@@ -58,8 +58,11 @@ const useStageClient = (
         queueMicrotask(
           setTimeout(() => {
             if (isHost) {
+              const body = new Blob([JSON.stringify({ hostUsername: localParticipant.attributes.username })], { type: "application/json" });
+
               navigator.sendBeacon(
-                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`
+                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
+                body
               );
             }
 
@@ -68,7 +71,7 @@ const useStageClient = (
         );
       });
     }
-  }, [isClientDefined, isHost]);
+  }, [isClientDefined, isHost, localParticipant]);
 
   return {
     client: clientRef.current,

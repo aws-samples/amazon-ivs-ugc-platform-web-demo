@@ -1,24 +1,14 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { UNEXPECTED_EXCEPTION, USER_NOT_FOUND_EXCEPTION } from '../../shared/constants';
+import { buildStageArn, generateHostUserId } from '../helpers';
+import { getStage } from '../helpers';
+import { getUserByUsername } from '../../channel/helpers';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-interface MessageWithStageId {
-  stageId: string;
-  stageArn?: string;
-  sessionId?: string;
-  userId?: string;
+type HostDisconnectedMessageRequestBody = {
+  hostUsername?: string;
 }
-
-interface MessageWithStageArn {
-  stageId?: string;
-  stageArn: string;
-  sessionId?: string;
-  userId?: string;
-}
-
-type HostDisconnectedMessageRequestBody =
-  | MessageWithStageId
-  | MessageWithStageArn;
 
 const sqsClient = new SQSClient();
 
@@ -26,14 +16,31 @@ const handler = async (
   request: FastifyRequest<{ Body: HostDisconnectedMessageRequestBody }>,
   reply: FastifyReply
 ) => {
-  const { stageId, sessionId, stageArn, userId } = request.body;
+  const { hostUsername = '' } = request.body;
+
+  if (!hostUsername) throw new Error('Username of host is required in order to delete a stage')
 
   try {
+    const { Items: UserItems } = await getUserByUsername(hostUsername)
+  
+    if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
+  
+    const {
+      stageId,
+      channelArn
+    } = unmarshall(UserItems[0]);
+  
+    const stageArn = buildStageArn(stageId);
+
     if (!stageArn && !stageId)
       throw new Error(
         'A stageArn or stageID is required in order to delete a stage'
       );
 
+    const userId = generateHostUserId(channelArn)
+    const { stage } = await getStage(stageId)
+    const sessionId = stage?.activeSessionId
+        
     const messageParts = [];
     if (stageId) {
       messageParts.push(`"stageId": "${stageId}"`);

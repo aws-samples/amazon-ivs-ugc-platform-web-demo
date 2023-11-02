@@ -17,7 +17,10 @@ const useStageEventHandlers = ({
   updateSuccess,
   stageConnectionErroredEventCallback
 }) => {
-  const isHost = useRef(false);
+  const participantInfo = useRef({
+    isHost: false,
+    hostUsername: null
+  });
 
   const {
     addParticipant,
@@ -41,10 +44,14 @@ const useStageEventHandlers = ({
         },
         isLocal
       } = participant;
-
       if (isLocal) {
         if (type === PARTICIPANT_TYPES.HOST) {
-          isHost.current = true;
+          // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
+          // would've otherwise been reset or lost at that point in time
+          participantInfo.current = {
+            isHost: true,
+            hostUsername: participant.attributes.username
+          }
         }
 
         return;
@@ -66,7 +73,7 @@ const useStageEventHandlers = ({
         createUserJoinedSuccessMessage(participantUsername);
       updateSuccess(successMessage);
     },
-    [addParticipant, updateSuccess, localParticipant]
+    [addParticipant, localParticipant?.attributes.participantTokenCreationDate, updateSuccess]
   );
 
   const handleParticipantLeftEvent = useCallback(
@@ -128,11 +135,16 @@ const useStageEventHandlers = ({
   const handleParticipantConnectionChangedEvent = useCallback(
     async (state) => {
       if (state === StageConnectionState.DISCONNECTED) {
-        if (isHost.current) {
-          // Does not execute on Firefox
-          await stagesAPI.sendHostDisconnectedMessage();
+        if (participantInfo.current.isHost) {
+          const hostUsername = participantInfo.current.hostUsername
 
-          isHost.current = false;
+          // Does not execute on Firefox
+          await stagesAPI.sendHostDisconnectedMessage(hostUsername);
+
+          participantInfo.current = {
+            isHost: false,
+            hostUsername: null
+          }
         }
       }
 
