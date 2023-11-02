@@ -32,7 +32,7 @@ const StageParticipant = ({ participant }) => {
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
   const { closeModal, openModal } = useModal();
-  const { updateError } = useGlobalStage()
+  const { updateError } = useGlobalStage();
   const REPLACEMENT_TEXT = 'USERNAME';
   const message = $stageContent.remove_participant_confirmation_text.replace(
     REPLACEMENT_TEXT,
@@ -53,9 +53,10 @@ const StageParticipant = ({ participant }) => {
 
         if (error) {
           updateError({
-            message: $stageContent.notifications.error.failed_to_remove_participant,
+            message:
+              $stageContent.notifications.error.failed_to_remove_participant,
             err: error
-        })
+          });
         } else {
           if (result?.message) {
             publish(
