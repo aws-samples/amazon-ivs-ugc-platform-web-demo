@@ -182,9 +182,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
           resetStage(true);
 
           if (stageIdUrlParam) {
-            // if (isHost) shouldGetHostRejoinTokenRef.current = false
             navigate('/manager');
-            console.log('isHost', { isHost });
           }
           broadcastDevicesStateObjRef.current = {
             isCameraHidden: localParticipant?.isCameraHidden || false,
