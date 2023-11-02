@@ -29,7 +29,11 @@ const handler = async (
   // From Beacon API (JSON string)
   if (typeof request.body === 'string') {
     const parsedBody = JSON.parse(request?.body);
-    hostChannelId = parsedBody.hostChannelId;
+    const channelId = parsedBody.hostChannelId
+
+    if (channelId) {
+      hostChannelId = channelId
+    }
   }
 
   if (!hostChannelId)
