@@ -90,6 +90,8 @@ export interface ChannelDbRecord {
   streamKeyValue?: string;
   username?: string;
   trackingId?: string;
+  stageId?: string;
+  stageCreationDate?: string;
 }
 
 export type FollowUserRequestBody = {

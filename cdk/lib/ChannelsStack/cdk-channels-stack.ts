@@ -21,7 +21,7 @@ import {
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-import { readFileSync } from 'fs'
+import { readFileSync } from 'fs';
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
@@ -61,6 +61,8 @@ export class ChannelsStack extends NestedStack {
     super(scope, id, props);
 
     const parentStackName = Stack.of(this.nestedStackParent!).stackName;
+    const accountId = Stack.of(this.nestedStackParent!).account;
+    const region = Stack.of(this.nestedStackParent!).region;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
     const {
@@ -294,6 +296,58 @@ export class ChannelsStack extends NestedStack {
         }
       );
 
+    const { srcQueue: deleteStageQueue } = new SQSLambdaTrigger(
+      this,
+      `${nestedStackName}-deleteStage-SQSLambdaTrigger`,
+      {
+        name: `${stackNamePrefix}-DeleteStage`,
+        srcHandler: {
+          entryFunctionName: 'deleteStage',
+          description:
+            'Triggered by Amazon SQS when new IVS Real-time session host disconnected event messages arrive in the queue to update channel stage fields to null and delete IVS stage',
+          environment: {
+            CHANNELS_TABLE_NAME: channelsTable.tableName,
+            REGION: region,
+            ACCOUNT_ID: accountId
+          },
+          initialPolicy: [
+            new iam.PolicyStatement({
+              actions: ['dynamodb:Query'],
+              effect: iam.Effect.ALLOW,
+              resources: [`${channelsTable.tableArn}/index/channelArnIndex`]
+            }),
+            new iam.PolicyStatement({
+              actions: ['dynamodb:UpdateItem'],
+              effect: iam.Effect.ALLOW,
+              resources: [channelsTable.tableArn]
+            }),
+            new iam.PolicyStatement({
+              actions: [
+                'ivs:GetStage',
+                'ivs:ListParticipants',
+                'ivs:DeleteStage'
+              ],
+              effect: iam.Effect.ALLOW,
+              resources: ['*']
+            })
+          ]
+        },
+        srcQueueProps: {
+          fifo: true,
+          contentBasedDeduplication: true,
+          deliveryDelay: Duration.minutes(3)
+        },
+        dlqQueueProps: {
+          fifo: true
+        },
+        dlqHandler: {
+          entryFunctionName: 'deleteStageDlq',
+          description:
+            'Triggered by an Amazon SQS DLQ to handle IVS Real-time session host disconnected event messages consumption failures and to manage the life cycle of unconsumed messages'
+        }
+      }
+    );
+
     // Add an S3 Event Notification that publishes an s3:ObjectCreated:* event to the SQS
     // channelAssetsUpdateVersionIdQueue for object keys matching the ALLOWED_CHANNEL_ASSET_TYPES suffixes
     ALLOWED_CHANNEL_ASSET_TYPES.forEach((suffix) => {
@@ -395,6 +449,11 @@ export class ChannelsStack extends NestedStack {
       effect: iam.Effect.ALLOW,
       resources: [userPool.userPoolArn]
     });
+    const sqsDeleteStagePolicyStatement = new iam.PolicyStatement({
+      actions: ['sqs:SendMessage'],
+      effect: iam.Effect.ALLOW,
+      resources: [deleteStageQueue.queueArn]
+    });
     policies.push(
       channelAssetsBucketPolicyStatement,
       channelAssetsObjectPolicyStatement,
@@ -404,7 +463,8 @@ export class ChannelsStack extends NestedStack {
       forgotPasswordPolicyStatement,
       ivsChatPolicyStatement,
       ivsPolicyStatement,
-      secretsManagerPolicyStatement
+      secretsManagerPolicyStatement,
+      sqsDeleteStagePolicyStatement
     );
     this.policies = policies;
 
@@ -492,7 +552,8 @@ export class ChannelsStack extends NestedStack {
       PROJECT_TAG: tags.project,
       SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-      USER_POOL_ID: userPool.userPoolId
+      USER_POOL_ID: userPool.userPoolId,
+      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl
     };
     this.containerEnv = containerEnv;
 
@@ -508,51 +569,73 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create AppSync GraphQL API
-    const authType = 'API_KEY'
+    const authType = 'API_KEY';
 
-    const api = new appsync.CfnGraphQLApi(this, `${stackNamePrefix}-AppSyncGraphQLChannelApi`, {
-      name: 'ChannelGraphQLApi',
-      authenticationType: authType
-    })
+    const api = new appsync.CfnGraphQLApi(
+      this,
+      `${stackNamePrefix}-AppSyncGraphQLChannelApi`,
+      {
+        name: 'ChannelGraphQLApi',
+        authenticationType: authType
+      }
+    );
 
-    const noneDataSource = new appsync.CfnDataSource(this, `${stackNamePrefix}-AppSyncGraphQLNoneDataSource`, {
-      apiId: api.attrApiId,
-      name: 'NoneDataSourceName',
-      type: 'NONE',
-    });
+    const noneDataSource = new appsync.CfnDataSource(
+      this,
+      `${stackNamePrefix}-AppSyncGraphQLNoneDataSource`,
+      {
+        apiId: api.attrApiId,
+        name: 'NoneDataSourceName',
+        type: 'NONE'
+      }
+    );
 
-    const schema = new appsync.CfnGraphQLSchema(this, `${stackNamePrefix}-AppSyncGraphQLChannelAPISchema`, {
-      apiId: api.attrApiId,
-      definition: readFileSync('./lib/ChannelsStack/schema.graphql').toString(),
-    });
+    const schema = new appsync.CfnGraphQLSchema(
+      this,
+      `${stackNamePrefix}-AppSyncGraphQLChannelAPISchema`,
+      {
+        apiId: api.attrApiId,
+        definition: readFileSync(
+          './lib/ChannelsStack/schema.graphql'
+        ).toString()
+      }
+    );
 
-    const resolver = new appsync.CfnResolver(this, `${stackNamePrefix}-AppSyncGraphQLPublishMutationResolver`, {
-      apiId: api.attrApiId,
-      typeName: 'Mutation',
-      fieldName: 'publish',
-      dataSourceName: noneDataSource.name,
-      requestMappingTemplate: `{
+    const resolver = new appsync.CfnResolver(
+      this,
+      `${stackNamePrefix}-AppSyncGraphQLPublishMutationResolver`,
+      {
+        apiId: api.attrApiId,
+        typeName: 'Mutation',
+        fieldName: 'publish',
+        dataSourceName: noneDataSource.name,
+        requestMappingTemplate: `{
         "version": "2017-02-28",
         "payload": {
           "name": "$context.arguments.name",
           "data": $util.toJson($context.arguments.data)
         }
       }`,
-      responseMappingTemplate: `$util.toJson($context.result)`,
-    });
+        responseMappingTemplate: `$util.toJson($context.result)`
+      }
+    );
 
-    resolver.addDependsOn(schema)
-    resolver.addDependsOn(noneDataSource)
+    resolver.addDependsOn(schema);
+    resolver.addDependsOn(noneDataSource);
 
-    const apiKey = new appsync.CfnApiKey(this, `${stackNamePrefix}-AppSyncGraphQLApiKey`, {
-      apiId: api.attrApiId,
-    });
+    const apiKey = new appsync.CfnApiKey(
+      this,
+      `${stackNamePrefix}-AppSyncGraphQLApiKey`,
+      {
+        apiId: api.attrApiId
+      }
+    );
 
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,
       endpoint: api.attrGraphQlUrl,
       authType
-    }
+    };
 
     // Stack Outputs
     this.outputs = {
