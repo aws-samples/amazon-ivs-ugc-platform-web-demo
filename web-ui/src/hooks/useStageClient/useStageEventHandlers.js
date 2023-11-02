@@ -34,7 +34,7 @@ const useStageEventHandlers = ({
     removeParticipant,
     strategy
   } = useGlobalStage();
-  const { userData } = useUser()
+  const { userData } = useUser();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -53,7 +53,7 @@ const useStageEventHandlers = ({
           participantInfo.current = {
             isHost: true,
             hostChannelId: participant.attributes.channelId
-          }
+          };
         }
 
         return;
@@ -75,7 +75,11 @@ const useStageEventHandlers = ({
         createUserJoinedSuccessMessage(participantUsername);
       updateSuccess(successMessage);
     },
-    [addParticipant, localParticipant?.attributes.participantTokenCreationDate, updateSuccess]
+    [
+      addParticipant,
+      localParticipant?.attributes.participantTokenCreationDate,
+      updateSuccess
+    ]
   );
 
   const handleParticipantLeftEvent = useCallback(
@@ -139,7 +143,8 @@ const useStageEventHandlers = ({
       if (state === StageConnectionState.DISCONNECTED) {
         if (participantInfo.current.isHost) {
           // Provide userData.channelId as fallback for the scenario that host decides to create a stage and exits quickly after
-          const hostChannelId = participantInfo?.current?.hostChannelId || userData?.channelId
+          const hostChannelId =
+            participantInfo?.current?.hostChannelId || userData?.channelId;
 
           // Does not execute on Firefox
           await stagesAPI.sendHostDisconnectedMessage(hostChannelId);
@@ -147,7 +152,7 @@ const useStageEventHandlers = ({
           participantInfo.current = {
             isHost: false,
             hostChannelId: null
-          }
+          };
         }
       }
 

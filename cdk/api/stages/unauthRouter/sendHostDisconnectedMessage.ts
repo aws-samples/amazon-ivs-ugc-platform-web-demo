@@ -1,6 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { UNEXPECTED_EXCEPTION, USER_NOT_FOUND_EXCEPTION } from '../../shared/constants';
+import {
+  UNEXPECTED_EXCEPTION,
+  USER_NOT_FOUND_EXCEPTION
+} from '../../shared/constants';
 import { buildStageArn, generateHostUserId } from '../helpers';
 import { getStage } from '../helpers';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
@@ -9,7 +12,7 @@ import { buildChannelArn } from '../../metrics/helpers';
 
 type HostDisconnectedMessageRequestBody = {
   hostChannelId?: string;
-}
+};
 
 const sqsClient = new SQSClient();
 
@@ -17,31 +20,30 @@ const handler = async (
   request: FastifyRequest<{ Body: HostDisconnectedMessageRequestBody }>,
   reply: FastifyReply
 ) => {
-  let hostChannelId
+  let hostChannelId;
 
   if (typeof request.body === 'object') {
-    hostChannelId = request?.body?.hostChannelId
+    hostChannelId = request?.body?.hostChannelId;
   }
 
   // From Beacon API (JSON string)
   if (typeof request.body === 'string') {
-    const parsedBody = JSON.parse(request?.body)
-    hostChannelId = parsedBody.hostChannelId
+    const parsedBody = JSON.parse(request?.body);
+    hostChannelId = parsedBody.hostChannelId;
   }
 
-
-  if (!hostChannelId) throw new Error('Channel id of host is required in order to delete a stage')
+  if (!hostChannelId)
+    throw new Error(
+      'Channel id of host is required in order to delete a stage'
+    );
 
   try {
-    const hostChannelArn = buildChannelArn(hostChannelId)
-    const { Items: UserItems } = await getUserByChannelArn(hostChannelArn)
+    const hostChannelArn = buildChannelArn(hostChannelId);
+    const { Items: UserItems } = await getUserByChannelArn(hostChannelArn);
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
-  
-    const {
-      stageId,
-      channelArn
-    } = unmarshall(UserItems[0]);
-  
+
+    const { stageId, channelArn } = unmarshall(UserItems[0]);
+
     const stageArn = buildStageArn(stageId);
 
     if (!stageArn && !stageId)
@@ -49,9 +51,9 @@ const handler = async (
         'A stageArn or stageID is required in order to delete a stage'
       );
 
-    const userId = generateHostUserId(channelArn)
-    const { stage } = await getStage(stageId)
-    const sessionId = stage?.activeSessionId
+    const userId = generateHostUserId(channelArn);
+    const { stage } = await getStage(stageId);
+    const sessionId = stage?.activeSessionId;
 
     const messageParts = [];
     if (stageId) {

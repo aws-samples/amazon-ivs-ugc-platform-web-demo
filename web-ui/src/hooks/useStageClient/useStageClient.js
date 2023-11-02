@@ -15,8 +15,13 @@ const useStageClient = (
 ) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const { resetParticipants, strategy, resetStageState, isHost, localParticipant } =
-    useGlobalStage();
+  const {
+    resetParticipants,
+    strategy,
+    resetStageState,
+    isHost,
+    localParticipant
+  } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
     updateSuccess,
@@ -58,7 +63,9 @@ const useStageClient = (
         queueMicrotask(
           setTimeout(() => {
             if (isHost) {
-              const body = { hostChannelId: localParticipant?.attributes?.channelId };
+              const body = {
+                hostChannelId: localParticipant?.attributes?.channelId
+              };
               // Triggered on Firefox
               navigator.sendBeacon(
                 `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
