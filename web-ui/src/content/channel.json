@@ -67,6 +67,12 @@
       }
     }
   },
+  "request_to_join_stage_button": {
+    "tooltip": {
+      "request_to_join": "Request to join",
+      "cancel_request": "Cancel request"
+    }
+  },
   "follow_button": {
     "follow": "Follow",
     "follow_channel": "Follow channel",

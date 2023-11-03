@@ -174,7 +174,7 @@ const Chat = ({ shouldRunCelebration }) => {
       updateError({
         message:
           $channelContent.notifications.error
-            .request_to_join_fail_user_is_streaming,
+            .request_to_join_stage_fail_user_is_streaming,
         err: error
       });
     } else {
@@ -227,8 +227,15 @@ const Chat = ({ shouldRunCelebration }) => {
         <ConnectingOverlay isLoading={isLoading} />
         {(!isMobileView || isSessionValid) && (
           <div
-            style={{ display: 'flex', flexDirection: 'row' }}
-            className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]', 'gap-3'])}
+            className={clsm([
+              'flex',
+              'flex-row',
+              'w-full',
+              'pt-5',
+              'pb-6',
+              'px-[18px]',
+              isRequestButtonVisible && ['gap-3']
+            ])}
           >
             <Composer
               isRequestButtonVisible={isRequestButtonVisible}
@@ -244,7 +251,13 @@ const Chat = ({ shouldRunCelebration }) => {
               <Tooltip
                 position="above"
                 translate={{ y: 2 }}
-                message={'Request to join'}
+                message={
+                  requestingToJoinStage
+                    ? $channelContent.request_to_join_stage_button.tooltip
+                        .cancel_request
+                    : $channelContent.request_to_join_stage_button.tooltip
+                        .request_to_join
+                }
               >
                 <Button
                   className={clsm([
