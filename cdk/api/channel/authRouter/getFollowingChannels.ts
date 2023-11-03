@@ -162,9 +162,13 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       responseBody.channels = unmarshalledFollowingChannelItems.reduce<
         ChannelData[]
       >((acc, channel) => {
-        const { avatar, color, username, channelAssets, isLive } = channel;
+        const { avatar, color, username, channelAssets, isLive, stageId } =
+          channel;
         const channelAssetUrls = getChannelAssetUrls(channelAssets);
-        return [...acc, { avatar, color, username, channelAssetUrls, isLive }];
+        return [
+          ...acc,
+          { avatar, color, username, channelAssetUrls, isLive, stageId }
+        ];
       }, []);
     }
   } catch (error) {
