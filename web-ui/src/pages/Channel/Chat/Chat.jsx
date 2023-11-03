@@ -64,15 +64,21 @@ const Chat = ({ shouldRunCelebration }) => {
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
 
-  let channelArn = ''
-  
-  if (channelData?.channelArn) channelArn = extractChannelIdfromChannelArn(channelData?.channelArn)
-  const isHost = channelArn?.toLowerCase() === userData?.channelId?.toLowerCase()
+  let channelId = '';
+
+  if (channelData?.channelArn)
+    channelId = extractChannelIdfromChannelArn(channelData?.channelArn);
+  const isHost =
+    channelId?.toLowerCase() === userData?.channelId?.toLowerCase();
 
   const isRequestButtonVisible =
-    !isHost && channelData?.stageId && userData?.username && !isViewerBanned && pathname !== '/manager';
+    !isHost &&
+    channelData?.stageId &&
+    userData?.username &&
+    !isViewerBanned &&
+    pathname !== '/manager';
 
   const openChatPopup = useCallback(
     (messageData) => {

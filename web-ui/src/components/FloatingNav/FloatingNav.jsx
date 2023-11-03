@@ -8,7 +8,11 @@ import Button from '../Button';
 import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
 
-const FloatingNav = ({ containerClassName, menuClassName, isRequestButtonVisible }) => {
+const FloatingNav = ({
+  containerClassName,
+  menuClassName,
+  isRequestButtonVisible
+}) => {
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
 

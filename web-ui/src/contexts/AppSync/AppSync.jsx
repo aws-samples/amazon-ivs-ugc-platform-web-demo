@@ -47,7 +47,7 @@ export const Provider = ({ children }) => {
   useEffect(() => {
     if (!userData?.channelId) return;
 
-    const channel = userData?.channelId;
+    const channel = userData?.channelId.toLowerCase();
     const subscription = subscribe(channel, ({ data }) => {
       const channelEvent = JSON.parse(data);
 

@@ -176,11 +176,12 @@ const Composer = ({
             'relative',
             isSessionValid && [
               isRequestButtonVisible
-              ? 'w-full'
-              : [
-                'md:w-[calc(100%_-_60px)]',
-                isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'
-              ]
+                ? 'w-full'
+                : [
+                    'md:w-[calc(100%_-_60px)]',
+                    isLandscape &&
+                      'touch-screen-device:lg:w-[calc(100%_-_60px)]'
+                  ]
             ]
           )}
           onSubmit={handleSendMessage}

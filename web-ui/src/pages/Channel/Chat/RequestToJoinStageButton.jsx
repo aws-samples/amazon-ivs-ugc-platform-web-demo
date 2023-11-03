@@ -11,7 +11,7 @@ import { useChannel } from '../../../contexts/Channel';
 import { useUser } from '../../../contexts/User';
 import { channel as $channelContent } from '../../../content';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
-import { clsm } from '../../../utils';
+import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
 
 const RequestToJoinStageButton = () => {
   const {
@@ -26,17 +26,22 @@ const RequestToJoinStageButton = () => {
   const { userData, isSessionValid } = useUser();
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
 
+  let channelId;
+
+  if (channelData?.channelArn) {
+    channelId = extractChannelIdfromChannelArn(channelData?.channelArn);
+  }
   // Consistent with FloatingNav
-  const isMenuButtonVisible = isSessionValid && isMobileView
+  const isMenuButtonVisible = isSessionValid && isMobileView;
 
   const requestToJoin = async () => {
     if (requestingToJoinStage) {
       updateRequestingToJoinStage(false);
       publish(
-        channelData.username,
+        channelId,
         JSON.stringify({
           type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
-          channelId: userData.channelId
+          channelId: userData.channelId.toLowerCase()
         })
       );
 
@@ -57,10 +62,10 @@ const RequestToJoinStageButton = () => {
       );
       updateRequestingToJoinStage(true);
       publish(
-        channelData.username,
+        channelId,
         JSON.stringify({
           type: channelEvents.STAGE_REQUEST_TO_JOIN,
-          channelId: userData.channelId,
+          channelId: userData.channelId.toLowerCase(),
           sent: new Date().toString()
         })
       );
