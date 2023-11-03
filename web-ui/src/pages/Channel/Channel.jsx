@@ -57,8 +57,7 @@ const Channel = () => {
     // we are only interested in showing the following messages
     const requestToJoinStageFailed =
       stageError?.message ===
-      $channelContent.notifications.error
-        .request_to_join_stage_fail;
+      $channelContent.notifications.error.request_to_join_stage_fail;
     const requestToJoinStageSuccess =
       stageSuccess ===
       $channelContent.notifications.success.request_to_join_stage_success;
@@ -70,8 +69,7 @@ const Channel = () => {
 
       if (message) {
         notifyError(
-          $channelContent.notifications.error
-            .request_to_join_stage_fail,
+          $channelContent.notifications.error.request_to_join_stage_fail,
           { asPortal: true }
         );
       }
