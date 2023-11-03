@@ -74,6 +74,7 @@ const RequestToJoinStageButton = () => {
 
   return (
     <Tooltip
+      shouldKeepMinWidth={false}
       position="above"
       translate={{ y: 2 }}
       message={
