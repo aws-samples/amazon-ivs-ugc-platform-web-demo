@@ -1,6 +1,7 @@
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
@@ -18,7 +19,6 @@ import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
 import Notification from '../../../components/Notification';
 import useResizeObserver from '../../../hooks/useResizeObserver';
-import { useGlobalStage } from '../../../contexts/Stage';
 import RequestToJoinStageButton from './RequestToJoinStageButton';
 
 const $content = $channelContent.chat;
@@ -64,7 +64,15 @@ const Chat = ({ shouldRunCelebration }) => {
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
-  const { isHost } = useGlobalStage();
+  const { pathname } = useLocation()
+
+  let channelArn = ''
+  
+  if (channelData?.channelArn) channelArn = extractChannelIdfromChannelArn(channelData?.channelArn)
+  const isHost = channelArn?.toLowerCase() === userData?.channelId?.toLowerCase()
+
+  const isRequestButtonVisible =
+    !isHost && channelData?.stageId && userData?.username && !isViewerBanned && pathname !== '/manager';
 
   const openChatPopup = useCallback(
     (messageData) => {
@@ -139,9 +147,6 @@ const Chat = ({ shouldRunCelebration }) => {
     setDeletedMessage,
     userData
   ]);
-
-  const isRequestButtonVisible =
-    !isHost && channelData?.stageId && userData?.username && !isViewerBanned;
 
   return (
     <>

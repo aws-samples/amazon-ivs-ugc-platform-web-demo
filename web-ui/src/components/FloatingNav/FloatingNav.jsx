@@ -8,7 +8,7 @@ import Button from '../Button';
 import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
 
-const FloatingNav = ({ containerClassName, menuClassName }) => {
+const FloatingNav = ({ containerClassName, menuClassName, isRequestButtonVisible }) => {
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
 
@@ -55,10 +55,11 @@ const FloatingNav = ({ containerClassName, menuClassName }) => {
           <Button
             data-testid="floating-menu-toggle"
             className={clsm([
-              'w-12',
-              'h-12',
-              'min-w-[48px]',
-              'min-h-[48px]',
+              'px-2.5',
+              'py-2.5',
+              isRequestButtonVisible
+                ? ['w-11', 'h-11', 'min-w-[44px]', 'min-h-[44px]']
+                : ['w-12', 'h-12', 'min-w-[48px]', 'min-h-[48px]'],
               'bg-lightMode-gray',
               'hover:bg-lightMode-gray-hover',
               'focus:bg-lightMode-gray'
@@ -77,12 +78,14 @@ const FloatingNav = ({ containerClassName, menuClassName }) => {
 
 FloatingNav.propTypes = {
   containerClassName: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  menuClassName: PropTypes.string
+  menuClassName: PropTypes.string,
+  isRequestButtonVisible: PropTypes.bool
 };
 
 FloatingNav.defaultProps = {
   containerClassName: undefined,
-  menuClassName: ''
+  menuClassName: '',
+  isRequestButtonVisible: false
 };
 
 export default FloatingNav;

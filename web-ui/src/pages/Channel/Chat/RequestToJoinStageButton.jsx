@@ -23,8 +23,11 @@ const RequestToJoinStageButton = () => {
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
-  const { userData } = useUser();
-  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { userData, isSessionValid } = useUser();
+  const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
+
+  // Consistent with FloatingNav
+  const isMenuButtonVisible = isSessionValid && isMobileView
 
   const requestToJoin = async () => {
     if (requestingToJoinStage) {
@@ -76,6 +79,7 @@ const RequestToJoinStageButton = () => {
     >
       <Button
         className={clsm([
+          isMenuButtonVisible && 'mr-[56px]',
           'w-11',
           'h-11',
           'dark:[&>svg]:fill-white',
@@ -96,7 +100,6 @@ const RequestToJoinStageButton = () => {
         // ref={toggleRef}
         ariaLabel={'test'}
         key="create-stage-control-btn"
-        // variant="icon"
         onClick={requestToJoin}
         isDisabled={participants?.size >= 12}
       >

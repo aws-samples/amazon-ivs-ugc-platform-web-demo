@@ -32,7 +32,8 @@ const Composer = ({
   isFocusable,
   isLoading,
   sendAttemptError,
-  sendMessage
+  sendMessage,
+  isRequestButtonVisible
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -174,8 +175,12 @@ const Composer = ({
           className={clsm(
             'relative',
             isSessionValid && [
-              'md:w-[calc(100%_-_60px)]',
-              isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'
+              isRequestButtonVisible
+              ? 'w-full'
+              : [
+                'md:w-[calc(100%_-_60px)]',
+                isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'
+              ]
             ]
           )}
           onSubmit={handleSendMessage}
@@ -255,6 +260,7 @@ const Composer = ({
         </form>
       </motion.div>
       <FloatingNav
+        isRequestButtonVisible={isRequestButtonVisible}
         {...(isStreamManagerPage && {
           containerClassName: (isOpen) =>
             clsm([
@@ -286,7 +292,8 @@ Composer.defaultProps = {
   isDisabled: false,
   isFocusable: true,
   isLoading: true,
-  sendAttemptError: null
+  sendAttemptError: null,
+  isRequestButtonVisible: false
 };
 
 Composer.propTypes = {
@@ -295,7 +302,8 @@ Composer.propTypes = {
   isFocusable: PropTypes.bool,
   isLoading: PropTypes.bool,
   sendAttemptError: PropTypes.shape({ message: PropTypes.string }),
-  sendMessage: PropTypes.func.isRequired
+  sendMessage: PropTypes.func.isRequired,
+  isRequestButtonVisible: PropTypes.bool
 };
 
 export default Composer;
