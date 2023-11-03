@@ -72,7 +72,9 @@ export type ParticipantType =
 
 const client = new IVSRealTimeClient({});
 
-const extractStageIdfromStageArn = (userStageArn: string | undefined) => {
+export const extractStageIdfromStageArn = (
+  userStageArn: string | undefined
+) => {
   if (!userStageArn) return '';
   return userStageArn.split(USER_STAGE_ID_SEPARATOR)[1];
 };
@@ -271,7 +273,7 @@ export const shouldAllowParticipantToJoin = async (stageId: string) => {
   const { stage } = await getStage(stageId);
   const stageArn = buildStageArn(stageId);
 
-  if (stage?.activeSessionId) {
+  if (!stage?.activeSessionId) {
     throw new Error('Stage is not active');
   }
 
