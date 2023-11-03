@@ -10,6 +10,7 @@ import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
 import { usePlayerContext } from '../contexts/Player';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
+import { useGlobalStage } from '../../../contexts/Stage';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
@@ -25,7 +26,6 @@ import StreamVideo from './StreamVideo';
 import useFullscreen from './useFullscreen';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
-import { useGlobalStage } from '../../../contexts/Stage';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -254,6 +254,7 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
         color={color}
         username={username}
         openPopupIds={openPopupIds}
+        stagePlayerVisible={stagePlayerVisible}
       />
       <StreamVideo
         ref={videoRef}

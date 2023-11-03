@@ -11,6 +11,8 @@ import Controls from './Controls';
 import PlayerOverlay from './PlayerOverlay';
 import StageVideoFeeds from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds';
 import { STAGE_VIDEO_FEEDS_TYPES } from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds/StageVideoFeeds';
+import UnmuteButtonOverLay from './UnmuteButtonOverLay';
+import { useGlobalStage } from '../../../contexts/Stage';
 
 const StreamVideo = forwardRef(
   (
@@ -27,6 +29,8 @@ const StreamVideo = forwardRef(
     },
     ref
   ) => {
+    const { isChannelStagePlayerMuted } = useGlobalStage();
+
     const {
       isProfileViewExpanded,
       runningAnimationIds,
@@ -84,9 +88,16 @@ const StreamVideo = forwardRef(
         {stagePlayerVisible ? (
           <motion.div
             {...playerProfileViewAnimationProps}
-            className={clsm(videoStyles, isViewerBanned && '!hidden')}
+            className={clsm(
+              videoStyles,
+              isViewerBanned && '!hidden',
+              isChannelStagePlayerMuted && 'z-10'
+            )}
             ref={ref}
           >
+            {stagePlayerVisible && isChannelStagePlayerMuted && (
+              <UnmuteButtonOverLay />
+            )}
             <StageVideoFeeds
               type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
               isProfileViewExpanded={isProfileViewExpanded}
@@ -126,7 +137,7 @@ const StreamVideo = forwardRef(
         >
           <PlayerOverlay
             {...(areControlsContained && { className: 'before:rounded-b-3xl' })}
-            isVisible={shouldShowControlsOverlay}
+            isVisible={shouldShowControlsOverlay && !isChannelStagePlayerMuted}
           >
             <Controls
               areControlsContained={areControlsContained}
