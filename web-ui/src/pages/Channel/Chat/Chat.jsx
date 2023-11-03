@@ -168,13 +168,13 @@ const Chat = ({ shouldRunCelebration }) => {
       return;
     }
 
-    const { result, error } = await channelAPI.getStreamLiveStatus();
+    const { result: streamStatus, error } = await channelAPI.getStreamLiveStatus();
 
-    if (result?.isLive) {
+    if (streamStatus?.isLive || !!error) {
       updateError({
         message:
           $channelContent.notifications.error
-            .request_to_join_stage_fail_user_is_streaming,
+            .request_to_join_stage_fail,
         err: error
       });
     } else {

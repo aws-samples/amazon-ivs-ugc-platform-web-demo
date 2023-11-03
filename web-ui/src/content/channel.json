@@ -6,7 +6,7 @@
       "request_to_join_stage_success": "Request sent"
     },
     "error": {
-      "request_to_join_stage_fail_user_is_streaming": "Failed to send request",
+      "request_to_join_stage_fail": "Failed to send request",
       "ban_user": "Failed to ban user",
       "unban_user": "Failed to unban user"
     }

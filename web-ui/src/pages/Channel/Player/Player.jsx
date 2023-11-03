@@ -217,7 +217,7 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
       if (
         stageError?.message ===
         $channelContent.notifications.error
-          .request_to_join_stage_fail_user_is_streaming
+          .request_to_join_stage_fail
       ) {
         return;
       }

@@ -58,7 +58,7 @@ const Channel = () => {
     const requestToJoinStageFailed =
       stageError?.message ===
       $channelContent.notifications.error
-        .request_to_join_stage_fail_user_is_streaming;
+        .request_to_join_stage_fail;
     const requestToJoinStageSuccess =
       stageSuccess ===
       $channelContent.notifications.success.request_to_join_stage_success;
@@ -71,7 +71,7 @@ const Channel = () => {
       if (message) {
         notifyError(
           $channelContent.notifications.error
-            .request_to_join_stage_fail_user_is_streaming,
+            .request_to_join_stage_fail,
           { asPortal: true }
         );
       }
