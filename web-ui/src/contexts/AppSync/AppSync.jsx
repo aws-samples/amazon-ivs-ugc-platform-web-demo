@@ -7,9 +7,7 @@ import useContextHook from '../useContextHook';
 import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
-import {
-  streamManager as $streamManagerContent
-} from '../../content';
+import { streamManager as $streamManagerContent } from '../../content';
 import { useGlobalStage } from '../Stage';
 import { useLocation } from 'react-router-dom';
 import { useChannel } from '../Channel';
