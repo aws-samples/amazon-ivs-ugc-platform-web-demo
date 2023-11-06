@@ -32,7 +32,8 @@ const Composer = ({
   isFocusable,
   isLoading,
   sendAttemptError,
-  sendMessage
+  sendMessage,
+  isRequestButtonVisible
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -161,7 +162,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
+    <div className="w-full">
       <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
@@ -174,8 +175,13 @@ const Composer = ({
           className={clsm(
             'relative',
             isSessionValid && [
-              'md:w-[calc(100%_-_60px)]',
-              isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'
+              isRequestButtonVisible
+                ? 'w-full'
+                : [
+                    'md:w-[calc(100%_-_60px)]',
+                    isLandscape &&
+                      'touch-screen-device:lg:w-[calc(100%_-_60px)]'
+                  ]
             ]
           )}
           onSubmit={handleSendMessage}
@@ -196,7 +202,7 @@ const Composer = ({
                   'dark:hover:text-white',
                   'dark:placeholder-darkMode-gray-light',
                   'focus:bg-darkMode-gray-medium',
-                  'h-12',
+                  'h-11',
                   'placeholder-lightMode-gray-dark'
                 ],
                 errorMessage && [
@@ -255,6 +261,7 @@ const Composer = ({
         </form>
       </motion.div>
       <FloatingNav
+        isRequestButtonVisible={isRequestButtonVisible}
         {...(isStreamManagerPage && {
           containerClassName: (isOpen) =>
             clsm([
@@ -286,7 +293,8 @@ Composer.defaultProps = {
   isDisabled: false,
   isFocusable: true,
   isLoading: true,
-  sendAttemptError: null
+  sendAttemptError: null,
+  isRequestButtonVisible: false
 };
 
 Composer.propTypes = {
@@ -295,7 +303,8 @@ Composer.propTypes = {
   isFocusable: PropTypes.bool,
   isLoading: PropTypes.bool,
   sendAttemptError: PropTypes.shape({ message: PropTypes.string }),
-  sendMessage: PropTypes.func.isRequired
+  sendMessage: PropTypes.func.isRequired,
+  isRequestButtonVisible: PropTypes.bool
 };
 
 export default Composer;

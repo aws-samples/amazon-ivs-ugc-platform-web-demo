@@ -49,6 +49,7 @@ export { ReactComponent as PersonAdd } from './person-add.svg';
 export { ReactComponent as PersonOff } from './person-off.svg';
 export { ReactComponent as Play } from './play.svg';
 export { ReactComponent as Poll } from './poll.svg';
+export { ReactComponent as RequestInvite } from './request-invite.svg';
 export { ReactComponent as Search } from './search.svg';
 export { ReactComponent as ScreenShare } from './screenshare.svg';
 export { ReactComponent as ScreenShareOff } from './screenshare-off.svg';

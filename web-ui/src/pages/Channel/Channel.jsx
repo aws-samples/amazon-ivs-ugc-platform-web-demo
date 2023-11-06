@@ -3,7 +3,10 @@ import { useCallback, useState, useRef, useEffect } from 'react';
 
 import { channel as $channelContent } from '../../content';
 import { clsm, retryWithExponentialBackoff } from '../../utils';
-import { Provider as NotificationProvider } from '../../contexts/Notification';
+import {
+  Provider as NotificationProvider,
+  useNotif
+} from '../../contexts/Notification';
 import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as PlayerProvider } from './contexts/Player';
 import { sanitizeAmazonProductData } from '../../helpers/streamActionHelpers';
@@ -32,13 +35,62 @@ import { Provider as BroadcastFullscreenProvider } from '../../contexts/Broadcas
 import { useGlobalStage } from '../../contexts/Stage';
 import { player as $playerContent } from '../../content';
 import usePrevious from '../../hooks/usePrevious';
+import Notification from '../../components/Notification/Notification';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
   const { channelError, channelData: { stageId } = {} } = useChannel();
-  const { strategy, resetParticipants, updateError } = useGlobalStage();
+  const {
+    strategy,
+    resetParticipants,
+    updateError,
+    error: stageError,
+    success: stageSuccess,
+    updateSuccess
+  } = useGlobalStage();
+  const { notifyError, notifySuccess } = useNotif();
+
+  useEffect(() => {
+    // There are many stage success and error messages, however on the channel page,
+    // we are only interested in showing the following messages
+    const requestToJoinStageFailed =
+      stageError?.message ===
+      $channelContent.notifications.error.request_to_join_stage_fail;
+    const requestToJoinStageSuccess =
+      stageSuccess ===
+      $channelContent.notifications.success.request_to_join_stage_success;
+
+    if (requestToJoinStageFailed) {
+      const { message, err } = stageError;
+
+      if (err) console.error(...[err, message].filter((data) => !!data));
+
+      if (message) {
+        notifyError(
+          $channelContent.notifications.error.request_to_join_stage_fail,
+          { asPortal: true }
+        );
+      }
+
+      updateError(null);
+      return;
+    }
+
+    if (requestToJoinStageSuccess) {
+      notifySuccess(stageSuccess);
+      updateSuccess(null);
+    }
+  }, [
+    stageError,
+    notifyError,
+    updateError,
+    stageSuccess,
+    notifySuccess,
+    updateSuccess
+  ]);
+
   const { joinStageClient, leaveStageClient, resetAllStageState } =
     useStageClient();
   const { isLandscape, isMobileView } = useResponsiveDevice();
@@ -149,6 +201,7 @@ const Channel = () => {
   return (
     <BroadcastFullscreenProvider previewRef={previewRef}>
       <PlayerProvider>
+        <Notification />
         <div
           className={clsm([
             'flex',

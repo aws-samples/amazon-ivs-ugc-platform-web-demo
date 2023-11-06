@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { NoSignal, Lock } from '../../../assets/icons';
-import { player as $content } from '../../../content';
+import {
+  player as $content,
+  channel as $channelContent
+} from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
@@ -70,7 +73,7 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
     },
     setShouldKeepOverlaysVisible
   } = usePlayerContext();
-  const { error: errorLoadingStage } = useGlobalStage();
+  const { error: stageError } = useGlobalStage();
   const { isActive: isPollActive } = usePoll();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
@@ -210,12 +213,18 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
 
   // Trigger an error notification when there is an error loading the stream
   useEffect(() => {
-    if (hasError || errorLoadingStage) {
+    if (hasError || stageError) {
+      if (
+        stageError?.message ===
+        $channelContent.notifications.error.request_to_join_stage_fail
+      ) {
+        return;
+      }
       notifyError($content.notification.error.error_loading_stream, {
         withTimeout: false
       });
     } else dismissNotif();
-  }, [dismissNotif, hasError, notifyError, errorLoadingStage]);
+  }, [dismissNotif, hasError, notifyError, stageError]);
 
   // Keep the player overlays visible if a popup is open (e.g. volume or rendition setting popup)
   useEffect(() => {

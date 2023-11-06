@@ -47,11 +47,17 @@ export const Provider = ({ children }) => {
   useEffect(() => {
     if (!userData?.channelId) return;
 
-    const channel = userData?.channelId;
+    const channel = userData?.channelId.toLowerCase();
     const subscription = subscribe(channel, ({ data }) => {
       const channelEvent = JSON.parse(data);
 
       switch (channelEvent?.type) {
+        case channelEvents.STAGE_REQUEST_TO_JOIN:
+          if (isHost) {
+            // eslint-disable-next-line no-unused-vars
+            const { username, type, sent } = channelEvent;
+          }
+          break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
             notifyNeutral(

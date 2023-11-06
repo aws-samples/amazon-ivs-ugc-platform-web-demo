@@ -30,6 +30,7 @@ export const Provider = ({ children }) => {
     updateIsBlockingRoute,
     updateIsSpectator,
     updateParticipant,
+    updateRequestingToJoinStage,
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
     updateStageId,
@@ -50,7 +51,8 @@ export const Provider = ({ children }) => {
     success,
     isBlockingRoute,
     isChannelStagePlayerMuted,
-    shouldCloseFullScreenViewOnKickedOrHostLeave
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    requestingToJoinStage
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -110,6 +112,7 @@ export const Provider = ({ children }) => {
       localParticipant,
       participants,
       participantsArrayExcludingHost,
+      requestingToJoinStage,
       stageId,
       strategy,
       success,
@@ -128,6 +131,7 @@ export const Provider = ({ children }) => {
       updateIsBlockingRoute,
       updateIsSpectator,
       updateParticipant,
+      updateRequestingToJoinStage,
       updateStageId,
       updateStreams,
       updateSuccess,
@@ -152,6 +156,7 @@ export const Provider = ({ children }) => {
     localParticipant,
     participants,
     participantsArrayExcludingHost,
+    requestingToJoinStage,
     stageId,
     strategy,
     success,
@@ -171,6 +176,7 @@ export const Provider = ({ children }) => {
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
     isHost,
+    updateRequestingToJoinStage,
     updateStageId,
     updateStreams,
     updateSuccess,
