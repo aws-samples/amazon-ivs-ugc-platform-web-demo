@@ -79,7 +79,8 @@ export const CUSTOM_AVATAR_NAME = 'custom' as const;
  * GetSecretValueCommand(<SECRET_ID>)
  */
 export const SECRET_IDS = {
-  PA_API: 'Product_Advertising_API_Secret_Keys'
+  PA_API: 'Product_Advertising_API_Secret_Keys',
+  APPSYNC_GRAPHQL_API: 'AppSync_GraphQL_API_Secret_Keys'
 };
 
 export const MAX_SERVER_PARAM_LENGTH = 200;

@@ -2,7 +2,11 @@ import { motion } from 'framer-motion';
 import { useCallback, useState, useRef, useEffect } from 'react';
 
 import { channel as $channelContent } from '../../content';
-import { clsm, retryWithExponentialBackoff } from '../../utils';
+import {
+  clsm,
+  extractChannelIdfromChannelArn,
+  retryWithExponentialBackoff
+} from '../../utils';
 import {
   Provider as NotificationProvider,
   useNotif
@@ -36,21 +40,29 @@ import { useGlobalStage } from '../../contexts/Stage';
 import { player as $playerContent } from '../../content';
 import usePrevious from '../../hooks/usePrevious';
 import Notification from '../../components/Notification/Notification';
+import { useAppSync } from '../../contexts/AppSync';
+import channelEvents from '../../contexts/AppSync/channelEvents';
+import { useUser } from '../../contexts/User';
+import { apiBaseUrl } from '../../api/utils';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
-  const { channelError, channelData: { stageId } = {} } = useChannel();
+  const { channelError, channelData: { stageId, channelArn } = {} } =
+    useChannel();
   const {
     strategy,
     resetParticipants,
     updateError,
     error: stageError,
     success: stageSuccess,
-    updateSuccess
+    updateSuccess,
+    requestingToJoinStage
   } = useGlobalStage();
   const { notifyError, notifySuccess } = useNotif();
+  const { publish } = useAppSync();
+  const { userData } = useUser();
 
   useEffect(() => {
     // There are many stage success and error messages, however on the channel page,
@@ -195,6 +207,51 @@ const Channel = () => {
     resetParticipants,
     updateError
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (channelArn) {
+        const channelId = channelArn && extractChannelIdfromChannelArn(channelArn);
+
+        publish(
+          channelId?.toLowerCase(),
+          JSON.stringify({
+            type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+            channelId: userData?.channelId?.toLowerCase()
+          })
+        );
+      }
+    };
+  }, [channelArn, publish, userData?.channelId]);
+
+  const beforeUnloadHandler = useCallback(() => {
+    queueMicrotask(() => {
+      setTimeout(() => {
+        const channelId =
+          channelArn && extractChannelIdfromChannelArn(channelArn);
+        const body = {
+          senderChannelId: userData?.channelId,
+          receiverChannelId: channelId?.toLowerCase()
+        };
+
+        // GraphQL API will throw a RequestAbortedException if attempting to do a AppSync publish here
+        if (requestingToJoinStage) {
+          navigator.sendBeacon(
+            `${apiBaseUrl}/graphql/revokeStageRequest`,
+            JSON.stringify(body)
+          );
+        }
+      }, 0);
+    });
+  }, [channelArn, requestingToJoinStage, userData?.channelId]);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+    };
+  }, [beforeUnloadHandler]);
 
   if (channelError) return <PageUnavailable />;
 

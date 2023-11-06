@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Button from '../../../components/Button/Button';
 import { RequestInvite } from '../../../assets/icons';
@@ -12,6 +12,9 @@ import { useUser } from '../../../contexts/User';
 import { channel as $channelContent } from '../../../content';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
+import Spinner from '../../../components/Spinner';
+import { useNavigate } from 'react-router-dom';
+import { updateHasStageRequestBeenApproved } from '../../../contexts/Stage/Global/reducer/actions';
 
 const RequestToJoinStageButton = () => {
   const {
@@ -19,12 +22,14 @@ const RequestToJoinStageButton = () => {
     updateRequestingToJoinStage,
     updateError,
     updateSuccess,
-    participants
+    participants,
+    hasStageRequestBeenApproved
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
   const { userData, isSessionValid } = useUser();
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
+  const navigate = useNavigate();
 
   let channelId;
 
@@ -35,12 +40,14 @@ const RequestToJoinStageButton = () => {
   const isMenuButtonVisible = isSessionValid && isMobileView;
 
   const requestToJoin = async () => {
+    if (hasStageRequestBeenApproved) return;
+
     if (requestingToJoinStage) {
       updateRequestingToJoinStage(false);
       publish(
         channelId,
         JSON.stringify({
-          type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
+          type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
           channelId: userData.channelId.toLowerCase()
         })
       );
@@ -72,20 +79,34 @@ const RequestToJoinStageButton = () => {
     }
   };
 
+  useEffect(() => {
+    if (!hasStageRequestBeenApproved) return;
+
+    setTimeout(() => {
+      navigate('/manager');
+      updateHasStageRequestBeenApproved(false);
+    }, 1500);
+  }, [hasStageRequestBeenApproved, navigate]);
+
+  const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
+
+  const message = hasStageRequestBeenApproved
+    ? ''
+    : requestingToJoinStage
+    ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
+    : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
+
   return (
     <Tooltip
       shouldKeepMinWidth={false}
       position="above"
       translate={{ y: 2 }}
-      message={
-        requestingToJoinStage
-          ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
-          : $channelContent.request_to_join_stage_button.tooltip.request_to_join
-      }
+      message={message}
     >
       <Button
         className={clsm([
           isMenuButtonVisible && 'mr-[56px]',
+          hasStageRequestBeenApproved && 'pointer-events-none',
           'w-11',
           'h-11',
           'dark:[&>svg]:fill-white',
@@ -94,7 +115,7 @@ const RequestToJoinStageButton = () => {
           !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
           'dark:focus:bg-darkMode-gray',
           'bg-lightMode-gray',
-          requestingToJoinStage && [
+          (requestingToJoinStage || hasStageRequestBeenApproved) && [
             'dark:[&>svg]:fill-black',
             'dark:bg-darkMode-blue',
             'dark:focus:bg-darkMode-blue',
@@ -109,7 +130,7 @@ const RequestToJoinStageButton = () => {
         onClick={requestToJoin}
         isDisabled={participants?.size >= 12}
       >
-        <RequestInvite />
+        {icon}
       </Button>
     </Tooltip>
   );

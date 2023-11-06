@@ -100,6 +100,11 @@ export const updateRequestingToJoinStage = (bool) => ({
   payload: bool
 });
 
+export const updateHasStageRequestBeenApproved = (bool) => ({
+  type: actionTypes.UPDATE_HAS_STAGE_REQUEST_BEEN_APPROVED,
+  payload: bool
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

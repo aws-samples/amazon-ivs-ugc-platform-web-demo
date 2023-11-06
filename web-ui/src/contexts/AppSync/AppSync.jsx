@@ -7,11 +7,18 @@ import useContextHook from '../useContextHook';
 import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
-import { streamManager as $streamManagerContent } from '../../content';
+import {
+  streamManager as $streamManagerContent,
+  channel as $channelContent
+} from '../../content';
 import { useGlobalStage } from '../Stage';
+import { useLocation } from 'react-router-dom';
+import { useChannel } from '../Channel';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
+
+const $channelContentNotification = $channelContent.notifications;
 
 const Context = createContext(null);
 Context.displayName = 'AppSync';
@@ -19,7 +26,9 @@ Context.displayName = 'AppSync';
 export const Provider = ({ children }) => {
   const { userData } = useUser();
   const { notifyNeutral } = useNotif();
-  const { isHost } = useGlobalStage();
+  const { isHost, updateHasStageRequestBeenApproved } = useGlobalStage();
+  const { pathname } = useLocation();
+  const { channelData } = useChannel();
 
   /**
    * @param  {string} name the name of the channel
@@ -58,6 +67,20 @@ export const Provider = ({ children }) => {
             const { username, type, sent } = channelEvent;
           }
           break;
+        case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
+          if (!isHost) {
+            notifyNeutral(
+              $channelContentNotification.neutral.joining_stage_session,
+              {
+                asPortal: true
+              }
+            );
+
+            updateHasStageRequestBeenApproved(true);
+          }
+          break;
+        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
+          break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
             notifyNeutral(
@@ -79,7 +102,15 @@ export const Provider = ({ children }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [isHost, notifyNeutral, subscribe, userData?.channelId]);
+  }, [
+    channelData,
+    isHost,
+    notifyNeutral,
+    pathname,
+    subscribe,
+    updateHasStageRequestBeenApproved,
+    userData?.channelId
+  ]);
 
   const value = useMemo(
     () => ({

@@ -53,6 +53,7 @@ export class ChannelsStack extends NestedStack {
       apiKey: string;
       endpoint: string;
       authType: string;
+      secretName: string;
     };
   };
   public readonly policies: iam.PolicyStatement[];
@@ -631,10 +632,23 @@ export class ChannelsStack extends NestedStack {
       }
     );
 
+    // It is **highly** encouraged to leave these fields undefined and allow SecretsManager to create the secret value.
+    // The secret object -- if provided -- will be included in the output of the cdk as part of synthesis,
+    // and will appear in the CloudFormation template in the console
+    const appSyncGraphQlApiSecret = new Secret(this, SECRET_IDS.APPSYNC_GRAPHQL_API, {
+      description:
+        'JSON object containing the api key and url endpoint for backend consumption',
+      secretObjectValue: {
+        apiKey: SecretValue.unsafePlainText(''),
+        graphQlApiEndpoint: SecretValue.unsafePlainText('')
+      }
+    });
+
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,
       endpoint: api.attrGraphQlUrl,
-      authType
+      authType,
+      secretName: appSyncGraphQlApiSecret.secretName
     };
 
     // Stack Outputs

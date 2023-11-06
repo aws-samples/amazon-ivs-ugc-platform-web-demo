@@ -74,6 +74,7 @@ const useGlobalReducers = () => {
     },
     []
   );
+
   const updateShouldDisableStageButtonWithDelay = useCallback(
     (shouldDisableStageButtonWithDelay) => {
       dispatch(
@@ -116,6 +117,10 @@ const useGlobalReducers = () => {
     dispatch(actions.updateRequestingToJoinStage(bool));
   }, []);
 
+  const updateHasStageRequestBeenApproved = useCallback((bool) => {
+    dispatch(actions.updateHasStageRequestBeenApproved(bool));
+  }, []);
+
   // Channel page
   const updateIsChannelStagePlayerMuted = useCallback((bool) => {
     dispatch(actions.updateIsChannelStagePlayerMuted(bool));
@@ -134,6 +139,7 @@ const useGlobalReducers = () => {
       toggleMicrophoneState,
       updateAnimateCollapseStageContainerWithDelay,
       updateError,
+      updateHasStageRequestBeenApproved,
       updateIsBlockingRoute,
       updateIsChannelStagePlayerMuted,
       updateIsSpectator,
@@ -158,6 +164,7 @@ const useGlobalReducers = () => {
       toggleMicrophoneState,
       updateAnimateCollapseStageContainerWithDelay,
       updateError,
+      updateHasStageRequestBeenApproved,
       updateIsBlockingRoute,
       updateIsChannelStagePlayerMuted,
       updateIsSpectator,
