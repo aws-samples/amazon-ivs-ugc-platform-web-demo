@@ -16,7 +16,8 @@ const useInviteParticipants = ({
   createStageInstanceAndJoin,
   updateError,
   resetStage,
-  broadcastDevicesStateObjRef
+  broadcastDevicesStateObjRef,
+  shouldGetHostRejoinTokenRef
 }) => {
   const navigate = useNavigate();
   const { stageId, updateStageId, addParticipant, localParticipant } =
@@ -83,7 +84,7 @@ const useInviteParticipants = ({
 
         if (result?.token) {
           await createStageInstanceAndJoin(result.token, stageId);
-
+          shouldGetHostRejoinTokenRef.current = false;
           // open fullscreen view
           openFullscreenViewCallbackFunctionRef.current();
         }
@@ -119,7 +120,8 @@ const useInviteParticipants = ({
     navigate,
     resetStage,
     broadcastDevicesStateObjRef,
-    shouldGetParticipantTokenRef
+    shouldGetParticipantTokenRef,
+    shouldGetHostRejoinTokenRef
   ]);
 
   return { handleParticipantInvite };

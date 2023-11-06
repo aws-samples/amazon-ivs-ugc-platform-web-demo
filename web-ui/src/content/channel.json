@@ -87,5 +87,8 @@
         "unfollow_user": "Failed to unfollow user"
       }
     }
+  },
+  "stage": {
+    "click_to_unmute": "Click to unmute"
   }
 }

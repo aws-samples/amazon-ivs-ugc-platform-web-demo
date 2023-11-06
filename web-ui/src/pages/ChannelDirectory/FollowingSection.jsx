@@ -263,16 +263,17 @@ const FollowingSection = () => {
                 }}
               >
                 {selectedSectionList.map((channelData, i) => {
-                  const { color, username, isLive } = channelData;
+                  const { color, username, isLive, stageId } = channelData;
                   const isLastItemInFrame =
                     selectedSectionList.length - 1 === i;
                   const isFirstItemInFrame = i === 0 && frameIndex > 0;
+                  const isChannelLive = isLive || !!stageId;
 
                   return (
                     <FollowedUserButton
                       avatarSrc={getAvatarSrc(channelData)}
                       color={color}
-                      isLive={isLive}
+                      isLive={isChannelLive}
                       key={username}
                       username={username}
                       isLastItemInFrame={isLastItemInFrame}
