@@ -70,8 +70,7 @@ const Chat = ({ shouldRunCelebration }) => {
 
   if (channelData?.channelArn)
     channelId = extractChannelIdfromChannelArn(channelData?.channelArn);
-  const isHost =
-    channelId === userData?.channelId?.toLowerCase();
+  const isHost = channelId === userData?.channelId?.toLowerCase();
 
   const isRequestButtonVisible =
     !isHost &&
