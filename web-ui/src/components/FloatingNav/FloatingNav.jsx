@@ -59,8 +59,7 @@ const FloatingNav = ({
           <Button
             data-testid="floating-menu-toggle"
             className={clsm([
-              'px-2.5',
-              'py-2.5',
+              'p-2.5',
               isRequestButtonVisible
                 ? ['w-11', 'h-11', 'min-w-[44px]', 'min-h-[44px]']
                 : ['w-12', 'h-12', 'min-w-[48px]', 'min-h-[48px]'],
