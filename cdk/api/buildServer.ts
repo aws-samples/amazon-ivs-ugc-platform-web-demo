@@ -6,7 +6,6 @@ import channelsRouters from './channels';
 import metricsRouter from './metrics/';
 import productsRouters from './product';
 import stagesRouter from './stages';
-import appSyncGraphQLRouter from './appSyncGraphQL';
 
 import configureRoute from './shared/hooks/configureRoute';
 import { MAX_SERVER_PARAM_LENGTH } from './shared/constants';
@@ -61,11 +60,6 @@ const buildServer = () => {
   if (['all', 'metrics'].includes(serviceName)) {
     // Create /metrics authenticated resource
     server.register(metricsRouter, { prefix: 'metrics' });
-  }
-
-  if (['all', 'graphql'].includes(serviceName)) {
-    // Create /graphql authenticated and unauthenticated resources
-    server.register(appSyncGraphQLRouter, { prefix: 'graphql' });
   }
 
   // Health check

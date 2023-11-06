@@ -238,7 +238,7 @@ const Channel = () => {
         // GraphQL API will throw a RequestAbortedException if attempting to do a AppSync publish here
         if (requestingToJoinStage) {
           navigator.sendBeacon(
-            `${apiBaseUrl}/graphql/revokeStageRequest`,
+            `${apiBaseUrl}/stages/revokeStageRequest`,
             JSON.stringify(body)
           );
         }
