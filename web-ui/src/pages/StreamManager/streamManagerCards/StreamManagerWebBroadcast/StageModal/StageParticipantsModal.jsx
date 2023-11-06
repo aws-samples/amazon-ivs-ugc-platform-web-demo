@@ -60,20 +60,6 @@ const StageParticipantsModal = () => {
 
   const availableSpotMessage = `${$content.participants} (${participantsArrayExcludingHost.length}/11)`;
 
-  const { publish } = useAppSync();
-
-  // TODO: Move function to appropriate component
-  // eslint-disable-next-line no-unused-vars
-  const acceptStageRequest = () => {
-    const requesteeChannelId = '<PARTICIPANT_CHANNEL_ID>';
-    publish(
-      requesteeChannelId,
-      JSON.stringify({
-        type: channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN
-      })
-    );
-  };
-
   return (
     type === MODAL_TYPE.STAGE_PARTICIPANTS &&
     renderStageParticipantsModal(
