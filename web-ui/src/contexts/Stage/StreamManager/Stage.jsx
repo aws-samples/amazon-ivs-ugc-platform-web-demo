@@ -12,6 +12,7 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
+  PARTICIPANT_TYPES,
   STATE_KEYS
 } from '../Global/reducer/globalReducer';
 import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
@@ -230,6 +231,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       // Get and set local participant
       const localParticipantData = decodeJWT(token) || {};
       const { attributes, user_id: userId } = localParticipantData;
+      const { type } = attributes;
+
+      if (type === PARTICIPANT_TYPES.HOST)
+        shouldGetHostRejoinTokenRef.current = true;
 
       const localParticipantObject = {
         attributes: {
@@ -319,7 +324,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     createStageInstanceAndJoin,
     updateError,
     resetStage,
-    broadcastDevicesStateObjRef
+    broadcastDevicesStateObjRef,
+    shouldGetHostRejoinTokenRef
   });
 
   const handleCopyJoinParticipantLinkAndNotify = useCallback(() => {

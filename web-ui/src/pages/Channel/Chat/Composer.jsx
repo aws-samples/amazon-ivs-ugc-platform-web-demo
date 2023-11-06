@@ -162,7 +162,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div className={'w-full'}>
+    <div className="w-full">
       <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{

@@ -20,6 +20,7 @@ import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { streamManager as $content } from '../../../../../content';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -31,6 +32,7 @@ const StageParticipant = ({ participant }) => {
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
   const { closeModal, openModal } = useModal();
+  const { updateError } = useGlobalStage();
   const REPLACEMENT_TEXT = 'USERNAME';
   const message = $stageContent.remove_participant_confirmation_text.replace(
     REPLACEMENT_TEXT,
@@ -47,12 +49,21 @@ const StageParticipant = ({ participant }) => {
         message
       },
       onConfirm: async () => {
-        const { result } = await stagesAPI.disconnectParticipant(id);
-        if (result?.message) {
-          publish(
-            channelId,
-            JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
-          );
+        const { result, error } = await stagesAPI.disconnectParticipant(id);
+
+        if (error) {
+          updateError({
+            message:
+              $stageContent.notifications.error.failed_to_remove_participant,
+            err: error
+          });
+        } else {
+          if (result?.message) {
+            publish(
+              channelId,
+              JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
+            );
+          }
         }
       },
       onCancel: () => {

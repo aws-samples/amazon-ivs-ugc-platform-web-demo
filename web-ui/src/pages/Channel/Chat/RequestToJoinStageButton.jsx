@@ -124,7 +124,6 @@ const RequestToJoinStageButton = () => {
           ]
         ])}
         variant="icon"
-        // ref={toggleRef}
         ariaLabel={'test'}
         key="create-stage-control-btn"
         onClick={requestToJoin}

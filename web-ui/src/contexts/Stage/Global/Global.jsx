@@ -37,7 +37,8 @@ export const Provider = ({ children }) => {
     updateStreams,
     updateSuccess,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    updateHasStageRequestBeenApproved
+    updateHasStageRequestBeenApproved,
+    updateIsChannelStagePlayerMuted
   } = useGlobalReducers();
   const {
     participants,
@@ -120,6 +121,7 @@ export const Provider = ({ children }) => {
       success,
       isHost,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateIsChannelStagePlayerMuted,
       // Actions
       addParticipant,
       creatingStage,
@@ -164,6 +166,7 @@ export const Provider = ({ children }) => {
     strategy,
     success,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateIsChannelStagePlayerMuted,
     addParticipant,
     creatingStage,
     removeParticipant,
