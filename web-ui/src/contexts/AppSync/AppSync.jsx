@@ -8,8 +8,7 @@ import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import {
-  streamManager as $streamManagerContent,
-  channel as $channelContent
+  streamManager as $streamManagerContent
 } from '../../content';
 import { useGlobalStage } from '../Stage';
 import { useLocation } from 'react-router-dom';
@@ -17,8 +16,6 @@ import { useChannel } from '../Channel';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
-
-const $channelContentNotification = $channelContent.notifications;
 
 const Context = createContext(null);
 Context.displayName = 'AppSync';
@@ -69,13 +66,6 @@ export const Provider = ({ children }) => {
           break;
         case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
           if (!isHost) {
-            notifyNeutral(
-              $channelContentNotification.neutral.joining_stage_session,
-              {
-                asPortal: true
-              }
-            );
-
             updateHasStageRequestBeenApproved(true);
           }
           break;

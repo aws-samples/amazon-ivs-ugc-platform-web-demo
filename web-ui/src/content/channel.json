@@ -9,9 +9,6 @@
       "request_to_join_stage_fail": "Failed to send request",
       "ban_user": "Failed to ban user",
       "unban_user": "Failed to unban user"
-    },
-    "neutral": {
-      "joining_stage_session": "Joining session..."
     }
   },
   "chat": {

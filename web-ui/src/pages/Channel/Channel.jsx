@@ -211,7 +211,8 @@ const Channel = () => {
   useEffect(() => {
     return () => {
       if (channelArn) {
-        const channelId = channelArn && extractChannelIdfromChannelArn(channelArn);
+        const channelId =
+          channelArn && extractChannelIdfromChannelArn(channelArn);
 
         publish(
           channelId?.toLowerCase(),

@@ -1,5 +1,4 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AppSyncClient, AssociateApiCommand } from '@aws-sdk/client-appsync';
 import axios from 'axios';
 
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
@@ -9,8 +8,6 @@ type RevokeStageRequestMessageRequestBody = {
   receiverChannelId?: string;
   senderChannelId?: string;
 };
-
-const appSyncClient = new AppSyncClient();
 
 const handler = async (
   request: FastifyRequest<{ Body: RevokeStageRequestMessageRequestBody }>,
