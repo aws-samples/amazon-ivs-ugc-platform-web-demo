@@ -14,8 +14,6 @@ import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 import StageParticipant from './StageParticipant';
-import { useAppSync } from '../../../../../contexts/AppSync';
-import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 
 const $content = $streamManagerContent.stream_manager_stage;
 
