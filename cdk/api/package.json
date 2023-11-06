@@ -15,7 +15,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-appsync": "^3.441.0",
     "@aws-sdk/client-cloudwatch": "^3.218.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.218.0",
     "@aws-sdk/client-dynamodb": "^3.218.0",
