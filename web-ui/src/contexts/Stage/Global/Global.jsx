@@ -38,6 +38,8 @@ export const Provider = ({ children }) => {
     updateSuccess,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
     updateHasStageRequestBeenApproved,
+    updateStageRequestList,
+    deleteRequestToJoin,
     updateIsChannelStagePlayerMuted
   } = useGlobalReducers();
   const {
@@ -54,7 +56,8 @@ export const Provider = ({ children }) => {
     isChannelStagePlayerMuted,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     requestingToJoinStage,
-    hasStageRequestBeenApproved
+    hasStageRequestBeenApproved,
+    stageRequestList
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -92,6 +95,7 @@ export const Provider = ({ children }) => {
 
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
+  const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
 
   const participantsArrayExcludingHost = useMemo(
     () =>
@@ -120,6 +124,7 @@ export const Provider = ({ children }) => {
       strategy,
       success,
       isHost,
+      isInvitedParticipant,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       updateIsChannelStagePlayerMuted,
       // Actions
@@ -148,7 +153,10 @@ export const Provider = ({ children }) => {
       updateShouldDisableStageButtonWithDelay,
       animateCollapseStageContainerWithDelay,
       shouldAnimateGoLiveButtonChevronIcon,
-      shouldDisableStageButtonWithDelay
+      shouldDisableStageButtonWithDelay,
+      updateStageRequestList,
+      stageRequestList,
+      deleteRequestToJoin
     };
   }, [
     error,
@@ -182,6 +190,7 @@ export const Provider = ({ children }) => {
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
     isHost,
+    isInvitedParticipant,
     updateRequestingToJoinStage,
     updateStageId,
     updateStreams,
@@ -192,7 +201,10 @@ export const Provider = ({ children }) => {
     updateAnimateCollapseStageContainerWithDelay,
     animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay
+    shouldDisableStageButtonWithDelay,
+    updateStageRequestList,
+    stageRequestList,
+    deleteRequestToJoin
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

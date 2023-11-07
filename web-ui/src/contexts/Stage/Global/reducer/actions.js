@@ -105,6 +105,16 @@ export const updateHasStageRequestBeenApproved = (bool) => ({
   payload: bool
 });
 
+export const updateStageRequestList = (channelEvent) => ({
+  type: actionTypes.UPDATE_STAGE_REQUEST_LIST,
+  payload: channelEvent
+});
+
+export const deleteRequestToJoin = (requesteeChannelId) => ({
+  type: actionTypes.DELETE_REQUEST_TO_JOIN,
+  payload: requesteeChannelId
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

@@ -126,6 +126,14 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsChannelStagePlayerMuted(bool));
   }, []);
 
+  const updateStageRequestList = useCallback((requestee) => {
+    dispatch(actions.updateStageRequestList(requestee));
+  }, []);
+
+  const deleteRequestToJoin = useCallback((requesteeChannelId) => {
+    dispatch(actions.deleteRequestToJoin(requesteeChannelId));
+  }, []);
+
   return useMemo(
     () => ({
       state,
@@ -150,7 +158,9 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateStageRequestList,
+      deleteRequestToJoin
     }),
     [
       state,
@@ -175,7 +185,9 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateStageRequestList,
+      deleteRequestToJoin
     ]
   );
 };

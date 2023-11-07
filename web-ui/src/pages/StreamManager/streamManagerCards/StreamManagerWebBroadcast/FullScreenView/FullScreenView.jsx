@@ -20,10 +20,11 @@ import Footer from './Footer';
 import Header from './Header';
 
 const FullScreenView = ({ dimensions }) => {
-  const { isStageActive } = useStreamManagerStage();
+  const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
   const { isModalOpen } = useModal();
+  const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
 
   const content = isStageActive ? (
     <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
@@ -76,7 +77,9 @@ const FullScreenView = ({ dimensions }) => {
         'z-[700]'
       ])}
     >
-      <Header />
+      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) && (
+        <Header />
+      )}
       <motion.div
         className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
         {...createAnimationProps({

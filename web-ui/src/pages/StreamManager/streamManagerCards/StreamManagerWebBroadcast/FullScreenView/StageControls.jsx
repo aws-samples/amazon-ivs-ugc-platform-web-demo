@@ -25,9 +25,11 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const {
     handleCopyJoinParticipantLinkAndNotify,
-    shouldDisableCopyLinkButton
+    shouldDisableCopyLinkButton,
+    stageControlsVisibility
   } = useStreamManagerStage();
-  const { isStageActive, isHost } = useGlobalStage();
+  const { isStageActive, isHost, stageRequestList } = useGlobalStage();
+  const { shouldRenderInviteLinkButton } = stageControlsVisibility;
 
   const handleOpenParticipantsModal = () => {
     openModal({
@@ -78,6 +80,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
               ref={participantsButtonRef}
               onClick={handleOpenParticipantsModal}
               className={clsm([
+                'relative',
                 'w-11',
                 'h-11',
                 'dark:[&>svg]:fill-white',
@@ -89,38 +92,59 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
               ])}
             >
               <Group />
+              {stageRequestList.length > 0 && (
+                <div
+                  className={clsm([
+                    'bg-darkMode-blue',
+                    'absolute',
+                    'top-[-4px]',
+                    'left-[28px]',
+                    'rounded-full',
+                    'w-5',
+                    'h-5',
+                    'text-xs',
+                    'flex',
+                    'justify-center',
+                    'items-center'
+                  ])}
+                >
+                  {stageRequestList.length}
+                </div>
+              )}
             </Button>
           </Tooltip>
         )}
-        <Tooltip
-          key="stage-control-tooltip-copy-link"
-          position="above"
-          translate={{ y: 2 }}
-          message={
-            !shouldDisableCopyLinkButton && $stageContent.copy_session_link
-          }
-        >
-          <Button
-            className={clsm([
-              shouldShowCopyLinkText ? ['px-4', 'space-x-1'] : 'px-[10px]',
-              'w-full',
-              CONTROLLER_BUTTON_THEME,
-              !shouldShowCopyLinkText && ['min-w-0']
-            ])}
-            onClick={handleCopyJoinParticipantLinkAndNotify}
-            variant="secondary"
-            isDisabled={shouldDisableCopyLinkButton}
+        {shouldRenderInviteLinkButton && (
+          <Tooltip
+            key="stage-control-tooltip-copy-link"
+            position="above"
+            translate={{ y: 2 }}
+            message={
+              !shouldDisableCopyLinkButton && $stageContent.copy_session_link
+            }
           >
-            <PersonAdd
+            <Button
               className={clsm([
-                'w-6',
-                'h-6',
-                !shouldShowCopyLinkText && ['mr-0', 'p-0']
+                shouldShowCopyLinkText ? ['px-4', 'space-x-1'] : 'px-[10px]',
+                'w-full',
+                CONTROLLER_BUTTON_THEME,
+                !shouldShowCopyLinkText && ['min-w-0']
               ])}
-            />
-            <p>{shouldShowCopyLinkText && $stageContent.copy_link}</p>
-          </Button>
-        </Tooltip>
+              onClick={handleCopyJoinParticipantLinkAndNotify}
+              variant="secondary"
+              isDisabled={shouldDisableCopyLinkButton}
+            >
+              <PersonAdd
+                className={clsm([
+                  'w-6',
+                  'h-6',
+                  !shouldShowCopyLinkText && ['mr-0', 'p-0']
+                ])}
+              />
+              <p>{shouldShowCopyLinkText && $stageContent.copy_link}</p>
+            </Button>
+          </Tooltip>
+        )}
       </motion.div>
     </div>
   );

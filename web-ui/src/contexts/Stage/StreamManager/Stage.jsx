@@ -266,17 +266,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       await updateLocalStrategy();
     },
     [
-      addParticipant,
       isBroadcastCameraHidden,
       isBroadcastMicrophoneMuted,
-      joinParticipantLinkRef,
-      joinStageClient,
       localParticipant,
+      updateIsBlockingRoute,
+      updateStageId,
+      joinStageClient,
       strategy,
       updateLocalStrategy,
-      updateIsBlockingRoute,
       updateParticipant,
-      updateStageId
+      addParticipant
     ]
   );
 
@@ -337,6 +336,25 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
     useStageControls({ leaveStage, resetStage });
+
+  // Stage controls visibility
+  const stageControlsVisibility = useMemo(
+    () => ({
+      shouldRenderFullscreenCollapseCloseButton: [
+        PARTICIPANT_TYPES.HOST,
+        PARTICIPANT_TYPES.INVITED
+      ].includes(localParticipant?.attributes.type),
+      shouldRenderInviteLinkButton: [
+        PARTICIPANT_TYPES.HOST,
+        PARTICIPANT_TYPES.INVITED
+      ].includes(localParticipant?.attributes.type),
+      shouldRenderShareScreenButton: [
+        PARTICIPANT_TYPES.HOST,
+        PARTICIPANT_TYPES.INVITED
+      ].includes(localParticipant?.attributes.type)
+    }),
+    [localParticipant?.attributes.type]
+  );
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
   useEffect(() => {
@@ -434,7 +452,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
-      shouldGetHostRejoinTokenRef
+      shouldGetHostRejoinTokenRef,
+      stageControlsVisibility
     }),
     [
       initializeStageClient,
@@ -457,7 +476,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       hasPermissions,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       createStageInstanceAndJoin,
-      shouldGetHostRejoinTokenRef
+      shouldGetHostRejoinTokenRef,
+      stageControlsVisibility
     ]
   );
 

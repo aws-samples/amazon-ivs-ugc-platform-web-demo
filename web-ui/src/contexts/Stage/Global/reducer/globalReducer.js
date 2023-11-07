@@ -16,12 +16,35 @@
  * @typedef {Map<Participant>} Participants
  */
 
+import channelEvents from '../../../AppSync/channelEvents';
 import actionTypes from './actionTypes';
+
+const updateStageRequestToJoin = (
+  participantChanneId,
+  stageRequestToJoinList
+) => {
+  let currentStageRequestToJoinList = [...stageRequestToJoinList];
+
+  const hasUserRequestedToJoin = !!stageRequestToJoinList.find(
+    (requestee) =>
+      requestee.channelId.toLowerCase() === participantChanneId.toLowerCase()
+  );
+
+  if (hasUserRequestedToJoin) {
+    currentStageRequestToJoinList = currentStageRequestToJoinList.filter(
+      (requestee) => requestee.channelId !== participantChanneId.toLowerCase()
+    );
+  }
+
+  return currentStageRequestToJoinList;
+};
 
 export const LOCAL_KEY = 'LOCAL';
 export const PARTICIPANT_TYPES = {
   HOST: 'host',
-  INVITED: 'invited'
+  INVITED: 'invited',
+  REQUESTED: 'requested',
+  SPECTATOR: 'spectator'
 };
 
 export const defaultParticipant = {
@@ -55,7 +78,8 @@ export const STATE_KEYS = {
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
-  HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved'
+  HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
+  STAGE_REQUEST_LIST: 'stageRequestList'
 };
 
 const defaultStageReducerState = {
@@ -69,7 +93,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
-  [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false
+  [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
+  [STATE_KEYS.STAGE_REQUEST_LIST]: []
 };
 
 const stageAnimationReducerState = {
@@ -84,6 +109,7 @@ export const defaultReducerState = {
 };
 
 const globalReducer = (state = defaultReducerState, action) => {
+  let currentStageRequestToJoinList = [...(state?.stageRequestList || [])];
   const currentParticipants = new Map(state.participants);
   let currentParticipant;
 
@@ -150,9 +176,15 @@ const globalReducer = (state = defaultReducerState, action) => {
         newParticipantObject
       );
 
+      const updatedStageRequestToJoinList = updateStageRequestToJoin(
+        newParticipantObject.attributes.channelId,
+        currentStageRequestToJoinList
+      );
+
       return {
         ...state,
-        [STATE_KEYS.PARTICIPANTS]: currentParticipants
+        [STATE_KEYS.PARTICIPANTS]: currentParticipants,
+        [STATE_KEYS.STAGE_REQUEST_LIST]: updatedStageRequestToJoinList
       };
     }
 
@@ -322,6 +354,38 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_STAGE_REQUEST_LIST: {
+      const { type, channelId } = action.payload;
+
+      if (type === channelEvents.STAGE_REQUEST_TO_JOIN) {
+        currentStageRequestToJoinList = [
+          action.payload,
+          ...currentStageRequestToJoinList
+        ];
+      } else if (type === channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN) {
+        currentStageRequestToJoinList = currentStageRequestToJoinList.filter(
+          (requestee) => requestee.channelId !== channelId
+        );
+      }
+
+      return {
+        ...state,
+        [STATE_KEYS.STAGE_REQUEST_LIST]: currentStageRequestToJoinList
+      };
+    }
+
+    case actionTypes.DELETE_REQUEST_TO_JOIN: {
+      const channelId = action.payload;
+      currentStageRequestToJoinList = currentStageRequestToJoinList.filter(
+        (requestee) => requestee.channelId !== channelId
+      );
+
+      return {
+        ...state,
+        [STATE_KEYS.STAGE_REQUEST_LIST]: currentStageRequestToJoinList
       };
     }
 

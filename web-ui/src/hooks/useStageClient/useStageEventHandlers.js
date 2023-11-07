@@ -5,6 +5,8 @@ import { useGlobalStage } from '../../contexts/Stage';
 import { stagesAPI } from '../../api';
 import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalReducer';
 import { useUser } from '../../contexts/User';
+import { useAppSync } from '../../contexts/AppSync';
+import channelEvents from '../../contexts/AppSync/channelEvents';
 
 const {
   StageEvents,
@@ -18,6 +20,7 @@ const useStageEventHandlers = ({
   updateSuccess,
   stageConnectionErroredEventCallback
 }) => {
+  const { publish } = useAppSync();
   const participantInfo = useRef({
     isHost: false,
     hostChannelId: null
@@ -41,6 +44,7 @@ const useStageEventHandlers = ({
       const {
         attributes: {
           type,
+          channelId,
           username: participantUsername,
           participantTokenCreationDate = undefined // participantTokenCreationDate is undefined for stage creator
         },
@@ -59,6 +63,15 @@ const useStageEventHandlers = ({
         return;
       }
       addParticipant(participant);
+
+      // check whether user has requested to join
+      publish(
+        channelId.toLowerCase(),
+        JSON.stringify({
+          type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+          channelId
+        })
+      );
       /**
        * the "if" statement assesses participant timing compared to the local participant.
        * an undefined participantTokenCreationDate signifies the participant as the stage creator.
@@ -78,7 +91,8 @@ const useStageEventHandlers = ({
     [
       addParticipant,
       localParticipant?.attributes.participantTokenCreationDate,
-      updateSuccess
+      updateSuccess,
+      publish
     ]
   );
 

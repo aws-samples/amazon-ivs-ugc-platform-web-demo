@@ -24,13 +24,14 @@ import { useGlobalStage } from '../../../../../contexts/Stage';
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
+  const { isStageActive } = useGlobalStage();
   const settingsButtonRef = useRef();
   const { isTouchscreenDevice } = useResponsiveDevice();
   const { openModal } = useModal();
   const {
-    isStageActive,
     toggleMicrophone: toggleStageMicrophone,
-    toggleCamera: toggleStageCamera
+    toggleCamera: toggleStageCamera,
+    stageControlsVisibility
   } = useStreamManagerStage();
   const {
     localParticipant,
@@ -54,6 +55,11 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
       [CAMERA_LAYER_NAME]: activeCamera
     }
   } = useBroadcast();
+  const { shouldRenderShareScreenButton } = stageControlsVisibility;
+
+  const shouldRenderStageScreenShareButton =
+    isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
+  const shouldRenderBroadcastScreenShareButton = !isTouchscreenDevice;
 
   const { toggleMicrophone, isMicrophoneMuted, toggleCamera, isCameraHidden } =
     isStageActive
@@ -97,7 +103,9 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
         ariaLabel: isScreenSharing
           ? 'Start screen sharing'
           : 'Stop screen sharing',
-        isVisible: !isTouchscreenDevice,
+        isVisible: isStageActive
+          ? shouldRenderStageScreenShareButton
+          : shouldRenderBroadcastScreenShareButton,
         isActive: isScreenSharing,
         isDisabled:
           isStageSpectator ||
@@ -121,9 +129,10 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
       activeCamera,
       toggleScreenShare,
       isScreenSharing,
-      isTouchscreenDevice,
-      isFullScreenViewOpen,
       isStageActive,
+      shouldRenderStageScreenShareButton,
+      shouldRenderBroadcastScreenShareButton,
+      isFullScreenViewOpen,
       animateCollapseStageContainerWithDelay
     ]
   );

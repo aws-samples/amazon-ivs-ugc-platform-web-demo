@@ -64,6 +64,13 @@ const RequestToJoinStageButton = () => {
         err: error
       });
     } else {
+      const {
+        username,
+        avatar,
+        channelAssetUrls,
+        color: profileColor,
+        channelAssetsAvatarUrl = undefined
+      } = userData;
       updateSuccess(
         $channelContent.notifications.success.request_to_join_stage_success
       );
@@ -73,7 +80,12 @@ const RequestToJoinStageButton = () => {
         JSON.stringify({
           type: channelEvents.STAGE_REQUEST_TO_JOIN,
           channelId: userData.channelId.toLowerCase(),
-          sent: new Date().toString()
+          username,
+          avatar,
+          channelAssetUrls,
+          channelAssetsAvatarUrl,
+          profileColor,
+          sent: Date.now().toString()
         })
       );
     }
