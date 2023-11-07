@@ -1,15 +1,13 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import axios from 'axios';
 
-import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import { APPSYNC_EVENT_TYPES, UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { getSecrets } from '../../shared/helpers';
 
 type RevokeStageRequestMessageRequestBody = {
   receiverChannelId?: string;
   senderChannelId?: string;
 };
-
-const REVOKE_STAGE_REQUEST_TYPE = 'STAGE_REVOKE_REQUEST_TO_JOIN'
 
 const handler = async (
   request: FastifyRequest<{ Body: RevokeStageRequestMessageRequestBody }>,
@@ -48,7 +46,7 @@ const handler = async (
       variables: {
         name: receiverChannelId,
         data: JSON.stringify({
-          type: REVOKE_STAGE_REQUEST_TYPE,
+          type: APPSYNC_EVENT_TYPES.STAGE_REVOKE_REQUEST_TO_JOIN,
           channelId: senderChannelId
         })
       }
