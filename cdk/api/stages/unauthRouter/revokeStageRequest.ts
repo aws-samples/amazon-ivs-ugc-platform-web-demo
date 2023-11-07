@@ -1,7 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import axios from 'axios';
 
-import { APPSYNC_EVENT_TYPES, UNEXPECTED_EXCEPTION } from '../../shared/constants';
+import {
+  APPSYNC_EVENT_TYPES,
+  UNEXPECTED_EXCEPTION
+} from '../../shared/constants';
 import { getSecrets } from '../../shared/helpers';
 
 type RevokeStageRequestMessageRequestBody = {
