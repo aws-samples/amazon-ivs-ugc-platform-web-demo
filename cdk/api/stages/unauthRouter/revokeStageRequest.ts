@@ -34,39 +34,33 @@ const handler = async (
     const secretName = process.env.APPSYNC_GRAPHQL_API_SECRET_NAME as string;
     const appSyncGraphQlApiSecrets = await getSecrets(secretName);
 
-    const mutation = `
-    mutation Publish($name: String!, $data: AWSJSON!) {
-      publish(name: $name, data: $data) {
-        name
-        data
-      }
-    }
-  `;
-
-    const variables = {
-      name: receiverChannelId,
-      data: JSON.stringify({
-        type: 'STAGE_REVOKE_REQUEST_TO_JOIN',
-        channelId: senderChannelId
-      })
-    };
-
-    const input = {
-      query: mutation,
-      variables
-    };
-
-    const axiosConfig = {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': appSyncGraphQlApiSecrets.apiKey
+    const body = {
+      query: `
+        mutation Publish($name: String!, $data: AWSJSON!) {
+          publish(name: $name, data: $data) {
+            name
+            data
+          }
+        }
+      `,
+      variables: {
+        name: receiverChannelId,
+        data: JSON.stringify({
+          type: 'STAGE_REVOKE_REQUEST_TO_JOIN',
+          channelId: senderChannelId
+        })
       }
     };
 
     await axios.post(
       appSyncGraphQlApiSecrets.graphQlApiEndpoint,
-      input,
-      axiosConfig
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': appSyncGraphQlApiSecrets.apiKey
+        }
+      }
     );
 
     reply.statusCode = 200;
