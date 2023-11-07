@@ -61,10 +61,6 @@ export const Provider = ({ children }) => {
       const channelEvent = JSON.parse(data);
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
-          if (isHost) {
-            updateStageRequestList(channelEvent);
-          }
-          break;
         case channelEvents.STAGE_REQUEST_TO_JOIN:
           if (!isHost) return;
 

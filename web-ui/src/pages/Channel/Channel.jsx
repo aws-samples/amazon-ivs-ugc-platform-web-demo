@@ -236,7 +236,7 @@ const Channel = () => {
           channelArn && extractChannelIdfromChannelArn(channelArn);
         const body = {
           senderChannelId: userData?.channelId,
-          receiverChannelId: channelId?.toLowerCase()
+          receiverChannelId: channelId
         };
 
         // GraphQL API will throw a RequestAbortedException if attempting to do a AppSync publish here
