@@ -216,7 +216,7 @@ const Channel = () => {
         const channelId = extractChannelIdfromChannelArn(channelArn);
 
         publish(
-          channelId?.toLowerCase(),
+          channelId,
           JSON.stringify({
             type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
             channelId: userData?.channelId?.toLowerCase()
