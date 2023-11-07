@@ -46,7 +46,7 @@ const handler = async (
     const variables = {
       name: receiverChannelId,
       data: JSON.stringify({
-        type: 'STAGE_HOST_DELETE_REQUEST_TO_JOIN',
+        type: 'STAGE_REVOKE_REQUEST_TO_JOIN',
         channelId: senderChannelId
       })
     };

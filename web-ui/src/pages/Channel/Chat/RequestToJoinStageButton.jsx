@@ -14,7 +14,6 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
 import Spinner from '../../../components/Spinner';
 import { useNavigate } from 'react-router-dom';
-import { updateHasStageRequestBeenApproved } from '../../../contexts/Stage/Global/reducer/actions';
 
 const RequestToJoinStageButton = () => {
   const {
@@ -23,7 +22,8 @@ const RequestToJoinStageButton = () => {
     updateError,
     updateSuccess,
     participants,
-    hasStageRequestBeenApproved
+    hasStageRequestBeenApproved,
+    updateHasStageRequestBeenApproved
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
@@ -47,7 +47,7 @@ const RequestToJoinStageButton = () => {
       publish(
         channelId,
         JSON.stringify({
-          type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+          type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
           channelId: userData.channelId.toLowerCase()
         })
       );
@@ -92,13 +92,14 @@ const RequestToJoinStageButton = () => {
   };
 
   useEffect(() => {
-    if (!hasStageRequestBeenApproved) return;
-
-    setTimeout(() => {
-      navigate('/manager');
-      updateHasStageRequestBeenApproved(false);
-    }, 1500);
-  }, [hasStageRequestBeenApproved, navigate]);
+    if (hasStageRequestBeenApproved) {
+        setTimeout(() => {
+            updateHasStageRequestBeenApproved(false);
+            updateRequestingToJoinStage(false)
+            navigate('/manager');
+          }, 1500);
+    }
+  }, [hasStageRequestBeenApproved, navigate, updateHasStageRequestBeenApproved, updateRequestingToJoinStage]);
 
   const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
 
