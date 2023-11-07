@@ -421,6 +421,7 @@ export class ChannelsStack extends NestedStack {
         'ivs:GetStage',
         'ivs:PutMetadata',
         'ivs:StopStream',
+        'ivs:GetStream',
         'ivs:TagResource'
       ],
       effect: iam.Effect.ALLOW,
