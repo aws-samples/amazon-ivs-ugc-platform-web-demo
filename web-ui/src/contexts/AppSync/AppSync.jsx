@@ -76,7 +76,6 @@ export const Provider = ({ children }) => {
               asPortal: true
             });
 
-            // updateRequestingToJoinStage(false);
             updateHasStageRequestBeenApproved(true);
           }
           break;
