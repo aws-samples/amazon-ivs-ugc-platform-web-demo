@@ -58,7 +58,8 @@ const Channel = () => {
     error: stageError,
     success: stageSuccess,
     updateSuccess,
-    requestingToJoinStage
+    requestingToJoinStage,
+    updateRequestingToJoinStage
   } = useGlobalStage();
   const { notifyError, notifySuccess } = useNotif();
   const { publish } = useAppSync();
@@ -222,9 +223,11 @@ const Channel = () => {
             channelId: userData?.channelId?.toLowerCase()
           })
         );
+
+        updateRequestingToJoinStage(false);
       }
     };
-  }, [channelArn, publish, userData?.channelId]);
+  }, [channelArn, publish, updateRequestingToJoinStage, userData?.channelId]);
 
   // Triggered on page refresh or closed tab
   const beforeUnloadHandler = useCallback(() => {
