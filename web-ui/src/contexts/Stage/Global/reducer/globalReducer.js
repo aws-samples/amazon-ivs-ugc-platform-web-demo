@@ -21,7 +21,9 @@ import actionTypes from './actionTypes';
 export const LOCAL_KEY = 'LOCAL';
 export const PARTICIPANT_TYPES = {
   HOST: 'host',
-  INVITED: 'invited'
+  INVITED: 'invited',
+  REQUESTED: 'requested',
+  SPECTATOR: 'spectator'
 };
 
 export const defaultParticipant = {
