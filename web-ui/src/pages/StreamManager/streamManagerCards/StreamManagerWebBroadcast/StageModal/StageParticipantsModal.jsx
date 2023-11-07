@@ -14,12 +14,13 @@ import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 import StageParticipant from './StageParticipant';
+import StageRequestee from './StageRequestee';
 
 const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
   const { closeModal, isModalOpen, type } = useModal();
-  const { participantsArrayExcludingHost } = useGlobalStage();
+  const { participantsArrayExcludingHost, stageRequestList } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
 
   const renderStageParticipantsModal = (children) => (
@@ -87,8 +88,20 @@ const StageParticipantsModal = () => {
           </h2>
           <div className="mt-12">
             <h4>{availableSpotMessage}</h4>
-            {[...participantsArrayExcludingHost].map(([_, participant]) => (
-              <StageParticipant participant={participant} />
+            {[...participantsArrayExcludingHost].map(([_, participant], i) => (
+              <StageParticipant
+                participant={participant}
+                key={`${participant.id}-${i}`}
+              />
+            ))}
+          </div>
+          <div className="mt-12">
+            <h4>{$content.requests}</h4>
+            {stageRequestList.map((requestee, i) => (
+              <StageRequestee
+                requestee={requestee}
+                key={`${requestee.channelId}-${i}`}
+              />
             ))}
           </div>
         </div>

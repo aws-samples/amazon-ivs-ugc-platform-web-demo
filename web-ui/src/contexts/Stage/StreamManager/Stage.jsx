@@ -266,17 +266,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       await updateLocalStrategy();
     },
     [
-      addParticipant,
       isBroadcastCameraHidden,
       isBroadcastMicrophoneMuted,
-      joinParticipantLinkRef,
-      joinStageClient,
       localParticipant,
+      updateIsBlockingRoute,
+      updateStageId,
+      joinStageClient,
       strategy,
       updateLocalStrategy,
-      updateIsBlockingRoute,
       updateParticipant,
-      updateStageId
+      addParticipant
     ]
   );
 

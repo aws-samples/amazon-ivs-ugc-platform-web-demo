@@ -37,6 +37,8 @@ export const Provider = ({ children }) => {
     updateStreams,
     updateSuccess,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateStageRequestList,
+    deleteRequestToJoin,
     updateIsChannelStagePlayerMuted
   } = useGlobalReducers();
   const {
@@ -52,7 +54,8 @@ export const Provider = ({ children }) => {
     isBlockingRoute,
     isChannelStagePlayerMuted,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
-    requestingToJoinStage
+    requestingToJoinStage,
+    stageRequestList
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -146,7 +149,10 @@ export const Provider = ({ children }) => {
       updateShouldDisableStageButtonWithDelay,
       animateCollapseStageContainerWithDelay,
       shouldAnimateGoLiveButtonChevronIcon,
-      shouldDisableStageButtonWithDelay
+      shouldDisableStageButtonWithDelay,
+      updateStageRequestList,
+      stageRequestList,
+      deleteRequestToJoin
     };
   }, [
     error,
@@ -189,7 +195,10 @@ export const Provider = ({ children }) => {
     updateAnimateCollapseStageContainerWithDelay,
     animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay
+    shouldDisableStageButtonWithDelay,
+    updateStageRequestList,
+    stageRequestList,
+    deleteRequestToJoin
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -18,8 +18,9 @@ Context.displayName = 'AppSync';
 
 export const Provider = ({ children }) => {
   const { userData } = useUser();
-  const { notifyNeutral } = useNotif();
-  const { isHost } = useGlobalStage();
+  const { notifyNeutral, notifyError } = useNotif();
+  const { isHost, updateStageRequestList, updateRequestingToJoinStage } =
+    useGlobalStage();
 
   /**
    * @param  {string} name the name of the channel
@@ -53,10 +54,10 @@ export const Provider = ({ children }) => {
 
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REQUEST_TO_JOIN:
-          if (isHost) {
-            // eslint-disable-next-line no-unused-vars
-            const { username, type, sent } = channelEvent;
-          }
+        case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
+          if (!isHost) return;
+
+          updateStageRequestList(channelEvent);
           break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
@@ -67,19 +68,36 @@ export const Provider = ({ children }) => {
               }
             );
           }
-
           break;
         case channelEvents.STAGE_SESSION_HAS_ENDED:
           notifyNeutral($contentNotification.neutral.the_session_ended, {
             asPortal: true
           });
           break;
+        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
+          updateRequestingToJoinStage(false);
+          break;
+        case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
+          notifyNeutral($contentNotification.neutral.joining_session, {
+            asPortal: true
+          });
+          updateRequestingToJoinStage(false);
+          break;
         default:
           return;
       }
     });
+
     return () => subscription.unsubscribe();
-  }, [isHost, notifyNeutral, subscribe, userData?.channelId]);
+  }, [
+    isHost,
+    notifyError,
+    notifyNeutral,
+    subscribe,
+    updateStageRequestList,
+    updateRequestingToJoinStage,
+    userData?.channelId
+  ]);
 
   const value = useMemo(
     () => ({

@@ -28,7 +28,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
     shouldDisableCopyLinkButton,
     stageControlsVisibility
   } = useStreamManagerStage();
-  const { isStageActive, isHost } = useGlobalStage();
+  const { isStageActive, isHost, stageRequestList } = useGlobalStage();
   const { shouldRenderInviteLinkButton } = stageControlsVisibility;
 
   const handleOpenParticipantsModal = () => {
@@ -80,6 +80,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
               ref={participantsButtonRef}
               onClick={handleOpenParticipantsModal}
               className={clsm([
+                'relative',
                 'w-11',
                 'h-11',
                 'dark:[&>svg]:fill-white',
@@ -91,6 +92,25 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
               ])}
             >
               <Group />
+              {stageRequestList.length > 0 && (
+                <div
+                  className={clsm([
+                    'bg-darkMode-blue',
+                    'absolute',
+                    'top-[-4px]',
+                    'left-[28px]',
+                    'rounded-full',
+                    'w-5',
+                    'h-5',
+                    'text-xs',
+                    'flex',
+                    'justify-center',
+                    'items-center'
+                  ])}
+                >
+                  {stageRequestList.length}
+                </div>
+              )}
             </Button>
           </Tooltip>
         )}

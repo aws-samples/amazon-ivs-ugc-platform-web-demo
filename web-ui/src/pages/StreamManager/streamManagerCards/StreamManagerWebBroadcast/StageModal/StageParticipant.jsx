@@ -20,6 +20,7 @@ import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { streamManager as $content } from '../../../../../content';
+import Tooltip from '../../../../../components/Tooltip';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const $stageContent = $content.stream_manager_stage;
@@ -75,7 +76,7 @@ const StageParticipant = ({ participant }) => {
   };
 
   return (
-    <div className={clsm(['flex', 'h-11', 'items-center', 'my-8'])} key={id}>
+    <div className={clsm(['flex', 'h-11', 'items-center', 'my-8'])}>
       <StageProfilePill
         avatarSrc={avatarSrc}
         profileColor={profileColor}
@@ -118,23 +119,30 @@ const StageParticipant = ({ participant }) => {
           <MicOn />
         )}
       </div>
-      <Button
-        ariaLabel="Reject participants"
-        className={clsm([
-          'w-11',
-          'h-11',
-          'dark:[&>svg]:fill-white',
-          '[&>svg]:fill-black',
-          'dark:bg-darkMode-gray',
-          !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-          'dark:focus:bg-darkMode-gray',
-          'bg-lightMode-gray'
-        ])}
-        onClick={handleDisconnectParticipant}
-        variant="icon"
+      <Tooltip
+        key="remove-participant-control-tooltip"
+        position="below"
+        translate={{ y: 2 }}
+        message={$stageContent.participants_modal.remove_from_session}
       >
-        <Close />
-      </Button>
+        <Button
+          ariaLabel="Reject participants"
+          className={clsm([
+            'w-11',
+            'h-11',
+            'dark:[&>svg]:fill-white',
+            '[&>svg]:fill-black',
+            'dark:bg-darkMode-gray',
+            !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+            'dark:focus:bg-darkMode-gray',
+            'bg-lightMode-gray'
+          ])}
+          onClick={handleDisconnectParticipant}
+          variant="icon"
+        >
+          <Close />
+        </Button>
+      </Tooltip>
     </div>
   );
 };

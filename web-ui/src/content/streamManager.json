@@ -47,6 +47,7 @@
   },
   "stream_manager_stage": {
     "participants": "Participants",
+    "requests": "Requests",
     "collaborate": "Collaborate",
     "leave_session": "Leave session",
     "end_session": "End session",
@@ -57,7 +58,8 @@
     "remove_participant_confirmation_text": "Are you sure you want to remove USERNAME from the session?",
     "notifications": {
       "neutral": {
-        "the_session_ended": "The session ended"
+        "the_session_ended": "The session ended",
+        "joining_session": "Joining session..."
       },
       "success": {
         "you_have_left_the_session": "You have left the session",
@@ -80,6 +82,14 @@
       "leave_page": "Leave page",
       "confirm_leave_page_L1": "Are you sure you want to leave this page?",
       "confirm_leave_page_L2": "You will also leave this session."
+    },
+    "participants_modal": {
+      "remove_from_session": "Remove from session",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "just_now": "Just now",
+      "min_ago": "min ago",
+      "hr_ago": "hr ago"
     }
   },
   "stream_manager_actions": {
