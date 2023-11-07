@@ -235,7 +235,7 @@ const Channel = () => {
         const channelId =
           channelArn && extractChannelIdfromChannelArn(channelArn);
         const body = {
-          senderChannelId: userData?.channelId,
+          senderChannelId: userData?.channelId.toLowerCase(),
           receiverChannelId: channelId
         };
 
