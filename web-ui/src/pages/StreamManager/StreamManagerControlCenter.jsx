@@ -65,11 +65,20 @@ const StreamManagerControlCenter = forwardRef(
       state?.streamManagerSelectedTab || 0
     );
     const [isBroadcastCardOpen, setIsBroadcastCardOpen] = useState(
-      state?.isWebBroadcastContainerOpen ||
+      state?.isJoiningStage ||
+        state?.isWebBroadcastContainerOpen ||
         window.history.state?.isWebBroadcastContainerOpen ||
         !!stageIdUrlParam ||
         false
     );
+
+    // this controls invited and requested participant joining flow
+    useEffect(() => {
+      if (!state?.isJoiningStage) return 
+      setIsFullScreenViewOpen(true)
+    }, [state?.isJoiningStage, setIsFullScreenViewOpen])
+
+    console.log('state', { state, isBroadcastCardOpen });
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
@@ -123,42 +132,42 @@ const StreamManagerControlCenter = forwardRef(
       };
     }, [isDesktopView, setSelectedTabIndex]);
 
-    useEffect(() => {
-      if (!isStageActive && channelData && stageIdUrlParam) {
-        const { avatar, color, username, channelAssetUrls } = channelData;
-        const profileData = {
-          avatar,
-          profileColor: color,
-          username,
-          channelAssetUrls
-        };
-        handleParticipantInvite({
-          isLive,
-          isBroadcasting,
-          profileData,
-          openFullscreenView: () => {
-            if (isDesktopView && handleOpenFullScreenView) {
-              handleOpenFullScreenView();
-            }
-          }
-        });
-      }
-    }, [
-      channelData,
-      handleParticipantInvite,
-      initializeGoLiveContainerDimensions,
-      isDesktopView,
-      isStageActive,
-      setIsFullScreenViewOpen,
-      stageIdUrlParam,
-      isLive,
-      isBroadcasting,
-      updateError,
-      restartBroadcastClient,
-      resetPreview,
-      removeBroadcastClient,
-      handleOpenFullScreenView
-    ]);
+    // useEffect(() => {
+    //   if (!isStageActive && channelData && stageIdUrlParam) {
+    //     const { avatar, color, username, channelAssetUrls } = channelData;
+    //     const profileData = {
+    //       avatar,
+    //       profileColor: color,
+    //       username,
+    //       channelAssetUrls
+    //     };
+    //     handleParticipantInvite({
+    //       isLive,
+    //       isBroadcasting,
+    //       profileData,
+    //       openFullscreenView: () => {
+    //         if (isDesktopView && handleOpenFullScreenView) {
+    //           handleOpenFullScreenView();
+    //         }
+    //       }
+    //     });
+    //   }
+    // }, [
+    //   channelData,
+    //   handleParticipantInvite,
+    //   initializeGoLiveContainerDimensions,
+    //   isDesktopView,
+    //   isStageActive,
+    //   setIsFullScreenViewOpen,
+    //   stageIdUrlParam,
+    //   isLive,
+    //   isBroadcasting,
+    //   updateError,
+    //   restartBroadcastClient,
+    //   resetPreview,
+    //   removeBroadcastClient,
+    //   handleOpenFullScreenView
+    // ]);
 
     useEffect(() => {
       if (

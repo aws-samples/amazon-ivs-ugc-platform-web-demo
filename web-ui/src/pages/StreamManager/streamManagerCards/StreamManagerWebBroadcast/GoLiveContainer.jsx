@@ -153,7 +153,7 @@ const GoLiveContainer = forwardRef(
           )}
         </AnimatePresence>
         <AnimatePresence>
-          {isFullScreenViewOpen && isDesktopView && (
+          {isFullScreenViewOpen && (
             <FullScreenView
               isOpen={isFullScreenViewOpen}
               parentEl={document.body}

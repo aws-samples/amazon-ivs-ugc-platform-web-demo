@@ -18,9 +18,12 @@ import withPortal from '../../../../../components/withPortal';
 import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
+import { useLocation } from 'react-router-dom';
+import JoinModalOverlay from './JoinModalOverlay';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
+  const { state } = useLocation();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
   const { isModalOpen } = useModal();
@@ -47,39 +50,39 @@ const FullScreenView = ({ dimensions }) => {
     <motion.div
       ref={fullScreenViewContainerRef}
       key="full-screen-view"
-      {...createAnimationProps({
-        customVariants: {
-          hidden: {
-            top: animationInitialTop,
-            left: animationInitialLeft,
-            width: animationInitialWidth,
-            height: animationInitialHeight,
-            borderRadius: 24
-          },
-          visible: {
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            borderRadius: 0
-          }
-        },
-        transition: ANIMATION_TRANSITION,
-        options: {
-          isVisible: isFullScreenViewOpen
-        }
-      })}
+      // {...createAnimationProps({
+      //   customVariants: {
+      //     hidden: {
+      //       top: animationInitialTop,
+      //       left: animationInitialLeft,
+      //       width: animationInitialWidth,
+      //       height: animationInitialHeight,
+      //       borderRadius: 24
+      //     },
+      //     visible: {
+      //       top: 0,
+      //       left: 0,
+      //       width: '100%',
+      //       height: '100%',
+      //       borderRadius: 0
+      //     }
+      //   },
+      //   transition: ANIMATION_TRANSITION,
+      //   options: {
+      //     isVisible: isFullScreenViewOpen
+      //   }
+      // })}
       className={clsm([
         'absolute',
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
-        'z-[700]'
+        'z-[700]',
+        state?.isJoiningStage && ['w-full', 'h-full', 'top-0', 'left-0']
       ])}
     >
-      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) && (
-        <Header />
-      )}
+      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
+        !state.isJoiningStage && <Header />}
       <motion.div
         className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
         {...createAnimationProps({
@@ -100,8 +103,9 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {content}
-        <Footer />
+        {state?.isJoiningStage ? <JoinModalOverlay /> : content}
+        {/* {content} */}
+        {!state?.isJoiningStage && <Footer />}
       </motion.div>
     </motion.div>
   );

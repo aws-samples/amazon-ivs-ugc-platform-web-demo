@@ -96,7 +96,7 @@ const RequestToJoinStageButton = () => {
       setTimeout(() => {
         updateHasStageRequestBeenApproved(false);
         updateRequestingToJoinStage(false);
-        navigate('/manager');
+        navigate('/manager', { state: { isJoiningStage: true } });
       }, 1500);
     }
   }, [
