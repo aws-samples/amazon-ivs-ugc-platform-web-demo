@@ -9,6 +9,8 @@ type RevokeStageRequestMessageRequestBody = {
   senderChannelId?: string;
 };
 
+const REVOKE_STAGE_REQUEST_TYPE = 'STAGE_REVOKE_REQUEST_TO_JOIN'
+
 const handler = async (
   request: FastifyRequest<{ Body: RevokeStageRequestMessageRequestBody }>,
   reply: FastifyReply
@@ -46,22 +48,18 @@ const handler = async (
       variables: {
         name: receiverChannelId,
         data: JSON.stringify({
-          type: 'STAGE_REVOKE_REQUEST_TO_JOIN',
+          type: REVOKE_STAGE_REQUEST_TYPE,
           channelId: senderChannelId
         })
       }
     };
 
-    await axios.post(
-      appSyncGraphQlApiSecrets.graphQlApiEndpoint,
-      body,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': appSyncGraphQlApiSecrets.apiKey
-        }
+    await axios.post(appSyncGraphQlApiSecrets.graphQlApiEndpoint, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': appSyncGraphQlApiSecrets.apiKey
       }
-    );
+    });
 
     reply.statusCode = 200;
     return reply.send({
