@@ -208,6 +208,7 @@ const Channel = () => {
     updateError
   ]);
 
+  // Triggered when navigating away from the channel page
   useEffect(() => {
     return () => {
       if (channelArn) {
@@ -225,6 +226,7 @@ const Channel = () => {
     };
   }, [channelArn, publish, userData?.channelId]);
 
+  // Triggered on page refresh or closed tab
   const beforeUnloadHandler = useCallback(() => {
     queueMicrotask(() => {
       setTimeout(() => {
