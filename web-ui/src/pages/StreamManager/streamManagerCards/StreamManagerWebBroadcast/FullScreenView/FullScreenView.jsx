@@ -50,28 +50,28 @@ const FullScreenView = ({ dimensions }) => {
     <motion.div
       ref={fullScreenViewContainerRef}
       key="full-screen-view"
-      // {...createAnimationProps({
-      //   customVariants: {
-      //     hidden: {
-      //       top: animationInitialTop,
-      //       left: animationInitialLeft,
-      //       width: animationInitialWidth,
-      //       height: animationInitialHeight,
-      //       borderRadius: 24
-      //     },
-      //     visible: {
-      //       top: 0,
-      //       left: 0,
-      //       width: '100%',
-      //       height: '100%',
-      //       borderRadius: 0
-      //     }
-      //   },
-      //   transition: ANIMATION_TRANSITION,
-      //   options: {
-      //     isVisible: isFullScreenViewOpen
-      //   }
-      // })}
+      {...createAnimationProps({
+        customVariants: {
+          hidden: {
+            top: animationInitialTop,
+            left: animationInitialLeft,
+            width: animationInitialWidth,
+            height: animationInitialHeight,
+            borderRadius: 24
+          },
+          visible: {
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: 0
+          }
+        },
+        transition: ANIMATION_TRANSITION,
+        options: {
+          isVisible: isFullScreenViewOpen
+        }
+      })}
       className={clsm([
         'absolute',
         'bg-lightMode-gray-extraLight',

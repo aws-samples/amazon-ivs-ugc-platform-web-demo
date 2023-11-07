@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
+import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 
 const COMMON_BOX_CLASSES = [
     'dark:bg-darkMode-gray-medium',
@@ -13,6 +15,14 @@ const COMMON_BOX_CLASSES = [
 ]
 
 const JoinModalOverlay = () => {
+  const { openModal } = useModal()
+
+  useEffect(() => {
+    openModal({
+      type: MODAL_TYPE.STAGE_JOIN_MODAL
+    });
+  }, [openModal])
+
   const { dimensionClasses } = useBroadcastFullScreen();
   return (
     <div className=''>

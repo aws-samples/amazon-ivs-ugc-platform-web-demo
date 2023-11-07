@@ -23,6 +23,7 @@ import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
 import useHostRejoin from './hooks/useHostRejoin';
+import JoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/JoinModal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -204,6 +205,7 @@ const StreamManagerControlCenter = forwardRef(
         >
           <StreamManagerActionModal />
           <StageParticipantsModal />
+          <JoinModal />
           <BroadcastSettingsModal />
           {!isDesktopView && (
             <Tabs.List

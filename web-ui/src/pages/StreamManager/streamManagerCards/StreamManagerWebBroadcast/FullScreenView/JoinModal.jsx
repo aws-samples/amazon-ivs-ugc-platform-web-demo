@@ -1,26 +1,15 @@
 import { BREAKPOINTS } from '../../../../../constants';
-import { Close } from '../../../../../assets/icons';
 import { clsm } from '../../../../../utils';
-import {
-  MODAL_CLOSE_BUTTON_CLASSES,
-  getModalContainerClasses,
-  getModalFormClasses
-} from '../../StreamManagerModalTheme';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
-import { streamManager as $streamManagerContent } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import Button from '../../../../../components/Button';
 import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
-import { useGlobalStage } from '../../../../../contexts/Stage';
-import StageParticipant from './StageParticipant';
-import StageRequestee from './StageRequestee';
-
-const $content = $streamManagerContent.stream_manager_stage;
+import { MODAL_CLOSE_BUTTON_CLASSES, getModalContainerClasses, getModalFormClasses } from '../../StreamManagerModalTheme';
+import { Close } from '../../../../../assets/icons';
+import Button from '../../../../../components/Button/Button';
 
 const JoinModal = () => {
-  const { closeModal, isModalOpen, type } = useModal();
-  const { participantsArrayExcludingHost, stageRequestList } = useGlobalStage();
+  const { isModalOpen, type, closeModal } = useModal();
   const { isMobileView, isLandscape } = useResponsiveDevice();
 
   const renderJoinModal = (children) => (
@@ -57,10 +46,8 @@ const JoinModal = () => {
     </>
   );
 
-  const availableSpotMessage = `${$content.participants} (${participantsArrayExcludingHost.length}/11)`;
-
   return (
-    type === MODAL_TYPE.STAGE_PARTICIPANTS &&
+    type === MODAL_TYPE.STAGE_JOIN_MODAL &&
     renderJoinModal(
       <div
         className={clsm(
@@ -84,28 +71,10 @@ const JoinModal = () => {
               'max-w-[calc(calc(var(--mobile-vw,1vw)_*_100)_-_120px)]'
             ])}
           >
-            {$content.participants}
+            Ready to join?
           </h2>
-          <div className="mt-12">
-            <h4>{availableSpotMessage}</h4>
-            {[...participantsArrayExcludingHost].map(([_, participant], i) => (
-              <StageParticipant
-                participant={participant}
-                key={`${participant.id}-${i}`}
-              />
-            ))}
-          </div>
-          <div className="mt-12">
-            <h4>{$content.requests}</h4>
-            {stageRequestList.map((requestee, i) => (
-              <StageRequestee
-                requestee={requestee}
-                key={`${requestee.channelId}-${i}`}
-              />
-            ))}
-          </div>
-        </div>
-        <Button
+       </div>
+       <Button
           ariaLabel="Close the stage participants modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
           onClick={closeModal}
