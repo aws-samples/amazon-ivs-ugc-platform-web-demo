@@ -64,7 +64,7 @@ const handler = async (
 
     reply.statusCode = 200;
     return reply.send({
-      message: `STAGE_REVOKE_REQUEST_TO_JOIN message has been published to channel: ${receiverChannelId}`
+      message: `${APPSYNC_EVENT_TYPES.STAGE_REVOKE_REQUEST_TO_JOIN} message has been published to channel: ${receiverChannelId}`
     });
   } catch (error) {
     console.error(error);
