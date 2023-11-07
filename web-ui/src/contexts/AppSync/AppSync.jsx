@@ -59,10 +59,13 @@ export const Provider = ({ children }) => {
     const channel = userData?.channelId.toLowerCase();
     const subscription = subscribe(channel, ({ data }) => {
       const channelEvent = JSON.parse(data);
-
       switch (channelEvent?.type) {
-        case channelEvents.STAGE_REQUEST_TO_JOIN:
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
+          if (isHost) {
+            updateStageRequestList(channelEvent);
+          }
+          break;
+        case channelEvents.STAGE_REQUEST_TO_JOIN:
           if (!isHost) return;
 
           updateStageRequestList(channelEvent);

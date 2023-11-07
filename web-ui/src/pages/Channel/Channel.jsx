@@ -217,7 +217,7 @@ const Channel = () => {
         publish(
           channelId?.toLowerCase(),
           JSON.stringify({
-            type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+            type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
             channelId: userData?.channelId?.toLowerCase()
           })
         );

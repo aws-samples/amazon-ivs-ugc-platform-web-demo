@@ -93,13 +93,18 @@ const RequestToJoinStageButton = () => {
 
   useEffect(() => {
     if (hasStageRequestBeenApproved) {
-        setTimeout(() => {
-            updateHasStageRequestBeenApproved(false);
-            updateRequestingToJoinStage(false)
-            navigate('/manager');
-          }, 1500);
+      setTimeout(() => {
+        updateHasStageRequestBeenApproved(false);
+        updateRequestingToJoinStage(false);
+        navigate('/manager');
+      }, 1500);
     }
-  }, [hasStageRequestBeenApproved, navigate, updateHasStageRequestBeenApproved, updateRequestingToJoinStage]);
+  }, [
+    hasStageRequestBeenApproved,
+    navigate,
+    updateHasStageRequestBeenApproved,
+    updateRequestingToJoinStage
+  ]);
 
   const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
 

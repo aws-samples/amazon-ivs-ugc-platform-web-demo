@@ -367,7 +367,7 @@ const globalReducer = (state = defaultReducerState, action) => {
         ];
       } else if (type === channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN) {
         currentStageRequestToJoinList = currentStageRequestToJoinList.filter(
-          (requestee) => requestee.channelId !== channelId
+          (requestee) => requestee.channelId !== channelId.toLowerCase()
         );
       }
 
