@@ -23,7 +23,7 @@ const RequestToJoinStageButton = () => {
     updateSuccess,
     participants,
     hasStageRequestBeenApproved,
-    updateHasStageRequestBeenApproved
+    updateHasStageRequestBeenApproved,
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
@@ -96,15 +96,10 @@ const RequestToJoinStageButton = () => {
       setTimeout(() => {
         updateHasStageRequestBeenApproved(false);
         updateRequestingToJoinStage(false);
-        navigate('/manager', { state: { isJoiningStage: true } });
+        navigate('/manager', { state: { isJoiningStage: true, stageId: channelData?.stageId } });
       }, 1500);
     }
-  }, [
-    hasStageRequestBeenApproved,
-    navigate,
-    updateHasStageRequestBeenApproved,
-    updateRequestingToJoinStage
-  ]);
+  }, [channelData?.stageId, hasStageRequestBeenApproved, navigate, updateHasStageRequestBeenApproved, updateRequestingToJoinStage]);
 
   const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
 

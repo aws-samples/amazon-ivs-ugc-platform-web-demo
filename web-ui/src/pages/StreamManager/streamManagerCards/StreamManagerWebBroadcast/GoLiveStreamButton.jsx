@@ -20,6 +20,12 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
+import { useLocation } from 'react-router-dom';
+import { useChannel } from '../../../../contexts/Channel';
+import { useStage } from '../../../../contexts/Stage/StreamManager';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { PARTICIPANT_TYPES } from '../../../../contexts/Stage/Global/reducer/globalReducer';
+import { getParticipationToken } from '../../../../api/stages';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -50,7 +56,7 @@ const GoLiveStreamButton = ({
     shouldDisableStageButtonWithDelay,
     stageId
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage } = useStreamManagerStage();
+  const { handleOnConfirmLeaveStage, createStageInstanceAndJoin } = useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
   const { openModal } = useModal();
@@ -66,6 +72,68 @@ const GoLiveStreamButton = ({
   const stageButtonContent = isHost
     ? $stageContent.end_session
     : $stageContent.leave_session;
+
+  const { channelData } = useChannel() 
+  const { state } = useLocation()
+  const { closeModal } = useModal()
+  
+
+  const joinStage = async () => {
+      if (!isStageActive && channelData) {
+        const stageId = state?.stageId
+        // const { avatar, color, username, channelAssetUrls } = channelData;
+        // const profileData = {
+        //   avatar,
+        //   profileColor: color,
+        //   username,
+        //   channelAssetUrls
+        // };
+
+        if (isLive === undefined || isBroadcasting === undefined) return;
+        // removeBroadcastClient();
+        console.log('state =>', state)
+        console.log('stageId ==>', stageId)
+        const { result } = await getParticipationToken(
+          stageId,
+          PARTICIPANT_TYPES.REQUESTED
+        );
+
+        if (result?.token) {
+          const z = await createStageInstanceAndJoin(result.token, stageId);
+          console.log('z ==>', z)
+          closeModal()
+          // shouldGetHostRejoinTokenRef.current = false;
+          // open fullscreen view
+          // openFullscreenViewCallbackFunctionRef.current();
+        }
+        // if (isLive || isBroadcasting) {
+        //   restartBroadcastClient();
+        //   updateError({
+        //     message: $contentNotification.error.unable_to_join_session
+        //   });
+        //   navigate('/manager');
+        // } else {
+          // const { avatar, profileColor, username, channelAssetUrls } =
+          //   profileData;
+          // const localParticipant = {
+          //   attributes: {
+          //     avatar,
+          //     profileColor,
+          //     username,
+          //     channelAssetUrls,
+          //     participantTokenCreationDate: Date.now().toString()
+          //   },
+          //   isLocal: true,
+          //   userId: undefined
+          // };
+  
+          // updateStageId(stageIdUrlParam);
+          // addParticipant(localParticipant);
+          // openFullscreenViewCallbackFunctionRef.current = openFullscreenView;
+          // shouldGetParticipantTokenRef.current = true;
+      // }
+  }
+}
 
   const handleStartStopBroadcastingAction = () => {
     if (isStageActive) {
@@ -117,6 +185,8 @@ const GoLiveStreamButton = ({
     buttonTextContent = <Spinner />;
   } else if (isBroadcasting) {
     buttonTextContent = <p>{$webBroadcastContent.end_stream}</p>;
+  } else if (state?.isJoiningStage) {
+    buttonTextContent = <p>Join now</p>
   } else {
     buttonTextContent = <p>{$webBroadcastContent.start_stream}</p>;
   }
@@ -157,7 +227,7 @@ const GoLiveStreamButton = ({
     >
       <Button
         ref={streamButtonRef}
-        onClick={handleStartStopBroadcastingAction}
+        onClick={state?.isJoiningStage ? joinStage : handleStartStopBroadcastingAction}
         variant="primary"
         isDisabled={isDisabled}
         className={clsm([

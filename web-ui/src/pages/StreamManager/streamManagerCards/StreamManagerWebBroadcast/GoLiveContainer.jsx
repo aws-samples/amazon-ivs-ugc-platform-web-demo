@@ -83,7 +83,7 @@ const GoLiveContainer = forwardRef(
             onAnimationStart={onAnimationStart}
             onAnimationComplete={onAnimationComplete}
           >
-            {isDesktopView && <GoLiveHeader onCollapse={handleOnCollapse} />}
+            {!state?.isJoiningStage && isDesktopView && <GoLiveHeader onCollapse={handleOnCollapse} />}
             <div ref={goLiveContainerVideoContainerRef} className="relative">
               {isStageActive ? (
                 <div className={clsm(['flex', 'aspect-video'])}>
@@ -122,11 +122,11 @@ const GoLiveContainer = forwardRef(
               >
                 <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
               </div>
-              <StageControl
+              {!state.isJoiningStage && <StageControl
                 goLiveContainerVideoContainerRef={
                   goLiveContainerVideoContainerRef
                 }
-              />
+              />}
             </div>
           </motion.div>
           {(isOpen || !isDesktopView) && (

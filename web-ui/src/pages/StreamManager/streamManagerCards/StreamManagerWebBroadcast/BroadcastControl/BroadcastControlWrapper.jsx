@@ -20,6 +20,7 @@ import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useLocation } from 'react-router-dom';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -55,11 +56,12 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
       [CAMERA_LAYER_NAME]: activeCamera
     }
   } = useBroadcast();
+  const { state } = useLocation()
   const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
   const shouldRenderStageScreenShareButton =
     isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
-  const shouldRenderBroadcastScreenShareButton = !isTouchscreenDevice;
+  const shouldRenderBroadcastScreenShareButton = !isTouchscreenDevice && !state?.isJoiningStage
 
   const { toggleMicrophone, isMicrophoneMuted, toggleCamera, isCameraHidden } =
     isStageActive
