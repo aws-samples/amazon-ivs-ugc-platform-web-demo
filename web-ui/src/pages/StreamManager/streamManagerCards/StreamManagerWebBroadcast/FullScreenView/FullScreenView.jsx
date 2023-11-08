@@ -9,7 +9,10 @@ import {
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useModal } from '../../../../../contexts/Modal';
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../../contexts/Stage';
 import StageVideoFeeds, {
   STAGE_VIDEO_FEEDS_TYPES
 } from '../StageVideoFeeds/StageVideoFeeds';
@@ -23,6 +26,7 @@ import StageJoinModalBackground from './StageJoinModalBackground';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
+  const { isJoiningStageByRequest } = useGlobalStage();
   const { state } = useLocation();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
@@ -45,6 +49,7 @@ const FullScreenView = ({ dimensions }) => {
     animationInitialWidth,
     animationInitialHeight
   } = dimensions;
+  // console.log('state?.isJoiningStageByRequest', state?.isJoiningStageByRequest);
 
   return (
     <motion.div
@@ -77,7 +82,12 @@ const FullScreenView = ({ dimensions }) => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
-        state?.isJoiningStageByRequest && ['w-full', 'h-full', 'top-0', 'left-0']
+        state?.isJoiningStageByRequest && [
+          'w-full',
+          'h-full',
+          'top-0',
+          'left-0'
+        ]
       ])}
     >
       {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
@@ -102,8 +112,8 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {state?.isJoiningStageByRequest ? <StageJoinModalBackground /> : content}
-        {!state?.isJoiningStageByRequest && <Footer />}
+        {isJoiningStageByRequest ? <StageJoinModalBackground /> : content}
+        {!isJoiningStageByRequest && <Footer />}
       </motion.div>
     </motion.div>
   );

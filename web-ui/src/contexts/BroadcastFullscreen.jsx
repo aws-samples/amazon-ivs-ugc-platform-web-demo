@@ -164,13 +164,13 @@ export const Provider = ({ children, previewRef }) => {
 
   useEffect(() => {
     if (!isDesktopView) {
-      if (isFullScreenViewOpen) {
-        handleToggleFullscreen();
-      }
-      if (isStageActive) {
-        updateAnimateCollapseStageContainerWithDelay(true);
-        updateShouldAnimateGoLiveButtonChevronIcon(true);
-      }
+      // if (isFullScreenViewOpen) {
+      //   handleToggleFullscreen();
+      // }
+      // if (isStageActive) {
+      //   updateAnimateCollapseStageContainerWithDelay(true);
+      //   updateShouldAnimateGoLiveButtonChevronIcon(true);
+      // }
     }
   }, [
     isDesktopView,

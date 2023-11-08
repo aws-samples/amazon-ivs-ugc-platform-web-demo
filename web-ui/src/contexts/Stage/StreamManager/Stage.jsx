@@ -1,5 +1,5 @@
 import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import copyToClipboard from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
 
@@ -64,7 +64,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isCreatingStage,
     isHost,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    shouldCloseFullScreenViewOnKickedOrHostLeave
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateIsJoiningStageByRequest
+    // isJoiningStageByRequest
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -86,6 +88,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const navigate = useNavigate();
   const { refreshChannelData } = useChannel();
   const { publish } = useAppSync();
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (!state?.isJoiningStageByRequest) return;
+
+    updateIsJoiningStageByRequest(true);
+  }, [state?.isJoiningStageByRequest, updateIsJoiningStageByRequest]);
 
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
@@ -230,6 +239,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     async (token, stageId) => {
       // Get and set local participant
       const localParticipantData = decodeJWT(token) || {};
+      console.log('local', { localParticipantData });
       const { attributes, user_id: userId } = localParticipantData;
       const { type } = attributes;
 
@@ -262,6 +272,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
+      // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
     },

@@ -115,6 +115,11 @@ export const deleteRequestToJoin = (requesteeChannelId) => ({
   payload: requesteeChannelId
 });
 
+export const updateIsJoiningStageByRequest = (bool) => ({
+  type: actionTypes.IS_JOINING_STAGE_BY_REQUEST,
+  payload: bool
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

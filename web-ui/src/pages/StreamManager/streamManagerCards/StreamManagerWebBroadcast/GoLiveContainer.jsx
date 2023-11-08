@@ -50,7 +50,7 @@ const GoLiveContainer = forwardRef(
     };
 
     const { state } = useLocation();
-    console.log('state ==>', state)
+
     return (
       <>
         <AnimatePresence initial={false}>

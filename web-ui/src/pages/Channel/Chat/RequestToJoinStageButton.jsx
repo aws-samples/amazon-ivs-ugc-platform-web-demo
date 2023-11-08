@@ -97,7 +97,10 @@ const RequestToJoinStageButton = () => {
         updateHasStageRequestBeenApproved(false);
         updateRequestingToJoinStage(false);
         navigate('/manager', {
-          state: { isJoiningStageByRequest: true, stageId: channelData?.stageId }
+          state: {
+            isJoiningStageByRequest: true,
+            stageId: channelData?.stageId
+          }
         });
       }, 1500);
     }

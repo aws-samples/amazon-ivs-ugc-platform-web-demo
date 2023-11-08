@@ -20,12 +20,13 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useChannel } from '../../../../contexts/Channel';
 import { useStage } from '../../../../contexts/Stage/StreamManager';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { PARTICIPANT_TYPES } from '../../../../contexts/Stage/Global/reducer/globalReducer';
 import { getParticipationToken } from '../../../../api/stages';
+import useRequestParticipants from '../../hooks/useRequestParticipants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -54,12 +55,13 @@ const GoLiveStreamButton = ({
     collaborateButtonAnimationControls,
     isHost,
     shouldDisableStageButtonWithDelay,
-    stageId
+    stageId,
+    isJoiningStageByRequest
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, createStageInstanceAndJoin } =
-    useStreamManagerStage();
+  const { handleOnConfirmLeaveStage } = useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
+  const { joinStageByRequest } = useRequestParticipants();
   const { openModal } = useModal();
   const { isLive } = useStreams();
   const isStageActiveInAnotherTab = !isStageActive && stageId;
@@ -74,63 +76,7 @@ const GoLiveStreamButton = ({
     ? $stageContent.end_session
     : $stageContent.leave_session;
 
-  const { channelData } = useChannel();
   const { state } = useLocation();
-  const { closeModal } = useModal();
-
-  const joinStage = async () => {
-    if (!isStageActive && channelData) {
-      const stageId = state?.stageId;
-      // const { avatar, color, username, channelAssetUrls } = channelData;
-      // const profileData = {
-      //   avatar,
-      //   profileColor: color,
-      //   username,
-      //   channelAssetUrls
-      // };
-
-      if (isLive === undefined || isBroadcasting === undefined) return;
-      // removeBroadcastClient();
-      const { result } = await getParticipationToken(
-        stageId,
-        PARTICIPANT_TYPES.REQUESTED
-      );
-
-      if (result?.token) {
-        await createStageInstanceAndJoin(result.token, stageId);
-        closeModal();
-        // shouldGetHostRejoinTokenRef.current = false;
-        // open fullscreen view
-        // openFullscreenViewCallbackFunctionRef.current();
-      }
-      // if (isLive || isBroadcasting) {
-      //   restartBroadcastClient();
-      //   updateError({
-      //     message: $contentNotification.error.unable_to_join_session
-      //   });
-      //   navigate('/manager');
-      // } else {
-      // const { avatar, profileColor, username, channelAssetUrls } =
-      //   profileData;
-      // const localParticipant = {
-      //   attributes: {
-      //     avatar,
-      //     profileColor,
-      //     username,
-      //     channelAssetUrls,
-      //     participantTokenCreationDate: Date.now().toString()
-      //   },
-      //   isLocal: true,
-      //   userId: undefined
-      // };
-
-      // updateStageId(stageIdUrlParam);
-      // addParticipant(localParticipant);
-      // openFullscreenViewCallbackFunctionRef.current = openFullscreenView;
-      // shouldGetParticipantTokenRef.current = true;
-      // }
-    }
-  };
 
   const handleStartStopBroadcastingAction = () => {
     if (isStageActive) {
@@ -225,7 +171,9 @@ const GoLiveStreamButton = ({
       <Button
         ref={streamButtonRef}
         onClick={
-          state?.isJoiningStageByRequest ? joinStage : handleStartStopBroadcastingAction
+          state?.isJoiningStageByRequest && isJoiningStageByRequest
+            ? joinStageByRequest
+            : handleStartStopBroadcastingAction
         }
         variant="primary"
         isDisabled={isDisabled}

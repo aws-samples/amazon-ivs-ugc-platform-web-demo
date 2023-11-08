@@ -134,6 +134,10 @@ const useGlobalReducers = () => {
     dispatch(actions.deleteRequestToJoin(requesteeChannelId));
   }, []);
 
+  const updateIsJoiningStageByRequest = useCallback((bool) => {
+    dispatch(actions.updateIsJoiningStageByRequest(bool));
+  }, []);
+
   return useMemo(
     () => ({
       state,
@@ -160,7 +164,8 @@ const useGlobalReducers = () => {
       updateSuccess,
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
-      deleteRequestToJoin
+      deleteRequestToJoin,
+      updateIsJoiningStageByRequest
     }),
     [
       state,
@@ -187,7 +192,8 @@ const useGlobalReducers = () => {
       updateSuccess,
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
-      deleteRequestToJoin
+      deleteRequestToJoin,
+      updateIsJoiningStageByRequest
     ]
   );
 };

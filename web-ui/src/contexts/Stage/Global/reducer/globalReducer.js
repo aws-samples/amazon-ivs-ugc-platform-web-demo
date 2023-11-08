@@ -79,7 +79,8 @@ export const STATE_KEYS = {
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
   HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
-  STAGE_REQUEST_LIST: 'stageRequestList'
+  STAGE_REQUEST_LIST: 'stageRequestList',
+  IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest'
 };
 
 const defaultStageReducerState = {
@@ -94,7 +95,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
-  [STATE_KEYS.STAGE_REQUEST_LIST]: []
+  [STATE_KEYS.STAGE_REQUEST_LIST]: [],
+  [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false
 };
 
 const stageAnimationReducerState = {
@@ -386,6 +388,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.STAGE_REQUEST_LIST]: currentStageRequestToJoinList
+      };
+    }
+
+    case actionTypes.IS_JOINING_STAGE_BY_REQUEST: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: action.payload
       };
     }
 
