@@ -138,6 +138,10 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsJoiningStageByRequest(bool));
   }, []);
 
+  const updateIsJoiningStageByInvite = useCallback((bool) => {
+    dispatch(actions.updateIsJoiningStageByInvite(bool));
+  }, []);
+
   return useMemo(
     () => ({
       state,
@@ -165,7 +169,8 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
       deleteRequestToJoin,
-      updateIsJoiningStageByRequest
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite
     }),
     [
       state,
@@ -193,7 +198,8 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
       deleteRequestToJoin,
-      updateIsJoiningStageByRequest
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite
     ]
   );
 };

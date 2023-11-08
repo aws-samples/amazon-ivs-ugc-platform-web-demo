@@ -13,7 +13,7 @@ import { StageControl } from './StageControl';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
+import { useGlobalStage, useStreamManagerStage } from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
 import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
@@ -32,6 +32,7 @@ const GoLiveContainer = forwardRef(
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
+    const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage()
 
     const handleOnCollapse = () => {
       shouldAnimateStreamingButton.current = false;
@@ -51,6 +52,9 @@ const GoLiveContainer = forwardRef(
 
     const { state } = useLocation();
 
+    const shouldAddRef = !isFullScreenViewOpen || isJoiningStageByRequest || isJoiningStageByInvite
+    console.log('shouldAddRef', shouldAddRef)
+    console.log('previewRef', previewRef)
     return (
       <>
         <AnimatePresence initial={false}>
@@ -94,7 +98,7 @@ const GoLiveContainer = forwardRef(
               ) : (
                 <canvas
                   ref={
-                    !isFullScreenViewOpen || state?.isJoiningStageByRequest
+                    shouldAddRef
                       ? previewRef
                       : null
                   }

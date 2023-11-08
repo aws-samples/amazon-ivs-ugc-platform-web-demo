@@ -431,7 +431,8 @@ export const Provider = ({
       });
     }
   }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
-
+  console.log('hasPermissions broadcast', hasPermissions)
+  console.log('permissions', permissions)
   const value = useMemo(
     () => ({
       // Devices and permissions

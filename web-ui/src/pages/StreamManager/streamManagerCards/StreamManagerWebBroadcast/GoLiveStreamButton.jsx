@@ -56,13 +56,15 @@ const GoLiveStreamButton = ({
     isHost,
     shouldDisableStageButtonWithDelay,
     stageId,
-    isJoiningStageByRequest
+    isJoiningStageByRequest,
+    isJoiningStageByInvite
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage } = useStreamManagerStage();
+  const { handleOnConfirmLeaveStage, handleParticipantInvite } = useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
   const { joinStageByRequest } = useRequestParticipants();
   const { openModal } = useModal();
+  const { channelData } = useChannel()
   const { isLive } = useStreams();
   const isStageActiveInAnotherTab = !isStageActive && stageId;
   const shouldDisableLeaveStageButton =
@@ -72,6 +74,12 @@ const GoLiveStreamButton = ({
     isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
     (isLive && !isBroadcasting);
+  console.log('hasPermissions', hasPermissions)
+  console.log('isStageActiveInAnotherTab', isStageActiveInAnotherTab)
+  console.log('shouldDisableLeaveStageButtonshouldDisableLeaveStageButton', shouldDisableLeaveStageButton)
+  console.log('isLive', isLive)
+  console.log('!isBroadcasting', !isBroadcasting)
+
   const stageButtonContent = isHost
     ? $stageContent.end_session
     : $stageContent.leave_session;
@@ -162,6 +170,26 @@ const GoLiveStreamButton = ({
     );
   }
 
+  const joinStage = () => {
+    if (isJoiningStageByInvite) {
+        const { avatar, color, username, channelAssetUrls } = channelData;
+        const profileData = {
+          avatar,
+          profileColor: color,
+          username,
+          channelAssetUrls
+        };
+        handleParticipantInvite({
+          isLive,
+          isBroadcasting,
+          profileData
+        });
+    }
+
+    if (isJoiningStageByRequest) {
+      joinStageByRequest()
+    }
+  }
   return (
     <Tooltip
       position={tooltipPosition}
@@ -170,11 +198,7 @@ const GoLiveStreamButton = ({
     >
       <Button
         ref={streamButtonRef}
-        onClick={
-          state?.isJoiningStageByRequest && isJoiningStageByRequest
-            ? joinStageByRequest
-            : handleStartStopBroadcastingAction
-        }
+        onClick={(isJoiningStageByInvite || isJoiningStageByRequest) ? joinStage : handleStartStopBroadcastingAction}
         variant="primary"
         isDisabled={isDisabled}
         className={clsm([

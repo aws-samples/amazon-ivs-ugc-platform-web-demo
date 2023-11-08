@@ -31,7 +31,7 @@ const GO_LIVE_TAB_INDEX = 1;
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     useDevicePermissionChangeListeners();
-    const { isStageActive } = useGlobalStage();
+    const { isStageActive, updateIsJoiningStageByInvite } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
     const { isLive } = useStreams();
     const {
@@ -83,8 +83,7 @@ const StreamManagerControlCenter = forwardRef(
     useEffect(() => {
       if (
         areDevicesInitialized.current ||
-        !isBroadcastCardOpen ||
-        stageIdUrlParam
+        !isBroadcastCardOpen
       )
         return;
 
@@ -131,42 +130,12 @@ const StreamManagerControlCenter = forwardRef(
       };
     }, [isDesktopView, setSelectedTabIndex]);
 
-    // useEffect(() => {
-    //   if (!isStageActive && channelData && stageIdUrlParam) {
-    //     const { avatar, color, username, channelAssetUrls } = channelData;
-    //     const profileData = {
-    //       avatar,
-    //       profileColor: color,
-    //       username,
-    //       channelAssetUrls
-    //     };
-    //     handleParticipantInvite({
-    //       isLive,
-    //       isBroadcasting,
-    //       profileData,
-    //       openFullscreenView: () => {
-    //         if (isDesktopView && handleOpenFullScreenView) {
-    //           handleOpenFullScreenView();
-    //         }
-    //       }
-    //     });
-    //   }
-    // }, [
-    //   channelData,
-    //   handleParticipantInvite,
-    //   initializeGoLiveContainerDimensions,
-    //   isDesktopView,
-    //   isStageActive,
-    //   setIsFullScreenViewOpen,
-    //   stageIdUrlParam,
-    //   isLive,
-    //   isBroadcasting,
-    //   updateError,
-    //   restartBroadcastClient,
-    //   resetPreview,
-    //   removeBroadcastClient,
-    //   handleOpenFullScreenView
-    // ]);
+    useEffect(() => {
+      if (!isStageActive && channelData && stageIdUrlParam) {
+        setIsFullScreenViewOpen(true)
+        updateIsJoiningStageByInvite(true)
+      }
+    }, [channelData, handleParticipantInvite, initializeGoLiveContainerDimensions, isDesktopView, isStageActive, setIsFullScreenViewOpen, stageIdUrlParam, isLive, isBroadcasting, updateError, restartBroadcastClient, resetPreview, removeBroadcastClient, handleOpenFullScreenView, updateIsJoiningStageByInvite]);
 
     useEffect(() => {
       if (

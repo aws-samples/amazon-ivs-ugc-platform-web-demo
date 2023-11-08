@@ -26,7 +26,7 @@ import StageJoinModalBackground from './StageJoinModalBackground';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
-  const { isJoiningStageByRequest } = useGlobalStage();
+  const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage();
   const { state } = useLocation();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
@@ -112,8 +112,8 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {isJoiningStageByRequest ? <StageJoinModalBackground /> : content}
-        {!isJoiningStageByRequest && <Footer />}
+        {(isJoiningStageByRequest || isJoiningStageByInvite) ? <StageJoinModalBackground /> : content}
+        {(!isJoiningStageByRequest && !isJoiningStageByInvite) && <Footer />}
       </motion.div>
     </motion.div>
   );

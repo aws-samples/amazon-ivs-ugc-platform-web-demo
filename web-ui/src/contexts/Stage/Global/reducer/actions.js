@@ -120,6 +120,11 @@ export const updateIsJoiningStageByRequest = (bool) => ({
   payload: bool
 });
 
+export const updateIsJoiningStageByInvite = (bool) => ({
+  type: actionTypes.IS_JOINING_STAGE_BY_INVITE,
+  payload: bool
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

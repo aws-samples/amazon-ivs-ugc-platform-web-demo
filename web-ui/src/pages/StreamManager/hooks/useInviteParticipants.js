@@ -20,7 +20,7 @@ const useInviteParticipants = ({
   shouldGetHostRejoinTokenRef
 }) => {
   const navigate = useNavigate();
-  const { stageId, updateStageId, addParticipant, localParticipant } =
+  const { stageId, updateStageId, addParticipant, localParticipant, updateIsJoiningStageByInvite } =
     useGlobalStage();
   const { hasPermissions, removeBroadcastClient, restartBroadcastClient } =
     useBroadcast();
@@ -31,6 +31,8 @@ const useInviteParticipants = ({
 
   const handleParticipantInvite = useCallback(
     ({ isLive, isBroadcasting, openFullscreenView, profileData }) => {
+      console.log('isLive', isLive)
+      console.log('isBroadcasting', isBroadcasting)
       if (isLive === undefined || isBroadcasting === undefined) return;
       removeBroadcastClient();
 
@@ -81,12 +83,12 @@ const useInviteParticipants = ({
           stageId,
           PARTICIPANT_TYPES.INVITED
         );
-
+        console.log('result ==>', result)
         if (result?.token) {
           await createStageInstanceAndJoin(result.token, stageId);
           shouldGetHostRejoinTokenRef.current = false;
-          // open fullscreen view
-          openFullscreenViewCallbackFunctionRef.current();
+          // open fullscreen view, RESET isJoinginStageInvite to false
+          updateIsJoiningStageByInvite(false)
         }
 
         if (error) {
@@ -106,23 +108,7 @@ const useInviteParticipants = ({
         openFullscreenViewCallbackFunctionRef.current = undefined;
       })();
     }
-  }, [
-    hasPermissions,
-    stageId,
-    createStageInstanceAndJoin,
-    updateError,
-    removeBroadcastClient,
-    addParticipant,
-    localParticipant,
-    updateStageId,
-    stageIdUrlParam,
-    restartBroadcastClient,
-    navigate,
-    resetStage,
-    broadcastDevicesStateObjRef,
-    shouldGetParticipantTokenRef,
-    shouldGetHostRejoinTokenRef
-  ]);
+  }, [hasPermissions, stageId, createStageInstanceAndJoin, updateError, removeBroadcastClient, addParticipant, localParticipant, updateStageId, stageIdUrlParam, restartBroadcastClient, navigate, resetStage, broadcastDevicesStateObjRef, shouldGetParticipantTokenRef, shouldGetHostRejoinTokenRef, updateIsJoiningStageByInvite]);
 
   return { handleParticipantInvite };
 };
