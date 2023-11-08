@@ -25,6 +25,7 @@ import usePrompt from '../../hooks/usePrompt';
 import useScreenShare from './useScreenShare';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { useResponsiveDevice } from '../ResponsiveDevice';
+import { useLocation } from 'react-router-dom';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -238,6 +239,7 @@ export const Provider = ({
 
   const resetPreview = useCallback(() => {
     if (!client || !previewRef.current) return;
+    console.log('resetting preview')
     client.detachPreview();
     client.attachPreview(previewRef.current);
   }, [previewRef]);
@@ -333,6 +335,7 @@ export const Provider = ({
 
   const removeBroadcastClient = useCallback(() => {
     if (!!client) {
+      console.log('removing broadcast client')
       // Remove all input devices
       client.disableVideo();
       client.disableAudio();
@@ -369,7 +372,12 @@ export const Provider = ({
   /**
    * Initialize client, request permissions and refresh devices
    */
+
+  const { state } = useLocation()
   useEffect(() => {
+    console.log('state @@@', state)
+    console.log('isInitialized ==>', isInitialized)
+    console.log('previewRef.current ==>', previewRef.current)
     if (!isInitialized && previewRef.current) {
       initializeBroadcastClient();
 
@@ -381,7 +389,7 @@ export const Provider = ({
 
       removeBroadcastClient();
     };
-  }, [initializeBroadcastClient, isMounted, previewRef, removeBroadcastClient]);
+  }, [initializeBroadcastClient, isMounted, previewRef, removeBroadcastClient, state]);
 
   useEffect(() => {
     if (error) {

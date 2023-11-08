@@ -20,6 +20,7 @@ import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
+import { useLocation } from 'react-router-dom';
 
 const GoLiveContainer = forwardRef(
   ({ isOpen, onCollapse, setIsWebBroadcastAnimating }, previewRef) => {
@@ -47,6 +48,8 @@ const GoLiveContainer = forwardRef(
       setIsWebBroadcastAnimating(true);
       shouldShowTooltipMessageRef.current = false;
     };
+
+    const { state } = useLocation()
 
     return (
       <>
@@ -88,7 +91,7 @@ const GoLiveContainer = forwardRef(
                 </div>
               ) : (
                 <canvas
-                  ref={!isFullScreenViewOpen ? previewRef : null}
+                  ref={!isFullScreenViewOpen || state?.isJoiningStage ? previewRef : null}
                   className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
                   aria-label="Amazon IVS web broadcast video and audio stream"
                 />

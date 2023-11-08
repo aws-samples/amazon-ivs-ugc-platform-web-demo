@@ -7,6 +7,8 @@ import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import { MODAL_CLOSE_BUTTON_CLASSES, getModalContainerClasses, getModalFormClasses } from '../../StreamManagerModalTheme';
 import { Close } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button/Button';
+import GoLiveContainer from '../GoLiveContainer';
+import { useBroadcast } from '../../../../../contexts/Broadcast';
 
 const JoinModal = () => {
   const { isModalOpen, type, closeModal } = useModal();
@@ -45,6 +47,7 @@ const JoinModal = () => {
       </Modal>
     </>
   );
+  const { previewRef } = useBroadcast()
 
   return (
     type === MODAL_TYPE.STAGE_JOIN_MODAL &&
@@ -73,6 +76,14 @@ const JoinModal = () => {
           >
             Ready to join?
           </h2>
+
+          <GoLiveContainer
+          ref={previewRef}
+          isOpen={true}
+          onCollapse={() => {}}
+          setIsWebBroadcastAnimating={() => {}}
+        />
+
        </div>
        <Button
           ariaLabel="Close the stage participants modal"
