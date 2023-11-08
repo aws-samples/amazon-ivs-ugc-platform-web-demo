@@ -50,7 +50,7 @@ const GoLiveContainer = forwardRef(
     };
 
     const { state } = useLocation();
-
+    console.log('state ==>', state)
     return (
       <>
         <AnimatePresence initial={false}>
@@ -128,7 +128,7 @@ const GoLiveContainer = forwardRef(
               >
                 <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
               </div>
-              {!state.isJoiningStageByRequest && (
+              {!state?.isJoiningStageByRequest && (
                 <StageControl
                   goLiveContainerVideoContainerRef={
                     goLiveContainerVideoContainerRef

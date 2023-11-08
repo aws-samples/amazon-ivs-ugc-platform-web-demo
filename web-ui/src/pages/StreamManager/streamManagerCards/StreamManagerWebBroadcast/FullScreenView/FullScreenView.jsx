@@ -81,7 +81,7 @@ const FullScreenView = ({ dimensions }) => {
       ])}
     >
       {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !state.isJoiningStageByRequest && <Header />}
+        !state?.isJoiningStageByRequest && <Header />}
       <motion.div
         className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
         {...createAnimationProps({
@@ -103,7 +103,6 @@ const FullScreenView = ({ dimensions }) => {
         })}
       >
         {state?.isJoiningStageByRequest ? <StageJoinModalBackground /> : content}
-        {/* {content} */}
         {!state?.isJoiningStageByRequest && <Footer />}
       </motion.div>
     </motion.div>
