@@ -56,12 +56,13 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
       [CAMERA_LAYER_NAME]: activeCamera
     }
   } = useBroadcast();
-  const { state } = useLocation()
+  const { state } = useLocation();
   const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
   const shouldRenderStageScreenShareButton =
     isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
-  const shouldRenderBroadcastScreenShareButton = !isTouchscreenDevice && !state?.isJoiningStage
+  const shouldRenderBroadcastScreenShareButton =
+    !isTouchscreenDevice && !state?.isJoiningStage;
 
   const { toggleMicrophone, isMicrophoneMuted, toggleCamera, isCameraHidden } =
     isStageActive

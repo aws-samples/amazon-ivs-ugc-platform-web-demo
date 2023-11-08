@@ -23,7 +23,7 @@ import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
 import useHostRejoin from './hooks/useHostRejoin';
-import JoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/JoinModal';
+import StageJoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/StageJoinModal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -75,11 +75,9 @@ const StreamManagerControlCenter = forwardRef(
 
     // this controls invited and requested participant joining flow
     useEffect(() => {
-      if (!state?.isJoiningStage) return 
-      setIsFullScreenViewOpen(true)
-    }, [state?.isJoiningStage, setIsFullScreenViewOpen])
-
-    console.log('state', { state, isBroadcastCardOpen });
+      if (!state?.isJoiningStage) return;
+      setIsFullScreenViewOpen(true);
+    }, [state?.isJoiningStage, setIsFullScreenViewOpen]);
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
@@ -205,7 +203,7 @@ const StreamManagerControlCenter = forwardRef(
         >
           <StreamManagerActionModal />
           <StageParticipantsModal />
-          <JoinModal />
+          <StageJoinModal />
           <BroadcastSettingsModal />
           {!isDesktopView && (
             <Tabs.List

@@ -4,7 +4,11 @@ import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
-import { MODAL_CLOSE_BUTTON_CLASSES, getModalContainerClasses, getModalFormClasses } from '../../StreamManagerModalTheme';
+import {
+  MODAL_CLOSE_BUTTON_CLASSES,
+  getModalContainerClasses,
+  getModalFormClasses
+} from '../../StreamManagerModalTheme';
 import { Close } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button/Button';
 import GoLiveContainer from '../GoLiveContainer';
@@ -47,10 +51,10 @@ const JoinModal = () => {
       </Modal>
     </>
   );
-  const { previewRef } = useBroadcast()
+  const { previewRef } = useBroadcast();
 
   return (
-    type === MODAL_TYPE.STAGE_JOIN_MODAL &&
+    type === MODAL_TYPE.STAGE_JOIN &&
     renderJoinModal(
       <div
         className={clsm(
@@ -78,14 +82,13 @@ const JoinModal = () => {
           </h2>
 
           <GoLiveContainer
-          ref={previewRef}
-          isOpen={true}
-          onCollapse={() => {}}
-          setIsWebBroadcastAnimating={() => {}}
-        />
-
-       </div>
-       <Button
+            ref={previewRef}
+            isOpen={true}
+            onCollapse={() => {}}
+            setIsWebBroadcastAnimating={() => {}}
+          />
+        </div>
+        <Button
           ariaLabel="Close the stage participants modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
           onClick={closeModal}

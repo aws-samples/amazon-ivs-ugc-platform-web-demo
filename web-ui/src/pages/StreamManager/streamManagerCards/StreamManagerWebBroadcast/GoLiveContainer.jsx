@@ -49,7 +49,7 @@ const GoLiveContainer = forwardRef(
       shouldShowTooltipMessageRef.current = false;
     };
 
-    const { state } = useLocation()
+    const { state } = useLocation();
 
     return (
       <>
@@ -83,7 +83,9 @@ const GoLiveContainer = forwardRef(
             onAnimationStart={onAnimationStart}
             onAnimationComplete={onAnimationComplete}
           >
-            {!state?.isJoiningStage && isDesktopView && <GoLiveHeader onCollapse={handleOnCollapse} />}
+            {!state?.isJoiningStage && isDesktopView && (
+              <GoLiveHeader onCollapse={handleOnCollapse} />
+            )}
             <div ref={goLiveContainerVideoContainerRef} className="relative">
               {isStageActive ? (
                 <div className={clsm(['flex', 'aspect-video'])}>
@@ -91,7 +93,11 @@ const GoLiveContainer = forwardRef(
                 </div>
               ) : (
                 <canvas
-                  ref={!isFullScreenViewOpen || state?.isJoiningStage ? previewRef : null}
+                  ref={
+                    !isFullScreenViewOpen || state?.isJoiningStage
+                      ? previewRef
+                      : null
+                  }
                   className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
                   aria-label="Amazon IVS web broadcast video and audio stream"
                 />
@@ -122,11 +128,13 @@ const GoLiveContainer = forwardRef(
               >
                 <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
               </div>
-              {!state.isJoiningStage && <StageControl
-                goLiveContainerVideoContainerRef={
-                  goLiveContainerVideoContainerRef
-                }
-              />}
+              {!state.isJoiningStage && (
+                <StageControl
+                  goLiveContainerVideoContainerRef={
+                    goLiveContainerVideoContainerRef
+                  }
+                />
+              )}
             </div>
           </motion.div>
           {(isOpen || !isDesktopView) && (
