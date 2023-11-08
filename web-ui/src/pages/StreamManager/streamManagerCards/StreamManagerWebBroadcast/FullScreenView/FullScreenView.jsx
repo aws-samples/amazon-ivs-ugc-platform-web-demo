@@ -77,11 +77,11 @@ const FullScreenView = ({ dimensions }) => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
-        state?.isJoiningStage && ['w-full', 'h-full', 'top-0', 'left-0']
+        state?.isJoiningStageByRequest && ['w-full', 'h-full', 'top-0', 'left-0']
       ])}
     >
       {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !state.isJoiningStage && <Header />}
+        !state.isJoiningStageByRequest && <Header />}
       <motion.div
         className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
         {...createAnimationProps({
@@ -102,9 +102,9 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {state?.isJoiningStage ? <StageJoinModalOverlay /> : content}
+        {state?.isJoiningStageByRequest ? <StageJoinModalOverlay /> : content}
         {/* {content} */}
-        {!state?.isJoiningStage && <Footer />}
+        {!state?.isJoiningStageByRequest && <Footer />}
       </motion.div>
     </motion.div>
   );

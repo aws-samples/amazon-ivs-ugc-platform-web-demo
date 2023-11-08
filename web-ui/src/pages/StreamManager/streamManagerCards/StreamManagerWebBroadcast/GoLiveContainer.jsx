@@ -83,7 +83,7 @@ const GoLiveContainer = forwardRef(
             onAnimationStart={onAnimationStart}
             onAnimationComplete={onAnimationComplete}
           >
-            {!state?.isJoiningStage && isDesktopView && (
+            {!state?.isJoiningStageByRequest && isDesktopView && (
               <GoLiveHeader onCollapse={handleOnCollapse} />
             )}
             <div ref={goLiveContainerVideoContainerRef} className="relative">
@@ -94,7 +94,7 @@ const GoLiveContainer = forwardRef(
               ) : (
                 <canvas
                   ref={
-                    !isFullScreenViewOpen || state?.isJoiningStage
+                    !isFullScreenViewOpen || state?.isJoiningStageByRequest
                       ? previewRef
                       : null
                   }
@@ -128,7 +128,7 @@ const GoLiveContainer = forwardRef(
               >
                 <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
               </div>
-              {!state.isJoiningStage && (
+              {!state.isJoiningStageByRequest && (
                 <StageControl
                   goLiveContainerVideoContainerRef={
                     goLiveContainerVideoContainerRef

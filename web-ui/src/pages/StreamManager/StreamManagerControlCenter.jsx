@@ -66,7 +66,7 @@ const StreamManagerControlCenter = forwardRef(
       state?.streamManagerSelectedTab || 0
     );
     const [isBroadcastCardOpen, setIsBroadcastCardOpen] = useState(
-      state?.isJoiningStage ||
+      state?.isJoiningStageByRequest ||
         state?.isWebBroadcastContainerOpen ||
         window.history.state?.isWebBroadcastContainerOpen ||
         !!stageIdUrlParam ||
@@ -75,9 +75,9 @@ const StreamManagerControlCenter = forwardRef(
 
     // this controls invited and requested participant joining flow
     useEffect(() => {
-      if (!state?.isJoiningStage) return;
+      if (!state?.isJoiningStageByRequest) return;
       setIsFullScreenViewOpen(true);
-    }, [state?.isJoiningStage, setIsFullScreenViewOpen]);
+    }, [state?.isJoiningStageByRequest, setIsFullScreenViewOpen]);
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {

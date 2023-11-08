@@ -62,7 +62,7 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
   const shouldRenderStageScreenShareButton =
     isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
   const shouldRenderBroadcastScreenShareButton =
-    !isTouchscreenDevice && !state?.isJoiningStage;
+    !isTouchscreenDevice && !state?.isJoiningStageByRequest;
 
   const { toggleMicrophone, isMicrophoneMuted, toggleCamera, isCameraHidden } =
     isStageActive

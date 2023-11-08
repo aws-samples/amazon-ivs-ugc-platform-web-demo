@@ -182,7 +182,7 @@ const GoLiveStreamButton = ({
     buttonTextContent = <Spinner />;
   } else if (isBroadcasting) {
     buttonTextContent = <p>{$webBroadcastContent.end_stream}</p>;
-  } else if (state?.isJoiningStage) {
+  } else if (state?.isJoiningStageByRequest) {
     buttonTextContent = <p>Join now</p>;
   } else {
     buttonTextContent = <p>{$webBroadcastContent.start_stream}</p>;
@@ -225,7 +225,7 @@ const GoLiveStreamButton = ({
       <Button
         ref={streamButtonRef}
         onClick={
-          state?.isJoiningStage ? joinStage : handleStartStopBroadcastingAction
+          state?.isJoiningStageByRequest ? joinStage : handleStartStopBroadcastingAction
         }
         variant="primary"
         isDisabled={isDisabled}
