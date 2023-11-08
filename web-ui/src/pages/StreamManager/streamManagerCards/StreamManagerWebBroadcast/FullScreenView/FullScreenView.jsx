@@ -19,7 +19,7 @@ import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
 import { useLocation } from 'react-router-dom';
-import StageJoinModalOverlay from './StageJoinModalOverlay';
+import StageJoinModalBackground from './StageJoinModalBackground';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
@@ -102,7 +102,7 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {state?.isJoiningStageByRequest ? <StageJoinModalOverlay /> : content}
+        {state?.isJoiningStageByRequest ? <StageJoinModalBackground /> : content}
         {/* {content} */}
         {!state?.isJoiningStageByRequest && <Footer />}
       </motion.div>

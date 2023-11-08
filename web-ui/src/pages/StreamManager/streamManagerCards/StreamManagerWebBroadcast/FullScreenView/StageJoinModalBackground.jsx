@@ -15,7 +15,7 @@ const COMMON_BOX_CLASSES = [
   'h-full'
 ];
 
-const StageJoinModalOverlay = () => {
+const StageJoinModalBackground = () => {
   const { openModal } = useModal();
   const { resetPreview } = useBroadcast();
 
@@ -46,6 +46,7 @@ const StageJoinModalOverlay = () => {
           //   'grid-cols-2',
           'flex',
           'flex-row',
+          'z-[1000]',
           dimensionClasses
         ])}
       >
@@ -60,4 +61,4 @@ const StageJoinModalOverlay = () => {
   );
 };
 
-export default StageJoinModalOverlay;
+export default StageJoinModalBackground;
