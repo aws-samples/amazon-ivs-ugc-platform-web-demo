@@ -9,6 +9,8 @@ import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import { streamManager as $streamManagerContent } from '../../content';
 import { useGlobalStage } from '../Stage';
+import { useLocation } from 'react-router-dom';
+import { useChannel } from '../Channel';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -19,8 +21,14 @@ Context.displayName = 'AppSync';
 export const Provider = ({ children }) => {
   const { userData } = useUser();
   const { notifyNeutral, notifyError } = useNotif();
-  const { isHost, updateStageRequestList, updateRequestingToJoinStage } =
-    useGlobalStage();
+  const {
+    isHost,
+    updateStageRequestList,
+    updateRequestingToJoinStage,
+    updateHasStageRequestBeenApproved
+  } = useGlobalStage();
+  const { pathname } = useLocation();
+  const { channelData } = useChannel();
 
   /**
    * @param  {string} name the name of the channel
@@ -51,13 +59,24 @@ export const Provider = ({ children }) => {
     const channel = userData?.channelId.toLowerCase();
     const subscription = subscribe(channel, ({ data }) => {
       const channelEvent = JSON.parse(data);
-
       switch (channelEvent?.type) {
-        case channelEvents.STAGE_REQUEST_TO_JOIN:
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
+        case channelEvents.STAGE_REQUEST_TO_JOIN:
           if (!isHost) return;
 
           updateStageRequestList(channelEvent);
+          break;
+        case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
+          if (!isHost) {
+            notifyNeutral($contentNotification.neutral.joining_session, {
+              asPortal: true
+            });
+
+            updateHasStageRequestBeenApproved(true);
+          }
+          break;
+        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
+          updateRequestingToJoinStage(false);
           break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
@@ -74,15 +93,6 @@ export const Provider = ({ children }) => {
             asPortal: true
           });
           break;
-        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
-          updateRequestingToJoinStage(false);
-          break;
-        case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
-          notifyNeutral($contentNotification.neutral.joining_session, {
-            asPortal: true
-          });
-          updateRequestingToJoinStage(false);
-          break;
         default:
           return;
       }
@@ -90,10 +100,13 @@ export const Provider = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, [
+    channelData,
     isHost,
-    notifyError,
     notifyNeutral,
+    pathname,
     subscribe,
+    updateHasStageRequestBeenApproved,
+    notifyError,
     updateStageRequestList,
     updateRequestingToJoinStage,
     userData?.channelId

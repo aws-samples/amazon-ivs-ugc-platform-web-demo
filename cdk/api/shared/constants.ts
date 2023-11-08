@@ -79,7 +79,8 @@ export const CUSTOM_AVATAR_NAME = 'custom' as const;
  * GetSecretValueCommand(<SECRET_ID>)
  */
 export const SECRET_IDS = {
-  PA_API: 'Product_Advertising_API_Secret_Keys'
+  PA_API: 'Product_Advertising_API_Secret_Keys',
+  APPSYNC_GRAPHQL_API: 'AppSync_GraphQL_API_Secret_Keys'
 };
 
 export const MAX_SERVER_PARAM_LENGTH = 200;
@@ -98,4 +99,8 @@ export const STAGE_TOKEN_DURATION = 1440; // Minutes
 export const CHANNELS_TABLE_STAGE_FIELDS = {
   STAGE_ID: 'stageId',
   STAGE_CREATION_DATE: 'stageCreationDate'
+};
+
+export const APPSYNC_EVENT_TYPES = {
+  STAGE_REVOKE_REQUEST_TO_JOIN: 'STAGE_REVOKE_REQUEST_TO_JOIN'
 };

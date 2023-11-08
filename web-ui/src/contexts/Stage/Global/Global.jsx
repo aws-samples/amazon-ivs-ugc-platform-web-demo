@@ -37,6 +37,7 @@ export const Provider = ({ children }) => {
     updateStreams,
     updateSuccess,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateHasStageRequestBeenApproved,
     updateStageRequestList,
     deleteRequestToJoin,
     updateIsChannelStagePlayerMuted
@@ -55,6 +56,7 @@ export const Provider = ({ children }) => {
     isChannelStagePlayerMuted,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     requestingToJoinStage,
+    hasStageRequestBeenApproved,
     stageRequestList
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
@@ -108,6 +110,7 @@ export const Provider = ({ children }) => {
     return {
       // State
       error,
+      hasStageRequestBeenApproved,
       isBlockingRoute,
       isChannelStagePlayerMuted,
       isCreatingStage,
@@ -141,6 +144,7 @@ export const Provider = ({ children }) => {
       updateStreams,
       updateSuccess,
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateHasStageRequestBeenApproved,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -156,6 +160,7 @@ export const Provider = ({ children }) => {
     };
   }, [
     error,
+    hasStageRequestBeenApproved,
     isBlockingRoute,
     isChannelStagePlayerMuted,
     isCreatingStage,
@@ -178,6 +183,7 @@ export const Provider = ({ children }) => {
     toggleCameraState,
     toggleMicrophoneState,
     updateError,
+    updateHasStageRequestBeenApproved,
     updateIsBlockingRoute,
     updateIsSpectator,
     updateParticipant,

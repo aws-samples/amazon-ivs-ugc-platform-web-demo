@@ -100,6 +100,11 @@ export const updateRequestingToJoinStage = (bool) => ({
   payload: bool
 });
 
+export const updateHasStageRequestBeenApproved = (bool) => ({
+  type: actionTypes.UPDATE_HAS_STAGE_REQUEST_BEEN_APPROVED,
+  payload: bool
+});
+
 export const updateStageRequestList = (channelEvent) => ({
   type: actionTypes.UPDATE_STAGE_REQUEST_LIST,
   payload: channelEvent

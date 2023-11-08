@@ -78,6 +78,7 @@ export const STATE_KEYS = {
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
+  HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
   STAGE_REQUEST_LIST: 'stageRequestList'
 };
 
@@ -92,6 +93,7 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
+  [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
   [STATE_KEYS.STAGE_REQUEST_LIST]: []
 };
 
@@ -348,6 +350,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       };
     }
 
+    case actionTypes.UPDATE_HAS_STAGE_REQUEST_BEEN_APPROVED: {
+      return {
+        ...state,
+        [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: action.payload
+      };
+    }
+
     case actionTypes.UPDATE_STAGE_REQUEST_LIST: {
       const { type, channelId } = action.payload;
 
@@ -358,7 +367,7 @@ const globalReducer = (state = defaultReducerState, action) => {
         ];
       } else if (type === channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN) {
         currentStageRequestToJoinList = currentStageRequestToJoinList.filter(
-          (requestee) => requestee.channelId !== channelId
+          (requestee) => requestee.channelId !== channelId.toLowerCase()
         );
       }
 

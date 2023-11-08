@@ -199,7 +199,8 @@ export class UGCStack extends Stack {
       PRODUCT_API_LOCALE: productApiLocale,
       PRODUCT_LINK_REGION_CODE: productLinkRegionCode,
       ENABLE_AMAZON_PRODUCT_STREAM_ACTION: `${enableAmazonProductStreamAction}`,
-      PRODUCT_API_SECRET_NAME: productApiSecretName
+      PRODUCT_API_SECRET_NAME: productApiSecretName,
+      APPSYNC_GRAPHQL_API_SECRET_NAME: appSyncGraphQlApi.secretName
     };
     const sharedContainerEnv = {
       ...baseContainerEnv,

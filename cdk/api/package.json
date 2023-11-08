@@ -29,6 +29,7 @@
     "@fastify/cors": "^8.1.0",
     "@fastify/request-context": "^4.0.0",
     "aws-jwt-verify": "^3.2.0",
+    "axios": "^1.6.0",
     "fastify": "^4.10.2",
     "paapi5-nodejs-sdk": "^1.1.0",
     "uuid": "^9.0.0"
