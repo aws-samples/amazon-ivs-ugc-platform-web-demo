@@ -1,39 +1,57 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { updateIsBlockingRoute } from '../contexts/Stage/Global/reducer/actions';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { useGlobalStage } from '../contexts/Stage';
+import { useBroadcast } from '../contexts/Broadcast';
+import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../helpers/stagesHelpers';
 
 const useDevicePermissionChangeListeners = () => {
   const cameraPermissionRef = useRef();
   const microphonePermissionRef = useRef();
+  const { state } = useLocation();
+  const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage();
+  const { detectDevicePermissions } = useBroadcast();
 
-  const handlePermissionsRevoked = useCallback((devicePermission) => {
-    const {
-      currentTarget: { state }
-    } = devicePermission;
+  const [searchParams] = useSearchParams();
+  const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
 
-    if (state === 'denied') {
-      // Remove event listeners for permission changes.
-      cameraPermissionRef.current.removeEventListener(
-        'change',
-        handlePermissionsRevoked
-      );
-      microphonePermissionRef.current.removeEventListener(
-        'change',
-        handlePermissionsRevoked
-      );
+  const handlePermissionsRevoked = useCallback(
+    (devicePermission) => {
+      const {
+        currentTarget: { state }
+      } = devicePermission;
 
-      updateIsBlockingRoute(false);
-
-      setTimeout(() => {
-        window.history.pushState(
-          {
-            isWebBroadcastContainerOpen: true
-          },
-          ''
+      if (state === 'denied') {
+        // Remove event listeners for permission changes.
+        cameraPermissionRef.current.removeEventListener(
+          'change',
+          handlePermissionsRevoked
         );
-        window.location.href = '/manager';
-      });
-    }
-  }, []);
+        microphonePermissionRef.current.removeEventListener(
+          'change',
+          handlePermissionsRevoked
+        );
+
+        updateIsBlockingRoute(false);
+
+        if (isJoiningStageByRequest || isJoiningStageByInvite) {
+          // Responsible for showing a notification + disabling join button
+          if (detectDevicePermissions) detectDevicePermissions();
+        } else {
+          setTimeout(() => {
+            window.history.pushState(
+              {
+                isWebBroadcastContainerOpen: true
+              },
+              ''
+            );
+            window.location.href = '/manager';
+          });
+        }
+      }
+    },
+    [detectDevicePermissions, isJoiningStageByInvite, isJoiningStageByRequest]
+  );
 
   const cameraAndMicrophonePermissionsChangeListener = useCallback(async () => {
     // Request camera and microphone permission
@@ -62,6 +80,10 @@ const useDevicePermissionChangeListeners = () => {
       return;
     }
 
+    // Do not attach event listeners if reducer states have not been updated
+    if (state?.isJoiningStageByRequest && !isJoiningStageByRequest) return;
+    if (stageIdUrlParam && !isJoiningStageByInvite) return;
+
     cameraAndMicrophonePermissionsChangeListener();
 
     return () => {
@@ -76,7 +98,14 @@ const useDevicePermissionChangeListeners = () => {
         );
       }
     };
-  }, [cameraAndMicrophonePermissionsChangeListener, handlePermissionsRevoked]);
+  }, [
+    cameraAndMicrophonePermissionsChangeListener,
+    handlePermissionsRevoked,
+    isJoiningStageByInvite,
+    isJoiningStageByRequest,
+    stageIdUrlParam,
+    state?.isJoiningStageByRequest
+  ]);
 };
 
 export default useDevicePermissionChangeListeners;
