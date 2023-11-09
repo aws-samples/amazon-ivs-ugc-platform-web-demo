@@ -35,8 +35,8 @@ const GoLiveContainer = forwardRef(
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
-    const { isJoiningStageByRequest, isJoiningStageByInvite } =
-      useGlobalStage();
+    const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage()
+    const { state } = useLocation();
 
     const handleOnCollapse = () => {
       shouldAnimateStreamingButton.current = false;
@@ -54,12 +54,8 @@ const GoLiveContainer = forwardRef(
       shouldShowTooltipMessageRef.current = false;
     };
 
-    const { state } = useLocation();
+    const shouldAddRef = !isFullScreenViewOpen || isJoiningStageByRequest || isJoiningStageByInvite
 
-    const shouldAddRef =
-      !isFullScreenViewOpen ||
-      isJoiningStageByRequest ||
-      isJoiningStageByInvite;
     return (
       <>
         <AnimatePresence initial={false}>
