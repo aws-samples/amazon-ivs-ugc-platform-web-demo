@@ -36,7 +36,7 @@ const useRequestParticipants = () => {
       }
 
       if (error) {
-        console.log('something happened');
+
       }
     }
   }, [

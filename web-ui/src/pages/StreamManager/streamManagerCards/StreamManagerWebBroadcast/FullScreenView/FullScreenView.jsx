@@ -49,7 +49,6 @@ const FullScreenView = ({ dimensions }) => {
     animationInitialWidth,
     animationInitialHeight
   } = dimensions;
-  // console.log('state?.isJoiningStageByRequest', state?.isJoiningStageByRequest);
 
   return (
     <motion.div

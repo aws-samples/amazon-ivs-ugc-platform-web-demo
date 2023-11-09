@@ -239,7 +239,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     async (token, stageId) => {
       // Get and set local participant
       const localParticipantData = decodeJWT(token) || {};
-      console.log('local', { localParticipantData });
       const { attributes, user_id: userId } = localParticipantData;
       const { type } = attributes;
 
