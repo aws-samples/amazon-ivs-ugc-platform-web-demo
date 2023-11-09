@@ -74,11 +74,6 @@ const GoLiveStreamButton = ({
     isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
     (isLive && !isBroadcasting);
-  console.log('hasPermissions', hasPermissions)
-  console.log('isStageActiveInAnotherTab', isStageActiveInAnotherTab)
-  console.log('shouldDisableLeaveStageButtonshouldDisableLeaveStageButton', shouldDisableLeaveStageButton)
-  console.log('isLive', isLive)
-  console.log('!isBroadcasting', !isBroadcasting)
 
   const stageButtonContent = isHost
     ? $stageContent.end_session

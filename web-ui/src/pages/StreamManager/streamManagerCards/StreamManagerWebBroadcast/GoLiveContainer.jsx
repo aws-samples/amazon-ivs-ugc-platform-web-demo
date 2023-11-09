@@ -53,8 +53,6 @@ const GoLiveContainer = forwardRef(
     const { state } = useLocation();
 
     const shouldAddRef = !isFullScreenViewOpen || isJoiningStageByRequest || isJoiningStageByInvite
-    console.log('shouldAddRef', shouldAddRef)
-    console.log('previewRef', previewRef)
     return (
       <>
         <AnimatePresence initial={false}>

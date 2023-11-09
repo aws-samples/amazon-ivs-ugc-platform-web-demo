@@ -31,8 +31,6 @@ const useInviteParticipants = ({
 
   const handleParticipantInvite = useCallback(
     ({ isLive, isBroadcasting, openFullscreenView, profileData }) => {
-      console.log('isLive', isLive)
-      console.log('isBroadcasting', isBroadcasting)
       if (isLive === undefined || isBroadcasting === undefined) return;
       removeBroadcastClient();
 
@@ -83,7 +81,6 @@ const useInviteParticipants = ({
           stageId,
           PARTICIPANT_TYPES.INVITED
         );
-        console.log('result ==>', result)
         if (result?.token) {
           await createStageInstanceAndJoin(result.token, stageId);
           shouldGetHostRejoinTokenRef.current = false;
