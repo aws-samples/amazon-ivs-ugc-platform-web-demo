@@ -120,6 +120,13 @@ const RequestToJoinStageButton = () => {
     ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
     : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
 
+  const isUserAlreadyInStage = [...participants].some(
+    ([_, participant]) =>
+      participant.attributes.channelId === userData.channelId
+  );
+
+  const isDisabled = participants?.size >= 12 || isUserAlreadyInStage;
+
   return (
     <Tooltip
       shouldKeepMinWidth={false}
@@ -151,7 +158,7 @@ const RequestToJoinStageButton = () => {
         ariaLabel={'test'}
         key="create-stage-control-btn"
         onClick={requestToJoin}
-        isDisabled={participants?.size >= 12}
+        isDisabled={isDisabled}
       >
         {icon}
       </Button>
