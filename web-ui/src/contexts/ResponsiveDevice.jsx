@@ -92,12 +92,10 @@ export const Provider = ({ children }) => {
   );
 
   // Set current width
-  const updateCurrentWidth = useCallback(() => {
+  const updateCurrentInnerWidth = useCallback(() => {
     if (!window?.innerWidth) return;
 
-    const innerWidth = window?.innerWidth;
-
-    setInnerWidth(innerWidth);
+    setInnerWidth(window.innerWidth);
   }, []);
 
   // Set current breakpoint
@@ -140,12 +138,12 @@ export const Provider = ({ children }) => {
       updateMobileVh();
       updateCurrentBreakpoint();
       updateOrientation();
-      updateCurrentWidth();
+      updateCurrentInnerWidth();
     }, [
       updateCurrentBreakpoint,
       updateMobileVh,
       updateOrientation,
-      updateCurrentWidth
+      updateCurrentInnerWidth
     ]),
     { shouldCallOnMount: true }
   );
