@@ -111,8 +111,12 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {(isJoiningStageByRequest || isJoiningStageByInvite) ? <StageJoinModalBackground /> : content}
-        {(!isJoiningStageByRequest && !isJoiningStageByInvite) && <Footer />}
+        {isJoiningStageByRequest || isJoiningStageByInvite ? (
+          <StageJoinModalBackground />
+        ) : (
+          content
+        )}
+        {!isJoiningStageByRequest && !isJoiningStageByInvite && <Footer />}
       </motion.div>
     </motion.div>
   );

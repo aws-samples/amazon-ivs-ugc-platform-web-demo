@@ -59,12 +59,13 @@ const GoLiveStreamButton = ({
     isJoiningStageByRequest,
     isJoiningStageByInvite
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, handleParticipantInvite } = useStreamManagerStage();
+  const { handleOnConfirmLeaveStage, handleParticipantInvite } =
+    useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
   const { joinStageByRequest } = useRequestParticipants();
   const { openModal } = useModal();
-  const { channelData } = useChannel()
+  const { channelData } = useChannel();
   const { isLive } = useStreams();
   const isStageActiveInAnotherTab = !isStageActive && stageId;
   const shouldDisableLeaveStageButton =
@@ -167,24 +168,24 @@ const GoLiveStreamButton = ({
 
   const joinStage = () => {
     if (isJoiningStageByInvite) {
-        const { avatar, color, username, channelAssetUrls } = channelData;
-        const profileData = {
-          avatar,
-          profileColor: color,
-          username,
-          channelAssetUrls
-        };
-        handleParticipantInvite({
-          isLive,
-          isBroadcasting,
-          profileData
-        });
+      const { avatar, color, username, channelAssetUrls } = channelData;
+      const profileData = {
+        avatar,
+        profileColor: color,
+        username,
+        channelAssetUrls
+      };
+      handleParticipantInvite({
+        isLive,
+        isBroadcasting,
+        profileData
+      });
     }
 
     if (isJoiningStageByRequest) {
-      joinStageByRequest()
+      joinStageByRequest();
     }
-  }
+  };
   return (
     <Tooltip
       position={tooltipPosition}
@@ -193,7 +194,11 @@ const GoLiveStreamButton = ({
     >
       <Button
         ref={streamButtonRef}
-        onClick={(isJoiningStageByInvite || isJoiningStageByRequest) ? joinStage : handleStartStopBroadcastingAction}
+        onClick={
+          isJoiningStageByInvite || isJoiningStageByRequest
+            ? joinStage
+            : handleStartStopBroadcastingAction
+        }
         variant="primary"
         isDisabled={isDisabled}
         className={clsm([

@@ -99,7 +99,6 @@ const defaultStageReducerState = {
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
   [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
   [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false
-
 };
 
 const stageAnimationReducerState = {
