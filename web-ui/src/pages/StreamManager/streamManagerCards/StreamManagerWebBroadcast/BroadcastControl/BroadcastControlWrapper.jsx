@@ -27,7 +27,7 @@ const $content = $streamManagerContent.stream_manager_web_broadcast;
 const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
   const { isStageActive } = useGlobalStage();
   const settingsButtonRef = useRef();
-  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { isTouchscreenDevice, isDesktopView } = useResponsiveDevice();
   const { openModal } = useModal();
   const {
     toggleMicrophone: toggleStageMicrophone,
@@ -60,7 +60,10 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
   const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
   const shouldRenderStageScreenShareButton =
-    isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
+    isStageActive &&
+    shouldRenderShareScreenButton &&
+    !isTouchscreenDevice &&
+    isDesktopView;
   const shouldRenderBroadcastScreenShareButton =
     !isTouchscreenDevice && !state?.isJoiningStageByRequest;
 

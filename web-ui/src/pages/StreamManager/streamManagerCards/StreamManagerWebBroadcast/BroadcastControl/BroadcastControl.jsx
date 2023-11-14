@@ -7,6 +7,8 @@ import Button from '../../../../../components/Button';
 import Tooltip from '../../../../../components/Tooltip';
 import { CONTROLLER_BUTTON_THEME } from './BroadcastControllerTheme';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import { BREAKPOINTS } from '../../../../../constants';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const ACTIVE_BUTTON_COLORS = [
   'bg-darkMode-blue',
@@ -19,12 +21,17 @@ const ACTIVE_BUTTON_COLORS = [
 ];
 
 const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
-  const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
+  const { isDesktopView, isTouchscreenDevice, currentBreakpoint, innerWidth } =
+    useResponsiveDevice();
+  const { isHost } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
 
   const getSpaceBetween = () => {
     if (isFullScreenViewOpen) {
-      return ['space-x-4'];
+      return (isHost && innerWidth < 375) ||
+        currentBreakpoint === BREAKPOINTS.xxs
+        ? ['space-x-1']
+        : ['space-x-4'];
     }
     return isOpen || !isDesktopView
       ? ['space-x-5', 'xs:space-x-2']

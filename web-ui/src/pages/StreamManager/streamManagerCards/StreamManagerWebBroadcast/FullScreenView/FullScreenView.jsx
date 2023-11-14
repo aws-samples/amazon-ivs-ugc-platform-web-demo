@@ -23,6 +23,7 @@ import Footer from './Footer';
 import Header from './Header';
 import { useLocation } from 'react-router-dom';
 import StageJoinModalBackground from './StageJoinModalBackground';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
 const FullScreenView = ({ dimensions }) => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
@@ -31,6 +32,7 @@ const FullScreenView = ({ dimensions }) => {
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const fullScreenViewContainerRef = useRef();
   const { isModalOpen } = useModal();
+  const { isMobileView } = useResponsiveDevice();
   const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
 
   const content = isStageActive ? (
@@ -102,8 +104,8 @@ const FullScreenView = ({ dimensions }) => {
               paddingTop: 72
             },
             visible: {
-              paddingLeft: 32,
-              paddingRight: 32,
+              paddingLeft: isMobileView ? 16 : 32,
+              paddingRight: isMobileView ? 16 : 32,
               paddingBottom: 0,
               paddingTop: 32
             }
@@ -111,8 +113,12 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {(isJoiningStageByRequest || isJoiningStageByInvite) ? <StageJoinModalBackground /> : content}
-        {(!isJoiningStageByRequest && !isJoiningStageByInvite) && <Footer />}
+        {isJoiningStageByRequest || isJoiningStageByInvite ? (
+          <StageJoinModalBackground />
+        ) : (
+          content
+        )}
+        {!isJoiningStageByRequest && !isJoiningStageByInvite && <Footer />}
       </motion.div>
     </motion.div>
   );

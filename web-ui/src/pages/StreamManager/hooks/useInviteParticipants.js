@@ -20,8 +20,13 @@ const useInviteParticipants = ({
   shouldGetHostRejoinTokenRef
 }) => {
   const navigate = useNavigate();
-  const { stageId, updateStageId, addParticipant, localParticipant, updateIsJoiningStageByInvite } =
-    useGlobalStage();
+  const {
+    stageId,
+    updateStageId,
+    addParticipant,
+    localParticipant,
+    updateIsJoiningStageByInvite
+  } = useGlobalStage();
   const { hasPermissions, removeBroadcastClient, restartBroadcastClient } =
     useBroadcast();
 
@@ -85,7 +90,7 @@ const useInviteParticipants = ({
           await createStageInstanceAndJoin(result.token, stageId);
           shouldGetHostRejoinTokenRef.current = false;
           // open fullscreen view, RESET isJoinginStageInvite to false
-          updateIsJoiningStageByInvite(false)
+          updateIsJoiningStageByInvite(false);
         }
 
         if (error) {
@@ -105,7 +110,24 @@ const useInviteParticipants = ({
         openFullscreenViewCallbackFunctionRef.current = undefined;
       })();
     }
-  }, [hasPermissions, stageId, createStageInstanceAndJoin, updateError, removeBroadcastClient, addParticipant, localParticipant, updateStageId, stageIdUrlParam, restartBroadcastClient, navigate, resetStage, broadcastDevicesStateObjRef, shouldGetParticipantTokenRef, shouldGetHostRejoinTokenRef, updateIsJoiningStageByInvite]);
+  }, [
+    hasPermissions,
+    stageId,
+    createStageInstanceAndJoin,
+    updateError,
+    removeBroadcastClient,
+    addParticipant,
+    localParticipant,
+    updateStageId,
+    stageIdUrlParam,
+    restartBroadcastClient,
+    navigate,
+    resetStage,
+    broadcastDevicesStateObjRef,
+    shouldGetParticipantTokenRef,
+    shouldGetHostRejoinTokenRef,
+    updateIsJoiningStageByInvite
+  ]);
 
   return { handleParticipantInvite };
 };

@@ -20,12 +20,8 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useChannel } from '../../../../contexts/Channel';
-import { useStage } from '../../../../contexts/Stage/StreamManager';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { PARTICIPANT_TYPES } from '../../../../contexts/Stage/Global/reducer/globalReducer';
-import { getParticipationToken } from '../../../../api/stages';
 import useRequestParticipants from '../../hooks/useRequestParticipants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
@@ -59,12 +55,13 @@ const GoLiveStreamButton = ({
     isJoiningStageByRequest,
     isJoiningStageByInvite
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, handleParticipantInvite } = useStreamManagerStage();
+  const { handleOnConfirmLeaveStage, handleParticipantInvite } =
+    useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
   const { joinStageByRequest } = useRequestParticipants();
   const { openModal } = useModal();
-  const { channelData } = useChannel()
+  const { channelData } = useChannel();
   const { isLive } = useStreams();
   const isStageActiveInAnotherTab = !isStageActive && stageId;
   const shouldDisableLeaveStageButton =
@@ -167,24 +164,24 @@ const GoLiveStreamButton = ({
 
   const joinStage = () => {
     if (isJoiningStageByInvite) {
-        const { avatar, color, username, channelAssetUrls } = channelData;
-        const profileData = {
-          avatar,
-          profileColor: color,
-          username,
-          channelAssetUrls
-        };
-        handleParticipantInvite({
-          isLive,
-          isBroadcasting,
-          profileData
-        });
+      const { avatar, color, username, channelAssetUrls } = channelData;
+      const profileData = {
+        avatar,
+        profileColor: color,
+        username,
+        channelAssetUrls
+      };
+      handleParticipantInvite({
+        isLive,
+        isBroadcasting,
+        profileData
+      });
     }
 
     if (isJoiningStageByRequest) {
-      joinStageByRequest()
+      joinStageByRequest();
     }
-  }
+  };
   return (
     <Tooltip
       position={tooltipPosition}
@@ -193,7 +190,11 @@ const GoLiveStreamButton = ({
     >
       <Button
         ref={streamButtonRef}
-        onClick={(isJoiningStageByInvite || isJoiningStageByRequest) ? joinStage : handleStartStopBroadcastingAction}
+        onClick={
+          isJoiningStageByInvite || isJoiningStageByRequest
+            ? joinStage
+            : handleStartStopBroadcastingAction
+        }
         variant="primary"
         isDisabled={isDisabled}
         className={clsm([
