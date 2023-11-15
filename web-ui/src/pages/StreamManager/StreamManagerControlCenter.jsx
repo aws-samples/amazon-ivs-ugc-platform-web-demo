@@ -17,12 +17,12 @@ import { useChannel } from '../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../contexts/Stage';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
+import StageJoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/StageJoinModal';
 import StageParticipantsModal from './streamManagerCards/StreamManagerWebBroadcast/StageModal/StageParticipantsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
 import useHostRejoin from './hooks/useHostRejoin';
-import StageJoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/StageJoinModal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;

@@ -43,7 +43,8 @@ export const Provider = ({ children }) => {
     updateIsChannelStagePlayerMuted,
     updateIsJoiningStageByRequest,
     updateIsJoiningStageByInvite,
-    updateSpectatorParticipantId
+    updateSpectatorParticipantId,
+    updateShouldOpenSettingsModal
   } = useGlobalReducers();
   const {
     participants,
@@ -63,7 +64,8 @@ export const Provider = ({ children }) => {
     stageRequestList,
     isJoiningStageByRequest,
     isJoiningStageByInvite,
-    spectatorParticipantId
+    spectatorParticipantId,
+    shouldOpenSettingsModal
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -143,6 +145,8 @@ export const Provider = ({ children }) => {
       isJoiningStageByRequestOrInvite,
       updateSpectatorParticipantId,
       spectatorParticipantId,
+      shouldOpenSettingsModal,
+      updateShouldOpenSettingsModal,
       // Actions
       addParticipant,
       creatingStage,
@@ -227,7 +231,9 @@ export const Provider = ({ children }) => {
     isJoiningStageByInvite,
     isJoiningStageByRequestOrInvite,
     updateSpectatorParticipantId,
-    spectatorParticipantId
+    spectatorParticipantId,
+    shouldOpenSettingsModal,
+    updateShouldOpenSettingsModal
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
