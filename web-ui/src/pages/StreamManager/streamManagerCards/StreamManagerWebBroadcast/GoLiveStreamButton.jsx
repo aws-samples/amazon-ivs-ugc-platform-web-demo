@@ -20,12 +20,8 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useChannel } from '../../../../contexts/Channel';
-import { useStage } from '../../../../contexts/Stage/StreamManager';
-import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { PARTICIPANT_TYPES } from '../../../../contexts/Stage/Global/reducer/globalReducer';
-import { getParticipationToken } from '../../../../api/stages';
 import useRequestParticipants from '../../hooks/useRequestParticipants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
