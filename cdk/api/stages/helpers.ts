@@ -195,7 +195,7 @@ export const handleCreateStageParams = async ({
   if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR) {
     userType = PARTICIPANT_USER_TYPES.SPECTATOR;
   } else if (participantType === PARTICIPANT_USER_TYPES.REQUESTED) {
-    userType = PARTICIPANT_USER_TYPES.REQUESTED
+    userType = PARTICIPANT_USER_TYPES.REQUESTED;
   }
 
   return {
