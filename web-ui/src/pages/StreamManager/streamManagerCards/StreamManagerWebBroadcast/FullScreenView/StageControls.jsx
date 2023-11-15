@@ -24,7 +24,7 @@ const $stageContent = $content.stream_manager_stage;
 const StageControls = ({ shouldShowCopyLinkText }) => {
   const participantsButtonRef = useRef();
   const { openModal } = useModal();
-  const { isTouchscreenDevice, currentBreakpoint, innerWidth } =
+  const { isTouchscreenDevice, currentBreakpoint, dimensions } =
     useResponsiveDevice();
   const {
     handleCopyJoinParticipantLinkAndNotify,
@@ -51,7 +51,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
   const containerRef = useRef();
 
   const getMarginRight = () => {
-    return isHost && innerWidth < 375 ? 'mr-[48px]' : 'mr-[60px]';
+    return isHost && dimensions?.width < 375 ? 'mr-[48px]' : 'mr-[60px]';
   };
 
   const stageMenuToggleBtnRef = useRef();
@@ -66,7 +66,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
         className={clsm([
           'flex',
           'items-center',
-          isHost && innerWidth < 375 ? 'space-x-1' : 'space-x-4'
+          isHost && dimensions?.width < 375 ? 'space-x-1' : 'space-x-4'
         ])}
         {...(shouldShowCopyLinkText &&
           createAnimationProps({

@@ -21,14 +21,14 @@ const ACTIVE_BUTTON_COLORS = [
 ];
 
 const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
-  const { isDesktopView, isTouchscreenDevice, currentBreakpoint, innerWidth } =
+  const { isDesktopView, isTouchscreenDevice, currentBreakpoint, dimensions } =
     useResponsiveDevice();
   const { isHost } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
 
   const getSpaceBetween = () => {
     if (isFullScreenViewOpen) {
-      return (isHost && innerWidth < 375) ||
+      return (isHost && dimensions?.width < 375) ||
         currentBreakpoint === BREAKPOINTS.xxs
         ? ['space-x-1']
         : ['space-x-4'];
