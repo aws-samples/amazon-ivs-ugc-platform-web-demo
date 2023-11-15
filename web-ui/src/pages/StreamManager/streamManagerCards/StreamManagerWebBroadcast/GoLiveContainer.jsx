@@ -13,7 +13,10 @@ import { StageControl } from './StageControl';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useGlobalStage, useStreamManagerStage } from '../../../../contexts/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
 import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
@@ -32,7 +35,8 @@ const GoLiveContainer = forwardRef(
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
-    const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage()
+    const { isJoiningStageByRequest, isJoiningStageByInvite } =
+      useGlobalStage();
     const { state } = useLocation();
 
     const handleOnCollapse = () => {
@@ -51,7 +55,10 @@ const GoLiveContainer = forwardRef(
       shouldShowTooltipMessageRef.current = false;
     };
 
-    const shouldAddRef = !isFullScreenViewOpen || isJoiningStageByRequest || isJoiningStageByInvite
+    const shouldAddRef =
+      !isFullScreenViewOpen ||
+      isJoiningStageByRequest ||
+      isJoiningStageByInvite;
 
     return (
       <>
@@ -95,11 +102,7 @@ const GoLiveContainer = forwardRef(
                 </div>
               ) : (
                 <canvas
-                  ref={
-                    shouldAddRef
-                      ? previewRef
-                      : null
-                  }
+                  ref={shouldAddRef ? previewRef : null}
                   className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
                   aria-label="Amazon IVS web broadcast video and audio stream"
                 />
