@@ -51,14 +51,14 @@ const Footer = () => {
   const getMarginLeft = () => {
     if (isStageActive || isJoiningStageByRequestOrInvite) {
       if (isFullScreenViewOpen) {
-        return 'calc(100% - 74px)';
+        return isMobileView ? 'calc(100% - 74px)' : 'calc(100% - 110px)'
       }
-
       return 'calc(100% - 110px)';
     }
 
     return 'calc(50% - 90px)'; // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
   };
+
   const isCollaborateDisabled =
     shouldDisableCollaborateButton || !hasPermissions;
 
