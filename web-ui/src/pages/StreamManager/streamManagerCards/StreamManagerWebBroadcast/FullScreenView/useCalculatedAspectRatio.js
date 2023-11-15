@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { fitRectIntoContainer } from '../../../../../helpers/webBroadcastHelpers';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import useResize from '../../../../../hooks/useResize';
 
 const useCalculatedAspectRatio = ({ childRef } = {}) => {
@@ -11,13 +10,11 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
     fullscreenAnimationControls,
     isFullScreenViewOpen
   } = useBroadcastFullScreen();
-  const { isDesktopView } = useResponsiveDevice();
   const parentRef = useRef();
 
   const animateWidthHeight = useCallback(() => {
-    if (!isDesktopView || !isFullScreenViewOpen) return;
+    if (!isFullScreenViewOpen) return;
 
-    setDimensionClasses([]);
     const { width: newCanvasWidth, height: newCanvasHeight } =
       fitRectIntoContainer(
         childRef?.current?.clientWidth,
@@ -25,17 +22,12 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
         parentRef?.current?.clientWidth,
         parentRef?.current?.clientHeight
       );
+
     fullscreenAnimationControls.start({
       width: newCanvasWidth,
       height: newCanvasHeight
     });
-  }, [
-    childRef,
-    fullscreenAnimationControls,
-    isDesktopView,
-    isFullScreenViewOpen,
-    setDimensionClasses
-  ]);
+  }, [childRef, fullscreenAnimationControls, isFullScreenViewOpen]);
 
   useResize(animateWidthHeight);
 
@@ -58,8 +50,8 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
   }, [setDimensionClasses, isFullScreenViewOpen]);
 
   useEffect(() => {
-    if (!isDesktopView || !isFullScreenViewOpen) setDimensionClasses([]);
-  }, [isDesktopView, setDimensionClasses, isFullScreenViewOpen]);
+    if (!isFullScreenViewOpen) setDimensionClasses([]);
+  }, [setDimensionClasses, isFullScreenViewOpen]);
 
   return {
     parentRef

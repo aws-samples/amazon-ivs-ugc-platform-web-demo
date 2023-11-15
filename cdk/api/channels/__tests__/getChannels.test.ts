@@ -360,7 +360,6 @@ describe('getChannels controller', () => {
         avatar: channelAssets.avatar.url,
         banner: channelAssets.banner.url
       };
-      console.log({ s: channels });
       expect(maxResults).toBe(50);
       expect(channels.length).toBe(3);
       expect(channels[0]).toEqual({

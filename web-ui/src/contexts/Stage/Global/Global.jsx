@@ -42,7 +42,8 @@ export const Provider = ({ children }) => {
     deleteRequestToJoin,
     updateIsChannelStagePlayerMuted,
     updateIsJoiningStageByRequest,
-    updateIsJoiningStageByInvite
+    updateIsJoiningStageByInvite,
+    updateSpectatorParticipantId
   } = useGlobalReducers();
   const {
     participants,
@@ -61,7 +62,8 @@ export const Provider = ({ children }) => {
     hasStageRequestBeenApproved,
     stageRequestList,
     isJoiningStageByRequest,
-    isJoiningStageByInvite
+    isJoiningStageByInvite,
+    spectatorParticipantId
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -110,6 +112,9 @@ export const Provider = ({ children }) => {
     [participants]
   );
 
+  const isJoiningStageByRequestOrInvite =
+    isJoiningStageByRequest || isJoiningStageByInvite;
+
   const value = useMemo(() => {
     return {
       // State
@@ -135,6 +140,9 @@ export const Provider = ({ children }) => {
       isJoiningStageByRequest,
       updateIsJoiningStageByInvite,
       isJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite,
+      updateSpectatorParticipantId,
+      spectatorParticipantId,
       // Actions
       addParticipant,
       creatingStage,
@@ -216,7 +224,10 @@ export const Provider = ({ children }) => {
     updateIsJoiningStageByRequest,
     isJoiningStageByRequest,
     updateIsJoiningStageByInvite,
-    isJoiningStageByInvite
+    isJoiningStageByInvite,
+    isJoiningStageByRequestOrInvite,
+    updateSpectatorParticipantId,
+    spectatorParticipantId
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

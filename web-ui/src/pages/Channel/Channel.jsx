@@ -162,7 +162,6 @@ const Channel = () => {
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();
   }, [isMounted, updateChatSectionHeight]);
-
   /**
    * IVS Real-time streaming
    */
@@ -224,9 +223,16 @@ const Channel = () => {
         );
 
         updateRequestingToJoinStage(false);
+        resetAllStageState();
       }
     };
-  }, [channelArn, publish, updateRequestingToJoinStage, userData?.channelId]);
+  }, [
+    channelArn,
+    publish,
+    updateRequestingToJoinStage,
+    userData?.channelId,
+    resetAllStageState
+  ]);
 
   // Triggered on page refresh or closed tab
   const beforeUnloadHandler = useCallback(() => {

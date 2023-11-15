@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { clsm } from '../../../../utils';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
-import { useModal } from '../../../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
@@ -20,9 +20,6 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useLocation } from 'react-router-dom';
-import { useChannel } from '../../../../contexts/Channel';
-import useRequestParticipants from '../../hooks/useRequestParticipants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -52,16 +49,14 @@ const GoLiveStreamButton = ({
     isHost,
     shouldDisableStageButtonWithDelay,
     stageId,
-    isJoiningStageByRequest,
-    isJoiningStageByInvite
+    isJoiningStageByRequestOrInvite,
+    isCreatingStage
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, handleParticipantInvite } =
+  const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
     useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
     useBroadcastFullScreen();
-  const { joinStageByRequest } = useRequestParticipants();
-  const { openModal } = useModal();
-  const { channelData } = useChannel();
+  const { openModal, isModalOpen, type: modalType } = useModal();
   const { isLive } = useStreams();
   const isStageActiveInAnotherTab = !isStageActive && stageId;
   const shouldDisableLeaveStageButton =
@@ -75,8 +70,6 @@ const GoLiveStreamButton = ({
   const stageButtonContent = isHost
     ? $stageContent.end_session
     : $stageContent.leave_session;
-
-  const { state } = useLocation();
 
   const handleStartStopBroadcastingAction = () => {
     if (isStageActive) {
@@ -124,12 +117,15 @@ const GoLiveStreamButton = ({
   }
 
   let buttonTextContent;
-  if (isConnecting) {
+  if (
+    isConnecting ||
+    (isCreatingStage && isModalOpen && modalType === MODAL_TYPE.STAGE_JOIN)
+  ) {
     buttonTextContent = <Spinner />;
   } else if (isBroadcasting) {
     buttonTextContent = <p>{$webBroadcastContent.end_stream}</p>;
-  } else if (state?.isJoiningStageByRequest) {
-    buttonTextContent = <p>Join now</p>;
+  } else if (isJoiningStageByRequestOrInvite) {
+    buttonTextContent = <p>{$stageContent.join_now}</p>;
   } else {
     buttonTextContent = <p>{$webBroadcastContent.start_stream}</p>;
   }
@@ -162,26 +158,6 @@ const GoLiveStreamButton = ({
     );
   }
 
-  const joinStage = () => {
-    if (isJoiningStageByInvite) {
-      const { avatar, color, username, channelAssetUrls } = channelData;
-      const profileData = {
-        avatar,
-        profileColor: color,
-        username,
-        channelAssetUrls
-      };
-      handleParticipantInvite({
-        isLive,
-        isBroadcasting,
-        profileData
-      });
-    }
-
-    if (isJoiningStageByRequest) {
-      joinStageByRequest();
-    }
-  };
   return (
     <Tooltip
       position={tooltipPosition}
@@ -191,8 +167,8 @@ const GoLiveStreamButton = ({
       <Button
         ref={streamButtonRef}
         onClick={
-          isJoiningStageByInvite || isJoiningStageByRequest
-            ? joinStage
+          isJoiningStageByRequestOrInvite
+            ? handleParticipantJoinStage
             : handleStartStopBroadcastingAction
         }
         variant="primary"
