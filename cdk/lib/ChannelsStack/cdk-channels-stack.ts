@@ -384,7 +384,8 @@ export class ChannelsStack extends NestedStack {
         'dynamodb:GetItem',
         'dynamodb:PutItem',
         'dynamodb:UpdateItem',
-        'dynamodb:DeleteItem'
+        'dynamodb:DeleteItem',
+        'dynamodb:Scan'
       ],
       effect: iam.Effect.ALLOW,
       resources: [
