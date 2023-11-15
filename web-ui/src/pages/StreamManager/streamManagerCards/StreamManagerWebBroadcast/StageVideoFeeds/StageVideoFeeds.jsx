@@ -38,8 +38,11 @@ const StageVideoFeeds = ({ styles, type }) => {
 
   const getGridItemCountClasses = () => {
     if (isFullScreenViewOpen && !isDesktopView && participantSize <= 2) {
-      const isScreenWidthLargerThanHeight = dimensions?.width > dimensions?.height
-      return isScreenWidthLargerThanHeight ? ['grid-rows-1', 'grid-cols-2'] : ['grid-cols-1', 'grid-rows-2']
+      const isScreenWidthLargerThanHeight =
+        dimensions?.width > dimensions?.height;
+      return isScreenWidthLargerThanHeight
+        ? ['grid-rows-1', 'grid-cols-2']
+        : ['grid-cols-1', 'grid-rows-2'];
     }
 
     if (participantSize > 2 || isChannelType) return `grid-${participantSize}`;
