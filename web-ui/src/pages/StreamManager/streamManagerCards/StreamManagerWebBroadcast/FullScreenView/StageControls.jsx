@@ -92,7 +92,6 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
             onClick={handleToggleStageMenu}
             disableHover={isTouchscreenDevice}
             className={clsm([
-              '-mt-1',
               'w-11',
               'h-11',
               'dark:[&>svg]:fill-white',
