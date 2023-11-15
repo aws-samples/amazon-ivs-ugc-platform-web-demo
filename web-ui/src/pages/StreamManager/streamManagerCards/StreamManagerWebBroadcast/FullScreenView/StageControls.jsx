@@ -17,6 +17,7 @@ import {
 } from '../../../../../contexts/Stage';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { StageMenu } from '../StageControl';
+import RequestIndicator from '../StageControl/RequestIndicator';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -145,45 +146,32 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
                 translate={{ y: 2 }}
                 message={$stageContent.participants}
               >
-                <Button
-                  ariaLabel={$stageContent.participants}
-                  key="stage-participants-control-btn"
-                  variant="icon"
-                  ref={participantsButtonRef}
-                  onClick={handleOpenParticipantsModal}
-                  className={clsm([
-                    'relative',
-                    'w-11',
-                    'h-11',
-                    'dark:[&>svg]:fill-white',
-                    '[&>svg]:fill-black',
-                    'dark:bg-darkMode-gray',
-                    !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                    'dark:focus:bg-darkMode-gray',
-                    'bg-lightMode-gray'
-                  ])}
-                >
-                  <Group />
-                  {stageRequestList.length > 0 && (
-                    <div
-                      className={clsm([
-                        'bg-darkMode-blue',
-                        'absolute',
-                        'top-[-4px]',
-                        'left-[28px]',
-                        'rounded-full',
-                        'w-5',
-                        'h-5',
-                        'text-xs',
-                        'flex',
-                        'justify-center',
-                        'items-center'
-                      ])}
-                    >
-                      {stageRequestList.length}
-                    </div>
-                  )}
-                </Button>
+              <Button
+                ariaLabel={$stageContent.participants}
+                key="stage-participants-control-btn"
+                variant="icon"
+                ref={participantsButtonRef}
+                onClick={handleOpenParticipantsModal}
+                className={clsm([
+                  'relative',
+                  'w-11',
+                  'h-11',
+                  'dark:[&>svg]:fill-white',
+                  '[&>svg]:fill-black',
+                  'dark:bg-darkMode-gray',
+                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                  'dark:focus:bg-darkMode-gray',
+                  'bg-lightMode-gray'
+                ])}
+              >
+                <Group />
+                {stageRequestList.length > 0 && (
+                  <RequestIndicator
+                    stageRequestsCount={stageRequestList.length}
+                    className={clsm(['left-7', '-top-1'])}
+                  />
+                )}
+              </Button>
               </Tooltip>
             )}
             {shouldRenderInviteLinkButton && (
