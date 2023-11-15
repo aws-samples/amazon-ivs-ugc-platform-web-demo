@@ -413,13 +413,14 @@ export class ChannelsStack extends NestedStack {
         'ivs:CreateChannel',
         'ivs:CreateParticipantToken',
         'ivs:CreateStage',
-        'ivs:ListParticipants',
-        'ivs:DisconnectParticipant',
         'ivs:CreateStreamKey',
         'ivs:DeleteChannel',
         'ivs:DeleteStage',
         'ivs:DeleteStreamKey',
+        'ivs:DisconnectParticipant',
         'ivs:GetStage',
+        'ivs:GetStream',
+        'ivs:ListParticipants',
         'ivs:PutMetadata',
         'ivs:StopStream',
         'ivs:TagResource'
@@ -635,14 +636,18 @@ export class ChannelsStack extends NestedStack {
     // It is **highly** encouraged to leave these fields undefined and allow SecretsManager to create the secret value.
     // The secret object -- if provided -- will be included in the output of the cdk as part of synthesis,
     // and will appear in the CloudFormation template in the console
-    const appSyncGraphQlApiSecret = new Secret(this, SECRET_IDS.APPSYNC_GRAPHQL_API, {
-      description:
-        'JSON object containing the api key and url endpoint for backend consumption',
-      secretObjectValue: {
-        apiKey: SecretValue.unsafePlainText(''),
-        graphQlApiEndpoint: SecretValue.unsafePlainText('')
+    const appSyncGraphQlApiSecret = new Secret(
+      this,
+      SECRET_IDS.APPSYNC_GRAPHQL_API,
+      {
+        description:
+          'JSON object containing the api key and url endpoint for backend consumption',
+        secretObjectValue: {
+          apiKey: SecretValue.unsafePlainText(''),
+          graphQlApiEndpoint: SecretValue.unsafePlainText('')
+        }
       }
-    });
+    );
 
     const appSyncGraphQlApi = {
       apiKey: apiKey.attrApiKey,

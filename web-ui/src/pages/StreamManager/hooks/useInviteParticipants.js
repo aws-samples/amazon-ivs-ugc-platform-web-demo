@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import { getParticipationToken } from '../../../api/stages';
 import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../../../helpers/stagesHelpers';
@@ -7,12 +7,13 @@ import { useBroadcast } from '../../../contexts/Broadcast';
 import { useGlobalStage } from '../../../contexts/Stage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
+import { useStreams } from '../../../contexts/Streams';
+import { useModal } from '../../../contexts/Modal';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
 
 const useInviteParticipants = ({
-  shouldGetParticipantTokenRef,
   createStageInstanceAndJoin,
   updateError,
   resetStage,
@@ -22,111 +23,76 @@ const useInviteParticipants = ({
   const navigate = useNavigate();
   const {
     stageId,
-    updateStageId,
-    addParticipant,
     localParticipant,
-    updateIsJoiningStageByInvite
+    updateIsJoiningStageByInvite,
+    creatingStage,
+    updateStageId
   } = useGlobalStage();
-  const { hasPermissions, removeBroadcastClient, restartBroadcastClient } =
-    useBroadcast();
+  const { closeModal } = useModal();
+  const { removeBroadcastClient, isBroadcasting } = useBroadcast();
+  const { isLive } = useStreams();
 
-  const openFullscreenViewCallbackFunctionRef = useRef();
   const [searchParams] = useSearchParams();
   const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
 
-  const handleParticipantInvite = useCallback(
-    ({ isLive, isBroadcasting, openFullscreenView, profileData }) => {
-      if (isLive === undefined || isBroadcasting === undefined) return;
-      removeBroadcastClient();
+  const handleParticipantInvite = useCallback(async () => {
+    if (isLive === undefined || isBroadcasting === undefined) return;
 
-      if (isLive || isBroadcasting) {
-        restartBroadcastClient();
+    if (isLive || isBroadcasting) {
+      updateError({
+        message: $contentNotification.error.unable_to_join_session
+      });
+      navigate('/manager');
+    } else {
+      creatingStage(true);
+
+      const { result, error } = await getParticipationToken(
+        stageIdUrlParam,
+        PARTICIPANT_TYPES.INVITED
+      );
+
+      creatingStage(false);
+
+      if (result?.token) {
+        removeBroadcastClient();
+        await createStageInstanceAndJoin(result.token, stageId);
+        updateStageId(stageIdUrlParam);
+        updateIsJoiningStageByInvite(false);
+        shouldGetHostRejoinTokenRef.current = false;
+        closeModal();
+      }
+
+      if (error) {
+        resetStage();
         updateError({
-          message: $contentNotification.error.unable_to_join_session
+          message: $contentNotification.error.unable_to_join_session,
+          err: error
         });
         navigate('/manager');
-      } else {
-        const { avatar, profileColor, username, channelAssetUrls } =
-          profileData;
-        const localParticipant = {
-          attributes: {
-            avatar,
-            profileColor,
-            username,
-            channelAssetUrls,
-            participantTokenCreationDate: Date.now().toString()
-          },
-          isLocal: true,
-          userId: undefined
+        broadcastDevicesStateObjRef.current = {
+          isCameraHidden: localParticipant?.isCameraHidden || false,
+          isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
         };
-
-        updateStageId(stageIdUrlParam);
-        addParticipant(localParticipant);
-        openFullscreenViewCallbackFunctionRef.current = openFullscreenView;
-        shouldGetParticipantTokenRef.current = true;
       }
-    },
-    [
-      removeBroadcastClient,
-      restartBroadcastClient,
-      updateError,
-      navigate,
-      updateStageId,
-      stageIdUrlParam,
-      addParticipant,
-      shouldGetParticipantTokenRef
-    ]
-  );
-
-  useEffect(() => {
-    if (shouldGetParticipantTokenRef.current && hasPermissions && stageId) {
-      shouldGetParticipantTokenRef.current = false;
-      (async function () {
-        const { result, error } = await getParticipationToken(
-          stageId,
-          PARTICIPANT_TYPES.INVITED
-        );
-        if (result?.token) {
-          await createStageInstanceAndJoin(result.token, stageId);
-          shouldGetHostRejoinTokenRef.current = false;
-          // open fullscreen view, RESET isJoinginStageInvite to false
-          updateIsJoiningStageByInvite(false);
-        }
-
-        if (error) {
-          resetStage();
-          updateError({
-            message: $contentNotification.error.unable_to_join_session,
-            err: error
-          });
-          navigate('/manager');
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }
-
-        // reset openFullscreenViewCallbackFunctionRef
-        openFullscreenViewCallbackFunctionRef.current = undefined;
-      })();
     }
   }, [
-    hasPermissions,
-    stageId,
-    createStageInstanceAndJoin,
+    isLive,
+    isBroadcasting,
     updateError,
-    removeBroadcastClient,
-    addParticipant,
-    localParticipant,
-    updateStageId,
-    stageIdUrlParam,
-    restartBroadcastClient,
     navigate,
+    creatingStage,
+    stageIdUrlParam,
+    removeBroadcastClient,
+    createStageInstanceAndJoin,
+    stageId,
+    updateIsJoiningStageByInvite,
+    shouldGetHostRejoinTokenRef,
+    closeModal,
     resetStage,
     broadcastDevicesStateObjRef,
-    shouldGetParticipantTokenRef,
-    shouldGetHostRejoinTokenRef,
-    updateIsJoiningStageByInvite
+    localParticipant?.isCameraHidden,
+    localParticipant?.isMicrophoneMuted,
+    updateStageId
   ]);
 
   return { handleParticipantInvite };

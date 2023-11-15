@@ -125,6 +125,11 @@ export const updateIsJoiningStageByInvite = (bool) => ({
   payload: bool
 });
 
+export const updateSpectatorParticipantId = (spectatorParticipantId) => ({
+  type: actionTypes.UPDATE_SPECTATOR_PARTICIPANT_ID,
+  payload: spectatorParticipantId
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

@@ -10,7 +10,6 @@ import {
 import { useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-import { useResponsiveDevice } from './ResponsiveDevice';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
 import { useGlobalStage } from './Stage';
@@ -35,15 +34,12 @@ export const Provider = ({ children, previewRef }) => {
   ] = useState(false);
   // webbroadcast canvas animation controls
   const fullscreenAnimationControls = useAnimationControls();
-  const { isDesktopView } = useResponsiveDevice();
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
   const {
     isStageActive,
     collaborateButtonAnimationControls,
     animationCollapseStageControlsStart,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
     shouldCloseFullScreenViewOnKickedOrHostLeave
   } = useGlobalStage();
 
@@ -161,25 +157,6 @@ export const Provider = ({ children, previewRef }) => {
     });
     collaborateButtonAnimationControls.start({ zIndex: 'unset' });
   }, [collaborateButtonAnimationControls]);
-
-  useEffect(() => {
-    if (!isDesktopView) {
-      // if (isFullScreenViewOpen) {
-      //   handleToggleFullscreen();
-      // }
-      // if (isStageActive) {
-      //   updateAnimateCollapseStageContainerWithDelay(true);
-      //   updateShouldAnimateGoLiveButtonChevronIcon(true);
-      // }
-    }
-  }, [
-    isDesktopView,
-    isStageActive,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    isFullScreenViewOpen,
-    handleToggleFullscreen
-  ]);
 
   useEffect(() => {
     if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;

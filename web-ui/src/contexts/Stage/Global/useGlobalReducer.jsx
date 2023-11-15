@@ -48,6 +48,10 @@ const useGlobalReducers = () => {
     dispatch(actions.resetParticipants());
   }, []);
 
+  const updateSpectatorParticipantId = useCallback((spectatorParticipantId) => {
+    dispatch(actions.updateSpectatorParticipantId(spectatorParticipantId));
+  }, []);
+
   // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
@@ -170,7 +174,8 @@ const useGlobalReducers = () => {
       updateStageRequestList,
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      updateSpectatorParticipantId
     }),
     [
       state,
@@ -199,7 +204,8 @@ const useGlobalReducers = () => {
       updateStageRequestList,
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      updateSpectatorParticipantId
     ]
   );
 };
