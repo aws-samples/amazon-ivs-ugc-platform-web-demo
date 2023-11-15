@@ -950,19 +950,20 @@
 					"response": []
 				},
 				{
-					"name": "/stages/createParticipantToken/:stageId",
+					"name": "/stages/createParticipantToken/:stageId/:participantType",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiBaseUrl}}/stages/createParticipantToken/:stageId",
+							"raw": "{{apiBaseUrl}}/stages/createParticipantToken/:stageId/:participantType",
 							"host": [
 								"{{apiBaseUrl}}"
 							],
 							"path": [
 								"stages",
 								"createParticipantToken",
-								":stageId"
+								":stageId",
+								":participantType"
 							],
 							"variable": [
 								{
@@ -1044,6 +1045,44 @@
 							]
 						},
 						"description": "This endpoint sends a new message to the SQS delete stage queue. Either a `stageId` or `stageArn` parameters are required in order to send the message.\n\nThe \"deleteStage\" lambda function trigged by the SQS queue will check if the stage \"host\" is in the list of participants. If the \"host\" is not, the lambda function will update the host's DynamoDB channels record `stageId` and `stageArn` fields to null. Once this is done, the IVS stage is deleted."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/disconnectParticipant",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/disconnectParticipant",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"disconnectParticipant"
+							]
+						},
+						"description": "This endpoint removes/disconnects a participant from the Amazon IVS Stage."
+					},
+					"response": []
+				},
+				{
+					"name": "/stages/disconnectSpectator",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/disconnectSpectator",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								"disconnectSpectator"
+							]
+						},
+						"description": "This endpoint removes/disconnects a spectator from the Amazon IVS Stage."
 					},
 					"response": []
 				}

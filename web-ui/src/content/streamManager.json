@@ -46,6 +46,7 @@
     }
   },
   "stream_manager_stage": {
+    "join_now": "Join now",
     "participants": "Participants",
     "requests": "Requests",
     "collaborate": "Collaborate",
@@ -90,6 +91,9 @@
       "just_now": "Just now",
       "min_ago": "min ago",
       "hr_ago": "hr ago"
+    },
+    "join_modal": {
+      "ready_to_join": "Ready to join?"
     }
   },
   "stream_manager_actions": {

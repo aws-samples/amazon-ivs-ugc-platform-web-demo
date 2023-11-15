@@ -7,6 +7,7 @@ import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalRed
 import { useUser } from '../../contexts/User';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
+import { useLocation } from 'react-router-dom';
 
 const {
   StageEvents,
@@ -35,9 +36,12 @@ const useStageEventHandlers = ({
     isSpectator,
     updateIsSpectator,
     removeParticipant,
-    strategy
+    strategy,
+    updateSpectatorParticipantId
   } = useGlobalStage();
   const { userData } = useUser();
+  const { pathname } = useLocation();
+  const isChannelPage = pathname !== '/manager';
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -51,6 +55,10 @@ const useStageEventHandlers = ({
         isLocal
       } = participant;
       if (isLocal) {
+        if (isChannelPage && type === PARTICIPANT_TYPES.SPECTATOR) {
+          updateSpectatorParticipantId(participant.id);
+        }
+
         if (type === PARTICIPANT_TYPES.HOST) {
           // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
           // would've otherwise been reset, lost or inaccessible at that time
@@ -62,16 +70,19 @@ const useStageEventHandlers = ({
 
         return;
       }
+
       addParticipant(participant);
 
       // check whether user has requested to join
-      publish(
-        channelId.toLowerCase(),
-        JSON.stringify({
-          type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
-          channelId
-        })
-      );
+      if ([PARTICIPANT_TYPES.REQUESTED].includes(type)) {
+        publish(
+          channelId.toLowerCase(),
+          JSON.stringify({
+            type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+            channelId
+          })
+        );
+      }
       /**
        * the "if" statement assesses participant timing compared to the local participant.
        * an undefined participantTokenCreationDate signifies the participant as the stage creator.
@@ -92,6 +103,8 @@ const useStageEventHandlers = ({
       addParticipant,
       localParticipant?.attributes.participantTokenCreationDate,
       updateSuccess,
+      isChannelPage,
+      updateSpectatorParticipantId,
       publish
     ]
   );

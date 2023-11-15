@@ -81,7 +81,8 @@ export const STATE_KEYS = {
   HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
   STAGE_REQUEST_LIST: 'stageRequestList',
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
-  IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite'
+  IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
+  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId'
 };
 
 const defaultStageReducerState = {
@@ -98,7 +99,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
   [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
-  [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false
+  [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false,
+  [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null
 };
 
 const stageAnimationReducerState = {
@@ -307,7 +309,8 @@ const globalReducer = (state = defaultReducerState, action) => {
 
     case actionTypes.RESET_PARTICIPANTS: {
       return {
-        participants: defaultStageReducerState.participants
+        ...state,
+        [STATE_KEYS.PARTICIPANTS]: defaultStageReducerState.participants
       };
     }
 
@@ -404,6 +407,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_SPECTATOR_PARTICIPANT_ID: {
+      return {
+        ...state,
+        [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: action.payload
       };
     }
 

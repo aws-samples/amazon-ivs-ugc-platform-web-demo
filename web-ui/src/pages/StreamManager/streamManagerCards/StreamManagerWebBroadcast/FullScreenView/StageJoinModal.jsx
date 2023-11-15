@@ -9,14 +9,23 @@ import {
   getModalContainerClasses,
   getModalFormClasses
 } from '../../StreamManagerModalTheme';
+import { streamManager as $content } from '../../../../../content';
 import { Close } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button/Button';
 import GoLiveContainer from '../GoLiveContainer';
 import { useBroadcast } from '../../../../../contexts/Broadcast';
 
+const $stageContent = $content.stream_manager_stage;
+
 const JoinModal = () => {
-  const { isModalOpen, type, closeModal } = useModal();
+  const { isModalOpen, type } = useModal();
   const { isMobileView, isLandscape } = useResponsiveDevice();
+  const { previewRef } = useBroadcast();
+
+  const handleCloseJoinModal = () => {
+    window.history.replaceState({}, document.title);
+    window.location.href = '/manager';
+  };
 
   const renderJoinModal = (children) => (
     <>
@@ -51,7 +60,6 @@ const JoinModal = () => {
       </Modal>
     </>
   );
-  const { previewRef } = useBroadcast();
 
   return (
     type === MODAL_TYPE.STAGE_JOIN &&
@@ -60,7 +68,8 @@ const JoinModal = () => {
         className={clsm(
           getModalFormClasses(isLandscape),
           'justify-start',
-          'h-[85vh]'
+          'h-auto',
+          'pb-12'
         )}
       >
         <div
@@ -75,23 +84,27 @@ const JoinModal = () => {
               'text-black',
               'dark:text-white',
               'm-auto',
-              'max-w-[calc(calc(var(--mobile-vw,1vw)_*_100)_-_120px)]'
+              'max-w-[calc(calc(var(--mobile-vw,1vw)_*_100)_-_120px)]',
+              'mb-12'
             ])}
           >
-            Ready to join?
+            {$stageContent.join_modal.ready_to_join}
           </h2>
-
           <GoLiveContainer
             ref={previewRef}
-            isOpen={true}
-            onCollapse={() => {}}
-            setIsWebBroadcastAnimating={() => {}}
+            withHeader={false}
+            withScreenshareButton={false}
+            withStageControl={false}
+            goliveButtonClassNames={clsm([
+              isMobileView ? ['absolute', 'bottom-0', 'left-0', 'p-4'] : 'pt-5'
+            ])}
+            isOpen
           />
         </div>
         <Button
           ariaLabel="Close the stage participants modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
-          onClick={closeModal}
+          onClick={handleCloseJoinModal}
           variant="icon"
         >
           <Close />

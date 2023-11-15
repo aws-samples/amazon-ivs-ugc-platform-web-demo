@@ -16,7 +16,6 @@ import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
 import { useChannel } from '../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../contexts/Stage';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { useStreams } from '../../contexts/Streams';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
 import StageParticipantsModal from './streamManagerCards/StreamManagerWebBroadcast/StageModal/StageParticipantsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
@@ -31,9 +30,14 @@ const GO_LIVE_TAB_INDEX = 1;
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     useDevicePermissionChangeListeners();
-    const { isStageActive, updateIsJoiningStageByInvite } = useGlobalStage();
+    const {
+      isStageActive,
+      addParticipant,
+      updateShouldAnimateStageVideoFeedsContainer,
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite
+    } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
-    const { isLive } = useStreams();
     const {
       webBroadcastParentContainerRef,
       isFullScreenViewOpen,
@@ -42,20 +46,12 @@ const StreamManagerControlCenter = forwardRef(
       handleOpenFullScreenView
     } = useBroadcastFullScreen();
     const { state } = useLocation();
-    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
-    const {
-      initializeDevices,
-      isBroadcasting,
-      presetLayers,
-      resetPreview,
-      restartBroadcastClient,
-      removeBroadcastClient
-    } = useBroadcast();
-    const {
-      handleParticipantInvite,
-      updateError,
-      shouldGetHostRejoinTokenRef
-    } = useStreamManagerStage();
+    const { isDesktopView, currentBreakpoint, isLandscape } =
+      useResponsiveDevice();
+    const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
+      useBroadcast();
+    const { shouldGetHostRejoinTokenRef, setupRequestedParticipant } =
+      useStreamManagerStage();
     const { channelData } = useChannel();
     const { stageId: channelTableStageId } = channelData || {};
     const [searchParams] = useSearchParams();
@@ -72,12 +68,6 @@ const StreamManagerControlCenter = forwardRef(
         !!stageIdUrlParam ||
         false
     );
-
-    // this controls invited and requested participant joining flow
-    useEffect(() => {
-      if (!state?.isJoiningStageByRequest) return;
-      setIsFullScreenViewOpen(true);
-    }, [state?.isJoiningStageByRequest, setIsFullScreenViewOpen]);
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
@@ -102,7 +92,8 @@ const StreamManagerControlCenter = forwardRef(
       resetPreview,
       state,
       isBroadcasting,
-      isFullScreenViewOpen
+      isFullScreenViewOpen,
+      isLandscape
     ]);
 
     useEffect(() => {
@@ -128,25 +119,35 @@ const StreamManagerControlCenter = forwardRef(
 
     useEffect(() => {
       if (!isStageActive && channelData && stageIdUrlParam) {
-        setIsFullScreenViewOpen(true);
         updateIsJoiningStageByInvite(true);
+        initializeGoLiveContainerDimensions();
+        setIsFullScreenViewOpen(true);
       }
     }, [
       channelData,
-      handleParticipantInvite,
       initializeGoLiveContainerDimensions,
-      isDesktopView,
       isStageActive,
       setIsFullScreenViewOpen,
       stageIdUrlParam,
-      isLive,
-      isBroadcasting,
-      updateError,
-      restartBroadcastClient,
-      resetPreview,
-      removeBroadcastClient,
-      handleOpenFullScreenView,
       updateIsJoiningStageByInvite
+    ]);
+
+    useEffect(() => {
+      if (!state?.isJoiningStageByRequest || isStageActive) return;
+
+      updateIsJoiningStageByRequest(true);
+      initializeGoLiveContainerDimensions();
+      setIsFullScreenViewOpen(true);
+    }, [
+      state?.isJoiningStageByRequest,
+      setIsFullScreenViewOpen,
+      channelData,
+      addParticipant,
+      initializeGoLiveContainerDimensions,
+      updateShouldAnimateStageVideoFeedsContainer,
+      setupRequestedParticipant,
+      updateIsJoiningStageByRequest,
+      isStageActive
     ]);
 
     useEffect(() => {
