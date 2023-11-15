@@ -49,6 +49,11 @@ export const updateIsBlockingRoute = (bool) => ({
   payload: bool
 });
 
+export const updateShouldOpenSettingsModal = (bool) => ({
+  type: actionTypes.UPDATE_SHOULD_OPEN_SETTINGS_MODAL,
+  payload: bool
+});
+
 // Participants
 
 export const updateStreams = (key, streams) => ({

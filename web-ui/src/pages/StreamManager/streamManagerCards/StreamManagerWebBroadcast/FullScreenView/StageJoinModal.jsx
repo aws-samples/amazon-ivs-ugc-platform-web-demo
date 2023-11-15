@@ -36,9 +36,10 @@ const JoinModal = () => {
          */
         isMobileView && (
           <ResponsivePanel
+            shouldSetVisible={false}
             isOpen={isModalOpen}
             mobileBreakpoint={isLandscape ? BREAKPOINTS.lg : BREAKPOINTS.md}
-            panelId="stage-participants-panel"
+            panelId="stage-join-modal-panel"
             preserveVisible
           >
             {children}

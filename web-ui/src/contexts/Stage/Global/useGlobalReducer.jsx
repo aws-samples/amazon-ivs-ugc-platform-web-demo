@@ -146,6 +146,10 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsJoiningStageByInvite(bool));
   }, []);
 
+  const updateShouldOpenSettingsModal = useCallback((bool) => {
+    dispatch(actions.updateShouldOpenSettingsModal(bool));
+  }, []);
+
   return useMemo(
     () => ({
       state,
@@ -175,7 +179,8 @@ const useGlobalReducers = () => {
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateSpectatorParticipantId
+      updateSpectatorParticipantId,
+      updateShouldOpenSettingsModal
     }),
     [
       state,
@@ -205,7 +210,8 @@ const useGlobalReducers = () => {
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateSpectatorParticipantId
+      updateSpectatorParticipantId,
+      updateShouldOpenSettingsModal
     ]
   );
 };

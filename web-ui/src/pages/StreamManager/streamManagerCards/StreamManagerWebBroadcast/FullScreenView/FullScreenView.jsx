@@ -26,7 +26,11 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
 const FullScreenView = () => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
-  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const {
+    isJoiningStageByRequestOrInvite,
+    shouldOpenSettingsModal,
+    updateShouldOpenSettingsModal
+  } = useGlobalStage();
   const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
   const { resetPreview } = useBroadcast();
   const { openModal } = useModal();
@@ -61,13 +65,25 @@ const FullScreenView = () => {
     }
   }, [openModal, resetPreview, isJoiningStageByRequestOrInvite]);
 
+  useEffect(() => {
+    if (shouldOpenSettingsModal && !isMobileView) {
+      openModal({ type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS });
+      updateShouldOpenSettingsModal(false);
+    }
+  }, [
+    openModal,
+    isMobileView,
+    shouldOpenSettingsModal,
+    updateShouldOpenSettingsModal
+  ]);
+
   return (
     <motion.div
       ref={fullScreenViewContainerRef}
       key="full-screen-view"
       {...createAnimationProps({
         customVariants: {
-          hidden: !isJoiningStageByRequestOrInvite && {
+          hidden: {
             top: animationInitialTop,
             left: animationInitialLeft,
             width: animationInitialWidth,
@@ -84,7 +100,8 @@ const FullScreenView = () => {
         },
         transition: ANIMATION_TRANSITION,
         options: {
-          isVisible: isFullScreenViewOpen
+          isVisible: isFullScreenViewOpen,
+          shouldAnimateIn: !isJoiningStageByRequestOrInvite
         }
       })}
       className={clsm([
@@ -113,7 +130,7 @@ const FullScreenView = () => {
         ])}
         {...createAnimationProps({
           customVariants: {
-            hidden: !isJoiningStageByRequestOrInvite && {
+            hidden: {
               paddingLeft: 20,
               paddingRight: 20,
               paddingBottom: 64,
@@ -126,7 +143,10 @@ const FullScreenView = () => {
               paddingTop: 32
             }
           },
-          transition: ANIMATION_TRANSITION
+          transition: ANIMATION_TRANSITION,
+          options: {
+            shouldAnimateIn: !isJoiningStageByRequestOrInvite
+          }
         })}
       >
         {content}

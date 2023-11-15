@@ -82,7 +82,8 @@ export const STATE_KEYS = {
   STAGE_REQUEST_LIST: 'stageRequestList',
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
   IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
-  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId'
+  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId',
+  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal'
 };
 
 const defaultStageReducerState = {
@@ -100,7 +101,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
   [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
   [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false,
-  [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null
+  [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null,
+  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false
 };
 
 const stageAnimationReducerState = {
@@ -414,6 +416,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_SHOULD_OPEN_SETTINGS_MODAL: {
+      return {
+        ...state,
+        [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: action.payload
       };
     }
 

@@ -122,7 +122,7 @@ const StageParticipant = ({ participant }) => {
       <Tooltip
         key="remove-participant-control-tooltip"
         position="below"
-        translate={{ y: 2 }}
+        translate={{ y: -2 }}
         message={$stageContent.participants_modal.remove_from_session}
       >
         <Button
