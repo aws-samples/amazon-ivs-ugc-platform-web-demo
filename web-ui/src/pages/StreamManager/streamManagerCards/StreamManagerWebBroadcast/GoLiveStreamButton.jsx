@@ -20,6 +20,7 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
+import { useChannel } from '../../../../contexts/Channel';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -52,6 +53,8 @@ const GoLiveStreamButton = ({
     isJoiningStageByRequestOrInvite,
     isCreatingStage
   } = useGlobalStage();
+  const { channelData } = useChannel();
+  
   const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
     useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
@@ -65,7 +68,8 @@ const GoLiveStreamButton = ({
     !hasPermissions ||
     isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
-    (isLive && !isBroadcasting);
+    (isLive && !isBroadcasting)
+    || (isJoiningStageByRequestOrInvite && !!channelData?.stageId)
 
   const stageButtonContent = isHost
     ? $stageContent.end_session
@@ -112,7 +116,7 @@ const GoLiveStreamButton = ({
       !shouldDisableStageButtonWithDelay
     )
       tooltipMessage = stageButtonContent;
-    if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
+    if (((isLive && !isBroadcasting) || (isJoiningStageByRequestOrInvite && !!channelData?.stageId))) tooltipMessage = YourChannelIsAlreadyLive;
     else if (!hasPermissions) tooltipMessage = PermissionDenied;
   }
 
