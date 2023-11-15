@@ -16,6 +16,7 @@ import {
   useStreamManagerStage
 } from '../../../../../contexts/Stage';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
+import RequestIndicator from '../StageControl/RequestIndicator';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -93,23 +94,10 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
             >
               <Group />
               {stageRequestList.length > 0 && (
-                <div
-                  className={clsm([
-                    'bg-darkMode-blue',
-                    'absolute',
-                    'top-[-4px]',
-                    'left-[28px]',
-                    'rounded-full',
-                    'w-5',
-                    'h-5',
-                    'text-xs',
-                    'flex',
-                    'justify-center',
-                    'items-center'
-                  ])}
-                >
-                  {stageRequestList.length}
-                </div>
+                <RequestIndicator
+                  stageRequestsCount={stageRequestList.length}
+                  className={clsm(['left-7', '-top-1'])}
+                />
               )}
             </Button>
           </Tooltip>

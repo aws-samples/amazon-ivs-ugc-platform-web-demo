@@ -1,22 +1,22 @@
 import { motion } from 'framer-motion';
 
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../utils';
-import { streamManager as $content } from '../../../../../content';
-import BroadcastControlWrapper from '../BroadcastControl/BroadcastControlWrapper';
 import {
   ANIMATION_TRANSITION,
   useBroadcastFullScreen
 } from '../../../../../contexts/BroadcastFullscreen';
-import GoLiveStreamButton from '../GoLiveStreamButton';
-import Tooltip from '../../../../../components/Tooltip/Tooltip';
-import Button from '../../../../../components/Button/Button';
-import Spinner from '../../../../../components/Spinner';
 import { CreateStage } from '../../../../../assets/icons';
+import { streamManager as $content } from '../../../../../content';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
+import BroadcastControlWrapper from '../BroadcastControl/BroadcastControlWrapper';
+import Button from '../../../../../components/Button/Button';
+import GoLiveStreamButton from '../GoLiveStreamButton';
+import Spinner from '../../../../../components/Spinner';
 import StageControls from './StageControls';
+import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -88,11 +88,16 @@ const Footer = () => {
               opacity: 1
             },
             visible: {
-              width: isStageActive ? 40 : 140,
-              marginLeft: isStageActive
-                ? 'calc(100% - 110px)'
-                : 'calc(50% - 90px)' // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
+              width:
+                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+              marginLeft:
+                isStageActive || isJoiningStageByRequestOrInvite
+                  ? 'calc(100% - 110px)'
+                  : 'calc(50% - 90px)' // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
             }
+          },
+          options: {
+            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
           },
           transition: ANIMATION_TRANSITION
         })}

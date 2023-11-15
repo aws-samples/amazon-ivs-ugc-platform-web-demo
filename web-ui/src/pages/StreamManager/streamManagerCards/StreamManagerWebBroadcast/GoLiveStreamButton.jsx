@@ -54,7 +54,7 @@ const GoLiveStreamButton = ({
     isCreatingStage
   } = useGlobalStage();
   const { channelData } = useChannel();
-  
+
   const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
     useStreamManagerStage();
   const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
@@ -68,8 +68,8 @@ const GoLiveStreamButton = ({
     !hasPermissions ||
     isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
-    (isLive && !isBroadcasting)
-    || (isJoiningStageByRequestOrInvite && !!channelData?.stageId)
+    (isLive && !isBroadcasting) ||
+    (isJoiningStageByRequestOrInvite && !!channelData?.stageId);
 
   const stageButtonContent = isHost
     ? $stageContent.end_session
@@ -116,7 +116,11 @@ const GoLiveStreamButton = ({
       !shouldDisableStageButtonWithDelay
     )
       tooltipMessage = stageButtonContent;
-    if (((isLive && !isBroadcasting) || (isJoiningStageByRequestOrInvite && !!channelData?.stageId))) tooltipMessage = YourChannelIsAlreadyLive;
+    if (
+      (isLive && !isBroadcasting) ||
+      (isJoiningStageByRequestOrInvite && !!channelData?.stageId)
+    )
+      tooltipMessage = YourChannelIsAlreadyLive;
     else if (!hasPermissions) tooltipMessage = PermissionDenied;
   }
 
