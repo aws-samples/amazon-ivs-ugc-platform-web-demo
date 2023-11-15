@@ -34,7 +34,8 @@ const useDevicePermissionChangeListeners = () => {
 
         updateIsBlockingRoute(false);
 
-        const isJoiningStageByModal = isJoiningStageByRequest || isJoiningStageByInvite
+        const isJoiningStageByModal =
+          isJoiningStageByRequest || isJoiningStageByInvite;
 
         if (isJoiningStageByModal) {
           // Responsible for showing a notification + disabling join button
