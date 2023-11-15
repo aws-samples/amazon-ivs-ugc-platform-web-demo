@@ -96,7 +96,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     if (!state?.isJoiningStageByRequest) return;
 
     updateIsJoiningStageByRequest(true);
-  }, [state?.isJoiningStageByRequest, updateIsJoiningStageByRequest]);
+  }, [navigate, state?.isJoiningStageByRequest, updateIsJoiningStageByRequest]);
 
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
@@ -111,8 +111,17 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const stageConnectionErroredEventCallback = useCallback(() => {
     if (!isHost) shouldGetHostRejoinTokenRef.current = false;
 
+    if (state?.isJoiningStageByRequest) {
+      navigate('/manager', { state: {} });
+    }
+
     updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
-  }, [isHost, updateShouldCloseFullScreenViewOnKickedOrHostLeave]);
+  }, [
+    isHost,
+    navigate,
+    state?.isJoiningStageByRequest,
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave
+  ]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({

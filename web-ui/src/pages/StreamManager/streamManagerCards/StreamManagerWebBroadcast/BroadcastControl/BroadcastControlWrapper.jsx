@@ -28,10 +28,14 @@ const BroadcastControlWrapper = ({
   withSettingsButton,
   withScreenshareButton
 }) => {
-  const { isStageActive } = useGlobalStage();
+  const {
+    isStageActive,
+    isJoiningStageByRequestOrInvite,
+    updateShouldOpenSettingsModal
+  } = useGlobalStage();
   const settingsButtonRef = useRef();
-  const { isTouchscreenDevice } = useResponsiveDevice();
-  const { openModal } = useModal();
+  const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
+  const { openModal, closeModal } = useModal();
   const {
     toggleMicrophone: toggleStageMicrophone,
     toggleCamera: toggleStageCamera,
@@ -144,10 +148,15 @@ const BroadcastControlWrapper = ({
   );
 
   const handleSettingsClick = () => {
-    openModal({
-      type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-      lastFocusedElement: settingsButtonRef
-    });
+    if (isJoiningStageByRequestOrInvite && !isMobileView) {
+      closeModal();
+      updateShouldOpenSettingsModal(true);
+    } else {
+      openModal({
+        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
+        lastFocusedElement: settingsButtonRef
+      });
+    }
   };
 
   const controllerButtonPropsWithSettingsButton = [

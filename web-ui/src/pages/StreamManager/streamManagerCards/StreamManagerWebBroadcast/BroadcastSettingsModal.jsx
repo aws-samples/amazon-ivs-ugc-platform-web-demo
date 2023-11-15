@@ -16,7 +16,10 @@ import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../contexts/Stage';
 import Button from '../../../../components/Button';
 import Dropdown from '../../../../components/Dropdown';
 import Modal from '../../../../components/Modal';
@@ -27,9 +30,31 @@ import useResizeObserver from '../../../../hooks/useResizeObserver';
 const $content = $streamManagerContent.web_broadcast_audio_video_settings_modal;
 
 const WebBroadcastSettingsModal = () => {
-  const { closeModal, handleConfirm, isModalOpen, type } = useModal();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const { closeModal, handleConfirm, isModalOpen, type, openModal } =
+    useModal();
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
+
+  const handleOnConfirm = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+    } else {
+      handleConfirm();
+    }
+  };
+
+  const handleOnClose = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+    } else {
+      closeModal();
+    }
+  };
 
   const {
     activeDevices,
@@ -172,7 +197,7 @@ const WebBroadcastSettingsModal = () => {
         <Button
           ariaLabel="Close the audio and video settings modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
-          onClick={() => closeModal()}
+          onClick={handleOnClose}
           variant="icon"
         >
           <Close />
@@ -191,7 +216,7 @@ const WebBroadcastSettingsModal = () => {
             isContentOverflowing && MODAL_OVERFLOW_DIVIDER_CLASSES
           )}
         >
-          <Button onClick={handleConfirm} className="w-full">
+          <Button onClick={handleOnConfirm} className="w-full">
             {$content.done}
           </Button>
         </footer>
