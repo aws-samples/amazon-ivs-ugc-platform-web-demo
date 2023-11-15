@@ -5,20 +5,23 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
 import { createAnimationProps } from '../../helpers/animationPropsHelper';
-import { useModal } from '../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../contexts/Modal';
 import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
 
 const Modal = ({ children, className }) => {
-  const { closeModal } = useModal();
+  const { closeModal, type } = useModal();
   const { pathname } = useLocation();
   const modalRef = useRef();
   const prevPathname = usePrevious(pathname);
 
   useFocusTrap([modalRef]);
-  useClickAway([modalRef], () => closeModal({ shouldRefocus: false }));
+  useClickAway([modalRef], () => {
+    if (type === MODAL_TYPE.STAGE_JOIN) return;
+    closeModal({ shouldRefocus: false });
+  });
 
   // Close the modal on page change
   useEffect(() => {

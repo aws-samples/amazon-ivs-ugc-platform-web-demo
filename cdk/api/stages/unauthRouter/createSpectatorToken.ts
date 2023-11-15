@@ -38,7 +38,10 @@ const handler = async (
       stageArn,
       duration,
       userId,
-      capabilities
+      capabilities,
+      attributes: {
+        type: PARTICIPANT_USER_TYPES.SPECTATOR
+      }
     };
 
     const token = await handleCreateParticipantToken(params);

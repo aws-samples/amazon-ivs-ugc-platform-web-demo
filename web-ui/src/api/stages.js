@@ -39,3 +39,15 @@ export const disconnectParticipant = async (participantId) => {
     body: { participantId }
   });
 };
+
+export const disconnectSpectator = async ({
+  participantId,
+  participantChannelId,
+  stageId
+}) => {
+  return await authFetch({
+    url: `${apiBaseUrl}/stages/disconnectSpectator`,
+    method: 'PUT',
+    body: { participantId, participantChannelId, stageId }
+  });
+};

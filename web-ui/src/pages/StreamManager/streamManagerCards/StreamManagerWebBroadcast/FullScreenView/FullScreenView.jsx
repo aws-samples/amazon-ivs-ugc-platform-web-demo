@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -8,7 +8,7 @@ import {
 } from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
-import { useModal } from '../../../../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import {
   useGlobalStage,
   useStreamManagerStage
@@ -21,25 +21,25 @@ import withPortal from '../../../../../components/withPortal';
 import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
-import { useLocation } from 'react-router-dom';
-import StageJoinModalBackground from './StageJoinModalBackground';
+import { useBroadcast } from '../../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
-const FullScreenView = ({ dimensions }) => {
+const FullScreenView = () => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
-  const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage();
-  const { state } = useLocation();
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
+  const { resetPreview } = useBroadcast();
+  const { openModal } = useModal();
   const fullScreenViewContainerRef = useRef();
-  const { isModalOpen } = useModal();
   const { isMobileView } = useResponsiveDevice();
+  const { isModalOpen } = useModal();
   const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
-
-  const content = isStageActive ? (
-    <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
-  ) : (
-    <BroadcastFullScreenVideoFeed />
-  );
+  const content =
+    isStageActive || isJoiningStageByRequestOrInvite ? (
+      <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
+    ) : (
+      <BroadcastFullScreenVideoFeed />
+    );
 
   useFocusTrap([fullScreenViewContainerRef], !isModalOpen, {
     shouldReFocusBackOnLastClickedItem: true
@@ -52,13 +52,22 @@ const FullScreenView = ({ dimensions }) => {
     animationInitialHeight
   } = dimensions;
 
+  useEffect(() => {
+    if (isJoiningStageByRequestOrInvite) {
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+      resetPreview();
+    }
+  }, [openModal, resetPreview, isJoiningStageByRequestOrInvite]);
+
   return (
     <motion.div
       ref={fullScreenViewContainerRef}
       key="full-screen-view"
       {...createAnimationProps({
         customVariants: {
-          hidden: {
+          hidden: !isJoiningStageByRequestOrInvite && {
             top: animationInitialTop,
             left: animationInitialLeft,
             width: animationInitialWidth,
@@ -83,7 +92,8 @@ const FullScreenView = ({ dimensions }) => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
-        state?.isJoiningStageByRequest && [
+        isMobileView ? 'z-[300]' : 'z-[700]',
+        isJoiningStageByRequestOrInvite && [
           'w-full',
           'h-full',
           'top-0',
@@ -92,12 +102,18 @@ const FullScreenView = ({ dimensions }) => {
       ])}
     >
       {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !state?.isJoiningStageByRequest && <Header />}
+        !isJoiningStageByRequestOrInvite && <Header />}
       <motion.div
-        className={clsm(['flex', 'flex-col', 'justify-between', 'h-full'])}
+        className={clsm([
+          'flex',
+          'flex-col',
+          'justify-between',
+          'h-full',
+          isJoiningStageByRequestOrInvite && ['p-8', 'pb-0']
+        ])}
         {...createAnimationProps({
           customVariants: {
-            hidden: {
+            hidden: !isJoiningStageByRequestOrInvite && {
               paddingLeft: 20,
               paddingRight: 20,
               paddingBottom: 64,
@@ -113,12 +129,8 @@ const FullScreenView = ({ dimensions }) => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        {isJoiningStageByRequest || isJoiningStageByInvite ? (
-          <StageJoinModalBackground />
-        ) : (
-          content
-        )}
-        {!isJoiningStageByRequest && !isJoiningStageByInvite && <Footer />}
+        {content}
+        <Footer />
       </motion.div>
     </motion.div>
   );

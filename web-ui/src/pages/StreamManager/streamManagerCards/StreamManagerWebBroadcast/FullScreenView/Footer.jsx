@@ -27,8 +27,11 @@ const Footer = () => {
     shouldDisableCollaborateButton,
     hasPermissions
   } = useStreamManagerStage();
-  const { collaborateButtonAnimationControls, isCreatingStage } =
-    useGlobalStage();
+  const {
+    collaborateButtonAnimationControls,
+    isCreatingStage,
+    isJoiningStageByRequestOrInvite
+  } = useGlobalStage();
   const {
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton,
@@ -60,7 +63,13 @@ const Footer = () => {
     shouldDisableCollaborateButton || !hasPermissions;
 
   return (
-    <div className={clsm(['flex', 'justify-between'])}>
+    <div
+      className={clsm([
+        'flex',
+        'justify-between',
+        isJoiningStageByRequestOrInvite && 'opacity-0'
+      ])}
+    >
       <motion.div
         {...createAnimationProps({
           customVariants: {
@@ -74,7 +83,11 @@ const Footer = () => {
           transition: ANIMATION_TRANSITION
         })}
       >
-        <BroadcastControlWrapper withSettingsButton isOpen />
+        <BroadcastControlWrapper
+          withSettingsButton
+          withScreenshareButton
+          isOpen
+        />
       </motion.div>
 
       <motion.div

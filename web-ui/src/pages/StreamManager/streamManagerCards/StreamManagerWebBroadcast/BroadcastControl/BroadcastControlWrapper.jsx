@@ -20,11 +20,14 @@ import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../../../../contexts/Stage';
-import { useLocation } from 'react-router-dom';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
-const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
+const BroadcastControlWrapper = ({
+  isOpen,
+  withSettingsButton,
+  withScreenshareButton
+}) => {
   const { isStageActive } = useGlobalStage();
   const settingsButtonRef = useRef();
   const { isTouchscreenDevice, isDesktopView } = useResponsiveDevice();
@@ -56,7 +59,7 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
       [CAMERA_LAYER_NAME]: activeCamera
     }
   } = useBroadcast();
-  const { state } = useLocation();
+
   const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
   const shouldRenderStageScreenShareButton =
@@ -65,7 +68,7 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
     !isTouchscreenDevice &&
     isDesktopView;
   const shouldRenderBroadcastScreenShareButton =
-    !isTouchscreenDevice && !state?.isJoiningStageByRequest;
+    !isTouchscreenDevice && withScreenshareButton;
 
   const { toggleMicrophone, isMicrophoneMuted, toggleCamera, isCameraHidden } =
     isStageActive
@@ -177,13 +180,10 @@ const BroadcastControlWrapper = ({ isOpen, withSettingsButton }) => {
   );
 };
 
-BroadcastControlWrapper.defaultProps = {
-  withSettingsButton: false
-};
-
 BroadcastControlWrapper.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  withSettingsButton: PropTypes.bool
+  withScreenshareButton: PropTypes.bool.isRequired,
+  withSettingsButton: PropTypes.bool.isRequired
 };
 
 export default BroadcastControlWrapper;
