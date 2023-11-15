@@ -431,11 +431,11 @@ export const Provider = ({
       });
     }
   }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
-
   const value = useMemo(
     () => ({
       // Devices and permissions
       devices,
+      detectDevicePermissions,
       activeDevices,
       updateActiveDevice,
       permissions,
@@ -468,6 +468,7 @@ export const Provider = ({
     [
       activeDevices,
       devices,
+      detectDevicePermissions,
       error,
       hasPermissions,
       initializeDevices,
