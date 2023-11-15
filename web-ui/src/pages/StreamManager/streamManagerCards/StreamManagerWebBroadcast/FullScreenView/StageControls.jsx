@@ -17,15 +17,13 @@ import {
 } from '../../../../../contexts/Stage';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { StageMenu } from '../StageControl';
-import { BREAKPOINTS } from '../../../../../constants';
 
 const $stageContent = $content.stream_manager_stage;
 
 const StageControls = ({ shouldShowCopyLinkText }) => {
   const participantsButtonRef = useRef();
   const { openModal } = useModal();
-  const { isTouchscreenDevice, currentBreakpoint, dimensions } =
-    useResponsiveDevice();
+  const { isTouchscreenDevice, dimensions } = useResponsiveDevice();
   const {
     handleCopyJoinParticipantLinkAndNotify,
     shouldDisableCopyLinkButton,
@@ -83,7 +81,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
             }
           }))}
       >
-        {currentBreakpoint === BREAKPOINTS.xxs && isHost ? (
+        {isHost && dimensions?.width < 375 ? (
           <Button
             ariaLabel="Toggle menu"
             ref={stageMenuToggleBtnRef}
