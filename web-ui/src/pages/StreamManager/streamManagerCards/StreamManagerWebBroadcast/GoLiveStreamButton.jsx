@@ -20,7 +20,6 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useLocation } from 'react-router-dom';
 import { useChannel } from '../../../../contexts/Channel';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
