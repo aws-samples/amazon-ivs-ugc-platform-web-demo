@@ -146,32 +146,32 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
                 translate={{ y: 2 }}
                 message={$stageContent.participants}
               >
-              <Button
-                ariaLabel={$stageContent.participants}
-                key="stage-participants-control-btn"
-                variant="icon"
-                ref={participantsButtonRef}
-                onClick={handleOpenParticipantsModal}
-                className={clsm([
-                  'relative',
-                  'w-11',
-                  'h-11',
-                  'dark:[&>svg]:fill-white',
-                  '[&>svg]:fill-black',
-                  'dark:bg-darkMode-gray',
-                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                  'dark:focus:bg-darkMode-gray',
-                  'bg-lightMode-gray'
-                ])}
-              >
-                <Group />
-                {stageRequestList.length > 0 && (
-                  <RequestIndicator
-                    stageRequestsCount={stageRequestList.length}
-                    className={clsm(['left-7', '-top-1'])}
-                  />
-                )}
-              </Button>
+                <Button
+                  ariaLabel={$stageContent.participants}
+                  key="stage-participants-control-btn"
+                  variant="icon"
+                  ref={participantsButtonRef}
+                  onClick={handleOpenParticipantsModal}
+                  className={clsm([
+                    'relative',
+                    'w-11',
+                    'h-11',
+                    'dark:[&>svg]:fill-white',
+                    '[&>svg]:fill-black',
+                    'dark:bg-darkMode-gray',
+                    !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                    'dark:focus:bg-darkMode-gray',
+                    'bg-lightMode-gray'
+                  ])}
+                >
+                  <Group />
+                  {stageRequestList.length > 0 && (
+                    <RequestIndicator
+                      stageRequestsCount={stageRequestList.length}
+                      className={clsm(['left-7', '-top-1'])}
+                    />
+                  )}
+                </Button>
               </Tooltip>
             )}
             {shouldRenderInviteLinkButton && (

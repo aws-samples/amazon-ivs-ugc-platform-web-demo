@@ -51,7 +51,7 @@ const Footer = () => {
   const getMarginLeft = () => {
     if (isStageActive || isJoiningStageByRequestOrInvite) {
       if (isFullScreenViewOpen) {
-        return isMobileView ? 'calc(100% - 74px)' : 'calc(100% - 110px)'
+        return isMobileView ? 'calc(100% - 74px)' : 'calc(100% - 110px)';
       }
       return 'calc(100% - 110px)';
     }
@@ -100,7 +100,8 @@ const Footer = () => {
               opacity: 1
             },
             visible: {
-              width: isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+              width:
+                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
               marginLeft: getMarginLeft()
             }
           },
