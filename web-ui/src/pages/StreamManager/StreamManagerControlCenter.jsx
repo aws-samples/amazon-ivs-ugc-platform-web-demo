@@ -81,11 +81,7 @@ const StreamManagerControlCenter = forwardRef(
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
-      if (
-        areDevicesInitialized.current ||
-        !isBroadcastCardOpen
-      )
-        return;
+      if (areDevicesInitialized.current || !isBroadcastCardOpen) return;
 
       (async function () {
         await initializeDevices();
@@ -132,10 +128,26 @@ const StreamManagerControlCenter = forwardRef(
 
     useEffect(() => {
       if (!isStageActive && channelData && stageIdUrlParam) {
-        setIsFullScreenViewOpen(true)
-        updateIsJoiningStageByInvite(true)
+        setIsFullScreenViewOpen(true);
+        updateIsJoiningStageByInvite(true);
       }
-    }, [channelData, handleParticipantInvite, initializeGoLiveContainerDimensions, isDesktopView, isStageActive, setIsFullScreenViewOpen, stageIdUrlParam, isLive, isBroadcasting, updateError, restartBroadcastClient, resetPreview, removeBroadcastClient, handleOpenFullScreenView, updateIsJoiningStageByInvite]);
+    }, [
+      channelData,
+      handleParticipantInvite,
+      initializeGoLiveContainerDimensions,
+      isDesktopView,
+      isStageActive,
+      setIsFullScreenViewOpen,
+      stageIdUrlParam,
+      isLive,
+      isBroadcasting,
+      updateError,
+      restartBroadcastClient,
+      resetPreview,
+      removeBroadcastClient,
+      handleOpenFullScreenView,
+      updateIsJoiningStageByInvite
+    ]);
 
     useEffect(() => {
       if (
