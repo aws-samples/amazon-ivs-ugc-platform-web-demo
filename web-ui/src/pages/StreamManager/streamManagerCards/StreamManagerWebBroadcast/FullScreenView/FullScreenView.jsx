@@ -123,7 +123,7 @@ const FullScreenView = () => {
               paddingLeft: isMobileView ? 16 : 32,
               paddingRight: isMobileView ? 16 : 32,
               paddingBottom: 0,
-              paddingTop: 32
+              paddingTop: isMobileView ? 16 : 32
             }
           },
           transition: ANIMATION_TRANSITION
