@@ -9,6 +9,7 @@ import InviteParticipant from './InviteParticipant';
 import './StageVideoGrid.css';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -18,7 +19,9 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ styles, type }) => {
+  const { isDesktopView, dimensions } = useResponsiveDevice();
   const { participants, isJoiningStageByRequestOrInvite } = useGlobalStage();
+
   const {
     isFullScreenViewOpen,
     fullscreenAnimationControls,
@@ -33,13 +36,19 @@ const StageVideoFeeds = ({ styles, type }) => {
   });
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
-  let gridItemCountClasses =
-    participantSize > 2
-      ? `grid-${participantSize}`
-      : ['grid-rows-1', 'grid-cols-2'];
-  if (isChannelType) {
-    gridItemCountClasses = `grid-${participantSize}`;
-  }
+  const getGridItemCountClasses = () => {
+    if (isFullScreenViewOpen && !isDesktopView && participantSize <= 2) {
+      const isScreenWidthLargerThanHeight =
+        dimensions?.width > dimensions?.height;
+      return isScreenWidthLargerThanHeight
+        ? ['grid-rows-1', 'grid-cols-2']
+        : ['grid-cols-1', 'grid-rows-2'];
+    }
+
+    if (participantSize > 2 || isChannelType) return `grid-${participantSize}`;
+
+    return ['grid-rows-1', 'grid-cols-2'];
+  };
 
   return (
     <div
@@ -71,7 +80,7 @@ const StageVideoFeeds = ({ styles, type }) => {
           'top-1/2',
           'w-full',
           isFullScreenViewOpen || isChannelType ? 'gap-4' : 'gap-1',
-          gridItemCountClasses,
+          getGridItemCountClasses(),
           dimensionClasses
         ])}
       >
