@@ -50,7 +50,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
   const containerRef = useRef();
 
   const getMarginRight = () => {
-    return isHost && dimensions?.width < 375 ? 'mr-[48px]' : 'mr-[60px]';
+    return dimensions?.width < 375 ? 'mr-[48px]' : 'mr-[60px]';
   };
 
   const stageMenuToggleBtnRef = useRef();
