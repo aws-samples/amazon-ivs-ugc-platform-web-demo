@@ -34,7 +34,8 @@ const BroadcastControlWrapper = ({
     updateShouldOpenSettingsModal
   } = useGlobalStage();
   const settingsButtonRef = useRef();
-  const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
+  const { isTouchscreenDevice, isDesktopView, isMobileView } =
+    useResponsiveDevice();
   const { openModal, closeModal } = useModal();
   const {
     toggleMicrophone: toggleStageMicrophone,
@@ -67,7 +68,10 @@ const BroadcastControlWrapper = ({
   const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
   const shouldRenderStageScreenShareButton =
-    isStageActive && shouldRenderShareScreenButton && !isTouchscreenDevice;
+    isStageActive &&
+    shouldRenderShareScreenButton &&
+    !isTouchscreenDevice &&
+    isDesktopView;
   const shouldRenderBroadcastScreenShareButton =
     !isTouchscreenDevice && withScreenshareButton;
 
