@@ -91,6 +91,7 @@ export const Provider = ({ children }) => {
     [unlockBody]
   );
 
+  // Set current width and height
   const updateCurrentDimensions = useCallback(() => {
     if (!window?.innerWidth && !window?.innerHeight) return;
 
@@ -141,12 +142,7 @@ export const Provider = ({ children }) => {
       updateCurrentBreakpoint();
       updateOrientation();
       updateCurrentDimensions();
-    }, [
-      updateCurrentBreakpoint,
-      updateCurrentDimensions,
-      updateMobileVh,
-      updateOrientation
-    ]),
+    }, [updateCurrentBreakpoint, updateCurrentDimensions, updateMobileVh, updateOrientation]),
     { shouldCallOnMount: true }
   );
 

@@ -34,9 +34,10 @@ const Footer = () => {
   } = useGlobalStage();
   const {
     shouldRenderFullScreenCollaborateButton,
-    setShouldRenderFullScreenCollaborateButton
+    setShouldRenderFullScreenCollaborateButton,
+    isFullScreenViewOpen
   } = useBroadcastFullScreen();
-  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
 
   const handleCreateStage = async () => {
     await initializeStageClient();
@@ -45,6 +46,17 @@ const Footer = () => {
       zIndex: 0,
       opacity: 0
     });
+  };
+
+  const getMarginLeft = () => {
+    if (isStageActive || isJoiningStageByRequestOrInvite) {
+      if (isFullScreenViewOpen) {
+        return isMobileView ? 'calc(100% - 74px)' : 'calc(100% - 110px)';
+      }
+      return 'calc(100% - 110px)';
+    }
+
+    return 'calc(50% - 90px)'; // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
   };
 
   const isCollaborateDisabled =
@@ -65,7 +77,7 @@ const Footer = () => {
               marginRight: 0
             },
             visible: {
-              marginRight: 138 // 1/2 width + space between buttons
+              marginRight: isMobileView ? 0 : 138 // 1/2 width + space between buttons
             }
           },
           transition: ANIMATION_TRANSITION
@@ -90,10 +102,7 @@ const Footer = () => {
             visible: {
               width:
                 isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
-              marginLeft:
-                isStageActive || isJoiningStageByRequestOrInvite
-                  ? 'calc(100% - 110px)'
-                  : 'calc(50% - 90px)' // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
+              marginLeft: getMarginLeft()
             }
           },
           options: {
@@ -142,7 +151,9 @@ const Footer = () => {
           </Tooltip>
         </div>
       )}
-      {isStageActive && <StageControls />}
+      {isStageActive && (
+        <StageControls shouldShowCopyLinkText={!isMobileView} />
+      )}
     </div>
   );
 };
