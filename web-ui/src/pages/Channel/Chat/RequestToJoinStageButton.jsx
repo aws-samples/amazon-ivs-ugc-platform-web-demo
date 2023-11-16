@@ -155,7 +155,10 @@ const RequestToJoinStageButton = () => {
             'dark:bg-darkMode-blue',
             'dark:focus:bg-darkMode-blue',
             'text-black',
-            'dark:hover:bg-darkMode-blue-hover'
+            'dark:hover:bg-darkMode-blue-hover',
+            'bg-lightMode-blue',
+            'focus:bg-lightMode-blue',
+            'hover:bg-lightMode-blue-hover'
           ]
         ])}
         variant="icon"
