@@ -142,7 +142,12 @@ export const Provider = ({ children }) => {
       updateCurrentBreakpoint();
       updateOrientation();
       updateCurrentDimensions();
-    }, [updateCurrentBreakpoint, updateCurrentDimensions, updateMobileVh, updateOrientation]),
+    }, [
+      updateCurrentBreakpoint,
+      updateCurrentDimensions,
+      updateMobileVh,
+      updateOrientation
+    ]),
     { shouldCallOnMount: true }
   );
 
