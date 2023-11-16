@@ -15,6 +15,7 @@ const RequestIndicator = ({ stageRequestsCount, className }) => {
         'flex',
         'justify-center',
         'items-center',
+        'text-black',
         className
       ])}
     >
