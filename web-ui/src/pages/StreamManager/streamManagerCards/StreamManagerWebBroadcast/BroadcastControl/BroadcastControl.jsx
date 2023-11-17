@@ -34,7 +34,7 @@ const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
         : ['space-x-4'];
     }
     return isOpen || !isDesktopView
-      ? ['space-x-5', 'xs:space-x-2']
+      ? ['space-x-4', 'xs:space-x-2']
       : 'space-x-3';
   };
 

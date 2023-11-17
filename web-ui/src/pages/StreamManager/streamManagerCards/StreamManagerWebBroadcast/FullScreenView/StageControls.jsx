@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { clsm } from '../../../../../utils';
 import { streamManager as $content } from '../../../../../content';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
-import { ANIMATION_DURATION } from '../../../../../contexts/BroadcastFullscreen';
+import { ANIMATION_DURATION, useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import Tooltip from '../../../../../components/Tooltip';
 import Button from '../../../../../components/Button';
 import { PersonAdd, Group, Menu } from '../../../../../assets/icons';
@@ -42,6 +42,7 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
 
   const shouldDisplayInviteParticipantButton = isStageActive && isHost;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isFullScreenViewOpen } = useBroadcastFullScreen()
 
   const handleToggleStageMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -50,7 +51,9 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
   const containerRef = useRef();
 
   const getMarginRight = () => {
-    return dimensions?.width < 375 ? 'mr-[48px]' : 'mr-[60px]';
+    if (isFullScreenViewOpen) {
+      return dimensions?.width < 375 ? 'mr-[48px]' : 'mr-[60px]';
+    }
   };
 
   const stageMenuToggleBtnRef = useRef();
