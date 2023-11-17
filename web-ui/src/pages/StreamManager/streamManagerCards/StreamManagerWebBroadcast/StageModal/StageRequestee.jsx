@@ -92,7 +92,6 @@ const StageRequestee = ({ requestee }) => {
   return (
     <div className={clsm(['flex', 'h-11', 'items-center', 'my-8'])}>
       <StageProfilePill
-        shouldRenderDarkTextOnLightMode={true}
         avatarSrc={avatarSrc}
         profileColor={profileColor}
         username={username}

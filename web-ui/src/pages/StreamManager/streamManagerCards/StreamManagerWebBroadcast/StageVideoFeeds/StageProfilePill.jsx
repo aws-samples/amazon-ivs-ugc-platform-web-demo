@@ -37,8 +37,7 @@ const StageProfilePill = ({
   avatarSrc,
   username,
   type,
-  className,
-  shouldRenderDarkTextOnLightMode
+  className
 }) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
 
@@ -76,8 +75,8 @@ const StageProfilePill = ({
         'items-center',
         'max-w-[80px]',
         'rounded-3xl',
-        'text-white',
-        shouldRenderDarkTextOnLightMode && 'text-lightMode-black',
+        'dark:text-white',
+        'text-black',
         'w-auto',
         STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
           '[&>img]:ring-2',
@@ -95,14 +94,12 @@ const StageProfilePill = ({
 
 StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: '',
-  shouldRenderDarkTextOnLightMode: false
+  className: ''
 };
 StageProfilePill.propTypes = {
   profileColor: PropTypes.string.isRequired,
   avatarSrc: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
-  shouldRenderDarkTextOnLightMode: PropTypes.bool,
   type: PropTypes.string,
   className: PropTypes.string
 };
