@@ -90,7 +90,16 @@ export class MetricsStack extends NestedStack {
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
-    policies.push(streamTablePolicyStatement, metricsCloudWatchPolicyStatement);
+    const metricsIvsPolicyStatement = new iam.PolicyStatement({
+      actions: ['ivs:GetStreamSession'],
+      effect: iam.Effect.ALLOW,
+      resources: ['*']
+    });
+    policies.push(
+      streamTablePolicyStatement,
+      metricsCloudWatchPolicyStatement,
+      metricsIvsPolicyStatement
+    );
     this.policies = policies;
 
     // Stream Events Container Image
