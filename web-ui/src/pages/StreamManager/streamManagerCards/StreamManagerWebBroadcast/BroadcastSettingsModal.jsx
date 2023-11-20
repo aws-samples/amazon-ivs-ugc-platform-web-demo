@@ -184,14 +184,16 @@ const WebBroadcastSettingsModal = () => {
                   />
                 );
               })}
-            {!isTouchscreenDevice && !isStageActive && (
-              <SwitchGroup
-                icon={<AccountBox />}
-                label={$content.show_camera_on_screen_share}
-                onChange={updateShouldShowCameraOnScreenShare}
-                initialChecked={shouldShowCameraOnScreenShare}
-              />
-            )}
+            {!isTouchscreenDevice &&
+              !isStageActive &&
+              !isJoiningStageByRequestOrInvite && (
+                <SwitchGroup
+                  icon={<AccountBox />}
+                  label={$content.show_camera_on_screen_share}
+                  onChange={updateShouldShowCameraOnScreenShare}
+                  initialChecked={shouldShowCameraOnScreenShare}
+                />
+              )}
           </div>
         </div>
         <Button
