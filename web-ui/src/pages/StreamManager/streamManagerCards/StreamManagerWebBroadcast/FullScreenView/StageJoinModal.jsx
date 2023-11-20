@@ -14,13 +14,18 @@ import { Close } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button/Button';
 import GoLiveContainer from '../GoLiveContainer';
 import { useBroadcast } from '../../../../../contexts/Broadcast';
+import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import { useEffect } from 'react';
 
 const $stageContent = $content.stream_manager_stage;
 
 const JoinModal = () => {
   const { isModalOpen, type } = useModal();
-  const { isMobileView, isLandscape } = useResponsiveDevice();
-  const { previewRef } = useBroadcast();
+  const { isLandscape, isMobileView } = useResponsiveDevice();
+  const { isFullScreenViewOpen } = useBroadcastFullScreen();
+  const { previewRef, resetPreview } = useBroadcast();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
 
   const handleCloseJoinModal = () => {
     window.history.replaceState({}, document.title);
@@ -62,6 +67,10 @@ const JoinModal = () => {
     </>
   );
 
+  useEffect(() => {
+    resetPreview();
+  }, [resetPreview, isModalOpen, isMobileView]);
+
   return (
     type === MODAL_TYPE.STAGE_JOIN &&
     renderJoinModal(
@@ -92,7 +101,11 @@ const JoinModal = () => {
             {$stageContent.join_modal.ready_to_join}
           </h2>
           <GoLiveContainer
-            ref={previewRef}
+            ref={
+              isFullScreenViewOpen && isJoiningStageByRequestOrInvite
+                ? previewRef
+                : null
+            }
             withHeader={false}
             withScreenshareButton={false}
             withStageControl={false}

@@ -23,6 +23,8 @@ import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
 import useHostRejoin from './hooks/useHostRejoin';
+import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
+import { AnimatePresence } from 'framer-motion';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -43,7 +45,8 @@ const StreamManagerControlCenter = forwardRef(
       isFullScreenViewOpen,
       setIsFullScreenViewOpen,
       initializeGoLiveContainerDimensions,
-      handleOpenFullScreenView
+      handleOpenFullScreenView,
+      dimensions
     } = useBroadcastFullScreen();
     const { state } = useLocation();
     const { isDesktopView, currentBreakpoint, isLandscape } =
@@ -281,6 +284,15 @@ const StreamManagerControlCenter = forwardRef(
             </Tabs.Panel>
           )}
         </Tabs>
+        <AnimatePresence>
+          {isFullScreenViewOpen && (
+            <FullScreenView
+              isOpen={isFullScreenViewOpen}
+              parentEl={document.body}
+              dimensions={dimensions}
+            />
+          )}
+        </AnimatePresence>
       </div>
     );
   }

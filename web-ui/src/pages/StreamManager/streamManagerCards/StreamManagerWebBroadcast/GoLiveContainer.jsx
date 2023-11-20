@@ -10,15 +10,10 @@ import { BREAKPOINTS } from '../../../../constants';
 import { clsm, noop } from '../../../../utils';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds/StageVideoFeeds';
 import { StageControl } from './StageControl';
-import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
-import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
 import StageVideoFeeds from './StageVideoFeeds';
@@ -41,11 +36,9 @@ const GoLiveContainer = forwardRef(
     const { isDesktopView, currentBreakpoint, isTouchscreenDevice } =
       useResponsiveDevice();
     const { isStageActive } = useStreamManagerStage();
-    const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
-    const { isJoiningStageByRequestOrInvite } = useGlobalStage();
 
     const handleOnCollapse = () => {
       shouldAnimateStreamingButton.current = false;
@@ -62,9 +55,6 @@ const GoLiveContainer = forwardRef(
       setIsWebBroadcastAnimating(true);
       shouldShowTooltipMessageRef.current = false;
     };
-
-    const shouldAddRef =
-      !isFullScreenViewOpen || isJoiningStageByRequestOrInvite;
 
     return (
       <>
@@ -108,7 +98,7 @@ const GoLiveContainer = forwardRef(
                 </div>
               ) : (
                 <canvas
-                  ref={shouldAddRef ? previewRef : null}
+                  ref={previewRef}
                   className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
                   aria-label="Amazon IVS web broadcast video and audio stream"
                 />
@@ -179,15 +169,6 @@ const GoLiveContainer = forwardRef(
                 shouldShowTooltipMessage={shouldShowTooltipMessageRef.current}
               />
             </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {isFullScreenViewOpen && (
-            <FullScreenView
-              isOpen={isFullScreenViewOpen}
-              parentEl={document.body}
-              dimensions={dimensions}
-            />
           )}
         </AnimatePresence>
       </>
