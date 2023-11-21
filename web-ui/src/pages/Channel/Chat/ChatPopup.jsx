@@ -215,9 +215,7 @@ const ChatPopup = ({
               'dark:focus:shadow-white',
               'focus:bg-lightMode-gray',
               'focus:shadow-black',
-              !isTouchscreenDevice && [
-                'hover:bg-lightMode-gray-hover'
-              ]
+              !isTouchscreenDevice && ['hover:bg-lightMode-gray-hover']
             ])}
             variant="secondary"
             onClick={handleCancelAndRefocus}
