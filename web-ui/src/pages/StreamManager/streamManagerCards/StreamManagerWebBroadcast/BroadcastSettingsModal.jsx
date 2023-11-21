@@ -38,6 +38,7 @@ const WebBroadcastSettingsModal = () => {
 
   const handleOnConfirm = () => {
     if (isJoiningStageByRequestOrInvite) {
+      closeModal();
       openModal({
         type: MODAL_TYPE.STAGE_JOIN
       });
@@ -48,11 +49,23 @@ const WebBroadcastSettingsModal = () => {
 
   const handleOnClose = () => {
     if (isJoiningStageByRequestOrInvite) {
+      closeModal();
       openModal({
         type: MODAL_TYPE.STAGE_JOIN
       });
     } else {
       closeModal();
+    }
+  };
+
+  const onClickAway = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      closeModal();
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+    } else {
+      closeModal({ shouldRefocus: false });
     }
   };
 
@@ -110,6 +123,7 @@ const WebBroadcastSettingsModal = () => {
           'relative',
           'w-full'
         ])}
+        onClickAway={onClickAway}
       >
         {children}
       </Modal>

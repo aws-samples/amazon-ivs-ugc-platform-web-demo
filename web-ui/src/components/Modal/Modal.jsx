@@ -11,17 +11,25 @@ import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
 
-const Modal = ({ children, className }) => {
+const Modal = ({ children, className, onClickAway }) => {
   const { closeModal, type } = useModal();
   const { pathname } = useLocation();
   const modalRef = useRef();
   const prevPathname = usePrevious(pathname);
+  const clickAwayEnabled = type !== MODAL_TYPE.STAGE_JOIN
 
   useFocusTrap([modalRef]);
-  useClickAway([modalRef], () => {
-    if (type === MODAL_TYPE.STAGE_JOIN) return;
-    closeModal({ shouldRefocus: false });
-  });
+  useClickAway(
+    [modalRef],
+    () => {
+      if (onClickAway) {
+        onClickAway();
+      } else {
+        closeModal({ shouldRefocus: false });
+      }
+    },
+    clickAwayEnabled
+  );
 
   // Close the modal on page change
   useEffect(() => {
@@ -53,11 +61,12 @@ const Modal = ({ children, className }) => {
   );
 };
 
-Modal.defaultProps = { className: '' };
+Modal.defaultProps = { className: '', onClickAway: null };
 
 Modal.propTypes = {
   children: PropTypes.node.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  onClickAway: PropTypes.func
 };
 
 export default withPortal(Modal, 'modal', {
