@@ -16,7 +16,7 @@ const Modal = ({ children, className, onClickAway }) => {
   const { pathname } = useLocation();
   const modalRef = useRef();
   const prevPathname = usePrevious(pathname);
-  const clickAwayEnabled = type !== MODAL_TYPE.STAGE_JOIN
+  const clickAwayEnabled = type !== MODAL_TYPE.STAGE_JOIN;
 
   useFocusTrap([modalRef]);
   useClickAway(
