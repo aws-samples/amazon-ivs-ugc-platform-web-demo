@@ -137,7 +137,7 @@ const StreamVideo = forwardRef(
         >
           <PlayerOverlay
             {...(areControlsContained && { className: 'before:rounded-b-3xl' })}
-            isVisible={shouldShowControlsOverlay && !isChannelStagePlayerMuted}
+            isVisible={shouldShowControlsOverlay}
           >
             <Controls
               areControlsContained={areControlsContained}
