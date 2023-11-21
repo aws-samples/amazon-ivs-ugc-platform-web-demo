@@ -130,6 +130,9 @@ const WebBroadcastSettingsModal = () => {
     </>
   );
 
+  const displayShowCameraToggle =
+    !isTouchscreenDevice && !isStageActive && !isJoiningStageByRequestOrInvite;
+
   return (
     type === MODAL_TYPE.STREAM_BROADCAST_SETTINGS &&
     renderStreamBroadcastingSettingsModal(
@@ -198,7 +201,7 @@ const WebBroadcastSettingsModal = () => {
                   />
                 );
               })}
-            {!isTouchscreenDevice && !isStageActive && (
+            {displayShowCameraToggle && (
               <SwitchGroup
                 icon={<AccountBox />}
                 label={$content.show_camera_on_screen_share}
