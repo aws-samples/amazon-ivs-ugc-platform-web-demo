@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { clsm } from '../../../../utils';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
-import { useModal } from '../../../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
@@ -20,6 +20,8 @@ import {
 } from '../../../../contexts/BroadcastFullscreen';
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
+import { useChannel } from '../../../../contexts/Channel';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -48,21 +50,29 @@ const GoLiveStreamButton = ({
     collaborateButtonAnimationControls,
     isHost,
     shouldDisableStageButtonWithDelay,
-    stageId
+    isJoiningStageByRequestOrInvite,
+    isCreatingStage
   } = useGlobalStage();
-  const { handleOnConfirmLeaveStage } = useStreamManagerStage();
-  const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
-    useBroadcastFullScreen();
-  const { openModal } = useModal();
+  const { channelData } = useChannel();
+
+  const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
+    useStreamManagerStage();
+  const {
+    setIsFullScreenViewOpen,
+    isFullScreenViewOpen,
+    initializeGoLiveContainerDimensions
+  } = useBroadcastFullScreen();
+  const { openModal, isModalOpen, type: modalType } = useModal();
   const { isLive } = useStreams();
-  const isStageActiveInAnotherTab = !isStageActive && stageId;
+  const { isDesktopView } = useResponsiveDevice();
   const shouldDisableLeaveStageButton =
     isStageActive && shouldDisableStageButtonWithDelay;
   const isDisabled =
     !hasPermissions ||
-    isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
-    (isLive && !isBroadcasting);
+    (isLive && !isBroadcasting) ||
+    (isJoiningStageByRequestOrInvite && !!channelData?.stageId);
+
   const stageButtonContent = isHost
     ? $stageContent.end_session
     : $stageContent.leave_session;
@@ -78,6 +88,8 @@ const GoLiveStreamButton = ({
         });
         collaborateButtonAnimationControls.start({ zIndex: 'unset' });
       };
+
+      if (!isDesktopView) initializeGoLiveContainerDimensions();
 
       handleOnConfirmLeaveStage({
         ...(isFullScreenViewOpen && {
@@ -108,15 +120,24 @@ const GoLiveStreamButton = ({
       !shouldDisableStageButtonWithDelay
     )
       tooltipMessage = stageButtonContent;
-    if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
+    if (
+      (isLive && !isBroadcasting) ||
+      (isJoiningStageByRequestOrInvite && !!channelData?.stageId)
+    )
+      tooltipMessage = YourChannelIsAlreadyLive;
     else if (!hasPermissions) tooltipMessage = PermissionDenied;
   }
 
   let buttonTextContent;
-  if (isConnecting) {
+  if (
+    isConnecting ||
+    (isCreatingStage && isModalOpen && modalType === MODAL_TYPE.STAGE_JOIN)
+  ) {
     buttonTextContent = <Spinner />;
   } else if (isBroadcasting) {
     buttonTextContent = <p>{$webBroadcastContent.end_stream}</p>;
+  } else if (isJoiningStageByRequestOrInvite) {
+    buttonTextContent = <p>{$stageContent.join_now}</p>;
   } else {
     buttonTextContent = <p>{$webBroadcastContent.start_stream}</p>;
   }
@@ -137,7 +158,8 @@ const GoLiveStreamButton = ({
             }
           },
           options: {
-            isVisible: isFullScreenViewOpen
+            isVisible: isFullScreenViewOpen,
+            shouldAnimateIn: !isJoiningStageByRequestOrInvite
           }
         })}
         className={clsm(['[&>svg]:h-6', '[&>svg]:w-6'])}
@@ -157,7 +179,11 @@ const GoLiveStreamButton = ({
     >
       <Button
         ref={streamButtonRef}
-        onClick={handleStartStopBroadcastingAction}
+        onClick={
+          isJoiningStageByRequestOrInvite
+            ? handleParticipantJoinStage
+            : handleStartStopBroadcastingAction
+        }
         variant="primary"
         isDisabled={isDisabled}
         className={clsm([

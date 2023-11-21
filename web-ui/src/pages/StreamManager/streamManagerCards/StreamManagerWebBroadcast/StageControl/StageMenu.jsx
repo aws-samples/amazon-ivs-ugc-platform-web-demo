@@ -16,6 +16,7 @@ import Button from '../../../../../components/Button';
 import useClickAway from '../../../../../hooks/useClickAway';
 import withPortal from '../../../../../components/withPortal';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
+import RequestIndicator from './RequestIndicator';
 
 const $stageContent = $content.stream_manager_stage;
 const BUTTON_TEXT_CLASSES = ['text-black', 'dark:text-white'];
@@ -30,7 +31,7 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
   const menuRef = useRef();
   const { openModal } = useModal();
   const { handleCopyJoinParticipantLinkAndNotify } = useStreamManagerStage();
-  const { isHost, isStageActive } = useGlobalStage();
+  const { isHost, isStageActive, stageRequestList } = useGlobalStage();
   const { isMobileView } = useResponsiveDevice();
   const shouldDisplayParticipantsModalButton = isHost && isStageActive;
   const handleOpenParticipantsModal = () => {
@@ -69,6 +70,7 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
           'gap-4',
           'mt-2',
           'origin-top-left',
+          isMobileView && 'origin-bottom-right',
           'p-4',
           'rounded-3xl',
           'w-auto'
@@ -78,9 +80,17 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
           <Button
             variant="tertiaryText"
             onClick={handleOpenParticipantsModal}
-            className={clsm(BUTTON_TEXT_CLASSES)}
+            className={clsm(BUTTON_TEXT_CLASSES, 'space-x-4')}
           >
-            <Group className={IconClasses} />
+            <div className="relative">
+              <Group className={IconClasses} />
+              {stageRequestList.length > 0 && (
+                <RequestIndicator
+                  stageRequestsCount={stageRequestList.length}
+                  className={clsm(['left-[18px]', '-top-4'])}
+                />
+              )}
+            </div>
             <p>{$stageContent.participants}</p>
           </Button>
         )}

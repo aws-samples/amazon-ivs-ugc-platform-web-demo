@@ -23,7 +23,8 @@ const RequestToJoinStageButton = () => {
     updateSuccess,
     participants,
     hasStageRequestBeenApproved,
-    updateHasStageRequestBeenApproved
+    updateHasStageRequestBeenApproved,
+    spectatorParticipantId
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
@@ -96,14 +97,23 @@ const RequestToJoinStageButton = () => {
       setTimeout(() => {
         updateHasStageRequestBeenApproved(false);
         updateRequestingToJoinStage(false);
-        navigate('/manager');
+        navigate('/manager', {
+          state: {
+            isJoiningStageByRequest: true,
+            stageId: channelData?.stageId,
+            participantId: spectatorParticipantId
+          }
+        });
       }, 1500);
     }
   }, [
+    channelData.stageId,
     hasStageRequestBeenApproved,
     navigate,
     updateHasStageRequestBeenApproved,
-    updateRequestingToJoinStage
+    updateRequestingToJoinStage,
+    spectatorParticipantId,
+    userData.channelId
   ]);
 
   const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
@@ -113,6 +123,13 @@ const RequestToJoinStageButton = () => {
     : requestingToJoinStage
     ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
     : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
+
+  const isUserAlreadyInStage = [...participants].some(
+    ([_, participant]) =>
+      participant.attributes.channelId === userData.channelId
+  );
+
+  const isDisabled = participants?.size >= 12 || isUserAlreadyInStage;
 
   return (
     <Tooltip
@@ -138,14 +155,19 @@ const RequestToJoinStageButton = () => {
             'dark:bg-darkMode-blue',
             'dark:focus:bg-darkMode-blue',
             'text-black',
-            'dark:hover:bg-darkMode-blue-hover'
+            'bg-lightMode-blue',
+            'focus:bg-lightMode-blue',
+            !isTouchscreenDevice && [
+              'hover:bg-lightMode-blue-hover',
+              'dark:hover:bg-darkMode-blue-hover'
+            ]
           ]
         ])}
         variant="icon"
         ariaLabel={'test'}
         key="create-stage-control-btn"
         onClick={requestToJoin}
-        isDisabled={participants?.size >= 12}
+        isDisabled={isDisabled}
       >
         {icon}
       </Button>

@@ -1,22 +1,22 @@
 import { motion } from 'framer-motion';
 
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../utils';
-import { streamManager as $content } from '../../../../../content';
-import BroadcastControlWrapper from '../BroadcastControl/BroadcastControlWrapper';
 import {
   ANIMATION_TRANSITION,
   useBroadcastFullScreen
 } from '../../../../../contexts/BroadcastFullscreen';
-import GoLiveStreamButton from '../GoLiveStreamButton';
-import Tooltip from '../../../../../components/Tooltip/Tooltip';
-import Button from '../../../../../components/Button/Button';
-import Spinner from '../../../../../components/Spinner';
 import { CreateStage } from '../../../../../assets/icons';
+import { streamManager as $content } from '../../../../../content';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import { useStreamManagerStage } from '../../../../../contexts/Stage';
+import BroadcastControlWrapper from '../BroadcastControl/BroadcastControlWrapper';
+import Button from '../../../../../components/Button/Button';
+import GoLiveStreamButton from '../GoLiveStreamButton';
+import Spinner from '../../../../../components/Spinner';
 import StageControls from './StageControls';
+import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -27,13 +27,21 @@ const Footer = () => {
     shouldDisableCollaborateButton,
     hasPermissions
   } = useStreamManagerStage();
-  const { collaborateButtonAnimationControls, isCreatingStage } =
-    useGlobalStage();
+  const {
+    collaborateButtonAnimationControls,
+    isCreatingStage,
+    isJoiningStageByRequestOrInvite
+  } = useGlobalStage();
   const {
     shouldRenderFullScreenCollaborateButton,
-    setShouldRenderFullScreenCollaborateButton
+    setShouldRenderFullScreenCollaborateButton,
+    isFullScreenViewOpen,
+    dimensions
   } = useBroadcastFullScreen();
-  const { isTouchscreenDevice } = useResponsiveDevice();
+  const { goLiveButtonInitialWidth, broadcastControllerInitialMarginLeft } =
+    dimensions;
+
+  const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
 
   const handleCreateStage = async () => {
     await initializeStageClient();
@@ -44,25 +52,48 @@ const Footer = () => {
     });
   };
 
+  const getMarginLeft = () => {
+    if (isStageActive || isJoiningStageByRequestOrInvite) {
+      if (isFullScreenViewOpen) {
+        return isMobileView ? 'calc(100% - 74px)' : 'calc(100% - 110px)';
+      }
+      return 'calc(100% - 110px)';
+    }
+
+    return 'calc(50% - 90px)'; // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
+  };
+
   const isCollaborateDisabled =
     shouldDisableCollaborateButton || !hasPermissions;
 
   return (
-    <div className={clsm(['flex', 'justify-between'])}>
+    <div
+      className={clsm([
+        'flex',
+        'justify-between',
+        isJoiningStageByRequestOrInvite && 'opacity-0'
+      ])}
+    >
       <motion.div
         {...createAnimationProps({
           customVariants: {
             hidden: {
-              marginRight: 0
+              marginRight: 0,
+              marginLeft: broadcastControllerInitialMarginLeft
             },
             visible: {
-              marginRight: 138 // 1/2 width + space between buttons
+              marginRight: isMobileView ? 0 : 138, // 1/2 width + space between buttons
+              marginLeft: 0
             }
           },
           transition: ANIMATION_TRANSITION
         })}
       >
-        <BroadcastControlWrapper withSettingsButton isOpen />
+        <BroadcastControlWrapper
+          withSettingsButton
+          withScreenshareButton
+          isOpen
+        />
       </motion.div>
 
       <motion.div
@@ -70,16 +101,18 @@ const Footer = () => {
         {...createAnimationProps({
           customVariants: {
             hidden: {
-              width: 311,
+              width: goLiveButtonInitialWidth,
               marginLeft: 0,
               opacity: 1
             },
             visible: {
-              width: isStageActive ? 40 : 140,
-              marginLeft: isStageActive
-                ? 'calc(100% - 110px)'
-                : 'calc(50% - 90px)' // Calculate centering for the 'Go Live' button: 70px equals half button width + 20px left margin.
+              width:
+                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+              marginLeft: getMarginLeft()
             }
+          },
+          options: {
+            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
           },
           transition: ANIMATION_TRANSITION
         })}
@@ -124,7 +157,9 @@ const Footer = () => {
           </Tooltip>
         </div>
       )}
-      {isStageActive && <StageControls />}
+      {isStageActive && (
+        <StageControls shouldShowCopyLinkText={!isMobileView} />
+      )}
     </div>
   );
 };

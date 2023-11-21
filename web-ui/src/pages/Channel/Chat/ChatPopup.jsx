@@ -25,7 +25,7 @@ const ChatPopup = ({
   selectedMessage: { avatarSrc, color, displayName, message, channelArn },
   setIsChatPopupOpen
 }) => {
-  const { isMobileView } = useResponsiveDevice();
+  const { isMobileView, isTouchscreenDevice } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
@@ -171,11 +171,13 @@ const ChatPopup = ({
               'dark:bg-white',
               'dark:focus:bg-white',
               'dark:focus:shadow-darkMode-red',
-              'dark:hover:bg-white-hover',
               'dark:text-darkMode-red',
               'focus:bg-white',
               'focus:shadow-lightMode-red',
-              'hover:bg-lightMode-gray-light-hover',
+              !isTouchscreenDevice && [
+                'hover:bg-lightMode-gray-light-hover',
+                'dark:hover:bg-white-hover'
+              ],
               'text-lightMode-red'
             ])}
             variant="tertiary"
@@ -193,12 +195,13 @@ const ChatPopup = ({
                 'dark:bg-darkMode-red',
                 'dark:focus:bg-darkMode-red',
                 'dark:focus:shadow-white',
-                'dark:hover:bg-darkMode-red-hover',
-                'dark:text-white',
                 'focus:bg-lightMode-red',
                 'focus:shadow-black',
-                'hover:bg-lightMode-red-hover',
-                'text-white'
+                !isTouchscreenDevice && [
+                  'hover:bg-lightMode-red-hover',
+                  'dark:hover:bg-darkMode-red-hover'
+                ],
+                'text-black'
               )}
               variant="destructive"
               onClick={handleBanUser}
@@ -212,7 +215,7 @@ const ChatPopup = ({
               'dark:focus:shadow-white',
               'focus:bg-lightMode-gray',
               'focus:shadow-black',
-              'hover:bg-lightMode-gray-hover'
+              !isTouchscreenDevice && ['hover:bg-lightMode-gray-hover']
             ])}
             variant="secondary"
             onClick={handleCancelAndRefocus}

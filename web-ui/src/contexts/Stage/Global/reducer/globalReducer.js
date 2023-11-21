@@ -79,7 +79,11 @@ export const STATE_KEYS = {
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
   HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
-  STAGE_REQUEST_LIST: 'stageRequestList'
+  STAGE_REQUEST_LIST: 'stageRequestList',
+  IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
+  IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
+  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId',
+  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal'
 };
 
 const defaultStageReducerState = {
@@ -94,7 +98,11 @@ const defaultStageReducerState = {
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
-  [STATE_KEYS.STAGE_REQUEST_LIST]: []
+  [STATE_KEYS.STAGE_REQUEST_LIST]: [],
+  [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
+  [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false,
+  [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null,
+  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false
 };
 
 const stageAnimationReducerState = {
@@ -303,7 +311,8 @@ const globalReducer = (state = defaultReducerState, action) => {
 
     case actionTypes.RESET_PARTICIPANTS: {
       return {
-        participants: defaultStageReducerState.participants
+        ...state,
+        [STATE_KEYS.PARTICIPANTS]: defaultStageReducerState.participants
       };
     }
 
@@ -386,6 +395,34 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.STAGE_REQUEST_LIST]: currentStageRequestToJoinList
+      };
+    }
+
+    case actionTypes.IS_JOINING_STAGE_BY_REQUEST: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: action.payload
+      };
+    }
+
+    case actionTypes.IS_JOINING_STAGE_BY_INVITE: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_SPECTATOR_PARTICIPANT_ID: {
+      return {
+        ...state,
+        [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_SHOULD_OPEN_SETTINGS_MODAL: {
+      return {
+        ...state,
+        [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: action.payload
       };
     }
 

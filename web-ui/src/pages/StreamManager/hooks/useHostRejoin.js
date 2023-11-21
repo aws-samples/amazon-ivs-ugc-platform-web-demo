@@ -5,7 +5,6 @@ import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/global
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../../contexts/Stage';
-import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -14,7 +13,6 @@ const useHostRejoin = () => {
   const { channelData } = useChannel();
   const { stageId: channelTableStageId = undefined } = channelData || {};
   const { creatingStage, localParticipant } = useGlobalStage();
-  const { isDesktopView } = useResponsiveDevice();
   const {
     createStageInstanceAndJoin,
     updateError,
@@ -37,9 +35,7 @@ const useHostRejoin = () => {
       if (result?.token) {
         await createStageInstanceAndJoin(result.token, channelTableStageId);
         // open fullscreen view
-        if (isDesktopView) {
-          openFullscreenView();
-        }
+        openFullscreenView();
       }
 
       if (error) {
@@ -57,7 +53,6 @@ const useHostRejoin = () => {
       creatingStage,
       channelTableStageId,
       createStageInstanceAndJoin,
-      isDesktopView,
       updateError,
       broadcastDevicesStateObjRef,
       localParticipant?.isCameraHidden,

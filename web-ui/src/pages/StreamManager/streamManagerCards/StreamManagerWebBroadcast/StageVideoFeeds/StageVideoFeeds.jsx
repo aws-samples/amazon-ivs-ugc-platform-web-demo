@@ -18,12 +18,14 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ styles, type }) => {
-  const { participants } = useGlobalStage();
+  const { participants, isJoiningStageByRequestOrInvite } = useGlobalStage();
+
   const {
     isFullScreenViewOpen,
     fullscreenAnimationControls,
     dimensionClasses
   } = useBroadcastFullScreen();
+
   const participantList = Array.from(participants).slice(0, 12);
   const participantSize = participantList.length;
   const stageVideoFeedsRef = useRef();
@@ -74,14 +76,16 @@ const StageVideoFeeds = ({ styles, type }) => {
           dimensionClasses
         ])}
       >
-        {participantList.map(([userId, _], index) => (
-          <StageVideo
-            key={`stage-video-${userId}`}
-            participantKey={userId}
-            type={type}
-            className={clsm([participantSize > 2 && `slot-${index + 1}`])}
-          />
-        ))}
+        {!isJoiningStageByRequestOrInvite &&
+          participantList.map(([userId, _], index) => (
+            <StageVideo
+              key={`stage-video-${userId}`}
+              participantKey={userId}
+              type={type}
+              className={clsm([participantSize > 2 && `slot-${index + 1}`])}
+            />
+          ))}
+        {isJoiningStageByRequestOrInvite && <InviteParticipant type={type} />}
         {!isChannelType && participantSize <= 1 && (
           <InviteParticipant type={type} />
         )}

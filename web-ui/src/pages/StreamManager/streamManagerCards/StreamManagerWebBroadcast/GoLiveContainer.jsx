@@ -10,24 +10,39 @@ import { BREAKPOINTS } from '../../../../constants';
 import { clsm, noop } from '../../../../utils';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds/StageVideoFeeds';
 import { StageControl } from './StageControl';
-import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
-import FullScreenView from './FullScreenView/FullScreenView';
 import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
+import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 
 const GoLiveContainer = forwardRef(
-  ({ isOpen, onCollapse, setIsWebBroadcastAnimating }, previewRef) => {
+  (
+    {
+      isOpen,
+      onCollapse,
+      setIsWebBroadcastAnimating,
+      withHeader,
+      withScreenshareButton,
+      withStageControl,
+      goliveButtonClassNames
+    },
+    previewRef
+  ) => {
     const { isBroadcasting } = useBroadcast();
     const { isDesktopView, currentBreakpoint, isTouchscreenDevice } =
       useResponsiveDevice();
     const { isStageActive } = useStreamManagerStage();
-    const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
+    const { goLiveButtonRef, broadcastControllerRef } =
+      useBroadcastFullScreen();
+    const { isHost } = useGlobalStage();
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
@@ -80,7 +95,9 @@ const GoLiveContainer = forwardRef(
             onAnimationStart={onAnimationStart}
             onAnimationComplete={onAnimationComplete}
           >
-            {isDesktopView && <GoLiveHeader onCollapse={handleOnCollapse} />}
+            {((withHeader && isDesktopView) || (isStageActive && isHost)) && (
+              <GoLiveHeader onCollapse={handleOnCollapse} />
+            )}
             <div ref={goLiveContainerVideoContainerRef} className="relative">
               {isStageActive ? (
                 <div className={clsm(['flex', 'aspect-video'])}>
@@ -88,7 +105,7 @@ const GoLiveContainer = forwardRef(
                 </div>
               ) : (
                 <canvas
-                  ref={!isFullScreenViewOpen ? previewRef : null}
+                  ref={previewRef}
                   className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
                   aria-label="Amazon IVS web broadcast video and audio stream"
                 />
@@ -117,18 +134,30 @@ const GoLiveContainer = forwardRef(
                     'pr-[6px]'
                 ])}
               >
-                <BroadcastControlWrapper isOpen={isOpen} withSettingsButton />
+                <BroadcastControlWrapper
+                  ref={broadcastControllerRef}
+                  isOpen={isOpen}
+                  withSettingsButton
+                  withScreenshareButton={withScreenshareButton}
+                />
               </div>
-              <StageControl
-                goLiveContainerVideoContainerRef={
-                  goLiveContainerVideoContainerRef
-                }
-              />
+              {withStageControl && (
+                <StageControl
+                  goLiveContainerVideoContainerRef={
+                    goLiveContainerVideoContainerRef
+                  }
+                />
+              )}
             </div>
           </motion.div>
           {(isOpen || !isDesktopView) && (
             <motion.div
-              className={clsm(!isStageActive && '!w-full')}
+              ref={goLiveButtonRef}
+              key="go-live-button"
+              className={clsm([
+                !isStageActive && '!w-full',
+                goliveButtonClassNames
+              ])}
               {...createAnimationProps({
                 customVariants: {
                   hidden: {
@@ -152,15 +181,6 @@ const GoLiveContainer = forwardRef(
             </motion.div>
           )}
         </AnimatePresence>
-        <AnimatePresence>
-          {isFullScreenViewOpen && isDesktopView && (
-            <FullScreenView
-              isOpen={isFullScreenViewOpen}
-              parentEl={document.body}
-              dimensions={dimensions}
-            />
-          )}
-        </AnimatePresence>
       </>
     );
   }
@@ -169,11 +189,20 @@ const GoLiveContainer = forwardRef(
 GoLiveContainer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onCollapse: PropTypes.func.isRequired,
-  setIsWebBroadcastAnimating: PropTypes.func
+  setIsWebBroadcastAnimating: PropTypes.func,
+  withHeader: PropTypes.bool,
+  withStageControl: PropTypes.bool,
+  withScreenshareButton: PropTypes.bool,
+  goliveButtonClassNames: PropTypes.string
 };
 
 GoLiveContainer.defaultProps = {
-  setIsWebBroadcastAnimating: noop
+  setIsWebBroadcastAnimating: noop,
+  withHeader: true,
+  withScreenshareButton: true,
+  withStageControl: true,
+  goliveButtonClassNames: '',
+  onCollapse: noop
 };
 
 export default GoLiveContainer;

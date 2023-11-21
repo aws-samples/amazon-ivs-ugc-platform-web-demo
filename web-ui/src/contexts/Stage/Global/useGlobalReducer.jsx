@@ -48,6 +48,10 @@ const useGlobalReducers = () => {
     dispatch(actions.resetParticipants());
   }, []);
 
+  const updateSpectatorParticipantId = useCallback((spectatorParticipantId) => {
+    dispatch(actions.updateSpectatorParticipantId(spectatorParticipantId));
+  }, []);
+
   // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
@@ -134,6 +138,18 @@ const useGlobalReducers = () => {
     dispatch(actions.deleteRequestToJoin(requesteeChannelId));
   }, []);
 
+  const updateIsJoiningStageByRequest = useCallback((bool) => {
+    dispatch(actions.updateIsJoiningStageByRequest(bool));
+  }, []);
+
+  const updateIsJoiningStageByInvite = useCallback((bool) => {
+    dispatch(actions.updateIsJoiningStageByInvite(bool));
+  }, []);
+
+  const updateShouldOpenSettingsModal = useCallback((bool) => {
+    dispatch(actions.updateShouldOpenSettingsModal(bool));
+  }, []);
+
   return useMemo(
     () => ({
       state,
@@ -160,7 +176,11 @@ const useGlobalReducers = () => {
       updateSuccess,
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
-      deleteRequestToJoin
+      deleteRequestToJoin,
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite,
+      updateSpectatorParticipantId,
+      updateShouldOpenSettingsModal
     }),
     [
       state,
@@ -187,7 +207,11 @@ const useGlobalReducers = () => {
       updateSuccess,
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
-      deleteRequestToJoin
+      deleteRequestToJoin,
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite,
+      updateSpectatorParticipantId,
+      updateShouldOpenSettingsModal
     ]
   );
 };

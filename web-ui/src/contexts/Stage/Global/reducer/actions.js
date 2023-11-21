@@ -49,6 +49,11 @@ export const updateIsBlockingRoute = (bool) => ({
   payload: bool
 });
 
+export const updateShouldOpenSettingsModal = (bool) => ({
+  type: actionTypes.UPDATE_SHOULD_OPEN_SETTINGS_MODAL,
+  payload: bool
+});
+
 // Participants
 
 export const updateStreams = (key, streams) => ({
@@ -113,6 +118,21 @@ export const updateStageRequestList = (channelEvent) => ({
 export const deleteRequestToJoin = (requesteeChannelId) => ({
   type: actionTypes.DELETE_REQUEST_TO_JOIN,
   payload: requesteeChannelId
+});
+
+export const updateIsJoiningStageByRequest = (bool) => ({
+  type: actionTypes.IS_JOINING_STAGE_BY_REQUEST,
+  payload: bool
+});
+
+export const updateIsJoiningStageByInvite = (bool) => ({
+  type: actionTypes.IS_JOINING_STAGE_BY_INVITE,
+  payload: bool
+});
+
+export const updateSpectatorParticipantId = (spectatorParticipantId) => ({
+  type: actionTypes.UPDATE_SPECTATOR_PARTICIPANT_ID,
+  payload: spectatorParticipantId
 });
 
 // Channel page

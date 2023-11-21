@@ -40,7 +40,11 @@ export const Provider = ({ children }) => {
     updateHasStageRequestBeenApproved,
     updateStageRequestList,
     deleteRequestToJoin,
-    updateIsChannelStagePlayerMuted
+    updateIsChannelStagePlayerMuted,
+    updateIsJoiningStageByRequest,
+    updateIsJoiningStageByInvite,
+    updateSpectatorParticipantId,
+    updateShouldOpenSettingsModal
   } = useGlobalReducers();
   const {
     participants,
@@ -57,7 +61,11 @@ export const Provider = ({ children }) => {
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     requestingToJoinStage,
     hasStageRequestBeenApproved,
-    stageRequestList
+    stageRequestList,
+    isJoiningStageByRequest,
+    isJoiningStageByInvite,
+    spectatorParticipantId,
+    shouldOpenSettingsModal
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -106,6 +114,9 @@ export const Provider = ({ children }) => {
     [participants]
   );
 
+  const isJoiningStageByRequestOrInvite =
+    isJoiningStageByRequest || isJoiningStageByInvite;
+
   const value = useMemo(() => {
     return {
       // State
@@ -127,6 +138,15 @@ export const Provider = ({ children }) => {
       isInvitedParticipant,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       updateIsChannelStagePlayerMuted,
+      updateIsJoiningStageByRequest,
+      isJoiningStageByRequest,
+      updateIsJoiningStageByInvite,
+      isJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite,
+      updateSpectatorParticipantId,
+      spectatorParticipantId,
+      shouldOpenSettingsModal,
+      updateShouldOpenSettingsModal,
       // Actions
       addParticipant,
       creatingStage,
@@ -204,7 +224,16 @@ export const Provider = ({ children }) => {
     shouldDisableStageButtonWithDelay,
     updateStageRequestList,
     stageRequestList,
-    deleteRequestToJoin
+    deleteRequestToJoin,
+    updateIsJoiningStageByRequest,
+    isJoiningStageByRequest,
+    updateIsJoiningStageByInvite,
+    isJoiningStageByInvite,
+    isJoiningStageByRequestOrInvite,
+    updateSpectatorParticipantId,
+    spectatorParticipantId,
+    shouldOpenSettingsModal,
+    updateShouldOpenSettingsModal
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

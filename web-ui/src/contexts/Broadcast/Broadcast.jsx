@@ -25,6 +25,7 @@ import usePrompt from '../../hooks/usePrompt';
 import useScreenShare from './useScreenShare';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { useResponsiveDevice } from '../ResponsiveDevice';
+import { useLocation } from 'react-router-dom';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -369,6 +370,8 @@ export const Provider = ({
   /**
    * Initialize client, request permissions and refresh devices
    */
+
+  const { state } = useLocation();
   useEffect(() => {
     if (!isInitialized && previewRef.current) {
       initializeBroadcastClient();
@@ -381,7 +384,13 @@ export const Provider = ({
 
       removeBroadcastClient();
     };
-  }, [initializeBroadcastClient, isMounted, previewRef, removeBroadcastClient]);
+  }, [
+    initializeBroadcastClient,
+    isMounted,
+    previewRef,
+    removeBroadcastClient,
+    state
+  ]);
 
   useEffect(() => {
     if (error) {
@@ -422,11 +431,11 @@ export const Provider = ({
       });
     }
   }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
-
   const value = useMemo(
     () => ({
       // Devices and permissions
       devices,
+      detectDevicePermissions,
       activeDevices,
       updateActiveDevice,
       permissions,
@@ -459,6 +468,7 @@ export const Provider = ({
     [
       activeDevices,
       devices,
+      detectDevicePermissions,
       error,
       hasPermissions,
       initializeDevices,

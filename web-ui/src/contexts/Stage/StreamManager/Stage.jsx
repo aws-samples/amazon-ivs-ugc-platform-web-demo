@@ -1,5 +1,5 @@
 import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import copyToClipboard from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
 
@@ -33,6 +33,7 @@ import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
 import useStageClient from '../../../hooks/useStageClient';
 import channelEvents from '../../AppSync/channelEvents';
+import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -64,7 +65,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isCreatingStage,
     isHost,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    shouldCloseFullScreenViewOnKickedOrHostLeave
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateIsJoiningStageByRequest,
+    isJoiningStageByInvite,
+    isJoiningStageByRequest
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -86,6 +90,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const navigate = useNavigate();
   const { refreshChannelData } = useChannel();
   const { publish } = useAppSync();
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (!state?.isJoiningStageByRequest) return;
+
+    updateIsJoiningStageByRequest(true);
+  }, [navigate, state?.isJoiningStageByRequest, updateIsJoiningStageByRequest]);
 
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
@@ -99,8 +110,18 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const stageConnectionErroredEventCallback = useCallback(() => {
     if (!isHost) shouldGetHostRejoinTokenRef.current = false;
+
+    if (state?.isJoiningStageByRequest) {
+      navigate('/manager', { state: {} });
+    }
+
     updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
-  }, [updateShouldCloseFullScreenViewOnKickedOrHostLeave, isHost]);
+  }, [
+    isHost,
+    navigate,
+    state?.isJoiningStageByRequest,
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave
+  ]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
@@ -155,6 +176,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
         // Fetch updated channel data
         refreshChannelData();
+
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
       }
 
       if (result || !isHost) {
@@ -172,8 +196,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
             });
           }
         }
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
 
         // Animate stage control buttons
         updateAnimateCollapseStageContainerWithDelay(false);
@@ -185,6 +207,11 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
           if (stageIdUrlParam) {
             navigate('/manager');
           }
+
+          if (state?.isJoiningStageByRequest) {
+            navigate('/manager', { state: {} });
+          }
+
           broadcastDevicesStateObjRef.current = {
             isCameraHidden: localParticipant?.isCameraHidden || false,
             isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
@@ -209,9 +236,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     publish,
     resetStage,
     stageIdUrlParam,
-    navigate,
+    state?.isJoiningStageByRequest,
     localParticipant?.isCameraHidden,
     localParticipant?.isMicrophoneMuted,
+    navigate,
     updateError
   ]);
 
@@ -233,8 +261,11 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       const { attributes, user_id: userId } = localParticipantData;
       const { type } = attributes;
 
-      if (type === PARTICIPANT_TYPES.HOST)
+      if (type === PARTICIPANT_TYPES.HOST) {
         shouldGetHostRejoinTokenRef.current = true;
+        // From this point, changing routes will prompt confirmation modal for host
+        updateIsBlockingRoute(true);
+      }
 
       const localParticipantObject = {
         attributes: {
@@ -250,18 +281,18 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         isMicrophoneMuted:
           isBroadcastMicrophoneMuted || defaultParticipant.isMicrophoneMuted
       };
+
       if (localParticipant) {
         // update local participant
         updateParticipant(LOCAL_KEY, localParticipantObject);
       } else {
         addParticipant(localParticipantObject);
       }
-      // From this point, changing routes will prompt confirmation modal
-      updateIsBlockingRoute(true);
 
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
+      // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
     },
@@ -309,12 +340,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       }
     },
     [
-      removeBroadcastClient,
       stageId,
       creatingStage,
+      removeBroadcastClient,
+      updateShouldDisableStageButtonWithDelay,
       createStageInstanceAndJoin,
-      updateError,
-      updateShouldDisableStageButtonWithDelay
+      updateError
     ]
   );
 
@@ -326,6 +357,25 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     broadcastDevicesStateObjRef,
     shouldGetHostRejoinTokenRef
   });
+
+  const { joinStageByRequest } = useRequestParticipants({
+    createStageInstanceAndJoin
+  });
+
+  const handleParticipantJoinStage = useCallback(() => {
+    if (isJoiningStageByInvite) {
+      handleParticipantInvite();
+    }
+
+    if (isJoiningStageByRequest) {
+      joinStageByRequest();
+    }
+  }, [
+    handleParticipantInvite,
+    isJoiningStageByInvite,
+    isJoiningStageByRequest,
+    joinStageByRequest
+  ]);
 
   const handleCopyJoinParticipantLinkAndNotify = useCallback(() => {
     copyToClipboard(joinParticipantLinkRef.current);
@@ -444,6 +494,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       // Participants
       localParticipant,
       participants,
+      handleParticipantJoinStage,
       // Controls
       leaveStage,
       toggleCamera,
@@ -453,7 +504,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
-      stageControlsVisibility
+      stageControlsVisibility,
+      joinStageByRequest
     }),
     [
       initializeStageClient,
@@ -477,7 +529,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
-      stageControlsVisibility
+      stageControlsVisibility,
+      joinStageByRequest,
+      handleParticipantJoinStage
     ]
   );
 

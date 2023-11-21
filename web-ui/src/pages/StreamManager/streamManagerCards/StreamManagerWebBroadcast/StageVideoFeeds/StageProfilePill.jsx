@@ -75,7 +75,8 @@ const StageProfilePill = ({
         'items-center',
         'max-w-[80px]',
         'rounded-3xl',
-        'text-white',
+        'dark:text-white',
+        'text-black',
         'w-auto',
         STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
           '[&>img]:ring-2',
