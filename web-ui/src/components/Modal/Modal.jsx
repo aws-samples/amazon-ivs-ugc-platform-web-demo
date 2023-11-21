@@ -16,6 +16,7 @@ const Modal = ({ children, className, onClickAway }) => {
   const { pathname } = useLocation();
   const modalRef = useRef();
   const prevPathname = usePrevious(pathname);
+  const clickAwayEnabled = type !== MODAL_TYPE.STAGE_JOIN
 
   useFocusTrap([modalRef]);
   useClickAway(
@@ -27,7 +28,7 @@ const Modal = ({ children, className, onClickAway }) => {
         closeModal({ shouldRefocus: false });
       }
     },
-    type !== MODAL_TYPE.STAGE_JOIN
+    clickAwayEnabled
   );
 
   // Close the modal on page change
