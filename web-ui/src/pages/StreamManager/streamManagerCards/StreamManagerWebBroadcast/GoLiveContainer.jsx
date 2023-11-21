@@ -12,12 +12,16 @@ import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds/StageVideoFeeds';
 import { StageControl } from './StageControl';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../contexts/Stage';
 import BroadcastControlWrapper from './BroadcastControl';
 import GoLiveHeader from './GoLiveHeader';
 import GoLiveStreamButton from './GoLiveStreamButton';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
+import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 
 const GoLiveContainer = forwardRef(
   (
@@ -36,6 +40,9 @@ const GoLiveContainer = forwardRef(
     const { isDesktopView, currentBreakpoint, isTouchscreenDevice } =
       useResponsiveDevice();
     const { isStageActive } = useStreamManagerStage();
+    const { goLiveButtonRef, broadcastControllerRef } =
+      useBroadcastFullScreen();
+    const { isHost } = useGlobalStage();
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
     const goLiveContainerVideoContainerRef = useRef();
@@ -88,7 +95,7 @@ const GoLiveContainer = forwardRef(
             onAnimationStart={onAnimationStart}
             onAnimationComplete={onAnimationComplete}
           >
-            {withHeader && isDesktopView && (
+            {((withHeader && isDesktopView) || (isStageActive && isHost)) && (
               <GoLiveHeader onCollapse={handleOnCollapse} />
             )}
             <div ref={goLiveContainerVideoContainerRef} className="relative">
@@ -128,6 +135,7 @@ const GoLiveContainer = forwardRef(
                 ])}
               >
                 <BroadcastControlWrapper
+                  ref={broadcastControllerRef}
                   isOpen={isOpen}
                   withSettingsButton
                   withScreenshareButton={withScreenshareButton}
@@ -144,6 +152,8 @@ const GoLiveContainer = forwardRef(
           </motion.div>
           {(isOpen || !isDesktopView) && (
             <motion.div
+              ref={goLiveButtonRef}
+              key="go-live-button"
               className={clsm([
                 !isStageActive && '!w-full',
                 goliveButtonClassNames

@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
 import { useGlobalStage } from './Stage';
+import { useResponsiveDevice } from './ResponsiveDevice';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -27,6 +28,9 @@ Context.displayName = 'Fullscreen';
 export const Provider = ({ children, previewRef }) => {
   const webBroadcastParentContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
+  const goLiveButtonRef = useRef();
+  const broadcastControllerRef = useRef();
+  const { isDesktopView, isMobileView } = useResponsiveDevice();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
     shouldRenderFullScreenCollaborateButton,
@@ -49,19 +53,35 @@ export const Provider = ({ children, previewRef }) => {
       animationInitialWidth: 0,
       animationInitialHeight: 0,
       animationInitialLeft: 0,
-      animationInitialTop: 0
+      animationInitialTop: 0,
+      goLiveButtonInitialWidth: 0,
+      broadcastControllerInitialMarginLeft: 0
     }
   );
 
   const calculateTopAndLeftValues = useCallback(() => {
-    const left = webBroadcastParentContainerRef.current?.offsetLeft + 64;
-    const top = webBroadcastParentContainerRef.current?.offsetTop;
+    const topOffset = isDesktopView ? 0 : 56; // tab height
+    const leftOffset = isMobileView ? 0 : 64; // add sidebar width
+    const left =
+      webBroadcastParentContainerRef.current?.offsetLeft + leftOffset;
+    const top = webBroadcastParentContainerRef.current?.offsetTop + topOffset;
 
-    return { left, top };
-  }, [webBroadcastParentContainerRef]);
+    return {
+      left,
+      top,
+      goLiveButtonInitialWidth: goLiveButtonRef.current?.clientWidth,
+      broadcastControllerInitialMarginLeft:
+        broadcastControllerRef.current?.offsetLeft
+    };
+  }, [webBroadcastParentContainerRef, isDesktopView, isMobileView]);
 
   const initializeGoLiveContainerDimensions = useCallback(() => {
-    const { top, left } = calculateTopAndLeftValues();
+    const {
+      top,
+      left,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
+    } = calculateTopAndLeftValues();
 
     const width = webBroadcastContainerRef.current.offsetWidth;
     const height = webBroadcastContainerRef.current.offsetHeight;
@@ -70,7 +90,9 @@ export const Provider = ({ children, previewRef }) => {
       animationInitialWidth: width,
       animationInitialHeight: height,
       animationInitialLeft: left,
-      animationInitialTop: top
+      animationInitialTop: top,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
     });
   }, [calculateTopAndLeftValues]);
 
@@ -102,11 +124,18 @@ export const Provider = ({ children, previewRef }) => {
   ]);
 
   const calculateBaseTopAndLeftOnResize = () => {
-    const { top, left } = calculateTopAndLeftValues();
+    const {
+      top,
+      left,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
+    } = calculateTopAndLeftValues();
 
     updateDimensions({
       animationInitialLeft: left,
-      animationInitialTop: top
+      animationInitialTop: top,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
     });
   };
 
@@ -191,7 +220,9 @@ export const Provider = ({ children, previewRef }) => {
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
       handleOpenFullScreenView,
-      closeFullscreenAndAnimateCollaborateButton
+      closeFullscreenAndAnimateCollaborateButton,
+      goLiveButtonRef,
+      broadcastControllerRef
     }),
     [
       collaborateButtonAnimationControls,
@@ -208,7 +239,9 @@ export const Provider = ({ children, previewRef }) => {
       webBroadcastContainerRef,
       webBroadcastParentContainerRef,
       handleOpenFullScreenView,
-      closeFullscreenAndAnimateCollaborateButton
+      closeFullscreenAndAnimateCollaborateButton,
+      goLiveButtonRef,
+      broadcastControllerRef
     ]
   );
 

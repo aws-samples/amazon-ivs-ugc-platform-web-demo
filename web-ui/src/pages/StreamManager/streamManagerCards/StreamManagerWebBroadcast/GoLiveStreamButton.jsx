@@ -21,6 +21,7 @@ import {
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { useChannel } from '../../../../contexts/Channel';
+import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
@@ -49,7 +50,6 @@ const GoLiveStreamButton = ({
     collaborateButtonAnimationControls,
     isHost,
     shouldDisableStageButtonWithDelay,
-    stageId,
     isJoiningStageByRequestOrInvite,
     isCreatingStage
   } = useGlobalStage();
@@ -57,16 +57,18 @@ const GoLiveStreamButton = ({
 
   const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
     useStreamManagerStage();
-  const { setIsFullScreenViewOpen, isFullScreenViewOpen } =
-    useBroadcastFullScreen();
+  const {
+    setIsFullScreenViewOpen,
+    isFullScreenViewOpen,
+    initializeGoLiveContainerDimensions
+  } = useBroadcastFullScreen();
   const { openModal, isModalOpen, type: modalType } = useModal();
   const { isLive } = useStreams();
-  const isStageActiveInAnotherTab = !isStageActive && stageId;
+  const { isDesktopView } = useResponsiveDevice();
   const shouldDisableLeaveStageButton =
     isStageActive && shouldDisableStageButtonWithDelay;
   const isDisabled =
     !hasPermissions ||
-    isStageActiveInAnotherTab ||
     shouldDisableLeaveStageButton ||
     (isLive && !isBroadcasting) ||
     (isJoiningStageByRequestOrInvite && !!channelData?.stageId);
@@ -86,6 +88,8 @@ const GoLiveStreamButton = ({
         });
         collaborateButtonAnimationControls.start({ zIndex: 'unset' });
       };
+
+      if (!isDesktopView) initializeGoLiveContainerDimensions();
 
       handleOnConfirmLeaveStage({
         ...(isFullScreenViewOpen && {
@@ -154,7 +158,8 @@ const GoLiveStreamButton = ({
             }
           },
           options: {
-            isVisible: isFullScreenViewOpen
+            isVisible: isFullScreenViewOpen,
+            shouldAnimateIn: !isJoiningStageByRequestOrInvite
           }
         })}
         className={clsm(['[&>svg]:h-6', '[&>svg]:w-6'])}

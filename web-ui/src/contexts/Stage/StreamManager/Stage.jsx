@@ -176,6 +176,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
         // Fetch updated channel data
         refreshChannelData();
+
+        // Disable usePrompt
+        updateIsBlockingRoute(false);
       }
 
       if (result || !isHost) {
@@ -193,8 +196,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
             });
           }
         }
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
 
         // Animate stage control buttons
         updateAnimateCollapseStageContainerWithDelay(false);
@@ -260,8 +261,11 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       const { attributes, user_id: userId } = localParticipantData;
       const { type } = attributes;
 
-      if (type === PARTICIPANT_TYPES.HOST)
+      if (type === PARTICIPANT_TYPES.HOST) {
         shouldGetHostRejoinTokenRef.current = true;
+        // From this point, changing routes will prompt confirmation modal for host
+        updateIsBlockingRoute(true);
+      }
 
       const localParticipantObject = {
         attributes: {
@@ -284,8 +288,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       } else {
         addParticipant(localParticipantObject);
       }
-      // From this point, changing routes will prompt confirmation modal
-      updateIsBlockingRoute(true);
 
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);

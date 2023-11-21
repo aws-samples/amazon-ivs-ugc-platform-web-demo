@@ -43,8 +43,6 @@ const StreamManagerControlCenter = forwardRef(
     const {
       webBroadcastParentContainerRef,
       isFullScreenViewOpen,
-      setIsFullScreenViewOpen,
-      initializeGoLiveContainerDimensions,
       handleOpenFullScreenView,
       dimensions
     } = useBroadcastFullScreen();
@@ -90,13 +88,23 @@ const StreamManagerControlCenter = forwardRef(
       if (isDesktopView) {
         setSelectedTabIndex(STREAM_MANAGER_DEFAULT_TAB);
       }
+
+      if (
+        (isStageActive || stageIdUrlParam || channelTableStageId) &&
+        !isDesktopView
+      ) {
+        setSelectedTabIndex(GO_LIVE_TAB_INDEX);
+      }
     }, [
       isDesktopView,
       resetPreview,
       state,
       isBroadcasting,
       isFullScreenViewOpen,
-      isLandscape
+      isLandscape,
+      isStageActive,
+      stageIdUrlParam,
+      channelTableStageId
     ]);
 
     useEffect(() => {
@@ -122,35 +130,35 @@ const StreamManagerControlCenter = forwardRef(
 
     useEffect(() => {
       if (!isStageActive && channelData && stageIdUrlParam) {
+        if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
         updateIsJoiningStageByInvite(true);
-        initializeGoLiveContainerDimensions();
-        setIsFullScreenViewOpen(true);
+        handleOpenFullScreenView();
       }
     }, [
       channelData,
-      initializeGoLiveContainerDimensions,
       isStageActive,
-      setIsFullScreenViewOpen,
       stageIdUrlParam,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      isDesktopView,
+      handleOpenFullScreenView
     ]);
 
     useEffect(() => {
       if (!state?.isJoiningStageByRequest || isStageActive) return;
 
+      if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
       updateIsJoiningStageByRequest(true);
-      initializeGoLiveContainerDimensions();
-      setIsFullScreenViewOpen(true);
+      handleOpenFullScreenView();
     }, [
       state?.isJoiningStageByRequest,
-      setIsFullScreenViewOpen,
       channelData,
       addParticipant,
-      initializeGoLiveContainerDimensions,
       updateShouldAnimateStageVideoFeedsContainer,
       setupRequestedParticipant,
       updateIsJoiningStageByRequest,
-      isStageActive
+      isStageActive,
+      isDesktopView,
+      handleOpenFullScreenView
     ]);
 
     useEffect(() => {

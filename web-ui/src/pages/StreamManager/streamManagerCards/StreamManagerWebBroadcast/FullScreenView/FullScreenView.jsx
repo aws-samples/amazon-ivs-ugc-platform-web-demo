@@ -23,6 +23,7 @@ import Footer from './Footer';
 import Header from './Header';
 import { useBroadcast } from '../../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import useResize from '../../../../../hooks/useResize';
 
 const FullScreenView = () => {
   const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
@@ -31,7 +32,11 @@ const FullScreenView = () => {
     shouldOpenSettingsModal,
     updateShouldOpenSettingsModal
   } = useGlobalStage();
-  const { isFullScreenViewOpen, dimensions } = useBroadcastFullScreen();
+  const {
+    isFullScreenViewOpen,
+    dimensions,
+    initializeGoLiveContainerDimensions
+  } = useBroadcastFullScreen();
   const { resetPreview } = useBroadcast();
   const { openModal } = useModal();
   const fullScreenViewContainerRef = useRef();
@@ -55,6 +60,8 @@ const FullScreenView = () => {
     animationInitialWidth,
     animationInitialHeight
   } = dimensions;
+
+  useResize(initializeGoLiveContainerDimensions);
 
   useEffect(() => {
     if (isJoiningStageByRequestOrInvite) {
@@ -95,7 +102,8 @@ const FullScreenView = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            borderRadius: 0
+            borderRadius: 0,
+            display: 'block'
           }
         },
         transition: ANIMATION_TRANSITION,

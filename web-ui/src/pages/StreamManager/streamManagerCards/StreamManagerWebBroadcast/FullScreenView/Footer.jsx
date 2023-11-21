@@ -35,8 +35,12 @@ const Footer = () => {
   const {
     shouldRenderFullScreenCollaborateButton,
     setShouldRenderFullScreenCollaborateButton,
-    isFullScreenViewOpen
+    isFullScreenViewOpen,
+    dimensions
   } = useBroadcastFullScreen();
+  const { goLiveButtonInitialWidth, broadcastControllerInitialMarginLeft } =
+    dimensions;
+
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
 
   const handleCreateStage = async () => {
@@ -74,10 +78,12 @@ const Footer = () => {
         {...createAnimationProps({
           customVariants: {
             hidden: {
-              marginRight: 0
+              marginRight: 0,
+              marginLeft: broadcastControllerInitialMarginLeft
             },
             visible: {
-              marginRight: isMobileView ? 0 : 138 // 1/2 width + space between buttons
+              marginRight: isMobileView ? 0 : 138, // 1/2 width + space between buttons
+              marginLeft: 0
             }
           },
           transition: ANIMATION_TRANSITION
@@ -95,7 +101,7 @@ const Footer = () => {
         {...createAnimationProps({
           customVariants: {
             hidden: {
-              width: 311,
+              width: goLiveButtonInitialWidth,
               marginLeft: 0,
               opacity: 1
             },

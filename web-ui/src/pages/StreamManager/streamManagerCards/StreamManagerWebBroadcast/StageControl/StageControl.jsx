@@ -45,7 +45,6 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
   } = useStreamManagerStage();
   const {
     collaborateButtonAnimationControls,
-    updateAnimateCollapseStageContainerWithDelay,
     animateCollapseStageContainerWithDelay
   } = useGlobalStage();
   const { handleToggleFullscreen } = useBroadcastFullScreen();
@@ -113,15 +112,11 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
     if (isStageActive) return;
 
     const openFullscreenViewCallback = () => {
-      if (isDesktopView) {
-        collaborateButtonAnimationControls.start({
-          zIndex: 0,
-          opacity: 0
-        });
-        handleToggleFullscreen();
-      } else {
-        updateAnimateCollapseStageContainerWithDelay(true);
-      }
+      collaborateButtonAnimationControls.start({
+        zIndex: 0,
+        opacity: 0
+      });
+      handleToggleFullscreen();
     };
 
     initializeStageClient(openFullscreenViewCallback);
