@@ -50,10 +50,7 @@ const buildServer = () => {
       // Create /products authenticated resources
       server.register(productsRouters, { prefix: 'products' });
     }
-  }
 
-  if (['all', 'stages'].includes(serviceName)) {
-    // Create /stages authenticated resources
     server.register(stagesRouter, { prefix: 'stages' });
   }
 
