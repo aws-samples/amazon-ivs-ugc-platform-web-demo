@@ -358,7 +358,7 @@ export const Provider = ({ children }) => {
         dismissNotif();
         if (shouldEnableLocalStorage(actionName)) {
           const activeStreamManagerAction = activeStreamManagerActionData?.name;
-          // The "on" state of the Amazon Product tile relies on the action data not being reset as we cancel stream action modals
+          // The "on" state of the Amazon Product tile relies on the action data not being reset as we cancel other stream action modals
           const shouldResetStreamManagerActionData =
             activeStreamManagerAction !== STREAM_ACTION_NAME.AMAZON_PRODUCT;
 
