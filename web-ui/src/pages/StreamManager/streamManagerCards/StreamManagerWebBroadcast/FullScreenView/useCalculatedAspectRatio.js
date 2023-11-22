@@ -17,6 +17,9 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
   const animateWidthHeight = useCallback(() => {
     if (!isFullScreenViewOpen) return;
 
+    // Dimension classes are meant for setting up the correct dimensions of the canvas (only on mount)
+    setDimensionClasses([]);
+
     const { width: newCanvasWidth, height: newCanvasHeight } =
       fitRectIntoContainer(
         childRef?.current?.clientWidth,
@@ -29,7 +32,12 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
       width: newCanvasWidth,
       height: newCanvasHeight
     });
-  }, [childRef, fullscreenAnimationControls, isFullScreenViewOpen]);
+  }, [
+    isFullScreenViewOpen,
+    setDimensionClasses,
+    childRef,
+    fullscreenAnimationControls
+  ]);
 
   useResize(animateWidthHeight);
 
@@ -39,7 +47,7 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
     const aspectRatioProportion = 0.667; // 3:2 aspect ratio or 2/3
-    const newDimenisionClasses = [
+    const initialDimensionClasses = [
       'aspect-video',
       'max-w-[calc(100vw_-_64px)]', // Maximum width considering 64px combined padding
       windowHeight / windowWidth < aspectRatioProportion
@@ -48,11 +56,7 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
     ];
 
     // Updating the initial dimensions of the canvas will make the canvas dimension animation smoother once the animation completes
-    setDimensionClasses(newDimenisionClasses);
-  }, [setDimensionClasses, isFullScreenViewOpen]);
-
-  useEffect(() => {
-    if (!isFullScreenViewOpen) setDimensionClasses([]);
+    setDimensionClasses(initialDimensionClasses);
   }, [setDimensionClasses, isFullScreenViewOpen]);
 
   useEffect(() => {
