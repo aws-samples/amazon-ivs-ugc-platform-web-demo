@@ -357,7 +357,14 @@ export const Provider = ({ children }) => {
       const onCancel = () => {
         dismissNotif();
         if (shouldEnableLocalStorage(actionName)) {
-          resetStreamManagerActionData();
+          const activeStreamManagerAction = activeStreamManagerActionData?.name;
+          // The "on" state of the Amazon Product tile relies on the action data not being reset as we cancel stream action modals
+          const shouldResetStreamManagerActionData =
+            activeStreamManagerAction !== STREAM_ACTION_NAME.AMAZON_PRODUCT;
+
+          if (shouldResetStreamManagerActionData) {
+            resetStreamManagerActionData();
+          }
         }
         resetStreamManagerActionErrorData();
       };
@@ -371,6 +378,7 @@ export const Provider = ({ children }) => {
       });
     },
     [
+      activeStreamManagerActionData,
       dismissNotif,
       notifyErrorPortal,
       notifySuccessPortal,
