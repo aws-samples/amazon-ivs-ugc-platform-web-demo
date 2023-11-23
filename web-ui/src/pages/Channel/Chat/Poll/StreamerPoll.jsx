@@ -10,7 +10,6 @@ import {
 } from '../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useChannel } from '../../../../contexts/Channel';
-import { useModal } from '../../../../contexts/Modal';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
