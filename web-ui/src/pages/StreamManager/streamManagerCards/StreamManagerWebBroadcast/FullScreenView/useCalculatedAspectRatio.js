@@ -17,7 +17,6 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
   const animateWidthHeight = useCallback(() => {
     if (!isFullScreenViewOpen) return;
 
-    // Dimension classes are meant for setting up the correct dimensions of the canvas (only on mount)
     setDimensionClasses([]);
 
     const { width: newCanvasWidth, height: newCanvasHeight } =
