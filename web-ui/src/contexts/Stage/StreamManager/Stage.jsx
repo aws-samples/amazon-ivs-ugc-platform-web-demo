@@ -109,6 +109,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
+    // Ensure leave page prompt does not appear
+    updateIsBlockingRoute(false);
+
     if (!isHost) shouldGetHostRejoinTokenRef.current = false;
 
     if (state?.isJoiningStageByRequest) {
@@ -120,6 +123,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isHost,
     navigate,
     state?.isJoiningStageByRequest,
+    updateIsBlockingRoute,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave
   ]);
 
@@ -131,117 +135,115 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       stageConnectionErroredEventCallback
     });
 
-  const resetStage = useCallback(
-    (showSuccess = false) => {
-      // Stop all tracks
-      if (localParticipant?.streams)
-        localParticipant?.streams[0].mediaStreamTrack.stop();
+  const resetStage = useCallback(() => {
+    // Stop all tracks
+    if (localParticipant?.streams)
+      localParticipant?.streams[0].mediaStreamTrack.stop();
 
-      if (showSuccess) {
-        updateSuccess($contentNotification.success.you_have_left_the_session);
-        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
-      } else {
-        resetAllStageState();
-      }
-      joinParticipantLinkRef.current = undefined;
-      isDevicesInitializedRef.current = false;
-      broadcastDevicesStateObjRef.current = null;
-      shouldGetParticipantTokenRef.current = false;
-    },
-    [
-      broadcastDevicesStateObjRef,
-      isDevicesInitializedRef,
-      joinParticipantLinkRef,
-      localParticipant?.streams,
-      resetAllStageState,
-      shouldGetParticipantTokenRef,
-      updateSuccess
-    ]
-  );
+    resetAllStageState();
 
-  const leaveStage = useCallback(async () => {
-    try {
-      let result;
-      participantChannels.current =
-        getStageParticipantsChannelIds(participants);
+    joinParticipantLinkRef.current = undefined;
+    isDevicesInitializedRef.current = false;
+    broadcastDevicesStateObjRef.current = null;
+    shouldGetParticipantTokenRef.current = false;
+  }, [localParticipant?.streams, resetAllStageState]);
 
-      leaveStageClient();
+  const leaveStage = useCallback(
+    async (shouldShowSuccessNotification = false) => {
+      try {
+        let result;
+        participantChannels.current =
+          getStageParticipantsChannelIds(participants);
 
-      // Check if the user is the host
-      if (isHost) {
-        ({ result } = await retryWithExponentialBackoff({
-          promiseFn: () => stagesAPI.deleteStage(),
-          maxRetries: 2
-        }));
+        leaveStageClient();
 
-        // Fetch updated channel data
-        refreshChannelData();
-
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
-      }
-
-      if (result || !isHost) {
+        // Check if the user is the host
         if (isHost) {
-          notifyNeutral($contentNotification.neutral.the_session_ended, {
-            asPortal: true
-          });
+          ({ result } = await retryWithExponentialBackoff({
+            promiseFn: () => stagesAPI.deleteStage(),
+            maxRetries: 2
+          }));
 
-          if (participantChannels.current.length) {
-            participantChannels.current.forEach((participantChannel) => {
-              publish(
-                participantChannel,
-                JSON.stringify({ type: channelEvents.STAGE_SESSION_HAS_ENDED })
-              );
-            });
-          }
+          // Fetch updated channel data
+          refreshChannelData();
+
+          // Disable usePrompt
+          updateIsBlockingRoute(false);
         }
 
-        // Animate stage control buttons
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
+        if (result || !isHost) {
+          if (isHost) {
+            notifyNeutral($contentNotification.neutral.the_session_ended, {
+              asPortal: true
+            });
 
-        setTimeout(() => {
-          resetStage(true);
-
-          if (stageIdUrlParam) {
-            navigate('/manager');
+            if (participantChannels.current.length) {
+              participantChannels.current.forEach((participantChannel) => {
+                const channel = participantChannel?.toLowerCase();
+                publish(
+                  channel,
+                  JSON.stringify({
+                    type: channelEvents.STAGE_SESSION_HAS_ENDED
+                  })
+                );
+              });
+            }
           }
 
-          if (state?.isJoiningStageByRequest) {
-            navigate('/manager', { state: {} });
-          }
+          // Animate stage control buttons
+          updateAnimateCollapseStageContainerWithDelay(false);
+          updateShouldAnimateGoLiveButtonChevronIcon(false);
 
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }, 350);
+          setTimeout(() => {
+            resetStage();
+
+            if (shouldShowSuccessNotification) {
+              updateSuccess(
+                $contentNotification.success.you_have_left_the_session
+              );
+            }
+
+            if (stageIdUrlParam) {
+              navigate('/manager');
+            }
+
+            if (state?.isJoiningStageByRequest) {
+              navigate('/manager', { state: {} });
+            }
+
+            broadcastDevicesStateObjRef.current = {
+              isCameraHidden: localParticipant?.isCameraHidden || false,
+              isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+            };
+          }, 350);
+        }
+      } catch (err) {
+        updateError({
+          message: $contentNotification.error.unable_to_leave_session,
+          err
+        });
       }
-    } catch (err) {
-      updateError({
-        message: $contentNotification.error.unable_to_leave_session,
-        err
-      });
-    }
-  }, [
-    participants,
-    leaveStageClient,
-    isHost,
-    refreshChannelData,
-    updateIsBlockingRoute,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    notifyNeutral,
-    publish,
-    resetStage,
-    stageIdUrlParam,
-    state?.isJoiningStageByRequest,
-    localParticipant?.isCameraHidden,
-    localParticipant?.isMicrophoneMuted,
-    navigate,
-    updateError
-  ]);
+    },
+    [
+      participants,
+      leaveStageClient,
+      isHost,
+      refreshChannelData,
+      updateIsBlockingRoute,
+      updateAnimateCollapseStageContainerWithDelay,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      notifyNeutral,
+      publish,
+      resetStage,
+      stageIdUrlParam,
+      state?.isJoiningStageByRequest,
+      localParticipant?.isCameraHidden,
+      localParticipant?.isMicrophoneMuted,
+      updateSuccess,
+      navigate,
+      updateError
+    ]
+  );
 
   useEffect(() => {
     if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
