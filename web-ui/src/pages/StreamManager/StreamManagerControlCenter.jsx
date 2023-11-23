@@ -250,7 +250,6 @@ const StreamManagerControlCenter = forwardRef(
             '[&>div>button]:h-9'
           ])}
         >
-          {/* {isBlocked && <LeavePrompt /> */}
           <StreamManagerActionModal />
           <StageParticipantsModal />
           <StageJoinModal />
