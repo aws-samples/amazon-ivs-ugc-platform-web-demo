@@ -12,8 +12,7 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
-  PARTICIPANT_TYPES,
-  STATE_KEYS
+  PARTICIPANT_TYPES
 } from '../Global/reducer/globalReducer';
 import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
 import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
