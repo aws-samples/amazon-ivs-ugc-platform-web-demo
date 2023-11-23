@@ -80,8 +80,8 @@ export const Provider = ({ children }) => {
           break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
           if (!isHost) {
-            notifyNeutral(
-              $contentNotification.error.you_were_removed_from_the_session,
+            notifyError(
+              $contentNotification.error.you_have_been_removed_from_session,
               {
                 asPortal: true
               }
