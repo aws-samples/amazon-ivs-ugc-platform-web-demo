@@ -108,7 +108,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
-    // Ensure leave page prompt does not appear
     updateIsBlockingRoute(false);
 
     if (!isHost) shouldGetHostRejoinTokenRef.current = false;
