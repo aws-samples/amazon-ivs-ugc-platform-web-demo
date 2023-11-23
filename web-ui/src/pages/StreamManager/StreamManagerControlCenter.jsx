@@ -8,7 +8,10 @@ import {
   StreamManagerWebBroadcast
 } from './streamManagerCards';
 import { clsm } from '../../utils';
-import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../../helpers/stagesHelpers';
+import {
+  JOIN_PARTICIPANT_URL_PARAM_KEY,
+  getLeavePromptText
+} from '../../helpers/stagesHelpers';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { streamManager as $content } from '../../content';
 import { useBroadcast } from '../../contexts/Broadcast';
@@ -28,10 +31,6 @@ import { AnimatePresence } from 'framer-motion';
 import usePrompt from '../../hooks/usePrompt';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
 import { useModal } from '../../contexts/Modal';
-import { STREAM_ACTION_NAME } from '../../constants';
-
-const $contentStageConfirmationModal =
-  $content.stream_manager_stage.leave_stage_modal;
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -60,20 +59,18 @@ const StreamManagerControlCenter = forwardRef(
       useResponsiveDevice();
     const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
       useBroadcast();
-    const { isActive } = usePoll();
+    const { isActive: isPollActive } = usePoll();
+    const enablePrompt = isBroadcasting || isBlockingRoute || isPollActive;
     const {
       isBlocked,
       onConfirm: onPromptConfirm,
       onCancel
-    } = usePrompt(
-      isBroadcasting || isBlockingRoute || isActive,
-      !isBlockingRoute
-    );
+    } = usePrompt(enablePrompt, !isBlockingRoute);
 
     const {
       shouldGetHostRejoinTokenRef,
       setupRequestedParticipant,
-      resetStage
+      leaveStage
     } = useStreamManagerStage();
     const { channelData } = useChannel();
     const { stageId: channelTableStageId } = channelData || {};
@@ -94,48 +91,18 @@ const StreamManagerControlCenter = forwardRef(
 
     useEffect(() => {
       if (isBlocked) {
-        let message, confirmText;
+        const { message, confirmText } = getLeavePromptText({
+          isMobile,
+          isPollActive,
+          isStageActive,
+          isBroadcasting
+        });
         const onConfirm = isStageActive
           ? () => {
               onPromptConfirm();
-              resetStage();
+              leaveStage();
             }
           : onPromptConfirm;
-
-        if (isBroadcasting) {
-          message = (
-            <p>
-              {$content.stream_manager_web_broadcast.confirm_leave_page_L1}
-              {isMobile ? ' ' : <br />}
-              {$content.stream_manager_web_broadcast.confirm_leave_page_L2}
-            </p>
-          );
-          confirmText = $content.stream_manager_web_broadcast.leave_page;
-        }
-
-        if (isStageActive) {
-          message = (
-            <p>
-              {$contentStageConfirmationModal.confirm_leave_page_L1}
-              {isMobile ? ' ' : <br />}
-              {$contentStageConfirmationModal.confirm_leave_page_L2}
-            </p>
-          );
-          confirmText = $contentStageConfirmationModal.leave_page;
-        }
-
-        if (isActive) {
-          message = (
-            <p>
-              {
-                $content.stream_manager_actions[STREAM_ACTION_NAME.POLL]
-                  .confirm_leave_page
-              }
-            </p>
-          );
-          confirmText =
-            $content.stream_manager_actions[STREAM_ACTION_NAME.POLL].leave_page;
-        }
 
         openModal({
           content: {
@@ -148,15 +115,15 @@ const StreamManagerControlCenter = forwardRef(
         });
       }
     }, [
-      isActive,
+      isPollActive,
       isBlocked,
       isBroadcasting,
       isMobile,
       isStageActive,
+      leaveStage,
       onCancel,
       onPromptConfirm,
-      openModal,
-      resetStage
+      openModal
     ]);
 
     // Initialize devices when the user opens the broadcast card for the first time
