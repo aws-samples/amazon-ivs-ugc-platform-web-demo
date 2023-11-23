@@ -87,10 +87,7 @@ const StreamVideo = forwardRef(
       <motion.div
         style={{ border: '5px solid green' }}
         {...playerProfileViewAnimationProps}
-        className={clsm(
-          videoStyles,
-          isViewerBanned && '!hidden'
-        )}
+        className={clsm(videoStyles, isViewerBanned && '!hidden')}
         ref={ref}
       >
         <StageVideoFeeds

@@ -15,9 +15,7 @@ const UnmuteButtonOverLay = () => {
     updateIsChannelStagePlayerMuted(false);
   };
 
-  const {
-    isProfileViewExpanded
-  } = useProfileViewAnimation();
+  const { isProfileViewExpanded } = useProfileViewAnimation();
 
   return (
     <div
