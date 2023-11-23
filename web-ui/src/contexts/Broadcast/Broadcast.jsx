@@ -8,23 +8,20 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import { BREAKPOINTS, BROADCAST_STREAM_CONFIG_PRESETS } from '../../constants';
+import { BROADCAST_STREAM_CONFIG_PRESETS } from '../../constants';
 import {
   createBackgroundLayerPreset,
   createNoCameraLayerPreset
 } from './useLayers/presetLayers';
 import { streamManager as $streamManagerContent } from '../../content';
-import { useModal } from '../Modal';
 import { useNotif } from '../Notification';
 import useAudioMixer, { MICROPHONE_AUDIO_INPUT_NAME } from './useAudioMixer';
 import useContextHook from '../useContextHook';
 import useDevices from './useDevices';
 import useLayers, { CAMERA_LAYER_NAME } from './useLayers';
 import useMount from '../../hooks/useMount';
-import usePrompt from '../../hooks/usePrompt';
 import useScreenShare from './useScreenShare';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
-import { useResponsiveDevice } from '../ResponsiveDevice';
 import { useLocation } from 'react-router-dom';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
@@ -70,15 +67,11 @@ export const Provider = ({
   streamKey,
   previewRef
 }) => {
-  const { currentBreakpoint } = useResponsiveDevice();
-  const isMobile = currentBreakpoint < BREAKPOINTS.sm;
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const connectionTimeoutRef = useRef(null);
-
-  const { openModal } = useModal();
   const { notifyError, notifySuccess } = useNotif();
   const isMounted = useMount();
 
@@ -181,8 +174,6 @@ export const Provider = ({
     toggleScreenShare,
     250
   ); // throttled version of toggleScreenShare
-
-  const { isBlocked, onCancel, onConfirm } = usePrompt(isBroadcasting);
 
   const stopBroadcast = useCallback(() => client?.stopBroadcast(), []);
 
@@ -412,25 +403,6 @@ export const Provider = ({
     }
   }, [success, notifySuccess]);
 
-  useEffect(() => {
-    if (isBlocked && isBroadcasting) {
-      openModal({
-        content: {
-          confirmText: $content.leave_page,
-          isDestructive: true,
-          message: (
-            <p>
-              {$content.confirm_leave_page_L1}
-              {isMobile ? ' ' : <br />}
-              {$content.confirm_leave_page_L2}
-            </p>
-          )
-        },
-        onConfirm,
-        onCancel
-      });
-    }
-  }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
   const value = useMemo(
     () => ({
       // Devices and permissions

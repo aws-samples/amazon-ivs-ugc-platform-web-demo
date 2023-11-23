@@ -14,7 +14,6 @@ import { useModal } from '../../../../contexts/Modal';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
-import usePrompt from '../../../../hooks/usePrompt';
 import PollContainer from './PollContainer';
 import AnimatedVoteItems from './AnimatedVoteItems';
 import {
@@ -27,8 +26,7 @@ const $content =
 
 const StreamerPoll = () => {
   const pollRef = useRef(null);
-  const { isActive, question, dispatchPollState, isExpanded, totalVotes } =
-    usePoll();
+  const { question, dispatchPollState, isExpanded, totalVotes } = usePoll();
 
   useEffect(() => {
     if (pollRef?.current) {
@@ -43,24 +41,7 @@ const StreamerPoll = () => {
     : 'black';
 
   const { currentBreakpoint } = useResponsiveDevice();
-  const { openModal } = useModal();
   const showVotePercentage = currentBreakpoint <= BREAKPOINTS.xs ? true : false;
-
-  const { isBlocked, onCancel, onConfirm } = usePrompt(isActive);
-
-  useEffect(() => {
-    if (isBlocked && isActive) {
-      openModal({
-        content: {
-          confirmText: $content.leave_page,
-          isDestructive: true,
-          message: <p>{$content.confirm_leave_page}</p>
-        },
-        onConfirm,
-        onCancel
-      });
-    }
-  }, [isBlocked, onCancel, onConfirm, openModal, isActive]);
 
   return (
     <PollContainer ref={pollRef}>

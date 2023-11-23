@@ -25,6 +25,13 @@ import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionC
 import useHostRejoin from './hooks/useHostRejoin';
 import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
 import { AnimatePresence } from 'framer-motion';
+import usePrompt from '../../hooks/usePrompt';
+import { usePoll } from '../../contexts/StreamManagerActions/Poll';
+import { useModal } from '../../contexts/Modal';
+import { STREAM_ACTION_NAME } from '../../constants';
+
+const $contentStageConfirmationModal =
+  $content.stream_manager_stage.leave_stage_modal;
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -37,7 +44,8 @@ const StreamManagerControlCenter = forwardRef(
       addParticipant,
       updateShouldAnimateStageVideoFeedsContainer,
       updateIsJoiningStageByRequest,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      isBlockingRoute
     } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
     const {
@@ -46,13 +54,27 @@ const StreamManagerControlCenter = forwardRef(
       handleOpenFullScreenView,
       dimensions
     } = useBroadcastFullScreen();
+    const { openModal } = useModal();
     const { state } = useLocation();
-    const { isDesktopView, currentBreakpoint, isLandscape } =
+    const { isDesktopView, currentBreakpoint, isLandscape, isMobile } =
       useResponsiveDevice();
     const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
       useBroadcast();
-    const { shouldGetHostRejoinTokenRef, setupRequestedParticipant } =
-      useStreamManagerStage();
+    const { isActive } = usePoll();
+    const {
+      isBlocked,
+      onConfirm: onPromptConfirm,
+      onCancel
+    } = usePrompt(
+      isBroadcasting || isBlockingRoute || isActive,
+      !isBlockingRoute
+    );
+
+    const {
+      shouldGetHostRejoinTokenRef,
+      setupRequestedParticipant,
+      resetStage
+    } = useStreamManagerStage();
     const { channelData } = useChannel();
     const { stageId: channelTableStageId } = channelData || {};
     const [searchParams] = useSearchParams();
@@ -69,6 +91,73 @@ const StreamManagerControlCenter = forwardRef(
         !!stageIdUrlParam ||
         false
     );
+
+    useEffect(() => {
+      if (isBlocked) {
+        let message, confirmText;
+        const onConfirm = isStageActive
+          ? () => {
+              onPromptConfirm();
+              resetStage();
+            }
+          : onPromptConfirm;
+
+        if (isBroadcasting) {
+          message = (
+            <p>
+              {$content.stream_manager_web_broadcast.confirm_leave_page_L1}
+              {isMobile ? ' ' : <br />}
+              {$content.stream_manager_web_broadcast.confirm_leave_page_L2}
+            </p>
+          );
+          confirmText = $content.stream_manager_web_broadcast.leave_page;
+        }
+
+        if (isStageActive) {
+          message = (
+            <p>
+              {$contentStageConfirmationModal.confirm_leave_page_L1}
+              {isMobile ? ' ' : <br />}
+              {$contentStageConfirmationModal.confirm_leave_page_L2}
+            </p>
+          );
+          confirmText = $contentStageConfirmationModal.leave_page;
+        }
+
+        if (isActive) {
+          message = (
+            <p>
+              {
+                $content.stream_manager_actions[STREAM_ACTION_NAME.POLL]
+                  .confirm_leave_page
+              }
+            </p>
+          );
+          confirmText =
+            $content.stream_manager_actions[STREAM_ACTION_NAME.POLL].leave_page;
+        }
+
+        openModal({
+          content: {
+            confirmText,
+            isDestructive: true,
+            message
+          },
+          onConfirm,
+          onCancel
+        });
+      }
+    }, [
+      isActive,
+      isBlocked,
+      isBroadcasting,
+      isMobile,
+      isStageActive,
+      onCancel,
+      onPromptConfirm,
+      openModal,
+      resetStage
+    ]);
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
@@ -194,6 +283,7 @@ const StreamManagerControlCenter = forwardRef(
             '[&>div>button]:h-9'
           ])}
         >
+          {/* {isBlocked && <LeavePrompt /> */}
           <StreamManagerActionModal />
           <StageParticipantsModal />
           <StageJoinModal />
