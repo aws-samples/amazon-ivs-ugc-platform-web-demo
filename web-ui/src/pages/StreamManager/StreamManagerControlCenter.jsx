@@ -40,6 +40,7 @@ const StreamManagerControlCenter = forwardRef(
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite
     } = useGlobalStage();
+    const { isModalOpen, type } = useModal();
     const { handleHostRejoin } = useHostRejoin();
     const {
       webBroadcastParentContainerRef,
@@ -161,8 +162,6 @@ const StreamManagerControlCenter = forwardRef(
       isDesktopView,
       handleOpenFullScreenView
     ]);
-
-    const { isModalOpen, type } = useModal();
 
     useEffect(() => {
       if (
