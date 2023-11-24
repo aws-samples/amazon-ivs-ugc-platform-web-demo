@@ -42,6 +42,7 @@ const useStageEventHandlers = ({
   const { userData } = useUser();
   const { pathname } = useLocation();
   const isChannelPage = pathname !== '/manager';
+  const localParticipantAttributes = useRef();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -55,6 +56,8 @@ const useStageEventHandlers = ({
         isLocal
       } = participant;
       if (isLocal) {
+        localParticipantAttributes.current = participant.attributes;
+
         if (isChannelPage && type === PARTICIPANT_TYPES.SPECTATOR) {
           updateSpectatorParticipantId(participant.id);
         }
@@ -88,10 +91,13 @@ const useStageEventHandlers = ({
        * an undefined participantTokenCreationDate signifies the participant as the stage creator.
        * if participantTokenCreationDate is earlier than joinStageDateRef.current, participants joined before the local participant.
        */
+      const localParticipantTokenCreationDate =
+        localParticipant?.attributes.participantTokenCreationDate ||
+        localParticipantAttributes?.current?.participantTokenCreationDate;
+
       if (
         !participantTokenCreationDate ||
-        participantTokenCreationDate <
-          localParticipant?.attributes.participantTokenCreationDate
+        participantTokenCreationDate < localParticipantTokenCreationDate
       )
         return;
 
@@ -102,6 +108,7 @@ const useStageEventHandlers = ({
     [
       addParticipant,
       localParticipant?.attributes.participantTokenCreationDate,
+      localParticipantAttributes,
       updateSuccess,
       isChannelPage,
       updateSpectatorParticipantId,
