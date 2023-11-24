@@ -7,7 +7,6 @@ import { useBroadcast } from '../../../contexts/Broadcast';
 import { useStreams } from '../../../contexts/Streams';
 import { getParticipationToken } from '../../../api/stages';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
-import { useModal } from '../../../contexts/Modal';
 import { updateError } from '../../../contexts/Stage/Global/reducer/actions';
 import { useUser } from '../../../contexts/User';
 import { stagesAPI } from '../../../api';
@@ -23,7 +22,6 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
     updateSpectatorParticipantId
   } = useGlobalStage();
   const navigate = useNavigate();
-  const { closeModal } = useModal();
   const { channelData } = useChannel();
   const { userData } = useUser();
   const { state } = useLocation();
@@ -68,7 +66,6 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
           removeBroadcastClient();
           await createStageInstanceAndJoin(result.token, stageId);
           updateIsJoiningStageByRequest(false);
-          closeModal();
         }
 
         if (error) {
@@ -97,8 +94,7 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
     updateSpectatorParticipantId,
     removeBroadcastClient,
     createStageInstanceAndJoin,
-    updateIsJoiningStageByRequest,
-    closeModal
+    updateIsJoiningStageByRequest
   ]);
 
   return {

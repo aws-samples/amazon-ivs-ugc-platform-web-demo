@@ -34,6 +34,7 @@ import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrateg
 import useStageClient from '../../../hooks/useStageClient';
 import channelEvents from '../../AppSync/channelEvents';
 import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
+import { useModal } from '../../Modal';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -91,6 +92,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const { refreshChannelData } = useChannel();
   const { publish } = useAppSync();
   const { state } = useLocation();
+  const { closeModal } = useModal();
 
   useEffect(() => {
     if (!state?.isJoiningStageByRequest) return;
@@ -292,6 +294,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
+      closeModal();
+
       // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
@@ -300,11 +304,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       isBroadcastCameraHidden,
       isBroadcastMicrophoneMuted,
       localParticipant,
-      updateIsBlockingRoute,
       updateStageId,
+      closeModal,
       joinStageClient,
       strategy,
       updateLocalStrategy,
+      updateIsBlockingRoute,
       updateParticipant,
       addParticipant
     ]

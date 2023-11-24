@@ -28,7 +28,6 @@ const useInviteParticipants = ({
     creatingStage,
     updateStageId
   } = useGlobalStage();
-  const { closeModal } = useModal();
   const { removeBroadcastClient, isBroadcasting } = useBroadcast();
   const { isLive } = useStreams();
 
@@ -59,7 +58,6 @@ const useInviteParticipants = ({
         updateStageId(stageIdUrlParam);
         updateIsJoiningStageByInvite(false);
         shouldGetHostRejoinTokenRef.current = false;
-        closeModal();
       }
 
       if (error) {
@@ -87,7 +85,6 @@ const useInviteParticipants = ({
     stageId,
     updateIsJoiningStageByInvite,
     shouldGetHostRejoinTokenRef,
-    closeModal,
     resetStage,
     broadcastDevicesStateObjRef,
     localParticipant?.isCameraHidden,
