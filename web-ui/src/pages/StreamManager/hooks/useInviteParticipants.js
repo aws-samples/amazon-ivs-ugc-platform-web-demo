@@ -8,7 +8,6 @@ import { useGlobalStage } from '../../../contexts/Stage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { useStreams } from '../../../contexts/Streams';
-import { useModal } from '../../../contexts/Modal';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
