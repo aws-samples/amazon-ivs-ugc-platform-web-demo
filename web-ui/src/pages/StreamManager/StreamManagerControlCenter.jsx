@@ -25,7 +25,7 @@ import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionC
 import useHostRejoin from './hooks/useHostRejoin';
 import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
 import { AnimatePresence } from 'framer-motion';
-import { MODAL_TYPE, useModal } from '../../contexts/Modal';
+import { useModal } from '../../contexts/Modal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -38,7 +38,8 @@ const StreamManagerControlCenter = forwardRef(
       addParticipant,
       updateShouldAnimateStageVideoFeedsContainer,
       updateIsJoiningStageByRequest,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite
     } = useGlobalStage();
     const { isModalOpen, type } = useModal();
     const { handleHostRejoin } = useHostRejoin();
@@ -169,7 +170,7 @@ const StreamManagerControlCenter = forwardRef(
         !isStageActive &&
         !stageIdUrlParam &&
         shouldGetHostRejoinTokenRef.current &&
-        !(isModalOpen && type === MODAL_TYPE.STAGE_JOIN)
+        !isJoiningStageByRequestOrInvite
       ) {
         shouldGetHostRejoinTokenRef.current = false;
         setIsBroadcastCardOpen(true);
@@ -180,6 +181,7 @@ const StreamManagerControlCenter = forwardRef(
       channelTableStageId,
       handleHostRejoin,
       handleOpenFullScreenView,
+      isJoiningStageByRequestOrInvite,
       isModalOpen,
       isStageActive,
       shouldGetHostRejoinTokenRef,
