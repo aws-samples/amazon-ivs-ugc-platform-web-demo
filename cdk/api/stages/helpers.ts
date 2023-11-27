@@ -180,6 +180,7 @@ export const handleCreateStageParams = async ({
     if (channelArn) {
       channelId = getChannelId(channelArn);
     }
+
     channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
       channelAssets,
       avatar

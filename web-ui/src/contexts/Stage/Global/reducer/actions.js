@@ -140,6 +140,11 @@ export const updateSpectatorParticipantId = (spectatorParticipantId) => ({
   payload: spectatorParticipantId
 });
 
+export const updateIsScreensharePermissionRevoked = (bool) => ({
+  type: actionTypes.UPDATE_IS_SCREEN_SHARE_PREMISSION_REVOKE,
+  payload: bool
+});
+
 // Channel page
 export const updateIsChannelStagePlayerMuted = (bool) => ({
   type: actionTypes.UPDATE_IS_CHANNEL_STAGE_PLAYER_MUTED,

@@ -25,7 +25,9 @@ const useStageScreenshare = ({
     updateIsScreensharing,
     isScreensharing,
     screenshareStrategy,
-    updateError
+    updateError,
+    isScreensharePermissionRevoked,
+    updateIsScreensharePermissionRevoked
   } = useGlobalStage();
 
   const startScreenshare = useCallback(async () => {
@@ -107,6 +109,20 @@ const useStageScreenshare = ({
         screenCaptureTrack.removeEventListener('ended', stopScreenshare);
     };
   }, [screenCaptureStream, stopScreenshare]);
+
+  useEffect(() => {
+    if (!isScreensharePermissionRevoked) return;
+    updateIsScreensharePermissionRevoked(false);
+    stopScreenshare();
+    updateError({
+      message: $contentNotification.error.your_screen_share_has_been_removed
+    });
+  }, [
+    isScreensharePermissionRevoked,
+    stopScreenshare,
+    updateError,
+    updateIsScreensharePermissionRevoked
+  ]);
 
   return {
     toggleScreenshare

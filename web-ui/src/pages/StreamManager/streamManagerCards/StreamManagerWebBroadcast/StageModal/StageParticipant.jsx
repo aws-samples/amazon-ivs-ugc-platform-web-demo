@@ -40,6 +40,13 @@ const StageParticipant = ({ participant }) => {
     REPLACEMENT_TEXT,
     username
   );
+  const removeScreenshasreMessage =
+    $stageContent.participants_modal.remove_screen_share.replace(
+      REPLACEMENT_TEXT,
+      username
+    );
+
+  const isScreenshare = type === PARTICIPANT_TYPES.SCREENSHARE;
 
   const shouldHideRemoveButton =
     userId.includes(PARTICIPANT_TYPES.HOST) ||
@@ -75,6 +82,30 @@ const StageParticipant = ({ participant }) => {
             );
           }
         }
+      },
+      onCancel: () => {
+        openModal({
+          type: MODAL_TYPE.STAGE_PARTICIPANTS
+        });
+      }
+    });
+  };
+
+  const handleDisconnectParticipantScreenshare = () => {
+    closeModal();
+    openModal({
+      content: {
+        confirmText: $stageContent.remove_participant,
+        isDestructive: true,
+        message: removeScreenshasreMessage
+      },
+      onConfirm: () => {
+        publish(
+          channelId.toLowerCase(),
+          JSON.stringify({
+            type: channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE
+          })
+        );
       },
       onCancel: () => {
         openModal({
@@ -178,7 +209,11 @@ const StageParticipant = ({ participant }) => {
                 'dark:focus:bg-darkMode-gray',
                 'bg-lightMode-gray'
               ])}
-              onClick={handleDisconnectParticipant}
+              onClick={
+                isScreenshare
+                  ? handleDisconnectParticipantScreenshare
+                  : handleDisconnectParticipant
+              }
               variant="icon"
             >
               <Close />

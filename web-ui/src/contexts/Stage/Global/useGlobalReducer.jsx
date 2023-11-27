@@ -52,6 +52,15 @@ const useGlobalReducers = () => {
     dispatch(actions.updateSpectatorParticipantId(spectatorParticipantId));
   }, []);
 
+  const updateIsScreensharePermissionRevoked = useCallback(
+    (spectatorParticipantId) => {
+      dispatch(
+        actions.updateIsScreensharePermissionRevoked(spectatorParticipantId)
+      );
+    },
+    []
+  );
+
   // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
@@ -185,7 +194,8 @@ const useGlobalReducers = () => {
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,
-      updateShouldOpenSettingsModal
+      updateShouldOpenSettingsModal,
+      updateIsScreensharePermissionRevoked
     }),
     [
       state,
@@ -217,7 +227,8 @@ const useGlobalReducers = () => {
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,
-      updateShouldOpenSettingsModal
+      updateShouldOpenSettingsModal,
+      updateIsScreensharePermissionRevoked
     ]
   );
 };

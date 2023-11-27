@@ -45,7 +45,8 @@ export const Provider = ({ children }) => {
     updateIsJoiningStageByRequest,
     updateIsJoiningStageByInvite,
     updateSpectatorParticipantId,
-    updateShouldOpenSettingsModal
+    updateShouldOpenSettingsModal,
+    updateIsScreensharePermissionRevoked
   } = useGlobalReducers();
 
   const {
@@ -68,7 +69,8 @@ export const Provider = ({ children }) => {
     isJoiningStageByRequest,
     isJoiningStageByInvite,
     spectatorParticipantId,
-    shouldOpenSettingsModal
+    shouldOpenSettingsModal,
+    isScreensharePermissionRevoked
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -178,6 +180,8 @@ export const Provider = ({ children }) => {
       spectatorParticipantId,
       shouldOpenSettingsModal,
       updateShouldOpenSettingsModal,
+      isScreensharePermissionRevoked,
+      updateIsScreensharePermissionRevoked,
       // Actions
       addParticipant,
       creatingStage,
@@ -213,6 +217,7 @@ export const Provider = ({ children }) => {
   }, [
     error,
     hasStageRequestBeenApproved,
+    isScreensharePermissionRevoked,
     isBlockingRoute,
     isChannelStagePlayerMuted,
     isCreatingStage,
@@ -226,6 +231,7 @@ export const Provider = ({ children }) => {
     stageId,
     strategy,
     updateIsScreensharing,
+    updateIsScreensharePermissionRevoked,
     success,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     updateIsChannelStagePlayerMuted,

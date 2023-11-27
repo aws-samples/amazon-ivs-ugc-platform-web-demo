@@ -85,7 +85,8 @@ export const STATE_KEYS = {
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
   IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
   SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId',
-  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal'
+  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal',
+  IS_SCREEN_SHARE_PREMISSION_REVOKE: 'isScreensharePermissionRevoked'
 };
 
 const defaultStageReducerState = {
@@ -105,7 +106,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
   [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false,
   [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null,
-  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false
+  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false,
+  [STATE_KEYS.IS_SCREEN_SHARE_PREMISSION_REVOKE]: false
 };
 
 const stageAnimationReducerState = {
@@ -433,6 +435,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_IS_SCREEN_SHARE_PREMISSION_REVOKE: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_SCREEN_SHARE_PREMISSION_REVOKE]: action.payload
       };
     }
 

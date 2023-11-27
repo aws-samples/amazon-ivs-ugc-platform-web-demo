@@ -75,7 +75,8 @@
         "unable_to_start_screenshare": "Unable to start screenshare",
         "unable_to_join_session": "Unable to join session",
         "unable_to_leave_session": "Unable to leave session",
-        "permissions_denied": "You must allow access to both your camera and microphone"
+        "permissions_denied": "You must allow access to both your camera and microphone",
+        "your_screen_share_has_been_removed": "Your screen share has been removed"
       }
     },
     "leave_stage_modal": {
@@ -89,6 +90,7 @@
     "participants_modal": {
       "you": "(You)",
       "remove_from_session": "Remove from session",
+      "remove_screen_share": "Are you sure you want to remove USERNAME (Screen share) from the session?",
       "confirm": "Confirm",
       "delete": "Delete",
       "just_now": "Just now",

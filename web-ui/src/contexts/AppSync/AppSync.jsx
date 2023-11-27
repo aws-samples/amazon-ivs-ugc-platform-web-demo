@@ -25,7 +25,8 @@ export const Provider = ({ children }) => {
     isHost,
     updateStageRequestList,
     updateRequestingToJoinStage,
-    updateHasStageRequestBeenApproved
+    updateHasStageRequestBeenApproved,
+    updateIsScreensharePermissionRevoked
   } = useGlobalStage();
   const { pathname } = useLocation();
   const { channelData } = useChannel();
@@ -93,6 +94,9 @@ export const Provider = ({ children }) => {
             asPortal: true
           });
           break;
+        case channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE:
+          updateIsScreensharePermissionRevoked(true);
+          break;
         default:
           return;
       }
@@ -109,7 +113,8 @@ export const Provider = ({ children }) => {
     notifyError,
     updateStageRequestList,
     updateRequestingToJoinStage,
-    userData?.channelId
+    userData?.channelId,
+    updateIsScreensharePermissionRevoked
   ]);
 
   const value = useMemo(
