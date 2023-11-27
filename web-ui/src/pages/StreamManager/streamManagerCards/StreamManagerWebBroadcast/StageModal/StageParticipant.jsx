@@ -61,7 +61,7 @@ const StageParticipant = ({ participant }) => {
         } else {
           if (result?.message) {
             publish(
-              channelId,
+              channelId.toLowerCase(),
               JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
             );
           }

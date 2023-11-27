@@ -86,7 +86,7 @@ const StageProfilePill = ({
         className
       ])}
     >
-      <img src={avatarSrc} alt="" />
+      {avatarSrc && <img src={avatarSrc} alt="" />}
       <h3>{username}</h3>
     </div>
   );
@@ -94,11 +94,13 @@ const StageProfilePill = ({
 
 StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: ''
+  className: '',
+  profileColor: '',
+  avatarSrc: ''
 };
 StageProfilePill.propTypes = {
-  profileColor: PropTypes.string.isRequired,
-  avatarSrc: PropTypes.string.isRequired,
+  profileColor: PropTypes.string,
+  avatarSrc: PropTypes.string,
   username: PropTypes.string.isRequired,
   type: PropTypes.string,
   className: PropTypes.string

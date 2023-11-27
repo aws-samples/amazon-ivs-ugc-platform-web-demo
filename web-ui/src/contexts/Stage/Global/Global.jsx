@@ -41,11 +41,13 @@ export const Provider = ({ children }) => {
     updateStageRequestList,
     deleteRequestToJoin,
     updateIsChannelStagePlayerMuted,
+    updateIsScreensharing,
     updateIsJoiningStageByRequest,
     updateIsJoiningStageByInvite,
     updateSpectatorParticipantId,
     updateShouldOpenSettingsModal
   } = useGlobalReducers();
+
   const {
     participants,
     stageId,
@@ -62,6 +64,7 @@ export const Provider = ({ children }) => {
     requestingToJoinStage,
     hasStageRequestBeenApproved,
     stageRequestList,
+    isScreensharing,
     isJoiningStageByRequest,
     isJoiningStageByInvite,
     spectatorParticipantId,
@@ -101,6 +104,29 @@ export const Provider = ({ children }) => {
     []
   );
 
+  const screenshareStrategy = useMemo(
+    () => ({
+      stream: null,
+
+      stageStreamsToPublish() {
+        return [this.stream];
+      },
+      shouldPublishParticipant: (participant) => {
+        return true;
+      },
+      shouldSubscribeToParticipant: (participant) => {
+        return SubscribeType.AUDIO_VIDEO;
+      },
+      setStream(stream) {
+        this.stream = stream;
+      },
+      resetStrategy() {
+        this.stream = null;
+      }
+    }),
+    []
+  );
+
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
   const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
@@ -114,6 +140,18 @@ export const Provider = ({ children }) => {
     [participants]
   );
 
+  const numberOfActiveScreenshares = useMemo(
+    () =>
+      [...participants].filter(
+        ([_, participant]) =>
+          participant.attributes.type === PARTICIPANT_TYPES.SCREENSHARE
+      ).length,
+    [participants]
+  );
+
+  const shouldDisableScreenshareButton =
+    (numberOfActiveScreenshares >= 2 || participants.size >= 12) &&
+    !isScreensharing;
   const isJoiningStageByRequestOrInvite =
     isJoiningStageByRequest || isJoiningStageByInvite;
 
@@ -130,6 +168,8 @@ export const Provider = ({ children }) => {
       localParticipant,
       participants,
       participantsArrayExcludingHost,
+      shouldDisableScreenshareButton,
+      isScreensharing,
       requestingToJoinStage,
       stageId,
       strategy,
@@ -138,6 +178,7 @@ export const Provider = ({ children }) => {
       isInvitedParticipant,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       updateIsChannelStagePlayerMuted,
+      updateIsScreensharing,
       updateIsJoiningStageByRequest,
       isJoiningStageByRequest,
       updateIsJoiningStageByInvite,
@@ -176,7 +217,8 @@ export const Provider = ({ children }) => {
       shouldDisableStageButtonWithDelay,
       updateStageRequestList,
       stageRequestList,
-      deleteRequestToJoin
+      deleteRequestToJoin,
+      screenshareStrategy
     };
   }, [
     error,
@@ -189,9 +231,12 @@ export const Provider = ({ children }) => {
     localParticipant,
     participants,
     participantsArrayExcludingHost,
+    shouldDisableScreenshareButton,
+    isScreensharing,
     requestingToJoinStage,
     stageId,
     strategy,
+    updateIsScreensharing,
     success,
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     updateIsChannelStagePlayerMuted,
@@ -225,6 +270,7 @@ export const Provider = ({ children }) => {
     updateStageRequestList,
     stageRequestList,
     deleteRequestToJoin,
+    screenshareStrategy,
     updateIsJoiningStageByRequest,
     isJoiningStageByRequest,
     updateIsJoiningStageByInvite,

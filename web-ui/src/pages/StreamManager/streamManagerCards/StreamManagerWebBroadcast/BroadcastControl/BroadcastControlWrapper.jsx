@@ -18,37 +18,34 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/useAudioMixer';
 import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const BroadcastControlWrapper = forwardRef(
   ({ isOpen, withSettingsButton, withScreenshareButton }, ref) => {
-    const {
-      isStageActive,
-      isJoiningStageByRequestOrInvite,
-      updateShouldOpenSettingsModal
-    } = useGlobalStage();
     const settingsButtonRef = useRef();
-    const { isTouchscreenDevice, isDesktopView, isMobileView } =
-      useResponsiveDevice();
+    const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
     const { openModal, closeModal } = useModal();
     const {
       toggleMicrophone: toggleStageMicrophone,
       toggleCamera: toggleStageCamera,
-      stageControlsVisibility
+      stageControlsVisibility,
+      toggleScreenshare: toggleStageScreenshare
     } = useStreamManagerStage();
     const {
+      isStageActive,
+      isJoiningStageByRequestOrInvite,
+      updateShouldOpenSettingsModal,
       localParticipant,
       isSpectator: isStageSpectator,
-      animateCollapseStageContainerWithDelay
+      shouldDisableScreenshareButton,
+      isScreensharing: isStageScreensharing
     } = useGlobalStage();
     const {
       isMicrophoneMuted: isStageMicrophoneMuted,
       isCameraHidden: isStageCameraHidden
     } = localParticipant || {};
-    const { isFullScreenViewOpen } = useBroadcastFullScreen();
     const {
       toggleMicrophone: toggleBroadcastMicrophone,
       toggleCamera: toggleBroadcastCamera,
@@ -65,10 +62,7 @@ const BroadcastControlWrapper = forwardRef(
     const { shouldRenderShareScreenButton } = stageControlsVisibility;
 
     const shouldRenderStageScreenShareButton =
-      isStageActive &&
-      shouldRenderShareScreenButton &&
-      !isTouchscreenDevice &&
-      isDesktopView;
+      shouldRenderShareScreenButton && !isTouchscreenDevice;
     const shouldRenderBroadcastScreenShareButton =
       !isTouchscreenDevice && withScreenshareButton;
 
@@ -114,7 +108,7 @@ const BroadcastControlWrapper = forwardRef(
           tooltip: isCameraHidden ? $content.show_camera : $content.hide_camera
         },
         {
-          onClick: toggleScreenShare,
+          onClick: isStageActive ? toggleStageScreenshare : toggleScreenShare,
           ariaLabel: isScreenSharing
             ? 'Start screen sharing'
             : 'Stop screen sharing',
@@ -124,14 +118,19 @@ const BroadcastControlWrapper = forwardRef(
           isActive: isScreenSharing,
           isDisabled:
             isStageSpectator ||
-            (isFullScreenViewOpen && isStageActive) ||
-            animateCollapseStageContainerWithDelay ||
             !activeCamera ||
-            !activeMicrophone,
-          icon: isScreenSharing ? <ScreenShareOff /> : <ScreenShare />,
-          tooltip: isScreenSharing
-            ? $content.stop_sharing
-            : $content.share_your_screen
+            !activeMicrophone ||
+            shouldDisableScreenshareButton,
+          icon:
+            isScreenSharing || isStageScreensharing ? (
+              <ScreenShareOff />
+            ) : (
+              <ScreenShare />
+            ),
+          tooltip:
+            isScreenSharing || isStageScreensharing
+              ? $content.stop_sharing
+              : $content.share_your_screen
         }
       ],
       [
@@ -142,13 +141,14 @@ const BroadcastControlWrapper = forwardRef(
         toggleCamera,
         isCameraHidden,
         activeCamera,
+        isStageActive,
+        toggleStageScreenshare,
         toggleScreenShare,
         isScreenSharing,
-        isStageActive,
         shouldRenderStageScreenShareButton,
         shouldRenderBroadcastScreenShareButton,
-        isFullScreenViewOpen,
-        animateCollapseStageContainerWithDelay
+        shouldDisableScreenshareButton,
+        isStageScreensharing
       ]
     );
 

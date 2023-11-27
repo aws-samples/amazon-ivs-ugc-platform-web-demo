@@ -31,25 +31,34 @@ const useStageClient = (
   const { userData } = useUser();
 
   const joinStageClient = useCallback(
-    async ({ token, strategy }) => {
+    async ({ token, strategy, shouldattachEvents = true }) => {
       clientRef.current = new Stage(token, strategy);
       setIsClientDefined(!!clientRef.current);
-      attachStageEvents(clientRef.current);
+      if (shouldattachEvents) attachStageEvents(clientRef.current);
 
       await clientRef.current.join();
     },
     [attachStageEvents]
   );
 
-  const leaveStageClient = useCallback(() => {
-    strategy.stopTracks();
+  const leaveStageClient = useCallback(
+    (
+      { shouldUpdateStrategy, shouldRemoveAllEventListeners } = {
+        shouldUpdateStrategy: true,
+        shouldRemoveAllEventListeners: true
+      }
+    ) => {
+      if (shouldUpdateStrategy) strategy.stopTracks();
 
-    if (clientRef.current) {
-      clientRef.current.removeAllListeners();
-      clientRef.current.leave();
-      clientRef.current = undefined;
-    }
-  }, [strategy]);
+      if (clientRef.current) {
+        if (shouldRemoveAllEventListeners)
+          clientRef.current.removeAllListeners();
+        clientRef.current.leave();
+        clientRef.current = undefined;
+      }
+    },
+    [strategy]
+  );
 
   const resetAllStageState = useCallback(
     ({ omit } = {}) => {

@@ -10,7 +10,8 @@ import {
   isUserInStage,
   shouldAllowParticipantToJoin,
   PARTICIPANT_USER_TYPES,
-  validateRequestParams
+  validateRequestParams,
+  participantTypesArray
 } from '../helpers';
 
 interface GetParticipantTokenParams {
@@ -26,7 +27,6 @@ const handler = async (
 ) => {
   try {
     const { stageId, participantType } = request.params;
-
     const missingParams = validateRequestParams(stageId, participantType);
     if (missingParams) {
       throw new Error(`Missing ${missingParams}`);
@@ -70,13 +70,15 @@ const handler = async (
       duration,
       userId,
       attributes: {
-        channelId,
         username: preferredUsername || username,
-        profileColor,
-        avatar,
-        channelAssetsAvatarUrlPath,
-        participantTokenCreationDate: Date.now().toString(),
-        type
+        type,
+        ...(participantTypesArray.includes(participantType) && {
+          channelId,
+          profileColor,
+          avatar,
+          channelAssetsAvatarUrlPath,
+          participantTokenCreationDate: Date.now().toString()
+        })
       },
       capabilities
     };

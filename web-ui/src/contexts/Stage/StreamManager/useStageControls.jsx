@@ -13,11 +13,17 @@ import usePrompt from '../../../hooks/usePrompt';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
 import { useGlobalStage } from '..';
 import { useBroadcast } from '../../Broadcast';
+import useStageScreenshare from '../../../pages/StreamManager/hooks/useStageScreenshare';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
 
-const useStageControls = ({ leaveStage, resetStage }) => {
+const useStageControls = ({
+  leaveStage,
+  resetStage,
+  joinStageScreenshareClient,
+  leaveStageScreenshareClient
+}) => {
   const {
     isBlockingRoute,
     isStageActive,
@@ -27,6 +33,10 @@ const useStageControls = ({ leaveStage, resetStage }) => {
     toggleMicrophoneState
   } = useGlobalStage();
   const { activeDevices, devices } = useBroadcast();
+  const { toggleScreenshare } = useStageScreenshare({
+    joinStageScreenshareClient,
+    leaveStageScreenshareClient
+  });
   const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
   const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
 
@@ -169,7 +179,12 @@ const useStageControls = ({ leaveStage, resetStage }) => {
     toggleMicrophoneState
   ]);
 
-  return { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage };
+  return {
+    toggleCamera,
+    toggleMicrophone,
+    handleOnConfirmLeaveStage,
+    toggleScreenshare
+  };
 };
 
 export default useStageControls;

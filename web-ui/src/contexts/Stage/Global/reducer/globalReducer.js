@@ -44,7 +44,8 @@ export const PARTICIPANT_TYPES = {
   HOST: 'host',
   INVITED: 'invited',
   REQUESTED: 'requested',
-  SPECTATOR: 'spectator'
+  SPECTATOR: 'spectator',
+  SCREENSHARE: 'screenshare'
 };
 
 export const defaultParticipant = {
@@ -75,6 +76,7 @@ export const STATE_KEYS = {
   ERROR: 'error',
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
+  IS_SCREEN_SHARING: 'isScreensharing',
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
@@ -94,6 +96,7 @@ const defaultStageReducerState = {
   [STATE_KEYS.SUCCESS]: null,
   [STATE_KEYS.ERROR]: null,
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
+  [STATE_KEYS.IS_SCREEN_SHARING]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
@@ -395,6 +398,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.STAGE_REQUEST_LIST]: currentStageRequestToJoinList
+      };
+    }
+
+    case actionTypes.UPDATE_IS_SCREEN_SHARING: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_SCREEN_SHARING]: action.payload
       };
     }
 

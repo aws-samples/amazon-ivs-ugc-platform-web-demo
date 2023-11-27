@@ -117,6 +117,10 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsBlockingRoute(bool));
   }, []);
 
+  const updateIsScreensharing = useCallback((bool) => {
+    dispatch(actions.updateIsScreensharing(bool));
+  }, []);
+
   const updateRequestingToJoinStage = useCallback((bool) => {
     dispatch(actions.updateRequestingToJoinStage(bool));
   }, []);
@@ -177,6 +181,7 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
       deleteRequestToJoin,
+      updateIsScreensharing,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,
@@ -208,6 +213,7 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageRequestList,
       deleteRequestToJoin,
+      updateIsScreensharing,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,

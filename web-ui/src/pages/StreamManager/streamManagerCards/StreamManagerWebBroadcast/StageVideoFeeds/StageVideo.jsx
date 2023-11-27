@@ -9,18 +9,22 @@ import {
 } from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
+import { streamManager as $content } from '../../../../../content';
 import { getAvatarSrc } from '../../../../../helpers';
 import { MicOff, VideoCameraOff } from '../../../../../assets/icons';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
 import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
 
 const SIZE_VARIANTS = {
   LG: 'large',
   MD: 'medium',
   SM: 'small'
 };
+
+const $streamManagerStage = $content.stream_manager_stage;
 
 const StageVideo = ({ type, participantKey, className }) => {
   const videoRef = useRef(null);
@@ -31,12 +35,20 @@ const StageVideo = ({ type, participantKey, className }) => {
   const participant = participants.get(participantKey);
   const { streams, isCameraHidden, isMicrophoneMuted, attributes } =
     participant;
-  const { profileColor = null, username = null } = attributes || {};
+  const {
+    profileColor = null,
+    username = null,
+    type: userType
+  } = attributes || {};
   const avatarSrc = getAvatarSrc(attributes);
 
   const isFullscreenType = type === STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN;
   const isGoLiveType = type === STAGE_VIDEO_FEEDS_TYPES.GO_LIVE;
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
+  const profilePillUsername =
+    userType === PARTICIPANT_TYPES.SCREENSHARE
+      ? `${username} ${$streamManagerStage.screenshare}`
+      : username;
 
   const updateVideoSource = useCallback((streams) => {
     videoRef.current.srcObject = new MediaStream(
@@ -146,12 +158,13 @@ const StageVideo = ({ type, participantKey, className }) => {
               'w-full'
             ])}
           >
-            {profileColor && username && (
+            {username && (
               <StageProfilePill
                 type={STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED}
                 avatarSrc={avatarSrc}
                 profileColor={profileColor}
-                username={username}
+                username={profilePillUsername}
+                className={clsm([!profileColor && ['!text-white']])}
               />
             )}
             {isMicrophoneMuted && (

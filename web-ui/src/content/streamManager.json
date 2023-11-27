@@ -46,6 +46,7 @@
     }
   },
   "stream_manager_stage": {
+    "screenshare": "(Screen share)",
     "join_now": "Join now",
     "participants": "Participants",
     "requests": "Requests",
@@ -71,6 +72,7 @@
         "failed_to_remove_participant": "Failed to remove participant",
         "you_were_removed_from_the_session": "You were removed from the session",
         "unable_to_create_session": "Unable to create session",
+        "unable_to_start_screenshare": "Unable to start screenshare",
         "unable_to_join_session": "Unable to join session",
         "unable_to_leave_session": "Unable to leave session",
         "permissions_denied": "You must allow access to both your camera and microphone"

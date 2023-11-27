@@ -44,14 +44,16 @@ export enum PARTICIPANT_TYPES {
   HOST = 'host',
   SPECTATOR = 'spectator',
   INVITED = 'invited',
-  REQUESTED = 'requested'
+  REQUESTED = 'requested',
+  SCREENSHARE = 'screenshare'
 }
 
 export const PARTICIPANT_USER_TYPES = {
   HOST: 'host',
   SPECTATOR: 'spectator',
   INVITED: 'invited',
-  REQUESTED: 'requested'
+  REQUESTED: 'requested',
+  SCREENSHARE: 'screenshare'
 };
 
 const PARTICIPANT_CONNECTION_STATES = {
@@ -61,6 +63,13 @@ const PARTICIPANT_CONNECTION_STATES = {
 const shouldFetchUserData = [
   PARTICIPANT_USER_TYPES.HOST,
   PARTICIPANT_USER_TYPES.INVITED,
+  PARTICIPANT_USER_TYPES.REQUESTED,
+  PARTICIPANT_USER_TYPES.SCREENSHARE
+];
+
+export const participantTypesArray = [
+  PARTICIPANT_USER_TYPES.HOST,
+  PARTICIPANT_USER_TYPES.INVITED,
   PARTICIPANT_USER_TYPES.REQUESTED
 ];
 
@@ -68,7 +77,8 @@ export type ParticipantType =
   | PARTICIPANT_TYPES.HOST
   | PARTICIPANT_TYPES.SPECTATOR
   | PARTICIPANT_TYPES.INVITED
-  | PARTICIPANT_TYPES.REQUESTED;
+  | PARTICIPANT_TYPES.REQUESTED
+  | PARTICIPANT_TYPES.SCREENSHARE;
 
 const client = new IVSRealTimeClient({});
 
@@ -167,14 +177,16 @@ export const handleCreateStageParams = async ({
       channelArn
     } = unmarshall(UserItem));
 
-    if (channelArn) {
-      channelId = getChannelId(channelArn);
-    }
+    if (participantTypesArray.includes(participantType)) {
+      if (channelArn) {
+        channelId = getChannelId(channelArn);
+      }
 
-    channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
-      channelAssets,
-      avatar
-    );
+      channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
+        channelAssets,
+        avatar
+      );
+    }
   }
 
   const capabilities =
@@ -192,11 +204,12 @@ export const handleCreateStageParams = async ({
   let userType = shouldCreateHostUserType
     ? PARTICIPANT_USER_TYPES.HOST
     : PARTICIPANT_USER_TYPES.INVITED;
-  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR) {
+  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR)
     userType = PARTICIPANT_USER_TYPES.SPECTATOR;
-  } else if (participantType === PARTICIPANT_USER_TYPES.REQUESTED) {
+  else if (participantType === PARTICIPANT_USER_TYPES.SCREENSHARE)
+    userType = PARTICIPANT_USER_TYPES.SCREENSHARE;
+  else if (participantType === PARTICIPANT_USER_TYPES.REQUESTED)
     userType = PARTICIPANT_USER_TYPES.REQUESTED;
-  }
 
   return {
     username,

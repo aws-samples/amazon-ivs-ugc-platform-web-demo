@@ -68,7 +68,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     updateIsJoiningStageByRequest,
     isJoiningStageByInvite,
-    isJoiningStageByRequest
+    isJoiningStageByRequest,
+    isScreensharing
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -123,13 +124,22 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateShouldCloseFullScreenViewOnKickedOrHostLeave
   ]);
 
+  // Stage Client
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
     useStageClient({
       updateSuccess,
       updateError,
-      isDevicesInitializedRef,
       stageConnectionErroredEventCallback
     });
+
+  // Screenshare Client
+  const {
+    joinStageClient: joinStageScreenshareClient,
+    leaveStageClient: leaveStageScreenshareClient
+  } = useStageClient({
+    updateSuccess,
+    updateError
+  });
 
   const resetStage = useCallback(
     (showSuccess = false) => {
@@ -164,6 +174,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       let result;
       participantChannels.current =
         getStageParticipantsChannelIds(participants);
+
+      if (isScreensharing) leaveStageScreenshareClient();
 
       leaveStageClient();
 
@@ -240,7 +252,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     localParticipant?.isCameraHidden,
     localParticipant?.isMicrophoneMuted,
     navigate,
-    updateError
+    updateError,
+    isScreensharing,
+    leaveStageScreenshareClient
   ]);
 
   useEffect(() => {
@@ -384,8 +398,17 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
-  const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
-    useStageControls({ leaveStage, resetStage });
+  const {
+    toggleCamera,
+    toggleMicrophone,
+    handleOnConfirmLeaveStage,
+    toggleScreenshare
+  } = useStageControls({
+    leaveStage,
+    resetStage,
+    joinStageScreenshareClient,
+    leaveStageScreenshareClient
+  });
 
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
@@ -494,6 +517,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       // Participants
       localParticipant,
       participants,
+      // Screenshare
+      toggleScreenshare,
       handleParticipantJoinStage,
       // Controls
       leaveStage,
@@ -530,6 +555,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
+      toggleScreenshare,
       joinStageByRequest,
       handleParticipantJoinStage
     ]
