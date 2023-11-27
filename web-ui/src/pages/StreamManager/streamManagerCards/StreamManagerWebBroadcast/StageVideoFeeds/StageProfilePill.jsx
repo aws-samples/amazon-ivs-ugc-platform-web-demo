@@ -66,6 +66,7 @@ const StageProfilePill = ({
           '@stage-video-xl/video:[&>img]:w-8',
           '@stage-video-xl/video:max-w-[168px]',
           'invisible',
+          'text-white',
           shouldInvertColors
             ? '@stage-video-lg/video:text-white'
             : '@stage-video-lg/video:text-black'
@@ -75,8 +76,6 @@ const StageProfilePill = ({
         'items-center',
         'max-w-[80px]',
         'rounded-3xl',
-        'dark:text-white',
-        'text-black',
         'w-auto',
         STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
           '[&>img]:ring-2',
