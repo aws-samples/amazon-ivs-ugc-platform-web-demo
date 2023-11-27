@@ -403,12 +403,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
-  const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
-    useStageControls({
-      leaveStage,
-      joinStageScreenshareClient,
-      leaveStageScreenshareClient
-    });
+  const {
+    toggleCamera,
+    toggleMicrophone,
+    handleOnConfirmLeaveStage,
+    toggleScreenshare
+  } = useStageControls({
+    leaveStage,
+    joinStageScreenshareClient,
+    leaveStageScreenshareClient
+  });
 
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
@@ -528,7 +532,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
-      joinStageByRequest
+      joinStageByRequest,
+      toggleScreenshare
     }),
     [
       initializeStageClient,
@@ -554,7 +559,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
       joinStageByRequest,
-      handleParticipantJoinStage
+      handleParticipantJoinStage,
+      toggleScreenshare
     ]
   );
 
