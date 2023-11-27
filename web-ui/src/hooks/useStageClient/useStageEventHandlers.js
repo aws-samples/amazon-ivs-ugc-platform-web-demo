@@ -93,7 +93,8 @@ const useStageEventHandlers = ({
        */
       if (
         !participantTokenCreationDate ||
-        participantTokenCreationDate < localParticipantAttributes?.current?.participantTokenCreationDate
+        participantTokenCreationDate <
+          localParticipantAttributes?.current?.participantTokenCreationDate
       )
         return;
 
