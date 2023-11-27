@@ -26,6 +26,7 @@ import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
 import { useNotif } from '../../Notification';
 import { useStreams } from '../../Streams';
+import { useModal } from '../../Modal';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
@@ -34,7 +35,6 @@ import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrateg
 import useStageClient from '../../../hooks/useStageClient';
 import channelEvents from '../../AppSync/channelEvents';
 import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
-import { useModal } from '../../Modal';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
