@@ -29,7 +29,6 @@ const useStageEventHandlers = ({
 
   const {
     addParticipant,
-    localParticipant,
     updateStreams,
     toggleMicrophoneState,
     toggleCameraState,
