@@ -69,7 +69,7 @@
       },
       "error": {
         "failed_to_remove_participant": "Failed to remove participant",
-        "you_were_removed_from_the_session": "You were removed from the session",
+        "you_have_been_removed_from_session": "You have been removed from the session",
         "unable_to_create_session": "Unable to create session",
         "unable_to_join_session": "Unable to join session",
         "unable_to_leave_session": "Unable to leave session",

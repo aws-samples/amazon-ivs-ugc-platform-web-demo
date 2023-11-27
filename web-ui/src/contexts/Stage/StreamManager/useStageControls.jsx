@@ -71,7 +71,10 @@ const useStageControls = ({ leaveStage, resetStage }) => {
           ) {
             closeFullscreenAndAnimateStreamButtonCallback();
           }
-          leaveStage();
+
+          const shouldShowSuccessNotification = !isStageHost;
+
+          leaveStage(shouldShowSuccessNotification);
         },
         onCancel: closeModal,
         lastFocusedElement: lastFocusedElementRef
