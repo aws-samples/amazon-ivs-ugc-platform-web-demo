@@ -14,6 +14,7 @@ import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
 import { useGlobalStage } from './Stage';
 import { useResponsiveDevice } from './ResponsiveDevice';
+import { useBroadcast } from './Broadcast/Broadcast';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -46,6 +47,7 @@ export const Provider = ({ children, previewRef }) => {
     animationCollapseStageControlsStart,
     shouldCloseFullScreenViewOnKickedOrHostLeave
   } = useGlobalStage();
+  const { isBroadcasting } = useBroadcast();
 
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
@@ -58,6 +60,16 @@ export const Provider = ({ children, previewRef }) => {
       broadcastControllerInitialMarginLeft: 0
     }
   );
+
+  useEffect(() => {
+    const isOffline = !isBroadcasting && !isStageActive;
+    const shouldCloseFullScreenView =
+      isFullScreenViewOpen && !isDesktopView && (isBroadcasting || isOffline);
+
+    if (shouldCloseFullScreenView) {
+      setIsFullScreenViewOpen(false);
+    }
+  }, [isBroadcasting, isDesktopView, isFullScreenViewOpen, isStageActive]);
 
   const calculateTopAndLeftValues = useCallback(() => {
     const topOffset = isDesktopView ? 0 : 56; // tab height
