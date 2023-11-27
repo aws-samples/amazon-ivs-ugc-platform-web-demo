@@ -83,46 +83,38 @@ const StreamVideo = forwardRef(
       if (!isPlayerAnimationRunning && !isPaused) openOverlayAndResetTimeout();
     }, [isPaused, isPlayerAnimationRunning, openOverlayAndResetTimeout]);
 
+    const renderVideo = stagePlayerVisible ? (
+      <motion.div
+        {...playerProfileViewAnimationProps}
+        className={clsm(videoStyles, isViewerBanned && '!hidden')}
+        ref={ref}
+      >
+        <StageVideoFeeds
+          type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
+          isProfileViewExpanded={isProfileViewExpanded}
+          styles={clsm(
+            isProfileViewExpanded
+              ? ['bg-lightMode-gray-extraLight', 'dark:bg-darkMode-gray-dark']
+              : 'bg-lightMode-gray'
+          )}
+        />
+      </motion.div>
+    ) : (
+      <motion.video
+        {...playerProfileViewAnimationProps}
+        className={clsm(
+          videoStyles,
+          (isPlayerLoading || isViewerBanned) && '!hidden'
+        )}
+        muted
+        playsInline
+        ref={ref}
+      />
+    );
+
     return (
       <>
-        {stagePlayerVisible ? (
-          <motion.div
-            {...playerProfileViewAnimationProps}
-            className={clsm(
-              videoStyles,
-              isViewerBanned && '!hidden',
-              isChannelStagePlayerMuted && 'z-10'
-            )}
-            ref={ref}
-          >
-            {stagePlayerVisible && isChannelStagePlayerMuted && (
-              <UnmuteButtonOverLay />
-            )}
-            <StageVideoFeeds
-              type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
-              isProfileViewExpanded={isProfileViewExpanded}
-              styles={clsm(
-                isProfileViewExpanded
-                  ? [
-                      'bg-lightMode-gray-extraLight',
-                      'dark:bg-darkMode-gray-dark'
-                    ]
-                  : 'bg-lightMode-gray'
-              )}
-            />
-          </motion.div>
-        ) : (
-          <motion.video
-            {...playerProfileViewAnimationProps}
-            className={clsm(
-              videoStyles,
-              (isPlayerLoading || isViewerBanned) && '!hidden'
-            )}
-            muted
-            playsInline
-            ref={ref}
-          />
-        )}
+        {renderVideo}
         <motion.div
           {...playerProfileViewAnimationProps}
           className={clsm([
@@ -135,6 +127,9 @@ const StreamVideo = forwardRef(
           onMouseMove={onMouseMoveHandler}
           role="toolbar"
         >
+          {stagePlayerVisible && isChannelStagePlayerMuted && (
+            <UnmuteButtonOverLay />
+          )}
           <PlayerOverlay
             {...(areControlsContained && { className: 'before:rounded-b-3xl' })}
             isVisible={shouldShowControlsOverlay}

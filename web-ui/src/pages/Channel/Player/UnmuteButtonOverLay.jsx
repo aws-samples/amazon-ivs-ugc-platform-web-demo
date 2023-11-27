@@ -5,6 +5,7 @@ import { useGlobalStage } from '../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { VolumeOff } from '../../../assets/icons';
 import Button from '../../../components/Button';
+import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 
 const UnmuteButtonOverLay = () => {
   const { updateIsChannelStagePlayerMuted } = useGlobalStage();
@@ -14,11 +15,13 @@ const UnmuteButtonOverLay = () => {
     updateIsChannelStagePlayerMuted(false);
   };
 
+  const { isProfileViewExpanded } = useProfileViewAnimation();
+
   return (
     <div
       className={clsm([
         'absolute',
-        'z-10',
+        isProfileViewExpanded && ['z-10'],
         'h-full',
         'w-full',
         'flex',
