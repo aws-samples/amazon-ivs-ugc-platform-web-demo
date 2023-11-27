@@ -279,9 +279,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         userId,
         isLocal: true,
         isCameraHidden:
-          isBroadcastCameraHidden || defaultParticipant.isCameraHidden,
+          isBroadcastCameraHidden || defaultParticipant?.isCameraHidden,
         isMicrophoneMuted:
-          isBroadcastMicrophoneMuted || defaultParticipant.isMicrophoneMuted
+          isBroadcastMicrophoneMuted || defaultParticipant?.isMicrophoneMuted
       };
 
       if (localParticipant) {
@@ -435,8 +435,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       broadcastPreviewRef?.current
     ) {
       restartBroadcastClient(
-        broadcastDevicesStateObjRef.current.isCameraHidden,
-        broadcastDevicesStateObjRef.current.isMicrophoneMuted
+        broadcastDevicesStateObjRef.current?.isCameraHidden,
+        broadcastDevicesStateObjRef.current?.isMicrophoneMuted
       );
       broadcastDevicesStateObjRef.current = null;
     }
