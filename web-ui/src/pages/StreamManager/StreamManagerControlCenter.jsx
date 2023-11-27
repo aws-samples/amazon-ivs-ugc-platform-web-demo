@@ -8,7 +8,10 @@ import {
   StreamManagerWebBroadcast
 } from './streamManagerCards';
 import { clsm } from '../../utils';
-import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../../helpers/stagesHelpers';
+import {
+  JOIN_PARTICIPANT_URL_PARAM_KEY,
+  getLeavePromptText
+} from '../../helpers/stagesHelpers';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { streamManager as $content } from '../../content';
 import { useBroadcast } from '../../contexts/Broadcast';
@@ -25,6 +28,9 @@ import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionC
 import useHostRejoin from './hooks/useHostRejoin';
 import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
 import { AnimatePresence } from 'framer-motion';
+import usePrompt from '../../hooks/usePrompt';
+import { usePoll } from '../../contexts/StreamManagerActions/Poll';
+import { useModal } from '../../contexts/Modal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -37,7 +43,8 @@ const StreamManagerControlCenter = forwardRef(
       addParticipant,
       updateShouldAnimateStageVideoFeedsContainer,
       updateIsJoiningStageByRequest,
-      updateIsJoiningStageByInvite
+      updateIsJoiningStageByInvite,
+      isBlockingRoute
     } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
     const {
@@ -46,13 +53,25 @@ const StreamManagerControlCenter = forwardRef(
       handleOpenFullScreenView,
       dimensions
     } = useBroadcastFullScreen();
+    const { openModal } = useModal();
     const { state } = useLocation();
-    const { isDesktopView, currentBreakpoint, isLandscape } =
+    const { isDesktopView, currentBreakpoint, isLandscape, isMobile } =
       useResponsiveDevice();
     const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
       useBroadcast();
-    const { shouldGetHostRejoinTokenRef, setupRequestedParticipant } =
-      useStreamManagerStage();
+    const { isActive: isPollActive } = usePoll();
+    const enablePrompt = isBroadcasting || isBlockingRoute || isPollActive;
+    const {
+      isBlocked,
+      onConfirm: onPromptConfirm,
+      onCancel
+    } = usePrompt(enablePrompt, !isBlockingRoute);
+
+    const {
+      shouldGetHostRejoinTokenRef,
+      setupRequestedParticipant,
+      leaveStage
+    } = useStreamManagerStage();
     const { channelData } = useChannel();
     const { stageId: channelTableStageId } = channelData || {};
     const [searchParams] = useSearchParams();
@@ -69,6 +88,43 @@ const StreamManagerControlCenter = forwardRef(
         !!stageIdUrlParam ||
         false
     );
+
+    useEffect(() => {
+      if (isBlocked) {
+        const { message, confirmText } = getLeavePromptText({
+          isMobile,
+          isPollActive,
+          isStageActive,
+          isBroadcasting
+        });
+        const onConfirm = isStageActive
+          ? () => {
+              onPromptConfirm();
+              leaveStage();
+            }
+          : onPromptConfirm;
+
+        openModal({
+          content: {
+            confirmText,
+            isDestructive: true,
+            message
+          },
+          onConfirm,
+          onCancel
+        });
+      }
+    }, [
+      isPollActive,
+      isBlocked,
+      isBroadcasting,
+      isMobile,
+      isStageActive,
+      leaveStage,
+      onCancel,
+      onPromptConfirm,
+      openModal
+    ]);
 
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {

@@ -12,8 +12,7 @@ import {
 import {
   defaultParticipant,
   LOCAL_KEY,
-  PARTICIPANT_TYPES,
-  STATE_KEYS
+  PARTICIPANT_TYPES
 } from '../Global/reducer/globalReducer';
 import { decodeJWT, retryWithExponentialBackoff } from '../../../utils';
 import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
@@ -26,6 +25,7 @@ import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
 import { useNotif } from '../../Notification';
 import { useStreams } from '../../Streams';
+import { useModal } from '../../Modal';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
@@ -92,6 +92,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const { refreshChannelData } = useChannel();
   const { publish } = useAppSync();
   const { state } = useLocation();
+  const { closeModal } = useModal();
 
   useEffect(() => {
     if (!state?.isJoiningStageByRequest) return;
@@ -110,6 +111,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
+    updateIsBlockingRoute(false);
+
     if (!isHost) shouldGetHostRejoinTokenRef.current = false;
 
     if (state?.isJoiningStageByRequest) {
@@ -121,6 +124,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     isHost,
     navigate,
     state?.isJoiningStageByRequest,
+    updateIsBlockingRoute,
     updateShouldCloseFullScreenViewOnKickedOrHostLeave
   ]);
 
@@ -141,121 +145,119 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateError
   });
 
-  const resetStage = useCallback(
-    (showSuccess = false) => {
-      // Stop all tracks
-      if (localParticipant?.streams)
-        localParticipant?.streams[0].mediaStreamTrack.stop();
+  const resetStage = useCallback(() => {
+    // Stop all tracks
+    if (localParticipant?.streams)
+      localParticipant?.streams[0].mediaStreamTrack.stop();
 
-      if (showSuccess) {
-        updateSuccess($contentNotification.success.you_have_left_the_session);
-        resetAllStageState({ omit: [STATE_KEYS.SUCCESS] });
-      } else {
-        resetAllStageState();
-      }
-      joinParticipantLinkRef.current = undefined;
-      isDevicesInitializedRef.current = false;
-      broadcastDevicesStateObjRef.current = null;
-      shouldGetParticipantTokenRef.current = false;
-    },
-    [
-      broadcastDevicesStateObjRef,
-      isDevicesInitializedRef,
-      joinParticipantLinkRef,
-      localParticipant?.streams,
-      resetAllStageState,
-      shouldGetParticipantTokenRef,
-      updateSuccess
-    ]
-  );
+    resetAllStageState();
 
-  const leaveStage = useCallback(async () => {
-    try {
-      let result;
-      participantChannels.current =
-        getStageParticipantsChannelIds(participants);
+    joinParticipantLinkRef.current = undefined;
+    isDevicesInitializedRef.current = false;
+    broadcastDevicesStateObjRef.current = null;
+    shouldGetParticipantTokenRef.current = false;
+  }, [localParticipant?.streams, resetAllStageState]);
 
-      if (isScreensharing) leaveStageScreenshareClient();
+  const leaveStage = useCallback(
+    async (shouldShowSuccessNotification = false) => {
+      try {
+        let result;
+        participantChannels.current =
+          getStageParticipantsChannelIds(participants);
 
-      leaveStageClient();
+        if (isScreensharing) leaveStageScreenshareClient();
 
-      // Check if the user is the host
-      if (isHost) {
-        ({ result } = await retryWithExponentialBackoff({
-          promiseFn: () => stagesAPI.deleteStage(),
-          maxRetries: 2
-        }));
+        leaveStageClient();
 
-        // Fetch updated channel data
-        refreshChannelData();
-
-        // Disable usePrompt
-        updateIsBlockingRoute(false);
-      }
-
-      if (result || !isHost) {
+        // Check if the user is the host
         if (isHost) {
-          notifyNeutral($contentNotification.neutral.the_session_ended, {
-            asPortal: true
-          });
+          ({ result } = await retryWithExponentialBackoff({
+            promiseFn: () => stagesAPI.deleteStage(),
+            maxRetries: 2
+          }));
 
-          if (participantChannels.current.length) {
-            participantChannels.current.forEach((participantChannel) => {
-              publish(
-                participantChannel,
-                JSON.stringify({ type: channelEvents.STAGE_SESSION_HAS_ENDED })
-              );
-            });
-          }
+          // Fetch updated channel data
+          refreshChannelData();
+
+          // Disable usePrompt
+          updateIsBlockingRoute(false);
         }
 
-        // Animate stage control buttons
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
+        if (result || !isHost) {
+          if (isHost) {
+            notifyNeutral($contentNotification.neutral.the_session_ended, {
+              asPortal: true
+            });
 
-        setTimeout(() => {
-          resetStage(true);
-
-          if (stageIdUrlParam) {
-            navigate('/manager');
+            if (participantChannels.current.length) {
+              participantChannels.current.forEach((participantChannel) => {
+                const channel = participantChannel?.toLowerCase();
+                publish(
+                  channel,
+                  JSON.stringify({
+                    type: channelEvents.STAGE_SESSION_HAS_ENDED
+                  })
+                );
+              });
+            }
           }
 
-          if (state?.isJoiningStageByRequest) {
-            navigate('/manager', { state: {} });
-          }
+          // Animate stage control buttons
+          updateAnimateCollapseStageContainerWithDelay(false);
+          updateShouldAnimateGoLiveButtonChevronIcon(false);
 
-          broadcastDevicesStateObjRef.current = {
-            isCameraHidden: localParticipant?.isCameraHidden || false,
-            isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-          };
-        }, 350);
+          setTimeout(() => {
+            resetStage();
+
+            if (shouldShowSuccessNotification) {
+              updateSuccess(
+                $contentNotification.success.you_have_left_the_session
+              );
+            }
+
+            if (stageIdUrlParam) {
+              navigate('/manager');
+            }
+
+            if (state?.isJoiningStageByRequest) {
+              navigate('/manager', { state: {} });
+            }
+
+            broadcastDevicesStateObjRef.current = {
+              isCameraHidden: localParticipant?.isCameraHidden || false,
+              isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
+            };
+          }, 350);
+        }
+      } catch (err) {
+        updateError({
+          message: $contentNotification.error.unable_to_leave_session,
+          err
+        });
       }
-    } catch (err) {
-      updateError({
-        message: $contentNotification.error.unable_to_leave_session,
-        err
-      });
-    }
-  }, [
-    participants,
-    leaveStageClient,
-    isHost,
-    refreshChannelData,
-    updateIsBlockingRoute,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    notifyNeutral,
-    publish,
-    resetStage,
-    stageIdUrlParam,
-    state?.isJoiningStageByRequest,
-    localParticipant?.isCameraHidden,
-    localParticipant?.isMicrophoneMuted,
-    navigate,
-    updateError,
-    isScreensharing,
-    leaveStageScreenshareClient
-  ]);
+    },
+    [
+      participants,
+      isScreensharing,
+      leaveStageScreenshareClient,
+      leaveStageClient,
+      isHost,
+      refreshChannelData,
+      updateIsBlockingRoute,
+      updateAnimateCollapseStageContainerWithDelay,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      notifyNeutral,
+      publish,
+      resetStage,
+      stageIdUrlParam,
+      state?.isJoiningStageByRequest,
+      localParticipant?.isCameraHidden,
+      localParticipant?.isMicrophoneMuted,
+      updateSuccess,
+      navigate,
+      updateError
+    ]
+  );
 
   useEffect(() => {
     if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
@@ -306,6 +308,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
+      closeModal();
+
       // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
@@ -314,11 +318,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       isBroadcastCameraHidden,
       isBroadcastMicrophoneMuted,
       localParticipant,
-      updateIsBlockingRoute,
       updateStageId,
+      closeModal,
       joinStageClient,
       strategy,
       updateLocalStrategy,
+      updateIsBlockingRoute,
       updateParticipant,
       addParticipant
     ]
@@ -398,17 +403,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
-  const {
-    toggleCamera,
-    toggleMicrophone,
-    handleOnConfirmLeaveStage,
-    toggleScreenshare
-  } = useStageControls({
-    leaveStage,
-    resetStage,
-    joinStageScreenshareClient,
-    leaveStageScreenshareClient
-  });
+  const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
+    useStageControls({
+      leaveStage,
+      joinStageScreenshareClient,
+      leaveStageScreenshareClient
+    });
 
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
@@ -517,8 +517,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       // Participants
       localParticipant,
       participants,
-      // Screenshare
-      toggleScreenshare,
       handleParticipantJoinStage,
       // Controls
       leaveStage,
@@ -555,7 +553,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
-      toggleScreenshare,
       joinStageByRequest,
       handleParticipantJoinStage
     ]
