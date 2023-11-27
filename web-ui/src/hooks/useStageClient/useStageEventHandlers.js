@@ -91,13 +91,9 @@ const useStageEventHandlers = ({
        * an undefined participantTokenCreationDate signifies the participant as the stage creator.
        * if participantTokenCreationDate is earlier than joinStageDateRef.current, participants joined before the local participant.
        */
-      const localParticipantTokenCreationDate =
-        localParticipant?.attributes.participantTokenCreationDate ||
-        localParticipantAttributes?.current?.participantTokenCreationDate;
-
       if (
         !participantTokenCreationDate ||
-        participantTokenCreationDate < localParticipantTokenCreationDate
+        participantTokenCreationDate < localParticipantAttributes?.current?.participantTokenCreationDate
       )
         return;
 
@@ -107,7 +103,6 @@ const useStageEventHandlers = ({
     },
     [
       addParticipant,
-      localParticipant?.attributes.participantTokenCreationDate,
       localParticipantAttributes,
       updateSuccess,
       isChannelPage,
