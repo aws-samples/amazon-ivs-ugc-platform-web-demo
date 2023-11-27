@@ -8,7 +8,6 @@ import { useGlobalStage } from '../../../contexts/Stage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { useStreams } from '../../../contexts/Streams';
-import { useModal } from '../../../contexts/Modal';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -28,7 +27,6 @@ const useInviteParticipants = ({
     creatingStage,
     updateStageId
   } = useGlobalStage();
-  const { closeModal } = useModal();
   const { removeBroadcastClient, isBroadcasting } = useBroadcast();
   const { isLive } = useStreams();
 
@@ -59,7 +57,6 @@ const useInviteParticipants = ({
         updateStageId(stageIdUrlParam);
         updateIsJoiningStageByInvite(false);
         shouldGetHostRejoinTokenRef.current = false;
-        closeModal();
       }
 
       if (error) {
@@ -87,7 +84,6 @@ const useInviteParticipants = ({
     stageId,
     updateIsJoiningStageByInvite,
     shouldGetHostRejoinTokenRef,
-    closeModal,
     resetStage,
     broadcastDevicesStateObjRef,
     localParticipant?.isCameraHidden,
