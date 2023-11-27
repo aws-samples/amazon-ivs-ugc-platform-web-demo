@@ -27,8 +27,7 @@ const StatusBar = () => {
     hasStreamSessions,
     activeStreamSession
   } = useStreams();
-  const { isStageActive, participantsArrayExcludingHost, isHost } =
-    useGlobalStage();
+  const { isStageActive, participants, isHost } = useGlobalStage();
   const shouldDisplayStageStatusBar = isStageActive && isHost;
   const { currentBreakpoint } = useResponsiveDevice();
   const { channelData } = useChannel();
@@ -154,7 +153,7 @@ const StatusBar = () => {
           icon={<Group />}
           isLive={isStageActive}
           itemLabel="Stage participants count"
-          value={participantsArrayExcludingHost.length}
+          value={participants.size}
           className={clsm(['mr-6'])}
         />
       )}

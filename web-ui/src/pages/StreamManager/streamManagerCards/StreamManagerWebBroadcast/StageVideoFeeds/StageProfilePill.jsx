@@ -37,7 +37,8 @@ const StageProfilePill = ({
   avatarSrc,
   username,
   type,
-  className
+  className,
+  isScreenshare
 }) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
 
@@ -82,11 +83,12 @@ const StageProfilePill = ({
           '[&>img]:ring-2',
           MODAL_PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
         ],
-        PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
-        className
+        !isScreenshare && PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
+        className,
+        isScreenshare && ['!text-white', '![&>h3]:drop-shadow-xl']
       ])}
     >
-      {avatarSrc && <img src={avatarSrc} alt="" />}
+      {!isScreenshare && <img src={avatarSrc} alt="" />}
       <h3>{username}</h3>
     </div>
   );
@@ -96,12 +98,14 @@ StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
   className: '',
   profileColor: '',
-  avatarSrc: ''
+  avatarSrc: '',
+  isScreenshare: false
 };
 StageProfilePill.propTypes = {
   profileColor: PropTypes.string,
   avatarSrc: PropTypes.string,
   username: PropTypes.string.isRequired,
+  isScreenshare: PropTypes.bool,
   type: PropTypes.string,
   className: PropTypes.string
 };

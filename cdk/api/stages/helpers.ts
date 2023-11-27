@@ -177,16 +177,13 @@ export const handleCreateStageParams = async ({
       channelArn
     } = unmarshall(UserItem));
 
-    if (participantTypesArray.includes(participantType)) {
-      if (channelArn) {
-        channelId = getChannelId(channelArn);
-      }
-
-      channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
-        channelAssets,
-        avatar
-      );
+    if (channelArn) {
+      channelId = getChannelId(channelArn);
     }
+    channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
+      channelAssets,
+      avatar
+    );
   }
 
   const capabilities =

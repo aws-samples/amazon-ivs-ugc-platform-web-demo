@@ -165,6 +165,7 @@ const StageVideo = ({ type, participantKey, className }) => {
                 profileColor={profileColor}
                 username={profilePillUsername}
                 className={clsm([!profileColor && ['!text-white']])}
+                isScreenshare={userType === PARTICIPANT_TYPES.SCREENSHARE}
               />
             )}
             {isMicrophoneMuted && (

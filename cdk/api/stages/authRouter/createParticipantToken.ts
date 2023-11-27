@@ -72,11 +72,11 @@ const handler = async (
       attributes: {
         username: preferredUsername || username,
         type,
+        profileColor,
+        avatar,
+        channelAssetsAvatarUrlPath,
+        channelId,
         ...(participantTypesArray.includes(participantType) && {
-          channelId,
-          profileColor,
-          avatar,
-          channelAssetsAvatarUrlPath,
           participantTokenCreationDate: Date.now().toString()
         })
       },

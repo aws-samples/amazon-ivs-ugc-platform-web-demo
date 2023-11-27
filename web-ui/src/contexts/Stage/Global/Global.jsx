@@ -131,15 +131,6 @@ export const Provider = ({ children }) => {
   const isHost = type === PARTICIPANT_TYPES.HOST;
   const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
 
-  const participantsArrayExcludingHost = useMemo(
-    () =>
-      [...participants].filter(
-        ([_, participant]) =>
-          participant.attributes.type !== PARTICIPANT_TYPES.HOST
-      ),
-    [participants]
-  );
-
   const numberOfActiveScreenshares = useMemo(
     () =>
       [...participants].filter(
@@ -167,7 +158,6 @@ export const Provider = ({ children }) => {
       isStageActive,
       localParticipant,
       participants,
-      participantsArrayExcludingHost,
       shouldDisableScreenshareButton,
       isScreensharing,
       requestingToJoinStage,
@@ -230,7 +220,6 @@ export const Provider = ({ children }) => {
     isStageActive,
     localParticipant,
     participants,
-    participantsArrayExcludingHost,
     shouldDisableScreenshareButton,
     isScreensharing,
     requestingToJoinStage,
