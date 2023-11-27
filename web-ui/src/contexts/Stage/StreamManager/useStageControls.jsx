@@ -17,7 +17,6 @@ const $contentStageConfirmationModal =
 
 const useStageControls = ({
   leaveStage,
-  resetStage,
   joinStageScreenshareClient,
   leaveStageScreenshareClient
 }) => {
