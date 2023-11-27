@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
@@ -7,7 +8,6 @@ import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalRed
 import { useUser } from '../../contexts/User';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
-import { useLocation } from 'react-router-dom';
 
 const {
   StageEvents,
