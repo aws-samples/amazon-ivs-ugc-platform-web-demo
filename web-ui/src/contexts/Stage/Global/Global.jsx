@@ -43,7 +43,6 @@ export const Provider = ({ children }) => {
     updateIsChannelStagePlayerMuted,
     updateIsJoiningStageByRequest,
     updateIsJoiningStageByInvite,
-    updateSpectatorParticipantId,
     updateShouldOpenSettingsModal
   } = useGlobalReducers();
   const {
@@ -64,7 +63,6 @@ export const Provider = ({ children }) => {
     stageRequestList,
     isJoiningStageByRequest,
     isJoiningStageByInvite,
-    spectatorParticipantId,
     shouldOpenSettingsModal
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
@@ -141,8 +139,6 @@ export const Provider = ({ children }) => {
       updateIsJoiningStageByInvite,
       isJoiningStageByInvite,
       isJoiningStageByRequestOrInvite,
-      updateSpectatorParticipantId,
-      spectatorParticipantId,
       shouldOpenSettingsModal,
       updateShouldOpenSettingsModal,
       // Actions
@@ -227,8 +223,6 @@ export const Provider = ({ children }) => {
     updateIsJoiningStageByInvite,
     isJoiningStageByInvite,
     isJoiningStageByRequestOrInvite,
-    updateSpectatorParticipantId,
-    spectatorParticipantId,
     shouldOpenSettingsModal,
     updateShouldOpenSettingsModal
   ]);

@@ -9,18 +9,13 @@ import { getParticipationToken } from '../../../api/stages';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { updateError } from '../../../contexts/Stage/Global/reducer/actions';
 import { useUser } from '../../../contexts/User';
-import { stagesAPI } from '../../../api';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
 
 const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
-  const {
-    isStageActive,
-    creatingStage,
-    updateIsJoiningStageByRequest,
-    updateSpectatorParticipantId
-  } = useGlobalStage();
+  const { isStageActive, creatingStage, updateIsJoiningStageByRequest } =
+    useGlobalStage();
   const navigate = useNavigate();
   const { channelData } = useChannel();
   const { userData } = useUser();
@@ -32,7 +27,6 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
     if (isStageActive || !channelData || !userData) return;
 
     const stageId = state?.stageId;
-    const participantId = state?.participantId;
 
     if (isLive === undefined || isBroadcasting === undefined) return;
 
@@ -44,35 +38,17 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
     } else {
       creatingStage(true);
 
-      // Remove requestee
-      const { result: disconnectSpectatorResponse, error } =
-        await stagesAPI.disconnectSpectator({
-          participantId,
-          participantChannelId: userData.channelId,
-          stageId
-        });
+      const { result, error } = await getParticipationToken(
+        stageId,
+        PARTICIPANT_TYPES.REQUESTED
+      );
 
-      if (disconnectSpectatorResponse) {
-        updateSpectatorParticipantId(null);
+      creatingStage(false);
 
-        const { result, error } = await getParticipationToken(
-          stageId,
-          PARTICIPANT_TYPES.REQUESTED
-        );
-
-        creatingStage(false);
-
-        if (result?.token) {
-          removeBroadcastClient();
-          await createStageInstanceAndJoin(result.token, stageId);
-          updateIsJoiningStageByRequest(false);
-        }
-
-        if (error) {
-          updateError({
-            message: $contentNotification.error.unable_to_join_session
-          });
-        }
+      if (result?.token) {
+        removeBroadcastClient();
+        await createStageInstanceAndJoin(result.token, stageId);
+        updateIsJoiningStageByRequest(false);
       }
 
       if (error) {
@@ -86,12 +62,10 @@ const useRequestParticipants = ({ createStageInstanceAndJoin }) => {
     channelData,
     userData,
     state?.stageId,
-    state?.participantId,
     isLive,
     isBroadcasting,
     navigate,
     creatingStage,
-    updateSpectatorParticipantId,
     removeBroadcastClient,
     createStageInstanceAndJoin,
     updateIsJoiningStageByRequest

@@ -35,8 +35,7 @@ const useStageEventHandlers = ({
     isSpectator,
     updateIsSpectator,
     removeParticipant,
-    strategy,
-    updateSpectatorParticipantId
+    strategy
   } = useGlobalStage();
   const { userData } = useUser();
   const { pathname } = useLocation();
@@ -56,10 +55,6 @@ const useStageEventHandlers = ({
       } = participant;
       if (isLocal) {
         localParticipantAttributes.current = participant.attributes;
-
-        if (isChannelPage && type === PARTICIPANT_TYPES.SPECTATOR) {
-          updateSpectatorParticipantId(participant.id);
-        }
 
         if (type === PARTICIPANT_TYPES.HOST) {
           // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
@@ -106,7 +101,6 @@ const useStageEventHandlers = ({
       localParticipantAttributes,
       updateSuccess,
       isChannelPage,
-      updateSpectatorParticipantId,
       publish
     ]
   );
