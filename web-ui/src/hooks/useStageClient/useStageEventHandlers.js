@@ -1,5 +1,4 @@
 import { useCallback, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
@@ -38,8 +37,6 @@ const useStageEventHandlers = ({
     strategy
   } = useGlobalStage();
   const { userData } = useUser();
-  const { pathname } = useLocation();
-  const isChannelPage = pathname !== '/manager';
   const localParticipantAttributes = useRef();
 
   const handleParticipantJoinEvent = useCallback(
@@ -96,13 +93,7 @@ const useStageEventHandlers = ({
         createUserJoinedSuccessMessage(participantUsername);
       updateSuccess(successMessage);
     },
-    [
-      addParticipant,
-      localParticipantAttributes,
-      updateSuccess,
-      isChannelPage,
-      publish
-    ]
+    [addParticipant, localParticipantAttributes, updateSuccess, publish]
   );
 
   const handleParticipantLeftEvent = useCallback(
