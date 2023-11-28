@@ -395,10 +395,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
     () => ({
-      shouldRenderFullscreenCollapseCloseButton: [
-        PARTICIPANT_TYPES.HOST,
-        PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type),
       shouldRenderInviteLinkButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED

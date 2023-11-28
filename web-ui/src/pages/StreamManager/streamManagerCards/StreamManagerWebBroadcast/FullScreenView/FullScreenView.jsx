@@ -26,7 +26,7 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import useResize from '../../../../../hooks/useResize';
 
 const FullScreenView = () => {
-  const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
+  const { isStageActive } = useStreamManagerStage();
   const {
     isJoiningStageByRequestOrInvite,
     shouldOpenSettingsModal,
@@ -42,7 +42,6 @@ const FullScreenView = () => {
   const fullScreenViewContainerRef = useRef();
   const { isMobileView } = useResponsiveDevice();
   const { isModalOpen } = useModal();
-  const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
   const content =
     isStageActive || isJoiningStageByRequestOrInvite ? (
       <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
@@ -126,8 +125,7 @@ const FullScreenView = () => {
         ]
       ])}
     >
-      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !isJoiningStageByRequestOrInvite && <Header />}
+      {!isJoiningStageByRequestOrInvite && <Header />}
       <motion.div
         className={clsm([
           'flex',

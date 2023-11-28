@@ -3,7 +3,10 @@ import { motion } from 'framer-motion';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import Button from '../../../../../components/Button/Button';
-import { CloseFullscreen, Close } from '../../../../../assets/icons';
+import {
+  CloseFullscreen as Collapse,
+  Close
+} from '../../../../../assets/icons';
 import {
   ANIMATION_DURATION,
   useBroadcastFullScreen
@@ -28,52 +31,50 @@ const Header = () => {
     isStageActive,
     collaborateButtonAnimationControls,
     shouldDisableStageButtonWithDelay,
-    isHost,
-    isInvitedParticipant
+    isHost
   } = useGlobalStage();
   const { handleOnConfirmLeaveStage, shouldGetHostRejoinTokenRef } =
     useStreamManagerStage();
   const { handleOnClose, setIsFullScreenViewOpen } = useBroadcastFullScreen();
 
-  const shouldDisableCollapseButton =
-    (isStageActive &&
-      isInvitedParticipant &&
-      shouldDisableStageButtonWithDelay) ||
-    false;
+  const isCollapseButton = isHost || !isStageActive;
+  const isDisabled =
+    (!isCollapseButton && shouldDisableStageButtonWithDelay) || false;
 
-  const icon = isHost || !isStageActive ? <CloseFullscreen /> : <Close />;
+  const icon = isCollapseButton ? <Collapse /> : <Close />;
 
-  const handleCloseFullScreen = useCallback(() => {
-    if (isStageActive && isInvitedParticipant) {
-      const closeFullscreenAndAnimateStreamButtonCallback = async () => {
-        setIsFullScreenViewOpen(false);
-        await collaborateButtonAnimationControls.start({
-          zIndex: 1000,
-          opacity: 1,
-          transition: { duration: 0.45 }
-        });
-        collaborateButtonAnimationControls.start({ zIndex: 'unset' });
-      };
-
-      if (!isHost && !!stageId) shouldGetHostRejoinTokenRef.current = false;
-      handleOnConfirmLeaveStage({
-        closeFullscreenAndAnimateStreamButtonCallback,
-        lastFocusedElementRef: buttonRef
+  const handleOnCloseAndLeaveStage = useCallback(() => {
+    const closeFullscreenAndAnimateStreamButtonCallback = async () => {
+      setIsFullScreenViewOpen(false);
+      await collaborateButtonAnimationControls.start({
+        zIndex: 1000,
+        opacity: 1,
+        transition: { duration: 0.45 }
       });
-    } else {
-      handleOnClose();
-    }
+      collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+    };
+
+    if (!isHost && !!stageId) shouldGetHostRejoinTokenRef.current = false;
+    handleOnConfirmLeaveStage({
+      closeFullscreenAndAnimateStreamButtonCallback,
+      lastFocusedElementRef: buttonRef
+    });
   }, [
     collaborateButtonAnimationControls,
-    handleOnClose,
     handleOnConfirmLeaveStage,
     isHost,
-    isInvitedParticipant,
-    isStageActive,
     setIsFullScreenViewOpen,
     shouldGetHostRejoinTokenRef,
     stageId
   ]);
+
+  const handleCloseFullScreen = useCallback(() => {
+    if (isCollapseButton) {
+      handleOnClose();
+    } else {
+      handleOnCloseAndLeaveStage();
+    }
+  }, [handleOnClose, isCollapseButton, handleOnCloseAndLeaveStage]);
 
   return (
     <motion.div
@@ -107,7 +108,7 @@ const Header = () => {
       >
         <Button
           ref={buttonRef}
-          isDisabled={shouldDisableCollapseButton}
+          isDisabled={isDisabled}
           ariaLabel={$webBroadcastContent.collapse}
           variant="icon"
           onClick={handleCloseFullScreen}
