@@ -1,10 +1,9 @@
 import { getParticipationToken } from '../../../api/stages';
 import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/globalReducer';
 import { streamManager as $streamManagerContent } from '../../../content';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useGlobalStage } from '../../../contexts/Stage';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
-import useLatest from '../../../hooks/useLatest';
 import { captureScreenShareStream } from '../../../contexts/Broadcast/useScreenShare/utils';
 
 const $contentNotification =
@@ -15,19 +14,16 @@ const useStageScreenshare = ({
   joinStageScreenshareClient,
   leaveStageScreenshareClient
 }) => {
-  const [screenCaptureStream, setScreenCapturedStream] = useState(null);
-  const screenCaptureStreamTracks = useLatest(
-    screenCaptureStream?.getTracks() || []
-  );
-
   const {
-    stageId,
-    updateIsScreensharing,
-    isScreensharing,
-    screenshareStrategy,
-    updateError,
     isScreensharePermissionRevoked,
-    updateIsScreensharePermissionRevoked
+    isScreensharing,
+    localScreenshareStream,
+    screenshareStrategy,
+    stageId,
+    updateError,
+    updateIsScreensharePermissionRevoked,
+    updateIsScreensharing,
+    updateLocalScreenshareStream
   } = useGlobalStage();
 
   const startScreenshare = useCallback(async () => {
@@ -36,7 +32,7 @@ const useStageScreenshare = ({
       const screenshareVideoStream = new LocalStageStream(
         screenshareMedia.getVideoTracks()[0]
       );
-      setScreenCapturedStream(screenshareMedia);
+      updateLocalScreenshareStream(screenshareMedia);
       screenshareStrategy.setStream(screenshareVideoStream);
 
       const { result, error } = await getParticipationToken(
@@ -55,7 +51,7 @@ const useStageScreenshare = ({
       }
 
       if (error) {
-        setScreenCapturedStream(null);
+        updateLocalScreenshareStream(null);
         screenshareStrategy.resetStrategy();
         updateError({
           message: $contentNotification.error.unable_to_start_screenshare,
@@ -70,25 +66,24 @@ const useStageScreenshare = ({
     screenshareStrategy,
     stageId,
     updateError,
-    updateIsScreensharing
+    updateIsScreensharing,
+    updateLocalScreenshareStream
   ]);
 
   const stopScreenshare = useCallback(() => {
     // Stop and close the media tracks bound to the shared screen
-    for (const track of screenCaptureStreamTracks.current) track.stop();
+    for (const track of localScreenshareStream?.getTracks()) track.stop();
+    screenshareStrategy.stopTracks();
 
-    screenshareStrategy.resetStrategy();
-    setScreenCapturedStream(null);
-    leaveStageScreenshareClient({
-      shouldUpdateStrategy: false,
-      shouldRemoveAllEventListeners: false
-    });
+    updateLocalScreenshareStream(null);
+    leaveStageScreenshareClient(screenshareStrategy);
     updateIsScreensharing(false);
   }, [
     leaveStageScreenshareClient,
-    screenCaptureStreamTracks,
+    localScreenshareStream,
     screenshareStrategy,
-    updateIsScreensharing
+    updateIsScreensharing,
+    updateLocalScreenshareStream
   ]);
 
   const startStopScreenshare = useCallback(() => {
@@ -99,19 +94,8 @@ const useStageScreenshare = ({
   const toggleScreenshare = useThrottledCallback(startStopScreenshare, 250);
 
   useEffect(() => {
-    const [screenCaptureTrack] = screenCaptureStream?.getVideoTracks() || [];
-
-    if (screenCaptureTrack)
-      screenCaptureTrack.addEventListener('ended', stopScreenshare);
-
-    return () => {
-      if (screenCaptureTrack)
-        screenCaptureTrack.removeEventListener('ended', stopScreenshare);
-    };
-  }, [screenCaptureStream, stopScreenshare]);
-
-  useEffect(() => {
     if (!isScreensharePermissionRevoked) return;
+
     updateIsScreensharePermissionRevoked(false);
     stopScreenshare();
     updateError({
@@ -125,6 +109,7 @@ const useStageScreenshare = ({
   ]);
 
   return {
+    stopScreenshare,
     toggleScreenshare
   };
 };

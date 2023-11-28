@@ -126,16 +126,21 @@ const useGlobalReducers = () => {
     dispatch(actions.updateIsBlockingRoute(bool));
   }, []);
 
-  const updateIsScreensharing = useCallback((bool) => {
-    dispatch(actions.updateIsScreensharing(bool));
-  }, []);
-
   const updateRequestingToJoinStage = useCallback((bool) => {
     dispatch(actions.updateRequestingToJoinStage(bool));
   }, []);
 
   const updateHasStageRequestBeenApproved = useCallback((bool) => {
     dispatch(actions.updateHasStageRequestBeenApproved(bool));
+  }, []);
+
+  // Real-time screenshare
+  const updateLocalScreenshareStream = useCallback((stream) => {
+    dispatch(actions.updateLocalScreenshareStream(stream));
+  }, []);
+
+  const updateIsScreensharing = useCallback((bool) => {
+    dispatch(actions.updateIsScreensharing(bool));
   }, []);
 
   // Channel page
@@ -195,7 +200,8 @@ const useGlobalReducers = () => {
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,
       updateShouldOpenSettingsModal,
-      updateIsScreensharePermissionRevoked
+      updateIsScreensharePermissionRevoked,
+      updateLocalScreenshareStream
     }),
     [
       state,
@@ -228,7 +234,8 @@ const useGlobalReducers = () => {
       updateIsJoiningStageByInvite,
       updateSpectatorParticipantId,
       updateShouldOpenSettingsModal,
-      updateIsScreensharePermissionRevoked
+      updateIsScreensharePermissionRevoked,
+      updateLocalScreenshareStream
     ]
   );
 };

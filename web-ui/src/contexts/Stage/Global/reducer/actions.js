@@ -140,6 +140,12 @@ export const updateSpectatorParticipantId = (spectatorParticipantId) => ({
   payload: spectatorParticipantId
 });
 
+// Real-time screenshare
+export const updateLocalScreenshareStream = (stream) => ({
+  type: actionTypes.UPDATE_LOCAL_SCREEN_SHARE_STREAM,
+  payload: stream
+});
+
 export const updateIsScreensharePermissionRevoked = (bool) => ({
   type: actionTypes.UPDATE_IS_SCREEN_SHARE_PREMISSION_REVOKE,
   payload: bool

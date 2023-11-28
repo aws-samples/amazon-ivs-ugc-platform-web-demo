@@ -77,6 +77,7 @@ export const STATE_KEYS = {
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
   IS_SCREEN_SHARING: 'isScreensharing',
+  LOCAL_SCREEN_SHARE_STREAM: 'localScreenshareStream',
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
     'shouldCloseFullScreenViewOnKickedOrHostLeave',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
@@ -100,6 +101,7 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_SCREEN_SHARING]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
+  [STATE_KEYS.LOCAL_SCREEN_SHARE_STREAM]: null,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
@@ -354,6 +356,13 @@ const globalReducer = (state = defaultReducerState, action) => {
         ...state,
         [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]:
           action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_LOCAL_SCREEN_SHARE_STREAM: {
+      return {
+        ...state,
+        [STATE_KEYS.LOCAL_SCREEN_SHARE_STREAM]: action.payload
       };
     }
 

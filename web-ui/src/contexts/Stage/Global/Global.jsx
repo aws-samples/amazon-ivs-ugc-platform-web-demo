@@ -46,7 +46,8 @@ export const Provider = ({ children }) => {
     updateIsJoiningStageByInvite,
     updateSpectatorParticipantId,
     updateShouldOpenSettingsModal,
-    updateIsScreensharePermissionRevoked
+    updateIsScreensharePermissionRevoked,
+    updateLocalScreenshareStream
   } = useGlobalReducers();
 
   const {
@@ -70,7 +71,8 @@ export const Provider = ({ children }) => {
     isJoiningStageByInvite,
     spectatorParticipantId,
     shouldOpenSettingsModal,
-    isScreensharePermissionRevoked
+    isScreensharePermissionRevoked,
+    localScreenshareStream
   } = state;
   const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
@@ -108,10 +110,10 @@ export const Provider = ({ children }) => {
 
   const screenshareStrategy = useMemo(
     () => ({
-      stream: null,
+      videoTrack: null,
 
       stageStreamsToPublish() {
-        return [this.stream];
+        return [this.videoTrack];
       },
       shouldPublishParticipant: (participant) => {
         return true;
@@ -119,11 +121,14 @@ export const Provider = ({ children }) => {
       shouldSubscribeToParticipant: (participant) => {
         return SubscribeType.AUDIO_VIDEO;
       },
-      setStream(stream) {
-        this.stream = stream;
+      setStream(videoTrack) {
+        this.videoTrack = videoTrack;
       },
       resetStrategy() {
-        this.stream = null;
+        this.videoTrack = null;
+      },
+      stopTracks() {
+        this.videoTrack?.mediaStreamTrack.stop();
       }
     }),
     []
@@ -156,32 +161,33 @@ export const Provider = ({ children }) => {
       isBlockingRoute,
       isChannelStagePlayerMuted,
       isCreatingStage,
+      isHost,
+      isInvitedParticipant,
+      isJoiningStageByInvite,
+      isJoiningStageByRequest,
+      isJoiningStageByRequestOrInvite,
+      isScreensharePermissionRevoked,
+      isScreensharing,
       isSpectator,
       isStageActive,
       localParticipant,
+      localScreenshareStream,
       participants,
-      shouldDisableScreenshareButton,
-      isScreensharing,
       requestingToJoinStage,
+      shouldCloseFullScreenViewOnKickedOrHostLeave,
+      shouldDisableScreenshareButton,
+      shouldOpenSettingsModal,
+      spectatorParticipantId,
       stageId,
       strategy,
       success,
-      isHost,
-      isInvitedParticipant,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
       updateIsChannelStagePlayerMuted,
-      updateIsScreensharing,
-      updateIsJoiningStageByRequest,
-      isJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      isJoiningStageByInvite,
-      isJoiningStageByRequestOrInvite,
-      updateSpectatorParticipantId,
-      spectatorParticipantId,
-      shouldOpenSettingsModal,
-      updateShouldOpenSettingsModal,
-      isScreensharePermissionRevoked,
+      updateIsJoiningStageByRequest,
       updateIsScreensharePermissionRevoked,
+      updateIsScreensharing,
+      updateShouldOpenSettingsModal,
+      updateSpectatorParticipantId,
       // Actions
       addParticipant,
       creatingStage,
@@ -191,15 +197,16 @@ export const Provider = ({ children }) => {
       toggleCameraState,
       toggleMicrophoneState,
       updateError,
+      updateHasStageRequestBeenApproved,
       updateIsBlockingRoute,
       updateIsSpectator,
+      updateLocalScreenshareStream,
       updateParticipant,
       updateRequestingToJoinStage,
+      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-      updateHasStageRequestBeenApproved,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -215,66 +222,68 @@ export const Provider = ({ children }) => {
       screenshareStrategy
     };
   }, [
+    addParticipant,
+    animateCollapseStageContainerWithDelay,
+    animationCollapseStageControlsStart,
+    collaborateButtonAnimationControls,
+    creatingStage,
+    deleteRequestToJoin,
     error,
     hasStageRequestBeenApproved,
-    isScreensharePermissionRevoked,
     isBlockingRoute,
     isChannelStagePlayerMuted,
     isCreatingStage,
+    isHost,
+    isInvitedParticipant,
+    isJoiningStageByInvite,
+    isJoiningStageByRequest,
+    isJoiningStageByRequestOrInvite,
+    isScreensharePermissionRevoked,
+    isScreensharing,
     isSpectator,
     isStageActive,
     localParticipant,
+    localScreenshareStream,
     participants,
-    shouldDisableScreenshareButton,
-    isScreensharing,
-    requestingToJoinStage,
-    stageId,
-    strategy,
-    updateIsScreensharing,
-    updateIsScreensharePermissionRevoked,
-    success,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
-    updateIsChannelStagePlayerMuted,
-    addParticipant,
-    creatingStage,
     removeParticipant,
+    requestingToJoinStage,
     resetParticipants,
     resetStageState,
+    screenshareStrategy,
+    shouldAnimateGoLiveButtonChevronIcon,
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    shouldDisableScreenshareButton,
+    shouldDisableStageButtonWithDelay,
+    shouldOpenSettingsModal,
+    spectatorParticipantId,
+    stageId,
+    stageRequestList,
+    strategy,
+    success,
     toggleCameraState,
     toggleMicrophoneState,
+    updateAnimateCollapseStageContainerWithDelay,
     updateError,
     updateHasStageRequestBeenApproved,
     updateIsBlockingRoute,
-    updateIsSpectator,
-    updateParticipant,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldDisableStageButtonWithDelay,
-    isHost,
-    isInvitedParticipant,
-    updateRequestingToJoinStage,
-    updateStageId,
-    updateStreams,
-    updateSuccess,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    updateAnimateCollapseStageContainerWithDelay,
-    animateCollapseStageContainerWithDelay,
-    shouldAnimateGoLiveButtonChevronIcon,
-    shouldDisableStageButtonWithDelay,
-    updateStageRequestList,
-    stageRequestList,
-    deleteRequestToJoin,
-    screenshareStrategy,
-    updateIsJoiningStageByRequest,
-    isJoiningStageByRequest,
+    updateIsChannelStagePlayerMuted,
     updateIsJoiningStageByInvite,
-    isJoiningStageByInvite,
-    isJoiningStageByRequestOrInvite,
+    updateIsJoiningStageByRequest,
+    updateIsScreensharePermissionRevoked,
+    updateIsScreensharing,
+    updateIsSpectator,
+    updateLocalScreenshareStream,
+    updateParticipant,
+    updateRequestingToJoinStage,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateShouldDisableStageButtonWithDelay,
+    updateShouldOpenSettingsModal,
     updateSpectatorParticipantId,
-    spectatorParticipantId,
-    shouldOpenSettingsModal,
-    updateShouldOpenSettingsModal
+    updateStageId,
+    updateStageRequestList,
+    updateStreams,
+    updateSuccess
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

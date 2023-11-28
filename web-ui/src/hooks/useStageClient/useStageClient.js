@@ -17,11 +17,11 @@ const useStageClient = (
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
   const {
-    resetParticipants,
-    strategy,
-    resetStageState,
     isHost,
-    localParticipant
+    localParticipant,
+    resetParticipants,
+    resetStageState,
+    strategy
   } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef.current,
@@ -42,17 +42,11 @@ const useStageClient = (
   );
 
   const leaveStageClient = useCallback(
-    (
-      { shouldUpdateStrategy, shouldRemoveAllEventListeners } = {
-        shouldUpdateStrategy: true,
-        shouldRemoveAllEventListeners: true
-      }
-    ) => {
-      if (shouldUpdateStrategy) strategy.stopTracks();
+    (_strategy = strategy) => {
+      _strategy.stopTracks();
 
       if (clientRef.current) {
-        if (shouldRemoveAllEventListeners)
-          clientRef.current.removeAllListeners();
+        clientRef.current.removeAllListeners();
         clientRef.current.leave();
         clientRef.current = undefined;
       }

@@ -34,6 +34,7 @@ import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrateg
 import useStageClient from '../../../hooks/useStageClient';
 import channelEvents from '../../AppSync/channelEvents';
 import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
+import useStageScreenshare from '../../../pages/StreamManager/hooks/useStageScreenshare';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -43,33 +44,34 @@ Context.displayName = 'Stage';
 
 export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const {
-    participants,
     addParticipant,
-    updateParticipant,
-    isStageActive,
-    stageId,
-    updateStageId,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
     creatingStage,
-    updateShouldDisableStageButtonWithDelay,
-    strategy,
-    updateError,
-    updateSuccess,
-    updateIsBlockingRoute,
-    localParticipant,
     error,
-    success,
-    isSpectator,
-    shouldDisableStageButtonWithDelay,
     isCreatingStage,
     isHost,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
-    updateIsJoiningStageByRequest,
     isJoiningStageByInvite,
     isJoiningStageByRequest,
-    isScreensharing
+    isScreensharing,
+    isSpectator,
+    isStageActive,
+    localParticipant,
+    localScreenshareStream,
+    participants,
+    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    shouldDisableStageButtonWithDelay,
+    stageId,
+    strategy,
+    success,
+    updateAnimateCollapseStageContainerWithDelay,
+    updateError,
+    updateIsBlockingRoute,
+    updateIsJoiningStageByRequest,
+    updateParticipant,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateShouldDisableStageButtonWithDelay,
+    updateStageId,
+    updateSuccess
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -136,7 +138,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       stageConnectionErroredEventCallback
     });
 
-  // Screenshare Client
+  // Real-Time Screenshare
   const {
     joinStageClient: joinStageScreenshareClient,
     leaveStageClient: leaveStageScreenshareClient
@@ -144,6 +146,24 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateSuccess,
     updateError
   });
+  const { stopScreenshare } = useStageScreenshare({
+    joinStageScreenshareClient,
+    leaveStageScreenshareClient
+  });
+
+  useEffect(() => {
+    if (!isScreensharing) return;
+
+    const [screenCaptureTrack] = localScreenshareStream?.getVideoTracks() || [];
+
+    if (screenCaptureTrack)
+      screenCaptureTrack.addEventListener('ended', stopScreenshare);
+
+    return () => {
+      if (screenCaptureTrack)
+        screenCaptureTrack.removeEventListener('ended', stopScreenshare);
+    };
+  }, [localScreenshareStream, stopScreenshare, isScreensharing]);
 
   const resetStage = useCallback(() => {
     // Stop all tracks
@@ -165,7 +185,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         participantChannels.current =
           getStageParticipantsChannelIds(participants);
 
-        if (isScreensharing) leaveStageScreenshareClient();
+        if (isScreensharing) stopScreenshare();
 
         leaveStageClient();
 
@@ -237,9 +257,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       }
     },
     [
+      stopScreenshare,
       participants,
       isScreensharing,
-      leaveStageScreenshareClient,
       leaveStageClient,
       isHost,
       refreshChannelData,
