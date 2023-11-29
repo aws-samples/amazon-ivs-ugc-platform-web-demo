@@ -47,7 +47,6 @@ const StreamManagerControlCenter = forwardRef(
       isJoiningStageByRequestOrInvite,
       isBlockingRoute
     } = useGlobalStage();
-    const { isModalOpen, type } = useModal();
     const { handleHostRejoin } = useHostRejoin();
     const {
       webBroadcastParentContainerRef,
