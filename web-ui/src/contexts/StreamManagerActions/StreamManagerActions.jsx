@@ -380,7 +380,6 @@ export const Provider = ({ children }) => {
       });
     },
     [
-      activeStreamManagerActionData,
       dismissNotif,
       notifyErrorPortal,
       notifySuccessPortal,
