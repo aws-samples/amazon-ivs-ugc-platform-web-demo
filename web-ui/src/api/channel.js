@@ -382,8 +382,8 @@ export const unfollowChannel = async (followedUsername) =>
     body: { followedUsername }
   });
 
-export const getStreamLiveStatus = async () =>
+export const getChannelLiveStatus = async () =>
   await authFetch({
     method: 'GET',
-    url: `${apiBaseUrl}/channel/stream/liveStatus`
+    url: `${apiBaseUrl}/channel/liveStatus`
   });

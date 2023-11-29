@@ -44,6 +44,7 @@ const StreamManagerControlCenter = forwardRef(
       updateShouldAnimateStageVideoFeedsContainer,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite,
       isBlockingRoute
     } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
@@ -222,7 +223,8 @@ const StreamManagerControlCenter = forwardRef(
         channelTableStageId &&
         !isStageActive &&
         !stageIdUrlParam &&
-        shouldGetHostRejoinTokenRef.current
+        shouldGetHostRejoinTokenRef.current &&
+        !isJoiningStageByRequestOrInvite
       ) {
         shouldGetHostRejoinTokenRef.current = false;
         setIsBroadcastCardOpen(true);
@@ -233,6 +235,7 @@ const StreamManagerControlCenter = forwardRef(
       channelTableStageId,
       handleHostRejoin,
       handleOpenFullScreenView,
+      isJoiningStageByRequestOrInvite,
       isStageActive,
       shouldGetHostRejoinTokenRef,
       stageIdUrlParam
