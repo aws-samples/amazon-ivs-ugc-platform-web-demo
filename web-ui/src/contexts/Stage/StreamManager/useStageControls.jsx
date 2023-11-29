@@ -1,15 +1,12 @@
 import { useCallback, useEffect } from 'react';
 
-import { BREAKPOINTS } from '../../../constants';
 import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
 import { LOCAL_KEY } from '../Global/reducer/globalReducer';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { noop } from '../../../utils';
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useModal } from '../../Modal';
-import { useResponsiveDevice } from '../../ResponsiveDevice';
 import usePrevious from '../../../hooks/usePrevious';
-import usePrompt from '../../../hooks/usePrompt';
 import useThrottledCallback from '../../../hooks/useThrottledCallback';
 import { useGlobalStage } from '..';
 import { useBroadcast } from '../../Broadcast';
@@ -19,7 +16,6 @@ const $contentStageConfirmationModal =
 
 const useStageControls = ({ leaveStage, resetStage }) => {
   const {
-    isBlockingRoute,
     isStageActive,
     localParticipant,
     strategy,
@@ -31,15 +27,12 @@ const useStageControls = ({ leaveStage, resetStage }) => {
   const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
 
   const { openModal, closeModal } = useModal();
-  const { isBlocked, onCancel, onConfirm } = usePrompt(isBlockingRoute, false);
   const cameraDevices = devices?.[CAMERA_LAYER_NAME];
   const microphoneDevices = devices?.[MICROPHONE_AUDIO_INPUT_NAME];
   const prevCameraDevices = usePrevious(cameraDevices);
   const prevMicrophoneDevices = usePrevious(microphoneDevices);
   const prevActiveCameraDevice = usePrevious(activeCameraDevice);
   const prevActiveMicrophoneDevice = usePrevious(activeMicrophoneDevice);
-  const { currentBreakpoint } = useResponsiveDevice();
-  const isMobile = currentBreakpoint < BREAKPOINTS.sm;
   const isStageHost = localParticipant?.attributes?.type === 'host';
 
   const toggleCamera = useThrottledCallback(() => {
@@ -71,7 +64,10 @@ const useStageControls = ({ leaveStage, resetStage }) => {
           ) {
             closeFullscreenAndAnimateStreamButtonCallback();
           }
-          leaveStage();
+
+          const shouldShowSuccessNotification = !isStageHost;
+
+          leaveStage(shouldShowSuccessNotification);
         },
         onCancel: closeModal,
         lastFocusedElement: lastFocusedElementRef
@@ -101,37 +97,6 @@ const useStageControls = ({ leaveStage, resetStage }) => {
 
     return () => clearTimeout(delayedSetMuted);
   }, [strategy.audioTrack, localParticipant?.isMicrophoneMuted]);
-
-  useEffect(() => {
-    if (isBlocked && isStageActive) {
-      openModal({
-        content: {
-          confirmText: $contentStageConfirmationModal.leave_page,
-          isDestructive: true,
-          message: (
-            <p>
-              {$contentStageConfirmationModal.confirm_leave_page_L1}
-              {isMobile ? ' ' : <br />}
-              {$contentStageConfirmationModal.confirm_leave_page_L2}
-            </p>
-          )
-        },
-        onConfirm: () => {
-          resetStage();
-          onConfirm();
-        },
-        onCancel
-      });
-    }
-  }, [
-    isBlocked,
-    isMobile,
-    isStageActive,
-    onCancel,
-    onConfirm,
-    openModal,
-    resetStage
-  ]);
 
   useEffect(() => {
     if (!isStageActive || !activeCameraDevice) return;

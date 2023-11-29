@@ -103,7 +103,6 @@ export const Provider = ({ children }) => {
 
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
-  const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
 
   const participantsArrayExcludingHost = useMemo(
     () =>
@@ -135,7 +134,6 @@ export const Provider = ({ children }) => {
       strategy,
       success,
       isHost,
-      isInvitedParticipant,
       shouldCloseFullScreenViewOnKickedOrHostLeave,
       updateIsChannelStagePlayerMuted,
       updateIsJoiningStageByRequest,
@@ -210,7 +208,6 @@ export const Provider = ({ children }) => {
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
     isHost,
-    isInvitedParticipant,
     updateRequestingToJoinStage,
     updateStageId,
     updateStreams,

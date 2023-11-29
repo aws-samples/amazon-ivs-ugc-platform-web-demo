@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
@@ -7,7 +8,6 @@ import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalRed
 import { useUser } from '../../contexts/User';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
-import { useLocation } from 'react-router-dom';
 
 const {
   StageEvents,
@@ -29,7 +29,6 @@ const useStageEventHandlers = ({
 
   const {
     addParticipant,
-    localParticipant,
     updateStreams,
     toggleMicrophoneState,
     toggleCameraState,
@@ -42,6 +41,7 @@ const useStageEventHandlers = ({
   const { userData } = useUser();
   const { pathname } = useLocation();
   const isChannelPage = pathname !== '/manager';
+  const localParticipantAttributes = useRef();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
@@ -55,6 +55,8 @@ const useStageEventHandlers = ({
         isLocal
       } = participant;
       if (isLocal) {
+        localParticipantAttributes.current = participant.attributes;
+
         if (isChannelPage && type === PARTICIPANT_TYPES.SPECTATOR) {
           updateSpectatorParticipantId(participant.id);
         }
@@ -91,7 +93,7 @@ const useStageEventHandlers = ({
       if (
         !participantTokenCreationDate ||
         participantTokenCreationDate <
-          localParticipant?.attributes.participantTokenCreationDate
+          localParticipantAttributes?.current?.participantTokenCreationDate
       )
         return;
 
@@ -101,7 +103,7 @@ const useStageEventHandlers = ({
     },
     [
       addParticipant,
-      localParticipant?.attributes.participantTokenCreationDate,
+      localParticipantAttributes,
       updateSuccess,
       isChannelPage,
       updateSpectatorParticipantId,
