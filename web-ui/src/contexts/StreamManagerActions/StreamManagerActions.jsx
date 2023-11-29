@@ -226,11 +226,20 @@ export const Provider = ({ children }) => {
    * Resets the form data to the last data saved in local storage
    */
   const resetStreamManagerActionData = useCallback(() => {
+    if (
+      activeStreamManagerActionData?.name === STREAM_ACTION_NAME.AMAZON_PRODUCT
+    )
+      return;
+
     updateStreamManagerActionData({
       dataOrFn: latestStoredStreamManagerActionData.current,
       shouldValidate: false
     });
-  }, [latestStoredStreamManagerActionData, updateStreamManagerActionData]);
+  }, [
+    activeStreamManagerActionData?.name,
+    latestStoredStreamManagerActionData,
+    updateStreamManagerActionData
+  ]);
 
   /**
    * Resets the Amazon product data
@@ -357,14 +366,7 @@ export const Provider = ({ children }) => {
       const onCancel = () => {
         dismissNotif();
         if (shouldEnableLocalStorage(actionName)) {
-          const activeStreamManagerAction = activeStreamManagerActionData?.name;
-          // The "on" state of the Amazon Product tile relies on the action data not being reset as we cancel other stream action modals
-          const shouldResetStreamManagerActionData =
-            activeStreamManagerAction !== STREAM_ACTION_NAME.AMAZON_PRODUCT;
-
-          if (shouldResetStreamManagerActionData) {
-            resetStreamManagerActionData();
-          }
+          resetStreamManagerActionData();
         }
         resetStreamManagerActionErrorData();
       };
