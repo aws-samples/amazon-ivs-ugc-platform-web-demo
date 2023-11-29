@@ -237,11 +237,9 @@ const StreamManagerControlCenter = forwardRef(
       handleHostRejoin,
       handleOpenFullScreenView,
       isJoiningStageByRequestOrInvite,
-      isModalOpen,
       isStageActive,
       shouldGetHostRejoinTokenRef,
-      stageIdUrlParam,
-      type
+      stageIdUrlParam
     ]);
 
     return (
