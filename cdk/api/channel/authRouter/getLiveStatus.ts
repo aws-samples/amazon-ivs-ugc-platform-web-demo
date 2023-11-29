@@ -18,7 +18,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
   try {
     const { Item = {} } = await getUser(sub);
-    const { channelArn, stageId } = unmarshall(Item)
+    const { channelArn, stageId = undefined} = unmarshall(Item)
 
     responseBody.isStageActive = !!stageId
 
