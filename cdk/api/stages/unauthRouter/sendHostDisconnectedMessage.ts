@@ -56,7 +56,7 @@ const handler = async (
       );
 
     const userId = generateHostUserId(channelArn);
-    const { stage } = await getStage(stageId);
+    const { stage } = await getStage(stageId, channelArn);
     const sessionId = stage?.activeSessionId;
 
     const messageParts = [];

@@ -15,11 +15,14 @@ import {
 import {
   ChannelAssets,
   getChannelAssetUrls,
-  getChannelId
+  getChannelId,
+  updateDynamoItemAttributes
 } from '../shared/helpers';
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
+  CHANNELS_TABLE_STAGE_FIELDS,
   CUSTOM_AVATAR_NAME,
+  RESOURCE_NOT_FOUND_EXCEPTION,
   STAGE_TOKEN_DURATION
 } from '../shared/constants';
 import { getUser } from '../channel/helpers';
@@ -116,7 +119,7 @@ export const handleCreateParticipantToken = async (
 export const buildStageArn = (stageId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}${USER_STAGE_ID_SEPARATOR}${stageId}`;
 
-export const getStage = async (stageId: string) => {
+export const getStage = async (stageId: string, hostChannelArn?: string) => {
   try {
     const stageArn = buildStageArn(stageId);
 
@@ -124,7 +127,26 @@ export const getStage = async (stageId: string) => {
     const stage = await client.send(getStageCommand);
 
     return stage;
-  } catch (err) {
+  } catch (err: unknown) {
+    const { name } = err as Error;
+    if (name === RESOURCE_NOT_FOUND_EXCEPTION && hostChannelArn) {
+      try {
+        await updateDynamoItemAttributes({
+          attributes: [
+            { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID, value: null },
+            {
+              key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
+              value: null
+            }
+          ],
+          primaryKey: { key: 'channelArn', value: hostChannelArn },
+          tableName: process.env.CHANNELS_TABLE_NAME as string
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     throw new Error('Something went wrong');
   }
 };
@@ -225,9 +247,9 @@ export const generateHostUserId = (channelArn: string) => {
 };
 
 export const isUserInStage = async (stageId: string, userSub: string) => {
-  const { stage } = await getStage(stageId);
   const { Item: UserItem = {} } = await getUser(userSub);
   const { channelArn } = unmarshall(UserItem);
+  const { stage } = await getStage(stageId, channelArn);
   const hostUserId = generateHostUserId(channelArn);
   const stageArn = buildStageArn(stageId);
 
