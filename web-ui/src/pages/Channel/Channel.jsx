@@ -56,7 +56,7 @@ const Channel = () => {
     resetParticipants,
     updateError,
     error: stageError,
-    success: stageSuccess,
+    success: stageSuccessMessage,
     updateSuccess,
     requestingToJoinStage,
     updateRequestingToJoinStage
@@ -66,40 +66,41 @@ const Channel = () => {
   const { userData } = useUser();
 
   useEffect(() => {
-    // There are many stage success and error messages, however on the channel page,
-    // we are only interested in showing the following messages
-    const requestToJoinStageFailed =
-      stageError?.message ===
-      $channelContent.notifications.error.request_to_join_stage_fail;
-    const requestToJoinStageSuccess =
-      stageSuccess ===
-      $channelContent.notifications.success.request_to_join_stage_success;
+    if (stageSuccessMessage) {
+      if (
+        stageSuccessMessage ===
+        $channelContent.notifications.success.request_to_join_stage_success
+      ) {
+        notifySuccess(stageSuccessMessage);
+      }
 
-    if (requestToJoinStageFailed) {
+      updateSuccess(null);
+    }
+
+    if (stageError) {
       const { message, err } = stageError;
-
       if (err) console.error(...[err, message].filter((data) => !!data));
 
-      if (message) {
-        notifyError(
-          $channelContent.notifications.error.request_to_join_stage_fail,
-          { asPortal: true }
-        );
+      if (
+        message ===
+        $channelContent.notifications.error.request_to_join_stage_fail
+      ) {
+        notifyError(message);
+      }
+
+      if (message === $playerContent.notification.error.error_loading_stream) {
+        notifyError(message);
       }
 
       updateError(null);
-      return;
     }
 
-    if (requestToJoinStageSuccess) {
-      notifySuccess(stageSuccess);
-      updateSuccess(null);
-    }
+    return;
   }, [
     stageError,
     notifyError,
     updateError,
-    stageSuccess,
+    stageSuccessMessage,
     notifySuccess,
     updateSuccess
   ]);
@@ -294,12 +295,10 @@ const Channel = () => {
           ])}
           ref={channelRef}
         >
-          <NotificationProvider>
-            <Player
-              chatSectionRef={chatSectionRef}
-              stagePlayerVisible={shouldDisplayStagePlayer}
-            />
-          </NotificationProvider>
+          <Player
+            chatSectionRef={chatSectionRef}
+            stagePlayerVisible={shouldDisplayStagePlayer}
+          />
           <ProductDescriptionModal />
           <motion.section
             {...getProfileViewAnimationProps(

@@ -5,19 +5,16 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import { NoSignal, Lock } from '../../../assets/icons';
 import {
-  player as $content,
-  channel as $channelContent
+  player as $content
 } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
 import { usePlayerContext } from '../contexts/Player';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
-import { useGlobalStage } from '../../../contexts/Stage';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import MobileNavbar from '../../../layouts/AppLayoutWithNavbar/Navbar/MobileNavbar';
-import Notification from '../../../components/Notification';
 import PlayerHeader from './PlayerHeader';
 import PlayerViewerStreamActions from './PlayerViewerStreamActions';
 import ProfileViewContent from './ProfileViewContent';
@@ -37,7 +34,7 @@ const nonDoubleClickableIds = [
 ];
 
 const Player = ({ chatSectionRef, stagePlayerVisible }) => {
-  const { dismissNotif, notifyError } = useNotif();
+  const { notifyError } = useNotif();
   const { isSplitView } = useChannelView();
   const { isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
@@ -65,7 +62,7 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
   const {
     mobileClickHandler,
     player: {
-      hasError,
+      hasError: hasPlayerError,
       hasPlayedFinalBuffer,
       isLoading,
       videoAspectRatio,
@@ -73,7 +70,6 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
     },
     setShouldKeepOverlaysVisible
   } = usePlayerContext();
-  const { error: stageError } = useGlobalStage();
   const { isActive: isPollActive } = usePoll();
   const [isPlayerLoading, setIsPlayerLoading] = useState(isLoading);
   const [shouldShowStream, setShouldShowStream] = useState(
@@ -213,18 +209,10 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
 
   // Trigger an error notification when there is an error loading the stream
   useEffect(() => {
-    if (hasError || stageError) {
-      if (
-        stageError?.message ===
-        $channelContent.notifications.error.request_to_join_stage_fail
-      ) {
-        return;
-      }
-      notifyError($content.notification.error.error_loading_stream, {
-        withTimeout: false
-      });
-    } else dismissNotif();
-  }, [dismissNotif, hasError, notifyError, stageError]);
+    if (hasPlayerError) {
+      notifyError($content.notification.error.error_loading_stream);
+    }
+  }, [hasPlayerError, notifyError]);
 
   // Keep the player overlays visible if a popup is open (e.g. volume or rendition setting popup)
   useEffect(() => {
@@ -353,7 +341,6 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
         onClickPlayerHandler={onClickPlayerHandler}
         shouldShowStream={shouldShowStream}
       />
-      <Notification className="sticky" />
     </motion.section>
   );
 };
