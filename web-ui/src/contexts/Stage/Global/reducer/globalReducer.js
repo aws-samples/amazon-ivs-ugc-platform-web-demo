@@ -158,7 +158,7 @@ const globalReducer = (state = defaultReducerState, action) => {
         return acc;
       }, {});
 
-      return { ...defaultStageReducerState, ...statesToOmit };
+      return { ...defaultReducerState, ...statesToOmit };
     }
 
     case actionTypes.CREATING_STAGE: {

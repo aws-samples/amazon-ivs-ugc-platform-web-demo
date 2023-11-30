@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../utils';
@@ -20,7 +21,7 @@ import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
-const Footer = () => {
+const Footer = ({ shouldAddScrollbar }) => {
   const {
     initializeStageClient,
     isStageActive,
@@ -71,7 +72,8 @@ const Footer = () => {
       className={clsm([
         'flex',
         'justify-between',
-        isJoiningStageByRequestOrInvite && 'opacity-0'
+        isJoiningStageByRequestOrInvite && 'opacity-0',
+        shouldAddScrollbar && 'relative'
       ])}
     >
       <motion.div
@@ -97,7 +99,12 @@ const Footer = () => {
       </motion.div>
 
       <motion.div
-        className={clsm(['absolute', 'bottom-5', 'w-full'])}
+        className={clsm([
+          'absolute',
+          'bottom-5',
+          isStageActive && shouldAddScrollbar && 'right-1',
+          'w-full'
+        ])}
         {...createAnimationProps({
           customVariants: {
             hidden: {
@@ -162,6 +169,10 @@ const Footer = () => {
       )}
     </div>
   );
+};
+
+Footer.propTypes = {
+  shouldAddScrollbar: PropTypes.bool.isRequired
 };
 
 export default Footer;

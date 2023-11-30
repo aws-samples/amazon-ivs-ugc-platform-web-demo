@@ -56,10 +56,12 @@ const RequestToJoinStageButton = () => {
       return;
     }
 
-    const { result: streamStatus, error } =
-      await channelAPI.getStreamLiveStatus();
+    const { result, error } = await channelAPI.getChannelLiveStatus();
 
-    if (streamStatus?.isLive || !!error) {
+    const displayErrorNotification =
+      result?.isBroadcasting || result?.isStageActive || !!error;
+
+    if (displayErrorNotification) {
       updateError({
         message: $channelContent.notifications.error.request_to_join_stage_fail,
         err: error

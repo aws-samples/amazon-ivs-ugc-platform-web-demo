@@ -26,7 +26,7 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import useResize from '../../../../../hooks/useResize';
 
 const FullScreenView = () => {
-  const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
+  const { isStageActive } = useStreamManagerStage();
   const {
     isJoiningStageByRequestOrInvite,
     shouldOpenSettingsModal,
@@ -40,9 +40,10 @@ const FullScreenView = () => {
   const { resetPreview } = useBroadcast();
   const { openModal } = useModal();
   const fullScreenViewContainerRef = useRef();
-  const { isMobileView } = useResponsiveDevice();
+  const { isMobileView, dimensions: windowDimensions } = useResponsiveDevice();
+  const { height: windowHeight } = windowDimensions;
   const { isModalOpen } = useModal();
-  const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
+  const shouldAddScrollbar = windowHeight <= 350;
   const content =
     isStageActive || isJoiningStageByRequestOrInvite ? (
       <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
@@ -117,6 +118,7 @@ const FullScreenView = () => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
+        shouldAddScrollbar && ['overflow-y-scroll', 'overflow-x-hidden'],
         isMobileView ? 'z-[300]' : 'z-[700]',
         isJoiningStageByRequestOrInvite && [
           'w-full',
@@ -126,8 +128,7 @@ const FullScreenView = () => {
         ]
       ])}
     >
-      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !isJoiningStageByRequestOrInvite && <Header />}
+      {!isJoiningStageByRequestOrInvite && <Header />}
       <motion.div
         className={clsm([
           'flex',
@@ -158,7 +159,7 @@ const FullScreenView = () => {
         })}
       >
         {content}
-        <Footer />
+        <Footer shouldAddScrollbar={shouldAddScrollbar} />
       </motion.div>
     </motion.div>
   );

@@ -159,6 +159,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
         // Check if the user is the host
         if (isHost) {
+          shouldGetHostRejoinTokenRef.current = false;
+
           ({ result } = await retryWithExponentialBackoff({
             promiseFn: () => stagesAPI.deleteStage(),
             maxRetries: 2
@@ -395,10 +397,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
     () => ({
-      shouldRenderFullscreenCollapseCloseButton: [
-        PARTICIPANT_TYPES.HOST,
-        PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes?.type),
       shouldRenderInviteLinkButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED
@@ -467,7 +465,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     if (error) {
       const { message, err } = error;
 
-      if (err) console.error(...[err, message].filter((data) => !!data));
+      if (err) console.error(err, message);
 
       if (message) notifyError(message, { asPortal: true });
 
