@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
 import { NoSignal, Lock } from '../../../assets/icons';
-import {
-  player as $content
-} from '../../../content';
+import { player as $content } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
 import { useNotif } from '../../../contexts/Notification';
