@@ -159,6 +159,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
         // Check if the user is the host
         if (isHost) {
+          shouldGetHostRejoinTokenRef.current = false;
+
           ({ result } = await retryWithExponentialBackoff({
             promiseFn: () => stagesAPI.deleteStage(),
             maxRetries: 2
