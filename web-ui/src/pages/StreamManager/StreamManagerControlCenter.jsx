@@ -241,6 +241,12 @@ const StreamManagerControlCenter = forwardRef(
       stageIdUrlParam
     ]);
 
+    const isOfflineMobileView =
+      !isStageActive && !isBroadcasting && !isDesktopView;
+    const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
+    const isFullScreenViewPortalOpen =
+      isFullScreenViewOpen && !isBroadcastingMobileView && !isOfflineMobileView;
+
     return (
       <div
         ref={webBroadcastParentContainerRef}
@@ -354,7 +360,7 @@ const StreamManagerControlCenter = forwardRef(
         <AnimatePresence>
           {isFullScreenViewOpen && (
             <FullScreenView
-              isOpen={isFullScreenViewOpen}
+              isOpen={isFullScreenViewPortalOpen}
               parentEl={document.body}
               dimensions={dimensions}
             />

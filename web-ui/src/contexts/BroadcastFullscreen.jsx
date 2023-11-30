@@ -59,6 +59,12 @@ export const Provider = ({ children, previewRef }) => {
     }
   );
 
+  useEffect(() => {
+    if (isFullScreenViewOpen && !isDesktopView && !isStageActive) {
+      setIsFullScreenViewOpen(false);
+    }
+  }, [isDesktopView, isFullScreenViewOpen, isStageActive]);
+
   const calculateTopAndLeftValues = useCallback(() => {
     const topOffset = isDesktopView ? 0 : 56; // tab height
     const leftOffset = isMobileView ? 0 : 64; // add sidebar width
