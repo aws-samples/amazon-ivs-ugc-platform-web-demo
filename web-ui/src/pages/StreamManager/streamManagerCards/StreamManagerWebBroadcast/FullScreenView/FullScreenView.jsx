@@ -40,8 +40,10 @@ const FullScreenView = () => {
   const { resetPreview } = useBroadcast();
   const { openModal } = useModal();
   const fullScreenViewContainerRef = useRef();
-  const { isMobileView } = useResponsiveDevice();
+  const { isMobileView, dimensions: windowDimensions } = useResponsiveDevice();
+  const { height: windowHeight } = windowDimensions;
   const { isModalOpen } = useModal();
+  const shouldAddScrollbar = windowHeight <= 350;
   const content =
     isStageActive || isJoiningStageByRequestOrInvite ? (
       <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
@@ -116,6 +118,7 @@ const FullScreenView = () => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
+        shouldAddScrollbar && ['overflow-y-scroll', 'overflow-x-hidden'],
         isMobileView ? 'z-[300]' : 'z-[700]',
         isJoiningStageByRequestOrInvite && [
           'w-full',
@@ -156,7 +159,7 @@ const FullScreenView = () => {
         })}
       >
         {content}
-        <Footer />
+        <Footer shouldAddScrollbar={shouldAddScrollbar} />
       </motion.div>
     </motion.div>
   );
