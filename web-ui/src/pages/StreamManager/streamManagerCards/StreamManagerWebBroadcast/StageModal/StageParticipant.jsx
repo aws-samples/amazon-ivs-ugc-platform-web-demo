@@ -40,7 +40,7 @@ const StageParticipant = ({ participant }) => {
     REPLACEMENT_TEXT,
     username
   );
-  const removeScreenshasreMessage =
+  const removeScreenshareMessage =
     $stageContent.participants_modal.remove_screen_share.replace(
       REPLACEMENT_TEXT,
       username
@@ -48,12 +48,12 @@ const StageParticipant = ({ participant }) => {
 
   const isScreenshare = type === PARTICIPANT_TYPES.SCREENSHARE;
 
-  const shouldHideRemoveButton =
+  const isParticipantScreenshare =
     userId.includes(PARTICIPANT_TYPES.HOST) ||
     localParticipant?.userId.split(':')[1] ===
       participant?.attributes.channelId;
 
-  const profilePillUsername = shouldHideRemoveButton
+  const profilePillUsername = isParticipantScreenshare
     ? `${username} ${$stageContent.participants_modal.you}`
     : username;
 
@@ -97,7 +97,7 @@ const StageParticipant = ({ participant }) => {
       content: {
         confirmText: $stageContent.remove_participant,
         isDestructive: true,
-        message: removeScreenshasreMessage
+        message: removeScreenshareMessage
       },
       onConfirm: () => {
         publish(
@@ -165,7 +165,7 @@ const StageParticipant = ({ participant }) => {
       <div
         className={clsm([
           'min-w-[84px]',
-          shouldHideRemoveButton && currentBreakpoint && '-ml-7'
+          isParticipantScreenshare && currentBreakpoint && '-ml-7'
         ])}
       >
         <div
@@ -190,7 +190,7 @@ const StageParticipant = ({ participant }) => {
         </div>
       </div>
       <div className={clsm(['min-w-[44px]', 'min-h-[44px]'])}>
-        {!shouldHideRemoveButton && (
+        {!isParticipantScreenshare && (
           <Tooltip
             key="remove-participant-control-tooltip"
             position="below"

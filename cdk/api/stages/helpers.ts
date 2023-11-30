@@ -199,15 +199,21 @@ export const handleCreateStageParams = async ({
     ? generateHostUserId(channelArn)
     : uuidv4();
 
-  let userType = shouldCreateHostUserType
-    ? PARTICIPANT_USER_TYPES.HOST
-    : PARTICIPANT_USER_TYPES.INVITED;
-  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR)
-    userType = PARTICIPANT_USER_TYPES.SPECTATOR;
-  else if (participantType === PARTICIPANT_USER_TYPES.SCREENSHARE)
-    userType = PARTICIPANT_USER_TYPES.SCREENSHARE;
-  else if (participantType === PARTICIPANT_USER_TYPES.REQUESTED)
-    userType = PARTICIPANT_USER_TYPES.REQUESTED;
+  let userType;
+
+  if (shouldCreateHostUserType) {
+    userType = PARTICIPANT_USER_TYPES.HOST;
+  } else {
+    switch (participantType) {
+      case PARTICIPANT_USER_TYPES.SPECTATOR:
+      case PARTICIPANT_USER_TYPES.SCREENSHARE:
+      case PARTICIPANT_USER_TYPES.REQUESTED:
+        userType = participantType;
+        break;
+      default:
+        userType = PARTICIPANT_USER_TYPES.INVITED;
+    }
+  }
 
   return {
     username,

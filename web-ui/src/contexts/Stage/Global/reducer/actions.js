@@ -147,7 +147,7 @@ export const updateLocalScreenshareStream = (stream) => ({
 });
 
 export const updateIsScreensharePermissionRevoked = (bool) => ({
-  type: actionTypes.UPDATE_IS_SCREEN_SHARE_PREMISSION_REVOKE,
+  type: actionTypes.UPDATE_IS_SCREEN_SHARE_PERMISSION_REVOKED,
   payload: bool
 });
 

@@ -31,10 +31,10 @@ const useStageClient = (
   const { userData } = useUser();
 
   const joinStageClient = useCallback(
-    async ({ token, strategy, shouldattachEvents = true }) => {
+    async ({ token, strategy, shouldAttachEvents = true }) => {
       clientRef.current = new Stage(token, strategy);
       setIsClientDefined(!!clientRef.current);
-      if (shouldattachEvents) attachStageEvents(clientRef.current);
+      if (shouldAttachEvents) attachStageEvents(clientRef.current);
 
       await clientRef.current.join();
     },

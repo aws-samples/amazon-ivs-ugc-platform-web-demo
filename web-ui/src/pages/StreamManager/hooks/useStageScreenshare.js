@@ -45,7 +45,7 @@ const useStageScreenshare = ({
         await joinStageScreenshareClient({
           token,
           strategy: screenshareStrategy,
-          shouldattachEvents: false
+          shouldAttachEvents: false
         });
         updateIsScreensharing(true);
       }
@@ -60,6 +60,11 @@ const useStageScreenshare = ({
       }
     } catch (error) {
       console.error('Failed to start screen share', error);
+
+      updateError({
+        message: $contentNotification.error.unable_to_start_screenshare,
+        err: error
+      });
     }
   }, [
     joinStageScreenshareClient,
