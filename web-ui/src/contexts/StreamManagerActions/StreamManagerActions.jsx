@@ -226,11 +226,19 @@ export const Provider = ({ children }) => {
    * Resets the form data to the last data saved in local storage
    */
   const resetStreamManagerActionData = useCallback(() => {
+    if (!shouldEnableLocalStorage(activeStreamManagerActionData?.name)) {
+      return;
+    }
+
     updateStreamManagerActionData({
       dataOrFn: latestStoredStreamManagerActionData.current,
       shouldValidate: false
     });
-  }, [latestStoredStreamManagerActionData, updateStreamManagerActionData]);
+  }, [
+    activeStreamManagerActionData?.name,
+    latestStoredStreamManagerActionData,
+    updateStreamManagerActionData
+  ]);
 
   /**
    * Resets the Amazon product data
@@ -356,9 +364,8 @@ export const Provider = ({ children }) => {
 
       const onCancel = () => {
         dismissNotif();
-        if (shouldEnableLocalStorage(actionName)) {
-          resetStreamManagerActionData();
-        }
+
+        resetStreamManagerActionData();
         resetStreamManagerActionErrorData();
       };
 
