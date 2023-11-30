@@ -79,16 +79,13 @@ const Channel = () => {
 
     if (stageError) {
       const { message, err } = stageError;
-      if (err) console.error(...[err, message].filter((data) => !!data));
+      if (err) console.error(err, message);
 
       if (
         message ===
-        $channelContent.notifications.error.request_to_join_stage_fail
+          $channelContent.notifications.error.request_to_join_stage_fail ||
+        message === $playerContent.notification.error.error_loading_stream
       ) {
-        notifyError(message);
-      }
-
-      if (message === $playerContent.notification.error.error_loading_stream) {
         notifyError(message);
       }
 
