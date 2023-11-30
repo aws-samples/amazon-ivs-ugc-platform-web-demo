@@ -9,6 +9,7 @@ import InviteParticipant from './InviteParticipant';
 import './StageVideoGrid.css';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useLocation } from 'react-router-dom';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -32,6 +33,7 @@ const StageVideoFeeds = ({ styles, type }) => {
   const { parentRef: containerRef } = useCalculatedAspectRatio({
     childRef: stageVideoFeedsRef
   });
+  const { pathname } = useLocation();
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
   let gridItemCountClasses =
@@ -41,6 +43,11 @@ const StageVideoFeeds = ({ styles, type }) => {
   if (isChannelType) {
     gridItemCountClasses = `grid-${participantSize}`;
   }
+
+  const shouldRenderInviteParticipant =
+    pathname === '/manager' &&
+    ((!isChannelType && participantSize <= 1) ||
+      isJoiningStageByRequestOrInvite);
 
   return (
     <div
@@ -85,10 +92,7 @@ const StageVideoFeeds = ({ styles, type }) => {
               className={clsm([participantSize > 2 && `slot-${index + 1}`])}
             />
           ))}
-        {isJoiningStageByRequestOrInvite && <InviteParticipant type={type} />}
-        {!isChannelType && participantSize <= 1 && (
-          <InviteParticipant type={type} />
-        )}
+        {shouldRenderInviteParticipant && <InviteParticipant type={type} />}
       </motion.div>
     </div>
   );
