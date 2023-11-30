@@ -387,7 +387,7 @@ export const Provider = ({
     if (error) {
       const { message, err } = error;
 
-      if (err) console.error(...[err, message].filter((data) => !!data));
+      if (err) console.error(err, message);
 
       if (message) notifyError(message, { asPortal: true });
 
