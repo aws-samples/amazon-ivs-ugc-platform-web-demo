@@ -226,10 +226,9 @@ export const Provider = ({ children }) => {
    * Resets the form data to the last data saved in local storage
    */
   const resetStreamManagerActionData = useCallback(() => {
-    if (
-      activeStreamManagerActionData?.name === STREAM_ACTION_NAME.AMAZON_PRODUCT
-    )
+    if (!shouldEnableLocalStorage(activeStreamManagerActionData?.name)) {
       return;
+    }
 
     updateStreamManagerActionData({
       dataOrFn: latestStoredStreamManagerActionData.current,
@@ -365,9 +364,8 @@ export const Provider = ({ children }) => {
 
       const onCancel = () => {
         dismissNotif();
-        if (shouldEnableLocalStorage(actionName)) {
-          resetStreamManagerActionData();
-        }
+
+        resetStreamManagerActionData();
         resetStreamManagerActionErrorData();
       };
 
