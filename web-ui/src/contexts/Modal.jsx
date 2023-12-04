@@ -50,7 +50,7 @@ export const Provider = ({ children }) => {
   const { refocus } = usePreviousFocus({
     isActive: isModalOpen,
     onRefocus: (isKeyEvent) => {
-      if (modal?.type === MODAL_TYPE.STAGE_JOIN) return
+      if (modal?.type === MODAL_TYPE.STAGE_JOIN) return;
 
       setIsModalOpen(false);
       isKeyEvent && onCancel();
