@@ -44,5 +44,9 @@
   "hide": "Hide",
   "show": "Show",
   "page_unavailable": "This page is unavailable",
-  "back_to_directory": "Back to directory"
+  "back_to_directory": "Back to directory",
+  "error_boundary": {
+    "message_L1": "Something went wrong",
+    "message_L2": "try going back or returning to the directory"
+  }
 }

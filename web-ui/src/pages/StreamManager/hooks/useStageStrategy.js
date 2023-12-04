@@ -95,13 +95,13 @@ const useStageStrategy = ({ client, isDevicesInitializedRef, updateError }) => {
 
       if (localParticipant?.isCameraHidden !== localVideoTrack.isMuted) {
         localVideoTrack.setMuted(
-          localParticipant?.isCameraHidden || defaultParticipant.isCameraHidden
+          localParticipant?.isCameraHidden || defaultParticipant?.isCameraHidden
         );
       }
       if (localParticipant?.isMicrophoneMuted !== localAudioTrack.isMuted) {
         localAudioTrack.setMuted(
           localParticipant?.isMicrophoneMuted ||
-            defaultParticipant.isMicrophoneMuted
+            defaultParticipant?.isMicrophoneMuted
         );
       }
 

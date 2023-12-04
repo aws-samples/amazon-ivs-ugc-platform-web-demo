@@ -256,7 +256,7 @@ const globalReducer = (state = defaultReducerState, action) => {
     case actionTypes.TOGGLE_PARTICIPANT_CAMERA: {
       const { key, isCameraHidden = null } = action.payload;
       currentParticipant = currentParticipants.get(key);
-      const shouldCameraBeHidden = !currentParticipant.isCameraHidden;
+      const shouldCameraBeHidden = !currentParticipant?.isCameraHidden;
 
       if (!currentParticipant) return state;
 

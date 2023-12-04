@@ -26,6 +26,7 @@ export { ReactComponent as DownArrow } from './down-arrow.svg';
 export { ReactComponent as ErrorIcon } from './error.svg';
 export { ReactComponent as ExpandScreen } from './expand-screen.svg';
 export { ReactComponent as FactCheck } from './fact-check.svg';
+export { ReactComponent as FailRobot } from './fail-robot.svg';
 export { ReactComponent as Favorite } from './favorite.svg';
 export { ReactComponent as Feed } from './feed.svg';
 export { ReactComponent as Filter } from './filter.svg';

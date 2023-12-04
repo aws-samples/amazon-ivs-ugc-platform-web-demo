@@ -281,9 +281,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         userId,
         isLocal: true,
         isCameraHidden:
-          isBroadcastCameraHidden || defaultParticipant.isCameraHidden,
+          isBroadcastCameraHidden || defaultParticipant?.isCameraHidden,
         isMicrophoneMuted:
-          isBroadcastMicrophoneMuted || defaultParticipant.isMicrophoneMuted
+          isBroadcastMicrophoneMuted || defaultParticipant?.isMicrophoneMuted
       };
 
       if (localParticipant) {
@@ -400,13 +400,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       shouldRenderInviteLinkButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type),
+      ].includes(localParticipant?.attributes?.type),
       shouldRenderShareScreenButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type)
+      ].includes(localParticipant?.attributes?.type)
     }),
-    [localParticipant?.attributes.type]
+    [localParticipant?.attributes?.type]
   );
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
@@ -433,8 +433,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       broadcastPreviewRef?.current
     ) {
       restartBroadcastClient(
-        broadcastDevicesStateObjRef.current.isCameraHidden,
-        broadcastDevicesStateObjRef.current.isMicrophoneMuted
+        broadcastDevicesStateObjRef.current?.isCameraHidden,
+        broadcastDevicesStateObjRef.current?.isMicrophoneMuted
       );
       broadcastDevicesStateObjRef.current = null;
     }
