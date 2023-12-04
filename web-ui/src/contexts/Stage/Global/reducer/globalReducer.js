@@ -82,7 +82,6 @@ export const STATE_KEYS = {
   STAGE_REQUEST_LIST: 'stageRequestList',
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
   IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
-  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId',
   SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal'
 };
 

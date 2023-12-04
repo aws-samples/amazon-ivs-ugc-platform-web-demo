@@ -1066,25 +1066,6 @@
 						"description": "This endpoint removes/disconnects a participant from the Amazon IVS Stage."
 					},
 					"response": []
-				},
-				{
-					"name": "/stages/disconnectSpectator",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/disconnectSpectator",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"disconnectSpectator"
-							]
-						},
-						"description": "This endpoint removes/disconnects a spectator from the Amazon IVS Stage."
-					},
-					"response": []
 				}
 			],
 			"description": "This API serves the purpose of creating an Amazon IVS stage and providing the client with a stage id and token to enter the stage."

@@ -48,10 +48,6 @@ const useGlobalReducers = () => {
     dispatch(actions.resetParticipants());
   }, []);
 
-  const updateSpectatorParticipantId = useCallback((spectatorParticipantId) => {
-    dispatch(actions.updateSpectatorParticipantId(spectatorParticipantId));
-  }, []);
-
   // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
@@ -179,7 +175,6 @@ const useGlobalReducers = () => {
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateSpectatorParticipantId,
       updateShouldOpenSettingsModal
     }),
     [
@@ -210,7 +205,6 @@ const useGlobalReducers = () => {
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateSpectatorParticipantId,
       updateShouldOpenSettingsModal
     ]
   );

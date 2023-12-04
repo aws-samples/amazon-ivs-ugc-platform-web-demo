@@ -23,8 +23,7 @@ const RequestToJoinStageButton = () => {
     updateSuccess,
     participants,
     hasStageRequestBeenApproved,
-    updateHasStageRequestBeenApproved,
-    spectatorParticipantId
+    updateHasStageRequestBeenApproved
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
@@ -102,8 +101,7 @@ const RequestToJoinStageButton = () => {
         navigate('/manager', {
           state: {
             isJoiningStageByRequest: true,
-            stageId: channelData?.stageId,
-            participantId: spectatorParticipantId
+            stageId: channelData?.stageId
           }
         });
       }, 1500);
@@ -114,7 +112,6 @@ const RequestToJoinStageButton = () => {
     navigate,
     updateHasStageRequestBeenApproved,
     updateRequestingToJoinStage,
-    spectatorParticipantId,
     userData.channelId
   ]);
 

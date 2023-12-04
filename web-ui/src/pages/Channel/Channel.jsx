@@ -222,9 +222,11 @@ const Channel = () => {
 
         updateRequestingToJoinStage(false);
         resetAllStageState();
+        leaveStageClient();
       }
     };
   }, [
+    leaveStageClient,
     channelArn,
     publish,
     updateRequestingToJoinStage,
