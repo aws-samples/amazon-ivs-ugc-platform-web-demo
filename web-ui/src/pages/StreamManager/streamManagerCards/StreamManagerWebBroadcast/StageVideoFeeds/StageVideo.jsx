@@ -45,10 +45,10 @@ const StageVideo = ({ type, participantKey, className }) => {
   }, []);
 
   useEffect(() => {
-    if (!streams || !isLoading) return;
+    if (!isChannelType || !streams || !isLoading) return;
 
     updateVideoSource(streams);
-  }, [streams, updateVideoSource, isLoading]);
+  }, [streams, updateVideoSource, isLoading, isChannelType]);
 
   useEffect(() => {
     const videoElement = videoRef?.current;
