@@ -77,7 +77,7 @@ const useStageClient = (
             }
 
             clientRef.current.leave();
-          }, 0)
+          }, 0);
         });
       });
     }
