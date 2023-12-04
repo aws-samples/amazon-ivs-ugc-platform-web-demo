@@ -20,7 +20,7 @@ const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
   const { closeModal, isModalOpen, type } = useModal();
-  const { participantsArrayExcludingHost, stageRequestList } = useGlobalStage();
+  const { stageRequestList, participants } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
 
   const renderStageParticipantsModal = (children) => (
@@ -57,7 +57,7 @@ const StageParticipantsModal = () => {
     </>
   );
 
-  const availableSpotMessage = `${$content.participants} (${participantsArrayExcludingHost.length}/11)`;
+  const availableSpotMessage = `${$content.participants} (${participants.size}/12)`;
 
   return (
     type === MODAL_TYPE.STAGE_PARTICIPANTS &&
@@ -88,7 +88,7 @@ const StageParticipantsModal = () => {
           </h2>
           <div className="mt-12">
             <h4>{availableSpotMessage}</h4>
-            {[...participantsArrayExcludingHost].map(([_, participant], i) => (
+            {[...participants].map(([_, participant], i) => (
               <StageParticipant
                 participant={participant}
                 key={`${participant.id}-${i}`}
