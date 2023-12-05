@@ -44,7 +44,7 @@ const StageProfilePill = ({
   return (
     <div
       className={clsm([
-        '[&>h3]:drop-shadow-xl',
+        '[&>h3]:drop-shadow-stage-profile',
         '[&>h3]:font-bold',
         '[&>h3]:text-p2',
         '[&>h3]:truncate',
@@ -64,7 +64,7 @@ const StageProfilePill = ({
           '@stage-video-xl/video:[&>h3]:text-p1',
           '@stage-video-xl/video:[&>img]:h-8',
           '@stage-video-xl/video:[&>img]:w-8',
-          '@stage-video-xl/video:max-w-[168px]',
+          '@stage-video-xl/video:max-w-[208px]',
           'invisible',
           'text-white',
           shouldInvertColors
@@ -74,7 +74,7 @@ const StageProfilePill = ({
         'flex',
         'gap-1',
         'items-center',
-        'max-w-[80px]',
+        'max-w-[108px]',
         'rounded-3xl',
         'w-auto',
         STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
