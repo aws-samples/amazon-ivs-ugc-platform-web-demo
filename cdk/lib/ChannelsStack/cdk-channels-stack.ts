@@ -11,6 +11,7 @@ import {
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
+  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
@@ -29,8 +30,9 @@ import {
 } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
-import { SECRET_IDS } from '../../api/shared/constants';
+import { MESSAGE_GROUP_IDS, SECRET_IDS } from '../../api/shared/constants';
 import { join } from 'path';
+import { EventField, RuleTargetInput } from 'aws-cdk-lib/aws-events';
 
 const getLambdaEntryPath = (functionName: string) =>
   join(__dirname, '../../lambdas', `${functionName}.ts`);
@@ -548,6 +550,40 @@ export class ChannelsStack extends NestedStack {
         })
       ]
     });
+
+    // Create a SQS message on Stage Participant Unpublished event
+    const { queueName = undefined, queueArn = undefined } = deleteStageQueue || {}
+  
+    if (queueName && queueArn) {
+      const existingQueue = sqs.Queue.fromQueueAttributes(this, 'ExistingQueue', {
+        queueName,
+        queueArn,
+        fifo: true
+      });
+
+      const rule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
+        ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+        eventPattern: {
+          source: ['aws.ivs'],
+          detailType: ['IVS Stage Update'],
+          detail: {
+            'event_name': ['Participant Unpublished'],
+            'user_id': [{ 'prefix': 'host:' }]
+          }
+        }
+      });
+      rule.addTarget(
+        new targets.SqsQueue(existingQueue, {
+          messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
+          message: 
+          RuleTargetInput.fromObject({
+            stageArn: EventField.fromPath('$.resources[0]'),
+            sessionId: EventField.fromPath('$.detail.session_id'),
+            userId: EventField.fromPath('$.detail.user_id'),
+          })
+        })
+      )
+    }
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,

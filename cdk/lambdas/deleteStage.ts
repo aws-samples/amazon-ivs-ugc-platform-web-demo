@@ -149,6 +149,7 @@ export const handler: SQSHandler = async (message) => {
             shouldDeleteStage
           });
         } catch (error) {
+          console.error(error)
           reject({ messageId, error });
         }
       });
