@@ -36,12 +36,16 @@ const WebBroadcastSettingsModal = () => {
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
 
+  const openStageJoinModal = () => {
+    closeModal({ shouldCancel: false, shouldRefocus: true });
+    openModal({
+      type: MODAL_TYPE.STAGE_JOIN
+    });
+  };
+
   const handleOnConfirm = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       handleConfirm();
     }
@@ -49,10 +53,7 @@ const WebBroadcastSettingsModal = () => {
 
   const handleOnClose = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       closeModal();
     }
@@ -60,10 +61,7 @@ const WebBroadcastSettingsModal = () => {
 
   const onClickAway = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       closeModal({ shouldRefocus: false });
     }
