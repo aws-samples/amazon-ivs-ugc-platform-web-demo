@@ -109,4 +109,4 @@ export const APPSYNC_EVENT_TYPES = {
 // QUEUES
 export const MESSAGE_GROUP_IDS = {
   DELETE_STAGE_MESSAGE: 'DeleteStageMessage'
-}
+};
