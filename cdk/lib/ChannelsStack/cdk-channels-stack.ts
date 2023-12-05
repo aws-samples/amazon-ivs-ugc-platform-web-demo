@@ -336,7 +336,8 @@ export class ChannelsStack extends NestedStack {
         srcQueueProps: {
           fifo: true,
           contentBasedDeduplication: true,
-          deliveryDelay: Duration.minutes(3)
+          deliveryDelay: Duration.minutes(3),
+          retentionPeriod: Duration.seconds(180 + 5) // delayed delivery of 3-min + 5-second overhead
         },
         dlqQueueProps: {
           fifo: true
