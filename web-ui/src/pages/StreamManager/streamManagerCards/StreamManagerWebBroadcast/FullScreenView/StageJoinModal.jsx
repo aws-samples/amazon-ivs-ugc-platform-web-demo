@@ -21,16 +21,11 @@ import { useEffect } from 'react';
 const $stageContent = $content.stream_manager_stage;
 
 const JoinModal = () => {
-  const { isModalOpen, type } = useModal();
+  const { isModalOpen, type, closeModal } = useModal();
   const { isLandscape, isMobileView } = useResponsiveDevice();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const { previewRef, resetPreview } = useBroadcast();
   const { isJoiningStageByRequestOrInvite } = useGlobalStage();
-
-  const handleCloseJoinModal = () => {
-    window.history.replaceState({}, document.title);
-    window.location.href = '/manager';
-  };
 
   const renderJoinModal = (children) => (
     <>
@@ -118,7 +113,7 @@ const JoinModal = () => {
         <Button
           ariaLabel="Close the stage participants modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
-          onClick={handleCloseJoinModal}
+          onClick={closeModal}
           variant="icon"
         >
           <Close />

@@ -25,7 +25,7 @@ import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
 import { useNotif } from '../../Notification';
 import { useStreams } from '../../Streams';
-import { useModal } from '../../Modal';
+import { MODAL_TYPE, useModal } from '../../Modal';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
@@ -68,7 +68,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     shouldCloseFullScreenViewOnKickedOrHostLeave,
     updateIsJoiningStageByRequest,
     isJoiningStageByInvite,
-    isJoiningStageByRequest
+    isJoiningStageByRequest,
+    isJoiningStageByRequestOrInvite
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -91,7 +92,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const { refreshChannelData } = useChannel();
   const { publish } = useAppSync();
   const { state } = useLocation();
-  const { closeModal } = useModal();
+  const { closeModal, openModal, isModalOpen } = useModal();
+  const isClosingJoinModal = useRef(false);
 
   useEffect(() => {
     if (!state?.isJoiningStageByRequest) return;
@@ -296,11 +298,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
-      closeModal();
-
-      // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
+
+      closeModal({ shouldCancel: false, shouldRefocus: false });
     },
     [
       isBroadcastCameraHidden,
@@ -390,6 +391,34 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       $contentNotification.success.session_link_has_been_copied_to_clipboard
     );
   }, [joinParticipantLinkRef, updateSuccess]);
+
+  const handleCloseJoinModal = useCallback(() => {
+    isClosingJoinModal.current = true;
+    setTimeout(() => {
+      window.history.replaceState({}, document.title);
+      window.location.href = '/manager';
+    }, 100);
+  }, []);
+
+  const handleOpenJoinModal = useCallback(() => {
+    if (
+      !client &&
+      !isModalOpen &&
+      isJoiningStageByRequestOrInvite &&
+      !isClosingJoinModal.current
+    ) {
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN,
+        onCancel: handleCloseJoinModal
+      });
+    }
+  }, [
+    client,
+    isModalOpen,
+    openModal,
+    handleCloseJoinModal,
+    isJoiningStageByRequestOrInvite
+  ]);
 
   const { toggleCamera, toggleMicrophone, handleOnConfirmLeaveStage } =
     useStageControls({ leaveStage, resetStage });
@@ -488,6 +517,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       isCreatingStage: isCreatingStage || isLoadingForced, // For collaborate button spinner
       isStageActive,
       handleCopyJoinParticipantLinkAndNotify,
+      handleOpenJoinModal,
       shouldDisableCollaborateButton,
       shouldDisableCopyLinkButton,
       updateError,
@@ -511,30 +541,31 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       joinStageByRequest
     }),
     [
-      initializeStageClient,
+      createStageInstanceAndJoin,
+      handleOpenJoinModal,
+      handleCopyJoinParticipantLinkAndNotify,
+      handleOnConfirmLeaveStage,
       handleParticipantInvite,
+      handleParticipantJoinStage,
+      hasPermissions,
+      initializeStageClient,
       isCreatingStage,
       isLoadingForced,
+      isSpectator,
       isStageActive,
-      handleCopyJoinParticipantLinkAndNotify,
+      joinStageByRequest,
+      leaveStage,
       localParticipant,
       participants,
-      leaveStage,
-      toggleCamera,
-      toggleMicrophone,
-      handleOnConfirmLeaveStage,
+      resetStage,
+      shouldCloseFullScreenViewOnKickedOrHostLeave,
       shouldDisableCollaborateButton,
       shouldDisableCopyLinkButton,
-      updateError,
-      resetStage,
-      isSpectator,
-      hasPermissions,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
-      createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
-      joinStageByRequest,
-      handleParticipantJoinStage
+      toggleCamera,
+      toggleMicrophone,
+      updateError
     ]
   );
 

@@ -154,7 +154,7 @@ const BroadcastControlWrapper = forwardRef(
 
     const handleSettingsClick = () => {
       if (isJoiningStageByRequestOrInvite && !isMobileView) {
-        closeModal();
+        closeModal({ shouldCancel: false, shouldRefocus: true });
         updateShouldOpenSettingsModal(true);
       } else {
         openModal({
