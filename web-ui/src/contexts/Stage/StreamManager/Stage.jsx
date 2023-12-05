@@ -93,6 +93,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const { publish } = useAppSync();
   const { state } = useLocation();
   const { closeModal, openModal, isModalOpen } = useModal();
+  const isClosingJoinModal = useRef(false);
 
   useEffect(() => {
     if (!state?.isJoiningStageByRequest) return;
@@ -392,6 +393,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   }, [joinParticipantLinkRef, updateSuccess]);
 
   const handleCloseJoinModal = useCallback(() => {
+    isClosingJoinModal.current = true;
     navigate('/manager');
     setTimeout(() => {
       window.location.reload();
@@ -399,7 +401,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   }, [navigate]);
 
   const handleOpenJoinModal = useCallback(() => {
-    if (!client && !isModalOpen && isJoiningStageByRequestOrInvite) {
+    if (
+      !client &&
+      !isModalOpen &&
+      isJoiningStageByRequestOrInvite &&
+      !isClosingJoinModal.current
+    ) {
       openModal({
         type: MODAL_TYPE.STAGE_JOIN,
         onCancel: handleCloseJoinModal
