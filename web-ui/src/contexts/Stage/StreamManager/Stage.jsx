@@ -394,11 +394,11 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const handleCloseJoinModal = useCallback(() => {
     isClosingJoinModal.current = true;
-    navigate('/manager');
     setTimeout(() => {
-      window.location.reload();
+      window.history.replaceState({}, document.title);
+      window.location.href = '/manager';
     }, 100);
-  }, [navigate]);
+  }, []);
 
   const handleOpenJoinModal = useCallback(() => {
     if (
