@@ -561,7 +561,7 @@ export class ChannelsStack extends NestedStack {
         fifo: true
       });
 
-      const rule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
+      const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
         ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
         eventPattern: {
           source: ['aws.ivs'],
@@ -572,7 +572,8 @@ export class ChannelsStack extends NestedStack {
           }
         }
       });
-      rule.addTarget(
+
+      unpublishedParticipantRule.addTarget(
         new targets.SqsQueue(existingQueue, {
           messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
           message: 
