@@ -21,7 +21,6 @@ const handler = async (
   request: FastifyRequest<{ Body: HostDisconnectedMessageRequestBody }>,
   reply: FastifyReply
 ) => {
-  console.log('YOU SHOULD NOT SEE THIS @@@@@@@')
   let hostChannelId;
 
   if (typeof request.body === 'object') {
