@@ -552,14 +552,6 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create a SQS message on Stage Participant Unpublished event
-    const { queueName = undefined, queueArn = undefined } = deleteStageQueue || {}
-  
-    if (queueName && queueArn) {
-      const existingQueue = sqs.Queue.fromQueueAttributes(this, 'ExistingQueue', {
-        queueName,
-        queueArn,
-        fifo: true
-      });
 
       const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
         ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
@@ -574,7 +566,7 @@ export class ChannelsStack extends NestedStack {
       });
 
       unpublishedParticipantRule.addTarget(
-        new targets.SqsQueue(existingQueue, {
+        new targets.SqsQueue(deleteStageQueue, {
           messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
           message: 
           RuleTargetInput.fromObject({
@@ -584,7 +576,6 @@ export class ChannelsStack extends NestedStack {
           })
         })
       )
-    }
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
