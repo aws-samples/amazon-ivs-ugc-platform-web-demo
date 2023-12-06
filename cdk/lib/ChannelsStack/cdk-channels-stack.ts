@@ -553,29 +553,29 @@ export class ChannelsStack extends NestedStack {
 
     // Create a SQS message on Stage Participant Unpublished event
 
-      const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
-        ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
-        eventPattern: {
-          source: ['aws.ivs'],
-          detailType: ['IVS Stage Update'],
-          detail: {
-            'event_name': ['Participant Unpublished'],
-            'user_id': [{ 'prefix': 'host:' }]
-          }
+    const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
+      ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+      eventPattern: {
+        source: ['aws.ivs'],
+        detailType: ['IVS Stage Update'],
+        detail: {
+          'event_name': ['Participant Unpublished'],
+          'user_id': [{ 'prefix': 'host:' }]
         }
-      });
+      }
+    });
 
-      unpublishedParticipantRule.addTarget(
-        new targets.SqsQueue(deleteStageQueue, {
-          messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
-          message: 
-          RuleTargetInput.fromObject({
-            stageArn: EventField.fromPath('$.resources[0]'),
-            sessionId: EventField.fromPath('$.detail.session_id'),
-            userId: EventField.fromPath('$.detail.user_id'),
-          })
+    unpublishedParticipantRule.addTarget(
+      new targets.SqsQueue(deleteStageQueue, {
+        messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
+        message: 
+        RuleTargetInput.fromObject({
+          stageArn: EventField.fromPath('$.resources[0]'),
+          sessionId: EventField.fromPath('$.detail.session_id'),
+          userId: EventField.fromPath('$.detail.user_id'),
         })
-      )
+      })
+    )
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
