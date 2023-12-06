@@ -79,13 +79,13 @@ const useStageClient = (
           }, 0);
         });
       }
-    }
+    };
 
     window.addEventListener('beforeunload', beforeUnloadHandler);
 
     return () => {
-      window.removeEventListener('beforeunload', beforeUnloadHandler)
-    }
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+    };
   }, [isClientDefined, isHost, localParticipant, userData?.channelId]);
 
   return {
