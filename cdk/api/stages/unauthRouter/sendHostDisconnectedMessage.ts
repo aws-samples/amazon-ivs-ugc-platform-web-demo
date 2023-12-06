@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import {
+  MESSAGE_GROUP_IDS,
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
@@ -69,7 +70,7 @@ const handler = async (
     if (sessionId) {
       messageParts.push(`"sessionId": "${sessionId}"`);
     }
-    if (sessionId) {
+    if (userId) {
       messageParts.push(`"userId": "${userId}"`);
     }
     const messageBody = `{ ${messageParts.join(', ')} }`;
@@ -77,7 +78,7 @@ const handler = async (
     const input = {
       QueueUrl: process.env.SQS_DELETE_STAGE_QUEUE_URL,
       MessageBody: messageBody,
-      MessageGroupId: stageId
+      MessageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE
     };
     const command = new SendMessageCommand(input);
     const response = await sqsClient.send(command);
