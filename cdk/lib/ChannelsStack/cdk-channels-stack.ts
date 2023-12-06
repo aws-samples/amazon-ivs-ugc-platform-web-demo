@@ -552,7 +552,6 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create a SQS message on Stage Participant Unpublished event
-
     const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
       ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
       eventPattern: {
