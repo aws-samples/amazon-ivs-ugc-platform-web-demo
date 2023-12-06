@@ -160,7 +160,6 @@ const useStageEventHandlers = ({
           const hostChannelId =
             participantInfo?.current?.hostChannelId || userData?.channelId;
 
-          // Does not execute on Firefox
           await stagesAPI.sendHostDisconnectedMessage(hostChannelId);
 
           participantInfo.current = {
