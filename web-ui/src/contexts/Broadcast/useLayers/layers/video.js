@@ -46,7 +46,7 @@ export const addVideoLayerByDeviceId = async ({ name, data }) => {
     maxRetries: 2
   });
 
-  return client.addVideoInputDevice(stream, name, position);
+  return client?.addVideoInputDevice(stream, name, position);
 };
 
 export const addVideoLayerByStream = ({ name, data }) => {
@@ -54,5 +54,5 @@ export const addVideoLayerByStream = ({ name, data }) => {
 
   const { stream, position = { index: 0 } } = data;
 
-  return client.addVideoInputDevice(stream, name, position);
+  return client?.addVideoInputDevice(stream, name, position);
 };

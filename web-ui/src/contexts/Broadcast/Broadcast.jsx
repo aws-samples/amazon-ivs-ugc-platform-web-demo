@@ -296,7 +296,7 @@ export const Provider = ({
         }
         if (addDevice) {
           const didUpdate = await addDevice(deviceName, {
-            deviceId: activeDevices[deviceName].deviceId,
+            deviceId: activeDevices[deviceName]?.deviceId,
             ...options
           });
 

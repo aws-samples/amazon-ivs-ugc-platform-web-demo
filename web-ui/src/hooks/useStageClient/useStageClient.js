@@ -24,7 +24,7 @@ const useStageClient = (
     localParticipant
   } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
-    client: clientRef.current,
+    client: clientRef?.current,
     updateSuccess,
     stageConnectionErroredEventCallback
   });
@@ -44,7 +44,7 @@ const useStageClient = (
   const leaveStageClient = useCallback(() => {
     strategy.stopTracks();
 
-    if (clientRef.current) {
+    if (clientRef?.current) {
       clientRef.current.removeAllListeners();
       clientRef.current.leave();
       clientRef.current = undefined;
@@ -60,9 +60,9 @@ const useStageClient = (
   );
 
   useEffect(() => {
-    if (isClientDefined && clientRef.current) {
+    if (isClientDefined && clientRef?.current) {
       window.addEventListener('beforeunload', () => {
-        queueMicrotask(
+        queueMicrotask(() => {
           setTimeout(() => {
             if (isHost) {
               const body = {
@@ -77,14 +77,14 @@ const useStageClient = (
             }
 
             clientRef.current.leave();
-          }, 0)
-        );
+          }, 0);
+        });
       });
     }
   }, [isClientDefined, isHost, localParticipant, userData?.channelId]);
 
   return {
-    client: clientRef.current,
+    client: clientRef?.current,
     strategy,
     resetAllStageState,
     leaveStageClient,
