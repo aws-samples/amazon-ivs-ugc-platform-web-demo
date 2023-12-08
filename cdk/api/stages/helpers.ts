@@ -299,8 +299,11 @@ const getNumberOfParticipantsInStage = (
   const participantIds = new Map();
 
   for (const participant of participants) {
-    const { participantId } = participant;
-    if (!participantIds.has(participantId)) {
+    const { participantId, state } = participant;
+    if (
+      !participantIds.has(participantId) &&
+      state === PARTICIPANT_CONNECTION_STATES.CONNECTED
+    ) {
       participantIds.set(participantId, true);
       participantList.add(participant);
     }

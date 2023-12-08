@@ -104,7 +104,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
   const broadcastDevicesStateObjRef = useRef(null);
-  const shouldGetParticipantTokenRef = useRef(false);
   const shouldGetHostRejoinTokenRef = useRef(true);
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
@@ -147,7 +146,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     joinParticipantLinkRef.current = undefined;
     isDevicesInitializedRef.current = false;
     broadcastDevicesStateObjRef.current = null;
-    shouldGetParticipantTokenRef.current = false;
   }, [localParticipant?.streams, resetAllStageState]);
 
   const leaveStage = useCallback(
@@ -357,13 +355,19 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     ]
   );
 
+  const handleCloseJoinModal = useCallback(() => {
+    isClosingJoinModal.current = true;
+    setTimeout(() => {
+      window.history.replaceState({}, document.title);
+      window.location.href = '/manager';
+    }, 100);
+  }, []);
+
   const { handleParticipantInvite } = useInviteParticipants({
-    shouldGetParticipantTokenRef,
     createStageInstanceAndJoin,
     updateError,
-    resetStage,
-    broadcastDevicesStateObjRef,
-    shouldGetHostRejoinTokenRef
+    shouldGetHostRejoinTokenRef,
+    handleCloseJoinModal
   });
 
   const { joinStageByRequest } = useRequestParticipants({
@@ -391,14 +395,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       $contentNotification.success.session_link_has_been_copied_to_clipboard
     );
   }, [joinParticipantLinkRef, updateSuccess]);
-
-  const handleCloseJoinModal = useCallback(() => {
-    isClosingJoinModal.current = true;
-    setTimeout(() => {
-      window.history.replaceState({}, document.title);
-      window.location.href = '/manager';
-    }, 100);
-  }, []);
 
   const handleOpenJoinModal = useCallback(() => {
     if (

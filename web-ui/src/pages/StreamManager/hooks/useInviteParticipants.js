@@ -15,14 +15,12 @@ const $contentNotification =
 const useInviteParticipants = ({
   createStageInstanceAndJoin,
   updateError,
-  resetStage,
-  broadcastDevicesStateObjRef,
-  shouldGetHostRejoinTokenRef
+  shouldGetHostRejoinTokenRef,
+  handleCloseJoinModal
 }) => {
   const navigate = useNavigate();
   const {
     stageId,
-    localParticipant,
     updateIsJoiningStageByInvite,
     creatingStage,
     updateStageId
@@ -60,16 +58,11 @@ const useInviteParticipants = ({
       }
 
       if (error) {
-        resetStage();
         updateError({
           message: $contentNotification.error.unable_to_join_session,
           err: error
         });
-        navigate('/manager');
-        broadcastDevicesStateObjRef.current = {
-          isCameraHidden: localParticipant?.isCameraHidden || false,
-          isMicrophoneMuted: localParticipant?.isMicrophoneMuted || false
-        };
+        handleCloseJoinModal();
       }
     }
   }, [
@@ -84,11 +77,8 @@ const useInviteParticipants = ({
     stageId,
     updateIsJoiningStageByInvite,
     shouldGetHostRejoinTokenRef,
-    resetStage,
-    broadcastDevicesStateObjRef,
-    localParticipant?.isCameraHidden,
-    localParticipant?.isMicrophoneMuted,
-    updateStageId
+    updateStageId,
+    handleCloseJoinModal
   ]);
 
   return { handleParticipantInvite };
