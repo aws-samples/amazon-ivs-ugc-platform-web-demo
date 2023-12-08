@@ -30,6 +30,7 @@ export const Provider = ({ children, previewRef }) => {
   const webBroadcastContainerRef = useRef();
   const goLiveButtonRef = useRef();
   const broadcastControllerRef = useRef();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { isDesktopView, isMobileView } = useResponsiveDevice();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
@@ -60,10 +61,20 @@ export const Provider = ({ children, previewRef }) => {
   );
 
   useEffect(() => {
-    if (isFullScreenViewOpen && !isDesktopView && !isStageActive) {
+    if (
+      isFullScreenViewOpen &&
+      !isDesktopView &&
+      !isStageActive &&
+      !isJoiningStageByRequestOrInvite
+    ) {
       setIsFullScreenViewOpen(false);
     }
-  }, [isDesktopView, isFullScreenViewOpen, isStageActive]);
+  }, [
+    isDesktopView,
+    isFullScreenViewOpen,
+    isStageActive,
+    isJoiningStageByRequestOrInvite
+  ]);
 
   const calculateTopAndLeftValues = useCallback(() => {
     const topOffset = isDesktopView ? 0 : 56; // tab height

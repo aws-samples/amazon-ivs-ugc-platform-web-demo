@@ -242,7 +242,10 @@ const StreamManagerControlCenter = forwardRef(
     ]);
 
     const isOfflineMobileView =
-      !isStageActive && !isBroadcasting && !isDesktopView;
+      !isStageActive &&
+      !isBroadcasting &&
+      !isDesktopView &&
+      !isJoiningStageByRequestOrInvite;
     const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
     const isFullScreenViewPortalOpen =
       isFullScreenViewOpen && !isBroadcastingMobileView && !isOfflineMobileView;

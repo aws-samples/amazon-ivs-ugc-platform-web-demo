@@ -45,9 +45,10 @@ const StageVideoFeeds = ({ styles, type }) => {
   }
 
   const shouldRenderInviteParticipant =
-    pathname === '/manager' &&
-    ((!isChannelType && participantSize <= 1) ||
-      isJoiningStageByRequestOrInvite);
+    pathname === '/manager' && !isChannelType && participantSize <= 1;
+
+  const shouldRenderEmptyInviteParticipantCard =
+    shouldRenderInviteParticipant && isJoiningStageByRequestOrInvite;
 
   return (
     <div
@@ -92,6 +93,9 @@ const StageVideoFeeds = ({ styles, type }) => {
               className={clsm([participantSize > 2 && `slot-${index + 1}`])}
             />
           ))}
+        {shouldRenderEmptyInviteParticipantCard && (
+          <InviteParticipant type={type} />
+        )}
         {shouldRenderInviteParticipant && <InviteParticipant type={type} />}
       </motion.div>
     </div>
