@@ -40,12 +40,15 @@ const GoLiveContainer = forwardRef(
     const { isDesktopView, currentBreakpoint, isTouchscreenDevice } =
       useResponsiveDevice();
     const { isStageActive } = useStreamManagerStage();
-    const { goLiveButtonRef, broadcastControllerRef, isFullScreenViewOpen } =
-      useBroadcastFullScreen();
+    const {
+      goLiveButtonRef,
+      broadcastControllerRef,
+      isFullScreenViewOpen,
+      collapsedContainerRef: goLiveCollapsedContainerRef
+    } = useBroadcastFullScreen();
     const { isHost } = useGlobalStage();
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
-    const goLiveContainerVideoContainerRef = useRef();
 
     const handleOnCollapse = () => {
       shouldAnimateStreamingButton.current = false;
@@ -98,7 +101,7 @@ const GoLiveContainer = forwardRef(
             {((withHeader && isDesktopView) || (isStageActive && isHost)) && (
               <GoLiveHeader onCollapse={handleOnCollapse} />
             )}
-            <div ref={goLiveContainerVideoContainerRef} className="relative">
+            <div ref={goLiveCollapsedContainerRef} className="relative">
               {isStageActive && !isFullScreenViewOpen ? (
                 <div className={clsm(['flex', 'aspect-video'])}>
                   <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.GO_LIVE} />
@@ -143,9 +146,7 @@ const GoLiveContainer = forwardRef(
               </div>
               {withStageControl && (
                 <StageControl
-                  goLiveContainerVideoContainerRef={
-                    goLiveContainerVideoContainerRef
-                  }
+                  goLiveContainerVideoContainerRef={goLiveCollapsedContainerRef}
                 />
               )}
             </div>

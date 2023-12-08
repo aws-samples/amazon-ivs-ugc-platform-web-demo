@@ -27,6 +27,7 @@ Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
   const webBroadcastParentContainerRef = useRef();
+  const collapsedContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
   const goLiveButtonRef = useRef();
   const broadcastControllerRef = useRef();
@@ -175,8 +176,8 @@ export const Provider = ({ children, previewRef }) => {
 
     setDimensionClasses([]);
     fullscreenAnimationControls.start({
-      width: 311,
-      height: 174.94,
+      width: collapsedContainerRef.current?.clientWidth || 311,
+      height: collapsedContainerRef.current?.clientHeight || 174.94,
       transition: ANIMATION_TRANSITION
     });
 
@@ -239,7 +240,8 @@ export const Provider = ({ children, previewRef }) => {
       handleOpenFullScreenView,
       closeFullscreenAndAnimateCollaborateButton,
       goLiveButtonRef,
-      broadcastControllerRef
+      broadcastControllerRef,
+      collapsedContainerRef
     }),
     [
       collaborateButtonAnimationControls,
@@ -258,7 +260,8 @@ export const Provider = ({ children, previewRef }) => {
       handleOpenFullScreenView,
       closeFullscreenAndAnimateCollaborateButton,
       goLiveButtonRef,
-      broadcastControllerRef
+      broadcastControllerRef,
+      collapsedContainerRef
     ]
   );
 
