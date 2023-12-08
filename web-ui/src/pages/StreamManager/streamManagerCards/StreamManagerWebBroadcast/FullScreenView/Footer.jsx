@@ -97,39 +97,6 @@ const Footer = ({ shouldAddScrollbar }) => {
           isOpen
         />
       </motion.div>
-
-      <motion.div
-        className={clsm([
-          'absolute',
-          'bottom-5',
-          isStageActive && shouldAddScrollbar && 'right-1',
-          'w-full'
-        ])}
-        {...createAnimationProps({
-          customVariants: {
-            hidden: {
-              width: goLiveButtonInitialWidth,
-              marginLeft: 0,
-              opacity: 1
-            },
-            visible: {
-              width:
-                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
-              marginLeft: getMarginLeft()
-            }
-          },
-          options: {
-            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
-          },
-          transition: ANIMATION_TRANSITION
-        })}
-      >
-        <GoLiveStreamButton
-          tooltipPosition="above"
-          tooltipCustomTranslate={{ y: 2 }}
-        />
-      </motion.div>
-
       {shouldRenderFullScreenCollaborateButton && !isStageActive && (
         <div className={clsm(['flex', 'flex-col', 'justify-center'])}>
           <Tooltip
@@ -167,6 +134,37 @@ const Footer = ({ shouldAddScrollbar }) => {
       {isStageActive && (
         <StageControls shouldShowCopyLinkText={!isMobileView} />
       )}
+      <motion.div
+        className={clsm([
+          'absolute',
+          'bottom-5',
+          isStageActive && shouldAddScrollbar && 'right-1',
+          'w-full'
+        ])}
+        {...createAnimationProps({
+          customVariants: {
+            hidden: {
+              width: goLiveButtonInitialWidth,
+              marginLeft: 0,
+              opacity: 1
+            },
+            visible: {
+              width:
+                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+              marginLeft: getMarginLeft()
+            }
+          },
+          options: {
+            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
+          },
+          transition: ANIMATION_TRANSITION
+        })}
+      >
+        <GoLiveStreamButton
+          tooltipPosition="above"
+          tooltipCustomTranslate={{ y: 2 }}
+        />
+      </motion.div>
     </div>
   );
 };
