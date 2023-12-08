@@ -59,7 +59,7 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
   }, [setDimensionClasses, isFullScreenViewOpen]);
 
   useEffect(() => {
-    if (!isDesktopView || !isFullScreenViewOpen) setDimensionClasses([]);
+    if (!isFullScreenViewOpen) setDimensionClasses([]);
   }, [isDesktopView, setDimensionClasses, isFullScreenViewOpen]);
 
   return {
