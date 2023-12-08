@@ -85,7 +85,8 @@ const StageParticipant = ({ participant }) => {
         'h-11',
         'items-center',
         'my-8',
-        'justify-between'
+        'justify-between',
+        'gap-4'
       ])}
     >
       <StageProfilePill
@@ -97,20 +98,20 @@ const StageParticipant = ({ participant }) => {
           '[&>img]:w-11',
           '[&>img]:h-11',
           'gap-4',
-          'max-w-[280px]',
-          'md:max-w-[280px]',
-          'sm:max-w-[280px]',
-          'xs:max-w-[94px]',
-          'mr-36',
-          'md:mr-36',
-          'sm:mr-11',
-          'xs:mr-0'
+          'max-w-none',
+          'min-w-[96px]',
+          'w-full'
         ])}
+        textClassName="text-[15px]"
       />
       <div
         className={clsm([
-          'min-w-[84px]',
-          type === PARTICIPANT_TYPES.HOST && '-ml-7'
+          'flex',
+          'justify-between',
+          'w-full',
+          'max-w-[200px]',
+          'min-w-[136px]',
+          'items-center'
         ])}
       >
         <div
@@ -120,15 +121,12 @@ const StageParticipant = ({ participant }) => {
             'flex',
             'gap-3',
             'p-2',
-            'px-4',
+            'px-3',
             'dark:[&>svg]:fill-white',
             '[&>svg]:fill-black',
             '[&>svg]:w-5',
             '[&>svg]:h-5',
-            'rounded-[20px]',
-            'h-[36px]',
-            'mr-auto',
-            'w-fit'
+            'rounded-[20px]'
           ])}
         >
           {isCameraHidden ? (
@@ -142,33 +140,34 @@ const StageParticipant = ({ participant }) => {
             <MicOn />
           )}
         </div>
-      </div>
-      <div className={clsm(['min-w-[44px]', 'min-h-[44px]'])}>
+
         {type !== PARTICIPANT_TYPES.HOST && (
-          <Tooltip
-            key="remove-participant-control-tooltip"
-            position="below"
-            translate={{ y: 2 }}
-            message={$stageContent.participants_modal.remove_from_session}
-          >
-            <Button
-              ariaLabel="Reject participants"
-              className={clsm([
-                'w-11',
-                'h-11',
-                'dark:[&>svg]:fill-white',
-                '[&>svg]:fill-black',
-                'dark:bg-darkMode-gray',
-                !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-                'dark:focus:bg-darkMode-gray',
-                'bg-lightMode-gray'
-              ])}
-              onClick={handleDisconnectParticipant}
-              variant="icon"
+          <div className={clsm(['min-w-[44px]', 'min-h-[44px]'])}>
+            <Tooltip
+              key="remove-participant-control-tooltip"
+              position="below"
+              translate={{ y: 2 }}
+              message={$stageContent.participants_modal.remove_from_session}
             >
-              <Close />
-            </Button>
-          </Tooltip>
+              <Button
+                ariaLabel="Reject participants"
+                className={clsm([
+                  'w-11',
+                  'h-11',
+                  'dark:[&>svg]:fill-white',
+                  '[&>svg]:fill-black',
+                  'dark:bg-darkMode-gray',
+                  !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                  'dark:focus:bg-darkMode-gray',
+                  'bg-lightMode-gray'
+                ])}
+                onClick={handleDisconnectParticipant}
+                variant="icon"
+              >
+                <Close />
+              </Button>
+            </Tooltip>
+          </div>
         )}
       </div>
     </div>

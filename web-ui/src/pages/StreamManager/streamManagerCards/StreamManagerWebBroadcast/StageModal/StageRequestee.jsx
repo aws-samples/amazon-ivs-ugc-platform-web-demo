@@ -10,7 +10,6 @@ import StageProfilePill, {
 import { clsm } from '../../../../../utils';
 import { getAvatarSrc } from '../../../../../helpers';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import { BREAKPOINTS } from '../../../../../constants';
 import { streamManager as $streamManagerContent } from '../../../../../content';
 import Tooltip from '../../../../../components/Tooltip';
 import { useGlobalStage } from '../../../../../contexts/Stage';
@@ -18,6 +17,12 @@ import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 
 const $content = $streamManagerContent.stream_manager_stage.participants_modal;
+
+const elapsedSinceParagraphClasses = [
+  'text-p1',
+  'dark:text-[#B4B6BF]',
+  'text-[#595959]'
+];
 
 const elapsedTime = (requestSentTime) => {
   const currentTime = Date.now();
@@ -34,8 +39,7 @@ const elapsedTime = (requestSentTime) => {
 };
 
 const StageRequestee = ({ requestee }) => {
-  const { isTouchscreenDevice, isDesktopView, currentBreakpoint, isLandscape } =
-    useResponsiveDevice();
+  const { isTouchscreenDevice } = useResponsiveDevice();
   const { publish } = useAppSync();
   const { deleteRequestToJoin } = useGlobalStage();
 
@@ -90,75 +94,107 @@ const StageRequestee = ({ requestee }) => {
   };
 
   return (
-    <div className={clsm(['flex', 'h-11', 'items-center', 'my-8'])}>
+    <div
+      className={clsm([
+        'flex',
+        'h-11',
+        'items-center',
+        'my-8',
+        'gap-4',
+        'justify-between'
+      ])}
+    >
       <StageProfilePill
         avatarSrc={avatarSrc}
         profileColor={profileColor}
         username={username}
         type={STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL}
         className={clsm([
-          '[&>img]:w-11',
           '[&>img]:h-11',
+          '[&>img]:w-11',
           'gap-4',
-          'max-w-fit',
-          isDesktopView ? 'mr-48' : ['mr-auto', 'max-w-[177px]'],
-          currentBreakpoint === BREAKPOINTS.xxs && 'max-w-[90px]'
+          'max-w-none',
+          'min-w-[136px]',
+          'w-full'
         ])}
+        textClassName="text-[15px]"
+        subEl={
+          <p
+            className={clsm([
+              elapsedSinceParagraphClasses,
+              'sm:block',
+              'hidden',
+              'truncate'
+            ])}
+          >
+            {timeElapsedSince}
+          </p>
+        }
       />
-      {isLandscape && (
-        <div className={clsm(['flex', 'items-center', 'gap-3', 'mr-auto'])}>
+      <div
+        className={clsm([
+          'flex',
+          'sm:justify-end',
+          'justify-between',
+          'w-full',
+          'max-w-[200px]',
+          'min-w-[96px]',
+          'items-center'
+        ])}
+      >
+        <p className={clsm([elapsedSinceParagraphClasses, 'sm:hidden'])}>
           {timeElapsedSince}
+        </p>
+        <div className={clsm(['flex', 'space-x-2'])}>
+          <Tooltip
+            key="confirm-request-tooltip"
+            position="below"
+            translate={{ y: -2 }}
+            message={$content.confirm}
+          >
+            <Button
+              ariaLabel="Confirm request"
+              className={clsm([
+                'w-11',
+                'h-11',
+                'dark:[&>svg]:fill-white',
+                '[&>svg]:fill-black',
+                'dark:bg-darkMode-gray',
+                !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                'dark:focus:bg-darkMode-gray',
+                'bg-lightMode-gray'
+              ])}
+              onClick={handleAcceptRequest}
+              variant="icon"
+            >
+              <CheckCircle />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            key="delete-request-tooltip"
+            position="below"
+            translate={{ y: -2 }}
+            message={$content.delete}
+          >
+            <Button
+              ariaLabel="Delete request"
+              className={clsm([
+                'w-11',
+                'h-11',
+                'dark:[&>svg]:fill-white',
+                '[&>svg]:fill-black',
+                'dark:bg-darkMode-gray',
+                !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
+                'dark:focus:bg-darkMode-gray',
+                'bg-lightMode-gray'
+              ])}
+              onClick={handleRejectRequest}
+              variant="icon"
+            >
+              <Delete />
+            </Button>
+          </Tooltip>
         </div>
-      )}
-      <div className={clsm(['flex', 'space-x-2'])}>
-        <Tooltip
-          key="confirm-request-tooltip"
-          position="below"
-          translate={{ y: -2 }}
-          message={$content.confirm}
-        >
-          <Button
-            ariaLabel="Confirm request"
-            className={clsm([
-              'w-11',
-              'h-11',
-              'dark:[&>svg]:fill-white',
-              '[&>svg]:fill-black',
-              'dark:bg-darkMode-gray',
-              !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-              'dark:focus:bg-darkMode-gray',
-              'bg-lightMode-gray'
-            ])}
-            onClick={handleAcceptRequest}
-            variant="icon"
-          >
-            <CheckCircle />
-          </Button>
-        </Tooltip>
-        <Tooltip
-          key="delete-request-tooltip"
-          position="below"
-          translate={{ y: -2 }}
-          message={$content.delete}
-        >
-          <Button
-            ariaLabel="Delete request"
-            className={clsm([
-              'w-11',
-              'h-11',
-              'dark:[&>svg]:fill-white',
-              '[&>svg]:fill-black',
-              'dark:bg-darkMode-gray',
-              !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
-              'dark:focus:bg-darkMode-gray',
-              'bg-lightMode-gray'
-            ])}
-            onClick={handleRejectRequest}
-            variant="icon"
-          >
-            <Delete />
-          </Button>
-        </Tooltip>
       </div>
     </div>
   );

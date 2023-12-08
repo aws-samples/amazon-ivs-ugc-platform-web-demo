@@ -33,25 +33,22 @@ export const STAGE_PROFILE_TYPES = {
 };
 
 const StageProfilePill = ({
-  profileColor,
   avatarSrc,
-  username,
+  className,
+  profileColor,
+  subEl,
+  textClassName,
   type,
-  className
+  username
 }) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
 
   return (
     <div
       className={clsm([
-        '[&>h3]:drop-shadow-stage-profile',
-        '[&>h3]:font-bold',
-        '[&>h3]:text-p2',
-        '[&>h3]:truncate',
         '[&>img]:rounded-full',
         type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
           '[&>img]:hidden',
-          '@stage-video-lg/video:[&>h3]:drop-shadow-none',
           '@stage-video-lg/video:[&>img]:block',
           '@stage-video-lg/video:[&>img]:h-6',
           '@stage-video-lg/video:[&>img]:w-6',
@@ -60,8 +57,6 @@ const StageProfilePill = ({
           '@stage-video-lg/video:pr-2',
           '@stage-video-lg/video:py-1',
           '@stage-video-md/video:visible',
-          '@stage-video-xl/video:[&>h3]:font-bold',
-          '@stage-video-xl/video:[&>h3]:text-p1',
           '@stage-video-xl/video:[&>img]:h-8',
           '@stage-video-xl/video:[&>img]:w-8',
           '@stage-video-xl/video:max-w-[208px]',
@@ -86,21 +81,43 @@ const StageProfilePill = ({
       ])}
     >
       <img src={avatarSrc} alt="" />
-      <h3>{username}</h3>
+      <div className="overflow-hidden">
+        <h3
+          className={clsm([
+            'font-bold',
+            'text-p2',
+            'truncate',
+            type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+              'drop-shadow-stage-profile',
+              '@stage-video-lg/video:drop-shadow-none',
+              '@stage-video-xl/video:font-bold',
+              '@stage-video-xl/video:text-p1'
+            ],
+            textClassName
+          ])}
+        >
+          {username}
+        </h3>
+        {subEl}
+      </div>
     </div>
   );
 };
 
 StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: ''
+  className: '',
+  subEl: null,
+  textClassName: ''
 };
 StageProfilePill.propTypes = {
-  profileColor: PropTypes.string.isRequired,
   avatarSrc: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  profileColor: PropTypes.string.isRequired,
+  subEl: PropTypes.node,
+  textClassName: PropTypes.string,
   type: PropTypes.string,
-  className: PropTypes.string
+  username: PropTypes.string.isRequired
 };
 
 export default StageProfilePill;
