@@ -103,6 +103,7 @@ export const retryWithExponentialBackoff = ({
         // retry
         const nextRetries = retries + 1;
         onRetry(nextRetries);
+
         return retry(nextRetries);
       } else {
         // fail
