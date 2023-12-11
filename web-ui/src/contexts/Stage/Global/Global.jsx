@@ -101,6 +101,7 @@ export const Provider = ({ children }) => {
 
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
+  const isRequestedUserType = type === PARTICIPANT_TYPES.REQUESTED;
 
   const isJoiningStageByRequestOrInvite =
     isJoiningStageByRequest || isJoiningStageByInvite;
@@ -122,6 +123,7 @@ export const Provider = ({ children }) => {
       strategy,
       success,
       isHost,
+      isRequestedUserType,
       shouldCloseFullScreenViewOnConnectionError,
       updateIsChannelStagePlayerMuted,
       updateIsJoiningStageByRequest,
@@ -193,6 +195,7 @@ export const Provider = ({ children }) => {
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
     isHost,
+    isRequestedUserType,
     updateRequestingToJoinStage,
     updateStageId,
     updateStreams,

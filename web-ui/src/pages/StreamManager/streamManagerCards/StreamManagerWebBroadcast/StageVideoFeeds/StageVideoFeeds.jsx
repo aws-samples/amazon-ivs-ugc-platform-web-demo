@@ -19,7 +19,8 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ styles, type }) => {
-  const { participants, isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const { participants, isJoiningStageByRequestOrInvite, isRequestedUserType } =
+    useGlobalStage();
 
   const {
     isFullScreenViewOpen,
@@ -36,16 +37,20 @@ const StageVideoFeeds = ({ styles, type }) => {
   const { pathname } = useLocation();
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
-  let gridItemCountClasses =
-    participantSize > 2
-      ? `grid-${participantSize}`
-      : ['grid-rows-1', 'grid-cols-2'];
-  if (isChannelType) {
+  let gridItemCountClasses;
+  if (participantSize > 2 || isChannelType) {
     gridItemCountClasses = `grid-${participantSize}`;
+  } else if (isRequestedUserType && participantSize === 1) {
+    gridItemCountClasses = ['grid-rows-1', 'grid-cols-1'];
+  } else {
+    gridItemCountClasses = ['grid-rows-1', 'grid-cols-2'];
   }
 
   const shouldRenderInviteParticipant =
-    pathname === '/manager' && !isChannelType && participantSize <= 1;
+    pathname === '/manager' &&
+    !isChannelType &&
+    participantSize <= 1 &&
+    !isRequestedUserType;
 
   const shouldRenderEmptyInviteParticipantCard =
     shouldRenderInviteParticipant && isJoiningStageByRequestOrInvite;
