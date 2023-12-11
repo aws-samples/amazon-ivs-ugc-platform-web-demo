@@ -5,6 +5,11 @@ export const getSpectatorToken = async (stageId) =>
     url: `${apiBaseUrl}/stages/createSpectatorToken/${stageId}`
   });
 
+export const getStage = async (stageId) =>
+  await authFetch({
+    url: `${apiBaseUrl}/stages/${stageId}`
+  });
+
 export const createStage = async () =>
   await authFetch({
     url: `${apiBaseUrl}/stages/create`

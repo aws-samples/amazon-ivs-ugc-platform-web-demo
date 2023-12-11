@@ -75,8 +75,8 @@ export const STATE_KEYS = {
   ERROR: 'error',
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
-  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
-    'shouldCloseFullScreenViewOnKickedOrHostLeave',
+  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR:
+    'shouldCloseFullScreenViewOnConnectionError',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
   HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
   STAGE_REQUEST_LIST: 'stageRequestList',
@@ -94,7 +94,7 @@ const defaultStageReducerState = {
   [STATE_KEYS.ERROR]: null,
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
-  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
+  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
@@ -343,10 +343,10 @@ const globalReducer = (state = defaultReducerState, action) => {
       };
     }
 
-    case actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE: {
+    case actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR: {
       return {
         ...state,
-        [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]:
+        [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR]:
           action.payload
       };
     }

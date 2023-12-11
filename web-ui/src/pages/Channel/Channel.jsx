@@ -169,23 +169,23 @@ const Channel = () => {
 
     if (isRealTimeStreamActive) {
       (async function () {
-        const { result, error } = await retryWithExponentialBackoff({
-          promiseFn: () => getSpectatorToken(stageId),
-          maxRetries: 3
-        });
-
-        if (result?.token) {
-          await joinStageClient({
-            token: result.token,
-            strategy
+        try {
+          const { result } = await retryWithExponentialBackoff({
+            promiseFn: () => getSpectatorToken(stageId),
+            maxRetries: 3
           });
-          shouldDisplayStagePlayerRef.current = true;
-        }
 
-        if (error) {
+          if (result?.token) {
+            await joinStageClient({
+              token: result.token,
+              strategy
+            });
+            shouldDisplayStagePlayerRef.current = true;
+          }
+        } catch (err) {
           updateError({
             message: $playerContent.notification.error.error_loading_stream,
-            err: error
+            err
           });
         }
       })();

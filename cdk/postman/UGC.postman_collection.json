@@ -950,6 +950,30 @@
 					"response": []
 				},
 				{
+					"name": "/stages/:stageId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/:stageId",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								":stageId"
+							],
+							"variable": [
+								{
+									"key": "stageId"
+								}
+							]
+						},
+						"description": "This endpoint retrieves the requested stage"
+					},
+					"response": []
+				},
+				{
 					"name": "/stages/createParticipantToken/:stageId/:participantType",
 					"request": {
 						"method": "GET",

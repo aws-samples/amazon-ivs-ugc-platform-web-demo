@@ -155,11 +155,15 @@ export const getStage = async (stageId: string, hostChannelArn?: string) => {
     return stage;
   } catch (err: unknown) {
     const { name } = err as Error;
-    if (name === RESOURCE_NOT_FOUND_EXCEPTION && hostChannelArn) {
-      try {
-        await updateHostChannelTable(hostChannelArn);
-      } catch (err) {
-        throw new Error('Failed to update host channel table.');
+    if (name === RESOURCE_NOT_FOUND_EXCEPTION) {
+      if (hostChannelArn) {
+        try {
+          await updateHostChannelTable(hostChannelArn);
+        } catch (err) {
+          throw new Error('Failed to update host channel table.');
+        }
+      } else {
+        throw err;
       }
     }
 

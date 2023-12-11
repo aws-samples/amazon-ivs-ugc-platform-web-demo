@@ -67,7 +67,7 @@ const useStageControls = ({ leaveStage, resetStage }) => {
 
           const shouldShowSuccessNotification = !isStageHost;
 
-          leaveStage(shouldShowSuccessNotification);
+          leaveStage({ shouldShowSuccessNotification });
         },
         onCancel: closeModal,
         lastFocusedElement: lastFocusedElementRef
