@@ -67,7 +67,8 @@ export const retryWithExponentialBackoff = ({
   maxRetries,
   onRetry = noop,
   onSuccess = noop,
-  onFailure = noop
+  onFailure = noop,
+  shouldReturnErrorOnValidation = undefined
 }) => {
   const waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -81,6 +82,19 @@ export const retryWithExponentialBackoff = ({
 
       // evaluate
       const result = await promiseFn();
+
+      // handle scenario where the promiseFn involves the use of a fetch wrapper (unauthFetch or authFetch)
+      const fetchWrapperError = !!result?.error;
+
+      if (fetchWrapperError) {
+        if (shouldReturnErrorOnValidation) {
+          const shouldReturnError = shouldReturnErrorOnValidation(result);
+          if (shouldReturnError) return result;
+        }
+
+        throw new Error();
+      }
+
       onSuccess();
 
       return result;
@@ -89,7 +103,6 @@ export const retryWithExponentialBackoff = ({
         // retry
         const nextRetries = retries + 1;
         onRetry(nextRetries);
-
         return retry(nextRetries);
       } else {
         // fail

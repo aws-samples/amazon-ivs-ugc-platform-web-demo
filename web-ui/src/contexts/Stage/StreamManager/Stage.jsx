@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
 import {
   createJoinParticipantLink,
-  JOIN_PARTICIPANT_URL_PARAM_KEY,
-  getStageParticipantsChannelIds
+  JOIN_PARTICIPANT_URL_PARAM_KEY
 } from '../../../helpers/stagesHelpers';
 import {
   defaultParticipant,
@@ -19,7 +18,6 @@ import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
 import { streamManager as $streamManagerContent } from '../../../content';
-import { useAppSync } from '../../AppSync';
 import { useBroadcast } from '../../Broadcast';
 import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
@@ -32,8 +30,8 @@ import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteP
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
 import useStageClient from '../../../hooks/useStageClient';
-import channelEvents from '../../AppSync/channelEvents';
 import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
+import { RESOURCE_NOT_FOUND_EXCEPTION } from '../../../constants';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -64,8 +62,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     shouldDisableStageButtonWithDelay,
     isCreatingStage,
     isHost,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateShouldCloseFullScreenViewOnConnectionError,
+    shouldCloseFullScreenViewOnConnectionError,
     updateIsJoiningStageByRequest,
     isJoiningStageByInvite,
     isJoiningStageByRequest,
@@ -90,7 +88,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
   const { refreshChannelData } = useChannel();
-  const { publish } = useAppSync();
   const { state } = useLocation();
   const { closeModal, openModal, isModalOpen } = useModal();
   const isClosingJoinModal = useRef(false);
@@ -108,7 +105,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
-  const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
     updateIsBlockingRoute(false);
@@ -119,13 +115,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       navigate('/manager', { state: {} });
     }
 
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
+    updateShouldCloseFullScreenViewOnConnectionError(true);
   }, [
     isHost,
     navigate,
     state?.isJoiningStageByRequest,
     updateIsBlockingRoute,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave
+    updateShouldCloseFullScreenViewOnConnectionError
   ]);
 
   const { joinStageClient, resetAllStageState, leaveStageClient, client } =
@@ -148,12 +144,47 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     broadcastDevicesStateObjRef.current = null;
   }, [localParticipant?.streams, resetAllStageState]);
 
+  const displaySessionEndedNotification = useCallback(
+    async (isHost, stageConnectionErrored) => {
+      const sessionEndedByHost = isHost && !stageConnectionErrored;
+      const sessionEndedAsParticipant = !isHost && stageConnectionErrored;
+
+      if (sessionEndedByHost) {
+        notifyNeutral($contentNotification.neutral.the_session_ended, {
+          asPortal: true
+        });
+      }
+
+      // Session ends when participant is kicked, host ends session or host leaves and does not return within 3 minutes
+      if (sessionEndedAsParticipant) {
+        try {
+          const { error } = await retryWithExponentialBackoff({
+            promiseFn: () => stagesAPI.getStage(stageId),
+            maxRetries: 3,
+            shouldReturnErrorOnValidation: (result) =>
+              result?.error?.__type === RESOURCE_NOT_FOUND_EXCEPTION
+          });
+
+          if (error?.__type === RESOURCE_NOT_FOUND_EXCEPTION) {
+            notifyNeutral($contentNotification.neutral.the_session_ended, {
+              asPortal: true
+            });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [notifyNeutral, stageId]
+  );
+
   const leaveStage = useCallback(
-    async (shouldShowSuccessNotification = false) => {
+    async ({
+      stageConnectionErrored = false,
+      shouldShowSuccessNotification = false
+    }) => {
       try {
         let result;
-        participantChannels.current =
-          getStageParticipantsChannelIds(participants);
 
         leaveStageClient();
 
@@ -174,23 +205,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         }
 
         if (result || !isHost) {
-          if (isHost) {
-            notifyNeutral($contentNotification.neutral.the_session_ended, {
-              asPortal: true
-            });
-
-            if (participantChannels.current.length) {
-              participantChannels.current.forEach((participantChannel) => {
-                const channel = participantChannel?.toLowerCase();
-                publish(
-                  channel,
-                  JSON.stringify({
-                    type: channelEvents.STAGE_SESSION_HAS_ENDED
-                  })
-                );
-              });
-            }
-          }
+          await displaySessionEndedNotification(isHost, stageConnectionErrored);
 
           // Animate stage control buttons
           updateAnimateCollapseStageContainerWithDelay(false);
@@ -227,15 +242,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       }
     },
     [
-      participants,
       leaveStageClient,
       isHost,
       refreshChannelData,
       updateIsBlockingRoute,
+      displaySessionEndedNotification,
       updateAnimateCollapseStageContainerWithDelay,
       updateShouldAnimateGoLiveButtonChevronIcon,
-      notifyNeutral,
-      publish,
       resetStage,
       stageIdUrlParam,
       state?.isJoiningStageByRequest,
@@ -247,10 +260,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     ]
   );
 
+  const leaveStageInvoked = useRef(false);
+
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
-    leaveStage();
-  }, [leaveStage, shouldCloseFullScreenViewOnKickedOrHostLeave]);
+    if (!shouldCloseFullScreenViewOnConnectionError) return;
+
+    if (!leaveStageInvoked.current) {
+      leaveStage({ stageConnectionErrored: true });
+    }
+    leaveStageInvoked.current = true;
+  }, [leaveStage, shouldCloseFullScreenViewOnConnectionError]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -529,7 +548,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleCamera,
       toggleMicrophone,
       handleOnConfirmLeaveStage,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
+      shouldCloseFullScreenViewOnConnectionError,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
@@ -554,7 +573,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       localParticipant,
       participants,
       resetStage,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
+      shouldCloseFullScreenViewOnConnectionError,
       shouldDisableCollaborateButton,
       shouldDisableCopyLinkButton,
       shouldGetHostRejoinTokenRef,

@@ -7,11 +7,9 @@ const DELAY_COLLAPSE_ANIMATION = 500;
 const useGlobalReducers = () => {
   const [state, dispatch] = useReducer(globalReducer, defaultReducerState);
 
-  const updateShouldCloseFullScreenViewOnKickedOrHostLeave = useCallback(
+  const updateShouldCloseFullScreenViewOnConnectionError = useCallback(
     (value) => {
-      dispatch(
-        actions.updateShouldCloseFullScreenViewOnKickedOrHostLeave(value)
-      );
+      dispatch(actions.updateShouldCloseFullScreenViewOnConnectionError(value));
     },
     []
   );
@@ -170,7 +168,7 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateShouldCloseFullScreenViewOnConnectionError,
       updateStageRequestList,
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,
@@ -200,7 +198,7 @@ const useGlobalReducers = () => {
       updateStageId,
       updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+      updateShouldCloseFullScreenViewOnConnectionError,
       updateStageRequestList,
       deleteRequestToJoin,
       updateIsJoiningStageByRequest,

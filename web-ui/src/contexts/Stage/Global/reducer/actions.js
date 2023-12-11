@@ -95,8 +95,8 @@ export const resetParticipants = () => ({
   type: actionTypes.RESET_PARTICIPANTS
 });
 
-export const updateShouldCloseFullScreenViewOnKickedOrHostLeave = (bool) => ({
-  type: actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE,
+export const updateShouldCloseFullScreenViewOnConnectionError = (bool) => ({
+  type: actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR,
   payload: bool
 });
 
