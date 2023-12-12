@@ -42,7 +42,7 @@ const useStageClient = (
   );
 
   const leaveStageClient = useCallback(() => {
-    strategy.stopTracks();
+    strategy.stopAndResetTracks();
 
     if (clientRef?.current) {
       clientRef.current.removeAllListeners();

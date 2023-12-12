@@ -94,6 +94,15 @@ export const Provider = ({ children }) => {
       stopTracks() {
         this.audioTrack?.mediaStreamTrack.stop();
         this.videoTrack?.mediaStreamTrack.stop();
+      },
+
+      resetTracks() {
+        this.updateTracks(undefined, undefined);
+      },
+
+      stopAndResetTracks() {
+        this.stopTracks();
+        this.resetTracks();
       }
     }),
     []
