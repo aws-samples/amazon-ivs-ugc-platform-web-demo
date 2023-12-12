@@ -24,7 +24,6 @@ import { GlobalStageProvider } from './contexts/Stage';
 import {
   Channel,
   ChannelDirectory,
-  // Feed,
   Following,
   Settings,
   StreamHealth,
@@ -103,8 +102,6 @@ const router = createBrowserRouter(
             />
           </Route>
         </Route>
-        {/* <Route path="feed" element={<Feed />} /> */}
-
         {/* PRIVATE PAGES */}
         <Route element={<RequireAuth />}>
           <Route path="following" element={<Following />} />

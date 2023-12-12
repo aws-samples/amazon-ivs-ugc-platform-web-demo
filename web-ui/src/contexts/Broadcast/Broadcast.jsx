@@ -173,7 +173,7 @@ export const Provider = ({
   const toggleScreenShareThrottled = useThrottledCallback(
     toggleScreenShare,
     250
-  ); // throttled version of toggleScreenShare
+  );
 
   const stopBroadcast = useCallback(() => client?.stopBroadcast(), []);
 

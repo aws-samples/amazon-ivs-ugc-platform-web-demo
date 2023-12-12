@@ -49,7 +49,6 @@ export const MIN_USERNAME_CHARACTER_COUNT = 4;
 export const RESTRICTED_USERNAMES = [
   'health',
   'manager',
-  'feed',
   'following',
   'settings',
   'login',

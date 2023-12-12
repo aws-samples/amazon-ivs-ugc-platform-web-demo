@@ -23,7 +23,6 @@ const useHostRejoin = () => {
 
   const handleHostRejoin = useCallback(
     async (openFullscreenView) => {
-      // Show spinner
       creatingStage(true);
 
       // Generate and fetch token for the host to join
@@ -35,11 +34,8 @@ const useHostRejoin = () => {
       creatingStage(false);
 
       if (result?.token) {
-        // remove broadcast client
         removeBroadcastClient();
-
         await createStageInstanceAndJoin(result.token, channelTableStageId);
-        // open fullscreen view
         openFullscreenView();
       }
 

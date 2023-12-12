@@ -345,9 +345,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       creatingStage(false);
 
       if (result) {
-        // remove broadcast client
         removeBroadcastClient();
-
         updateShouldDisableStageButtonWithDelay(true);
         const { token, stageId } = result;
         await createStageInstanceAndJoin(token, stageId);
