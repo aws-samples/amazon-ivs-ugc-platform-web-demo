@@ -43,6 +43,7 @@ const useStageEventHandlers = ({
     (participant) => {
       const {
         attributes: {
+          channelAssetsAvatarUrl,
           type,
           channelId,
           username: participantUsername,
@@ -65,7 +66,15 @@ const useStageEventHandlers = ({
         return;
       }
 
-      addParticipant(participant);
+      const updatedParticipant = {
+        ...participant,
+        attributes: {
+          ...participant.attributes,
+          channelAssetsAvatarUrl: decodeURIComponent(channelAssetsAvatarUrl)
+        }
+      };
+
+      addParticipant(updatedParticipant);
 
       // check whether user has requested to join
       if ([PARTICIPANT_TYPES.REQUESTED].includes(type)) {

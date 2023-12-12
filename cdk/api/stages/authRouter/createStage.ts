@@ -35,7 +35,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       username: preferredUsername,
       profileColor,
       avatar,
-      channelAssetsAvatarUrlPath,
+      channelAssetsAvatarUrl,
       duration,
       userId,
       capabilities,
@@ -54,7 +54,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
             username: preferredUsername || username,
             profileColor,
             avatar,
-            channelAssetsAvatarUrlPath,
+            channelAssetsAvatarUrl,
             type
           },
           capabilities,
