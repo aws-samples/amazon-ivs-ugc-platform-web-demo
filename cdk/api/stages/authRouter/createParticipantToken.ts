@@ -51,7 +51,7 @@ const handler = async (
       username: preferredUsername,
       profileColor,
       avatar,
-      channelAssetsAvatarUrlPath,
+      channelAssetsAvatarUrl,
       duration,
       userId,
       capabilities,
@@ -74,7 +74,7 @@ const handler = async (
         username: preferredUsername || username,
         profileColor,
         avatar,
-        channelAssetsAvatarUrlPath,
+        channelAssetsAvatarUrl,
         participantTokenCreationDate: Date.now().toString(),
         type
       },

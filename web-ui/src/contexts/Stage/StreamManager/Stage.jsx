@@ -293,8 +293,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       const localParticipantObject = {
         attributes: {
           ...attributes,
-          channelAssetsAvatarUrl: !!attributes.channelAssetsAvatarUrlPath
-            ? `https://${attributes.channelAssetsAvatarUrlPath}`
+          channelAssetsAvatarUrl: !!attributes.channelAssetsAvatarUrl
+            ? decodeURIComponent(attributes.channelAssetsAvatarUrl)
             : ''
         },
         userId,

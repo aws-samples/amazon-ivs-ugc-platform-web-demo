@@ -1,5 +1,5 @@
 {
-  "channelAssetsAvatarUrlPath": "",
+  "channelAssetsAvatarUrl": "",
   "duration": 1440,
   "capabilities": ["publish", "subscribe"]
 }

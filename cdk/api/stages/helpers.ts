@@ -171,7 +171,7 @@ export const getStage = async (stageId: string, hostChannelArn?: string) => {
   }
 };
 
-export const getChannelAssetAvatarURL = (
+export const getEncodedChannelAssetAvatarURL = (
   channelAssets: ChannelAssets,
   avatar: string
 ) => {
@@ -179,7 +179,7 @@ export const getChannelAssetAvatarURL = (
     getChannelAssetUrls(channelAssets)?.[ALLOWED_CHANNEL_ASSET_TYPES[0]];
 
   return avatar === CUSTOM_AVATAR_NAME && !!channelAssetsAvatarUrl
-    ? channelAssetsAvatarUrl.split(CHANNEL_ASSET_AVATAR_DELIMITER)[1]
+    ? encodeURIComponent(channelAssetsAvatarUrl)
     : '';
 };
 
@@ -197,7 +197,7 @@ export const handleCreateStageParams = async ({
     channelAssets,
     channelArn,
     channelId = '',
-    channelAssetsAvatarUrlPath = '';
+    channelAssetsAvatarUrl = '';
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
     const { Item: UserItem = {} } = await getUser(userSub);
@@ -213,7 +213,7 @@ export const handleCreateStageParams = async ({
       channelId = getChannelId(channelArn);
     }
 
-    channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
+    channelAssetsAvatarUrl = getEncodedChannelAssetAvatarURL(
       channelAssets,
       avatar
     );
@@ -244,7 +244,7 @@ export const handleCreateStageParams = async ({
     username,
     profileColor,
     avatar,
-    channelAssetsAvatarUrlPath,
+    channelAssetsAvatarUrl,
     duration: STAGE_TOKEN_DURATION,
     userId,
     capabilities,
