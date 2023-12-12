@@ -155,7 +155,12 @@ const GoLiveStreamButton = ({
             shouldAnimateIn: !isJoiningStageByRequestOrInvite
           }
         })}
-        className={clsm(['[&>svg]:h-6', '[&>svg]:w-6', '[&>svg]:fill-white', 'dark:[&>svg]:fill-black'])}
+        className={clsm([
+          '[&>svg]:h-6',
+          '[&>svg]:w-6',
+          '[&>svg]:fill-white',
+          'dark:[&>svg]:fill-black'
+        ])}
       >
         <LeaveSession />
       </motion.div>
