@@ -87,8 +87,16 @@ export const Provider = ({ children }) => {
     dispatchPollState({ hasPollEnded: true });
   }, []);
 
-  const { votes, question, isActive, duration, expiry, startTime, delay } =
-    pollProps;
+  const {
+    votes,
+    question,
+    isActive,
+    duration,
+    expiry,
+    startTime,
+    delay,
+    pollCreatorUsername
+  } = pollProps;
   const {
     isSubmitting,
     isVoting,
@@ -126,7 +134,8 @@ export const Provider = ({ children }) => {
     expiry,
     startTime,
     isActive,
-    delay = 0
+    delay = 0,
+    pollCreatorUsername
   }) => {
     const props = {
       ...(duration && { duration }),
@@ -135,7 +144,8 @@ export const Provider = ({ children }) => {
       ...(expiry && { expiry }),
       ...(isActive && { isActive }),
       ...(startTime && { startTime }),
-      ...(delay && { delay })
+      ...(delay && { delay }),
+      ...(pollCreatorUsername && { pollCreatorUsername })
     };
 
     dispatchPollProps(props);
@@ -168,10 +178,12 @@ export const Provider = ({ children }) => {
         duration,
         startTime,
         votes: options,
-        expiry
+        expiry,
+        pollCreatorUsername
       } = savedPollData;
 
       updatePollData({
+        pollCreatorUsername,
         expiry,
         startTime,
         question,
@@ -311,6 +323,12 @@ export const Provider = ({ children }) => {
 
   const shouldRenderVoteButton = isAbleToVote && !!userData;
 
+  const viewingOwnChannel =
+    !isStreamManagerPage && userData?.username === username;
+  const isActivePollCreator =
+    isActive && pollCreatorUsername === userData?.username;
+  const shouldHideActivePoll = viewingOwnChannel && !isActivePollCreator;
+
   const shouldRenderProgressbar =
     !showFinalResults && !noVotesCaptured && !tieFound && startTime;
 
@@ -392,9 +410,12 @@ export const Provider = ({ children }) => {
       shouldRenderVoteButton,
       endPollAndResetPollProps,
       hasVotes: votes.length > 0,
-      shouldRenderProgressbar
+      shouldRenderProgressbar,
+      pollCreatorUsername,
+      shouldHideActivePoll
     }),
     [
+      pollCreatorUsername,
       isExpanded,
       pollHeight,
       containerMinHeight,
@@ -427,7 +448,8 @@ export const Provider = ({ children }) => {
       shouldRenderRadioInput,
       shouldRenderVoteButton,
       endPollAndResetPollProps,
-      shouldRenderProgressbar
+      shouldRenderProgressbar,
+      shouldHideActivePoll
     ]
   );
 

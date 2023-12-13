@@ -185,7 +185,8 @@ export const Provider = ({ children }) => {
     saveVotesToLocalStorage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps
+    endPollAndResetPollProps,
+    pollCreatorUsername
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -235,7 +236,8 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(savedPollData?.voters || {})
+        voters: JSON.stringify(savedPollData?.voters || {}),
+        pollCreatorUsername: JSON.stringify(pollCreatorUsername)
       });
     }
   }, [
@@ -245,6 +247,7 @@ export const Provider = ({ children }) => {
     isActive,
     isModerator,
     noVotesCaptured,
+    pollCreatorUsername,
     question,
     savedPollData?.voters,
     showFinalResults,
@@ -433,6 +436,7 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnMessage = room.addListener('message', (message) => {
       const {
+        sender,
         attributes: {
           pollStreamActionData = undefined,
           eventType = undefined,
@@ -455,7 +459,10 @@ export const Provider = ({ children }) => {
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
-            delay
+            delay,
+            pollCreatorUsername: JSON.parse(
+              message.attributes.pollCreatorUsername
+            )
           });
 
           const votersList = JSON.parse(message.attributes.voters);
@@ -512,11 +519,13 @@ export const Provider = ({ children }) => {
               votes: options,
               voters: {},
               isActive: true,
-              name: STREAM_ACTION_NAME.POLL
+              name: STREAM_ACTION_NAME.POLL,
+              pollCreatorUsername: sender?.userId
             });
           }
 
           updatePollData({
+            pollCreatorUsername: sender?.userId,
             duration,
             question,
             votes: options,

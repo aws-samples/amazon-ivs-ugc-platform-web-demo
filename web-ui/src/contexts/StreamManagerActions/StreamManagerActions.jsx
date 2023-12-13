@@ -19,6 +19,7 @@ import useStreamManagerActionValidation from './useStreamManagerActionValidation
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { v4 as uuidv4 } from 'uuid';
 import { usePoll } from './Poll';
+import { useUser } from '../User';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
@@ -35,6 +36,7 @@ export const Provider = ({ children }) => {
     updateSavedPollPropsOnTimerExpiry
   } = usePoll();
   const { startPoll, endPoll } = useChat();
+  const { userData } = useUser();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
 
   const {
@@ -286,7 +288,8 @@ export const Provider = ({ children }) => {
             return acc;
           }, []),
           voters: {},
-          isActive: true
+          isActive: true,
+          pollCreatorUsername: userData?.username
         };
         const result = await startPoll(pollStreamActionData);
 
