@@ -324,7 +324,7 @@ export const Provider = ({ children }) => {
   const shouldRenderVoteButton = isAbleToVote && !!userData;
 
   const viewingOwnChannel =
-    !isStreamManagerPage && userData?.trackingId?.toLowerCase() === channelId
+    !isStreamManagerPage && userData?.trackingId?.toLowerCase() === channelId;
 
   const isCreatorOfActivePoll =
     isActive && pollCreatorId === userData?.trackingId?.toLowerCase();

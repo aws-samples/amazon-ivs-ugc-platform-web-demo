@@ -459,9 +459,7 @@ export const Provider = ({ children }) => {
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
             delay,
-            pollCreatorId: JSON.parse(
-              message.attributes.pollCreatorId
-            )
+            pollCreatorId: JSON.parse(message.attributes.pollCreatorId)
           });
 
           const votersList = JSON.parse(message.attributes.voters);
