@@ -33,7 +33,7 @@ const BroadcastFullScreenVideoFeed = () => {
     >
       <motion.canvas
         animate={fullscreenAnimationControls}
-        ref={isFullScreenViewOpen ? previewRef : null}
+        ref={previewRef}
         className={clsm([
           '-translate-y-1/2',
           'absolute',
