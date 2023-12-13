@@ -134,12 +134,13 @@ const StageRequestee = ({ requestee }) => {
       <div
         className={clsm([
           'flex',
-          'sm:justify-end',
+          'items-center',
           'justify-between',
-          'w-full',
           'max-w-[200px]',
           'min-w-[96px]',
-          'items-center'
+          'sm:justify-end',
+          'sm:w-auto',
+          'w-full'
         ])}
       >
         <p className={clsm([elapsedSinceParagraphClasses, 'sm:hidden'])}>

@@ -109,6 +109,7 @@ const StageParticipant = ({ participant }) => {
           'flex',
           'justify-between',
           'w-full',
+          'sm:w-auto',
           'max-w-[200px]',
           'min-w-[136px]',
           'items-center'
