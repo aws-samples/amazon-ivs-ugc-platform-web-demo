@@ -304,9 +304,7 @@ class SettingsPageModel extends BasePageModel {
     await expect(modalHeaderLoc).toHaveText('Password updated');
 
     const modalMessageLoc = this.currentModalLoc.locator('p');
-    await expect(modalMessageLoc).toHaveText(
-      'Your password has been updated.'
-    );
+    await expect(modalMessageLoc).toHaveText('Your password has been updated.');
 
     await this.page.takeScreenshot('updated-password-notification');
 
