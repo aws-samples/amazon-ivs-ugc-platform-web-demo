@@ -201,7 +201,8 @@ const ChatPopup = ({
                   'hover:bg-lightMode-red-hover',
                   'dark:hover:bg-darkMode-red-hover'
                 ],
-                'text-black'
+                'dark:text-black',
+                'text-white'
               )}
               variant="destructive"
               onClick={handleBanUser}
