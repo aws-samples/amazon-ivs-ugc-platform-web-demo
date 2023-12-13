@@ -124,6 +124,20 @@ const Header = () => {
         >
           {icon}
         </Button>
+        {!isCollapseButton && (
+          <div
+            className={clsm([
+              '-mt-11',
+              'bg-lightMode-gray-extraLight',
+              'dark:bg-darkMode-gray-dark',
+              'h-11',
+              'rounded-[50%]',
+              'w-11',
+              'pointer-events-none',
+              isDisabled ? ['opacity-100', 'block'] : ['opacity-0', 'hidden']
+            ])}
+          />
+        )}
       </Tooltip>
     </motion.div>
   );
