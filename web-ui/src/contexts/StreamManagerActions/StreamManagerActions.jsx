@@ -289,7 +289,7 @@ export const Provider = ({ children }) => {
           }, []),
           voters: {},
           isActive: true,
-          pollCreatorUsername: userData?.username
+          pollCreatorId: userData?.trackingId?.toLowerCase()
         };
         const result = await startPoll(pollStreamActionData);
 

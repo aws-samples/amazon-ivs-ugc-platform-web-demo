@@ -186,7 +186,7 @@ export const Provider = ({ children }) => {
     savePollDataToLocalStorage,
     dispatchPollState,
     endPollAndResetPollProps,
-    pollCreatorUsername
+    pollCreatorId
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -237,7 +237,7 @@ export const Provider = ({ children }) => {
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
         voters: JSON.stringify(savedPollData?.voters || {}),
-        pollCreatorUsername: JSON.stringify(pollCreatorUsername)
+        pollCreatorId: JSON.stringify(pollCreatorId)
       });
     }
   }, [
@@ -247,7 +247,7 @@ export const Provider = ({ children }) => {
     isActive,
     isModerator,
     noVotesCaptured,
-    pollCreatorUsername,
+    pollCreatorId,
     question,
     savedPollData?.voters,
     showFinalResults,
@@ -436,7 +436,6 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnMessage = room.addListener('message', (message) => {
       const {
-        sender,
         attributes: {
           pollStreamActionData = undefined,
           eventType = undefined,
@@ -460,8 +459,8 @@ export const Provider = ({ children }) => {
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
             delay,
-            pollCreatorUsername: JSON.parse(
-              message.attributes.pollCreatorUsername
+            pollCreatorId: JSON.parse(
+              message.attributes.pollCreatorId
             )
           });
 
@@ -507,7 +506,8 @@ export const Provider = ({ children }) => {
             question,
             expiry,
             startTime,
-            delay: del = 0
+            delay: del = 0,
+            pollCreatorId
           } = JSON.parse(pollStreamActionData);
 
           if (isModerator && isStreamManagerPage) {
@@ -520,12 +520,12 @@ export const Provider = ({ children }) => {
               voters: {},
               isActive: true,
               name: STREAM_ACTION_NAME.POLL,
-              pollCreatorUsername: sender?.userId
+              pollCreatorId
             });
           }
 
           updatePollData({
-            pollCreatorUsername: sender?.userId,
+            pollCreatorId,
             duration,
             question,
             votes: options,

@@ -95,7 +95,7 @@ export const Provider = ({ children }) => {
     expiry,
     startTime,
     delay,
-    pollCreatorUsername
+    pollCreatorId
   } = pollProps;
   const {
     isSubmitting,
@@ -135,7 +135,7 @@ export const Provider = ({ children }) => {
     startTime,
     isActive,
     delay = 0,
-    pollCreatorUsername
+    pollCreatorId
   }) => {
     const props = {
       ...(duration && { duration }),
@@ -145,7 +145,7 @@ export const Provider = ({ children }) => {
       ...(isActive && { isActive }),
       ...(startTime && { startTime }),
       ...(delay && { delay }),
-      ...(pollCreatorUsername && { pollCreatorUsername })
+      ...(pollCreatorId && { pollCreatorId })
     };
 
     dispatchPollProps(props);
@@ -179,11 +179,11 @@ export const Provider = ({ children }) => {
         startTime,
         votes: options,
         expiry,
-        pollCreatorUsername
+        pollCreatorId
       } = savedPollData;
 
       updatePollData({
-        pollCreatorUsername,
+        pollCreatorId,
         expiry,
         startTime,
         question,
@@ -324,10 +324,11 @@ export const Provider = ({ children }) => {
   const shouldRenderVoteButton = isAbleToVote && !!userData;
 
   const viewingOwnChannel =
-    !isStreamManagerPage && userData?.username === username;
-  const isActivePollCreator =
-    isActive && pollCreatorUsername === userData?.username;
-  const shouldHideActivePoll = viewingOwnChannel && !isActivePollCreator;
+    !isStreamManagerPage && userData?.trackingId?.toLowerCase() === channelId
+
+  const isCreatorOfActivePoll =
+    isActive && pollCreatorId === userData?.trackingId?.toLowerCase();
+  const shouldHideActivePoll = viewingOwnChannel && !isCreatorOfActivePoll;
 
   const shouldRenderProgressbar =
     !showFinalResults && !noVotesCaptured && !tieFound && startTime;
@@ -411,11 +412,11 @@ export const Provider = ({ children }) => {
       endPollAndResetPollProps,
       hasVotes: votes.length > 0,
       shouldRenderProgressbar,
-      pollCreatorUsername,
+      pollCreatorId,
       shouldHideActivePoll
     }),
     [
-      pollCreatorUsername,
+      pollCreatorId,
       isExpanded,
       pollHeight,
       containerMinHeight,
