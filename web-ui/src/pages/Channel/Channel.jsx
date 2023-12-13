@@ -49,7 +49,8 @@ const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
-  const { channelError, channelData: { stageId, channelArn, username } = {} } =
+  const shouldFetchSpectatorTokenRef = useRef(true);
+  const { channelError, channelData: { stageId, channelArn } = {} } =
     useChannel();
   const {
     strategy,
@@ -170,37 +171,31 @@ const Channel = () => {
    * IVS Real-time streaming
    */
   useEffect(() => {
-    const isRealTimeStreamActive = stageId && prevStageId !== stageId;
-    const isRealTimeStreamEnded = !stageId && prevStageId;
+    if (!shouldFetchSpectatorTokenRef.current || !stageId) return;
 
-    if (isRealTimeStreamActive) {
-      (async function () {
-        try {
-          const { result } = await retryWithExponentialBackoff({
-            promiseFn: () => getSpectatorToken(stageId),
-            maxRetries: 3
-          });
+    shouldFetchSpectatorTokenRef.current = false;
 
-          if (result?.token) {
-            await joinStageClient({
-              token: result.token,
-              strategy
-            });
-            shouldDisplayStagePlayerRef.current = true;
-          }
-        } catch (err) {
-          updateError({
-            message: $playerContent.notification.error.error_loading_stream,
-            err
+    (async function () {
+      try {
+        const { result } = await retryWithExponentialBackoff({
+          promiseFn: () => getSpectatorToken(stageId),
+          maxRetries: 3
+        });
+
+        if (result?.token) {
+          await joinStageClient({
+            token: result.token,
+            strategy
           });
+          shouldDisplayStagePlayerRef.current = true;
         }
-      })();
-    }
-
-    if (isRealTimeStreamEnded) {
-      resetAllStageState();
-      leaveStageClient();
-    }
+      } catch (err) {
+        updateError({
+          message: $playerContent.notification.error.error_loading_stream,
+          err
+        });
+      }
+    })();
   }, [
     joinStageClient,
     leaveStageClient,
@@ -211,6 +206,17 @@ const Channel = () => {
     resetParticipants,
     updateError
   ]);
+
+  useEffect(() => {
+    const isRealTimeStreamEnded =
+      (!stageId && prevStageId) || stageId !== prevStageId;
+
+    if (isRealTimeStreamEnded) {
+      leaveStageClient();
+      resetAllStageState();
+      shouldFetchSpectatorTokenRef.current = true;
+    }
+  }, [leaveStageClient, prevStageId, resetAllStageState, stageId]);
 
   // Triggered when navigating away from the channel page
   useEffect(() => {

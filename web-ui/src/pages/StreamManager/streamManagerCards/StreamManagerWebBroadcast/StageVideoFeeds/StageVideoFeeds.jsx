@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import StageVideo from './StageVideo';
 
 import { clsm } from '../../../../../utils';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import {
+  ANIMATION_DURATION,
+  useBroadcastFullScreen
+} from '../../../../../contexts/BroadcastFullscreen';
 import InviteParticipant from './InviteParticipant';
 import './StageVideoGrid.css';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
@@ -21,7 +24,6 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 const StageVideoFeeds = ({ styles, type }) => {
   const { participants, isJoiningStageByRequestOrInvite, isRequestedUserType } =
     useGlobalStage();
-
   const {
     isFullScreenViewOpen,
     fullscreenAnimationControls,
@@ -32,7 +34,8 @@ const StageVideoFeeds = ({ styles, type }) => {
   const participantSize = participantList.length;
   const stageVideoFeedsRef = useRef();
   const { parentRef: containerRef } = useCalculatedAspectRatio({
-    childRef: stageVideoFeedsRef
+    childRef: stageVideoFeedsRef,
+    delay: (ANIMATION_DURATION + 100) * 100
   });
   const { pathname } = useLocation();
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
