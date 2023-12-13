@@ -27,8 +27,7 @@ const UnmuteButtonOverLay = () => {
         'flex',
         'justify-center',
         'items-center',
-        'bg-black-unmuteButtonOverlay',
-        'rounded-xl'
+        'bg-black-unmuteButtonOverlay'
       ])}
     >
       <Button
