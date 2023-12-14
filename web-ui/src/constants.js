@@ -364,6 +364,9 @@ export const LOCAL_STAGE_STREAM_OPTIONS = {
   }
 };
 
+export const PARTICIPANT_TYPE_HOST = 'host';
+export const PARTICIPANT_TYPE_SCREENSHARE = 'screenshare';
+
 /**
  * CHANNEL DIRECTORY, FOLLOWING
  */

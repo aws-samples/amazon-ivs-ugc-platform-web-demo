@@ -15,7 +15,7 @@ import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
-const InviteParticipant = ({ type }) => {
+const InviteParticipant = ({ type, className, hideText }) => {
   const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { isTouchscreenDevice, isDesktopView, isDefaultResponsiveView } =
     useResponsiveDevice();
@@ -31,12 +31,14 @@ const InviteParticipant = ({ type }) => {
   return (
     <div
       className={clsm([
+        '@container/invite-participant-container',
         'dark:bg-darkMode-gray-medium',
         'bg-lightMode-gray-light',
         'flex',
         'justify-center',
         'items-center',
-        isFullscreenType ? 'rounded-xl' : 'rounded'
+        isFullscreenType ? 'rounded-xl' : 'rounded',
+        className
       ])}
     >
       {!isJoiningStageByRequestOrInvite && shouldRenderInviteLinkButton && (
@@ -56,8 +58,10 @@ const InviteParticipant = ({ type }) => {
                 disableHover={isTouchscreenDevice}
                 className={clsm([
                   '-mt-1',
-                  'w-11',
-                  'h-11',
+                  'w-7',
+                  'h-7',
+                  '@[44px]/invite-participant-container:w-11',
+                  '@[44px]/invite-participant-container:h-11',
                   'dark:[&>svg]:fill-white',
                   '[&>svg]:fill-black',
                   'dark:bg-darkMode-gray',
@@ -70,42 +74,51 @@ const InviteParticipant = ({ type }) => {
               </Button>
             </div>
           </Tooltip>
-          <motion.h4
-            {...createAnimationProps({
-              customVariants: {
-                hidden: {
-                  opacity: 0,
-                  transitionEnd: { display: 'none' }
-                },
-                visible: {
-                  display: 'block',
-                  opacity: 1,
-                  transition: {
-                    delay: 0.1
+          {!hideText && (
+            <motion.h4
+              {...createAnimationProps({
+                customVariants: {
+                  hidden: {
+                    opacity: 0,
+                    transitionEnd: { display: 'none' }
+                  },
+                  visible: {
+                    display: 'block',
+                    opacity: 1,
+                    transition: {
+                      delay: 0.1
+                    }
                   }
+                },
+                options: {
+                  isVisible: shouldRenderInviteParticipantText
                 }
-              },
-              options: {
-                isVisible: shouldRenderInviteParticipantText
-              }
-            })}
-            className={clsm([
-              '!hidden',
-              'font-bold',
-              'mt-2',
-              'cursor-default',
-              '@md/video-container:!block'
-            ])}
-          >
-            {$stageContent.invite_participant}
-          </motion.h4>
+              })}
+              className={clsm([
+                '!hidden',
+                'font-bold',
+                'mt-2',
+                'cursor-default',
+                '@md/video-container:!block'
+              ])}
+            >
+              {$stageContent.invite_participant}
+            </motion.h4>
+          )}
         </div>
       )}
     </div>
   );
 };
 
+InviteParticipant.defaultProps = {
+  className: '',
+  hideText: false
+};
+
 InviteParticipant.propTypes = {
+  className: PropTypes.string,
+  hideText: PropTypes.bool,
   type: PropTypes.oneOf(['golive', 'fullscreen']).isRequired
 };
 

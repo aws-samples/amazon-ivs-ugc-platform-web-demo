@@ -11,6 +11,7 @@ import useThrottledCallback from '../../../hooks/useThrottledCallback';
 import { useGlobalStage } from '..';
 import { useBroadcast } from '../../Broadcast';
 import useStageScreenshare from '../../../pages/StreamManager/hooks/useStageScreenshare';
+import { PARTICIPANT_TYPE_HOST } from '../../../constants';
 
 const $contentStageConfirmationModal =
   $streamManagerContent.stream_manager_stage.leave_stage_modal;
@@ -42,7 +43,8 @@ const useStageControls = ({
   const prevMicrophoneDevices = usePrevious(microphoneDevices);
   const prevActiveCameraDevice = usePrevious(activeCameraDevice);
   const prevActiveMicrophoneDevice = usePrevious(activeMicrophoneDevice);
-  const isStageHost = localParticipant?.attributes?.type === 'host';
+  const isStageHost =
+    localParticipant?.attributes?.type === PARTICIPANT_TYPE_HOST;
 
   const toggleCamera = useThrottledCallback(() => {
     toggleCameraState(LOCAL_KEY);

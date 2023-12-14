@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import { clsm, isTextColorInverted } from '../../../../../utils';
+import { streamManager as $content } from '../../../../../content';
 
 /*
   This color mapper to is added to fix a problem with Tailwind container queries when using string literals. 
@@ -27,32 +28,43 @@ const MODAL_PROFILE_COLOR_CLASSNAME_MAPPER = {
   lavender: '[&>img]:ring-profile-lavender'
 };
 
+const textStyles = [
+  '@stage-video-lg/screenshare:drop-shadow-none',
+  '@stage-video-lg/video:drop-shadow-none',
+  '@stage-video-xl/screenshare:font-bold',
+  '@stage-video-xl/screenshare:text-p1',
+  '@stage-video-xl/video:font-bold',
+  '@stage-video-xl/video:text-p1',
+  'drop-shadow-xl',
+  'font-bold',
+  'text-p2'
+];
+
 export const STAGE_PROFILE_TYPES = {
   FULLSCREEN_VIDEO_FEED: 'fullScreenVideoFeed',
   PARTICIPANTS_MODAL: 'participantsModal'
 };
+
+const $streamManagerStage = $content.stream_manager_stage;
 
 const StageProfilePill = ({
   profileColor,
   avatarSrc,
   username,
   type,
-  className,
   isScreenshare
 }) => {
-  const shouldInvertColors = isTextColorInverted(profileColor);
+  const shouldInvertColors = !!profileColor
+    ? isTextColorInverted(profileColor)
+    : true;
 
   return (
     <div
       className={clsm([
-        '[&>h3]:drop-shadow-xl',
-        '[&>h3]:font-bold',
-        '[&>h3]:text-p2',
-        '[&>h3]:truncate',
         '[&>img]:rounded-full',
         type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
           '[&>img]:hidden',
-          '@stage-video-lg/video:[&>h3]:drop-shadow-none',
+          // @container video
           '@stage-video-lg/video:[&>img]:block',
           '@stage-video-lg/video:[&>img]:h-6',
           '@stage-video-lg/video:[&>img]:w-6',
@@ -61,41 +73,71 @@ const StageProfilePill = ({
           '@stage-video-lg/video:pr-2',
           '@stage-video-lg/video:py-1',
           '@stage-video-md/video:visible',
-          '@stage-video-xl/video:[&>h3]:font-bold',
-          '@stage-video-xl/video:[&>h3]:text-p1',
           '@stage-video-xl/video:[&>img]:h-8',
           '@stage-video-xl/video:[&>img]:w-8',
           '@stage-video-xl/video:max-w-[168px]',
+          // @container screenshare
+          '@stage-video-lg/screenshare:[&>img]:block',
+          '@stage-video-lg/screenshare:[&>img]:h-6',
+          '@stage-video-lg/screenshare:[&>img]:w-6',
+          '@stage-video-lg/screenshare:pl-1',
+          '@stage-video-lg/screenshare:pr-2',
+          '@stage-video-lg/screenshare:py-1',
+          '@stage-video-md/screenshare:visible',
+          '@stage-video-xl/screenshare:[&>img]:h-8',
+          '@stage-video-xl/screenshare:[&>img]:w-8',
           'invisible',
-          'text-white',
-          shouldInvertColors
-            ? '@stage-video-lg/video:text-white'
-            : '@stage-video-lg/video:text-black'
+          isScreenshare ? ['text-black', 'dark:text-white'] : 'text-white',
+          isScreenshare
+            ? ''
+            : shouldInvertColors
+            ? [
+                '@stage-video-lg/video:text-white',
+                '@stage-video-lg/screenshare:text-white'
+              ]
+            : [
+                '@stage-video-lg/video:text-black',
+                '@stage-video-lg/screenshare:text-black'
+              ]
         ],
         'flex',
         'gap-1',
         'items-center',
-        'max-w-[80px]',
+        !isScreenshare && 'max-w-[80px]',
         'rounded-3xl',
         'w-auto',
-        STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
-          '[&>img]:ring-2',
-          MODAL_PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
-        ],
-        !isScreenshare && PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
-        className,
-        isScreenshare && ['!text-white', '![&>h3]:drop-shadow-xl']
+        STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL &&
+          !!profileColor && [
+            '[&>img]:ring-2',
+            MODAL_PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+          ],
+        !isScreenshare &&
+          !!profileColor &&
+          PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
       ])}
     >
       {!isScreenshare && <img src={avatarSrc} alt="" />}
-      <h3>{username}</h3>
+      <h3
+        className={clsm([
+          '@stage-video-lg/screenshare:max-w-[120px]',
+          '@stage-video-xl/screenshare:max-w-[168px]',
+          'truncate',
+          textStyles
+        ])}
+      >
+        {username}
+      </h3>
+      {isScreenshare && (
+        <h3 className={clsm(['whitespace-nowrap', textStyles])}>
+          {$streamManagerStage.screenshare}
+        </h3>
+      )}
     </div>
   );
 };
 
 StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: '',
   profileColor: '',
   avatarSrc: '',
   isScreenshare: false
@@ -105,8 +147,7 @@ StageProfilePill.propTypes = {
   avatarSrc: PropTypes.string,
   username: PropTypes.string.isRequired,
   isScreenshare: PropTypes.bool,
-  type: PropTypes.string,
-  className: PropTypes.string
+  type: PropTypes.string
 };
 
 export default StageProfilePill;

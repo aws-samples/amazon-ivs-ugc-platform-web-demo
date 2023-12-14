@@ -10,12 +10,10 @@ import {
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { getAvatarSrc } from '../../../../../helpers';
-import { MicOff, VideoCameraOff } from '../../../../../assets/icons';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
 import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
 import { useGlobalStage } from '../../../../../contexts/Stage';
-import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -23,20 +21,15 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const StageVideo = ({ type, participantKey, className }) => {
+const ScreenshareVideo = ({ type, participantKey, className }) => {
   const videoRef = useRef(null);
   const { participants, isChannelStagePlayerMuted } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 
   const participant = participants.get(participantKey);
-  const { streams, isCameraHidden, isMicrophoneMuted, attributes } =
-    participant;
-  const {
-    profileColor = null,
-    username = null,
-    type: userType
-  } = attributes || {};
+  const { streams, attributes } = participant;
+  const { username = null } = attributes || {};
   const avatarSrc = getAvatarSrc(attributes);
 
   const isFullscreenType = type === STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN;
@@ -102,14 +95,13 @@ const StageVideo = ({ type, participantKey, className }) => {
   return (
     <div
       className={clsm([
-        '@container/video',
-        'grid',
+        '@container/screenshare',
         'h-full',
         'overflow-hidden',
         'relative',
         isFullscreenType || isChannelType ? 'rounded-xl' : 'rounded',
         'w-full',
-        'aspect-video',
+        'flex-1',
         className
       ])}
     >
@@ -119,9 +111,9 @@ const StageVideo = ({ type, participantKey, className }) => {
         className={clsm([
           'aspect-video',
           'col-span-full',
-          'object-cover',
           'row-span-full',
-          isCameraHidden ? 'hidden' : ['w-full', 'h-full']
+          'w-full',
+          'h-full'
         ])}
         playsInline
         {...(isChannelType && { muted: isChannelStagePlayerMuted })}
@@ -137,10 +129,10 @@ const StageVideo = ({ type, participantKey, className }) => {
               transition: fullscreenViewTransition
             })}
             className={clsm([
-              '@stage-video-lg/video:px-4',
-              '@stage-video-lg/video:top-4',
-              '@stage-video-xl/video:px-6',
-              '@stage-video-xl/video:top-6',
+              '@stage-video-lg/screenshare:px-4',
+              '@stage-video-lg/screenshare:top-4',
+              '@stage-video-xl/screenshare:px-6',
+              '@stage-video-xl/screenshare:top-6',
               'absolute',
               'flex',
               'h-auto',
@@ -155,53 +147,14 @@ const StageVideo = ({ type, participantKey, className }) => {
               <StageProfilePill
                 type={STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED}
                 avatarSrc={avatarSrc}
-                profileColor={profileColor}
                 username={username}
-                isScreenshare={userType === PARTICIPANT_TYPES.SCREENSHARE}
+                isScreenshare
               />
-            )}
-            {isMicrophoneMuted && (
-              <div
-                className={clsm([
-                  'invisible',
-                  '[&>svg]:fill-white',
-                  'bg-modalOverlay',
-                  'flex',
-                  'items-center',
-                  'justify-center',
-                  'rounded-full',
-                  'h-6',
-                  'w-6',
-                  '[&>svg]:h-4',
-                  '[&>svg]:w-4',
-                  '@stage-video-sm/video:visible'
-                ])}
-              >
-                <MicOff />
-              </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
-      <div
-        className={clsm([
-          'bg-lightMode-gray-light',
-          'dark:bg-darkMode-gray-medium',
-          '[&>svg]:fill-lightMode-gray-medium',
-          'dark:[&>svg]:fill-darkMode-gray-light',
-          'col-span-full',
-          'fill-modalOverlay',
-          'flex',
-          'items-center',
-          'justify-center',
-          'row-span-full',
-          'rounded',
-          isCameraHidden ? ['w-full', 'h-full'] : 'hidden'
-        ])}
-      >
-        <VideoCameraOff />
-      </div>
-      {isLoading && !isCameraHidden && (
+      {isLoading && (
         <div
           className={clsm([
             'bg-lightMode-gray-light',
@@ -228,14 +181,14 @@ const StageVideo = ({ type, participantKey, className }) => {
   );
 };
 
-StageVideo.defaultProps = {
+ScreenshareVideo.defaultProps = {
   className: ''
 };
 
-StageVideo.propTypes = {
+ScreenshareVideo.propTypes = {
   participantKey: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['golive', 'fullscreen', 'channel']).isRequired,
   className: PropTypes.string
 };
 
-export default StageVideo;
+export default ScreenshareVideo;
