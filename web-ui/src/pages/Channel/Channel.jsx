@@ -203,7 +203,7 @@ const Channel = () => {
 
   useEffect(() => {
     const isRealTimeStreamEnded =
-      (!stageId && prevStageId) || stageId !== prevStageId;
+      (!stageId && prevStageId) || (prevStageId && prevStageId !== stageId);
 
     if (isRealTimeStreamEnded) {
       leaveStageClient();
