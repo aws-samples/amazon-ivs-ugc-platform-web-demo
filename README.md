@@ -28,12 +28,13 @@ Deploying the CDK stack will:
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 - create the Secrets Manager with the necessary secret(s) depending on the enabled features
+- create EventBridge rules to schedule an IVS Real-time streaming idle stage cleanup Lambda and a Cognito unverified users cleanup Lambda
 
 ## Quick links 🔗
 
 - [Configure the demo](#configuration)
 - [Deploy the demo](#deployment)
-- [Known limitations](#limitations)
+- [Limitations and known issues](#limitations-and-known-issues)
 
 ## Architecture
 
@@ -106,6 +107,12 @@ Note: The processing of votes happens on the streamer's side while they are on t
 
 ![Poll stream action architecture](screenshots/architecture//poll.png)
 
+#### Viewing a real-time stream
+
+Users can spectate a live [IVS Web Broadcast Real-time stream](#real-time-streaming). To participate in a collaborative session, spectators first need to authenticate. Subsequently, they can submit a request by clicking on the "Request to join" button on the channel page.  Notification of the request to the host is managed by [AWS AppSync](https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html). When the host accepts the request, the spectator will be automatically routed to the "Ready to join?" modal view for collaboration.
+
+![Poll stream action architecture](screenshots/features/collaborate-stream.png)
+
 ### Stream health monitoring
 
 The Stream Health page is only accessible to authenticated users, from the `/health` URL. It enables streamers to monitor live and past stream sessions. For each session, the page will show the stream events, the video bitrate and frame rate in the form of charts and a summary of the encoder configuration at the time of go-live. [Learn more](https://docs.aws.amazon.com/ivs/latest/userguide/stream-health.html)
@@ -134,27 +141,43 @@ The stream management page is only accessible to authenticated users, from the `
 
 Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use both low-latency and real-time streaming features.
 
-##### Low-latency streaming
+#### Low-latency streaming
 
 Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
 
-##### Real-time streaming
+![IVS Low-latency streaming](screenshots/features/stream-manager-page-live.png)
 
-Users can toggle their camera and microphone. Inside Settings, users can change the camera and microphone device used. On desktop browser sizes, the "full-screen" view will automatically expand when a collaborate session is joined. The user can invite other users to a session through a session link. A maximum of 12 participants can publish to a session. Once a session is full, any new participant will join as a spectator.
+#### Real-time streaming
 
-![IVS Real-time](screenshots/architecture/ivs-real-time.png)
+Users can toggle their camera and microphone. Within the settings, users can change the camera and microphone device used. The "full-screen" view will automatically expand when a collaborate session is started or joined. Once a collaborate session has started, the collaborate stream will go live and can be viewed on the channel page by other users.
+
+Participants can join a collaborate session by requesting access from the channel page or using an invitation via a session link. Hosts and invited participants who joined using a session link can use the "copy session link" button. A maximum of 12 participants can publish to a session. Once a session is full, any new participant will join as a spectator.
+
+![IVS Real-time collaborate](screenshots/features/collaborate.png)
+
+As a host, clicking on the "Participants" button opens a modal displaying actively publishing users and pending join requests. Within this modal, the host can remove session participants, reject requests, and view camera/microphone status.
+
+![IVS Real-time participants modal](screenshots/features/collaborate-participants.png)
+
+Non-host participants will initially encounter a "Ready to join?" modal, providing the option to change devices and device status before joining the session.
+
+![IVS Real-time join modal](screenshots/features/collaborate-join.png)
+
+Creating and joining a real-time session is accomplished using [Amazon IVS Web Broadcast Real-time streaming](https://docs.aws.amazon.com/ivs/latest/RealTimeUserGuide/what-is.html). 
+
+![IVS Real-time architecture diagram](screenshots/architecture/ivs-real-time.png)
 
 Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/).
 
-Read about [web broadcast known issues and limitations](#web-broadcast-known-issues).
+Read about [web broadcast known issues and limitations](#limitations-and-known-issues).
 
 #### Chat monitoring
 
-The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#chat))
+The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#stream-chat).
 
 #### Stream overlay configuration
 
-Streamers can trigger [overlays](#stream-overlays). Only one stream action can be active at a time. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
+Streamers can trigger [overlays](#stream-overlays). Only one stream action can be active at a time. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action. While a real-time stream is live, only a poll can be activated, and the rest of the stream action buttons are disabled.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
@@ -223,7 +246,7 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    "enableAmazonProductStreamAction": true
    ```
 
-- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the [Amazon PAAPI 5 documentation](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region).
 
    Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
@@ -250,11 +273,11 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 ### Configuring cdk.json to enable the Amazon Product stream action
 
-1. Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
+1. Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html).
 
 2. Once accepted, you may set the value of `enableAmazonProductStreamAction` to true.
 
-3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following [link](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region).
 
    Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
@@ -274,18 +297,32 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
    Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
 
+### Setting your AppSync GraphQL API credentials
+
+For improved communication between a stage host and a requestee (for example, retracting a previously submitted join request to the stage host), it is recommended to configure your AppSync GraphQL API credentials within the AWS console's Secrets Manager. To do this, follow these steps:
+
+1. Navigate to the AWS console's Secrets Manager (AWS Secrets Manager > Secrets).
+
+2. Identify the secret named AppSyncGraphQLAPISecretKeys followed by a unique string generated during deployment, and click on it.
+
+3. Scroll down the page and select "Retrieve secret value."
+
+4. Choose "Edit" and configure your apiKey and graphQlApiEndpoint. Retrieve these values from the CDK deployment output or visit AWS AppSync in the console. To locate your API key and endpoint, click on your API then navigate to Settings.
+
+5. Save your changes by clicking on the "Save" button.
+
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
-1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets)
+1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
-2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it
+2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.
 
-3. Scroll down the page and click "Retrieve secret value"
+3. Scroll down the page and click "Retrieve secret value".
 
-4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID)
+4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID).
 
-5. Click Save
+5. Click Save.
 
 ![Set your credentials](screenshots/features/secrets-manager.png)
 
@@ -456,7 +493,7 @@ Currently, the E2E testing suite covers only the most common user management flo
 
 Testing is automated using two GitHub Actions workflows: one for running the backend unit tests (`backend-unit-test-on-pull-request`) and another for running the E2E tests (`e2e-test-on-pull-request`). Each workflow is configured to run on every pull request made to the `master` branch. Additionally, to save on GitHub Actions execution minutes, the backend unit testing workflow is run only if changes were made to the files inside the `cdk/api` directory, and the E2E testing workflow is run only if changes were made to the files inside the `web-ui` directory. In the instance that the E2E workflow fails at the testing step, an artifact will be generated containing the playwright test report. These artifacts have a retention period of 7 days, after which they are automatically deleted from the workflow run results.
 
-## Limitations
+## Limitations and known issues
 
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - Backend: In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
@@ -473,7 +510,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - Backend: The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 
 - Web Broadcast: Currently set to 720p resolution to ensure best performance across a wide range of devices.
-- Web Broadcast: For other Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
+- Web Broadcast: For additional information on known issues and workarounds, please refer to the [Low-latency streaming known-issues SDK page](https://aws.github.io/amazon-ivs-web-broadcast/docs/low-latency-sdk-guides/known-issues) or [Real-time streaming known-issues SDK page](https://aws.github.io/amazon-ivs-web-broadcast/docs/real-time-sdk-guides/known-issues) in the Amazon IVS Web Broadcast documentation."
 
 - iOS: devices do not currently support the fullscreen API, which prevents a fullscreen player experience that includes custom player controls and header.
 - iOS: the volume level of the video player is always under the user's physical control and not settable using JavaScript.
@@ -482,6 +519,14 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
   Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
+
+- Mozilla Firefox: While navigating through the app on pages that necessitate microphone and camera permissions, a size window on occasion appears, revealing an XML Parsing error at the top left corner of the screen.
+
+XML Parsing Error: no root element found
+Location: chrome://browser/content/webrtcLegacyIndicator.xhtml
+Line Number: 1, Column 1:
+
+For more details see [here](https://bugzilla.mozilla.org/show_bug.cgi?id=1639821).
 
 ## Services Used
 
@@ -498,6 +543,8 @@ Below is a list of the all the services used for the UGC Demo.
 - [Lambda](https://aws.amazon.com/lambda/pricing/)
 - [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)
 - [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)
+- [AppSync](https://aws.amazon.com/appsync/pricing/)
+- [Simple Queue Service](https://aws.amazon.com/sqs/pricing/)
 
 <br>
 The following is a detailed usage-based summary. Use it as a guide to estimate project costs.
