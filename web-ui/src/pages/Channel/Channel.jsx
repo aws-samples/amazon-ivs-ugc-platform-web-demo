@@ -117,7 +117,13 @@ const Channel = () => {
     shouldRenderActionInTab,
     isChannelPageStackedView
   } = useViewerStreamActions();
-  const { isActive: isPollActive, pollTabLabel, hasVotes } = usePoll();
+  const {
+    isActive: isPollActive,
+    pollTabLabel,
+    hasVotes,
+    shouldHideActivePoll
+  } = usePoll();
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -375,7 +381,9 @@ const Channel = () => {
                       {hasVotes && (
                         <NotificationProvider>
                           <ChatProvider>
-                            <Poll shouldRenderInTab={true} />
+                            {!shouldHideActivePoll && (
+                              <Poll shouldRenderInTab={true} />
+                            )}
                           </ChatProvider>
                         </NotificationProvider>
                       )}
@@ -433,7 +441,9 @@ const Channel = () => {
                 >
                   <NotificationProvider>
                     <ChatProvider>
-                      {!isTabView && hasVotes && <Poll />}
+                      {!isTabView && hasVotes && !shouldHideActivePoll && (
+                        <Poll />
+                      )}
                       <Chat
                         shouldRunCelebration={
                           currentViewerStreamActionName ===
