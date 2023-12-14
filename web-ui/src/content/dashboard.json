@@ -148,7 +148,7 @@
     },
     "password_updated_modal": {
       "password_updated": "Password updated",
-      "confirmation_message": "Your password has been updated. This change will log out your sessions on all other devices.",
+      "confirmation_message": "Your password has been updated.",
       "okay": "Okay"
     },
     "live_stream_ended_modal": {

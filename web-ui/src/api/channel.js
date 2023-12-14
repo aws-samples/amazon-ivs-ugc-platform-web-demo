@@ -381,3 +381,9 @@ export const unfollowChannel = async (followedUsername) =>
     url: `${apiBaseUrl}/channel/followingList/remove`,
     body: { followedUsername }
   });
+
+export const getChannelLiveStatus = async () =>
+  await authFetch({
+    method: 'GET',
+    url: `${apiBaseUrl}/channel/liveStatus`
+  });

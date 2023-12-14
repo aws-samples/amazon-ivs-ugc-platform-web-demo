@@ -7,18 +7,19 @@ import { ChevronDown, ChevronUp, ExpandScreen } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import Button from '../../../../components/Button/Button';
-import { useStage } from '../../../../contexts/Stage';
+import { useStreamManagerStage } from '../../../../contexts/Stage';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
+import { useGlobalStage } from '../../../../contexts/Stage';
 
 const GoLiveHeader = ({ onCollapse }) => {
   const { isBroadcasting, resetPreview } = useBroadcast();
+  const { isStageActive } = useStreamManagerStage();
   const {
-    isStageActive,
-    animateCollapseStageContainerWithDelay,
     collaborateButtonAnimationControls,
+    animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon
-  } = useStage();
+  } = useGlobalStage();
   const {
     handleToggleFullscreen,
     isFullScreenViewOpen,

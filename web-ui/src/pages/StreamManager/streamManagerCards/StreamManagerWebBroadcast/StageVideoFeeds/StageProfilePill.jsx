@@ -17,55 +17,106 @@ const PROFILE_COLOR_CLASSNAME_MAPPER = {
   lavender: '@stage-video-lg/video:bg-profile-lavender'
 };
 
-const StageProfilePill = ({ profileColor, avatarSrc, username }) => {
+const MODAL_PROFILE_COLOR_CLASSNAME_MAPPER = {
+  blue: '[&>img]:ring-profile-blue',
+  purple: '[&>img]:ring-profile-purple',
+  yellow: '[&>img]:ring-profile-yellow',
+  green: '[&>img]:ring-profile-green',
+  salmon: '[&>img]:ring-profile-salmon',
+  turquoise: '[&>img]:ring-profile-turquoise',
+  lavender: '[&>img]:ring-profile-lavender'
+};
+
+export const STAGE_PROFILE_TYPES = {
+  FULLSCREEN_VIDEO_FEED: 'fullScreenVideoFeed',
+  PARTICIPANTS_MODAL: 'participantsModal'
+};
+
+const StageProfilePill = ({
+  avatarSrc,
+  className,
+  profileColor,
+  subEl,
+  textClassName,
+  type,
+  username
+}) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
 
   return (
     <div
       className={clsm([
-        '[&>h3]:drop-shadow-xl',
-        '[&>h3]:font-bold',
-        '[&>h3]:text-p2',
-        '[&>h3]:truncate',
-        '[&>img]:hidden',
         '[&>img]:rounded-full',
-        '@stage-video-lg/video:[&>h3]:drop-shadow-none',
-        '@stage-video-lg/video:[&>img]:block',
-        '@stage-video-lg/video:[&>img]:h-6',
-        '@stage-video-lg/video:[&>img]:w-6',
-        '@stage-video-lg/video:max-w-[120px]',
-        '@stage-video-lg/video:pl-1',
-        '@stage-video-lg/video:pr-2',
-        '@stage-video-lg/video:py-1',
-        '@stage-video-md/video:visible',
-        '@stage-video-xl/video:[&>h3]:font-bold',
-        '@stage-video-xl/video:[&>h3]:text-p1',
-        '@stage-video-xl/video:[&>img]:h-8',
-        '@stage-video-xl/video:[&>img]:w-8',
-        '@stage-video-xl/video:max-w-[168px]',
+        type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+          '[&>img]:hidden',
+          '@stage-video-lg/video:[&>img]:block',
+          '@stage-video-lg/video:[&>img]:h-6',
+          '@stage-video-lg/video:[&>img]:w-6',
+          '@stage-video-lg/video:max-w-[120px]',
+          '@stage-video-lg/video:pl-1',
+          '@stage-video-lg/video:pr-2',
+          '@stage-video-lg/video:py-1',
+          '@stage-video-md/video:visible',
+          '@stage-video-xl/video:[&>img]:h-8',
+          '@stage-video-xl/video:[&>img]:w-8',
+          '@stage-video-xl/video:max-w-[208px]',
+          'invisible',
+          'text-white',
+          shouldInvertColors
+            ? '@stage-video-lg/video:text-white'
+            : '@stage-video-lg/video:text-black'
+        ],
         'flex',
         'gap-1',
-        'invisible',
         'items-center',
-        'max-w-[80px]',
+        'max-w-[108px]',
         'rounded-3xl',
-        'text-white',
         'w-auto',
-        shouldInvertColors
-          ? '@stage-video-lg/video:text-white'
-          : '@stage-video-lg/video:text-black',
-        PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+        STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL && [
+          '[&>img]:ring-2',
+          MODAL_PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+        ],
+        PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
+        className
       ])}
     >
       <img src={avatarSrc} alt="" />
-      <h3>{username}</h3>
+      <div className="overflow-hidden">
+        <h3
+          className={clsm([
+            'font-bold',
+            'text-p2',
+            'truncate',
+            type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+              'drop-shadow-stage-profile',
+              '@stage-video-lg/video:drop-shadow-none',
+              '@stage-video-xl/video:font-bold',
+              '@stage-video-xl/video:text-p1'
+            ],
+            textClassName
+          ])}
+        >
+          {username}
+        </h3>
+        {subEl}
+      </div>
     </div>
   );
 };
 
+StageProfilePill.defaultProps = {
+  type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
+  className: '',
+  subEl: null,
+  textClassName: ''
+};
 StageProfilePill.propTypes = {
-  profileColor: PropTypes.string.isRequired,
   avatarSrc: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  profileColor: PropTypes.string.isRequired,
+  subEl: PropTypes.node,
+  textClassName: PropTypes.string,
+  type: PropTypes.string,
   username: PropTypes.string.isRequired
 };
 

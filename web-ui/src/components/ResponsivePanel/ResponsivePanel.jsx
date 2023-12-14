@@ -13,19 +13,24 @@ const ResponsivePanel = ({
   mobileBreakpoint,
   panelId,
   preserveVisible,
-  slideInDirection
+  slideInDirection,
+  shouldSetVisible
 }) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
   const controls = useAnimation();
 
   useEffect(() => {
+    if (!shouldSetVisible) return;
+
     if (isOpen) controls.start('visible');
-  }, [controls, isOpen]);
+  }, [controls, isOpen, shouldSetVisible]);
 
   useEffect(() => {
+    if (!shouldSetVisible) return;
+
     if (preserveVisible && isOpen) controls.set('visible');
-  }, [controls, isOpen, preserveVisible, isResponsiveView]);
+  }, [controls, isOpen, preserveVisible, isResponsiveView, shouldSetVisible]);
 
   return (
     <AnimatePresence>
@@ -37,6 +42,7 @@ const ResponsivePanel = ({
             isOpen
             panelId={panelId}
             slideInDirection={slideInDirection}
+            shouldAnimateIn={shouldSetVisible}
           >
             {children}
           </MobilePanel>
@@ -52,6 +58,7 @@ ResponsivePanel.defaultProps = {
   isOpen: false,
   mobileBreakpoint: BREAKPOINTS.md,
   preserveVisible: false,
+  shouldSetVisible: true,
   slideInDirection: 'right'
 };
 
@@ -59,6 +66,7 @@ ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
   containerClasses: PropTypes.string,
   isOpen: PropTypes.bool,
+  shouldSetVisible: PropTypes.bool,
   mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
   panelId: PropTypes.string.isRequired,
   preserveVisible: PropTypes.bool,

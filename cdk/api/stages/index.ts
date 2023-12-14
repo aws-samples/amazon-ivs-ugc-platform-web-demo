@@ -1,15 +1,14 @@
 import { FastifyPluginAsync } from 'fastify';
-import { fastifyRequestContextPlugin } from '@fastify/request-context';
-import authorizer from '../channel/authorizer';
-import createStage from './createStage';
-import createParticipantToken from './createParticipantToken';
+
+import stageAuthRouter from './authRouter';
+import stageUnauthRouter from './unauthRouter';
 
 const router: FastifyPluginAsync = async (resource) => {
-  resource.register(fastifyRequestContextPlugin, { hook: 'preHandler' });
-  resource.addHook('preHandler', authorizer);
+  // Create /stage authenticated resource
+  resource.register(stageAuthRouter);
 
-  resource.get('/create', createStage);
-  resource.get('/createParticipantToken/:stageId', createParticipantToken);
+  // Create /stage unauthenticated resource
+  resource.register(stageUnauthRouter);
 };
 
 export default router;

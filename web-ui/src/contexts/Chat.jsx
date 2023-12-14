@@ -185,7 +185,8 @@ export const Provider = ({ children }) => {
     saveVotesToLocalStorage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps
+    endPollAndResetPollProps,
+    pollCreatorId
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -235,7 +236,8 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(savedPollData?.voters || {})
+        voters: JSON.stringify(savedPollData?.voters || {}),
+        pollCreatorId: JSON.stringify(pollCreatorId)
       });
     }
   }, [
@@ -245,6 +247,7 @@ export const Provider = ({ children }) => {
     isActive,
     isModerator,
     noVotesCaptured,
+    pollCreatorId,
     question,
     savedPollData?.voters,
     showFinalResults,
@@ -455,7 +458,8 @@ export const Provider = ({ children }) => {
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
-            delay
+            delay,
+            pollCreatorId: JSON.parse(message.attributes.pollCreatorId)
           });
 
           const votersList = JSON.parse(message.attributes.voters);
@@ -500,7 +504,8 @@ export const Provider = ({ children }) => {
             question,
             expiry,
             startTime,
-            delay: del = 0
+            delay: del = 0,
+            pollCreatorId
           } = JSON.parse(pollStreamActionData);
 
           if (isModerator && isStreamManagerPage) {
@@ -512,11 +517,13 @@ export const Provider = ({ children }) => {
               votes: options,
               voters: {},
               isActive: true,
-              name: STREAM_ACTION_NAME.POLL
+              name: STREAM_ACTION_NAME.POLL,
+              pollCreatorId
             });
           }
 
           updatePollData({
+            pollCreatorId,
             duration,
             question,
             votes: options,

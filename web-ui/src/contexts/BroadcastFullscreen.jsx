@@ -10,10 +10,10 @@ import {
 import { useAnimationControls } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-import { useResponsiveDevice } from './ResponsiveDevice';
-import { useStage } from './Stage';
 import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
+import { useGlobalStage } from './Stage';
+import { useResponsiveDevice } from './ResponsiveDevice';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -27,7 +27,12 @@ Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
   const webBroadcastParentContainerRef = useRef();
+  const collapsedContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
+  const goLiveButtonRef = useRef();
+  const broadcastControllerRef = useRef();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const { isDesktopView, isMobileView } = useResponsiveDevice();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
     shouldRenderFullScreenCollaborateButton,
@@ -35,16 +40,14 @@ export const Provider = ({ children, previewRef }) => {
   ] = useState(false);
   // webbroadcast canvas animation controls
   const fullscreenAnimationControls = useAnimationControls();
-  const { isDesktopView } = useResponsiveDevice();
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
   const {
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
     isStageActive,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
-  } = useStage();
+    collaborateButtonAnimationControls,
+    animationCollapseStageControlsStart,
+    shouldCloseFullScreenViewOnConnectionError
+  } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
@@ -52,19 +55,51 @@ export const Provider = ({ children, previewRef }) => {
       animationInitialWidth: 0,
       animationInitialHeight: 0,
       animationInitialLeft: 0,
-      animationInitialTop: 0
+      animationInitialTop: 0,
+      goLiveButtonInitialWidth: 0,
+      broadcastControllerInitialMarginLeft: 0
     }
   );
 
-  const calculateTopAndLeftValues = useCallback(() => {
-    const left = webBroadcastParentContainerRef.current?.offsetLeft + 64;
-    const top = webBroadcastParentContainerRef.current?.offsetTop;
+  useEffect(() => {
+    if (
+      isFullScreenViewOpen &&
+      !isDesktopView &&
+      !isStageActive &&
+      !isJoiningStageByRequestOrInvite
+    ) {
+      setIsFullScreenViewOpen(false);
+    }
+  }, [
+    isDesktopView,
+    isFullScreenViewOpen,
+    isStageActive,
+    isJoiningStageByRequestOrInvite
+  ]);
 
-    return { left, top };
-  }, [webBroadcastParentContainerRef]);
+  const calculateTopAndLeftValues = useCallback(() => {
+    const topOffset = isDesktopView ? 0 : 56; // tab height
+    const leftOffset = isMobileView ? 0 : 64; // add sidebar width
+    const left =
+      webBroadcastParentContainerRef.current?.offsetLeft + leftOffset;
+    const top = webBroadcastParentContainerRef.current?.offsetTop + topOffset;
+
+    return {
+      left,
+      top,
+      goLiveButtonInitialWidth: goLiveButtonRef.current?.clientWidth,
+      broadcastControllerInitialMarginLeft:
+        broadcastControllerRef.current?.offsetLeft
+    };
+  }, [webBroadcastParentContainerRef, isDesktopView, isMobileView]);
 
   const initializeGoLiveContainerDimensions = useCallback(() => {
-    const { top, left } = calculateTopAndLeftValues();
+    const {
+      top,
+      left,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
+    } = calculateTopAndLeftValues();
 
     const width = webBroadcastContainerRef.current.offsetWidth;
     const height = webBroadcastContainerRef.current.offsetHeight;
@@ -73,7 +108,9 @@ export const Provider = ({ children, previewRef }) => {
       animationInitialWidth: width,
       animationInitialHeight: height,
       animationInitialLeft: left,
-      animationInitialTop: top
+      animationInitialTop: top,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
     });
   }, [calculateTopAndLeftValues]);
 
@@ -105,11 +142,18 @@ export const Provider = ({ children, previewRef }) => {
   ]);
 
   const calculateBaseTopAndLeftOnResize = () => {
-    const { top, left } = calculateTopAndLeftValues();
+    const {
+      top,
+      left,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
+    } = calculateTopAndLeftValues();
 
     updateDimensions({
       animationInitialLeft: left,
-      animationInitialTop: top
+      animationInitialTop: top,
+      goLiveButtonInitialWidth,
+      broadcastControllerInitialMarginLeft
     });
   };
 
@@ -132,8 +176,8 @@ export const Provider = ({ children, previewRef }) => {
 
     setDimensionClasses([]);
     fullscreenAnimationControls.start({
-      width: 311,
-      height: 174.94,
+      width: collapsedContainerRef.current?.clientWidth || 311,
+      height: collapsedContainerRef.current?.clientHeight || 174.94,
       transition: ANIMATION_TRANSITION
     });
 
@@ -146,23 +190,29 @@ export const Provider = ({ children, previewRef }) => {
     fullscreenAnimationControls
   ]);
 
+  const handleOpenFullScreenView = useCallback(() => {
+    initializeGoLiveContainerDimensions();
+    setIsFullScreenViewOpen(true);
+  }, [initializeGoLiveContainerDimensions]);
+
+  const closeFullscreenAndAnimateCollaborateButton = useCallback(async () => {
+    setIsFullScreenViewOpen(false);
+    await collaborateButtonAnimationControls.start({
+      zIndex: 1000,
+      opacity: 1,
+      transition: { duration: 0.45 }
+    });
+    collaborateButtonAnimationControls.start({ zIndex: 'unset' });
+  }, [collaborateButtonAnimationControls]);
+
   useEffect(() => {
-    if (!isDesktopView) {
-      if (isFullScreenViewOpen) {
-        handleToggleFullscreen();
-      }
-      if (isStageActive) {
-        updateAnimateCollapseStageContainerWithDelay(true);
-        updateShouldAnimateGoLiveButtonChevronIcon(true);
-      }
-    }
+    if (!shouldCloseFullScreenViewOnConnectionError) return;
+
+    closeFullscreenAndAnimateCollaborateButton();
   }, [
-    isDesktopView,
-    isStageActive,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    isFullScreenViewOpen,
-    handleToggleFullscreen
+    closeFullscreenAndAnimateCollaborateButton,
+    collaborateButtonAnimationControls,
+    shouldCloseFullScreenViewOnConnectionError
   ]);
 
   const value = useMemo(
@@ -186,7 +236,12 @@ export const Provider = ({ children, previewRef }) => {
       setShouldRenderFullScreenCollaborateButton,
       shouldRenderFullScreenCollaborateButton,
       webBroadcastContainerRef,
-      webBroadcastParentContainerRef
+      webBroadcastParentContainerRef,
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButton,
+      goLiveButtonRef,
+      broadcastControllerRef,
+      collapsedContainerRef
     }),
     [
       collaborateButtonAnimationControls,
@@ -201,7 +256,12 @@ export const Provider = ({ children, previewRef }) => {
       fullscreenAnimationControls,
       dimensionClasses,
       webBroadcastContainerRef,
-      webBroadcastParentContainerRef
+      webBroadcastParentContainerRef,
+      handleOpenFullScreenView,
+      closeFullscreenAndAnimateCollaborateButton,
+      goLiveButtonRef,
+      broadcastControllerRef,
+      collapsedContainerRef
     ]
   );
 

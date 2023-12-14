@@ -27,6 +27,8 @@ export const FOLLOWING_LIST_DUPLICATE_EXCEPTION =
   'FollowingListDuplicateException';
 export const SORT_PRODUCTS_EXCEPTION = 'SortProductsException';
 export const TOO_MANY_REQUESTS_EXCEPTION = 'TooManyRequestsException';
+export const STAGE_DELETION_EXCEPTION = 'StageDeletionException';
+export const RESOURCE_NOT_FOUND_EXCEPTION = 'ResourceNotFoundException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
 export const INGEST_VIDEO_BITRATE = 'IngestVideoBitrate';
@@ -47,7 +49,6 @@ export const MIN_USERNAME_CHARACTER_COUNT = 4;
 export const RESTRICTED_USERNAMES = [
   'health',
   'manager',
-  'feed',
   'following',
   'settings',
   'login',
@@ -78,7 +79,8 @@ export const CUSTOM_AVATAR_NAME = 'custom' as const;
  * GetSecretValueCommand(<SECRET_ID>)
  */
 export const SECRET_IDS = {
-  PA_API: 'Product_Advertising_API_Secret_Keys'
+  PA_API: 'Product_Advertising_API_Secret_Keys',
+  APPSYNC_GRAPHQL_API: 'AppSync_GraphQL_API_Secret_Keys'
 };
 
 export const MAX_SERVER_PARAM_LENGTH = 200;
@@ -93,3 +95,17 @@ export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
  * Stages
  */
 export const STAGE_TOKEN_DURATION = 1440; // Minutes
+
+export const CHANNELS_TABLE_STAGE_FIELDS = {
+  STAGE_ID: 'stageId',
+  STAGE_CREATION_DATE: 'stageCreationDate'
+};
+
+export const APPSYNC_EVENT_TYPES = {
+  STAGE_REVOKE_REQUEST_TO_JOIN: 'STAGE_REVOKE_REQUEST_TO_JOIN'
+};
+
+// QUEUES
+export const MESSAGE_GROUP_IDS = {
+  DELETE_STAGE_MESSAGE: 'DeleteStageMessage'
+};

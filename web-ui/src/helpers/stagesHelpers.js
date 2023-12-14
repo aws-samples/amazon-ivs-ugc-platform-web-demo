@@ -1,5 +1,6 @@
 import { streamManager as $streamManagerContent } from '../content';
 import { isiOS } from '../utils';
+import { STREAM_ACTION_NAME } from '../constants';
 
 const userJoinedNotificationContent =
   $streamManagerContent.stream_manager_stage.notifications.success
@@ -41,3 +42,66 @@ export const getVideoConstraints = (cameraDeviceId) => ({
     resizeMode: 'none'
   })
 });
+
+export const getLeavePromptText = ({
+  isMobile,
+  isPollActive,
+  isStageActive,
+  isBroadcasting
+}) => {
+  let confirmText, message;
+
+  if (isBroadcasting) {
+    message = (
+      <p>
+        {
+          $streamManagerContent.stream_manager_web_broadcast
+            .confirm_leave_page_L1
+        }
+        {isMobile ? ' ' : <br />}
+        {
+          $streamManagerContent.stream_manager_web_broadcast
+            .confirm_leave_page_L2
+        }
+      </p>
+    );
+    confirmText = $streamManagerContent.stream_manager_web_broadcast.leave_page;
+  }
+
+  if (isStageActive) {
+    message = (
+      <p>
+        {
+          $streamManagerContent.stream_manager_stage.leave_stage_modal
+            .confirm_leave_page_L1
+        }
+        {isMobile ? ' ' : <br />}
+        {
+          $streamManagerContent.stream_manager_stage.leave_stage_modal
+            .confirm_leave_page_L2
+        }
+      </p>
+    );
+    confirmText =
+      $streamManagerContent.stream_manager_stage.leave_stage_modal.leave_page;
+  }
+
+  if (isPollActive) {
+    message = (
+      <p>
+        {
+          $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL]
+            .confirm_leave_page
+        }
+      </p>
+    );
+    confirmText =
+      $streamManagerContent.stream_manager_actions[STREAM_ACTION_NAME.POLL]
+        .leave_page;
+  }
+
+  return {
+    confirmText,
+    message
+  };
+};

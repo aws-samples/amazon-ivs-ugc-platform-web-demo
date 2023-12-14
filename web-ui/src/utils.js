@@ -1,3 +1,4 @@
+import Amplify from '@aws-amplify/core';
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
@@ -66,7 +67,8 @@ export const retryWithExponentialBackoff = ({
   maxRetries,
   onRetry = noop,
   onSuccess = noop,
-  onFailure = noop
+  onFailure = noop,
+  shouldReturnErrorOnValidation = undefined
 }) => {
   const waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -80,6 +82,19 @@ export const retryWithExponentialBackoff = ({
 
       // evaluate
       const result = await promiseFn();
+
+      // handle scenario where the promiseFn involves the use of a fetch wrapper (unauthFetch or authFetch)
+      const fetchWrapperError = !!result?.error;
+
+      if (fetchWrapperError) {
+        if (shouldReturnErrorOnValidation) {
+          const shouldReturnError = shouldReturnErrorOnValidation(result);
+          if (shouldReturnError) return result;
+        }
+
+        throw new Error();
+      }
+
       onSuccess();
 
       return result;
@@ -365,4 +380,20 @@ export const decodeJWT = (token) => {
 export const containsURL = (text) => {
   const urlRegex = /(www\.|http:\/\/|https:\/\/)/;
   return urlRegex.test(text);
+};
+
+export const connectToAppSyncGraphQlApi = () => {
+  const {
+    REACT_APP_APPSYNC_GRAPHQL_APIKEY,
+    REACT_APP_APPSYNC_GRAPHQL_AUTH_TYPE,
+    REACT_APP_APPSYNC_GRAPHQL_ENDPOINT,
+    REACT_APP_REGION
+  } = process.env;
+
+  Amplify.configure({
+    aws_appsync_graphqlEndpoint: REACT_APP_APPSYNC_GRAPHQL_ENDPOINT,
+    aws_appsync_region: REACT_APP_REGION,
+    aws_appsync_authenticationType: REACT_APP_APPSYNC_GRAPHQL_AUTH_TYPE,
+    aws_appsync_apiKey: REACT_APP_APPSYNC_GRAPHQL_APIKEY
+  });
 };

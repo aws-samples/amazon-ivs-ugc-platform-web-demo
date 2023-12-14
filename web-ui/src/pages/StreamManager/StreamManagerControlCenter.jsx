@@ -8,19 +8,29 @@ import {
   StreamManagerWebBroadcast
 } from './streamManagerCards';
 import { clsm } from '../../utils';
-import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../../helpers/stagesHelpers';
+import {
+  JOIN_PARTICIPANT_URL_PARAM_KEY,
+  getLeavePromptText
+} from '../../helpers/stagesHelpers';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { streamManager as $content } from '../../content';
 import { useBroadcast } from '../../contexts/Broadcast';
 import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
 import { useChannel } from '../../contexts/Channel';
+import { useGlobalStage, useStreamManagerStage } from '../../contexts/Stage';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import { useStage } from '../../contexts/Stage';
-import { useStreams } from '../../contexts/Streams';
 import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
+import StageJoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/StageJoinModal';
+import StageParticipantsModal from './streamManagerCards/StreamManagerWebBroadcast/StageModal/StageParticipantsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
+import useHostRejoin from './hooks/useHostRejoin';
+import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
+import { AnimatePresence } from 'framer-motion';
+import usePrompt from '../../hooks/usePrompt';
+import { usePoll } from '../../contexts/StreamManagerActions/Poll';
+import { useModal } from '../../contexts/Modal';
 
 const STREAM_MANAGER_DEFAULT_TAB = 0;
 const GO_LIVE_TAB_INDEX = 1;
@@ -28,25 +38,43 @@ const GO_LIVE_TAB_INDEX = 1;
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     useDevicePermissionChangeListeners();
-    const { isLive } = useStreams();
+    const {
+      isStageActive,
+      addParticipant,
+      updateShouldAnimateStageVideoFeedsContainer,
+      updateIsJoiningStageByRequest,
+      updateIsJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite,
+      isBlockingRoute
+    } = useGlobalStage();
+    const { handleHostRejoin } = useHostRejoin();
     const {
       webBroadcastParentContainerRef,
       isFullScreenViewOpen,
-      setIsFullScreenViewOpen,
-      initializeGoLiveContainerDimensions
+      handleOpenFullScreenView,
+      dimensions
     } = useBroadcastFullScreen();
+    const { openModal } = useModal();
     const { state } = useLocation();
-    const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
+    const { isDesktopView, currentBreakpoint, isLandscape, isMobile } =
+      useResponsiveDevice();
+    const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
+      useBroadcast();
+    const { isActive: isPollActive } = usePoll();
+    const enablePrompt = isBroadcasting || isBlockingRoute || isPollActive;
     const {
-      initializeDevices,
-      isBroadcasting,
-      presetLayers,
-      resetPreview,
-      restartBroadcastClient,
-      removeBroadcastClient
-    } = useBroadcast();
-    const { handleParticipantInvite, isStageActive, updateError } = useStage();
+      isBlocked,
+      onConfirm: onPromptConfirm,
+      onCancel
+    } = usePrompt(enablePrompt, !isBlockingRoute);
+
+    const {
+      shouldGetHostRejoinTokenRef,
+      setupRequestedParticipant,
+      leaveStage
+    } = useStreamManagerStage();
     const { channelData } = useChannel();
+    const { stageId: channelTableStageId } = channelData || {};
     const [searchParams] = useSearchParams();
     const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
 
@@ -55,20 +83,53 @@ const StreamManagerControlCenter = forwardRef(
       state?.streamManagerSelectedTab || 0
     );
     const [isBroadcastCardOpen, setIsBroadcastCardOpen] = useState(
-      state?.isWebBroadcastContainerOpen ||
+      state?.isJoiningStageByRequest ||
+        state?.isWebBroadcastContainerOpen ||
         window.history.state?.isWebBroadcastContainerOpen ||
         !!stageIdUrlParam ||
         false
     );
 
+    useEffect(() => {
+      if (isBlocked) {
+        const { message, confirmText } = getLeavePromptText({
+          isMobile,
+          isPollActive,
+          isStageActive,
+          isBroadcasting
+        });
+        const onConfirm = isStageActive
+          ? () => {
+              onPromptConfirm();
+              leaveStage();
+            }
+          : onPromptConfirm;
+
+        openModal({
+          content: {
+            confirmText,
+            isDestructive: true,
+            message
+          },
+          onConfirm,
+          onCancel
+        });
+      }
+    }, [
+      isPollActive,
+      isBlocked,
+      isBroadcasting,
+      isMobile,
+      isStageActive,
+      leaveStage,
+      onCancel,
+      onPromptConfirm,
+      openModal
+    ]);
+
     // Initialize devices when the user opens the broadcast card for the first time
     useEffect(() => {
-      if (
-        areDevicesInitialized.current ||
-        !isBroadcastCardOpen ||
-        stageIdUrlParam
-      )
-        return;
+      if (areDevicesInitialized.current || !isBroadcastCardOpen) return;
 
       (async function () {
         await initializeDevices();
@@ -84,12 +145,23 @@ const StreamManagerControlCenter = forwardRef(
       if (isDesktopView) {
         setSelectedTabIndex(STREAM_MANAGER_DEFAULT_TAB);
       }
+
+      if (
+        (isStageActive || stageIdUrlParam || channelTableStageId) &&
+        !isDesktopView
+      ) {
+        setSelectedTabIndex(GO_LIVE_TAB_INDEX);
+      }
     }, [
       isDesktopView,
       resetPreview,
       state,
       isBroadcasting,
-      isFullScreenViewOpen
+      isFullScreenViewOpen,
+      isLandscape,
+      isStageActive,
+      stageIdUrlParam,
+      channelTableStageId
     ]);
 
     useEffect(() => {
@@ -115,44 +187,68 @@ const StreamManagerControlCenter = forwardRef(
 
     useEffect(() => {
       if (!isStageActive && channelData && stageIdUrlParam) {
-        const { avatar, color, username, channelAssetUrls } = channelData;
-        const profileData = {
-          avatar,
-          profileColor: color,
-          username,
-          channelAssetUrls
-        };
-        handleParticipantInvite({
-          isLive,
-          isBroadcasting,
-          profileData,
-          openFullscreenView: () => {
-            if (
-              isDesktopView &&
-              initializeGoLiveContainerDimensions &&
-              setIsFullScreenViewOpen
-            ) {
-              initializeGoLiveContainerDimensions();
-              setIsFullScreenViewOpen(true);
-            }
-          }
-        });
+        if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
+        updateIsJoiningStageByInvite(true);
+        handleOpenFullScreenView();
       }
     }, [
       channelData,
-      handleParticipantInvite,
-      initializeGoLiveContainerDimensions,
-      isDesktopView,
       isStageActive,
-      setIsFullScreenViewOpen,
       stageIdUrlParam,
-      isLive,
-      isBroadcasting,
-      updateError,
-      restartBroadcastClient,
-      resetPreview,
-      removeBroadcastClient
+      updateIsJoiningStageByInvite,
+      isDesktopView,
+      handleOpenFullScreenView
     ]);
+
+    useEffect(() => {
+      if (!state?.isJoiningStageByRequest || isStageActive) return;
+
+      if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
+      updateIsJoiningStageByRequest(true);
+      handleOpenFullScreenView();
+    }, [
+      state?.isJoiningStageByRequest,
+      channelData,
+      addParticipant,
+      updateShouldAnimateStageVideoFeedsContainer,
+      setupRequestedParticipant,
+      updateIsJoiningStageByRequest,
+      isStageActive,
+      isDesktopView,
+      handleOpenFullScreenView
+    ]);
+
+    useEffect(() => {
+      if (
+        channelTableStageId &&
+        !isStageActive &&
+        !stageIdUrlParam &&
+        shouldGetHostRejoinTokenRef.current &&
+        !isJoiningStageByRequestOrInvite
+      ) {
+        shouldGetHostRejoinTokenRef.current = false;
+        setIsBroadcastCardOpen(true);
+
+        handleHostRejoin(handleOpenFullScreenView);
+      }
+    }, [
+      channelTableStageId,
+      handleHostRejoin,
+      handleOpenFullScreenView,
+      isJoiningStageByRequestOrInvite,
+      isStageActive,
+      shouldGetHostRejoinTokenRef,
+      stageIdUrlParam
+    ]);
+
+    const isOfflineMobileView =
+      !isStageActive &&
+      !isBroadcasting &&
+      !isDesktopView &&
+      !isJoiningStageByRequestOrInvite;
+    const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
+    const isFullScreenViewPortalOpen =
+      isFullScreenViewOpen && !isBroadcastingMobileView && !isOfflineMobileView;
 
     return (
       <div
@@ -167,6 +263,8 @@ const StreamManagerControlCenter = forwardRef(
           ])}
         >
           <StreamManagerActionModal />
+          <StageParticipantsModal />
+          <StageJoinModal />
           <BroadcastSettingsModal />
           {!isDesktopView && (
             <Tabs.List
@@ -210,7 +308,7 @@ const StreamManagerControlCenter = forwardRef(
             >
               <div
                 className={clsm([
-                  'overflow-hidden',
+                  !isStageActive && 'overflow-hidden',
                   'h-full',
                   'relative',
                   'rounded-3xl',
@@ -262,6 +360,15 @@ const StreamManagerControlCenter = forwardRef(
             </Tabs.Panel>
           )}
         </Tabs>
+        <AnimatePresence>
+          {isFullScreenViewOpen && (
+            <FullScreenView
+              isOpen={isFullScreenViewPortalOpen}
+              parentEl={document.body}
+              dimensions={dimensions}
+            />
+          )}
+        </AnimatePresence>
       </div>
     );
   }

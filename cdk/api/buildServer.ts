@@ -51,7 +51,6 @@ const buildServer = () => {
       server.register(productsRouters, { prefix: 'products' });
     }
 
-    // Create /stages authenticated resources
     server.register(stagesRouter, { prefix: 'stages' });
   }
 

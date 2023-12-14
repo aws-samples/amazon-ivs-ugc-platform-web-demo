@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { fitRectIntoContainer } from '../../../../../helpers/webBroadcastHelpers';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import useResize from '../../../../../hooks/useResize';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
-const useCalculatedAspectRatio = ({ childRef } = {}) => {
+const useCalculatedAspectRatio = ({ childRef, delay = 0 } = {}) => {
   const {
     setDimensionClasses,
     fullscreenAnimationControls,
@@ -15,26 +15,29 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
   const parentRef = useRef();
 
   const animateWidthHeight = useCallback(() => {
-    if (!isDesktopView || !isFullScreenViewOpen) return;
+    if (!isFullScreenViewOpen) return;
 
     setDimensionClasses([]);
-    const { width: newCanvasWidth, height: newCanvasHeight } =
-      fitRectIntoContainer(
-        childRef?.current?.clientWidth,
-        childRef?.current?.clientHeight,
-        parentRef?.current?.clientWidth,
-        parentRef?.current?.clientHeight
-      );
-    fullscreenAnimationControls.start({
-      width: newCanvasWidth,
-      height: newCanvasHeight
-    });
+    setTimeout(() => {
+      const { width: newCanvasWidth, height: newCanvasHeight } =
+        fitRectIntoContainer(
+          childRef?.current?.clientWidth,
+          childRef?.current?.clientHeight,
+          parentRef?.current?.clientWidth,
+          parentRef?.current?.clientHeight
+        );
+
+      fullscreenAnimationControls.start({
+        width: newCanvasWidth,
+        height: newCanvasHeight
+      });
+    }, delay);
   }, [
-    childRef,
-    fullscreenAnimationControls,
-    isDesktopView,
+    delay,
     isFullScreenViewOpen,
-    setDimensionClasses
+    setDimensionClasses,
+    childRef,
+    fullscreenAnimationControls
   ]);
 
   useResize(animateWidthHeight);
@@ -45,7 +48,7 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
     const aspectRatioProportion = 0.667; // 3:2 aspect ratio or 2/3
-    const newDimenisionClasses = [
+    const initialDimensionClasses = [
       'aspect-video',
       'max-w-[calc(100vw_-_64px)]', // Maximum width considering 64px combined padding
       windowHeight / windowWidth < aspectRatioProportion
@@ -54,11 +57,11 @@ const useCalculatedAspectRatio = ({ childRef } = {}) => {
     ];
 
     // Updating the initial dimensions of the canvas will make the canvas dimension animation smoother once the animation completes
-    setDimensionClasses(newDimenisionClasses);
+    setDimensionClasses(initialDimensionClasses);
   }, [setDimensionClasses, isFullScreenViewOpen]);
 
   useEffect(() => {
-    if (!isDesktopView || !isFullScreenViewOpen) setDimensionClasses([]);
+    if (!isFullScreenViewOpen) setDimensionClasses([]);
   }, [isDesktopView, setDimensionClasses, isFullScreenViewOpen]);
 
   return {

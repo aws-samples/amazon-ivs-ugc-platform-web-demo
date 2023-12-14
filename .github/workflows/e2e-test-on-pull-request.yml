@@ -2,7 +2,7 @@ name: On Pull Request E2E Testing Workflow
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/stages-v2]
     types: [opened, reopened, synchronize]
     paths: ['web-ui/**']
 

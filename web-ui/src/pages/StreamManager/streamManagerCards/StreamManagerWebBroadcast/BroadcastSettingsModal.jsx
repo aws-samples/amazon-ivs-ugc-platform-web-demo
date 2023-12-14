@@ -16,7 +16,10 @@ import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import { useStage } from '../../../../contexts/Stage/Stage';
+import {
+  useGlobalStage,
+  useStreamManagerStage
+} from '../../../../contexts/Stage';
 import Button from '../../../../components/Button';
 import Dropdown from '../../../../components/Dropdown';
 import Modal from '../../../../components/Modal';
@@ -27,9 +30,40 @@ import useResizeObserver from '../../../../hooks/useResizeObserver';
 const $content = $streamManagerContent.web_broadcast_audio_video_settings_modal;
 
 const WebBroadcastSettingsModal = () => {
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { closeModal, handleConfirm, isModalOpen, type } = useModal();
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
+  const { handleOpenJoinModal } = useStreamManagerStage();
+
+  const openStageJoinModal = () => {
+    closeModal({ shouldCancel: false, shouldRefocus: false });
+    handleOpenJoinModal();
+  };
+
+  const handleOnConfirm = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      openStageJoinModal();
+    } else {
+      handleConfirm();
+    }
+  };
+
+  const handleOnClose = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      openStageJoinModal();
+    } else {
+      closeModal();
+    }
+  };
+
+  const onClickAway = () => {
+    if (isJoiningStageByRequestOrInvite) {
+      openStageJoinModal();
+    } else {
+      closeModal({ shouldRefocus: false });
+    }
+  };
 
   const {
     activeDevices,
@@ -41,7 +75,7 @@ const WebBroadcastSettingsModal = () => {
     updateShouldShowCameraOnScreenShare
   } = useBroadcast();
 
-  const { isStageActive } = useStage();
+  const { isStageActive } = useStreamManagerStage();
 
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const mainContentRef = useRef();
@@ -85,11 +119,15 @@ const WebBroadcastSettingsModal = () => {
           'relative',
           'w-full'
         ])}
+        onClickAway={onClickAway}
       >
         {children}
       </Modal>
     </>
   );
+
+  const displayShowCameraToggle =
+    !isTouchscreenDevice && !isStageActive && !isJoiningStageByRequestOrInvite;
 
   return (
     type === MODAL_TYPE.STREAM_BROADCAST_SETTINGS &&
@@ -159,7 +197,7 @@ const WebBroadcastSettingsModal = () => {
                   />
                 );
               })}
-            {!isTouchscreenDevice && !isStageActive && (
+            {displayShowCameraToggle && (
               <SwitchGroup
                 icon={<AccountBox />}
                 label={$content.show_camera_on_screen_share}
@@ -172,7 +210,7 @@ const WebBroadcastSettingsModal = () => {
         <Button
           ariaLabel="Close the audio and video settings modal"
           className={clsm(MODAL_CLOSE_BUTTON_CLASSES)}
-          onClick={() => closeModal()}
+          onClick={handleOnClose}
           variant="icon"
         >
           <Close />
@@ -191,7 +229,7 @@ const WebBroadcastSettingsModal = () => {
             isContentOverflowing && MODAL_OVERFLOW_DIVIDER_CLASSES
           )}
         >
-          <Button onClick={handleConfirm} className="w-full">
+          <Button onClick={handleOnConfirm} className="w-full">
             {$content.done}
           </Button>
         </footer>

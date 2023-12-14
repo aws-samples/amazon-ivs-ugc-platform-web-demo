@@ -83,8 +83,10 @@ const useDevices = ({
             });
 
             if (!didUpdate) {
-              // If the device update failed, then switch back to the previously
-              // selected active device and display an error notification
+              /*
+              If the device update failed, then switch back to the previously
+              selected active device and display an error notification
+              */
               setActiveDevices((prev) => ({
                 ...prev,
                 [deviceName]: prevActiveDevices[deviceName]

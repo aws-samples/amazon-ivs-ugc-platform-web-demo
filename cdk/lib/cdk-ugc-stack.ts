@@ -146,7 +146,8 @@ export class UGCStack extends Stack {
         userPoolId,
         userPoolClientId,
         channelsTable,
-        productApiSecretName
+        productApiSecretName,
+        appSyncGraphQlApi
       },
       policies: channelsPolicies
     } = channelsStack;
@@ -198,7 +199,8 @@ export class UGCStack extends Stack {
       PRODUCT_API_LOCALE: productApiLocale,
       PRODUCT_LINK_REGION_CODE: productLinkRegionCode,
       ENABLE_AMAZON_PRODUCT_STREAM_ACTION: `${enableAmazonProductStreamAction}`,
-      PRODUCT_API_SECRET_NAME: productApiSecretName
+      PRODUCT_API_SECRET_NAME: productApiSecretName,
+      APPSYNC_GRAPHQL_API_SECRET_NAME: appSyncGraphQlApi.secretName
     };
     const sharedContainerEnv = {
       ...baseContainerEnv,
@@ -364,6 +366,9 @@ export class UGCStack extends Stack {
       value: `${enableAmazonProductStreamAction}`
     });
     new CfnOutput(this, 'channelType', { value: ivsChannelType });
+    new CfnOutput(this, 'appSyncGraphQlApiKey', { value: appSyncGraphQlApi.apiKey })
+    new CfnOutput(this, 'appSyncGraphQlApiEndpoint', { value: appSyncGraphQlApi.endpoint })
+    new CfnOutput(this, 'appSyncGraphQlAuthenticationType', { value: appSyncGraphQlApi.authType })
 
     if (frontendAppBaseUrl) {
       new CfnOutput(this, 'frontendAppBaseUrl', {
