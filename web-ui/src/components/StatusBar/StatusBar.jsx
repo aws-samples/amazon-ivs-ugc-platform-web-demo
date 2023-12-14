@@ -166,18 +166,7 @@ const StatusBar = () => {
           isLive={isLive}
           itemLabel="Stream concurrent views count"
           value={concurrentViewsValue}
-          className={clsm([
-            concurrentViewsValue === NO_DATA_VALUE
-              ? ['w-auto']
-              : ['w-[77px]', 'md:w-[62px]', 'sm:w-[77px], xs:w-[62px]'],
-            concurrentViewsValue?.length > 4 &&
-              concurrentViewsValue !== NO_DATA_VALUE && [
-                'w-[82px]',
-                'md:w-[74px]',
-                'sm:w-[77px]',
-                'xs:w-[72px]'
-              ]
-          ])}
+          className={clsm(['max-w-none', 'w-[68px]', 'justify-center'])}
         />
       )}
 
