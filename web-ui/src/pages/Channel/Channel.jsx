@@ -141,7 +141,8 @@ const Channel = () => {
   else if (isStackedView) visibleChatWidth = '100%';
 
   const isTabView =
-    shouldRenderActionInTab || (isPollActive && isChannelPageStackedView && !shouldHideActivePoll);
+    shouldRenderActionInTab ||
+    (isPollActive && isChannelPageStackedView && !shouldHideActivePoll);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
