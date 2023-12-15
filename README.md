@@ -495,6 +495,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 
 ## Limitations and known issues
 
+- Browser compatibility: This app has undergone thorough testing on Chrome desktop browsers; while functionality is optimized for this environment, users may encounter issues on other browsers and mobile devices. For optimal performance, it is recommended to run the app on Chrome desktop.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - Backend: In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
 - Backend: While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved via the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved via the Amazon IVS API.
