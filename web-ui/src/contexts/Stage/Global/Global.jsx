@@ -143,7 +143,6 @@ export const Provider = ({ children }) => {
 
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
-  const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
   const isRequestedUserType = type === PARTICIPANT_TYPES.REQUESTED;
 
   const numberOfActiveScreenshares = useMemo(
@@ -170,7 +169,6 @@ export const Provider = ({ children }) => {
       isChannelStagePlayerMuted,
       isCreatingStage,
       isHost,
-      isInvitedParticipant,
       isJoiningStageByInvite,
       isJoiningStageByRequest,
       isJoiningStageByRequestOrInvite,
@@ -241,7 +239,6 @@ export const Provider = ({ children }) => {
     isChannelStagePlayerMuted,
     isCreatingStage,
     isHost,
-    isInvitedParticipant,
     isJoiningStageByInvite,
     isJoiningStageByRequest,
     isJoiningStageByRequestOrInvite,

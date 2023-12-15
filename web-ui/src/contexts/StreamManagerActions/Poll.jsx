@@ -259,17 +259,17 @@ export const Provider = ({ children }) => {
     }
   }, [hasPollEnded, noVotesCaptured, showFinalResults, tieFound, votes]);
 
-  // The value set here will determine the min height of the chat + poll container.
-  // The reason its calculated this way is because the poll has a position: absolute
-  const containerMinHeight = `${
-    pollHeight + SPACE_BETWEEN_COMPOSER_AND_POLL + COMPOSER_HEIGHT
-  }px`;
-
   useEffect(() => {
     if (pollRef) {
       dispatchPollState({ pollHeight: pollRef.offsetHeight });
     }
-  }, [pollRef, isExpanded]);
+  }, [pollRef]);
+
+  // Setting this value determines the minimum height for the chat container on the stream manager page.
+  // The chosen calculation is a result of the poll being positioned with position: absolute.
+  const containerMinHeight = `${
+    pollHeight + SPACE_BETWEEN_COMPOSER_AND_POLL + COMPOSER_HEIGHT
+  }px`;
 
   const getPollDetails = (votes) => {
     return votes.reduce(
