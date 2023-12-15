@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import { CAMERA_LAYER_NAME } from '../../Broadcast/useLayers';
 import {
   createJoinParticipantLink,
-  JOIN_PARTICIPANT_URL_PARAM_KEY,
-  getStageParticipantsChannelIds
+  JOIN_PARTICIPANT_URL_PARAM_KEY
 } from '../../../helpers/stagesHelpers';
 import {
   defaultParticipant,
@@ -19,22 +18,21 @@ import { ENABLE_LEAVE_SESSION_BUTTON_DELAY } from '../Global/Global';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../Broadcast/useAudioMixer';
 import { stagesAPI } from '../../../api';
 import { streamManager as $streamManagerContent } from '../../../content';
-import { useAppSync } from '../../AppSync';
 import { useBroadcast } from '../../Broadcast';
 import { useChannel } from '../../Channel';
 import { useGlobalStage } from '../../Stage';
 import { useNotif } from '../../Notification';
 import { useStreams } from '../../Streams';
-import { useModal } from '../../Modal';
+import { MODAL_TYPE, useModal } from '../../Modal';
 import useContextHook from '../../useContextHook';
 import useForceLoader from '../../../hooks/useForceLoader';
 import useInviteParticipants from '../../../pages/StreamManager/hooks/useInviteParticipants';
 import useStageControls from './useStageControls';
 import useStageStrategy from '../../../pages/StreamManager/hooks/useStageStrategy';
 import useStageClient from '../../../hooks/useStageClient';
-import channelEvents from '../../AppSync/channelEvents';
 import useRequestParticipants from '../../../pages/StreamManager/hooks/useRequestParticipants';
 import useStageScreenshare from '../../../pages/StreamManager/hooks/useStageScreenshare';
+import { RESOURCE_NOT_FOUND_EXCEPTION } from '../../../constants';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -57,7 +55,6 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     localParticipant,
     localScreenshareStream,
     participants,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
     shouldDisableStageButtonWithDelay,
     stageId,
     strategy,
@@ -68,10 +65,12 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     updateIsJoiningStageByRequest,
     updateParticipant,
     updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
     updateShouldDisableStageButtonWithDelay,
     updateStageId,
-    updateSuccess
+    updateSuccess,
+    updateShouldCloseFullScreenViewOnConnectionError,
+    shouldCloseFullScreenViewOnConnectionError,
+    isJoiningStageByRequestOrInvite
   } = useGlobalStage();
 
   const [searchParams] = useSearchParams();
@@ -92,9 +91,9 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const isLoadingForced = useForceLoader();
   const navigate = useNavigate();
   const { refreshChannelData } = useChannel();
-  const { publish } = useAppSync();
   const { state } = useLocation();
-  const { closeModal } = useModal();
+  const { closeModal, openModal, isModalOpen } = useModal();
+  const isClosingJoinModal = useRef(false);
 
   useEffect(() => {
     if (!state?.isJoiningStageByRequest) return;
@@ -105,12 +104,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   const isDevicesInitializedRef = useRef(false);
   const joinParticipantLinkRef = useRef();
   const broadcastDevicesStateObjRef = useRef(null);
-  const shouldGetParticipantTokenRef = useRef(false);
   const shouldGetHostRejoinTokenRef = useRef(true);
 
   const shouldDisableCollaborateButton = isLive || isBroadcasting;
   const shouldDisableCopyLinkButton = isStageActive && isSpectator;
-  const participantChannels = useRef([]);
 
   const stageConnectionErroredEventCallback = useCallback(() => {
     updateIsBlockingRoute(false);
@@ -121,13 +118,13 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       navigate('/manager', { state: {} });
     }
 
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave(true);
+    updateShouldCloseFullScreenViewOnConnectionError(true);
   }, [
     isHost,
     navigate,
     state?.isJoiningStageByRequest,
     updateIsBlockingRoute,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave
+    updateShouldCloseFullScreenViewOnConnectionError
   ]);
 
   // Stage Client
@@ -175,15 +172,49 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     joinParticipantLinkRef.current = undefined;
     isDevicesInitializedRef.current = false;
     broadcastDevicesStateObjRef.current = null;
-    shouldGetParticipantTokenRef.current = false;
   }, [localParticipant?.streams, resetAllStageState]);
 
+  const displaySessionEndedNotification = useCallback(
+    async (isHost, stageConnectionErrored) => {
+      const sessionEndedByHost = isHost && !stageConnectionErrored;
+      const sessionEndedAsParticipant = !isHost && stageConnectionErrored;
+
+      if (sessionEndedByHost) {
+        notifyNeutral($contentNotification.neutral.the_session_ended, {
+          asPortal: true
+        });
+      }
+
+      // Session ends when participant is kicked, host ends session or host leaves and does not return within 3 minutes
+      if (sessionEndedAsParticipant) {
+        try {
+          const { error } = await retryWithExponentialBackoff({
+            promiseFn: () => stagesAPI.getStage(stageId),
+            maxRetries: 3,
+            shouldReturnErrorOnValidation: (result) =>
+              result?.error?.__type === RESOURCE_NOT_FOUND_EXCEPTION
+          });
+
+          if (error?.__type === RESOURCE_NOT_FOUND_EXCEPTION) {
+            notifyNeutral($contentNotification.neutral.the_session_ended, {
+              asPortal: true
+            });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [notifyNeutral, stageId]
+  );
+
   const leaveStage = useCallback(
-    async (shouldShowSuccessNotification = false) => {
+    async ({
+      stageConnectionErrored = false,
+      shouldShowSuccessNotification = false
+    }) => {
       try {
         let result;
-        participantChannels.current =
-          getStageParticipantsChannelIds(participants);
 
         if (isScreensharing) stopScreenshare();
 
@@ -191,6 +222,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
 
         // Check if the user is the host
         if (isHost) {
+          shouldGetHostRejoinTokenRef.current = false;
+
           ({ result } = await retryWithExponentialBackoff({
             promiseFn: () => stagesAPI.deleteStage(),
             maxRetries: 2
@@ -204,23 +237,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
         }
 
         if (result || !isHost) {
-          if (isHost) {
-            notifyNeutral($contentNotification.neutral.the_session_ended, {
-              asPortal: true
-            });
-
-            if (participantChannels.current.length) {
-              participantChannels.current.forEach((participantChannel) => {
-                const channel = participantChannel?.toLowerCase();
-                publish(
-                  channel,
-                  JSON.stringify({
-                    type: channelEvents.STAGE_SESSION_HAS_ENDED
-                  })
-                );
-              });
-            }
-          }
+          await displaySessionEndedNotification(isHost, stageConnectionErrored);
 
           // Animate stage control buttons
           updateAnimateCollapseStageContainerWithDelay(false);
@@ -258,16 +275,14 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     },
     [
       stopScreenshare,
-      participants,
       isScreensharing,
       leaveStageClient,
       isHost,
       refreshChannelData,
       updateIsBlockingRoute,
+      displaySessionEndedNotification,
       updateAnimateCollapseStageContainerWithDelay,
       updateShouldAnimateGoLiveButtonChevronIcon,
-      notifyNeutral,
-      publish,
       resetStage,
       stageIdUrlParam,
       state?.isJoiningStageByRequest,
@@ -279,10 +294,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     ]
   );
 
+  const leaveStageInvoked = useRef(false);
+
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
-    leaveStage();
-  }, [leaveStage, shouldCloseFullScreenViewOnKickedOrHostLeave]);
+    if (!shouldCloseFullScreenViewOnConnectionError) return;
+
+    if (!leaveStageInvoked.current) {
+      leaveStage({ stageConnectionErrored: true });
+    }
+    leaveStageInvoked.current = true;
+  }, [leaveStage, shouldCloseFullScreenViewOnConnectionError]);
 
   const { updateLocalStrategy } = useStageStrategy({
     client,
@@ -306,16 +327,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       const localParticipantObject = {
         attributes: {
           ...attributes,
-          channelAssetsAvatarUrl: !!attributes.channelAssetsAvatarUrlPath
-            ? `https://${attributes.channelAssetsAvatarUrlPath}`
+          channelAssetsAvatarUrl: !!attributes.channelAssetsAvatarUrl
+            ? decodeURIComponent(attributes.channelAssetsAvatarUrl)
             : ''
         },
         userId,
         isLocal: true,
         isCameraHidden:
-          isBroadcastCameraHidden || defaultParticipant.isCameraHidden,
+          isBroadcastCameraHidden || defaultParticipant?.isCameraHidden,
         isMicrophoneMuted:
-          isBroadcastMicrophoneMuted || defaultParticipant.isMicrophoneMuted
+          isBroadcastMicrophoneMuted || defaultParticipant?.isMicrophoneMuted
       };
 
       if (localParticipant) {
@@ -328,11 +349,10 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       updateStageId(stageId);
       joinParticipantLinkRef.current = createJoinParticipantLink(stageId);
 
-      closeModal();
-
-      // TODO: try catch block
       await joinStageClient({ token, strategy });
       await updateLocalStrategy();
+
+      closeModal({ shouldCancel: false, shouldRefocus: false });
     },
     [
       isBroadcastCameraHidden,
@@ -359,9 +379,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       creatingStage(false);
 
       if (result) {
-        // remove broadcast client
         removeBroadcastClient();
-
         updateShouldDisableStageButtonWithDelay(true);
         const { token, stageId } = result;
         await createStageInstanceAndJoin(token, stageId);
@@ -388,13 +406,19 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     ]
   );
 
+  const handleCloseJoinModal = useCallback(() => {
+    isClosingJoinModal.current = true;
+    setTimeout(() => {
+      window.history.replaceState({}, document.title);
+      window.location.href = '/manager';
+    }, 100);
+  }, []);
+
   const { handleParticipantInvite } = useInviteParticipants({
-    shouldGetParticipantTokenRef,
     createStageInstanceAndJoin,
     updateError,
-    resetStage,
-    broadcastDevicesStateObjRef,
-    shouldGetHostRejoinTokenRef
+    shouldGetHostRejoinTokenRef,
+    handleCloseJoinModal
   });
 
   const { joinStageByRequest } = useRequestParticipants({
@@ -423,6 +447,26 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     );
   }, [joinParticipantLinkRef, updateSuccess]);
 
+  const handleOpenJoinModal = useCallback(() => {
+    if (
+      !client &&
+      !isModalOpen &&
+      isJoiningStageByRequestOrInvite &&
+      !isClosingJoinModal.current
+    ) {
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN,
+        onCancel: handleCloseJoinModal
+      });
+    }
+  }, [
+    client,
+    isModalOpen,
+    openModal,
+    handleCloseJoinModal,
+    isJoiningStageByRequestOrInvite
+  ]);
+
   const {
     toggleCamera,
     toggleMicrophone,
@@ -430,6 +474,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     toggleScreenshare
   } = useStageControls({
     leaveStage,
+    resetStage,
     joinStageScreenshareClient,
     leaveStageScreenshareClient
   });
@@ -437,20 +482,16 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
   // Stage controls visibility
   const stageControlsVisibility = useMemo(
     () => ({
-      shouldRenderFullscreenCollapseCloseButton: [
-        PARTICIPANT_TYPES.HOST,
-        PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type),
       shouldRenderInviteLinkButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type),
+      ].includes(localParticipant?.attributes?.type),
       shouldRenderShareScreenButton: [
         PARTICIPANT_TYPES.HOST,
         PARTICIPANT_TYPES.INVITED
-      ].includes(localParticipant?.attributes.type)
+      ].includes(localParticipant?.attributes?.type)
     }),
-    [localParticipant?.attributes.type]
+    [localParticipant?.attributes?.type]
   );
 
   // Disabling the "Leave Stage" button for 7 seconds to ensure users do not encounter a 405 error when exiting the stage prematurely.
@@ -477,8 +518,8 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       broadcastPreviewRef?.current
     ) {
       restartBroadcastClient(
-        broadcastDevicesStateObjRef.current.isCameraHidden,
-        broadcastDevicesStateObjRef.current.isMicrophoneMuted
+        broadcastDevicesStateObjRef.current?.isCameraHidden,
+        broadcastDevicesStateObjRef.current?.isMicrophoneMuted
       );
       broadcastDevicesStateObjRef.current = null;
     }
@@ -509,7 +550,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
     if (error) {
       const { message, err } = error;
 
-      if (err) console.error(...[err, message].filter((data) => !!data));
+      if (err) console.error(err, message);
 
       if (message) notifyError(message, { asPortal: true });
 
@@ -532,6 +573,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       isCreatingStage: isCreatingStage || isLoadingForced, // For collaborate button spinner
       isStageActive,
       handleCopyJoinParticipantLinkAndNotify,
+      handleOpenJoinModal,
       shouldDisableCollaborateButton,
       shouldDisableCopyLinkButton,
       updateError,
@@ -547,7 +589,7 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleCamera,
       toggleMicrophone,
       handleOnConfirmLeaveStage,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
+      shouldCloseFullScreenViewOnConnectionError,
       broadcastDevicesStateObjRef,
       createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
@@ -556,31 +598,32 @@ export const Provider = ({ children, previewRef: broadcastPreviewRef }) => {
       toggleScreenshare
     }),
     [
-      initializeStageClient,
+      createStageInstanceAndJoin,
+      handleOpenJoinModal,
+      handleCopyJoinParticipantLinkAndNotify,
+      handleOnConfirmLeaveStage,
       handleParticipantInvite,
+      handleParticipantJoinStage,
+      hasPermissions,
+      initializeStageClient,
       isCreatingStage,
       isLoadingForced,
+      isSpectator,
       isStageActive,
-      handleCopyJoinParticipantLinkAndNotify,
+      joinStageByRequest,
+      leaveStage,
       localParticipant,
       participants,
-      leaveStage,
-      toggleCamera,
-      toggleMicrophone,
-      handleOnConfirmLeaveStage,
+      resetStage,
+      shouldCloseFullScreenViewOnConnectionError,
       shouldDisableCollaborateButton,
       shouldDisableCopyLinkButton,
-      updateError,
-      resetStage,
-      isSpectator,
-      hasPermissions,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
-      createStageInstanceAndJoin,
       shouldGetHostRejoinTokenRef,
       stageControlsVisibility,
-      joinStageByRequest,
-      handleParticipantJoinStage,
-      toggleScreenshare
+      toggleScreenshare,
+      toggleCamera,
+      toggleMicrophone,
+      updateError
     ]
   );
 

@@ -31,17 +31,19 @@ const $content = $streamManagerContent.web_broadcast_audio_video_settings_modal;
 
 const WebBroadcastSettingsModal = () => {
   const { isJoiningStageByRequestOrInvite } = useGlobalStage();
-  const { closeModal, handleConfirm, isModalOpen, type, openModal } =
-    useModal();
+  const { closeModal, handleConfirm, isModalOpen, type } = useModal();
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
+  const { handleOpenJoinModal } = useStreamManagerStage();
+
+  const openStageJoinModal = () => {
+    closeModal({ shouldCancel: false, shouldRefocus: false });
+    handleOpenJoinModal();
+  };
 
   const handleOnConfirm = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       handleConfirm();
     }
@@ -49,10 +51,7 @@ const WebBroadcastSettingsModal = () => {
 
   const handleOnClose = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       closeModal();
     }
@@ -60,10 +59,7 @@ const WebBroadcastSettingsModal = () => {
 
   const onClickAway = () => {
     if (isJoiningStageByRequestOrInvite) {
-      closeModal();
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+      openStageJoinModal();
     } else {
       closeModal({ shouldRefocus: false });
     }

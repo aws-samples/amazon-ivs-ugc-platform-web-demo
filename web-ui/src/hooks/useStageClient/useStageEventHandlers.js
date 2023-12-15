@@ -1,5 +1,4 @@
 import { useCallback, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { createUserJoinedSuccessMessage } from '../../helpers/stagesHelpers';
 import { useGlobalStage } from '../../contexts/Stage';
@@ -35,18 +34,16 @@ const useStageEventHandlers = ({
     isSpectator,
     updateIsSpectator,
     removeParticipant,
-    strategy,
-    updateSpectatorParticipantId
+    strategy
   } = useGlobalStage();
   const { userData } = useUser();
-  const { pathname } = useLocation();
-  const isChannelPage = pathname !== '/manager';
   const localParticipantAttributes = useRef();
 
   const handleParticipantJoinEvent = useCallback(
     (participant) => {
       const {
         attributes: {
+          channelAssetsAvatarUrl,
           type,
           channelId,
           username: participantUsername,
@@ -56,10 +53,6 @@ const useStageEventHandlers = ({
       } = participant;
       if (isLocal) {
         localParticipantAttributes.current = participant.attributes;
-
-        if (isChannelPage && type === PARTICIPANT_TYPES.SPECTATOR) {
-          updateSpectatorParticipantId(participant.id);
-        }
 
         if (type === PARTICIPANT_TYPES.HOST) {
           // Allows us to access host information inside of "handleParticipantConnectionChangedEvent" that
@@ -73,7 +66,15 @@ const useStageEventHandlers = ({
         return;
       }
 
-      addParticipant(participant);
+      const updatedParticipant = {
+        ...participant,
+        attributes: {
+          ...participant.attributes,
+          channelAssetsAvatarUrl: decodeURIComponent(channelAssetsAvatarUrl)
+        }
+      };
+
+      addParticipant(updatedParticipant);
 
       // check whether user has requested to join
       if ([PARTICIPANT_TYPES.REQUESTED].includes(type)) {
@@ -101,14 +102,7 @@ const useStageEventHandlers = ({
         createUserJoinedSuccessMessage(participantUsername);
       updateSuccess(successMessage);
     },
-    [
-      addParticipant,
-      localParticipantAttributes,
-      updateSuccess,
-      isChannelPage,
-      updateSpectatorParticipantId,
-      publish
-    ]
+    [addParticipant, localParticipantAttributes, updateSuccess, publish]
   );
 
   const handleParticipantLeftEvent = useCallback(
@@ -175,7 +169,6 @@ const useStageEventHandlers = ({
           const hostChannelId =
             participantInfo?.current?.hostChannelId || userData?.channelId;
 
-          // Does not execute on Firefox
           await stagesAPI.sendHostDisconnectedMessage(hostChannelId);
 
           participantInfo.current = {

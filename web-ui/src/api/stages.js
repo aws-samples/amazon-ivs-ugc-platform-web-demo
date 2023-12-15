@@ -5,6 +5,11 @@ export const getSpectatorToken = async (stageId) =>
     url: `${apiBaseUrl}/stages/createSpectatorToken/${stageId}`
   });
 
+export const getStage = async (stageId) =>
+  await authFetch({
+    url: `${apiBaseUrl}/stages/${stageId}`
+  });
+
 export const createStage = async () =>
   await authFetch({
     url: `${apiBaseUrl}/stages/create`
@@ -37,17 +42,5 @@ export const disconnectParticipant = async (participantId) => {
     url: `${apiBaseUrl}/stages/disconnectParticipant`,
     method: 'PUT',
     body: { participantId }
-  });
-};
-
-export const disconnectSpectator = async ({
-  participantId,
-  participantChannelId,
-  stageId
-}) => {
-  return await authFetch({
-    url: `${apiBaseUrl}/stages/disconnectSpectator`,
-    method: 'PUT',
-    body: { participantId, participantChannelId, stageId }
   });
 };

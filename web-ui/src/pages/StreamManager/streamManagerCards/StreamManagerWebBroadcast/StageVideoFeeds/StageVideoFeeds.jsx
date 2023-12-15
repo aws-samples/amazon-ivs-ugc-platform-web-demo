@@ -4,15 +4,19 @@ import PropTypes from 'prop-types';
 import StageVideo from './StageVideo';
 
 import './StageVideoGrid.css';
+import {
+  ANIMATION_DURATION,
+  useBroadcastFullScreen
+} from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import { PARTICIPANT_TYPE_SCREENSHARE } from '../../../../../constants';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useLocation } from 'react-router-dom';
 import InviteParticipant from './InviteParticipant';
+import ParticipantOverflowCard from './ParticipantOverflowCard';
 import ScreenshareVideo from './ScreenshareVideo';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
-import ParticipantOverflowCard from './ParticipantOverflowCard';
 import useScreenshareColumns from '../../../hooks/useScreenshareColumns';
-import { PARTICIPANT_TYPE_SCREENSHARE } from '../../../../../constants';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -22,8 +26,8 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ styles, type }) => {
-  const { participants, isJoiningStageByRequestOrInvite } = useGlobalStage();
-
+  const { participants, isJoiningStageByRequestOrInvite, isRequestedUserType } =
+    useGlobalStage();
   const {
     isFullScreenViewOpen,
     fullscreenAnimationControls,
@@ -42,17 +46,20 @@ const StageVideoFeeds = ({ styles, type }) => {
   const participantSize = pubSubParticipantList.length;
   const stageVideoFeedsRef = useRef();
   const { parentRef: containerRef } = useCalculatedAspectRatio({
-    childRef: stageVideoFeedsRef
+    childRef: stageVideoFeedsRef,
+    delay: (ANIMATION_DURATION + 100) * 100
   });
+  const { pathname } = useLocation();
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
   const isScreenshareLayout = screenshareList.length > 0;
 
-  let gridItemCountClasses =
-    participantSize > 2
-      ? `grid-${participantSize}`
-      : ['grid-rows-1', 'grid-cols-2'];
-  if (isChannelType) {
+  let gridItemCountClasses;
+  if (participantSize > 2 || isChannelType) {
     gridItemCountClasses = `grid-${participantSize}`;
+  } else if (isRequestedUserType && participantSize === 1) {
+    gridItemCountClasses = ['grid-rows-1', 'grid-cols-1'];
+  } else {
+    gridItemCountClasses = ['grid-rows-1', 'grid-cols-2'];
   }
 
   const {
@@ -67,6 +74,14 @@ const StageVideoFeeds = ({ styles, type }) => {
     containerRef: stageVideoFeedsRef,
     participantList: pubSubParticipantList
   });
+  const shouldRenderInviteParticipant =
+    pathname === '/manager' &&
+    !isChannelType &&
+    participantSize <= 1 &&
+    !isRequestedUserType;
+
+  const shouldRenderEmptyInviteParticipantCard =
+    shouldRenderInviteParticipant && isJoiningStageByRequestOrInvite;
 
   return (
     <div
@@ -158,14 +173,14 @@ const StageVideoFeeds = ({ styles, type }) => {
               />
             )}
 
-          {isJoiningStageByRequestOrInvite && (
+          {shouldRenderEmptyInviteParticipantCard && (
             <InviteParticipant
               type={type}
               className={isScreenshareLayout ? 'flex-1' : ''}
               hideText={isScreenshareLayout}
             />
           )}
-          {!isChannelType && participantSize <= 1 && (
+          {shouldRenderInviteParticipant && (
             <InviteParticipant
               type={type}
               className={isScreenshareLayout ? 'flex-1' : ''}

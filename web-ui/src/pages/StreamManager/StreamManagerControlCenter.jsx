@@ -44,6 +44,7 @@ const StreamManagerControlCenter = forwardRef(
       updateShouldAnimateStageVideoFeedsContainer,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
+      isJoiningStageByRequestOrInvite,
       isBlockingRoute
     } = useGlobalStage();
     const { handleHostRejoin } = useHostRejoin();
@@ -222,7 +223,8 @@ const StreamManagerControlCenter = forwardRef(
         channelTableStageId &&
         !isStageActive &&
         !stageIdUrlParam &&
-        shouldGetHostRejoinTokenRef.current
+        shouldGetHostRejoinTokenRef.current &&
+        !isJoiningStageByRequestOrInvite
       ) {
         shouldGetHostRejoinTokenRef.current = false;
         setIsBroadcastCardOpen(true);
@@ -233,10 +235,20 @@ const StreamManagerControlCenter = forwardRef(
       channelTableStageId,
       handleHostRejoin,
       handleOpenFullScreenView,
+      isJoiningStageByRequestOrInvite,
       isStageActive,
       shouldGetHostRejoinTokenRef,
       stageIdUrlParam
     ]);
+
+    const isOfflineMobileView =
+      !isStageActive &&
+      !isBroadcasting &&
+      !isDesktopView &&
+      !isJoiningStageByRequestOrInvite;
+    const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
+    const isFullScreenViewPortalOpen =
+      isFullScreenViewOpen && !isBroadcastingMobileView && !isOfflineMobileView;
 
     return (
       <div
@@ -351,7 +363,7 @@ const StreamManagerControlCenter = forwardRef(
         <AnimatePresence>
           {isFullScreenViewOpen && (
             <FullScreenView
-              isOpen={isFullScreenViewOpen}
+              isOpen={isFullScreenViewPortalOpen}
               parentEl={document.body}
               dimensions={dimensions}
             />

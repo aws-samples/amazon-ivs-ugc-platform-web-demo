@@ -5,20 +5,22 @@ import { getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { ivsClient, ResponseBody } from '../../shared/helpers';
 import { UserContext } from '../../shared/authorizer';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-interface GetStreamLiveStatusResponseBody extends ResponseBody {
-  isLive?: Boolean;
+interface GetLiveStatusResponseBody extends ResponseBody {
+  isStageActive?: Boolean;
+  isBroadcasting?: Boolean;
 }
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { sub } = request.requestContext.get('user') as UserContext;
-  const responseBody: GetStreamLiveStatusResponseBody = {};
+  const responseBody: GetLiveStatusResponseBody = {};
 
   try {
     const { Item = {} } = await getUser(sub);
-    const {
-      channelArn: { S: channelArn }
-    } = Item;
+    const { channelArn, stageId = undefined } = unmarshall(Item);
+
+    responseBody.isStageActive = !!stageId;
 
     try {
       const getStreamCommand = new GetStreamCommand({ channelArn });
@@ -26,11 +28,11 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       const streamStatus = response?.stream?.state;
 
       if (streamStatus === 'LIVE') {
-        responseBody.isLive = true;
+        responseBody.isBroadcasting = true;
       }
     } catch (error) {
       if (error instanceof ChannelNotBroadcasting) {
-        responseBody.isLive = false;
+        responseBody.isBroadcasting = false;
       } else {
         throw error;
       }

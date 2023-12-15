@@ -23,8 +23,7 @@ const RequestToJoinStageButton = () => {
     updateSuccess,
     participants,
     hasStageRequestBeenApproved,
-    updateHasStageRequestBeenApproved,
-    spectatorParticipantId
+    updateHasStageRequestBeenApproved
   } = useGlobalStage();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
@@ -56,10 +55,12 @@ const RequestToJoinStageButton = () => {
       return;
     }
 
-    const { result: streamStatus, error } =
-      await channelAPI.getStreamLiveStatus();
+    const { result, error } = await channelAPI.getChannelLiveStatus();
 
-    if (streamStatus?.isLive || !!error) {
+    const displayErrorNotification =
+      result?.isBroadcasting || result?.isStageActive || !!error;
+
+    if (displayErrorNotification) {
       updateError({
         message: $channelContent.notifications.error.request_to_join_stage_fail,
         err: error
@@ -100,8 +101,7 @@ const RequestToJoinStageButton = () => {
         navigate('/manager', {
           state: {
             isJoiningStageByRequest: true,
-            stageId: channelData?.stageId,
-            participantId: spectatorParticipantId
+            stageId: channelData?.stageId
           }
         });
       }, 1500);
@@ -112,7 +112,6 @@ const RequestToJoinStageButton = () => {
     navigate,
     updateHasStageRequestBeenApproved,
     updateRequestingToJoinStage,
-    spectatorParticipantId,
     userData.channelId
   ]);
 

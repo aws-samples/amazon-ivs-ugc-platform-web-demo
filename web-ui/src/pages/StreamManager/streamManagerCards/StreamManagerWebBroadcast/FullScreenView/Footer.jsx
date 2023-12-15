@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { clsm } from '../../../../../utils';
@@ -20,7 +21,7 @@ import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
-const Footer = () => {
+const Footer = ({ shouldAddScrollbar }) => {
   const {
     initializeStageClient,
     isStageActive,
@@ -71,7 +72,8 @@ const Footer = () => {
       className={clsm([
         'flex',
         'justify-between',
-        isJoiningStageByRequestOrInvite && 'opacity-0'
+        isJoiningStageByRequestOrInvite && 'opacity-0',
+        shouldAddScrollbar && 'relative'
       ])}
     >
       <motion.div
@@ -95,34 +97,6 @@ const Footer = () => {
           isOpen
         />
       </motion.div>
-
-      <motion.div
-        className={clsm(['absolute', 'bottom-5', 'w-full'])}
-        {...createAnimationProps({
-          customVariants: {
-            hidden: {
-              width: goLiveButtonInitialWidth,
-              marginLeft: 0,
-              opacity: 1
-            },
-            visible: {
-              width:
-                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
-              marginLeft: getMarginLeft()
-            }
-          },
-          options: {
-            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
-          },
-          transition: ANIMATION_TRANSITION
-        })}
-      >
-        <GoLiveStreamButton
-          tooltipPosition="above"
-          tooltipCustomTranslate={{ y: 2 }}
-        />
-      </motion.div>
-
       {shouldRenderFullScreenCollaborateButton && !isStageActive && (
         <div className={clsm(['flex', 'flex-col', 'justify-center'])}>
           <Tooltip
@@ -160,8 +134,43 @@ const Footer = () => {
       {isStageActive && (
         <StageControls shouldShowCopyLinkText={!isMobileView} />
       )}
+      <motion.div
+        className={clsm([
+          'absolute',
+          'bottom-5',
+          isStageActive && shouldAddScrollbar && 'right-1',
+          'w-full'
+        ])}
+        {...createAnimationProps({
+          customVariants: {
+            hidden: {
+              width: goLiveButtonInitialWidth,
+              marginLeft: 0,
+              opacity: 1
+            },
+            visible: {
+              width:
+                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+              marginLeft: getMarginLeft()
+            }
+          },
+          options: {
+            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
+          },
+          transition: ANIMATION_TRANSITION
+        })}
+      >
+        <GoLiveStreamButton
+          tooltipPosition="above"
+          tooltipCustomTranslate={{ y: 2 }}
+        />
+      </motion.div>
     </div>
   );
+};
+
+Footer.propTypes = {
+  shouldAddScrollbar: PropTypes.bool.isRequired
 };
 
 export default Footer;

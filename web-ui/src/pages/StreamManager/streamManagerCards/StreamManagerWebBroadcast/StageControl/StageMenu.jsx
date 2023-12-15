@@ -24,7 +24,8 @@ const IconClasses = clsm([
   'dark:fill-white',
   'fill-white-player',
   'h-6',
-  'w-6'
+  'w-6',
+  'fill-black'
 ]);
 
 const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {

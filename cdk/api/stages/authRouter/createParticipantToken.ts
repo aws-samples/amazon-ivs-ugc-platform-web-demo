@@ -51,7 +51,7 @@ const handler = async (
       username: preferredUsername,
       profileColor,
       avatar,
-      channelAssetsAvatarUrlPath,
+      channelAssetsAvatarUrl,
       duration,
       userId,
       capabilities,
@@ -75,7 +75,7 @@ const handler = async (
         profileColor,
         avatar,
         channelId,
-        channelAssetsAvatarUrlPath,
+        channelAssetsAvatarUrl,
         ...(participantTypesArray.includes(participantType) && {
           participantTokenCreationDate: Date.now().toString()
         })

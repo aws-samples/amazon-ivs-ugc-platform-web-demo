@@ -89,11 +89,6 @@ export const Provider = ({ children }) => {
             );
           }
           break;
-        case channelEvents.STAGE_SESSION_HAS_ENDED:
-          notifyNeutral($contentNotification.neutral.the_session_ended, {
-            asPortal: true
-          });
-          break;
         case channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE:
           updateIsScreensharePermissionRevoked(true);
           break;

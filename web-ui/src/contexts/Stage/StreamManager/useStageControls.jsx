@@ -36,7 +36,7 @@ const useStageControls = ({
   const activeCameraDevice = activeDevices?.[CAMERA_LAYER_NAME];
   const activeMicrophoneDevice = activeDevices?.[MICROPHONE_AUDIO_INPUT_NAME];
 
-  const { openModal, closeModal } = useModal();
+  const { openModal } = useModal();
   const cameraDevices = devices?.[CAMERA_LAYER_NAME];
   const microphoneDevices = devices?.[MICROPHONE_AUDIO_INPUT_NAME];
   const prevCameraDevices = usePrevious(cameraDevices);
@@ -78,13 +78,12 @@ const useStageControls = ({
 
           const shouldShowSuccessNotification = !isStageHost;
 
-          leaveStage(shouldShowSuccessNotification);
+          leaveStage({ shouldShowSuccessNotification });
         },
-        onCancel: closeModal,
         lastFocusedElement: lastFocusedElementRef
       });
     },
-    [closeModal, isStageHost, leaveStage, openModal]
+    [isStageHost, leaveStage, openModal]
   );
 
   useEffect(() => {

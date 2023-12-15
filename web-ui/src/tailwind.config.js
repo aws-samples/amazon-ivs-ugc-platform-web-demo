@@ -95,7 +95,13 @@ module.exports = {
       maxWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
       minHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       minWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
-      width: { screen: 'calc(var(--mobile-vw,1vw) * 100)' }
+      width: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
+      dropShadow: {
+        'stage-profile': [
+          '0px 2px 2px rgba(0, 0, 0, 0.1)',
+          '0px 0px 4px rgba(0, 0, 0, 0.2)'
+        ]
+      }
     }
   },
   safelist,

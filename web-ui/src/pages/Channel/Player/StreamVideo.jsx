@@ -127,9 +127,6 @@ const StreamVideo = forwardRef(
           onMouseMove={onMouseMoveHandler}
           role="toolbar"
         >
-          {stagePlayerVisible && isChannelStagePlayerMuted && (
-            <UnmuteButtonOverLay />
-          )}
           <PlayerOverlay
             {...(areControlsContained && { className: 'before:rounded-b-3xl' })}
             isVisible={shouldShowControlsOverlay}
@@ -146,6 +143,9 @@ const StreamVideo = forwardRef(
               isVolumeSettingEnabled={!stagePlayerVisible}
             />
           </PlayerOverlay>
+          {stagePlayerVisible && isChannelStagePlayerMuted && (
+            <UnmuteButtonOverLay />
+          )}
           {!shouldShowControlsOverlay && (
             <div
               className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}

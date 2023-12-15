@@ -91,6 +91,7 @@
       "you": "(You)",
       "remove_from_session": "Remove from session",
       "remove_screen_share": "Are you sure you want to remove USERNAME (Screen share) from the session?",
+      "remove_participant": "Remove participant",
       "confirm": "Confirm",
       "delete": "Delete",
       "just_now": "Just now",

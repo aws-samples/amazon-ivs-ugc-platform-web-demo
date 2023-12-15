@@ -36,7 +36,7 @@ export const Provider = ({ children }) => {
     updateStageId,
     updateStreams,
     updateSuccess,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
+    updateShouldCloseFullScreenViewOnConnectionError,
     updateHasStageRequestBeenApproved,
     updateStageRequestList,
     deleteRequestToJoin,
@@ -44,7 +44,6 @@ export const Provider = ({ children }) => {
     updateIsScreensharing,
     updateIsJoiningStageByRequest,
     updateIsJoiningStageByInvite,
-    updateSpectatorParticipantId,
     updateShouldOpenSettingsModal,
     updateIsScreensharePermissionRevoked,
     updateLocalScreenshareStream
@@ -62,14 +61,13 @@ export const Provider = ({ children }) => {
     success,
     isBlockingRoute,
     isChannelStagePlayerMuted,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
+    shouldCloseFullScreenViewOnConnectionError,
     requestingToJoinStage,
     hasStageRequestBeenApproved,
     stageRequestList,
     isScreensharing,
     isJoiningStageByRequest,
     isJoiningStageByInvite,
-    spectatorParticipantId,
     shouldOpenSettingsModal,
     isScreensharePermissionRevoked,
     localScreenshareStream
@@ -103,6 +101,15 @@ export const Provider = ({ children }) => {
       stopTracks() {
         this.audioTrack?.mediaStreamTrack.stop();
         this.videoTrack?.mediaStreamTrack.stop();
+      },
+
+      resetTracks() {
+        this.updateTracks(undefined, undefined);
+      },
+
+      stopAndResetTracks() {
+        this.stopTracks();
+        this.resetTracks();
       }
     }),
     []
@@ -137,6 +144,7 @@ export const Provider = ({ children }) => {
   const { type = undefined } = localParticipant?.attributes || {};
   const isHost = type === PARTICIPANT_TYPES.HOST;
   const isInvitedParticipant = type === PARTICIPANT_TYPES.INVITED;
+  const isRequestedUserType = type === PARTICIPANT_TYPES.REQUESTED;
 
   const numberOfActiveScreenshares = useMemo(
     () =>
@@ -174,20 +182,19 @@ export const Provider = ({ children }) => {
       localScreenshareStream,
       participants,
       requestingToJoinStage,
-      shouldCloseFullScreenViewOnKickedOrHostLeave,
       shouldDisableScreenshareButton,
       shouldOpenSettingsModal,
-      spectatorParticipantId,
       stageId,
       strategy,
       success,
+      isRequestedUserType,
+      shouldCloseFullScreenViewOnConnectionError,
       updateIsChannelStagePlayerMuted,
       updateIsJoiningStageByInvite,
       updateIsJoiningStageByRequest,
       updateIsScreensharePermissionRevoked,
       updateIsScreensharing,
       updateShouldOpenSettingsModal,
-      updateSpectatorParticipantId,
       // Actions
       addParticipant,
       creatingStage,
@@ -203,10 +210,10 @@ export const Provider = ({ children }) => {
       updateLocalScreenshareStream,
       updateParticipant,
       updateRequestingToJoinStage,
-      updateShouldCloseFullScreenViewOnKickedOrHostLeave,
       updateStageId,
       updateStreams,
       updateSuccess,
+      updateShouldCloseFullScreenViewOnConnectionError,
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
@@ -245,28 +252,27 @@ export const Provider = ({ children }) => {
     localParticipant,
     localScreenshareStream,
     participants,
-    removeParticipant,
     requestingToJoinStage,
+    stageId,
+    strategy,
+    success,
+    shouldCloseFullScreenViewOnConnectionError,
+    updateIsChannelStagePlayerMuted,
+    removeParticipant,
     resetParticipants,
     resetStageState,
     screenshareStrategy,
     shouldAnimateGoLiveButtonChevronIcon,
-    shouldCloseFullScreenViewOnKickedOrHostLeave,
     shouldDisableScreenshareButton,
     shouldDisableStageButtonWithDelay,
     shouldOpenSettingsModal,
-    spectatorParticipantId,
-    stageId,
     stageRequestList,
-    strategy,
-    success,
     toggleCameraState,
     toggleMicrophoneState,
     updateAnimateCollapseStageContainerWithDelay,
     updateError,
     updateHasStageRequestBeenApproved,
     updateIsBlockingRoute,
-    updateIsChannelStagePlayerMuted,
     updateIsJoiningStageByInvite,
     updateIsJoiningStageByRequest,
     updateIsScreensharePermissionRevoked,
@@ -276,14 +282,14 @@ export const Provider = ({ children }) => {
     updateParticipant,
     updateRequestingToJoinStage,
     updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldCloseFullScreenViewOnKickedOrHostLeave,
     updateShouldDisableStageButtonWithDelay,
     updateShouldOpenSettingsModal,
-    updateSpectatorParticipantId,
     updateStageId,
     updateStageRequestList,
     updateStreams,
-    updateSuccess
+    updateSuccess,
+    isRequestedUserType,
+    updateShouldCloseFullScreenViewOnConnectionError
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -2,6 +2,7 @@ import { convertToAttr } from '@aws-sdk/util-dynamodb';
 import {
   AttributeValueUpdate,
   BatchWriteItemCommand,
+  BatchWriteItemInput,
   DynamoDBClient,
   QueryCommand,
   UpdateItemCommand,
@@ -13,6 +14,8 @@ import {
   StageSummary,
   DeleteStageCommand
 } from '@aws-sdk/client-ivs-realtime';
+import { buildChannelArn } from '../api/metrics/helpers';
+import { CHANNELS_TABLE_STAGE_FIELDS } from '../api/shared/constants';
 
 export const cognitoClient = new CognitoIdentityProviderClient({});
 export const dynamoDbClient = new DynamoDBClient({});
@@ -84,7 +87,7 @@ export const batchDeleteItemsWithRetry = async (
  * Cleanup Idle Stages
  */
 
-export const getIdleStageArns = (stages: StageSummary[]) => {
+export const getIdleStages = (stages: StageSummary[]) => {
   const currentTimestamp = Date.now();
   const millisecondsPerHour = 60 * 60 * 1000;
   const hoursThreshold = 1;
@@ -99,10 +102,40 @@ export const getIdleStageArns = (stages: StageSummary[]) => {
         (currentTimestamp - parseInt(creationDate)) / millisecondsPerHour;
 
       return timeDifferenceHours > hoursThreshold;
-    })
+    });
+};
+
+export const getBatchChannelWriteUpdates = (idleStages: StageSummary[]) => {
+  const channelWriteUpdates: WriteRequest[] = [];
+
+  idleStages.forEach((idleAndOldStage) => {
+    let hostChannelArn;
+    if (idleAndOldStage?.tags?.stageOwnerChannelId) {
+      hostChannelArn = buildChannelArn(
+        idleAndOldStage?.tags.stageOwnerChannelId
+      );
+    }
+    if (hostChannelArn) {
+      const channelUpdate = {
+        PutRequest: {
+          Item: {
+            primaryKey: { S: hostChannelArn },
+            [CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID]: { NULL: true },
+            [CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE]: { NULL: true }
+          }
+        }
+      };
+      channelWriteUpdates.push(channelUpdate);
+    }
+  });
+
+  return channelWriteUpdates;
+};
+
+export const getIdleStageArns = (idleStages: StageSummary[]) =>
+  idleStages
     .map((idleAndOldStage) => idleAndOldStage.arn)
     .filter((arn) => typeof arn === 'string') as string[];
-};
 
 const getDeleteStagePromises = (stageArns: string[]) =>
   stageArns.map((stageArn) => {
@@ -246,4 +279,18 @@ export const updateDynamoItemAttributes = ({
   });
 
   return dynamoDbClient.send(putItemCommand);
+};
+
+export const updateMultipleChannelDynamoItems = (
+  idleStagesChannelArns: WriteRequest[]
+) => {
+  const batchWriteInput: BatchWriteItemInput = {
+    RequestItems: {
+      [process.env.CHANNELS_TABLE_NAME as string]: idleStagesChannelArns
+    }
+  };
+
+  const batchWriteCommand = new BatchWriteItemCommand(batchWriteInput);
+
+  return dynamoDbClient.send(batchWriteCommand);
 };

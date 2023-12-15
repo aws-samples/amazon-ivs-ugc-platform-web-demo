@@ -24,7 +24,7 @@ const useStageClient = (
     strategy
   } = useGlobalStage();
   const { attachStageEvents } = useStageEventHandlers({
-    client: clientRef.current,
+    client: clientRef?.current,
     updateSuccess,
     stageConnectionErroredEventCallback
   });
@@ -41,18 +41,15 @@ const useStageClient = (
     [attachStageEvents]
   );
 
-  const leaveStageClient = useCallback(
-    (_strategy = strategy) => {
-      _strategy.stopTracks();
+  const leaveStageClient = useCallback(() => {
+    strategy.stopAndResetTracks();
 
-      if (clientRef.current) {
-        clientRef.current.removeAllListeners();
-        clientRef.current.leave();
-        clientRef.current = undefined;
-      }
-    },
-    [strategy]
-  );
+    if (clientRef?.current) {
+      clientRef.current.removeAllListeners();
+      clientRef.current.leave();
+      clientRef.current = undefined;
+    }
+  }, [strategy]);
 
   const resetAllStageState = useCallback(
     ({ omit } = {}) => {
@@ -63,16 +60,15 @@ const useStageClient = (
   );
 
   useEffect(() => {
-    if (isClientDefined && clientRef.current) {
-      window.addEventListener('beforeunload', () => {
-        queueMicrotask(
+    const beforeUnloadHandler = () => {
+      if (isClientDefined && clientRef?.current) {
+        queueMicrotask(() => {
           setTimeout(() => {
             if (isHost) {
               const body = {
                 hostChannelId:
                   localParticipant?.attributes?.channelId || userData?.channelId
               };
-              // Triggered on Firefox
               navigator.sendBeacon(
                 `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
                 JSON.stringify(body)
@@ -80,14 +76,20 @@ const useStageClient = (
             }
 
             clientRef.current.leave();
-          }, 0)
-        );
-      });
-    }
+          }, 0);
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+    };
   }, [isClientDefined, isHost, localParticipant, userData?.channelId]);
 
   return {
-    client: clientRef.current,
+    client: clientRef?.current,
     strategy,
     resetAllStageState,
     leaveStageClient,

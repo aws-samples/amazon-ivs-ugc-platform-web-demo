@@ -950,6 +950,30 @@
 					"response": []
 				},
 				{
+					"name": "/stages/:stageId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiBaseUrl}}/stages/:stageId",
+							"host": [
+								"{{apiBaseUrl}}"
+							],
+							"path": [
+								"stages",
+								":stageId"
+							],
+							"variable": [
+								{
+									"key": "stageId"
+								}
+							]
+						},
+						"description": "This endpoint retrieves the requested stage"
+					},
+					"response": []
+				},
+				{
 					"name": "/stages/createParticipantToken/:stageId/:participantType",
 					"request": {
 						"method": "GET",
@@ -1064,25 +1088,6 @@
 							]
 						},
 						"description": "This endpoint removes/disconnects a participant from the Amazon IVS Stage."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/disconnectSpectator",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/disconnectSpectator",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"disconnectSpectator"
-							]
-						},
-						"description": "This endpoint removes/disconnects a spectator from the Amazon IVS Stage."
 					},
 					"response": []
 				}

@@ -24,7 +24,6 @@ import { GlobalStageProvider } from './contexts/Stage';
 import {
   Channel,
   ChannelDirectory,
-  // Feed,
   Following,
   Settings,
   StreamHealth,
@@ -38,6 +37,8 @@ import {
   ResetPassword,
   SigninUser
 } from './pages/UserManagement/subpages';
+
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Page Layouts
 import { AppLayoutWithNavbar, RequireAuth } from './layouts';
@@ -59,19 +60,21 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
       element={
-        <MotionConfig reducedMotion="user">
-          <LastFocusedElementProvider>
-            <ResponsiveDeviceProvider>
-              <NotificationProvider>
-                <ModalProvider>
-                  <TooltipsProvider>
-                    <UserProvider />
-                  </TooltipsProvider>
-                </ModalProvider>
-              </NotificationProvider>
-            </ResponsiveDeviceProvider>
-          </LastFocusedElementProvider>
-        </MotionConfig>
+        <ErrorBoundary>
+          <MotionConfig reducedMotion="user">
+            <LastFocusedElementProvider>
+              <ResponsiveDeviceProvider>
+                <NotificationProvider>
+                  <ModalProvider>
+                    <TooltipsProvider>
+                      <UserProvider />
+                    </TooltipsProvider>
+                  </ModalProvider>
+                </NotificationProvider>
+              </ResponsiveDeviceProvider>
+            </LastFocusedElementProvider>
+          </MotionConfig>
+        </ErrorBoundary>
       }
     >
       <Route
@@ -99,8 +102,6 @@ const router = createBrowserRouter(
             />
           </Route>
         </Route>
-        {/* <Route path="feed" element={<Feed />} /> */}
-
         {/* PRIVATE PAGES */}
         <Route element={<RequireAuth />}>
           <Route path="following" element={<Following />} />

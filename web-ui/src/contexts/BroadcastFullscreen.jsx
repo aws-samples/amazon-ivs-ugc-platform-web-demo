@@ -27,9 +27,11 @@ Context.displayName = 'Fullscreen';
 
 export const Provider = ({ children, previewRef }) => {
   const webBroadcastParentContainerRef = useRef();
+  const collapsedContainerRef = useRef();
   const webBroadcastContainerRef = useRef();
   const goLiveButtonRef = useRef();
   const broadcastControllerRef = useRef();
+  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { isDesktopView, isMobileView } = useResponsiveDevice();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
@@ -44,7 +46,7 @@ export const Provider = ({ children, previewRef }) => {
     isStageActive,
     collaborateButtonAnimationControls,
     animationCollapseStageControlsStart,
-    shouldCloseFullScreenViewOnKickedOrHostLeave
+    shouldCloseFullScreenViewOnConnectionError
   } = useGlobalStage();
 
   const [dimensions, updateDimensions] = useReducer(
@@ -58,6 +60,22 @@ export const Provider = ({ children, previewRef }) => {
       broadcastControllerInitialMarginLeft: 0
     }
   );
+
+  useEffect(() => {
+    if (
+      isFullScreenViewOpen &&
+      !isDesktopView &&
+      !isStageActive &&
+      !isJoiningStageByRequestOrInvite
+    ) {
+      setIsFullScreenViewOpen(false);
+    }
+  }, [
+    isDesktopView,
+    isFullScreenViewOpen,
+    isStageActive,
+    isJoiningStageByRequestOrInvite
+  ]);
 
   const calculateTopAndLeftValues = useCallback(() => {
     const topOffset = isDesktopView ? 0 : 56; // tab height
@@ -158,8 +176,8 @@ export const Provider = ({ children, previewRef }) => {
 
     setDimensionClasses([]);
     fullscreenAnimationControls.start({
-      width: 311,
-      height: 174.94,
+      width: collapsedContainerRef.current?.clientWidth || 311,
+      height: collapsedContainerRef.current?.clientHeight || 174.94,
       transition: ANIMATION_TRANSITION
     });
 
@@ -188,13 +206,13 @@ export const Provider = ({ children, previewRef }) => {
   }, [collaborateButtonAnimationControls]);
 
   useEffect(() => {
-    if (!shouldCloseFullScreenViewOnKickedOrHostLeave) return;
+    if (!shouldCloseFullScreenViewOnConnectionError) return;
 
     closeFullscreenAndAnimateCollaborateButton();
   }, [
     closeFullscreenAndAnimateCollaborateButton,
     collaborateButtonAnimationControls,
-    shouldCloseFullScreenViewOnKickedOrHostLeave
+    shouldCloseFullScreenViewOnConnectionError
   ]);
 
   const value = useMemo(
@@ -222,7 +240,8 @@ export const Provider = ({ children, previewRef }) => {
       handleOpenFullScreenView,
       closeFullscreenAndAnimateCollaborateButton,
       goLiveButtonRef,
-      broadcastControllerRef
+      broadcastControllerRef,
+      collapsedContainerRef
     }),
     [
       collaborateButtonAnimationControls,
@@ -241,7 +260,8 @@ export const Provider = ({ children, previewRef }) => {
       handleOpenFullScreenView,
       closeFullscreenAndAnimateCollaborateButton,
       goLiveButtonRef,
-      broadcastControllerRef
+      broadcastControllerRef,
+      collapsedContainerRef
     ]
   );
 

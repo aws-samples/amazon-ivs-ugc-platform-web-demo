@@ -48,11 +48,14 @@ export const STAGE_PROFILE_TYPES = {
 const $streamManagerStage = $content.stream_manager_stage;
 
 const StageProfilePill = ({
-  profileColor,
   avatarSrc,
-  username,
+  className,
+  profileColor,
+  subEl,
+  textClassName,
   type,
-  isScreenshare
+  isScreenshare,
+  username
 }) => {
   const shouldInvertColors = !!profileColor
     ? isTextColorInverted(profileColor)
@@ -75,7 +78,7 @@ const StageProfilePill = ({
           '@stage-video-md/video:visible',
           '@stage-video-xl/video:[&>img]:h-8',
           '@stage-video-xl/video:[&>img]:w-8',
-          '@stage-video-xl/video:max-w-[168px]',
+          '@stage-video-xl/video:max-w-[208px]',
           // @container screenshare
           '@stage-video-lg/screenshare:[&>img]:block',
           '@stage-video-lg/screenshare:[&>img]:h-6',
@@ -103,7 +106,7 @@ const StageProfilePill = ({
         'flex',
         'gap-1',
         'items-center',
-        !isScreenshare && 'max-w-[80px]',
+        !isScreenshare && 'max-w-[108px]',
         'rounded-3xl',
         'w-auto',
         STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL &&
@@ -113,41 +116,61 @@ const StageProfilePill = ({
           ],
         !isScreenshare &&
           !!profileColor &&
-          PROFILE_COLOR_CLASSNAME_MAPPER[profileColor]
+          PROFILE_COLOR_CLASSNAME_MAPPER[profileColor],
+        className
       ])}
     >
       {!isScreenshare && <img src={avatarSrc} alt="" />}
-      <h3
-        className={clsm([
-          '@stage-video-lg/screenshare:max-w-[120px]',
-          '@stage-video-xl/screenshare:max-w-[168px]',
-          'truncate',
-          textStyles
-        ])}
-      >
-        {username}
-      </h3>
-      {isScreenshare && (
-        <h3 className={clsm(['whitespace-nowrap', textStyles])}>
-          {$streamManagerStage.screenshare}
+      <div className="overflow-hidden">
+        <h3
+          className={clsm([
+            'font-bold',
+            'text-p2',
+            'truncate',
+            '@stage-video-lg/screenshare:max-w-[120px]',
+            '@stage-video-xl/screenshare:max-w-[168px]',
+            type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+              'drop-shadow-stage-profile',
+              '@stage-video-lg/video:drop-shadow-none',
+              '@stage-video-xl/video:font-bold',
+              '@stage-video-xl/video:text-p1'
+            ],
+            textStyles,
+            textClassName
+          ])}
+        >
+          {username}
         </h3>
-      )}
+        {isScreenshare && (
+          <h3 className={clsm(['whitespace-nowrap', textStyles])}>
+            {$streamManagerStage.screenshare}
+          </h3>
+        )}
+        {subEl}
+      </div>
     </div>
   );
 };
 
 StageProfilePill.defaultProps = {
   type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
+  className: '',
+  subEl: null,
+  textClassName: '',
   profileColor: '',
   avatarSrc: '',
   isScreenshare: false
 };
+
 StageProfilePill.propTypes = {
-  profileColor: PropTypes.string,
   avatarSrc: PropTypes.string,
+  className: PropTypes.string,
+  profileColor: PropTypes.string,
+  subEl: PropTypes.node,
+  textClassName: PropTypes.string,
+  type: PropTypes.string,
   username: PropTypes.string.isRequired,
-  isScreenshare: PropTypes.bool,
-  type: PropTypes.string
+  isScreenshare: PropTypes.bool
 };
 
 export default StageProfilePill;

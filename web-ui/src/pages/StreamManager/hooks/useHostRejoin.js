@@ -5,6 +5,7 @@ import { PARTICIPANT_TYPES } from '../../../contexts/Stage/Global/reducer/global
 import { streamManager as $streamManagerContent } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useGlobalStage, useStreamManagerStage } from '../../../contexts/Stage';
+import { useBroadcast } from '../../../contexts/Broadcast';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -18,10 +19,10 @@ const useHostRejoin = () => {
     updateError,
     broadcastDevicesStateObjRef
   } = useStreamManagerStage();
+  const { removeBroadcastClient } = useBroadcast();
 
   const handleHostRejoin = useCallback(
     async (openFullscreenView) => {
-      // Show spinner
       creatingStage(true);
 
       // Generate and fetch token for the host to join
@@ -33,8 +34,8 @@ const useHostRejoin = () => {
       creatingStage(false);
 
       if (result?.token) {
+        removeBroadcastClient();
         await createStageInstanceAndJoin(result.token, channelTableStageId);
-        // open fullscreen view
         openFullscreenView();
       }
 
@@ -56,7 +57,8 @@ const useHostRejoin = () => {
       updateError,
       broadcastDevicesStateObjRef,
       localParticipant?.isCameraHidden,
-      localParticipant?.isMicrophoneMuted
+      localParticipant?.isMicrophoneMuted,
+      removeBroadcastClient
     ]
   );
 

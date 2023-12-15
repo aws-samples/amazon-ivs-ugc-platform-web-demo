@@ -14,17 +14,22 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import {
   ChannelAssets,
+  dynamoDbClient,
   getChannelAssetUrls,
-  getChannelId
+  getChannelId,
+  updateDynamoItemAttributes
 } from '../shared/helpers';
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
+  CHANNELS_TABLE_STAGE_FIELDS,
   CUSTOM_AVATAR_NAME,
+  RESOURCE_NOT_FOUND_EXCEPTION,
   STAGE_TOKEN_DURATION
 } from '../shared/constants';
 import { getUser } from '../channel/helpers';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
 
@@ -126,7 +131,31 @@ export const handleCreateParticipantToken = async (
 export const buildStageArn = (stageId: string) =>
   `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}${USER_STAGE_ID_SEPARATOR}${stageId}`;
 
-export const getStage = async (stageId: string) => {
+const updateHostChannelTable = async (hostChannelArn: string) => {
+  const queryCommand = new QueryCommand({
+    TableName: process.env.CHANNELS_TABLE_NAME,
+    IndexName: 'channelArnIndex',
+    KeyConditionExpression: 'channelArn = :channelArn',
+    ExpressionAttributeValues: {
+      ':channelArn': convertToAttr(hostChannelArn)
+    }
+  });
+  const { Items = [] } = await dynamoDbClient.send(queryCommand);
+  const { id } = unmarshall(Items[0]);
+  await updateDynamoItemAttributes({
+    attributes: [
+      { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID, value: null },
+      {
+        key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
+        value: null
+      }
+    ],
+    primaryKey: { key: 'id', value: id },
+    tableName: process.env.CHANNELS_TABLE_NAME as string
+  });
+};
+
+export const getStage = async (stageId: string, hostChannelArn?: string) => {
   try {
     const stageArn = buildStageArn(stageId);
 
@@ -134,12 +163,25 @@ export const getStage = async (stageId: string) => {
     const stage = await client.send(getStageCommand);
 
     return stage;
-  } catch (err) {
-    throw new Error('Something went wrong');
+  } catch (err: unknown) {
+    const { name } = err as Error;
+    if (name === RESOURCE_NOT_FOUND_EXCEPTION) {
+      if (hostChannelArn) {
+        try {
+          await updateHostChannelTable(hostChannelArn);
+        } catch (err) {
+          throw new Error('Failed to update host channel table.');
+        }
+      } else {
+        throw err;
+      }
+    }
+
+    throw new Error('Failed to retrieve stage information.');
   }
 };
 
-export const getChannelAssetAvatarURL = (
+export const getEncodedChannelAssetAvatarURL = (
   channelAssets: ChannelAssets,
   avatar: string
 ) => {
@@ -147,7 +189,7 @@ export const getChannelAssetAvatarURL = (
     getChannelAssetUrls(channelAssets)?.[ALLOWED_CHANNEL_ASSET_TYPES[0]];
 
   return avatar === CUSTOM_AVATAR_NAME && !!channelAssetsAvatarUrl
-    ? channelAssetsAvatarUrl.split(CHANNEL_ASSET_AVATAR_DELIMITER)[1]
+    ? encodeURIComponent(channelAssetsAvatarUrl)
     : '';
 };
 
@@ -165,7 +207,7 @@ export const handleCreateStageParams = async ({
     channelAssets,
     channelArn,
     channelId = '',
-    channelAssetsAvatarUrlPath = '';
+    channelAssetsAvatarUrl = '';
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
     const { Item: UserItem = {} } = await getUser(userSub);
@@ -181,7 +223,7 @@ export const handleCreateStageParams = async ({
       channelId = getChannelId(channelArn);
     }
 
-    channelAssetsAvatarUrlPath = getChannelAssetAvatarURL(
+    channelAssetsAvatarUrl = getEncodedChannelAssetAvatarURL(
       channelAssets,
       avatar
     );
@@ -219,7 +261,7 @@ export const handleCreateStageParams = async ({
     username,
     profileColor,
     avatar,
-    channelAssetsAvatarUrlPath,
+    channelAssetsAvatarUrl,
     duration: STAGE_TOKEN_DURATION,
     userId,
     capabilities,
@@ -242,9 +284,9 @@ export const generateHostUserId = (channelArn: string) => {
 };
 
 export const isUserInStage = async (stageId: string, userSub: string) => {
-  const { stage } = await getStage(stageId);
   const { Item: UserItem = {} } = await getUser(userSub);
   const { channelArn } = unmarshall(UserItem);
+  const { stage } = await getStage(stageId, channelArn);
   const hostUserId = generateHostUserId(channelArn);
   const stageArn = buildStageArn(stageId);
 
@@ -278,8 +320,11 @@ const getNumberOfParticipantsInStage = (
   const participantIds = new Map();
 
   for (const participant of participants) {
-    const { participantId } = participant;
-    if (!participantIds.has(participantId)) {
+    const { participantId, state } = participant;
+    if (
+      !participantIds.has(participantId) &&
+      state === PARTICIPANT_CONNECTION_STATES.CONNECTED
+    ) {
       participantIds.set(participantId, true);
       participantList.add(participant);
     }

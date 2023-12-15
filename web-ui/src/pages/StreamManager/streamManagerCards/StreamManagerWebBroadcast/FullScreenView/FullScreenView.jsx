@@ -6,7 +6,7 @@ import {
   ANIMATION_TRANSITION,
   useBroadcastFullScreen
 } from '../../../../../contexts/BroadcastFullscreen';
-import { clsm } from '../../../../../utils';
+import { clsm, noop } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import {
@@ -16,33 +16,34 @@ import {
 import StageVideoFeeds, {
   STAGE_VIDEO_FEEDS_TYPES
 } from '../StageVideoFeeds/StageVideoFeeds';
-import useFocusTrap from '../../../../../hooks/useFocusTrap';
-import withPortal from '../../../../../components/withPortal';
+import { useBroadcast } from '../../../../../contexts/Broadcast';
+import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
-import { useBroadcast } from '../../../../../contexts/Broadcast';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import useFocusTrap from '../../../../../hooks/useFocusTrap';
 import useResize from '../../../../../hooks/useResize';
+import withPortal from '../../../../../components/withPortal';
 
 const FullScreenView = () => {
-  const { isStageActive, stageControlsVisibility } = useStreamManagerStage();
+  const { isStageActive } = useStreamManagerStage();
   const {
     isJoiningStageByRequestOrInvite,
     shouldOpenSettingsModal,
     updateShouldOpenSettingsModal
   } = useGlobalStage();
+  const { handleOpenJoinModal } = useStreamManagerStage();
   const {
     isFullScreenViewOpen,
     dimensions,
     initializeGoLiveContainerDimensions
   } = useBroadcastFullScreen();
   const { resetPreview } = useBroadcast();
-  const { openModal } = useModal();
+  const { openModal, isModalOpen } = useModal();
   const fullScreenViewContainerRef = useRef();
-  const { isMobileView } = useResponsiveDevice();
-  const { isModalOpen } = useModal();
-  const { shouldRenderFullscreenCollapseCloseButton } = stageControlsVisibility;
+  const { isMobileView, dimensions: windowDimensions } = useResponsiveDevice();
+  const { height: windowHeight } = windowDimensions;
+  const shouldAddScrollbar = windowHeight <= 350;
   const content =
     isStageActive || isJoiningStageByRequestOrInvite ? (
       <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
@@ -64,20 +65,28 @@ const FullScreenView = () => {
   useResize(initializeGoLiveContainerDimensions);
 
   useEffect(() => {
-    if (isJoiningStageByRequestOrInvite) {
-      openModal({
-        type: MODAL_TYPE.STAGE_JOIN
-      });
+    if (!isModalOpen && isJoiningStageByRequestOrInvite) {
+      handleOpenJoinModal();
       resetPreview();
     }
-  }, [openModal, resetPreview, isJoiningStageByRequestOrInvite]);
+  }, [
+    isModalOpen,
+    handleOpenJoinModal,
+    resetPreview,
+    isJoiningStageByRequestOrInvite
+  ]);
 
   useEffect(() => {
     if (shouldOpenSettingsModal && !isMobileView) {
-      openModal({ type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS });
+      openModal({
+        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
+        onCancel: isJoiningStageByRequestOrInvite ? handleOpenJoinModal : noop
+      });
       updateShouldOpenSettingsModal(false);
     }
   }, [
+    isJoiningStageByRequestOrInvite,
+    handleOpenJoinModal,
     openModal,
     isMobileView,
     shouldOpenSettingsModal,
@@ -117,6 +126,7 @@ const FullScreenView = () => {
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
+        shouldAddScrollbar && ['overflow-y-scroll', 'overflow-x-hidden'],
         isMobileView ? 'z-[300]' : 'z-[700]',
         isJoiningStageByRequestOrInvite && [
           'w-full',
@@ -126,8 +136,7 @@ const FullScreenView = () => {
         ]
       ])}
     >
-      {(shouldRenderFullscreenCollapseCloseButton || !isStageActive) &&
-        !isJoiningStageByRequestOrInvite && <Header />}
+      {!isJoiningStageByRequestOrInvite && <Header />}
       <motion.div
         className={clsm([
           'flex',
@@ -158,7 +167,7 @@ const FullScreenView = () => {
         })}
       >
         {content}
-        <Footer />
+        <Footer shouldAddScrollbar={shouldAddScrollbar} />
       </motion.div>
     </motion.div>
   );

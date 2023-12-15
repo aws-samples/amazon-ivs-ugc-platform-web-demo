@@ -35,7 +35,7 @@ const StreamEventsList = forwardRef(
     const selectedEventRef = useRef();
     const setSelectedEventRef = useCallback(
       (eventEl) => {
-        const eventId = eventEl?.attributes['data-id'].value;
+        const eventId = eventEl?.attributes['data-id']?.value;
         if (eventId === selectedEventId) selectedEventRef.current = eventEl;
       },
       [selectedEventId]

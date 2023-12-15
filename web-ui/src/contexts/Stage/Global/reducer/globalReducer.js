@@ -78,14 +78,13 @@ export const STATE_KEYS = {
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
   IS_SCREEN_SHARING: 'isScreensharing',
   LOCAL_SCREEN_SHARE_STREAM: 'localScreenshareStream',
-  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE:
-    'shouldCloseFullScreenViewOnKickedOrHostLeave',
+  SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR:
+    'shouldCloseFullScreenViewOnConnectionError',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
   HAS_STAGE_REQUEST_BEEN_APPROVED: 'hasStageRequestBeenApproved',
   STAGE_REQUEST_LIST: 'stageRequestList',
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
   IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
-  SPECTATOR_PARTICIPANT_ID: 'spectatorParticipantId',
   SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal',
   IS_SCREEN_SHARE_PERMISSION_REVOKED: 'isScreensharePermissionRevoked'
 };
@@ -100,8 +99,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
   [STATE_KEYS.IS_SCREEN_SHARING]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
-  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]: false,
   [STATE_KEYS.LOCAL_SCREEN_SHARE_STREAM]: null,
+  [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
   [STATE_KEYS.STAGE_REQUEST_LIST]: [],
@@ -165,7 +164,7 @@ const globalReducer = (state = defaultReducerState, action) => {
         return acc;
       }, {});
 
-      return { ...defaultStageReducerState, ...statesToOmit };
+      return { ...defaultReducerState, ...statesToOmit };
     }
 
     case actionTypes.CREATING_STAGE: {
@@ -264,7 +263,7 @@ const globalReducer = (state = defaultReducerState, action) => {
     case actionTypes.TOGGLE_PARTICIPANT_CAMERA: {
       const { key, isCameraHidden = null } = action.payload;
       currentParticipant = currentParticipants.get(key);
-      const shouldCameraBeHidden = !currentParticipant.isCameraHidden;
+      const shouldCameraBeHidden = !currentParticipant?.isCameraHidden;
 
       if (!currentParticipant) return state;
 
@@ -351,10 +350,10 @@ const globalReducer = (state = defaultReducerState, action) => {
       };
     }
 
-    case actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE: {
+    case actionTypes.UPDATE_SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR: {
       return {
         ...state,
-        [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_KICKED_OR_HOST_LEAVE]:
+        [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR]:
           action.payload
       };
     }

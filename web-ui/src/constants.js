@@ -64,6 +64,7 @@ export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 export const USER_LAMBDA_VALIDATION_EXCEPTION = 'UserLambdaValidationException';
 export const USER_NOT_FOUND_EXCEPTION = 'UserNotFoundException';
 export const USERNAME_EXISTS_EXCEPTION = 'UsernameExistsException';
+export const RESOURCE_NOT_FOUND_EXCEPTION = 'ResourceNotFoundException';
 
 export const GENERIC_ERROR_MESSAGE = 'Unexpected Error Occurred';
 

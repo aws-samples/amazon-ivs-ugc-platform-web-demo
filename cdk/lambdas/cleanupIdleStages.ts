@@ -3,7 +3,10 @@ import { ListStagesCommand } from '@aws-sdk/client-ivs-realtime';
 import {
   ivsRealTimeClient,
   getIdleStageArns,
-  deleteStagesWithRetry
+  deleteStagesWithRetry,
+  updateMultipleChannelDynamoItems,
+  getBatchChannelWriteUpdates,
+  getIdleStages
 } from './helpers';
 
 export const handler = async () => {
@@ -19,8 +22,14 @@ export const handler = async () => {
       const _nextToken = response?.nextToken || '';
 
       if (stages.length) {
-        const idleStageArns = getIdleStageArns(stages);
-        await deleteStagesWithRetry(idleStageArns);
+        const idleStages = getIdleStages(stages);
+        const idleStageArns = getIdleStageArns(idleStages);
+        const batchChannelWriteUpdates =
+          getBatchChannelWriteUpdates(idleStages);
+        await Promise.all([
+          deleteStagesWithRetry(idleStageArns),
+          updateMultipleChannelDynamoItems(batchChannelWriteUpdates)
+        ]);
       }
 
       if (_nextToken) await deleteIdleStages(_nextToken);

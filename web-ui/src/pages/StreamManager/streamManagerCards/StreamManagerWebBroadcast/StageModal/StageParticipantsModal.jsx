@@ -20,7 +20,7 @@ const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
   const { closeModal, isModalOpen, type } = useModal();
-  const { participants, stageRequestList } = useGlobalStage();
+  const { stageRequestList, participants } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
 
   const renderStageParticipantsModal = (children) => (

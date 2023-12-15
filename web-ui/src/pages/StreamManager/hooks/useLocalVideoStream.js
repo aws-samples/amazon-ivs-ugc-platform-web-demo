@@ -92,7 +92,10 @@ const useLocalVideoStream = ({
   ]);
 
   useEffect(() => {
-    if (localParticipant?.isCameraHidden) {
+    if (
+      localParticipant?.isCameraHidden &&
+      strategy.videoTrack?.mediaStreamTrack?.enabled
+    ) {
       strategy.videoTrack?.mediaStreamTrack.stop();
       localParticipant?.streams?.[0]?.mediaStreamTrack.stop();
     }

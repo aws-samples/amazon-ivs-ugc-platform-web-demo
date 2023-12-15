@@ -49,6 +49,7 @@ const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
+  const shouldFetchSpectatorTokenRef = useRef(true);
   const { channelError, channelData: { stageId, channelArn } = {} } =
     useChannel();
   const {
@@ -56,7 +57,7 @@ const Channel = () => {
     resetParticipants,
     updateError,
     error: stageError,
-    success: stageSuccess,
+    success: stageSuccessMessage,
     updateSuccess,
     requestingToJoinStage,
     updateRequestingToJoinStage
@@ -66,40 +67,38 @@ const Channel = () => {
   const { userData } = useUser();
 
   useEffect(() => {
-    // There are many stage success and error messages, however on the channel page,
-    // we are only interested in showing the following messages
-    const requestToJoinStageFailed =
-      stageError?.message ===
-      $channelContent.notifications.error.request_to_join_stage_fail;
-    const requestToJoinStageSuccess =
-      stageSuccess ===
-      $channelContent.notifications.success.request_to_join_stage_success;
+    if (stageSuccessMessage) {
+      if (
+        stageSuccessMessage ===
+        $channelContent.notifications.success.request_to_join_stage_success
+      ) {
+        notifySuccess(stageSuccessMessage);
+      }
 
-    if (requestToJoinStageFailed) {
+      updateSuccess(null);
+    }
+
+    if (stageError) {
       const { message, err } = stageError;
+      if (err) console.error(err, message);
 
-      if (err) console.error(...[err, message].filter((data) => !!data));
-
-      if (message) {
-        notifyError(
-          $channelContent.notifications.error.request_to_join_stage_fail,
-          { asPortal: true }
-        );
+      if (
+        message ===
+          $channelContent.notifications.error.request_to_join_stage_fail ||
+        message === $playerContent.notification.error.error_loading_stream
+      ) {
+        notifyError(message);
       }
 
       updateError(null);
-      return;
     }
 
-    if (requestToJoinStageSuccess) {
-      notifySuccess(stageSuccess);
-      updateSuccess(null);
-    }
+    return;
   }, [
     stageError,
     notifyError,
     updateError,
-    stageSuccess,
+    stageSuccessMessage,
     notifySuccess,
     updateSuccess
   ]);
@@ -118,7 +117,13 @@ const Channel = () => {
     shouldRenderActionInTab,
     isChannelPageStackedView
   } = useViewerStreamActions();
-  const { isActive: isPollActive, pollTabLabel, hasVotes } = usePoll();
+  const {
+    isActive: isPollActive,
+    pollTabLabel,
+    hasVotes,
+    shouldHideActivePoll
+  } = usePoll();
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
@@ -136,7 +141,8 @@ const Channel = () => {
   else if (isStackedView) visibleChatWidth = '100%';
 
   const isTabView =
-    shouldRenderActionInTab || (isPollActive && isChannelPageStackedView);
+    shouldRenderActionInTab ||
+    (isPollActive && isChannelPageStackedView && !shouldHideActivePoll);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
@@ -166,12 +172,13 @@ const Channel = () => {
    * IVS Real-time streaming
    */
   useEffect(() => {
-    const isRealTimeStreamActive = stageId && prevStageId !== stageId;
-    const isRealTimeStreamEnded = !stageId && prevStageId;
+    if (!shouldFetchSpectatorTokenRef.current || !stageId) return;
 
-    if (isRealTimeStreamActive) {
-      (async function () {
-        const { result, error } = await retryWithExponentialBackoff({
+    shouldFetchSpectatorTokenRef.current = false;
+
+    (async function () {
+      try {
+        const { result } = await retryWithExponentialBackoff({
           promiseFn: () => getSpectatorToken(stageId),
           maxRetries: 3
         });
@@ -183,20 +190,13 @@ const Channel = () => {
           });
           shouldDisplayStagePlayerRef.current = true;
         }
-
-        if (error) {
-          updateError({
-            message: $playerContent.notification.error.error_loading_stream,
-            err: error
-          });
-        }
-      })();
-    }
-
-    if (isRealTimeStreamEnded) {
-      resetAllStageState();
-      leaveStageClient();
-    }
+      } catch (err) {
+        updateError({
+          message: $playerContent.notification.error.error_loading_stream,
+          err
+        });
+      }
+    })();
   }, [
     joinStageClient,
     leaveStageClient,
@@ -207,6 +207,17 @@ const Channel = () => {
     resetParticipants,
     updateError
   ]);
+
+  useEffect(() => {
+    const isRealTimeStreamEnded =
+      (!stageId && prevStageId) || (prevStageId && prevStageId !== stageId);
+
+    if (isRealTimeStreamEnded) {
+      leaveStageClient();
+      resetAllStageState();
+      shouldFetchSpectatorTokenRef.current = true;
+    }
+  }, [leaveStageClient, prevStageId, resetAllStageState, stageId]);
 
   // Triggered when navigating away from the channel page
   useEffect(() => {
@@ -224,9 +235,11 @@ const Channel = () => {
 
         updateRequestingToJoinStage(false);
         resetAllStageState();
+        leaveStageClient();
       }
     };
   }, [
+    leaveStageClient,
     channelArn,
     publish,
     updateRequestingToJoinStage,
@@ -294,12 +307,10 @@ const Channel = () => {
           ])}
           ref={channelRef}
         >
-          <NotificationProvider>
-            <Player
-              chatSectionRef={chatSectionRef}
-              stagePlayerVisible={shouldDisplayStagePlayer}
-            />
-          </NotificationProvider>
+          <Player
+            chatSectionRef={chatSectionRef}
+            stagePlayerVisible={shouldDisplayStagePlayer}
+          />
           <ProductDescriptionModal />
           <motion.section
             {...getProfileViewAnimationProps(
@@ -371,7 +382,9 @@ const Channel = () => {
                       {hasVotes && (
                         <NotificationProvider>
                           <ChatProvider>
-                            <Poll shouldRenderInTab={true} />
+                            {!shouldHideActivePoll && (
+                              <Poll shouldRenderInTab={true} />
+                            )}
                           </ChatProvider>
                         </NotificationProvider>
                       )}
@@ -429,7 +442,9 @@ const Channel = () => {
                 >
                   <NotificationProvider>
                     <ChatProvider>
-                      {!isTabView && hasVotes && <Poll />}
+                      {!isTabView && hasVotes && !shouldHideActivePoll && (
+                        <Poll />
+                      )}
                       <Chat
                         shouldRunCelebration={
                           currentViewerStreamActionName ===

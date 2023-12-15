@@ -173,7 +173,7 @@ export const Provider = ({
   const toggleScreenShareThrottled = useThrottledCallback(
     toggleScreenShare,
     250
-  ); // throttled version of toggleScreenShare
+  );
 
   const stopBroadcast = useCallback(() => client?.stopBroadcast(), []);
 
@@ -296,7 +296,7 @@ export const Provider = ({
         }
         if (addDevice) {
           const didUpdate = await addDevice(deviceName, {
-            deviceId: activeDevices[deviceName].deviceId,
+            deviceId: activeDevices[deviceName]?.deviceId,
             ...options
           });
 
@@ -387,7 +387,7 @@ export const Provider = ({
     if (error) {
       const { message, err } = error;
 
-      if (err) console.error(...[err, message].filter((data) => !!data));
+      if (err) console.error(err, message);
 
       if (message) notifyError(message, { asPortal: true });
 
