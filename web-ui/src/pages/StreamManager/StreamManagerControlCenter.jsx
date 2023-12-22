@@ -22,13 +22,18 @@ const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     const { state } = useLocation();
     const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
-    const { resetPreview, initializeDevices, presetLayers, isBroadcasting ,canvasRef,
+    const {
+      resetPreview,
+      initializeDevices,
+      presetLayers,
+      isBroadcasting,
+      canvasRef,
       startDrawing,
       draw,
       endDrawing,
-      initializeCanvas} =
-      useBroadcast();
-     
+      initializeCanvas
+    } = useBroadcast();
+
     const areDevicesInitialized = useRef(false);
     const webBroadcastParentContainerRef = useRef();
     const [selectedTabIndex, setSelectedTabIndex] = useState(
@@ -155,11 +160,13 @@ const StreamManagerControlCenter = forwardRef(
                   />
                 </div>
                 <NotificationProvider>
-                <DrawingComponent  ref={canvasRef}
-      startDrawing={startDrawing}
-      draw={draw}
-      endDrawing={endDrawing}
-      initializeCanvas={initializeCanvas}/>
+                  <DrawingComponent
+                    ref={canvasRef}
+                    startDrawing={startDrawing}
+                    draw={draw}
+                    endDrawing={endDrawing}
+                    initializeCanvas={initializeCanvas}
+                  />
 
                   <StreamManagerChat />
                 </NotificationProvider>

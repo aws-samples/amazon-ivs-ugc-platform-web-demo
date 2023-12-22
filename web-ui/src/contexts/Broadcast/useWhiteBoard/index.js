@@ -1,32 +1,26 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-
+import { useCallback, useEffect,  useState } from 'react';
 import { CAMERA_LAYER_NAME } from '../useLayers';
-import { captureScreenShareStream } from './utils';
-import { streamManager as $streamManagerContent } from '../../../content';
 import useLatest from '../../../hooks/useLatest';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
 
-const $content = $streamManagerContent.stream_manager_web_broadcast;
 
-const SCREEN_SHARE_ID = 'screen-share';
-const SCREEN_SHARE_VIDEO_LAYER_NAME = `${SCREEN_SHARE_ID}-layer`;
-const SCREEN_SHARE_AUDIO_INPUT_NAME = `${SCREEN_SHARE_ID}-audio-input`;
+const WHITEBOARD_ID = 'screen-share';
+const WHITEBOARD_VIDEO_LAYER_NAME = `${WHITEBOARD_ID}-layer`;
+const WHITEBOARD_AUDIO_INPUT_NAME = `${WHITEBOARD_ID}-audio-input`;
 
 const CAMERA_SIZE_DIVISOR = 4;
 const CAMERA_LAYER_PADDING = 20;
 
-const useScreenShare = ({
-  addScreenShareAudioInput,
+const useWhiteBoard = ({
   addScreenShareLayer,
   removeAudioInput,
   removeLayer,
   updateLayerGroup,
-  setError
+  canvasRef
 }) => {
   const [screenCaptureStream, setScreenCaptureStream] = useState(null);
   const [shouldShowCameraOnScreenShare, setShouldShowCameraOnScreenShare] =
     useStateWithCallback(true);
-  const isScreenSharePromptOpen = useRef(false);
   const isScreenSharing = useLatest(!!screenCaptureStream);
   const screenCaptureStreamTracks = useLatest(
     screenCaptureStream?.getTracks() || []
@@ -49,15 +43,15 @@ const useScreenShare = ({
     [updateLayerGroup]
   );
 
-  const stopScreenShare = useCallback(() => {
+  const stopWhiteBoard = useCallback(() => {
     if (!isScreenSharing.current) return;
 
     // Stop and close the media tracks bound to the shared screen
     for (const track of screenCaptureStreamTracks.current) track.stop();
 
     updateLayerGroup(CAMERA_LAYER_NAME, {});
-    removeLayer(SCREEN_SHARE_VIDEO_LAYER_NAME);
-    removeAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME);
+    removeLayer(WHITEBOARD_VIDEO_LAYER_NAME);
+    removeAudioInput(WHITEBOARD_AUDIO_INPUT_NAME);
     setScreenCaptureStream(null);
   }, [
     isScreenSharing,
@@ -67,87 +61,63 @@ const useScreenShare = ({
     updateLayerGroup
   ]);
 
-  const startScreenShare = useCallback(async () => {
-    if (isScreenSharePromptOpen.current) return;
-
-    if (isScreenSharing.current) stopScreenShare();
-
-    let stream, error;
+  const startWhiteBoard = useCallback(async () => {
+    let stream;
+  
     try {
-      try {
-        isScreenSharePromptOpen.current = true;
-        stream = await captureScreenShareStream();
-      } catch (err) {
-        console.error(err);
-        error = err;
-      } finally {
-        isScreenSharePromptOpen.current = false;
-
-        if (!stream) {
-          if (error.message === 'Permission denied') {
-            // Chrome: the user cancelled the screen share request from the window prompt.
-            // Permissions were not explicitly denied, so we return without setting an error.
-            return;
-          }
-
-          setError({
-            message:
-              $content.notifications.error.screenshare_permissions_denied,
-            err: error
-          });
-
-          return;
-        }
+      // Checking the canvas is ready and has content
+      if (!canvasRef.current) {
+        console.error("Canvas reference is not available.");
+        return;
       }
-
-      const [videoTrack] = stream.getVideoTracks();
-      const [audioTrack] = stream.getAudioTracks();
+  
+      // Capturing the stream from the canvas
+      stream = canvasRef.current.captureStream();
+  
+  
+      if (stream.getVideoTracks().length === 0) {
+        console.error("No video tracks found in the stream.");
+        return;
+      }
+  
+      console.log(stream.getVideoTracks());
+  
+      // Processing the stream for screen sharing
       const screenSharePromises = [];
-
-      if (videoTrack) {
-        screenSharePromises.push(
-          addScreenShareLayer(SCREEN_SHARE_VIDEO_LAYER_NAME, {
-            stream,
-            position: { index: 0 }
-          })
-        );
-      }
-      if (audioTrack) {
-        screenSharePromises.push(
-          addScreenShareAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME, {
-            stream,
-            muted: audioTrack.muted
-          })
-        );
-      }
-
+  
+      screenSharePromises.push(
+        addScreenShareLayer(WHITEBOARD_VIDEO_LAYER_NAME, {
+          stream,
+          position: { index: 0 }
+        })
+      );
+  
       await Promise.all(screenSharePromises);
       updateCameraLayerGroupComposition(shouldShowCameraOnScreenShare);
       setScreenCaptureStream(stream);
     } catch (error) {
-      console.error('Failed to start screen share', error);
-
-      const tracks = stream?.getTracks() || [];
-      for (const track of tracks) track.stop();
+      console.error('Failed to start whiteboard share', error);
+      // Stop any ongoing tracks in case of failure
+      stream?.getTracks().forEach(track => track.stop());
     }
   }, [
-    addScreenShareAudioInput,
     addScreenShareLayer,
-    isScreenSharing,
-    setError,
     shouldShowCameraOnScreenShare,
-    stopScreenShare,
-    updateCameraLayerGroupComposition
+    updateCameraLayerGroupComposition,
+    setScreenCaptureStream,
+    canvasRef
   ]);
+  
 
-  const toggleScreenShare = useCallback(
+  const toggleWhiteBoard = useCallback(
     ({ shouldScreenShare } = {}) => {
+      console.log('HEre')
       const isScreenSharingNext = shouldScreenShare ?? !isScreenSharing.current;
 
-      if (isScreenSharingNext) startScreenShare();
-      else stopScreenShare();
+      if (isScreenSharingNext) startWhiteBoard();
+      else stopWhiteBoard();
     },
-    [isScreenSharing, startScreenShare, stopScreenShare]
+    [isScreenSharing, startWhiteBoard, stopWhiteBoard]
   );
 
   const updateShouldShowCameraOnScreenShare = useCallback(
@@ -173,21 +143,21 @@ const useScreenShare = ({
     const [screenCaptureTrack] = screenCaptureStream?.getVideoTracks() || [];
 
     if (screenCaptureTrack)
-      screenCaptureTrack.addEventListener('ended', stopScreenShare);
+      screenCaptureTrack.addEventListener('ended', stopWhiteBoard);
 
     return () => {
       if (screenCaptureTrack)
-        screenCaptureTrack.removeEventListener('ended', stopScreenShare);
+        screenCaptureTrack.removeEventListener('ended', stopWhiteBoard);
     };
-  }, [screenCaptureStream, stopScreenShare]);
+  }, [screenCaptureStream, stopWhiteBoard]);
 
   return {
     isScreenSharing: isScreenSharing.current,
     shouldShowCameraOnScreenShare,
-    toggleScreenShare,
-    stopScreenShare,
+    toggleWhiteBoard,
+    stopWhiteBoard,
     updateShouldShowCameraOnScreenShare
   };
 };
 
-export default useScreenShare;
+export default useWhiteBoard;

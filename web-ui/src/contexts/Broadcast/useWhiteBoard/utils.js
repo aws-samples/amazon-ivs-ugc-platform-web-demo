@@ -19,7 +19,7 @@ export const useCanvasDrawing = () => {
       if (!isDrawing) return;
       const { offsetX, offsetY } = nativeEvent;
       const ctx = canvasRef.current.getContext('2d');
-      ctx.strokeStyle = 'white'; // Set the stroke color to white
+      ctx.strokeStyle = 'black'; // Set the stroke color to white
       ctx.lineTo(offsetX, offsetY);
       ctx.stroke();
     },
@@ -39,7 +39,7 @@ export const useCanvasDrawing = () => {
       canvas.width = 800;
       canvas.height = 600;
       const context = canvas.getContext('2d');
-      context.fillStyle = 'red';
+      context.fillStyle = '#808080';
       context.fillRect(0, 0, canvas.width, canvas.height);
     }
   }, []);

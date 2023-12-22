@@ -23,6 +23,7 @@ import useLayers, { CAMERA_LAYER_NAME } from './useLayers';
 import useMount from '../../hooks/useMount';
 import usePrompt from '../../hooks/usePrompt';
 import useScreenShare from './useScreenShare';
+import useWhiteBoard from './useWhiteBoard';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { useResponsiveDevice } from '../ResponsiveDevice';
 import { useCanvasDrawing } from './useWhiteBoard/utils';
@@ -80,13 +81,8 @@ export const Provider = ({
   const { openModal } = useModal();
   const { notifyError, notifySuccess } = useNotif();
   const isMounted = useMount();
-  const {
-    canvasRef,
-    startDrawing,
-    draw,
-    endDrawing,
-    initializeCanvas
-  } = useCanvasDrawing();
+  const { canvasRef, startDrawing, draw, endDrawing, initializeCanvas } =
+    useCanvasDrawing();
 
   /**
    * Layers
@@ -144,6 +140,17 @@ export const Provider = ({
   });
 
   /**
+   * White Board share
+   */
+  const { toggleWhiteBoard } = useWhiteBoard({
+    addScreenShareLayer,
+    removeAudioInput,
+    removeLayer,
+    updateLayerGroup,
+    canvasRef
+  });
+
+  /**
    * Devices
    */
   const {
@@ -190,6 +197,7 @@ export const Provider = ({
     toggleScreenShare,
     250
   ); // throttled version of toggleScreenShare
+
 
   const { isBlocked, onCancel, onConfirm } = usePrompt(isBroadcasting);
 
@@ -376,6 +384,7 @@ export const Provider = ({
       // Layers
       toggleCamera: toggleCameraThrottled,
       toggleScreenShare: toggleScreenShareThrottled,
+      toggleWhiteBoard,
       updateShouldShowCameraOnScreenShare,
       shouldShowCameraOnScreenShare,
       isCameraHidden,
@@ -391,7 +400,8 @@ export const Provider = ({
       // Indicators
       isBroadcasting,
       isConnecting,
-      error,canvasRef,
+      error,
+      canvasRef,
       startDrawing,
       draw,
       endDrawing,
@@ -417,7 +427,9 @@ export const Provider = ({
       toggleCameraThrottled,
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
-      updateActiveDevice,canvasRef,
+      toggleWhiteBoard,
+      updateActiveDevice,
+      canvasRef,
       startDrawing,
       draw,
       endDrawing,

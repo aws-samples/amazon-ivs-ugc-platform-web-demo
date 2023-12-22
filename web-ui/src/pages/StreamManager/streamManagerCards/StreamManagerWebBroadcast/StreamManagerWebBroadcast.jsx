@@ -44,13 +44,14 @@ const StreamManagerWebBroadcast = forwardRef(
       isScreenSharing,
       toggleCamera,
       toggleMicrophone,
-      toggleScreenShare
+      toggleScreenShare,
+      toggleWhiteBoard
     } = useBroadcast();
 
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
-    const [isWhiteBoardOpen, setIsWhiteBoardOpen] = useState(false);
+    const [isWhiteBoardOpen, ] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
     );
@@ -77,12 +78,7 @@ const StreamManagerWebBroadcast = forwardRef(
     
     console.log('isGoLiveContainerOpen',isGoLiveContainerOpen)
     
-    const toggleWhiteboard = () => {
-      setIsWhiteBoardOpen(!isWhiteBoardOpen);
-      console.log(
-        !isWhiteBoardOpen ? 'Whiteboard Closed' : 'Whiteboard Opened'
-      );
-    };
+    
 
     const webBroadcastControllerButtons = useMemo(
       () => [
@@ -162,7 +158,7 @@ const StreamManagerWebBroadcast = forwardRef(
           webBroadcastControllerButtons={[
             ...webBroadcastControllerButtons,
             {
-              onClick: toggleScreenShare,
+              onClick: toggleWhiteBoard,
               ariaLabel: isWhiteBoardOpen
                 ? 'Turn on microphone'
                 : 'Turn off microphone',
@@ -185,7 +181,7 @@ const StreamManagerWebBroadcast = forwardRef(
             webBroadcastControllerButtons={[
               ...webBroadcastControllerButtons,
               {
-                onClick: toggleWhiteboard,
+                onClick: toggleWhiteBoard,
                 ariaLabel: isWhiteBoardOpen
                   ? 'Turn on microphone'
                   : 'Turn off microphone',
