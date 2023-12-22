@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useMemo } from 'react';
+import { forwardRef, useRef, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -9,7 +9,8 @@ import {
   ScreenShare,
   ScreenShareOff,
   VideoCamera,
-  VideoCameraOff
+  VideoCameraOff,
+  CallToAction
 } from '../../../../assets/icons';
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { clsm, noop } from '../../../../utils';
@@ -49,9 +50,11 @@ const StreamManagerWebBroadcast = forwardRef(
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
+    const [isWhiteBoardOpen, setIsWhiteBoardOpen] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
     );
+    
     const isDefaultGoLiveButton =
       !isUserRedirectedFromSettingsPageRef.current &&
       !isBroadcastCardOpen &&
@@ -71,6 +74,16 @@ const StreamManagerWebBroadcast = forwardRef(
     const isGoLiveContainerOpen =
       isBroadcastCardOpen || isUserRedirectedFromSettingsPageRef.current;
 
+    
+    console.log('isGoLiveContainerOpen',isGoLiveContainerOpen)
+    
+    const toggleWhiteboard = () => {
+      setIsWhiteBoardOpen(!isWhiteBoardOpen);
+      console.log(
+        !isWhiteBoardOpen ? 'Whiteboard Closed' : 'Whiteboard Opened'
+      );
+    };
+
     const webBroadcastControllerButtons = useMemo(
       () => [
         {
@@ -86,6 +99,7 @@ const StreamManagerWebBroadcast = forwardRef(
             ? $webBroadcastContent.unmute
             : $webBroadcastContent.mute
         },
+
         {
           onClick: toggleCamera,
           ariaLabel: isCameraHidden ? 'Turn on camera' : 'Turn off camera',
@@ -97,6 +111,7 @@ const StreamManagerWebBroadcast = forwardRef(
             ? $webBroadcastContent.show_camera
             : $webBroadcastContent.hide_camera
         },
+
         {
           onClick: toggleScreenShare,
           ariaLabel: isScreenSharing
@@ -144,7 +159,22 @@ const StreamManagerWebBroadcast = forwardRef(
           isBroadcastCardOpen={isBroadcastCardOpen}
           webBroadcastParentContainerRef={webBroadcastParentContainerRef}
           webBroadcastContainerRef={webBroadcastContainerRef}
-          webBroadcastControllerButtons={webBroadcastControllerButtons}
+          webBroadcastControllerButtons={[
+            ...webBroadcastControllerButtons,
+            {
+              onClick: toggleScreenShare,
+              ariaLabel: isWhiteBoardOpen
+                ? 'Turn on microphone'
+                : 'Turn off microphone',
+              isDeviceControl: true,
+              isActive: !isWhiteBoardOpen,
+              isDisabled: !activeMicrophone,
+              icon: isWhiteBoardOpen ? <CallToAction /> : <CallToAction />,
+              tooltip: isWhiteBoardOpen
+                ? $webBroadcastContent.hide_whiteboard
+                : $webBroadcastContent.show_whiteboard
+            }
+          ]}
           isOpen={isGoLiveContainerOpen}
           onCollapse={handleOnCollapse}
           setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
@@ -152,7 +182,22 @@ const StreamManagerWebBroadcast = forwardRef(
         {!isBroadcastCardOpen && isBroadcasting && isDesktopView && (
           <GoLiveContainerCollapsed
             isOpen={isGoLiveContainerOpen}
-            webBroadcastControllerButtons={webBroadcastControllerButtons}
+            webBroadcastControllerButtons={[
+              ...webBroadcastControllerButtons,
+              {
+                onClick: toggleWhiteboard,
+                ariaLabel: isWhiteBoardOpen
+                  ? 'Turn on microphone'
+                  : 'Turn off microphone',
+                isDeviceControl: true,
+                isActive: !isWhiteBoardOpen,
+                isDisabled: !activeMicrophone,
+                icon: isWhiteBoardOpen ? <CallToAction /> : <CallToAction />,
+                tooltip: isWhiteBoardOpen
+                  ? $webBroadcastContent.hide_whiteboard
+                  : $webBroadcastContent.show_whiteboard
+              }
+            ]}
             onExpand={onExpand}
           />
         )}

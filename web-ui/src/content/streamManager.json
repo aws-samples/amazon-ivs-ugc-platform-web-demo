@@ -21,6 +21,8 @@
     "unmute": "Unmute",
     "show_camera": "Show camera",
     "hide_camera": "Hide camera",
+    "show_whiteboard": "Show whiteboard",
+    "hide_whiteboard": "Hide whiteboard",
     "stop_sharing": "Stop sharing",
     "share_your_screen": "Share your screen",
     "open_settings": "Open settings",

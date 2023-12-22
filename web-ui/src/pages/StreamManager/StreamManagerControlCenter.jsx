@@ -16,13 +16,19 @@ import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import WebBroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/WebBroadcastSettingsModal';
+import DrawingComponent from '../../components/DrawingComponent';
 
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     const { state } = useLocation();
     const { isDesktopView, currentBreakpoint } = useResponsiveDevice();
-    const { resetPreview, initializeDevices, presetLayers, isBroadcasting } =
+    const { resetPreview, initializeDevices, presetLayers, isBroadcasting ,canvasRef,
+      startDrawing,
+      draw,
+      endDrawing,
+      initializeCanvas} =
       useBroadcast();
+     
     const areDevicesInitialized = useRef(false);
     const webBroadcastParentContainerRef = useRef();
     const [selectedTabIndex, setSelectedTabIndex] = useState(
@@ -149,6 +155,12 @@ const StreamManagerControlCenter = forwardRef(
                   />
                 </div>
                 <NotificationProvider>
+                <DrawingComponent  ref={canvasRef}
+      startDrawing={startDrawing}
+      draw={draw}
+      endDrawing={endDrawing}
+      initializeCanvas={initializeCanvas}/>
+
                   <StreamManagerChat />
                 </NotificationProvider>
               </div>

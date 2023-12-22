@@ -25,8 +25,8 @@ const INACTIVE_BUTTON_COLORS = [
   '[&>svg]:fill-white'
 ];
 
-const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
-  const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
+const WebBroadcastControl = forwardRef(({ buttons,  }, ref) => {
+  const { isTouchscreenDevice } = useResponsiveDevice();
 
   return (
     <div
@@ -35,7 +35,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
         'justify-center',
         'mt-5',
         'mb-5',
-        isOpen || !isDesktopView ? 'space-x-5' : 'space-x-3'
+         'space-x-3'
       ])}
     >
       {buttons
@@ -106,7 +106,7 @@ const WebBroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
 
 WebBroadcastControl.propTypes = {
   buttons: PropTypes.array.isRequired,
-  isOpen: PropTypes.bool.isRequired
+  // isOpen: PropTypes.bool.isRequired
 };
 
 export default WebBroadcastControl;

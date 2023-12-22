@@ -25,7 +25,7 @@ import usePrompt from '../../hooks/usePrompt';
 import useScreenShare from './useScreenShare';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { useResponsiveDevice } from '../ResponsiveDevice';
-
+import { useCanvasDrawing } from './useWhiteBoard/utils';
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const {
@@ -80,6 +80,13 @@ export const Provider = ({
   const { openModal } = useModal();
   const { notifyError, notifySuccess } = useNotif();
   const isMounted = useMount();
+  const {
+    canvasRef,
+    startDrawing,
+    draw,
+    endDrawing,
+    initializeCanvas
+  } = useCanvasDrawing();
 
   /**
    * Layers
@@ -125,12 +132,15 @@ export const Provider = ({
     toggleScreenShare,
     updateShouldShowCameraOnScreenShare
   } = useScreenShare({
+    addImageLayer,
+    addVideoLayer,
     addScreenShareAudioInput,
     addScreenShareLayer,
     removeAudioInput,
     removeLayer,
     updateLayerGroup,
-    setError
+    setError,
+    canvasRef
   });
 
   /**
@@ -381,7 +391,11 @@ export const Provider = ({
       // Indicators
       isBroadcasting,
       isConnecting,
-      error
+      error,canvasRef,
+      startDrawing,
+      draw,
+      endDrawing,
+      initializeCanvas
     }),
     [
       activeDevices,
@@ -403,7 +417,11 @@ export const Provider = ({
       toggleCameraThrottled,
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
-      updateActiveDevice
+      updateActiveDevice,canvasRef,
+      startDrawing,
+      draw,
+      endDrawing,
+      initializeCanvas
     ]
   );
 

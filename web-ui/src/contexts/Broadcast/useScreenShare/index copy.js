@@ -80,7 +80,7 @@ console.log('canvasRef Share',canvasRef)
       }
   
       // Capture the stream from the canvas
-      stream = canvasRef.current.captureStream();
+      stream = canvasRef.current.captureStream(60); // 60 FPS
       console.log('Captured stream:', stream);
   
       if (stream.getVideoTracks().length === 0) {
@@ -89,13 +89,15 @@ console.log('canvasRef Share',canvasRef)
       }
   
       console.log(stream.getVideoTracks());
+
+      const combinedStream = new MediaStream([...stream.getVideoTracks()]);
   
       // Processing the stream for screen sharing
       const screenSharePromises = [];
   
       screenSharePromises.push(
         addScreenShareLayer(SCREEN_SHARE_VIDEO_LAYER_NAME, {
-          stream,
+          combinedStream,
           position: { index: 0 }
         })
       );
@@ -113,7 +115,7 @@ console.log('canvasRef Share',canvasRef)
   
       await Promise.all(screenSharePromises);
       updateCameraLayerGroupComposition(shouldShowCameraOnScreenShare);
-      setScreenCaptureStream(stream);
+      setScreenCaptureStream(combinedStream);
     } catch (error) {
       console.error('Failed to start screen share', error);
       // Stop any ongoing tracks in case of failure

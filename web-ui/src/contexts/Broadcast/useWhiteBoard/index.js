@@ -1,13 +1,12 @@
-import { useCallback, useEffect,  useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { CAMERA_LAYER_NAME } from '../useLayers';
-// import { captureScreenShareStream } from './utils';
-// import { streamManager as $streamManagerContent } from '../../../content';
+import { captureScreenShareStream } from './utils';
+import { streamManager as $streamManagerContent } from '../../../content';
 import useLatest from '../../../hooks/useLatest';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
 
-
-// const $content = $streamManagerContent.stream_manager_web_broadcast;
+const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const SCREEN_SHARE_ID = 'screen-share';
 const SCREEN_SHARE_VIDEO_LAYER_NAME = `${SCREEN_SHARE_ID}-layer`;
@@ -22,18 +21,17 @@ const useScreenShare = ({
   removeAudioInput,
   removeLayer,
   updateLayerGroup,
-  setError,
-  canvasRef
+  setError
 }) => {
   const [screenCaptureStream, setScreenCaptureStream] = useState(null);
   const [shouldShowCameraOnScreenShare, setShouldShowCameraOnScreenShare] =
     useStateWithCallback(true);
+  const isScreenSharePromptOpen = useRef(false);
   const isScreenSharing = useLatest(!!screenCaptureStream);
   const screenCaptureStreamTracks = useLatest(
     screenCaptureStream?.getTracks() || []
   );
- 
-console.log('canvasRef Share',canvasRef)
+
   const updateCameraLayerGroupComposition = useCallback(
     (shouldShowCamera) =>
       updateLayerGroup(
@@ -70,63 +68,77 @@ console.log('canvasRef Share',canvasRef)
   ]);
 
   const startScreenShare = useCallback(async () => {
-    let stream;
-  
+    if (isScreenSharePromptOpen.current) return;
+
+    if (isScreenSharing.current) stopScreenShare();
+
+    let stream, error;
     try {
-      // Ensure the canvas is ready and has content
-      if (!canvasRef.current) {
-        console.error("Canvas reference is not available.");
-        return;
+      try {
+        isScreenSharePromptOpen.current = true;
+        stream = await captureScreenShareStream();
+      } catch (err) {
+        console.error(err);
+        error = err;
+      } finally {
+        isScreenSharePromptOpen.current = false;
+
+        if (!stream) {
+          if (error.message === 'Permission denied') {
+            // Chrome: the user cancelled the screen share request from the window prompt.
+            // Permissions were not explicitly denied, so we return without setting an error.
+            return;
+          }
+
+          setError({
+            message:
+              $content.notifications.error.screenshare_permissions_denied,
+            err: error
+          });
+
+          return;
+        }
       }
-  
-      // Capture the stream from the canvas
-      stream = canvasRef.current.captureStream();
-      console.log('Captured stream:', stream);
-  
-      if (stream.getVideoTracks().length === 0) {
-        console.error("No video tracks found in the stream.");
-        return;
-      }
-  
-      console.log(stream.getVideoTracks());
-  
-      // Processing the stream for screen sharing
+
+      const [videoTrack] = stream.getVideoTracks();
+      const [audioTrack] = stream.getAudioTracks();
       const screenSharePromises = [];
-  
-      screenSharePromises.push(
-        addScreenShareLayer(SCREEN_SHARE_VIDEO_LAYER_NAME, {
-          stream,
-          position: { index: 0 }
-        })
-      );
-  
-      // Audio track handling (if necessary)
-      // const [audioTrack] = combinedStream.getAudioTracks();
-      // if (audioTrack) {
-      //   screenSharePromises.push(
-      //     addScreenShareAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME, {
-      //       combinedStream,
-      //       muted: audioTrack.muted
-      //     })
-      //   );
-      // }
-  
+
+      if (videoTrack) {
+        screenSharePromises.push(
+          addScreenShareLayer(SCREEN_SHARE_VIDEO_LAYER_NAME, {
+            stream,
+            position: { index: 0 }
+          })
+        );
+      }
+      if (audioTrack) {
+        screenSharePromises.push(
+          addScreenShareAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME, {
+            stream,
+            muted: audioTrack.muted
+          })
+        );
+      }
+
       await Promise.all(screenSharePromises);
       updateCameraLayerGroupComposition(shouldShowCameraOnScreenShare);
       setScreenCaptureStream(stream);
     } catch (error) {
       console.error('Failed to start screen share', error);
-      // Stop any ongoing tracks in case of failure
-      stream?.getTracks().forEach(track => track.stop());
+
+      const tracks = stream?.getTracks() || [];
+      for (const track of tracks) track.stop();
     }
   }, [
+    addScreenShareAudioInput,
     addScreenShareLayer,
+    isScreenSharing,
+    setError,
     shouldShowCameraOnScreenShare,
-    updateCameraLayerGroupComposition,
-    setScreenCaptureStream,
-    canvasRef
+    stopScreenShare,
+    updateCameraLayerGroupComposition
   ]);
-  
 
   const toggleScreenShare = useCallback(
     ({ shouldScreenShare } = {}) => {
