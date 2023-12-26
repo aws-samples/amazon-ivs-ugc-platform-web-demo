@@ -22,6 +22,8 @@
     "d3-time-format": "^4.1.0",
     "framer-motion": "^7.5.3",
     "html-entities": "^2.3.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "lz-string": "^1.4.4",
     "react": "^18.0.0",
     "react-confetti": "^6.1.0",

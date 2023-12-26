@@ -142,7 +142,7 @@ export const Provider = ({
   /**
    * White Board share
    */
-  const { toggleWhiteBoard } = useWhiteBoard({
+  const { toggleWhiteBoard, downloadCanvasPDF } = useWhiteBoard({
     addScreenShareLayer,
     removeAudioInput,
     removeLayer,
@@ -385,6 +385,7 @@ export const Provider = ({
       toggleCamera: toggleCameraThrottled,
       toggleScreenShare: toggleScreenShareThrottled,
       toggleWhiteBoard,
+      downloadCanvasPDF,
       updateShouldShowCameraOnScreenShare,
       shouldShowCameraOnScreenShare,
       isCameraHidden,
@@ -428,6 +429,7 @@ export const Provider = ({
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
       toggleWhiteBoard,
+      downloadCanvasPDF,
       updateActiveDevice,
       canvasRef,
       startDrawing,

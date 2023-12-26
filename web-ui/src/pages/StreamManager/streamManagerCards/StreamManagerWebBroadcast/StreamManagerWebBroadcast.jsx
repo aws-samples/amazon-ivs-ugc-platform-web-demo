@@ -10,7 +10,8 @@ import {
   ScreenShareOff,
   VideoCamera,
   VideoCameraOff,
-  CallToAction
+  CallToAction,
+  DownArrow
 } from '../../../../assets/icons';
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { clsm, noop } from '../../../../utils';
@@ -45,7 +46,8 @@ const StreamManagerWebBroadcast = forwardRef(
       toggleCamera,
       toggleMicrophone,
       toggleScreenShare,
-      toggleWhiteBoard
+      toggleWhiteBoard,
+      downloadCanvasPDF
     } = useBroadcast();
 
     const webBroadcastContainerRef = useRef();
@@ -169,6 +171,15 @@ const StreamManagerWebBroadcast = forwardRef(
               tooltip: isWhiteBoardOpen
                 ? $webBroadcastContent.hide_whiteboard
                 : $webBroadcastContent.show_whiteboard
+            },
+            {
+              onClick: downloadCanvasPDF,
+              ariaLabel: 'Download pdf',
+              isActive: true,
+              isDeviceControl: true,
+              isVisible: !isWhiteBoardOpen,
+              icon: <DownArrow />,
+              tooltip: $webBroadcastContent.download_whiteboard  
             }
           ]}
           isOpen={isGoLiveContainerOpen}

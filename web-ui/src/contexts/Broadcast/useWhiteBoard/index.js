@@ -2,7 +2,8 @@ import { useCallback, useEffect,  useState } from 'react';
 import { CAMERA_LAYER_NAME } from '../useLayers';
 import useLatest from '../../../hooks/useLatest';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
-
+import html2canvas from 'html2canvas';
+import { jsPDF } from "jspdf";
 
 const WHITEBOARD_ID = 'screen-share';
 const WHITEBOARD_VIDEO_LAYER_NAME = `${WHITEBOARD_ID}-layer`;
@@ -120,6 +121,27 @@ const useWhiteBoard = ({
     [isScreenSharing, startWhiteBoard, stopWhiteBoard]
   );
 
+  const downloadCanvasPDF = () => {
+    const element = canvasRef.current;
+    const pdf = new jsPDF("portrait", "px", [380, 380]);
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    html2canvas(element, {
+      scale: 5,
+    }).then(function (canvas) {
+      var data = canvas.toDataURL("image/png");
+      // const pdf = new jsPDF();
+      // const imgProperties = pdf.getImageProperties(data);
+      // const pdfWidth = pdf.internal.pageSize.getWidth();
+      // const pdfHeight =
+      //   (imgProperties.height * pdfWidth) / imgProperties.width;
+
+      pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("whiteboard.pdf");
+    });
+  }
+
   const updateShouldShowCameraOnScreenShare = useCallback(
     (nextShouldShowCameraOnScreenShare) => {
       if (nextShouldShowCameraOnScreenShare == null) return;
@@ -156,7 +178,8 @@ const useWhiteBoard = ({
     shouldShowCameraOnScreenShare,
     toggleWhiteBoard,
     stopWhiteBoard,
-    updateShouldShowCameraOnScreenShare
+    updateShouldShowCameraOnScreenShare,
+    downloadCanvasPDF
   };
 };
 
