@@ -17,7 +17,7 @@ const JoinRequest = ({ shouldRenderInTab }) => {
 
   return (
     <div>
-      {isStreamManagerPage && joinRequestStatus === 'REQUEST_JOIN' && (
+      {isStreamManagerPage &&isModerator && joinRequestStatus === 'REQUEST_JOIN' && (
         <ApproveRejectRequest />
       )}
       {!isStreamManagerPage && <RequestJoinStage />}
