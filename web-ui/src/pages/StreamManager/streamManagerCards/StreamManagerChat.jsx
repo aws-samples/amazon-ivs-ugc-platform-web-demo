@@ -2,6 +2,8 @@ import { clsm } from '../../../utils';
 import Chat from '../../Channel/Chat';
 import Poll from '../../Channel/Chat/Poll/Poll';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
+import JoinRequest from '../../Channel/Chat/Poll/JoinRequest';
+
 
 const StreamManagerChat = () => {
   const { isActive, containerMinHeight, hasVotes } = usePoll();
@@ -24,8 +26,11 @@ const StreamManagerChat = () => {
         'w-full'
       ])}
     >
+      
       {hasVotes && <Poll />}
       <Chat />
+      <JoinRequest/>
+
     </section>
   );
 };
