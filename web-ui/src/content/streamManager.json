@@ -9,6 +9,7 @@
   },
   "stream_manager_web_broadcast": {
     "go_live": "Go live",
+    "start_stage": "Start Stage",
     "manage_stream": "Manage stream",
     "start_stream": "Start stream",
     "end_stream": "End stream",

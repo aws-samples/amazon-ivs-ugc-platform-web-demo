@@ -35,6 +35,12 @@ export const navMenuButtonData = [
     to: '/manager'
   },
   {
+    label: $content.stage_manager,
+    icon: <StreamManager />,
+    to: '/manager',
+    hasDivider: true
+  },
+  {
     label: $content.stream_health,
     icon: <StreamHealth />,
     to: '/health',

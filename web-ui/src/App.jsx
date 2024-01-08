@@ -27,6 +27,7 @@ import {
   Settings,
   StreamHealth,
   StreamManager,
+  StageManager,
   UserManagement
 } from './pages';
 
@@ -100,6 +101,7 @@ const router = createBrowserRouter(
           <Route path="following" element={<Following />} />
           <Route path="settings" element={<Settings />} />
           <Route path="manager" element={<StreamManager />} />
+          <Route path="stage" element={<StageManager />} />
           <Route path="health">
             <Route index element={<StreamHealth />} />
             <Route path=":streamId" element={<StreamHealth />} />

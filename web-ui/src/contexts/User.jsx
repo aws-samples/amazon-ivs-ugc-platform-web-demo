@@ -58,6 +58,7 @@ export const Provider = () => {
 
   const fetchUserData = useCallback(async () => {
     const { result } = await channelAPI.getUserData();
+    // console.log("result", result);
     setHasFetchedInitialUserData(true);
 
     if (result) {

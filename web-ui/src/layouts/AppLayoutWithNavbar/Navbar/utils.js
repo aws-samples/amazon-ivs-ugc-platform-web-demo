@@ -3,7 +3,8 @@ import {
   Home,
   Favorite,
   StreamHealth,
-  StreamManager
+  StreamManager,
+  SmartToy
 } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
 
@@ -36,6 +37,13 @@ export const navPageData = [
     displayName: $content.stream_manager,
     icon: <StreamManager />,
     route: '/manager',
+    isAuth: true
+  },
+  {
+    pageName: 'stage_manager',
+    displayName: $content.stage_manager,
+    icon: <SmartToy />,
+    route: '/stage',
     isAuth: true
   },
   {

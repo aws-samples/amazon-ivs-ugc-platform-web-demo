@@ -31,6 +31,7 @@ export const Provider = ({ children }) => {
   const isDashboardPage = [
     'stream_health',
     'stream_manager',
+    'stage_manager',
     'settings'
   ].includes(currentPage);
 

@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useMemo, useState } from 'react';
+import { forwardRef, useRef, useMemo, useState, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -24,6 +24,9 @@ import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
 import { useUser } from '../../../../contexts/User';
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast'
+// import { Stage, SubscribeType, LocalStageStream } from 'amazon-ivs-web-broadcast'
+import { StageContext } from '../../contexts/StageContext';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -50,7 +53,8 @@ const StreamManagerWebBroadcast = forwardRef(
       toggleWhiteBoard,
       downloadCanvasPDF
     } = useBroadcast();
-
+    const { joinStage, stageJoined, leaveStage, screenshareStageJoined, publishScreenshare, unpublishScreenshare } =
+        useContext(StageContext);
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
@@ -95,13 +99,36 @@ const StreamManagerWebBroadcast = forwardRef(
             ingestEndpoint: userData?.ingestEndpoint,
             playbackUrl: userData?.ingestEndpoint,
             streamKey: userData?.streamKeyValue,
-            channelId: `arn:aws:ivs:us-east-1:107911280745:channel/pQI2WF0rvBrY`,//userData?.channelArn,
+            channelId: userData?.channelArn,
             roomId: userData?.chatRoomArn
           }
         }),
         method: 'POST'
       });
-      console.log("response", response);
+      const createStageResponse = await response.json()
+      const joinRes = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join', {
+        body: JSON.stringify({
+          groupId: createStageResponse?.groupId,
+          userId: userData?.username,
+          attributes: {
+            avatarUrl: '',
+            username: userData?.username
+          }
+        }),
+        method: 'POST'
+      });
+      const joinData = await joinRes.json()
+      joinStage(joinData?.stage?.token?.token)
+      onExpand()
+      
+      // const stage = new Stage(joinData?.stage?.token?.token, strategy);
+      // await stage.join();
+
+
+      // To update later (e.g. in an onClick event handler)
+      // strategy.updateTracks(myNewAudioTrack, myNewVideoTrack);
+      stage.refreshStrategy();
+      // console.log("response",await response.json(), response);
     }
 
     const webBroadcastControllerButtons = useMemo(
@@ -230,7 +257,7 @@ const StreamManagerWebBroadcast = forwardRef(
             onExpand={onExpand}
           />
         )}
-        {isDefaultGoLiveButton && (
+        {/* {isDefaultGoLiveButton && (
           <Button
             onClick={onExpand}
             variant="primary"
@@ -248,7 +275,7 @@ const StreamManagerWebBroadcast = forwardRef(
             <CreateVideo />
             <p>{$webBroadcastContent.go_live}</p>
           </Button>
-        )}
+        )} */}
         {isDefaultGoLiveButton && (
           <Button
             onClick={onStartStage}
