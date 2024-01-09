@@ -21,6 +21,8 @@ interface GetUserResponseBody extends ResponseBody {
   streamKeyValue?: string;
   username?: string;
   trackingId?: string;
+  chatRoomArn?: string;
+  channelArn?: string;
 }
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -39,7 +41,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       playbackUrl,
       streamKeyValue,
       username,
-      trackingId
+      trackingId,
+      chatRoomArn,
     } = unmarshall(Item);
 
     if (!channelArn) {
@@ -59,6 +62,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody.username = username;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
     responseBody.trackingId = trackingId;
+    responseBody.chatRoomArn = chatRoomArn;
+    responseBody.channelArn = channelArn;
   } catch (error) {
     console.error(error);
 

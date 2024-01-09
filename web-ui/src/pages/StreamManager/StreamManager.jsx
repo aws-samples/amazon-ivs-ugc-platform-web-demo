@@ -6,7 +6,6 @@ import { Provider as PollProvider } from '../../contexts/StreamManagerActions/Po
 import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
 import { Provider as StreamManagerWebBroadcastProvider } from '../../contexts/Broadcast';
-import { StageRequestProvider } from '../../multihost/stageContext';
 import { useRef } from 'react';
 import { useStreams } from '../../contexts/Streams';
 import { useUser } from '../../contexts/User';
@@ -65,15 +64,13 @@ const StreamManager = () => {
             streamKey={streamKey}
           >
             <ChatProvider>
-              {/* <StageRequestProvider> */}
-                <StreamManagerActionsProvider>
-                  <Notification />
-                  <StreamManagerControlCenter
-                    ref={previewRef}
-                    setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
-                  />
-                </StreamManagerActionsProvider>
-              {/* </StageRequestProvider> */}
+              <StreamManagerActionsProvider>
+                <Notification />
+                <StreamManagerControlCenter
+                  ref={previewRef}
+                  setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
+                />
+              </StreamManagerActionsProvider>
             </ChatProvider>
           </StreamManagerWebBroadcastProvider>
         </NotificationProvider>

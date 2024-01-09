@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useMemo } from 'react';
+import { forwardRef, useRef, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -9,7 +9,9 @@ import {
   ScreenShare,
   ScreenShareOff,
   VideoCamera,
-  VideoCameraOff
+  VideoCameraOff,
+  CallToAction,
+  DownArrow
 } from '../../../../assets/icons';
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { clsm, noop } from '../../../../utils';
@@ -21,6 +23,7 @@ import Button from '../../../../components/Button';
 import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
+import { useUser } from '../../../../contexts/User';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -43,15 +46,19 @@ const StreamManagerWebBroadcast = forwardRef(
       isScreenSharing,
       toggleCamera,
       toggleMicrophone,
-      toggleScreenShare
+      toggleScreenShare,
+      toggleWhiteBoard,
+      downloadCanvasPDF
     } = useBroadcast();
 
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
+    const [isWhiteBoardOpen, ] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
     );
+    
     const isDefaultGoLiveButton =
       !isUserRedirectedFromSettingsPageRef.current &&
       !isBroadcastCardOpen &&
@@ -71,6 +78,55 @@ const StreamManagerWebBroadcast = forwardRef(
     const isGoLiveContainerOpen =
       isBroadcastCardOpen || isUserRedirectedFromSettingsPageRef.current;
 
+    
+    console.log('isGoLiveContainerOpen',isGoLiveContainerOpen)
+    const { userData ,set} = useUser();
+    // const userId = userData?.id
+    const onStartStage = async () => {
+      const response = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create', {
+        body: JSON.stringify({
+          groupIdParam: `${userData?.username}`,
+          userId: userData?.username,
+          attributes: {
+            avatarUrl: '',
+            username: 'SKS'
+          },
+          channelData: {
+            ingestEndpoint: userData?.ingestEndpoint,
+            playbackUrl: userData?.ingestEndpoint,
+            streamKey: userData?.streamKeyValue,
+            channelId: userData?.channelArn,
+            roomId: userData?.chatRoomArn
+          }
+        }),
+        method: 'POST'
+      });
+      console.log("response", response);
+    }
+
+    // const userId = userData?.id
+    const onJoinStage = async () => {
+      const response = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create', {
+        body: JSON.stringify({
+          groupIdParam: `${userData?.username}`,
+          userId: userData?.username,
+          attributes: {
+            avatarUrl: '',
+            username: 'SKS'
+          },
+          channelData: {
+            ingestEndpoint: userData?.ingestEndpoint,
+            playbackUrl: userData?.ingestEndpoint,
+            streamKey: userData?.streamKeyValue,
+            channelId: userData?.channelArn,
+            roomId: userData?.chatRoomArn
+          }
+        }),
+        method: 'POST'
+      });
+      console.log("response", response);
+    }
+
     const webBroadcastControllerButtons = useMemo(
       () => [
         {
@@ -86,6 +142,7 @@ const StreamManagerWebBroadcast = forwardRef(
             ? $webBroadcastContent.unmute
             : $webBroadcastContent.mute
         },
+
         {
           onClick: toggleCamera,
           ariaLabel: isCameraHidden ? 'Turn on camera' : 'Turn off camera',
@@ -97,6 +154,7 @@ const StreamManagerWebBroadcast = forwardRef(
             ? $webBroadcastContent.show_camera
             : $webBroadcastContent.hide_camera
         },
+
         {
           onClick: toggleScreenShare,
           ariaLabel: isScreenSharing
@@ -144,7 +202,31 @@ const StreamManagerWebBroadcast = forwardRef(
           isBroadcastCardOpen={isBroadcastCardOpen}
           webBroadcastParentContainerRef={webBroadcastParentContainerRef}
           webBroadcastContainerRef={webBroadcastContainerRef}
-          webBroadcastControllerButtons={webBroadcastControllerButtons}
+          webBroadcastControllerButtons={[
+            ...webBroadcastControllerButtons,
+            {
+              onClick: toggleWhiteBoard,
+              ariaLabel: isWhiteBoardOpen
+                ? 'Turn on microphone'
+                : 'Turn off microphone',
+              isDeviceControl: true,
+              isActive: !isWhiteBoardOpen,
+              isDisabled: !activeMicrophone,
+              icon: isWhiteBoardOpen ? <CallToAction /> : <CallToAction />,
+              tooltip: isWhiteBoardOpen
+                ? $webBroadcastContent.hide_whiteboard
+                : $webBroadcastContent.show_whiteboard
+            },
+            {
+              onClick: downloadCanvasPDF,
+              ariaLabel: 'Download pdf',
+              isActive: true,
+              isDeviceControl: true,
+              isVisible: !isWhiteBoardOpen,
+              icon: <DownArrow />,
+              tooltip: $webBroadcastContent.download_whiteboard  
+            }
+          ]}
           isOpen={isGoLiveContainerOpen}
           onCollapse={handleOnCollapse}
           setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
@@ -152,7 +234,22 @@ const StreamManagerWebBroadcast = forwardRef(
         {!isBroadcastCardOpen && isBroadcasting && isDesktopView && (
           <GoLiveContainerCollapsed
             isOpen={isGoLiveContainerOpen}
-            webBroadcastControllerButtons={webBroadcastControllerButtons}
+            webBroadcastControllerButtons={[
+              ...webBroadcastControllerButtons,
+              {
+                onClick: toggleWhiteBoard,
+                ariaLabel: isWhiteBoardOpen
+                  ? 'Turn on microphone'
+                  : 'Turn off microphone',
+                isDeviceControl: true,
+                isActive: !isWhiteBoardOpen,
+                isDisabled: !activeMicrophone,
+                icon: isWhiteBoardOpen ? <CallToAction /> : <CallToAction />,
+                tooltip: isWhiteBoardOpen
+                  ? $webBroadcastContent.hide_whiteboard
+                  : $webBroadcastContent.show_whiteboard
+              }
+            ]}
             onExpand={onExpand}
           />
         )}
