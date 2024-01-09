@@ -26,6 +26,7 @@ import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
 import Poll from './Chat/Poll/Poll';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
+import JoinRequest from './Chat/Poll/JoinRequest';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
@@ -164,7 +165,7 @@ const Channel = () => {
               isLandscape && [
                 'md:min-w-[308px]',
                 'touch-screen-device:lg:min-w-[308px]'
-              ]
+              ],'p-10'
             ])}
           >
             <Tabs>
@@ -188,6 +189,7 @@ const Channel = () => {
                       <NotificationProvider>
                         <ChatProvider>
                           <Poll shouldRenderInTab={true} />
+                          <JoinRequest/>
                         </ChatProvider>
                       </NotificationProvider>
                     )}
@@ -245,6 +247,8 @@ const Channel = () => {
               >
                 <NotificationProvider>
                   <ChatProvider>
+                  <JoinRequest/>
+
                     {!isTabView && hasVotes && <Poll />}
                     <Chat
                       shouldRunCelebration={

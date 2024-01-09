@@ -11,7 +11,7 @@ import {
   VideoCamera,
   VideoCameraOff,
   CallToAction,
-  DownArrow
+  DownArrow,
 } from '../../../../assets/icons';
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { clsm, noop } from '../../../../utils';
@@ -24,6 +24,7 @@ import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
 import { useUser } from '../../../../contexts/User';
+
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -58,6 +59,7 @@ const StreamManagerWebBroadcast = forwardRef(
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
     );
+    
     
     const isDefaultGoLiveButton =
       !isUserRedirectedFromSettingsPageRef.current &&

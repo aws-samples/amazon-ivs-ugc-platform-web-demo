@@ -44,6 +44,13 @@ const {
   HEART_BEAT
 } = CHAT_MESSAGE_EVENT_TYPES;
 
+const REQUEST_STATUS = {
+  REQUEST_JOIN: 'REQUEST_JOIN',
+  REQUEST_APPROVED: 'REQUEST_APPROVED',
+  REQUEST_REJECTED: 'REQUEST_REJECTED'
+};
+const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED } = REQUEST_STATUS;
+
 const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
@@ -161,6 +168,7 @@ export const Provider = ({ children }) => {
     connection,
     setSendAttemptError
   });
+  const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
@@ -266,6 +274,32 @@ export const Provider = ({ children }) => {
       }
     };
   }, [isActive, sendHeartBeat]);
+
+  const requestJoin = useCallback(async () => {
+    const attributes = {
+      eventType: REQUEST_JOIN
+    };
+
+    await actions.sendMessage(REQUEST_JOIN, attributes);
+    return true;
+  }, [actions]);
+
+  const requestAprrove = useCallback(async () => {
+    const attributes = {
+      eventType: REQUEST_APPROVED
+    };
+
+    await actions.sendMessage(REQUEST_APPROVED, attributes);
+    return true;
+  }, [actions]);
+
+  const requestReject = useCallback(async () => {
+    const attributes = {
+      eventType: REQUEST_REJECTED
+    };
+    await actions.sendMessage(REQUEST_REJECTED, attributes);
+    return true;
+  }, [actions]);
 
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
@@ -528,6 +562,23 @@ export const Provider = ({ children }) => {
         case END_POLL:
           endPollAndResetPollProps();
           break;
+        case REQUEST_JOIN:
+          setJoinRequestStatus('REQUEST_JOIN');
+          break;
+
+        case REQUEST_APPROVED:
+          setJoinRequestStatus('REQUEST_APPROVED');
+          setTimeout(() => {
+            setJoinRequestStatus(null);
+          }, 5000);
+          break;
+
+        case REQUEST_REJECTED:
+          setJoinRequestStatus('REQUEST_REJECTED');
+          setTimeout(() => {
+            setJoinRequestStatus(null);
+          }, 5000);
+          break;
         case SEND_MESSAGE:
           addMessage(message);
           break;
@@ -579,7 +630,7 @@ export const Provider = ({ children }) => {
     isStreamManagerPage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps
+    endPollAndResetPollProps,
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -620,7 +671,11 @@ export const Provider = ({ children }) => {
       startPoll,
       endPoll,
       deletedMessage,
-      setDeletedMessage
+      setDeletedMessage,
+      requestJoin,
+      requestAprrove,
+      requestReject,
+      joinRequestStatus,
     }),
     [
       actions,
@@ -636,8 +691,12 @@ export const Provider = ({ children }) => {
       isModerator,
       startPoll,
       endPoll,
+      requestJoin,
+      requestAprrove,
+      requestReject,
       deletedMessage,
-      setDeletedMessage
+      setDeletedMessage,
+      joinRequestStatus
     ]
   );
 
