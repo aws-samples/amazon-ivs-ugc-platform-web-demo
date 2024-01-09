@@ -134,6 +134,7 @@ const GoLiveContainer = forwardRef(
             <GoLiveStreamButton
               tooltipPosition="below"
               tooltipCustomTranslate={{ y: -2 }}
+              onCollapse={onCollapse}
             />
           </motion.div>
         )}

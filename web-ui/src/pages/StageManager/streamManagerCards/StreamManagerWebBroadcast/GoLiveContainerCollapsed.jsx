@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -11,6 +11,7 @@ import { useModal } from '../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
 import WebBroadcastControl from './WebBroadcastControl';
+import { StageContext } from '../../contexts/StageContext';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -38,7 +39,8 @@ const GoLiveContainerCollapsed = ({
   const { stopBroadcast } = useBroadcast();
   const stopBroadcastButtonRef = useRef();
   const { openModal } = useModal();
-
+  const { stageInfo} =
+  useContext(StageContext);
   const handleStopBroadcastingAction = () => {
     openModal({
       content: {
@@ -47,8 +49,15 @@ const GoLiveContainerCollapsed = ({
         isDestructive: true
       },
       onConfirm: () => {
+        console.log("stageInfo1", stageInfo);
+        const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+            body: JSON.stringify({
+              groupId: stageInfo.groupId,
+            }),
+            method: 'DELETE',
+          });
         stopBroadcast();
-        onExpand();
+        //onExpand();
       },
       lastFocusedElement: stopBroadcastButtonRef
     });

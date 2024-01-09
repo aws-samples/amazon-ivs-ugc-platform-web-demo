@@ -53,7 +53,7 @@ const StreamManagerWebBroadcast = forwardRef(
       toggleWhiteBoard,
       downloadCanvasPDF
     } = useBroadcast();
-    const { joinStage, stageJoined, leaveStage, screenshareStageJoined, publishScreenshare, unpublishScreenshare } =
+    const { joinStage, stageJoined, leaveStage, screenshareStageJoined, publishScreenshare, unpublishScreenshare, handleSetStageInfo } =
         useContext(StageContext);
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
@@ -118,6 +118,7 @@ const StreamManagerWebBroadcast = forwardRef(
         method: 'POST'
       });
       const joinData = await joinRes.json()
+      handleSetStageInfo({...createStageResponse, ...joinData})
       joinStage(joinData?.stage?.token?.token)
       onExpand()
       
@@ -127,7 +128,7 @@ const StreamManagerWebBroadcast = forwardRef(
 
       // To update later (e.g. in an onClick event handler)
       // strategy.updateTracks(myNewAudioTrack, myNewVideoTrack);
-      stage.refreshStrategy();
+      //stage.refreshStrategy();
       // console.log("response",await response.json(), response);
     }
 

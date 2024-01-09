@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 
 import { clsm } from '../../../../utils';
 import { streamManager as $content } from '../../../../content';
@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 
 import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
+import { StageContext } from '../../contexts/StageContext';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const {
@@ -21,7 +22,7 @@ const {
   }
 } = $webBroadcastContent;
 
-const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
+const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate, onCollapse }) => {
   const streamButtonRef = useRef();
   const {
     isBroadcasting,
@@ -38,7 +39,7 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
   const { isLive } = useStreams();
   const isDisabled =
     (isLive && !isBroadcasting) || !activeCamera || !activeMicrophone;
-
+  const { stageInfo} = useContext(StageContext);
   const handleStartStopBroadcastingAction = () => {
     if (isBroadcasting) {
       openModal({
@@ -47,7 +48,17 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate }) => {
           message: $webBroadcastContent.confirm_end_stream,
           isDestructive: true
         },
-        onConfirm: stopBroadcast,
+        onConfirm: () => {
+          console.log("stageInfo2", stageInfo);
+          const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+              body: JSON.stringify({
+                groupId: stageInfo.groupId,
+              }),
+              method: 'DELETE',
+            });
+            onCollapse && onCollapse()
+          stopBroadcast()
+        },
         lastFocusedElement: streamButtonRef
       });
     } else startBroadcast();

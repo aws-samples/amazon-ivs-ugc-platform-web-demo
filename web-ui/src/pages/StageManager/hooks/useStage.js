@@ -10,6 +10,7 @@ export default function useStage() {
     const [localParticipant, setLocalParticipant] = useState({});
     const { currentVideoDevice, currentAudioDevice } = useContext(LocalMediaContext);
     const { addStream, removeStream } = useContext(BroadcastContext);
+    const [stageInfo, setStageInfo] = useState({});
 
     const stageRef = useRef(undefined);
     const strategyRef = useRef(new Strategy(currentAudioDevice, currentVideoDevice));
@@ -83,6 +84,10 @@ export default function useStage() {
         }
     };
 
+    const handleSetStageInfo = (stageInfo) => {
+        setStageInfo(stageInfo)
+    }
+
     function leaveStage() {
         if (stageRef.current) {
             stageRef.current.leave();
@@ -115,7 +120,7 @@ export default function useStage() {
         }
     }
 
-    return { joinStage, stageJoined, leaveStage, participants };
+    return { joinStage, stageJoined, leaveStage, participants, stageInfo, handleSetStageInfo };
 }
 
 function createParticipant(participantInfo) {
