@@ -11,13 +11,13 @@ import ApproveRejectRequest from './ApproveRejectRequest';
 const JoinRequest = ({ shouldRenderInTab }) => {
   const { pathname } = useLocation();
   const { isActive } = usePoll();
-  const { isModerator, joinRequestStatus } = useChat();
+  const { isModerator, joinRequestStatus,isStageOwner } = useChat();
   const { isDesktopView, isLandscape } = useResponsiveDevice();
   const isStreamManagerPage = pathname === '/manager' || pathname === '/stage';
 
   return (
     <div>
-      {isStreamManagerPage &&isModerator && joinRequestStatus?.status === 'REQUEST_JOIN' && (
+      {isStreamManagerPage && isModerator && joinRequestStatus?.status === 'REQUEST_JOIN' && (
         <ApproveRejectRequest />
       )}
       {!isStreamManagerPage && <RequestJoinStage />}

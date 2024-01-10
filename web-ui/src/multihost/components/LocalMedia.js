@@ -11,6 +11,7 @@ import Button from '../../components/Button';
 import { clsm } from '../../utils.js';
 import { useUser } from '../../contexts/User.jsx';
 import { useChat } from '../../contexts/Chat.jsx';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 let USERS = [
   {
@@ -92,8 +93,16 @@ export default function LocalMedia() {
   } = useContext(StageContext);
 
   const { userData } = useUser();
-  const { joinRequestStatus, stageData, setStageData } = useChat();
-console.log(joinRequestStatus, stageData)
+  const {
+    isModerator,
+    joinRequestStatus,
+    stageData,
+    setStageData,
+    isStageOwner,
+    setIsStageOwner
+  } = useChat();
+  const { state } = useLocation();
+  console.log(joinRequestStatus, stageData);
   function handleIngestChange(endpoint) {
     init(endpoint);
     setIngestEndpoint(endpoint);
@@ -104,36 +113,38 @@ console.log(joinRequestStatus, stageData)
     setStreamKey(key);
   }
 
-  async function joinOrLeaveStage () {
+  async function joinOrLeaveStage() {
     if (stageJoined) {
       leaveStage();
     } else {
-        const response = await fetch(
-            'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
-            {
-              body: JSON.stringify({
-                groupIdParam: `${userData?.username}`,
-                userId: userData?.username,
-                attributes: {
-                  avatarUrl: '',
-                  username: userData?.username
-                },
-                channelData: {
-                  ingestEndpoint: userData?.ingestEndpoint,
-                  playbackUrl: userData?.ingestEndpoint,
-                  streamKey: userData?.streamKeyValue,
-                  channelId: userData?.channelArn,
-                  roomId: userData?.chatRoomArn
-                }
-              }),
-              method: 'POST'
+      const response = await fetch(
+        'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
+        {
+          body: JSON.stringify({
+            groupIdParam: `${userData?.username}`,
+            userId: userData?.username,
+            attributes: {
+              avatarUrl: '',
+              username: userData?.username
+            },
+            channelData: {
+              ingestEndpoint: userData?.ingestEndpoint,
+              playbackUrl: userData?.ingestEndpoint,
+              streamKey: userData?.streamKeyValue,
+              channelId: userData?.channelArn,
+              roomId: userData?.chatRoomArn
             }
-          );
-          const createStageResponse = await response.json();
-          setStageData(createStageResponse)
-    //   joinStage(stageToken);
+          }),
+          method: 'POST'
+        }
+      );
+      const createStageResponse = await response.json();
+
+      setStageData(createStageResponse);
+      setIsStageOwner(true);
+      handleUserChange(createStageResponse?.stage?.token?.token);
     }
-    console.log(userData);
+    // console.log(userData);
   }
 
   function toggleScreenshare() {
@@ -148,57 +159,77 @@ console.log(joinRequestStatus, stageData)
     if (broadcastStarted) {
       stopBroadcast();
     } else {
-      startBroadcast();
+      isStageOwner && startBroadcast();
     }
   }
 
-  function handleUserChange(e) {
-    // console.log(e)
-    let User = USERS.find((u) => u.id === e);
-    console.log(User);
-    handleIngestChange(User.ingestEndpoint);
-    handleStreamKeyChange(User.streamKeyValue);
-    setStageToken(User.joinToken);
+  function handleUserChange(joinToken) {
+    handleIngestChange(userData.ingestEndpoint);
+    handleStreamKeyChange(userData.streamKeyValue);
+    joinStage(joinToken);
   }
+
+  useEffect(() => {
+    if (state) {
+      state.joinAsParticipant && joinStageFn(state.groupId);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    stageJoined && toggleBroadcast();
+  }, [stageJoined]);
+
+  const joinStageFn = async (groupId) => {
+    const joinRes = await fetch(
+      'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
+      {
+        body: JSON.stringify({
+          groupId,
+          userId: userData?.username,
+          attributes: {
+            avatarUrl: '',
+            username: userData?.username
+          }
+        }),
+        method: 'POST'
+      }
+    );
+    const joinData = await joinRes.json();
+    handleUserChange(joinData?.stage?.token?.token);
+  };
   return (
     <div className="row">
       <LocalVideo />
       <div className="column">
         <div className="row" style={{ marginTop: '2rem' }}>
-          <div className="column">
-            {/* <label htmlFor="token">Token</label> */}
-            <Select
-              options={USERS}
-              onChange={handleUserChange}
-              title={'Select User'}
-            />
-          </div>
           <div
             className="column"
             style={{ display: 'flex', marginTop: '1.5rem' }}
           >
-            <Button
-              onClick={joinOrLeaveStage}
-              className={clsm([
-                'w-full',
-                'h-11',
-                'dark:[&>svg]:fill-black',
-                'relative',
-                '[&>svg]:h-6',
-                '[&>svg]:w-6',
-                'space-x-1',
-                'rounded-3xl',
-                stageJoined && [
-                  'dark:bg-darkMode-red',
-                  'bg-darkMode-red',
-                  'hover:dark:bg-darkMode-red-hover',
-                  'hover:bg-darkMode-red-hover',
-                  'focus:bg-darkMode-red'
-                ]
-              ])}
-            >
-              {stageJoined ? 'Leave ' : 'Create & Join '}Stage
-            </Button>
+            {(isModerator || isStageOwner) && (
+              <Button
+                onClick={joinOrLeaveStage}
+                className={clsm([
+                  'w-full',
+                  'h-11',
+                  'dark:[&>svg]:fill-black',
+                  'relative',
+                  '[&>svg]:h-6',
+                  '[&>svg]:w-6',
+                  'space-x-1',
+                  'rounded-3xl',
+                  stageJoined && [
+                    'dark:bg-darkMode-red',
+                    'bg-darkMode-red',
+                    'hover:dark:bg-darkMode-red-hover',
+                    'hover:bg-darkMode-red-hover',
+                    'focus:bg-darkMode-red'
+                  ]
+                ])}
+              >
+                {stageJoined ? 'Leave ' : 'Create & Join '}Stage
+              </Button>
+            )}
           </div>
         </div>
         {/* <div className="row">
@@ -248,7 +279,7 @@ console.log(joinRequestStatus, stageData)
                         />
                     </div>
                 </div> */}
-        <div className="row">
+        {/* <div className="row">
           <div
             className="column"
             style={{ display: 'flex', marginTop: '1.5rem' }}
@@ -276,7 +307,7 @@ console.log(joinRequestStatus, stageData)
               {broadcastStarted ? 'Stop Broadcast' : 'Start Broadcast'}
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

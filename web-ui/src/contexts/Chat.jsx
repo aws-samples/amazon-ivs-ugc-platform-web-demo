@@ -172,6 +172,7 @@ export const Provider = ({ children }) => {
   });
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const [stageData, setStageData] = useState();
+  const [isStageOwner, setIsStageOwner] = useState(false);
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
@@ -282,7 +283,7 @@ export const Provider = ({ children }) => {
   const requestJoin = useCallback(async () => {
     const attributes = {
       eventType: REQUEST_JOIN,
-      userId: userData.id
+      userId: userData.id,
     };
     await actions.sendMessage(REQUEST_JOIN, attributes);
     return true;
@@ -290,13 +291,14 @@ export const Provider = ({ children }) => {
 
   const requestAprrove = useCallback(async () => {
     const attributes = {
-      eventType: REQUEST_APPROVED
+      eventType: REQUEST_APPROVED,
+      groupId:stageData.groupId
     };
-
+console.log('attributes',attributes)
     await actions.sendMessage(REQUEST_APPROVED, attributes);
 
     return true;
-  }, [actions]);
+  }, [actions,stageData]);
 
   const requestReject = useCallback(async () => {
     const attributes = {
@@ -476,7 +478,8 @@ export const Provider = ({ children }) => {
           eventType = undefined,
           voter = undefined,
           option = undefined,
-          userId = undefined
+          userId = undefined,
+          groupId=undefined
         }
       } = message;
       switch (eventType) {
@@ -574,17 +577,15 @@ export const Provider = ({ children }) => {
 
         case REQUEST_APPROVED:
           setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
+// console.log('stageData ',JSON.parse(stageData) )
+
           !isStreamManagerPage &&
-            navigate('/stage', {
+            navigate('/manager', {
               state: {
                 joinAsParticipant: true,
-                groupId: stageInfo.groupId
+                groupId:groupId
               }
             });
-
-          setTimeout(() => {
-            setJoinRequestStatus(null);
-          }, 5000);
           break;
 
         case REQUEST_REJECTED:
@@ -646,7 +647,9 @@ export const Provider = ({ children }) => {
     dispatchPollState,
     endPollAndResetPollProps,
     stageData,
-    setStageData
+    setStageData,
+    isStageOwner,
+    setIsStageOwner
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -693,7 +696,9 @@ export const Provider = ({ children }) => {
       requestReject,
       joinRequestStatus,
       stageData,
-      setStageData
+      setStageData,
+      isStageOwner,
+      setIsStageOwner
     }),
     [
       actions,
@@ -716,7 +721,9 @@ export const Provider = ({ children }) => {
       setDeletedMessage,
       joinRequestStatus,
       stageData,
-      setStageData
+      setStageData,
+      isStageOwner,
+      setIsStageOwner
     ]
   );
 
