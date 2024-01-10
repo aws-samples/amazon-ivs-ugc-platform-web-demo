@@ -17,7 +17,7 @@ import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/
 import Tabs from '../../components/Tabs/Tabs';
 import WebBroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/WebBroadcastSettingsModal';
 import DrawingComponent from '../../components/DrawingComponent';
-
+import MultiHost from '../../multihost/App'
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
     const { state } = useLocation();
@@ -131,7 +131,7 @@ const StreamManagerControlCenter = forwardRef(
                     ]
                   ])}
                 >
-                  {isDesktopView && (
+                  {/* {isDesktopView && (
                     <StreamManagerWebBroadcast
                       ref={previewRef}
                       webBroadcastParentContainerRef={
@@ -157,7 +157,8 @@ const StreamManagerControlCenter = forwardRef(
                             ]
                       ]
                     )}
-                  />
+                  /> */}
+                  <MultiHost/>
                 </div>
                 <NotificationProvider>
                   {/* <DrawingComponent
