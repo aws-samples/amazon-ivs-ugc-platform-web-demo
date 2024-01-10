@@ -283,7 +283,7 @@ export const Provider = ({ children }) => {
   const requestJoin = useCallback(async () => {
     const attributes = {
       eventType: REQUEST_JOIN,
-      userId: userData.id,
+      userId: userData.id
     };
     await actions.sendMessage(REQUEST_JOIN, attributes);
     return true;
@@ -292,13 +292,13 @@ export const Provider = ({ children }) => {
   const requestAprrove = useCallback(async () => {
     const attributes = {
       eventType: REQUEST_APPROVED,
-      groupId:stageData.groupId
+      groupId: stageData?.groupId,
+      userId: joinRequestStatus?.userId
     };
-console.log('attributes',attributes)
     await actions.sendMessage(REQUEST_APPROVED, attributes);
 
     return true;
-  }, [actions,stageData]);
+  }, [actions, stageData,joinRequestStatus]);
 
   const requestReject = useCallback(async () => {
     const attributes = {
@@ -479,7 +479,7 @@ console.log('attributes',attributes)
           voter = undefined,
           option = undefined,
           userId = undefined,
-          groupId=undefined
+          groupId = undefined
         }
       } = message;
       switch (eventType) {
@@ -577,13 +577,11 @@ console.log('attributes',attributes)
 
         case REQUEST_APPROVED:
           setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
-// console.log('stageData ',JSON.parse(stageData) )
-
-          !isStreamManagerPage &&
+          userData?.id === userId &&
             navigate('/manager', {
               state: {
                 joinAsParticipant: true,
-                groupId:groupId
+                groupId: groupId
               }
             });
           break;
