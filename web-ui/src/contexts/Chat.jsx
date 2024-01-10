@@ -171,8 +171,8 @@ export const Provider = ({ children }) => {
     setSendAttemptError
   });
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
+  const [stageData, setStageData] = useState();
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
-  console.log("USER",userData)
 
   // Poll Stream Action
   const {
@@ -372,7 +372,6 @@ export const Provider = ({ children }) => {
   }, [refreshChannelData]);
 
   const connect = useCallback(() => {
-    
     if (
       isViewerBanned !== false ||
       !chatRoomOwnerUsername ||
@@ -645,7 +644,9 @@ export const Provider = ({ children }) => {
     isStreamManagerPage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps
+    endPollAndResetPollProps,
+    stageData,
+    setStageData
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -690,7 +691,9 @@ export const Provider = ({ children }) => {
       requestJoin,
       requestAprrove,
       requestReject,
-      joinRequestStatus
+      joinRequestStatus,
+      stageData,
+      setStageData
     }),
     [
       actions,
@@ -711,7 +714,9 @@ export const Provider = ({ children }) => {
       requestReject,
       deletedMessage,
       setDeletedMessage,
-      joinRequestStatus
+      joinRequestStatus,
+      stageData,
+      setStageData
     ]
   );
 
