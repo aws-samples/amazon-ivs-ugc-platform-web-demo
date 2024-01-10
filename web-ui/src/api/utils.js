@@ -128,6 +128,7 @@ export const authFetch = async ({
     let data;
     if (response.status !== 204) {
       data = await response.json();
+      data.id = tokenPayload['sub']
     }
 
     if (response.ok) {
@@ -140,7 +141,7 @@ export const authFetch = async ({
     // Other Errors
     error = err;
   }
-
+  
   return { result, error };
 };
 

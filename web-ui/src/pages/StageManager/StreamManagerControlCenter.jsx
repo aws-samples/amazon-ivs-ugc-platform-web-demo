@@ -160,13 +160,13 @@ const StreamManagerControlCenter = forwardRef(
                   />
                 </div>
                 <NotificationProvider>
-                  <DrawingComponent
+                  {/* <DrawingComponent
                     ref={canvasRef}
                     startDrawing={startDrawing}
                     draw={draw}
                     endDrawing={endDrawing}
                     initializeCanvas={initializeCanvas}
-                  />
+                  /> */}
 
                   <StreamManagerChat />
                 </NotificationProvider>

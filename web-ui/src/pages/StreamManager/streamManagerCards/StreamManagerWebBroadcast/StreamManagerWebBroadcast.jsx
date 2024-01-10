@@ -251,26 +251,6 @@ const StreamManagerWebBroadcast = forwardRef(
             <p>{$webBroadcastContent.go_live}</p>
           </Button>
         )}
-        {isDefaultGoLiveButton && (
-          <Button
-            onClick={onStartStage}
-            variant="primary"
-            className={clsm([
-              'h-14',
-              'dark:[&>svg]:fill-black',
-              'relative',
-              '[&>svg]:h-6',
-              '[&>svg]:w-6',
-              'space-x-1',
-              'rounded-xl',
-              'mt-10'
-            ])}
-            data-testid="web-broadcast-go-live-button"
-          >
-            <CreateVideo />
-            <p>{$webBroadcastContent.start_stage}</p>
-          </Button>
-        )}
         <FloatingNav />
       </section>
     );

@@ -1,4 +1,11 @@
-import { forwardRef, useRef, useMemo, useState, useContext } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useMemo,
+  useState,
+  useContext,
+  useEffect
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -24,7 +31,7 @@ import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
 import { useUser } from '../../../../contexts/User';
-import IVSBroadcastClient from 'amazon-ivs-web-broadcast'
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 // import { Stage, SubscribeType, LocalStageStream } from 'amazon-ivs-web-broadcast'
 import { StageContext } from '../../contexts/StageContext';
 
@@ -53,16 +60,24 @@ const StreamManagerWebBroadcast = forwardRef(
       toggleWhiteBoard,
       downloadCanvasPDF
     } = useBroadcast();
-    const { joinStage, stageJoined, leaveStage, screenshareStageJoined, publishScreenshare, unpublishScreenshare, handleSetStageInfo } =
-        useContext(StageContext);
+    const {
+      joinStage,
+      stageJoined,
+      leaveStage,
+      screenshareStageJoined,
+      publishScreenshare,
+      unpublishScreenshare,
+      handleSetStageInfo
+    } = useContext(StageContext);
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
-    const [isWhiteBoardOpen, ] = useState(false);
+    const [isWhiteBoardOpen] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
     );
-    
+    const joinAsParticipant = state?.joinAsParticipant;
+    const groupId = state?.groupId;
     const isDefaultGoLiveButton =
       !isUserRedirectedFromSettingsPageRef.current &&
       !isBroadcastCardOpen &&
@@ -82,56 +97,66 @@ const StreamManagerWebBroadcast = forwardRef(
     const isGoLiveContainerOpen =
       isBroadcastCardOpen || isUserRedirectedFromSettingsPageRef.current;
 
-    
-    console.log('isGoLiveContainerOpen',isGoLiveContainerOpen)
     const { userData } = useUser();
     // const userId = userData?.id
     const onStartStage = async () => {
-      const response = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create', {
-        body: JSON.stringify({
-          groupIdParam: `${userData?.username}`,
-          userId: userData?.username,
-          attributes: {
-            avatarUrl: '',
-            username: userData?.username
-          },
-          channelData: {
-            ingestEndpoint: userData?.ingestEndpoint,
-            playbackUrl: userData?.ingestEndpoint,
-            streamKey: userData?.streamKeyValue,
-            channelId: userData?.channelArn,
-            roomId: userData?.chatRoomArn
-          }
-        }),
-        method: 'POST'
-      });
-      const createStageResponse = await response.json()
-      const joinRes = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join', {
-        body: JSON.stringify({
-          groupId: createStageResponse?.groupId,
-          userId: userData?.username,
-          attributes: {
-            avatarUrl: '',
-            username: userData?.username
-          }
-        }),
-        method: 'POST'
-      });
-      const joinData = await joinRes.json()
-      handleSetStageInfo({...createStageResponse, ...joinData})
-      joinStage(joinData?.stage?.token?.token)
-      onExpand()
-      
+      const response = await fetch(
+        'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
+        {
+          body: JSON.stringify({
+            groupIdParam: `${userData?.username}`,
+            userId: userData?.username,
+            attributes: {
+              avatarUrl: '',
+              username: userData?.username
+            },
+            channelData: {
+              ingestEndpoint: userData?.ingestEndpoint,
+              playbackUrl: userData?.ingestEndpoint,
+              streamKey: userData?.streamKeyValue,
+              channelId: userData?.channelArn,
+              roomId: userData?.chatRoomArn
+            }
+          }),
+          method: 'POST'
+        }
+      );
+      const createStageResponse = await response.json();
+      joinStageFn(createStageResponse);
+
       // const stage = new Stage(joinData?.stage?.token?.token, strategy);
       // await stage.join();
-
 
       // To update later (e.g. in an onClick event handler)
       // strategy.updateTracks(myNewAudioTrack, myNewVideoTrack);
       //stage.refreshStrategy();
       // console.log("response",await response.json(), response);
-    }
+    };
 
+    const joinStageFn = async (
+      createStageResponse,
+      groupId
+    ) => {
+      const joinRes = await fetch(
+        'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
+        {
+          body: JSON.stringify({
+            groupId: 'arn:aws:ivs:us-east-1:107911280745:stage/58bNGdOIAXIv',
+            userId: userData?.username,
+            attributes: {
+              avatarUrl: '',
+              username: userData?.username
+            }
+          }),
+          method: 'POST'
+        }
+      );
+      const joinData = await joinRes.json();
+      console.log('Token',joinData?.stage?.token?.token)
+      // handleSetStageInfo({ ...createStageResponse, ...joinData });
+      // joinStage(joinData?.stage?.token?.token);
+      // onExpand();
+    };
     const webBroadcastControllerButtons = useMemo(
       () => [
         {
@@ -186,6 +211,11 @@ const StreamManagerWebBroadcast = forwardRef(
       ]
     );
 
+    useEffect(() => {
+      if (joinAsParticipant) {
+        joinStageFn(groupId);
+      }
+    }, [joinAsParticipant]);
     return (
       <section
         ref={webBroadcastContainerRef}
@@ -229,7 +259,7 @@ const StreamManagerWebBroadcast = forwardRef(
               isDeviceControl: true,
               isVisible: !isWhiteBoardOpen,
               icon: <DownArrow />,
-              tooltip: $webBroadcastContent.download_whiteboard  
+              tooltip: $webBroadcastContent.download_whiteboard
             }
           ]}
           isOpen={isGoLiveContainerOpen}
@@ -279,7 +309,7 @@ const StreamManagerWebBroadcast = forwardRef(
         )} */}
         {isDefaultGoLiveButton && (
           <Button
-            onClick={onStartStage}
+            onClick={joinStageFn}
             variant="primary"
             className={clsm([
               'h-14',

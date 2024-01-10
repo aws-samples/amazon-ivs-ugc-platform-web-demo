@@ -5,10 +5,11 @@ import {
   useMemo,
   useReducer,
   useRef,
-  useState
+  useState,
+  useContext
 } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { channel as $channelContent } from '../content';
 import { useUser } from './User';
@@ -34,6 +35,7 @@ import {
 } from '../utils';
 import { usePoll } from './StreamManagerActions/Poll';
 import { CHAT_MESSAGE_EVENT_TYPES } from '../constants';
+import { StageContext } from '../pages/StageManager/contexts/StageContext';
 
 const {
   SEND_MESSAGE,
@@ -170,6 +172,7 @@ export const Provider = ({ children }) => {
   });
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
+  console.log("USER",userData)
 
   // Poll Stream Action
   const {
@@ -195,7 +198,8 @@ export const Provider = ({ children }) => {
     endPollAndResetPollProps
   } = usePoll();
   const { pathname } = useLocation();
-
+  const navigate = useNavigate();
+  const { stageInfo } = useContext(StageContext);
   const isStreamManagerPage = pathname === '/manager';
 
   const startPoll = useCallback(
@@ -277,9 +281,9 @@ export const Provider = ({ children }) => {
 
   const requestJoin = useCallback(async () => {
     const attributes = {
-      eventType: REQUEST_JOIN
+      eventType: REQUEST_JOIN,
+      userId: userData.id
     };
-
     await actions.sendMessage(REQUEST_JOIN, attributes);
     return true;
   }, [actions]);
@@ -290,6 +294,7 @@ export const Provider = ({ children }) => {
     };
 
     await actions.sendMessage(REQUEST_APPROVED, attributes);
+
     return true;
   }, [actions]);
 
@@ -367,6 +372,7 @@ export const Provider = ({ children }) => {
   }, [refreshChannelData]);
 
   const connect = useCallback(() => {
+    
     if (
       isViewerBanned !== false ||
       !chatRoomOwnerUsername ||
@@ -470,7 +476,8 @@ export const Provider = ({ children }) => {
           pollStreamActionData = undefined,
           eventType = undefined,
           voter = undefined,
-          option = undefined
+          option = undefined,
+          userId = undefined
         }
       } = message;
       switch (eventType) {
@@ -563,18 +570,26 @@ export const Provider = ({ children }) => {
           endPollAndResetPollProps();
           break;
         case REQUEST_JOIN:
-          setJoinRequestStatus('REQUEST_JOIN');
+          setJoinRequestStatus({ status: 'REQUEST_JOIN', userId });
           break;
 
         case REQUEST_APPROVED:
-          setJoinRequestStatus('REQUEST_APPROVED');
+          setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
+          !isStreamManagerPage &&
+            navigate('/stage', {
+              state: {
+                joinAsParticipant: true,
+                groupId: stageInfo.groupId
+              }
+            });
+
           setTimeout(() => {
             setJoinRequestStatus(null);
           }, 5000);
           break;
 
         case REQUEST_REJECTED:
-          setJoinRequestStatus('REQUEST_REJECTED');
+          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId });
           setTimeout(() => {
             setJoinRequestStatus(null);
           }, 5000);
@@ -630,7 +645,7 @@ export const Provider = ({ children }) => {
     isStreamManagerPage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps,
+    endPollAndResetPollProps
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -675,7 +690,7 @@ export const Provider = ({ children }) => {
       requestJoin,
       requestAprrove,
       requestReject,
-      joinRequestStatus,
+      joinRequestStatus
     }),
     [
       actions,
