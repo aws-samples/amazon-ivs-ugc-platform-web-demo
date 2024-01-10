@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import LocalVideo from './LocalVideo.js';
-import Button from './Button.js';
+// import Button from './Button.js';
 import Select from './Select.js';
 import { getDevices } from '../util/mediaDevices.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import { StageContext } from '../contexts/StageContext.js';
 import { BroadcastContext } from '../contexts/BroadcastContext.js';
 import { useLocalMedia } from '../hooks/useLocalMedia.js';
+import Button from '../../components/Button';
 
 let USERS = [{
     "channelResourceId": "3n1ejzrjjHCf",
@@ -112,7 +113,23 @@ setStageToken(User.joinToken)
                         <Select options={USERS} onChange={handleUserChange} title={'Select User'} />
                     </div>
                     <div className="column" style={{ display: 'flex', marginTop: '1.5rem' }}>
-                        <Button onClick={joinOrLeaveStage}>{stageJoined ? 'Leave' : 'Join'}</Button>
+                        <Button onClick={joinOrLeaveStage} className={clsm([
+          'w-full',
+          'h-11',
+          'dark:[&>svg]:fill-black',
+          'relative',
+          '[&>svg]:h-6',
+          '[&>svg]:w-6',
+          'space-x-1',
+          'rounded-3xl',
+          isBroadcasting && [
+            'dark:bg-darkMode-red',
+            'bg-darkMode-red',
+            'hover:dark:bg-darkMode-red-hover',
+            'hover:bg-darkMode-red-hover',
+            'focus:bg-darkMode-red'
+          ]
+        ])}>{stageJoined ? 'Leave ' : 'Create & Join '}Stage</Button>
                     </div>
                 </div>
                 {/* <div className="row">
