@@ -586,7 +586,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
           console.log('groupId', groupId);
           userData?.id === userId &&
-            navigate('/stage', {
+            navigate('/manager', {
               state: {
                 joinAsParticipant: true,
                 groupId: groupId,

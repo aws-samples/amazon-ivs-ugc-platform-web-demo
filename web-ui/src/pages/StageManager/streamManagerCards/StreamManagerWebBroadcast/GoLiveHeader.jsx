@@ -100,7 +100,7 @@ const GoLiveHeader = forwardRef(
           {isBroadcasting ? <ChevronUp /> : <ChevronDown />}
           <p>{$content.stream_manager_web_broadcast.go_live}</p>
         </Button>
-        <Button
+        {/* <Button
           onClick={onCollapse}
           variant="primaryText"
           className={clsm([
@@ -121,7 +121,7 @@ const GoLiveHeader = forwardRef(
         >
           {isBroadcasting ? <ChevronUp /> : <ChevronDown />}
           <p>{$content.stream_manager_web_broadcast.start_stage}</p>
-        </Button>
+        </Button> */}
         <Button
           ariaLabel={$content.stream_manager_web_broadcast.expand}
           variant="icon"

@@ -205,8 +205,8 @@ const StreamManagerWebBroadcast = forwardRef(
       console.log('Token',joinData?.stage?.token?.token)
       handleSetStageInfo({ ...joinData });
       init(userData?.ingestEndpoint)
-      updateStreamKey(userData?.streamKeyValue)
-      joinStage(joinData?.stage?.token?.token);
+      // updateStreamKey(userData?.streamKeyValue)
+      // joinStage(joinData?.stage?.token?.token);
       // setJoiningStage(false)
       // onExpand();
     };
@@ -381,6 +381,7 @@ const StreamManagerWebBroadcast = forwardRef(
             <CreateVideo />
             <p>{$webBroadcastContent.start_stage}</p>
           </Button>
+
         )}
         <FloatingNav />
       </section>

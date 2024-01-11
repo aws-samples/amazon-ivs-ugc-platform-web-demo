@@ -107,6 +107,7 @@ export default function LocalMedia() {
     init(endpoint);
     setIngestEndpoint(endpoint);
   }
+  let count =0;
 
   function handleStreamKeyChange(key) {
     updateStreamKey(key);
@@ -180,6 +181,8 @@ export default function LocalMedia() {
   }, [stageJoined]);
 
   const joinStageFn = async (groupId) => {
+    if (count > 0) return
+    count = 1
     const joinRes = await fetch(
       'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
       {
