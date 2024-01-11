@@ -16,7 +16,7 @@ export default function StageParticipants() {
 
     return (
         <div>
-            {broadcastClient ? <canvas ref={canvasRef} id="preview"></canvas> : undefined}
+            {/* {broadcastClient ? <canvas ref={canvasRef} id="preview"></canvas> : undefined} */}
             {[...participants.keys()].map((key) => {
                 return <Participant key={key} {...participants.get(key)} />;
             })}

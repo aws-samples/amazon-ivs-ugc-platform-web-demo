@@ -36,6 +36,7 @@ import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 import { StageContext } from '../../contexts/StageContext';
 import { useChat } from '../../../../contexts/Chat';
 import StageParticipants from '../../components/StageParticipants';
+import { BroadcastContext } from '../../contexts/BroadcastContext';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -81,6 +82,13 @@ const StreamManagerWebBroadcast = forwardRef(
       setIsStageOwner
     } = useChat();
 
+    const {
+      init,
+      startBroadcast,
+      stopBroadcast,
+      broadcastStarted,
+      updateStreamKey
+    } = useContext(BroadcastContext);
     // console.log("stageData", stageData);
 
     const webBroadcastContainerRef = useRef();
@@ -90,7 +98,7 @@ const StreamManagerWebBroadcast = forwardRef(
 
     const [searchParams, setSearchParams] = useSearchParams();
     const param = searchParams.get('data')
-
+    let joiningStage =0;
 
     const [isWhiteBoardOpen] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
@@ -161,6 +169,8 @@ const StreamManagerWebBroadcast = forwardRef(
       handleSetStageInfo({ ...createStageResponse, ...joinData });
       setStageData(createStageResponse);
       joinStage(joinData?.stage?.token?.token);
+      init(userData?.ingestEndpoint)
+      updateStreamKey(userData?.streamKeyValue)
       onExpand();
 
       // const stage = new Stage(joinData?.stage?.token?.token, strategy);
@@ -175,6 +185,8 @@ const StreamManagerWebBroadcast = forwardRef(
     const joinStageFn = async (
       groupId
     ) => {
+      if(joiningStage > 0) return
+      joiningStage = 1
       const joinRes = await fetch(
         'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
         {
@@ -192,7 +204,10 @@ const StreamManagerWebBroadcast = forwardRef(
       const joinData = await joinRes.json();
       console.log('Token',joinData?.stage?.token?.token)
       handleSetStageInfo({ ...joinData });
+      init(userData?.ingestEndpoint)
+      updateStreamKey(userData?.streamKeyValue)
       joinStage(joinData?.stage?.token?.token);
+      // setJoiningStage(false)
       // onExpand();
     };
     const webBroadcastControllerButtons = useMemo(
@@ -250,7 +265,7 @@ const StreamManagerWebBroadcast = forwardRef(
     );
 
     useEffect(() => {
-      if (joinAsParticipant) {
+      if (joinAsParticipant && joiningStage === 0) {
         joinStageFn(groupId);
       }
     }, [joinAsParticipant]);
