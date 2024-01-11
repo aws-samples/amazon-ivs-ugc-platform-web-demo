@@ -36,6 +36,7 @@ import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 import { StageContext } from '../../contexts/StageContext';
 import { useChat } from '../../../../contexts/Chat';
 import StageParticipants from '../../components/StageParticipants';
+import { BroadcastContext } from '../../contexts/BroadcastContext';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -81,6 +82,13 @@ const StreamManagerWebBroadcast = forwardRef(
       setIsStageOwner
     } = useChat();
 
+    const {
+      init,
+      startBroadcast,
+      stopBroadcast,
+      broadcastStarted,
+      updateStreamKey
+    } = useContext(BroadcastContext);
     // console.log("stageData", stageData);
 
     const webBroadcastContainerRef = useRef();
@@ -161,6 +169,8 @@ const StreamManagerWebBroadcast = forwardRef(
       handleSetStageInfo({ ...createStageResponse, ...joinData });
       setStageData(createStageResponse);
       joinStage(joinData?.stage?.token?.token);
+      init(userData?.ingestEndpoint)
+      updateStreamKey(userData?.streamKeyValue)
       onExpand();
 
       // const stage = new Stage(joinData?.stage?.token?.token, strategy);
@@ -192,6 +202,8 @@ const StreamManagerWebBroadcast = forwardRef(
       const joinData = await joinRes.json();
       console.log('Token',joinData?.stage?.token?.token)
       handleSetStageInfo({ ...joinData });
+      init(userData?.ingestEndpoint)
+      updateStreamKey(userData?.streamKeyValue)
       joinStage(joinData?.stage?.token?.token);
       // onExpand();
     };
