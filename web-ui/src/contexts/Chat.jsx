@@ -577,13 +577,15 @@ export const Provider = ({ children }) => {
 
         case REQUEST_APPROVED:
           setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
+          console.log('groupId', groupId);
           userData?.id === userId &&
-            navigate('/manager', {
+            navigate('/stage', {
               state: {
                 joinAsParticipant: true,
                 groupId: groupId
               }
-            });
+            }, {});
+            
           break;
 
         case REQUEST_REJECTED:

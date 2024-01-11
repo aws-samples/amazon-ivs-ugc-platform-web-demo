@@ -11,6 +11,7 @@ const ROUTES = [
   { path: 'following', name: 'following' },
   { path: 'settings', name: 'settings' },
   { path: 'manager', name: 'stream_manager' },
+  { path: 'stage', name: 'stage_manager' },
   {
     path: '/health',
     name: 'stream_health',

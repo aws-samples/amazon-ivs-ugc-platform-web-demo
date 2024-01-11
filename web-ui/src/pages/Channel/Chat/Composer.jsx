@@ -47,7 +47,7 @@ const Composer = ({
   const [shouldShake, setShouldShake] = useState(false); // Composer has shake animated only on submit
   const [blockChat, setBlockChat] = useState(false);
   const currentPage = useCurrentPage();
-  const isStreamManagerPage = currentPage === 'stream_manager';
+  const isStreamManagerPage = currentPage === 'stream_manager' || 'stage_manager';
   const canSendMessages =
     chatUserRole &&
     [CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(chatUserRole);

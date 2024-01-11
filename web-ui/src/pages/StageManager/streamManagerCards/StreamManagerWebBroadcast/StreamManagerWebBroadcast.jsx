@@ -6,7 +6,7 @@ import {
   useContext,
   useEffect
 } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import {
@@ -34,6 +34,8 @@ import { useUser } from '../../../../contexts/User';
 import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 // import { Stage, SubscribeType, LocalStageStream } from 'amazon-ivs-web-broadcast'
 import { StageContext } from '../../contexts/StageContext';
+import { useChat } from '../../../../contexts/Chat';
+import StageParticipants from '../../components/StageParticipants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -69,9 +71,27 @@ const StreamManagerWebBroadcast = forwardRef(
       unpublishScreenshare,
       handleSetStageInfo
     } = useContext(StageContext);
+
+    const {
+      isModerator,
+      joinRequestStatus,
+      stageData,
+      setStageData,
+      isStageOwner,
+      setIsStageOwner
+    } = useChat();
+
+    // console.log("stageData", stageData);
+
     const webBroadcastContainerRef = useRef();
     const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
     const { state } = useLocation();
+
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const param = searchParams.get('data')
+
+
     const [isWhiteBoardOpen] = useState(false);
     const isUserRedirectedFromSettingsPageRef = useRef(
       state?.isWebBroadcastContainerOpen || false
@@ -122,26 +142,11 @@ const StreamManagerWebBroadcast = forwardRef(
         }
       );
       const createStageResponse = await response.json();
-      joinStageFn(createStageResponse);
-
-      // const stage = new Stage(joinData?.stage?.token?.token, strategy);
-      // await stage.join();
-
-      // To update later (e.g. in an onClick event handler)
-      // strategy.updateTracks(myNewAudioTrack, myNewVideoTrack);
-      //stage.refreshStrategy();
-      // console.log("response",await response.json(), response);
-    };
-
-    const joinStageFn = async (
-      createStageResponse,
-      groupId
-    ) => {
       const joinRes = await fetch(
         'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
         {
           body: JSON.stringify({
-            groupId: 'arn:aws:ivs:us-east-1:107911280745:stage/58bNGdOIAXIv',
+            groupId: createStageResponse?.groupId,
             userId: userData?.username,
             attributes: {
               avatarUrl: '',
@@ -153,8 +158,41 @@ const StreamManagerWebBroadcast = forwardRef(
       );
       const joinData = await joinRes.json();
       console.log('Token',joinData?.stage?.token?.token)
-      // handleSetStageInfo({ ...createStageResponse, ...joinData });
-      // joinStage(joinData?.stage?.token?.token);
+      handleSetStageInfo({ ...createStageResponse, ...joinData });
+      setStageData(createStageResponse);
+      joinStage(joinData?.stage?.token?.token);
+      onExpand();
+
+      // const stage = new Stage(joinData?.stage?.token?.token, strategy);
+      // await stage.join();
+
+      // To update later (e.g. in an onClick event handler)
+      // strategy.updateTracks(myNewAudioTrack, myNewVideoTrack);
+      //stage.refreshStrategy();
+      // console.log("response",await response.json(), response);
+    };
+
+    const joinStageFn = async (
+      groupId
+    ) => {
+      const joinRes = await fetch(
+        'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
+        {
+          body: JSON.stringify({
+            groupId: groupId,
+            userId: userData?.username,
+            attributes: {
+              avatarUrl: '',
+              username: userData?.username
+            }
+          }),
+          method: 'POST'
+        }
+      );
+      const joinData = await joinRes.json();
+      console.log('Token',joinData?.stage?.token?.token)
+      handleSetStageInfo({ ...joinData });
+      joinStage(joinData?.stage?.token?.token);
       // onExpand();
     };
     const webBroadcastControllerButtons = useMemo(
@@ -232,6 +270,7 @@ const StreamManagerWebBroadcast = forwardRef(
           'mb-6'
         ])}
       >
+        <StageParticipants />
         <GoLiveContainer
           ref={previewRef}
           isBroadcastCardOpen={isBroadcastCardOpen}
@@ -288,6 +327,7 @@ const StreamManagerWebBroadcast = forwardRef(
             onExpand={onExpand}
           />
         )}
+
         {/* {isDefaultGoLiveButton && (
           <Button
             onClick={onExpand}
@@ -307,9 +347,9 @@ const StreamManagerWebBroadcast = forwardRef(
             <p>{$webBroadcastContent.go_live}</p>
           </Button>
         )} */}
-        {isDefaultGoLiveButton && (
+        {isDefaultGoLiveButton && !joinAsParticipant &&(
           <Button
-            onClick={joinStageFn}
+            onClick={onStartStage}
             variant="primary"
             className={clsm([
               'h-14',
