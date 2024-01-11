@@ -7,7 +7,7 @@ export default function StageParticipants() {
     const { participants } = useContext(StageContext);
     const { broadcastClient } = useContext(BroadcastContext);
     const canvasRef = useRef(undefined);
-console.log("inside stage participants", participants);
+// console.log("inside stage participants", participants);
     useEffect(() => {
         if (canvasRef.current && broadcastClient) {
             broadcastClient.attachPreview(canvasRef.current);

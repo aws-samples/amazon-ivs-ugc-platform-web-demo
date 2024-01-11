@@ -145,12 +145,16 @@ export const Provider = ({ children }) => {
   const { username: ownUsername } = userData || {};
   const savedMessages = useRef({});
   const { channelData, refreshChannelData } = useChannel();
-  const { username: chatRoomOwnerUsername, isViewerBanned = false } =
-    channelData || {};
+  
   const { notifyError, dismissNotif } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
+  const { state } = useLocation();
 
+// console.log("state", state);
+const { username: chatRoomOwner, isViewerBanned = false } =
+    channelData || {};
+  const chatRoomOwnerUsername = state?.hostUserName ? state?.hostUserName : chatRoomOwner
   // Connection State
   const [hasConnectionError, setHasConnectionError] = useState();
   const [sendAttemptError, setSendAttemptError] = useState();
@@ -288,12 +292,14 @@ export const Provider = ({ children }) => {
     await actions.sendMessage(REQUEST_JOIN, attributes);
     return true;
   }, [actions]);
-
+  // console.log('stageData', stageData);
   const requestAprrove = useCallback(async () => {
+    // console.log('stageData', stageData);
     const attributes = {
       eventType: REQUEST_APPROVED,
       groupId: stageData?.groupId,
-      userId: joinRequestStatus?.userId
+      userId: joinRequestStatus?.userId,
+      hostUserName: userData?.username
     };
     await actions.sendMessage(REQUEST_APPROVED, attributes);
 
@@ -479,7 +485,8 @@ export const Provider = ({ children }) => {
           voter = undefined,
           option = undefined,
           userId = undefined,
-          groupId = undefined
+          groupId = undefined,
+          hostUserName = undefined
         }
       } = message;
       switch (eventType) {
@@ -582,7 +589,8 @@ export const Provider = ({ children }) => {
             navigate('/stage', {
               state: {
                 joinAsParticipant: true,
-                groupId: groupId
+                groupId: groupId,
+                hostUserName: hostUserName
               }
             }, {});
             
