@@ -7,3 +7,4 @@ export { default as StreamHealth } from './StreamHealth';
 export { default as StreamManager } from './StreamManager';
 export { default as UserManagement } from './UserManagement';
 export { default as StageManager } from './StageManager';
+export { default as ClassRoom } from './ClassRoom';

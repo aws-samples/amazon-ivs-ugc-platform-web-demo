@@ -28,7 +28,8 @@ import {
   StreamHealth,
   StreamManager,
   StageManager,
-  UserManagement
+  UserManagement,
+  ClassRoom
 } from './pages';
 
 // UserManagement Subpages
@@ -102,6 +103,7 @@ const router = createBrowserRouter(
           <Route path="settings" element={<Settings />} />
           <Route path="manager" element={<StreamManager />} />
           <Route path="stage" element={<StageManager />} />
+          <Route path="classroom" element={<ClassRoom />} />
           <Route path="health">
             <Route index element={<StreamHealth />} />
             <Route path=":streamId" element={<StreamHealth />} />
