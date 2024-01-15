@@ -102,7 +102,7 @@ export default function LocalMedia() {
     setIsStageOwner
   } = useChat();
   const { state } = useLocation();
-  console.log(joinRequestStatus, stageData);
+  // console.log(joinRequestStatus, stageData);
   function handleIngestChange(endpoint) {
     init(endpoint);
     setIngestEndpoint(endpoint);
@@ -117,6 +117,14 @@ export default function LocalMedia() {
   async function joinOrLeaveStage() {
     if (stageJoined) {
       leaveStage();
+      if(isStageOwner){
+        const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+              body: JSON.stringify({
+                groupId: stageData.groupId,
+              }),
+              method: 'DELETE',
+            });
+      }
     } else {
       const response = await fetch(
         'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
@@ -202,14 +210,14 @@ export default function LocalMedia() {
   };
   return (
     <div className="row">
-      <LocalVideo />
+      <LocalVideo stageJoined={stageJoined} joinOrLeaveStage={joinOrLeaveStage}/>
       <div className="column">
         <div className="row" style={{ marginTop: '2rem' }}>
           <div
             className="column"
             style={{ display: 'flex', marginTop: '1.5rem' }}
           >
-            {(isModerator || isStageOwner) && (
+            {(isModerator || isStageOwner) && !stageJoined &&(
               <Button
                 onClick={joinOrLeaveStage}
                 className={clsm([
