@@ -206,6 +206,9 @@ export default function LocalMedia() {
       }
     );
     const joinData = await joinRes.json();
+    setStageData((prevData) => {
+      setStageData({...prevData, shareToken: joinData?.stage?.token?.token})
+    })
     handleUserChange(joinData?.stage?.token?.token);
   };
   return (

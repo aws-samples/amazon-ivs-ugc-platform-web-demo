@@ -4,12 +4,14 @@ import Button from './Button.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice.jsx';
 import Tooltip from '../../components/Tooltip/Tooltip.jsx';
-import { MicOff, MicOn, VideoCamera, VideoCameraOff } from '../../assets/icons/index.js';
+import { MicOff, MicOn, ScreenShare, ScreenShareOff, VideoCamera, VideoCameraOff } from '../../assets/icons/index.js';
 import { clsm } from '../../utils.js';
 import { Stop } from '../../assets/icons/index.js';
+import { StageContext } from '../contexts/StageContext';
+import { useChat } from '../../contexts/Chat';
 const { StreamType } = window.IVSBroadcastClient;
 
-export default function Video({ stageStream, stageJoined, joinOrLeaveStage }) {
+export default function Video({ stageStream, stageJoined, joinOrLeaveStage, isParticipant }) {
     const videoRef = useRef(null);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -20,6 +22,14 @@ export default function Video({ stageStream, stageJoined, joinOrLeaveStage }) {
     }, [videoRef, stageStream]);
 
     const { currentAudioDevice, currentVideoDevice } = useContext(LocalMediaContext);
+    const {
+        screenshareStageJoined,
+        publishScreenshare,
+        unpublishScreenshare,
+      } = useContext(StageContext);
+      const {
+        stageData
+      } = useChat();
     const { isTouchscreenDevice } = useResponsiveDevice();
 
     const [audioMuted, setAudioMuted] = useState(true);
@@ -36,6 +46,15 @@ export default function Video({ stageStream, stageJoined, joinOrLeaveStage }) {
             setAudioMuted(device.isMuted);
         }
     }
+
+    function toggleScreenshare() {
+        if (screenshareStageJoined) {
+          unpublishScreenshare();
+        } else {
+            console.log("shareToken", stageData);
+          publishScreenshare(stageData.stage.token.token);
+        }
+      }
 
     if (currentVideoDevice && videoMuted !== currentVideoDevice.isMuted) {
         setVideoMuted(currentVideoDevice.isMuted);
@@ -67,7 +86,7 @@ export default function Video({ stageStream, stageJoined, joinOrLeaveStage }) {
       onMouseLeave={() => setIsHovered(false)}
         >
             <video ref={videoRef} autoPlay playsInline/>
-            {(
+            {!isParticipant &&(
             <div
             style={{
                 position: 'absolute',
@@ -121,6 +140,26 @@ export default function Video({ stageStream, stageJoined, joinOrLeaveStage }) {
                             </Button>
                         </Tooltip>
                 </div>
+                {<div className={` bg-red-500 rounded-3xl p-1`}>
+                    <Tooltip
+                        key={`wb-control-tooltip-show-video-tooltip`}
+                        position="above"
+                        message={'Stop Sharing'}
+                        >
+                            <Button
+                                ariaLabel={'Share Screen'}
+                                key={`wb-control-btn-video-icon`}
+                                // ref={withRef && ref}
+                                variant="icon"
+                                onClick={() => toggleScreenshare()}
+                                isDisabled={false}
+                                disableHover={isTouchscreenDevice}
+                                className={'h-4 w-4'}
+                            >
+                                {!screenshareStageJoined ? <ScreenShareOff style={{ width: '30px', height: '30px' }}/> : <ScreenShare style={{ width: '30px', height: '30px' }}/>}
+                            </Button>
+                        </Tooltip>
+                </div>}
                 {stageJoined && <div className={` bg-red-500 rounded-3xl p-1`}>
                     <Tooltip
                         key={`wb-control-tooltip-show-video-tooltip`}
