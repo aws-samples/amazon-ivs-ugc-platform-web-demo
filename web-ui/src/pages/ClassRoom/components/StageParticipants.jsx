@@ -17,19 +17,18 @@ export default function StageParticipants() {
 
   return (
     <div className="flex flex-wrap items-stretch h-2/5 w-3/4 items-center">
-      {[...participants.keys()].map((key) => {
+      {[...participants.keys()].slice(0, 4).map((key) => {
         return <Participant key={key} {...participants.get(key)} />;
       })}
-
-      {/* <button
-        onClick={() => {
-          dPT.length <= 4 &&
-            setdPT((prev) => [...prev, { key: 'dsdsds', streams: [] }]);
-        }}
-        style={{ display: dPT.length <= 4 ? 'inline-block' : 'none' }}
-      >
-        Add
-      </button> */}
+      {participants.keys().length >= 5 && (
+        <div className="w-1/5 h-auto p-1 border-md border-2">
+          <div className="flex flex-col h-full rounded-lg shadow">
+            <div className="flex h-full w-full text-center relative items-center justify-center text-white">
+              More ...
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -43,7 +43,7 @@ export const navPageData = [
     pageName: 'stage_manager',
     displayName: $content.stage_manager,
     icon: <SmartToy />,
-    route: '/stage',
+    route: '/classroom',
     isAuth: true
   },
   {

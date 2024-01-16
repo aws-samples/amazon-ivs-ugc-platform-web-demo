@@ -40,7 +40,7 @@ export default function Participant({
   }, [audioRef, audioStream]);
 
   return (
-    <div className="w-1/5 h-[200px] p-1 ">
+    <div className="w-1/5 h-auto p-1 border-md border-2">
       <div className="flex flex-col h-full rounded-lg shadow">
         {/* Video feed placeholder */}
         <div className="h-full w-full text-center relative">

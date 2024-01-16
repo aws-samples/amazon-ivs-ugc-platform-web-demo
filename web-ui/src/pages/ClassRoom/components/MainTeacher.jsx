@@ -127,9 +127,8 @@ export default function MainTeacher() {
     handleUserChange(joinData?.stage?.token?.token);
   };
   return (
-    <div
-      style={{ height: 'calc(100vh- 24px)' }}
-      className="w-3/4 px-1 overflow-hidden"
+    <div 
+      className="w-3/4 h-full overflow-hidden"
     >
       {/* <button onClick={joinOrLeaveStage}>Join</button> */}
       <div className="h-full">
