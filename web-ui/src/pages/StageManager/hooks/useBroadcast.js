@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useContext, useReducer } from 'react';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 const { create, BASIC_FULL_HD_LANDSCAPE, StreamType } = IVSBroadcastClient;
 
 const layouts = {

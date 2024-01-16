@@ -85,7 +85,7 @@ export default function Video({ stageStream, stageJoined, joinOrLeaveStage, isPa
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
         >
-            <video ref={videoRef} autoPlay playsInline/>
+            <video ref={videoRef} autoPlay playsInline><track kind="captions" /></video>
             {!isParticipant &&(
             <div
             style={{

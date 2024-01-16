@@ -19,6 +19,6 @@ export default function Video({ stageStream, combinedStream }) {
       autoPlay
       playsInline
       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-    />
+    ><track kind="captions" /></video>
   );
 }

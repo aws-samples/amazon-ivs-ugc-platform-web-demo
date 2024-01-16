@@ -163,12 +163,12 @@ const MediaCanvasProvider = ({ children }) => {
           ref={webcamVideoRef}
           autoPlay
           style={{ display: 'none' }}
-        ></video>
+        ><track kind="captions" /></video>
         <video
           ref={screenShareVideoRef}
           autoPlay
           style={{ display: 'none' }}
-        ></video>
+        ><track kind="captions" /></video>
         {children}
       </>
     </MediaCanvasContext.Provider>

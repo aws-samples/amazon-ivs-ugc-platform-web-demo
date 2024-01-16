@@ -49,7 +49,7 @@ export default function Participant({
           ) : (
             <Placeholder userId={userId} />
           )}
-          <audio ref={audioRef} autoPlay />
+          <audio ref={audioRef} autoPlay ><track kind="captions" /></audio>
           <span
             className="absolute bottom-0 left-0 right-0 h-10 flex items-center justify-center"
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}

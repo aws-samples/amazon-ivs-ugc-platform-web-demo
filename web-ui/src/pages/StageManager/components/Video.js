@@ -9,5 +9,5 @@ export default function Video({ stageStream }) {
         }
     }, [videoRef, stageStream]);
 
-    return <video ref={videoRef} autoPlay playsInline />;
+    return <video ref={videoRef} autoPlay playsInline ><track kind="captions" /></video>;
 }

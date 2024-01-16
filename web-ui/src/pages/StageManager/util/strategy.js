@@ -1,3 +1,5 @@
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
+
 const { SubscribeType } = IVSBroadcastClient;
 
 export default class Strategy {

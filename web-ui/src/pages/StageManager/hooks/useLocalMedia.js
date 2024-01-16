@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getCamera, getMic } from '../util/mediaDevices.js';
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 const { LocalStageStream, StreamType } = IVSBroadcastClient;
 
 export function useLocalMedia() {

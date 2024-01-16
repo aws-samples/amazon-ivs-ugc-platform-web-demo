@@ -2,6 +2,7 @@ import React, { useState, useRef, useContext, useEffect } from 'react';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import { BroadcastContext } from '../contexts/BroadcastContext.js';
 import Strategy from '../util/strategy.js';
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 const { Stage, StageConnectionState, StageEvents, SubscribeType } = IVSBroadcastClient;
 
 export default function useStage() {

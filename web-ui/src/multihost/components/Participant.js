@@ -19,7 +19,7 @@ export default function Participant({ id, userId, videoStopped, audioMuted, stre
         <div className="column column-40" id="local-media" style={{ display: 'flex' }}>
             <div className="participantContainer">
                 {videoStream && !videoStopped ? <Video stageStream={videoStream} isParticipant={true}/> : <Placeholder userId={userId} />}
-                <audio ref={audioRef} autoPlay />
+                <audio ref={audioRef} autoPlay ><track kind="captions" /></audio>
                 {audioMuted ? <span>Audio Muted</span> : undefined}
             </div>
         </div>

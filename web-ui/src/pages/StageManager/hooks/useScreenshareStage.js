@@ -2,6 +2,7 @@ import React, { useState, useRef, useContext, useEffect } from 'react';
 import { getScreenshare } from '../util/mediaDevices.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import Strategy from '../util/strategy.js';
+import IVSBroadcastClient from 'amazon-ivs-web-broadcast';
 const { Stage, StageConnectionState, StageEvents, SubscribeType, LocalStageStream } = IVSBroadcastClient;
 
 export default function useScreenshareStage() {
