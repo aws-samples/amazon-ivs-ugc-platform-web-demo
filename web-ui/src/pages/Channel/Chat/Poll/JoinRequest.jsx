@@ -13,12 +13,12 @@ const JoinRequest = ({ shouldRenderInTab }) => {
   const { isActive } = usePoll();
   const { isModerator, joinRequestStatus,isStageOwner } = useChat();
   const { isDesktopView, isLandscape } = useResponsiveDevice();
-  const isStreamManagerPage = pathname === '/manager' || pathname === '/stage';
+  const isStreamManagerPage = pathname === '/manager' || pathname === '/stage' || pathname === '/classroom';
 
   return (
     <div>
       {isStreamManagerPage && isModerator && joinRequestStatus?.status === 'REQUEST_JOIN' && (
-        <ApproveRejectRequest />
+        <ApproveRejectRequest joinRequestStatus={joinRequestStatus}/>
       )}
       {!isStreamManagerPage && <RequestJoinStage />}
     </div>

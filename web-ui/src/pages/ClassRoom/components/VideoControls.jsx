@@ -19,6 +19,7 @@ import { StageContext } from '../contexts/StageContext.js';
 import { useMediaCanvas } from '../hooks/useMediaCanvas.js';
 
 const { StreamType } = window.IVSBroadcastClient;
+let count = 0;
 
 export default function VideoControls() {
   const {
@@ -66,7 +67,6 @@ export default function VideoControls() {
   function handleIngestChange(endpoint) {
     init(endpoint);
   }
-  let count = 0;
 
   function handleStreamKeyChange(key) {
     updateStreamKey(key);
@@ -75,6 +75,14 @@ export default function VideoControls() {
   async function joinOrLeaveStage() {
     if (stageJoined) {
       leaveStage();
+      if(isStageOwner){
+        const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+              body: JSON.stringify({
+                groupId: stageData.groupId,
+              }),
+              method: 'DELETE',
+            });
+      }
     } else {
       const response = await fetch(
         'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
@@ -121,7 +129,7 @@ export default function VideoControls() {
   }
 
   useEffect(() => {
-    if (state) {
+    if (state && count === 0) {
       state.joinAsParticipant && joinStageFn(state.groupId);
     }
   }, [state]);
@@ -166,19 +174,19 @@ export default function VideoControls() {
     /* Video Controls Panel - fixed height */
     <div className="h-18 bg-gray-200 w-3/4 p-4">
       <div className="flex justify-center items-center px-4 h-full ">
-        <button
+       {!state?.joinAsParticipant && <button
           className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
           onClick={joinOrLeaveStage}
         >
-          <span style={{ fontSize: 12, color: 'black' }}>
+         <span style={{ fontSize: 12, color: 'black' }}>
             {stageJoined ? 'Stop ' : 'Start '} Class
           </span>
-        </button>
+        </button>}
         <button
           className="text-xs bg-gray-300 p-2 rounded-full mx-1"
           onClick={() => toggleDeviceMute(currentAudioDevice)}
         >
-          {audioMuted ? (
+          {!audioMuted ? (
             <MicOn style={{ height: 20 }} />
           ) : (
             <MicOff style={{ height: 20 }} />
@@ -188,7 +196,7 @@ export default function VideoControls() {
           className="text-xs bg-gray-300 p-2 rounded-full mx-1"
           onClick={() => toggleDeviceMute(currentVideoDevice)}
         >
-          {videoMuted ? (
+          {!videoMuted ? (
             <VideoCamera style={{ height: 20 }} />
           ) : (
             <VideoCameraOff style={{ height: 20 }} />
@@ -216,11 +224,11 @@ export default function VideoControls() {
         </button>
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={() => toggleDeviceMute(currentVideoDevice)}
+          onClick={() => leaveStage()}
         >
           <CallDisconnect style={{ height: 20 }} />
         </button>
-        <button
+       {!state?.joinAsParticipant && <button
           className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
           onClick={toggleBroadcast}
         >
@@ -228,7 +236,7 @@ export default function VideoControls() {
             {' '}
             {broadcastStarted ? 'Stop ' : 'Start '} Streaming
           </span>
-        </button>
+        </button>}
       </div>
     </div>
   );

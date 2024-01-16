@@ -10,6 +10,7 @@ import StageParticipants from './components/StageParticipants.jsx';
 import VideoControls from './components/VideoControls.jsx';
 import LocalMedia from './components/LocalMedia.jsx';
 import { useMediaCanvas } from './hooks/useMediaCanvas.js';
+import ChatManager from './components/ChatManager.jsx';
 
 const ClassroomApp = () => {
   const { isCanvas2Active, handleToggleCanvas2 } = useMediaCanvas();
@@ -20,8 +21,8 @@ const ClassroomApp = () => {
       <MainTeacher />
       <VideoControls />
 
-      <div className="w-1/4 h-screen fixed top-0 right-0 p-4 overflow-y-auto bg-white border-l-2 border-gray-300">
-        <ChatWindow />
+      <div className="w-1/4 h-screen fixed top-0 right-0 overflow-y-auto bg-white border-l-2 border-gray-300">
+        <ChatManager />
       </div>
 
       <Modal isOpen={isCanvas2Active} />

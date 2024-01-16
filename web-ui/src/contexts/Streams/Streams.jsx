@@ -32,6 +32,7 @@ export const Provider = ({ children }) => {
     'stream_health',
     'stream_manager',
     'stage_manager',
+    'classroom',
     'settings'
   ].includes(currentPage);
 

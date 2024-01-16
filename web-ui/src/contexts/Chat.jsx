@@ -287,7 +287,8 @@ const { username: chatRoomOwner, isViewerBanned = false } =
   const requestJoin = useCallback(async () => {
     const attributes = {
       eventType: REQUEST_JOIN,
-      userId: userData.id
+      userId: userData.id,
+      requestedUsername: userData.username
     };
     await actions.sendMessage(REQUEST_JOIN, attributes);
     return true;
@@ -299,6 +300,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       eventType: REQUEST_APPROVED,
       groupId: stageData?.groupId,
       userId: joinRequestStatus?.userId,
+      requestedUsername: joinRequestStatus?.requestedUsername,
       hostUserName: userData?.username
     };
     await actions.sendMessage(REQUEST_APPROVED, attributes);
@@ -486,6 +488,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           option = undefined,
           userId = undefined,
           groupId = undefined,
+          requestedUsername = undefined,
           hostUserName = undefined
         }
       } = message;
@@ -579,14 +582,13 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           endPollAndResetPollProps();
           break;
         case REQUEST_JOIN:
-          setJoinRequestStatus({ status: 'REQUEST_JOIN', userId });
+          setJoinRequestStatus({ status: 'REQUEST_JOIN', userId, requestedUsername });
           break;
 
         case REQUEST_APPROVED:
-          setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId });
-          console.log('groupId', groupId);
+          setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId, requestedUsername });
           userData?.id === userId &&
-            navigate('/manager', {
+            navigate('/classroom', {
               state: {
                 joinAsParticipant: true,
                 groupId: groupId,
@@ -597,7 +599,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           break;
 
         case REQUEST_REJECTED:
-          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId });
+          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId, requestedUsername });
           setTimeout(() => {
             setJoinRequestStatus(null);
           }, 5000);

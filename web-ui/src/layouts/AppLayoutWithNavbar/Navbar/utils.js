@@ -40,8 +40,8 @@ export const navPageData = [
     isAuth: true
   },
   {
-    pageName: 'stage_manager',
-    displayName: $content.stage_manager,
+    pageName: 'classroom',
+    displayName: $content.classroom,
     icon: <SmartToy />,
     route: '/classroom',
     isAuth: true

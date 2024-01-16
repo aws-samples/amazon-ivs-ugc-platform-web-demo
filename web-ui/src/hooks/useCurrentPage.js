@@ -12,6 +12,7 @@ const ROUTES = [
   { path: 'settings', name: 'settings' },
   { path: 'manager', name: 'stream_manager' },
   { path: 'stage', name: 'stage_manager' },
+  { path: 'classroom', name: 'classroom' },
   {
     path: '/health',
     name: 'stream_health',
