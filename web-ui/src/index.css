@@ -57,7 +57,9 @@
     @apply overflow-hidden relative;
     text-rendering: optimizeSpeed;
   }
-
+iframe{
+  display: none;
+}
   /* WebKit scrollbar */
   ::-webkit-scrollbar {
     @apply w-[17px];

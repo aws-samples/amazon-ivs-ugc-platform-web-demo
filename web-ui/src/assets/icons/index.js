@@ -66,3 +66,6 @@ export { ReactComponent as VisibilityOff } from './visibility-off.svg';
 export { ReactComponent as VolumeHigh } from './volume-high.svg';
 export { ReactComponent as VolumeLow } from './volume-low.svg';
 export { ReactComponent as VolumeMedium } from './volume-medium.svg';
+export { ReactComponent as WhiteBoard } from './whiteboard.svg';
+export { ReactComponent as WhiteBoardOff } from './whiteboard-off.svg';
+export { ReactComponent as CallDisconnect } from './call-disconnect.svg';
