@@ -4,7 +4,7 @@ import {
   Favorite,
   StreamHealth,
   StreamManager,
-  SmartToy
+  Classroom
 } from '../../../assets/icons';
 import { app as $appContent } from '../../../content';
 
@@ -42,7 +42,7 @@ export const navPageData = [
   {
     pageName: 'classroom',
     displayName: $content.classroom,
-    icon: <SmartToy />,
+    icon: <Classroom />,
     route: '/classroom',
     isAuth: true
   },

@@ -3,10 +3,11 @@ import Chat from '../../Channel/Chat';
 import Poll from '../../Channel/Chat/Poll/Poll';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
 import JoinRequest from '../../Channel/Chat/Poll/JoinRequest';
-
+import { useMediaCanvas } from '../hooks/useMediaCanvas';
 
 const ChatManager = () => {
   const { isActive, containerMinHeight, hasVotes } = usePoll();
+  const { isWhiteBoardActive, toggleWhiteBoard,isSmall } = useMediaCanvas();
 
   return (
     <section
@@ -24,7 +25,7 @@ const ChatManager = () => {
         'overflow-hidden',
         'rounded-l',
         'w-full',
-        'h-3/4'
+        isWhiteBoardActive?'h-3/4':'h-full'
       ])}
     >
       

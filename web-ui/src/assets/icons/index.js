@@ -5,6 +5,7 @@ export { ReactComponent as AcmeSml } from './acme-sml.svg';
 export { ReactComponent as AmazonA } from './amazon-a.svg';
 export { ReactComponent as CallToAction } from './call-to-action.svg';
 export { ReactComponent as Celebration } from './celebration.svg';
+export { ReactComponent as Classroom } from './classroom.svg';
 export { ReactComponent as ChatClosed } from './chat-closed.svg';
 export { ReactComponent as ChatOpen } from './chat-open.svg';
 export { ReactComponent as Check } from './check.svg';

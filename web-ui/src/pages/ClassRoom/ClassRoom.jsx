@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,useCallback } from 'react';
 import {
   MicOff,
   MicOn,
@@ -11,9 +11,11 @@ import VideoControls from './components/VideoControls.jsx';
 import LocalMedia from './components/LocalMedia.jsx';
 import { useMediaCanvas } from './hooks/useMediaCanvas.js';
 import ChatManager from './components/ChatManager.jsx';
+import useWebcam from './hooks/useWebCam.js';
+import { clsm } from '../../utils.js';
 
 const ClassroomApp = () => {
-  const { isCanvas2Active, handleToggleCanvas2 } = useMediaCanvas();
+  const { isWhiteBoardActive, toggleWhiteBoard,isSmall } = useMediaCanvas();
 
   return (
     <div className="flex flex-col h-screen">
@@ -25,25 +27,60 @@ const ClassroomApp = () => {
         <ChatManager />
       </div>
 
-      <Modal isOpen={isCanvas2Active} />
+      <Modal isOpen={isWhiteBoardActive} />
     </div>
   );
 };
 
 const Modal = ({ isOpen, onClose }) => {
-  const { whiteboardCanvasRef } = useMediaCanvas();
-  if (!isOpen) return null;
+  const { webcamVideoRef, webcamStream } = useMediaCanvas();
+  const smallVideoRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = smallVideoRef.current;
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    if (!canvas || !ctx || !webcamStream || !isOpen) return;
+
+    let animationFrameId;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (webcamStream && webcamVideoRef.current) {
+        ctx.drawImage(webcamVideoRef.current, 0, 0, canvas.width, canvas.height);
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [smallVideoRef, webcamStream, webcamVideoRef, isOpen]);
 
   return (
-    <div className="fixed right-0 bottom-0 w-1/4 bg-white h-1/4 overflow-auto mt-auto border">
+    <div className={clsm([
+      'fixed',
+      'right-0',
+      'bottom-0',
+      'w-1/4 ',
+      'bg-white',
+      isOpen?'h-1/4':'h-0',
+      'overflow-auto',
+      'mt-auto',
+      'border'
+    ])}  >
       <canvas
-        ref={whiteboardCanvasRef}
+        ref={smallVideoRef}
         width={1280}
         height={720}
         style={{
           height: '100%',
           width: '100%',
-          zIndex: 1000,
+          // zIndex: 1000,
           borderWidth: 2,
           borderColor: 'grey'
         }}
@@ -51,6 +88,7 @@ const Modal = ({ isOpen, onClose }) => {
     </div>
   );
 };
+
 
 const ChatWindow = () => {
   return (

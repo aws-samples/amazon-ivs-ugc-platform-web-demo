@@ -11,10 +11,12 @@ import { useMediaCanvas } from '../hooks/useMediaCanvas.js';
 export default function MainTeacher() {
   const { currentVideoDevice } = useContext(LocalMediaContext);
   const {
-    displayCanvasRef,
-    displayCanvasMouseDown,
-    displayCanvasMouseMove,
-    displayCanvasMouseUp
+    isWhiteBoardActive,
+    displayRef,
+    whiteboardRef,
+    displayMouseDown,
+    displayMouseMove,
+    displayMouseUp
   } = useMediaCanvas();
   const {
     init,
@@ -23,11 +25,7 @@ export default function MainTeacher() {
     broadcastStarted,
     updateStreamKey
   } = useContext(BroadcastContext);
-  const {
-    joinStage,
-    stageJoined,
-    leaveStage,
-  } = useContext(StageContext);
+  const { joinStage, stageJoined, leaveStage } = useContext(StageContext);
   const { userData } = useUser();
   console.log(init, BroadcastContext, userData);
   const {
@@ -127,22 +125,36 @@ export default function MainTeacher() {
     handleUserChange(joinData?.stage?.token?.token);
   };
   return (
-    <div 
-      className="w-3/4 h-full overflow-hidden"
-    >
+    <div className="w-3/4 h-full overflow-hidden">
       {/* <button onClick={joinOrLeaveStage}>Join</button> */}
       <div className="h-full">
         <div className="w-full h-full bg-black">
           <canvas
-            ref={displayCanvasRef}
-            onMouseDown={displayCanvasMouseDown}
-            onMouseMove={displayCanvasMouseMove}
-            onMouseUp={displayCanvasMouseUp}
-            onMouseLeave={displayCanvasMouseUp}
+            ref={displayRef}
+            onMouseDown={displayMouseDown}
+            onMouseMove={displayMouseMove}
+            onMouseUp={displayMouseUp}
+            onMouseLeave={displayMouseUp}
             width={1280}
             height={720}
-            style={{ height: '100%', width: '100%' }}
+            style={{
+              height: '100%',
+              width: '100%',
+              display: isWhiteBoardActive ? 'none' : 'block'
+            }}
           />
+          {isWhiteBoardActive &&  <canvas
+            ref={whiteboardRef}
+            width={1280}
+            height={720}
+            style={{
+              height: '100%',
+              width: '100%',
+              borderWidth: 2,
+              borderColor: 'grey'
+            }}
+          />}
+         
         </div>
       </div>
     </div>

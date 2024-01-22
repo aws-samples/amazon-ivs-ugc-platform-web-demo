@@ -24,9 +24,9 @@ let count = 0;
 export default function VideoControls() {
   const {
     isSmall,
-    handleToggleScreenShare,
-    handleToggleCanvas2,
-    isCanvas2Active,setIsVideoMuted
+    toggleScreenShare,
+    toggleWhiteBoard,
+    isWhiteBoardActive,setIsVideoMuted
   } = useMediaCanvas();
   const { currentAudioDevice, currentVideoDevice } =
     useContext(LocalMediaContext);
@@ -204,7 +204,7 @@ export default function VideoControls() {
         </button>
         <button
           className="text-xs bg-gray-300 p-2 rounded-full mx-1"
-          onClick={handleToggleScreenShare}
+          onClick={toggleScreenShare}
         >
           {!isSmall ? (
             <ScreenShare style={{ height: 20 }} />
@@ -214,9 +214,9 @@ export default function VideoControls() {
         </button>
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={handleToggleCanvas2}
+          onClick={toggleWhiteBoard}
         >
-          {!isSmall && !isCanvas2Active ? (
+          {!isSmall && !isWhiteBoardActive ? (
             <WhiteBoard style={{ height: 20 }} />
           ) : (
             <WhiteBoardOff style={{ height: 20 }} />

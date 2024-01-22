@@ -7,7 +7,6 @@ export default function StageParticipants() {
   const { participants } = useContext(StageContext);
   const { broadcastClient } = useContext(BroadcastContext);
   const canvasRef = useRef(undefined);
-  const [dPT, setdPT] = useState([]);
 
   useEffect(() => {
     if (canvasRef.current && broadcastClient) {

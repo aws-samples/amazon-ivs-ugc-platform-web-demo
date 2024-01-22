@@ -1,9 +1,8 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 const useCanvasDrawing = (isSmall) => {
-  const canvas1Ref = useRef(null);
-  const canvas2Ref = useRef(null);
-  const canvasVideoRef = useRef(null);
-  const [isCanvas2Active, setIsCanvas2Active] = useState(false);
+  const displayRef = useRef(null);
+  const whiteboardRef = useRef(null);
+  const [isWhiteBoardActive, setIsWhiteBoardActive] = useState(false);
   const [smallVideoPosition, setSmallVideoPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -12,30 +11,29 @@ const useCanvasDrawing = (isSmall) => {
   let currentDragPosition = { ...smallVideoPosition };
   const ctx2Ref = useRef(null);
   useEffect(() => {
-    if (isCanvas2Active) {
-      const canvas = canvas2Ref.current;
+    if (isWhiteBoardActive) {
+      const canvas = whiteboardRef.current;
       if (canvas) {
         ctx2Ref.current = canvas.getContext('2d');
-        canvas.addEventListener('mousedown', handleMouseDownCanvas2);
-        canvas.addEventListener('mousemove', handleMouseMoveCanvas2);
-        canvas.addEventListener('mouseup', handleMouseUpCanvas2);
-        canvas.addEventListener('mouseleave', handleMouseUpCanvas2);
+        canvas.addEventListener('mousedown', whiteBoardMouseDown);
+        canvas.addEventListener('mousemove', whiteBoardMouseMove);
+        canvas.addEventListener('mouseup', whiteBoardMouseUp);
+        canvas.addEventListener('mouseleave', whiteBoardMouseUp);
         return () => {
-          canvas.removeEventListener('mousedown', handleMouseDownCanvas2);
-          canvas.removeEventListener('mousemove', handleMouseMoveCanvas2);
-          canvas.removeEventListener('mouseup', handleMouseUpCanvas2);
-          canvas.removeEventListener('mouseleave', handleMouseUpCanvas2);
+          canvas.removeEventListener('mousedown', whiteBoardMouseDown);
+          canvas.removeEventListener('mousemove', whiteBoardMouseMove);
+          canvas.removeEventListener('mouseup', whiteBoardMouseUp);
+          canvas.removeEventListener('mouseleave', whiteBoardMouseUp);
         };
       }
     }
-  }, [isCanvas2Active]);
+  }, [isWhiteBoardActive]);
 
   useEffect(() => {
-    const canvas = canvas2Ref.current;
+    const canvas = whiteboardRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
 
-     
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
 
@@ -45,18 +43,18 @@ const useCanvasDrawing = (isSmall) => {
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
 
-      ctx.scale(dpr, dpr);
+      // ctx.scale(dpr, dpr); // If whiteboard is placed in small place then uncomment this.
     }
-  }, []); 
+  }, []);
 
-  const handleMouseDownCanvas1 = useCallback(
+  const displayMouseDown = useCallback(
     (e) => {
       if (isSmall) {
-        const rect = canvas1Ref.current.getBoundingClientRect();
+        const rect = displayRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const smallWidth = canvas1Ref.current.width * 0.2;
-        const smallHeight = canvas1Ref.current.height * 0.2;
+        const smallWidth = displayRef.current.width * 0.2;
+        const smallHeight = displayRef.current.height * 0.2;
 
         if (
           x >= smallVideoPosition.x &&
@@ -73,28 +71,27 @@ const useCanvasDrawing = (isSmall) => {
         }
       }
     },
-    [isSmall, canvas1Ref, smallVideoPosition]
+    [isSmall, displayRef, smallVideoPosition]
   );
 
-  const handleMouseMoveCanvas1 = useCallback(
+  const displayMouseMove = useCallback(
     (e) => {
       if (isSmall && isDragging) {
-        const rect = canvas1Ref.current.getBoundingClientRect();
+        const rect = displayRef.current.getBoundingClientRect();
         const newX = e.clientX - rect.left - dragStart.x;
         const newY = e.clientY - rect.top - dragStart.y;
 
-      
         const boundedX = Math.max(
           0,
           Math.min(
-            canvas1Ref.current.width - canvas1Ref.current.width * 0.2,
+            displayRef.current.width - displayRef.current.width * 0.2,
             newX
           )
         );
         const boundedY = Math.max(
           0,
           Math.min(
-            canvas1Ref.current.height - canvas1Ref.current.height * 0.2,
+            displayRef.current.height - displayRef.current.height * 0.2,
             newY
           )
         );
@@ -102,15 +99,13 @@ const useCanvasDrawing = (isSmall) => {
         setSmallVideoPosition(currentDragPosition);
       }
     },
-    [isSmall, isDragging, canvas1Ref, dragStart]
+    [isSmall, isDragging, displayRef, dragStart]
   );
 
-  const handleMouseUpCanvas1 = useCallback(() => {
+  const displayMouseUp = useCallback(() => {
     setIsDragging(false);
     setSmallVideoPosition(currentDragPosition);
   }, [currentDragPosition]);
-
- 
 
   const getMousePos = (canvas, evt) => {
     const rect = canvas.getBoundingClientRect();
@@ -123,47 +118,46 @@ const useCanvasDrawing = (isSmall) => {
     };
   };
 
-  const handleMouseDownCanvas2 = useCallback((e) => {
+  const whiteBoardMouseDown = useCallback((e) => {
     isDrawing.current = true;
-    const mousePos = getMousePos(canvas2Ref.current, e);
+    const mousePos = getMousePos(whiteboardRef.current, e);
 
     if (!ctx2Ref.current) return;
 
-    ctx2Ref.current.beginPath(); 
-    ctx2Ref.current.moveTo(mousePos.x, mousePos.y); 
+    ctx2Ref.current.beginPath();
+    ctx2Ref.current.moveTo(mousePos.x, mousePos.y);
 
     setLastDrawPosition({ x: mousePos.x, y: mousePos.y });
   }, []);
 
-  const handleMouseMoveCanvas2 = useCallback(
+  const whiteBoardMouseMove = useCallback(
     (e) => {
       if (!isDrawing.current || !ctx2Ref.current) return;
 
-      const mousePos = getMousePos(canvas2Ref.current, e);
+      const mousePos = getMousePos(whiteboardRef.current, e);
 
-      ctx2Ref.current.lineTo(mousePos.x, mousePos.y); 
+      ctx2Ref.current.lineTo(mousePos.x, mousePos.y);
       ctx2Ref.current.stroke();
 
-      setLastDrawPosition({ x: mousePos.x, y: mousePos.y }); 
+      setLastDrawPosition({ x: mousePos.x, y: mousePos.y });
     },
     [lastDrawPosition]
   );
 
-  const handleMouseUpCanvas2 = useCallback(() => {
+  const whiteBoardMouseUp = useCallback(() => {
     isDrawing.current = false;
   }, []);
 
   return {
-    canvas1Ref,
-    canvas2Ref,
-    canvasVideoRef,
-    isCanvas2Active,
-    setIsCanvas2Active,
+    displayRef,
+    whiteboardRef,
+    isWhiteBoardActive,
+    setIsWhiteBoardActive,
     smallVideoPosition,
     setSmallVideoPosition,
-    handleMouseDownCanvas1,
-    handleMouseMoveCanvas1,
-    handleMouseUpCanvas1,
+    displayMouseDown,
+    displayMouseMove,
+    displayMouseUp,
     currentDragPosition
   };
 };

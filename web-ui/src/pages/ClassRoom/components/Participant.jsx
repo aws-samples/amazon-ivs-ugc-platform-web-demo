@@ -16,7 +16,7 @@ const { StreamType } = window.IVSBroadcastClient;
 
 export default function Participant({
   id,
-  userId,
+  userId="User",
   videoStopped,
   audioMuted,
   streams = []
@@ -40,7 +40,7 @@ export default function Participant({
   }, [audioRef, audioStream]);
 
   return (
-    <div className="w-1/5 h-auto p-1 border-md border-2">
+    <div className="w-1/5 h-auto p-1 border-md border-2 mr-1 border-[grey]">
       <div className="flex flex-col h-full rounded-lg shadow">
         {/* Video feed placeholder */}
         <div className="h-full w-full text-center relative">

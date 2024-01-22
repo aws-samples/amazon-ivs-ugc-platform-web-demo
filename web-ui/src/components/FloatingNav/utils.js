@@ -4,7 +4,8 @@ import {
   Home,
   Settings,
   StreamHealth,
-  StreamManager
+  StreamManager,
+  Classroom
 } from '../../assets/icons';
 import { app as $appContent } from '../../content';
 
@@ -35,9 +36,9 @@ export const navMenuButtonData = [
     to: '/manager'
   },
   {
-    label: $content.stage_manager,
-    icon: <StreamManager />,
-    to: '/manager',
+    label: $content.classroom,
+    icon: <Classroom />,
+    to: '/classroom',
     hasDivider: true
   },
   {
