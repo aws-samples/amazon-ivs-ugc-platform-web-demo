@@ -15,7 +15,8 @@ export default function StageParticipants() {
   }, [broadcastClient, canvasRef]);
 
   return (
-    <div className="flex flex-wrap items-stretch h-2/5 w-3/4 items-center">
+    <>
+    <div className="flex flex-wrap items-stretch h-1/4 w-3/4 items-center">
       {[...participants.keys()].slice(0, 4).map((key) => {
         return <Participant key={key} {...participants.get(key)} />;
       })}
@@ -29,5 +30,6 @@ export default function StageParticipants() {
         </div>
       )}
     </div>
+    </>
   );
 }

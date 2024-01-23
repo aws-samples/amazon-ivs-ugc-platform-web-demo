@@ -51,13 +51,13 @@ export default function Participant({
           )}
           <audio ref={audioRef} autoPlay ><track kind="captions" /></audio>
           <span
-            className="absolute bottom-0 left-0 right-0 h-10 flex items-center justify-center"
+            className="absolute bottom-0 left-0 right-0 h-6 flex items-center justify-center text-black"
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
           >
             {!audioMuted ? (
-              <MicOn style={{ height: 20 }} />
+              <MicOn style={{ height: 15 }} />
             ) : (
-              <MicOff style={{ height: 20 }} />
+              <MicOff style={{ height: 15 }} />
             )}{' '}
             {userId}
           </span>
