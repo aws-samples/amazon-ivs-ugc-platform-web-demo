@@ -54,7 +54,7 @@ const MediaCanvasProvider = ({ children }) => {
       getScreenShare();
     }
   }, [screenStream, getScreenShare, setScreenStream, setIsSmall]);
-  
+
   const toggleWhiteBoard = useCallback(() => {
     setIsWhiteBoardActive((prev) => !prev);
     setIsSmall((prev) => !prev);
@@ -139,7 +139,6 @@ const MediaCanvasProvider = ({ children }) => {
 
     ctx2.strokeStyle = '#000000';
     ctx2.lineWidth = 2;
-
   }, []);
 
   useEffect(() => {
@@ -162,7 +161,8 @@ const MediaCanvasProvider = ({ children }) => {
       toggleWhiteBoard,
       setIsVideoMuted,
       webcamStream,
-      webcamVideoRef
+      webcamVideoRef,
+      screenShareVideoRef
     }),
     [
       isSmall,
@@ -174,7 +174,8 @@ const MediaCanvasProvider = ({ children }) => {
       toggleScreenShare,
       toggleWhiteBoard,
       webcamStream,
-      webcamVideoRef
+      webcamVideoRef,
+      screenShareVideoRef
     ]
   );
 
@@ -182,7 +183,6 @@ const MediaCanvasProvider = ({ children }) => {
     <MediaCanvasContext.Provider value={contextValue}>
       <>
         <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }} />
-        <video ref={screenShareVideoRef} autoPlay style={{ display: 'none' }} />
         {children}
       </>
     </MediaCanvasContext.Provider>

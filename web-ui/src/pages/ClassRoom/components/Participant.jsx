@@ -54,7 +54,7 @@ export default function Participant({
             className="absolute bottom-0 left-0 right-0 h-10 flex items-center justify-center"
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
           >
-            {audioMuted ? (
+            {!audioMuted ? (
               <MicOn style={{ height: 20 }} />
             ) : (
               <MicOff style={{ height: 20 }} />

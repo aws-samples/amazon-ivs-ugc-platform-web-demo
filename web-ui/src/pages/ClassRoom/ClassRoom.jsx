@@ -27,7 +27,7 @@ const ClassroomApp = () => {
         <ChatManager />
       </div>
 
-      <Modal isOpen={isWhiteBoardActive} />
+      <Modal isOpen={isSmall} />
     </div>
   );
 };
@@ -80,39 +80,10 @@ const Modal = ({ isOpen, onClose }) => {
         style={{
           height: '100%',
           width: '100%',
-          // zIndex: 1000,
           borderWidth: 2,
           borderColor: 'grey'
         }}
       />
-    </div>
-  );
-};
-
-
-const ChatWindow = () => {
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
-        {/* Chat messages will go here */}
-        <ChatMessage message="How did you get the root(3) on the right side of the equation?" />
-        {/* ... other messages */}
-        {/* More <ChatMessage /> components can be added here */}
-      </div>
-      <div className="flex-shrink-0 bg-white border-t mb-2">
-        <div className="flex">
-          <input className="border p-2 flex-1" placeholder="Say something..." />
-          <button className="bg-blue-500 text-white p-2 ">Send</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ChatMessage = ({ message }) => {
-  return (
-    <div className=" border-b">
-      <span>{message}</span>
     </div>
   );
 };
