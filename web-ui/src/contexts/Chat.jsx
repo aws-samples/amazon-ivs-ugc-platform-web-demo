@@ -50,11 +50,12 @@ const REQUEST_STATUS = {
   REQUEST_JOIN: 'REQUEST_JOIN',
   REQUEST_APPROVED: 'REQUEST_APPROVED',
   REQUEST_REJECTED: 'REQUEST_REJECTED',
+  REQUEST_WITHDRAWN: 'REQUEST_WITHDRAWN',
   NOTIFY_USER_JOIN: 'NOTIFY_USER_JOIN',
   NOTIFY_USER_LEAVE: 'NOTIFY_USER_LEAVE',
   NOTIFY_ALL_USERS: 'NOTIFY_ALL_USERS'
 };
-const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED, NOTIFY_USER_JOIN, NOTIFY_USER_LEAVE, NOTIFY_ALL_USERS } = REQUEST_STATUS;
+const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED,REQUEST_WITHDRAWN, NOTIFY_USER_JOIN, NOTIFY_USER_LEAVE, NOTIFY_ALL_USERS } = REQUEST_STATUS;
 
 const $content = $channelContent.chat;
 
@@ -317,6 +318,14 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       eventType: REQUEST_REJECTED
     };
     await actions.sendMessage(REQUEST_REJECTED, attributes);
+    return true;
+  }, [actions]);
+
+  const requestWithdraw = useCallback(async () => {
+    const attributes = {
+      eventType: REQUEST_WITHDRAWN
+    };
+    await actions.sendMessage(REQUEST_WITHDRAWN, attributes);
     return true;
   }, [actions]);
 
@@ -646,6 +655,16 @@ const { username: chatRoomOwner, isViewerBanned = false } =
             setJoinRequestStatus(null);
           }, 5000);
           break;
+        case REQUEST_REJECTED:
+          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId, requestedUsername });
+          setTimeout(() => {
+            setJoinRequestStatus(null);
+          }, 5000);
+          break;
+        case REQUEST_WITHDRAWN:
+          setJoinRequestStatus({ status: 'REQUEST_WITHDRAWN', userId, requestedUsername });
+          setJoinRequestStatus(null);
+          break;
         case SEND_MESSAGE:
           addMessage(message);
           break;
@@ -774,6 +793,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestJoin,
       requestAprrove,
       requestReject,
+      requestWithdraw,
       notifyUserJoin,
       joinRequestStatus,
       stageData,
@@ -799,6 +819,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestJoin,
       requestAprrove,
       requestReject,
+      requestWithdraw,
       notifyUserJoin,
       deletedMessage,
       setDeletedMessage,

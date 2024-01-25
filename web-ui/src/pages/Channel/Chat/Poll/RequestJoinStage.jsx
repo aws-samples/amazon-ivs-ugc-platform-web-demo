@@ -4,7 +4,7 @@ import { useChat } from '../../../../contexts/Chat';
 import { useUser } from '../../../../contexts/User';
 
 const RequestJoinStage = () => {
-  const { joinRequestStatus, requestJoin } = useChat();
+  const { joinRequestStatus, requestJoin,requestWithdraw } = useChat();
   const { userData } = useUser();
 
   const currentUser = userData && joinRequestStatus && userData.id === joinRequestStatus.userId;
@@ -44,9 +44,14 @@ const RequestJoinStage = () => {
         </Button>
       ) : (
         currentUser && (
-          <p className='fixed bottom-24 right-8 py-2 px-4' style={{ color: getStatusColor() }}>
+          <div className='flex flex-row fixed bottom-24 right-8 items-center justify-between w-1/4'>
+          <p className='  py-2 px-4' style={{ color: getStatusColor() }}>
             {getStatusMessage()}
           </p>
+          <Button onClick={requestWithdraw} className=" bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          Lower Hand
+        </Button>
+          </div>
         )
       )}
     </>
