@@ -2,6 +2,7 @@ import React,{useState,useEffect,useRef} from 'react'
 const useScreenShare = (setIsSmall) => {
     const screenShareVideoRef = useRef(null);
     const [screenStream, setScreenStream] = useState(null);
+    const [isScreenShareActive, setIsScreenShareActive] = useState(false);
   
     const getScreenShare = async () => {
       try {
@@ -10,10 +11,12 @@ const useScreenShare = (setIsSmall) => {
         if (screenShareVideoRef.current) {
           screenShareVideoRef.current.srcObject = stream;
           setIsSmall(true)
+          setIsScreenShareActive(true)
         }
         stream.getVideoTracks()[0].addEventListener("ended", () => {
           setScreenStream(null);
           setIsSmall(false)
+          setIsScreenShareActive(false)
         });
       } catch (err) {
         console.error("Error accessing display media:", err);
@@ -28,7 +31,7 @@ const useScreenShare = (setIsSmall) => {
       };
     }, [screenStream]);
   
-    return { screenShareVideoRef, screenStream, getScreenShare ,setScreenStream};
+    return { screenShareVideoRef, screenStream, getScreenShare ,setScreenStream,isScreenShareActive,setIsScreenShareActive};
   };
   
   export default useScreenShare

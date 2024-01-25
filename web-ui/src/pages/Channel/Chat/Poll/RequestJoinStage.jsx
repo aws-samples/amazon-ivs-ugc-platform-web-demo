@@ -39,12 +39,12 @@ const RequestJoinStage = () => {
   return (
     <>
       {!joinRequestStatus ? (
-        <Button onClick={requestJoin} className="request-join-stage-button">
+        <Button onClick={requestJoin} className="fixed bottom-24 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Raise Hand
         </Button>
       ) : (
         currentUser && (
-          <p style={{ color: getStatusColor() }}>
+          <p className='fixed bottom-24 right-8 py-2 px-4' style={{ color: getStatusColor() }}>
             {getStatusMessage()}
           </p>
         )

@@ -1,17 +1,10 @@
-import React, { useRef, useEffect, useContext } from 'react';
-import Video from './Video';
-import Placeholder from './Placeholder';
-import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
+import React, { useEffect, useRef } from 'react';
 import {
   MicOff,
-  MicOn,
-  VideoCamera,
-  VideoCameraOff,
-  ScreenShare,
-  ScreenShareOff,
-  Play,
-  Stop
+  MicOn
 } from '../../../assets/icons/index.js';
+import Placeholder from './Placeholder';
+import Video from './Video';
 const { StreamType } = window.IVSBroadcastClient;
 
 export default function Participant({
@@ -21,7 +14,6 @@ export default function Participant({
   audioMuted,
   streams = []
 }) {
-  const { currentVideoDevice } = useContext(LocalMediaContext);
 
   const videoStream =
     streams.find((stream) => stream.streamType === StreamType.VIDEO)
@@ -40,9 +32,8 @@ export default function Participant({
   }, [audioRef, audioStream]);
 
   return (
-    <div className="w-1/5 h-auto p-1 border-md border-2 mr-1 border-[grey]">
-      <div className="flex flex-col h-full rounded-lg shadow">
-        {/* Video feed placeholder */}
+    <div className="w-1/5 h-auto p-1 border mr-1 ">
+      <div className="flex flex-col h-full">
         <div className="h-full w-full text-center relative">
           {videoStream && !videoStopped ? (
             <Video stageStream={videoStream} />
