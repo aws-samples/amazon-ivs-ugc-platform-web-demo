@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { clsm } from '../../utils.js';
 import ChatManager from './components/ChatManager.jsx';
 import MainTeacher from './components/MainTeacher.jsx';
@@ -6,10 +6,7 @@ import ParticipantList from './components/ParticipantList.jsx';
 import StageParticipants from './components/StageParticipants.jsx';
 import VideoControls from './components/VideoControls.jsx';
 import { useMediaCanvas } from './hooks/useMediaCanvas.js';
-import ChatManager from './components/ChatManager.jsx';
 import useWebcam from './hooks/useWebCam.js';
-import { clsm } from '../../utils.js';
-import ParticipantList from './components/ParticipantList.jsx';
 
 const Accordion = () => {
 
