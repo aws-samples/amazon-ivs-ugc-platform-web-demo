@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useRef, useState } from 'react';
 import { clsm } from '../../utils.js';
 import ChatManager from './components/ChatManager.jsx';
@@ -9,7 +11,6 @@ import { useMediaCanvas } from './hooks/useMediaCanvas.js';
 import useWebcam from './hooks/useWebCam.js';
 
 const Accordion = () => {
-
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleAccordion = () => {
@@ -47,7 +48,7 @@ const Accordion = () => {
       </div>
     </div>
   );
-}
+};
 const ClassroomApp = () => {
   const { isSmall } = useMediaCanvas();
 
@@ -56,12 +57,12 @@ const ClassroomApp = () => {
       <StageParticipants />
       <MainTeacher />
       <VideoControls />
-      <div className='w-1/4 border-l-2 border-gray-300 rounded bg-white'>
+      <div className="w-1/4 border-l-2 border-gray-300 rounded bg-white">
         <div className="w-1/4 absolute top-0 right-0 overflow-y-auto bg-gray-200 ">
-         <Accordion/>
+          <Accordion />
         </div>
         <div className="w-1/4 h-3/4 absolute bottom-3 right-0 overflow-y-auto">
-          <ChatManager/>
+          <ChatManager />
         </div>
       </div>
       <Modal isOpen={isSmall} />
@@ -71,7 +72,7 @@ const ClassroomApp = () => {
 
 const Modal = ({ isOpen, onClose }) => {
   const { isVideoMuted, webcamVideoRef } = useMediaCanvas();
-  
+
   const smallVideoRef = useRef(null);
 
   useEffect(() => {
@@ -86,7 +87,13 @@ const Modal = ({ isOpen, onClose }) => {
       if (isVideoMuted) {
         drawMutedMessage(ctx, canvas);
       } else if (webcamVideoRef.current) {
-        ctx.drawImage(webcamVideoRef.current, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          webcamVideoRef.current,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
       }
 
       animationFrameId = requestAnimationFrame(draw);
