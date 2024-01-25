@@ -496,7 +496,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       isConnectionOpenRef.current = false;
       connection.current = null;
       setRoom(null);
-      notifyUserLeave()
+      // notifyUserLeave()
       chatCapabilities.current = [];
 
       updateUserRole();
@@ -509,7 +509,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
         const { userId: bannedUserId } = event;
 
         handleUserDisconnect(bannedUserId);
-        notifyUserLeave()
+        // notifyUserLeave()
         const bannedUserChannelId =
           extractChannelIdfromChannelArn(bannedUserId);
         if (bannedUserChannelId !== trackingId.toLowerCase()) {
@@ -652,15 +652,15 @@ const { username: chatRoomOwner, isViewerBanned = false } =
         case NOTIFY_USER_JOIN:
           if(isModerator){
             let list = []
-            setParticipantList((prevData) => {
-              if(!prevData.length){
-                setParticipantList([...prevData, joinedUsername])
-                list = [...prevData, joinedUsername]
-              } else {
-                setParticipantList([userData.username,joinedUsername])
-                list = [userData.username,joinedUsername]
-              }
-            });
+            const tempList = participantList
+            if(participantList){
+              setParticipantList([...tempList, joinedUsername])
+              list = [...prevData, joinedUsername]
+            }
+            else{
+              setParticipantList([userData.username,joinedUsername])
+              list = [userData.username,joinedUsername]
+            }
             notifyAllUsers(list);
           }
           break;
@@ -671,11 +671,9 @@ const { username: chatRoomOwner, isViewerBanned = false } =
         case NOTIFY_USER_LEAVE:
           if(isModerator){
             let list = []
-            setParticipantList((prevData) => {
-              list = prevData.filter(item => item !== leftUsername)
-              setParticipantList(list)
-            });
-            notifyAllUsers(list);
+            const tempList = participantList.filter(item => item !== leftUsername)
+            setParticipantList(tempList)
+            notifyAllUsers(tempList);
           }
           break;
         default:
