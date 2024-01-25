@@ -76,7 +76,7 @@ export default function VideoControls() {
     if (stageJoined) {
       leaveStage();
       if (isStageOwner) {
-        const joinRes = fetch(
+        const joinRes = await fetch(
           'https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/delete',
           {
             body: JSON.stringify({
@@ -179,7 +179,10 @@ export default function VideoControls() {
         {!state?.joinAsParticipant && (
           <button
             className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
-            onClick={joinOrLeaveStage}
+            onClick={async () => {
+              await joinOrLeaveStage();
+              toggleBroadcast();
+            }}
           >
             <span style={{ fontSize: 12, color: 'black' }}>
               {stageJoined ? 'Stop ' : 'Start '} Class
@@ -228,13 +231,17 @@ export default function VideoControls() {
         </button>
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={() => {leaveStage();
-            state?.joinAsParticipant && navigate('/')
+          onClick={() => {
+            if(state?.joinAsParticipant){
+              count=0;
+              leaveStage();
+              navigate(-1);
+            }
           }}
         >
           <CallDisconnect style={{ height: 20 }} />
         </button>
-        {!state?.joinAsParticipant && (
+        {/* {!state?.joinAsParticipant && (
           <button
             className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
             onClick={toggleBroadcast}
@@ -244,7 +251,7 @@ export default function VideoControls() {
               {broadcastStarted ? 'Stop ' : 'Start '} Streaming
             </span>
           </button>
-        )}
+        )} */}
 
         {/* <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
