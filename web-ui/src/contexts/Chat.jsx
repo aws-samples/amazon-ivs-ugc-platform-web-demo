@@ -674,7 +674,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
             const tempList = participantList
             if(participantList){
               setParticipantList([...tempList, joinedUsername])
-              list = [...prevData, joinedUsername]
+              list = [...tempList, joinedUsername]
             }
             else{
               setParticipantList([userData.username,joinedUsername])
