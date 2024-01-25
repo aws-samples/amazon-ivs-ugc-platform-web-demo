@@ -156,7 +156,7 @@ export default function MainTeacher() {
             }}
           />}
         {/* <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }} /> */}
-        <video ref={screenShareVideoRef} autoPlay style={{ display: !isSmall ||isWhiteBoardActive ? 'none' : 'block' }} />
+        <video ref={screenShareVideoRef} autoPlay style={{ display: !isSmall ||isWhiteBoardActive ? 'none' : 'block' }} ><track kind="captions" ></track></video>
 <SmallVideo isOpen={isSmall}/>
 
         </div>
