@@ -108,7 +108,7 @@ export default function MainTeacher() {
 
   const joinStageFn = async (groupId) => {
     if (count > 0) return;
-    count = 1;
+    count = count+1;
     const joinRes = await fetch(
       'https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/join',
       {
@@ -157,7 +157,7 @@ export default function MainTeacher() {
           />}
         {/* <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }} /> */}
         <video ref={screenShareVideoRef} autoPlay style={{ display: !isSmall ||isWhiteBoardActive ? 'none' : 'block' }} ><track kind="captions" ></track></video>
-<SmallVideo isOpen={isSmall}/>
+        <SmallVideo isOpen={isSmall}/>
 
         </div>
       </div>

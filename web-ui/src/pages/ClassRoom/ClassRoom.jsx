@@ -15,6 +15,46 @@ import useWebcam from './hooks/useWebCam.js';
 import { clsm } from '../../utils.js';
 import ParticipantList from './components/ParticipantList.jsx';
 
+const Accordion = () => {
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="max-w-md mx-auto">
+      <div className="bg-gray-100 pb-1 pl-2 rounded-md shadow-md">
+        <div
+          className="flex items-center justify-between cursor-pointer"
+          onClick={toggleAccordion}
+        >
+          <h2 className="text-lg font-semibol text-black">Participants</h2>
+          <svg
+            className={`w-6 h-6 ${isOpen ? 'transform rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </div>
+        {isOpen && (
+          <div className="mt-1 z-50 h-1/2">
+            <ParticipantList />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 const ClassroomApp = () => {
   const { isWhiteBoardActive, toggleWhiteBoard,isSmall } = useMediaCanvas();
 
@@ -24,11 +64,11 @@ const ClassroomApp = () => {
       <MainTeacher />
       <VideoControls />
       <div className='w-1/4 border-l-2 border-gray-300 rounded bg-white'>
-        <div className="w-1/4 h-1/5 fixed top-0 right-0 overflow-y-auto bg-white ">
-          <ParticipantList />
+        <div className="w-1/4 absolute top-0 right-0 overflow-y-auto bg-gray-200 ">
+         <Accordion/>
         </div>
-        <div className="w-1/4 h-4/5 fixed bottom-2 right-0 overflow-y-auto">
-          <ChatManager />
+        <div className="w-1/4 h-3/4 absolute bottom-3 right-0 overflow-y-auto">
+          <ChatManager/>
         </div>
       </div>
       

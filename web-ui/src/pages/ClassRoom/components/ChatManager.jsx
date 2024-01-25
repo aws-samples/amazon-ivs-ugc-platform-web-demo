@@ -25,7 +25,7 @@ const ChatManager = () => {
         'overflow-hidden',
         'rounded-l',
         'w-full',
-        isWhiteBoardActive?'h-3/4':'h-full'
+        isSmall ?'h-3/4':'h-full'
       ])}
     >
       
