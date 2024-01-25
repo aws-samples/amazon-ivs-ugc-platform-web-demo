@@ -232,9 +232,11 @@ export default function VideoControls() {
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
           onClick={() => {
-            count=0;
-            leaveStage();
-            navigate(-1);
+            if(state?.joinAsParticipant){
+              count=0;
+              leaveStage();
+              navigate(-1);
+            }
           }}
         >
           <CallDisconnect style={{ height: 20 }} />
