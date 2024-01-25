@@ -182,7 +182,9 @@ const MediaCanvasProvider = ({ children }) => {
   return (
     <MediaCanvasContext.Provider value={contextValue}>
       <>
-        <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }} />
+        <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }}>
+          <track kind="captions" />
+        </video>
         {children}
       </>
     </MediaCanvasContext.Provider>
