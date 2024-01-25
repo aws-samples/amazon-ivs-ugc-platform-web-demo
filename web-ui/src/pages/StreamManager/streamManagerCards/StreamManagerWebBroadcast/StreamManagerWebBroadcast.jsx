@@ -85,7 +85,7 @@ const StreamManagerWebBroadcast = forwardRef(
     const { userData } = useUser();
     // const userId = userData?.id
     const onStartStage = async () => {
-      const response = await fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create', {
+      const response = await fetch('https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/create', {
         body: JSON.stringify({
           groupIdParam: `${userData?.username}`,
           userId: userData?.username,

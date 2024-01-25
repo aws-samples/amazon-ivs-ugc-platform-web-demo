@@ -50,7 +50,7 @@ const GoLiveStreamButton = ({ tooltipPosition, tooltipCustomTranslate, onCollaps
         },
         onConfirm: () => {
           console.log("stageInfo2", stageInfo);
-          const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+          const joinRes = fetch('https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/delete', {
               body: JSON.stringify({
                 groupId: stageInfo.groupId,
               }),

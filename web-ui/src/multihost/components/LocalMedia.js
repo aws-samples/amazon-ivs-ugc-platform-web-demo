@@ -118,7 +118,7 @@ export default function LocalMedia() {
     if (stageJoined) {
       leaveStage();
       if(isStageOwner){
-        const joinRes = fetch('https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/delete', {
+        const joinRes = fetch('https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/delete', {
               body: JSON.stringify({
                 groupId: stageData.groupId,
               }),
@@ -127,7 +127,7 @@ export default function LocalMedia() {
       }
     } else {
       const response = await fetch(
-        'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/create',
+        'https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/create',
         {
           body: JSON.stringify({
             groupIdParam: `${userData?.username}`,
@@ -192,7 +192,7 @@ export default function LocalMedia() {
     if (count > 0) return
     count = 1
     const joinRes = await fetch(
-      'https://pqyf6f3sk0.execute-api.us-east-1.amazonaws.com/prod/join',
+      'https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/join',
       {
         body: JSON.stringify({
           groupId,
