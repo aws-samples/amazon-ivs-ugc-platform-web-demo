@@ -157,6 +157,6 @@ function createParticipant(participantInfo) {
   };
 }
 
-function isLocalParticipant(info) {
+export function isLocalParticipant(info) {
   return info.isLocal;
 }

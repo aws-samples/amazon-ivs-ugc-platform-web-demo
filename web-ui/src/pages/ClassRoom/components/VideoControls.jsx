@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation ,useNavigate} from 'react-router-dom';
 import {
   CallDisconnect,
   MicOff,
@@ -26,7 +26,11 @@ export default function VideoControls() {
     isSmall,
     toggleScreenShare,
     toggleWhiteBoard,
-    isWhiteBoardActive,setIsVideoMuted
+    isWhiteBoardActive,
+    isScreenShareActive,
+    setIsVideoMuted,
+    isVirtualBackgroundActive,
+    toggleVirtualBackground
   } = useMediaCanvas();
   const { currentAudioDevice, currentVideoDevice } =
     useContext(LocalMediaContext);
@@ -48,14 +52,10 @@ export default function VideoControls() {
     joinStage,
     stageJoined,
     leaveStage,
-    screenshareStageJoined,
-    publishScreenshare,
-    unpublishScreenshare
   } = useContext(StageContext);
 
   const { userData } = useUser();
   const {
-    isModerator,
     joinRequestStatus,
     stageData,
     setStageData,
@@ -63,7 +63,7 @@ export default function VideoControls() {
     setIsStageOwner
   } = useChat();
   const { state } = useLocation();
-  console.log(joinRequestStatus, stageData);
+  const navigate = useNavigate()
   function handleIngestChange(endpoint) {
     init(endpoint);
   }
@@ -75,13 +75,16 @@ export default function VideoControls() {
   async function joinOrLeaveStage() {
     if (stageJoined) {
       leaveStage();
-      if(isStageOwner){
-        const joinRes = fetch('https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/delete', {
-              body: JSON.stringify({
-                groupId: stageData.groupId,
-              }),
-              method: 'DELETE',
-            });
+      if (isStageOwner) {
+        const joinRes = fetch(
+          'https://atwa6rbat3.execute-api.us-east-1.amazonaws.com/prod/delete',
+          {
+            body: JSON.stringify({
+              groupId: stageData.groupId
+            }),
+            method: 'DELETE'
+          }
+        );
       }
     } else {
       const response = await fetch(
@@ -118,7 +121,7 @@ export default function VideoControls() {
     if (broadcastStarted) {
       stopBroadcast();
     } else {
-      isStageOwner && startBroadcast();
+      startBroadcast();
     }
   }
 
@@ -159,8 +162,7 @@ export default function VideoControls() {
     device.setMuted(!device.isMuted);
     if (device.streamType === StreamType.VIDEO) {
       setVideoMuted(device.isMuted);
-    setIsVideoMuted(device.isMuted)
-
+      setIsVideoMuted(device.isMuted);
     } else {
       setAudioMuted(device.isMuted);
     }
@@ -172,16 +174,18 @@ export default function VideoControls() {
 
   return (
     /* Video Controls Panel - fixed height */
-    <div className="h-18 bg-gray-200 w-3/4 p-4">
+    <div className="h-18  w-3/4 p-4">
       <div className="flex justify-center items-center px-4 h-full ">
-       {!state?.joinAsParticipant && <button
-          className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
-          onClick={joinOrLeaveStage}
-        >
-         <span style={{ fontSize: 12, color: 'black' }}>
-            {stageJoined ? 'Stop ' : 'Start '} Class
-          </span>
-        </button>}
+        {!state?.joinAsParticipant && (
+          <button
+            className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
+            onClick={joinOrLeaveStage}
+          >
+            <span style={{ fontSize: 12, color: 'black' }}>
+              {stageJoined ? 'Stop ' : 'Start '} Class
+            </span>
+          </button>
+        )}
         <button
           className="text-xs bg-gray-300 p-2 rounded-full mx-1"
           onClick={() => toggleDeviceMute(currentAudioDevice)}
@@ -206,7 +210,7 @@ export default function VideoControls() {
           className="text-xs bg-gray-300 p-2 rounded-full mx-1"
           onClick={toggleScreenShare}
         >
-          {!isSmall ? (
+          {!isScreenShareActive ? (
             <ScreenShare style={{ height: 20 }} />
           ) : (
             <ScreenShareOff style={{ height: 20 }} />
@@ -216,7 +220,7 @@ export default function VideoControls() {
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
           onClick={toggleWhiteBoard}
         >
-          {!isSmall && !isWhiteBoardActive ? (
+          { !isWhiteBoardActive ? (
             <WhiteBoard style={{ height: 20 }} />
           ) : (
             <WhiteBoardOff style={{ height: 20 }} />
@@ -224,19 +228,30 @@ export default function VideoControls() {
         </button>
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={() => leaveStage()}
+          onClick={() => {leaveStage();
+            state?.joinAsParticipant && navigate('/')
+          }}
         >
           <CallDisconnect style={{ height: 20 }} />
         </button>
-       {!state?.joinAsParticipant && <button
-          className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
-          onClick={toggleBroadcast}
+        {!state?.joinAsParticipant && (
+          <button
+            className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
+            onClick={toggleBroadcast}
+          >
+            <span style={{ fontSize: 12, color: 'black' }}>
+              {' '}
+              {broadcastStarted ? 'Stop ' : 'Start '} Streaming
+            </span>
+          </button>
+        )}
+
+        {/* <button
+          className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
+          onClick={toggleVirtualBackground}
         >
-          <span style={{ fontSize: 12, color: 'black' }}>
-            {' '}
-            {broadcastStarted ? 'Stop ' : 'Start '} Streaming
-          </span>
-        </button>}
+          {isVirtualBackgroundActive?"Remove":"Add"} Background
+        </button> */}
       </div>
     </div>
   );

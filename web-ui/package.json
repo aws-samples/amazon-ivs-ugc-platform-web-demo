@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mediapipe/selfie_segmentation": "^0.1.1675465747",
     "@mui/base": "^5.0.0-alpha.101",
     "@visx/curve": "^2.1.0",
     "@visx/event": "^2.6.0",

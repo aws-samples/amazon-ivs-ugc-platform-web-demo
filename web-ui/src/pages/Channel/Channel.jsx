@@ -165,7 +165,8 @@ const Channel = () => {
               isLandscape && [
                 'md:min-w-[308px]',
                 'touch-screen-device:lg:min-w-[308px]'
-              ],'p-10'
+              ],
+              'p-1'
             ])}
           >
             <Tabs>
@@ -189,7 +190,6 @@ const Channel = () => {
                       <NotificationProvider>
                         <ChatProvider>
                           <Poll shouldRenderInTab={true} />
-                          <JoinRequest/>
                         </ChatProvider>
                       </NotificationProvider>
                     )}
@@ -247,8 +247,6 @@ const Channel = () => {
               >
                 <NotificationProvider>
                   <ChatProvider>
-                  <JoinRequest/>
-
                     {!isTabView && hasVotes && <Poll />}
                     <Chat
                       shouldRunCelebration={
@@ -256,6 +254,8 @@ const Channel = () => {
                         STREAM_ACTION_NAME.CELEBRATION
                       }
                     />
+
+                    <JoinRequest />
                   </ChatProvider>
                 </NotificationProvider>
               </Tabs.Panel>

@@ -18,7 +18,7 @@ const useWebcam = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
         setWebcamStream(stream);
         if (webcamVideoRef.current) {
-          webcamVideoRef.current.srcObject = stream;
+        webcamVideoRef.current.srcObject = stream;
         }
       } catch (err) {
         console.error("Error accessing media devices:", err);
