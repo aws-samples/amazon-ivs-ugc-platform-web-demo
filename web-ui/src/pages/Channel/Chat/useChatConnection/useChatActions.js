@@ -97,7 +97,7 @@ const useChatActions = ({
       if (
         ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(
           chatUserRole
-        )
+        ) && msg !== 'NOTIFY_USER_JOIN' && msg !== 'NOTIFY_USER_LEAVE' && msg !== 'NOTIFY_ALL_USERS'
       ) {
         console.error(
           'You do not have permission to send messages to this channel!'

@@ -13,6 +13,7 @@ import { useMediaCanvas } from './hooks/useMediaCanvas.js';
 import ChatManager from './components/ChatManager.jsx';
 import useWebcam from './hooks/useWebCam.js';
 import { clsm } from '../../utils.js';
+import ParticipantList from './components/ParticipantList.jsx';
 
 const ClassroomApp = () => {
   const { isWhiteBoardActive, toggleWhiteBoard,isSmall } = useMediaCanvas();
@@ -22,10 +23,15 @@ const ClassroomApp = () => {
       <StageParticipants />
       <MainTeacher />
       <VideoControls />
-
-      <div className="w-1/4 h-screen fixed top-0 right-0 overflow-y-auto bg-white border-l-2 border-gray-300">
-        <ChatManager />
+      <div className='w-1/4 border-l-2 border-gray-300 rounded bg-white'>
+        <div className="w-1/4 h-1/5 fixed top-0 right-0 overflow-y-auto bg-white ">
+          <ParticipantList />
+        </div>
+        <div className="w-1/4 h-4/5 fixed bottom-2 right-0 overflow-y-auto">
+          <ChatManager />
+        </div>
       </div>
+      
 
       <Modal isOpen={isSmall} />
     </div>

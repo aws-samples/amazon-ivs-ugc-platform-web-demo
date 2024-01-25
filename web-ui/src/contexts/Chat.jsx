@@ -43,15 +43,18 @@ const {
   END_POLL,
   SUBMIT_VOTE,
   SEND_VOTE_STATS,
-  HEART_BEAT
+  HEART_BEAT,
 } = CHAT_MESSAGE_EVENT_TYPES;
 
 const REQUEST_STATUS = {
   REQUEST_JOIN: 'REQUEST_JOIN',
   REQUEST_APPROVED: 'REQUEST_APPROVED',
-  REQUEST_REJECTED: 'REQUEST_REJECTED'
+  REQUEST_REJECTED: 'REQUEST_REJECTED',
+  NOTIFY_USER_JOIN: 'NOTIFY_USER_JOIN',
+  NOTIFY_USER_LEAVE: 'NOTIFY_USER_LEAVE',
+  NOTIFY_ALL_USERS: 'NOTIFY_ALL_USERS'
 };
-const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED } = REQUEST_STATUS;
+const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED, NOTIFY_USER_JOIN, NOTIFY_USER_LEAVE, NOTIFY_ALL_USERS } = REQUEST_STATUS;
 
 const $content = $channelContent.chat;
 
@@ -177,6 +180,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const [stageData, setStageData] = useState();
   const [isStageOwner, setIsStageOwner] = useState(false);
+  const [participantList, setParticipantList] = useState([]);
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
@@ -316,6 +320,38 @@ const { username: chatRoomOwner, isViewerBanned = false } =
     return true;
   }, [actions]);
 
+  const notifyUserJoin = useCallback(async () => {
+    console.log("Notify user join called");
+    const attributes = {
+      eventType: NOTIFY_USER_JOIN,
+      userId: userData.id,
+      joinedUsername: userData.username
+    };
+    await actions.sendMessage(NOTIFY_USER_JOIN, attributes);
+    return true;
+  }, [actions]);
+
+  const notifyUserLeave = useCallback(async () => {
+    console.log("Notify user leave called");
+    const attributes = {
+      eventType: NOTIFY_USER_LEAVE,
+      userId: userData.id,
+      leftUsername: userData.username
+    };
+    await actions.sendMessage(NOTIFY_USER_LEAVE, attributes);
+    return true;
+  }, [actions]);
+
+  const notifyAllUsers = useCallback(async (list) => {
+    console.log("Notify all users called", list);
+    const attributes = {
+      eventType: NOTIFY_ALL_USERS,
+      participantList: list.join(','),
+    };
+    await actions.sendMessage(NOTIFY_ALL_USERS, attributes);
+    return true;
+  }, [actions]);
+
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
 
@@ -374,6 +410,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
 
   const disconnect = useCallback(() => {
     refreshChannelData();
+    notifyUserLeave()
     setRoom(null);
     connection.current = null;
     chatCapabilities.current = null;
@@ -451,6 +488,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
 
     const unsubscribeOnConnect = room.addListener('connect', () => {
       updateUserRole();
+      notifyUserJoin();
       dismissNotif();
     });
 
@@ -458,6 +496,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       isConnectionOpenRef.current = false;
       connection.current = null;
       setRoom(null);
+      notifyUserLeave()
       chatCapabilities.current = [];
 
       updateUserRole();
@@ -470,7 +509,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
         const { userId: bannedUserId } = event;
 
         handleUserDisconnect(bannedUserId);
-
+        notifyUserLeave()
         const bannedUserChannelId =
           extractChannelIdfromChannelArn(bannedUserId);
         if (bannedUserChannelId !== trackingId.toLowerCase()) {
@@ -489,7 +528,10 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           userId = undefined,
           groupId = undefined,
           requestedUsername = undefined,
-          hostUserName = undefined
+          hostUserName = undefined,
+          joinedUsername = undefined,
+          participantList = undefined,
+          leftUsername = undefined,
         }
       } = message;
       switch (eventType) {
@@ -607,6 +649,35 @@ const { username: chatRoomOwner, isViewerBanned = false } =
         case SEND_MESSAGE:
           addMessage(message);
           break;
+        case NOTIFY_USER_JOIN:
+          if(isModerator){
+            let list = []
+            setParticipantList((prevData) => {
+              if(!prevData.length){
+                setParticipantList([...prevData, joinedUsername])
+                list = [...prevData, joinedUsername]
+              } else {
+                setParticipantList([userData.username,joinedUsername])
+                list = [userData.username,joinedUsername]
+              }
+            });
+            notifyAllUsers(list);
+          }
+          break;
+        case NOTIFY_ALL_USERS:
+          const list = participantList.split(',');
+          setParticipantList(list);
+          break;
+        case NOTIFY_USER_LEAVE:
+          if(isModerator){
+            let list = []
+            setParticipantList((prevData) => {
+              list = prevData.filter(item => item !== leftUsername)
+              setParticipantList(list)
+            });
+            notifyAllUsers(list);
+          }
+          break;
         default:
           break;
       }
@@ -680,7 +751,6 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       savedMessages.current = {};
     }
   }, [isSessionValid, messages, ownUsername, chatRoomOwnerUsername]);
-
   const value = useMemo(
     () => ({
       addMessage,
@@ -704,11 +774,13 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestJoin,
       requestAprrove,
       requestReject,
+      notifyUserJoin,
       joinRequestStatus,
       stageData,
       setStageData,
       isStageOwner,
-      setIsStageOwner
+      setIsStageOwner,
+      participantList
     }),
     [
       actions,
@@ -727,13 +799,15 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestJoin,
       requestAprrove,
       requestReject,
+      notifyUserJoin,
       deletedMessage,
       setDeletedMessage,
       joinRequestStatus,
       stageData,
       setStageData,
       isStageOwner,
-      setIsStageOwner
+      setIsStageOwner,
+      participantList
     ]
   );
 
