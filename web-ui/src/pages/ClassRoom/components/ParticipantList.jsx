@@ -51,7 +51,7 @@ const ParticipantList = () => {
     setIsCollapsed(!isCollapsed);
   };
   return (
-    <div className='mb-2'>
+    <div className=''>
         {/* <div className="flex items-center mb-4">
             <button onClick={handleToggleCollapse} className="mr-2">
             {isCollapsed ? '🔽' : '🔼'}
@@ -69,7 +69,7 @@ const ParticipantList = () => {
         <div className="space-y-4">
           {filteredStageParticipants?.length > 0 && <span className="flex self-center pl-3">Stage</span>}
             {filteredStageParticipants?.map((participant) => (
-            <div key={participant.name} className="flex items-center space-x-2 pl-5">
+            <div key={participant.name} className="flex items-center space-x-2 pl-5 font-bold text-blue-700">
                 <span className="mr-2">{participant?.value?.userId}</span>
                 <span >
                 {participant?.value?.audioMuted ? <MicOn style={{ height: 15 }} /> : <MicOff style={{ height: 15 }} />}
@@ -80,7 +80,7 @@ const ParticipantList = () => {
         <hr
             style={{ borderTop: "1px solid lightgrey" }}
         />
-            {filteredChatParticipants?.length > 0 && <span className="flex self-center pl-3">Participants</span>}
+            {filteredChatParticipants?.length > 0 && <span className="flex self-center pl-3">Other Participants</span>}
             {/* <hr
             style={{ borderTop: "1px solid lightgrey" }}
             className='w-5/6 ml-2'

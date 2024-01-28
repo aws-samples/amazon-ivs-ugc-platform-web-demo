@@ -655,12 +655,6 @@ const { username: chatRoomOwner, isViewerBanned = false } =
             setJoinRequestStatus(null);
           }, 5000);
           break;
-        case REQUEST_REJECTED:
-          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId, requestedUsername });
-          setTimeout(() => {
-            setJoinRequestStatus(null);
-          }, 5000);
-          break;
         case REQUEST_WITHDRAWN:
           setJoinRequestStatus({ status: 'REQUEST_WITHDRAWN', userId, requestedUsername });
           setJoinRequestStatus(null);

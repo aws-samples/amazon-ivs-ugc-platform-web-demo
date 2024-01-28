@@ -28,7 +28,7 @@ export default function StageParticipants() {
   return (
     <>
       {stageParticipants ? (
-        <div className="flex flex-wrap items-stretch h-1/4 w-3/4 items-center ">
+        <div className="flex flex-wrap items-stretch h-1/4 items-center ">
           {[...stageParticipants?.keys()].slice(0, 4).map((key) => {
             return <Participant key={key} {...stageParticipants?.get(key)} />;
           })}

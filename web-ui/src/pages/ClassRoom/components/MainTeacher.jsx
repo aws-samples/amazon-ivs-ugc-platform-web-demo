@@ -14,9 +14,9 @@ export default function MainTeacher() {
   } = useMediaCanvas();
 
   return (
-    <div className="w-3/4 h-full  pr-2 ">
+    <div className="h-full">
       <div className="h-full ">
-        <div className="w-full h-full pr-2 ">
+        <div className="w-full h-full">
           <canvas
             ref={displayRef}
             // onMouseDown={displayMouseDown}

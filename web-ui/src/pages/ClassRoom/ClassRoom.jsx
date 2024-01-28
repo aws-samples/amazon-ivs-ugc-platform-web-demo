@@ -19,14 +19,14 @@ const Accordion = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-gray-100 pb-1 pl-2 rounded-md shadow-md">
+      <div className="p-2 rounded-md shadow-md">
         <div
           className="flex items-center justify-between cursor-pointer"
           onClick={toggleAccordion}
         >
-          <h2 className="text-lg font-semibol text-black">Participants</h2>
+          <i className="text-black">Participants</i>
           <svg
-            className={`w-6 h-6 ${isOpen ? 'transform rotate-180' : ''}`}
+            className={`w-4 h-4 ${isOpen ? 'transform rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -41,7 +41,7 @@ const Accordion = () => {
           </svg>
         </div>
         {isOpen && (
-          <div className="mt-1 z-50 h-1/2">
+          <div className="z-50 max-h-80 overflow-y-auto">
             <ParticipantList />
           </div>
         )}
@@ -53,19 +53,23 @@ const ClassroomApp = () => {
   const { isSmall } = useMediaCanvas();
 
   return (
-    <div className="flex flex-col h-screen">
-      <StageParticipants />
-      <MainTeacher />
-      <VideoControls />
-      <div className="w-1/4 border-l-2 border-gray-300 rounded bg-white">
-        <div className="w-1/4 absolute top-0 right-0 overflow-y-auto bg-gray-200 ">
+    <div className="flex flex-row h-screen">
+      <div className="w-3/4 flex flex-col">
+        <StageParticipants />
+        <MainTeacher />
+        <VideoControls />
+      </div>
+      <div className={clsm("w-1/4 border-l-2 border-gray-300 rounded bg-gray-100 flex flex-col",
+        isSmall ? 'h-3/4' : 'h-full')}
+        >
+        <div className="border-b-2 mb-1">
           <Accordion />
         </div>
-        <div className="w-1/4 h-3/4 absolute bottom-3 right-0 overflow-y-auto">
+        <div className="h-full overflow-y-auto">
           <ChatManager />
         </div>
       </div>
-      <Modal isOpen={isSmall} />
+          <Modal isOpen={isSmall} />
     </div>
   );
 };
@@ -122,7 +126,7 @@ const Modal = ({ isOpen, onClose }) => {
         'fixed',
         'right-0',
         'bottom-0',
-        'w-1/4 ',
+        // 'w-1/4 ',
         isOpen ? 'h-1/4' : 'h-0',
         // 'overflow-auto',
         'mt-auto',
