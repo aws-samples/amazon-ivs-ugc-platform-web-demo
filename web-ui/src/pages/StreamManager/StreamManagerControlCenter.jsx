@@ -131,7 +131,7 @@ const StreamManagerControlCenter = forwardRef(
                     ]
                   ])}
                 >
-                  {/* {isDesktopView && (
+                  {isDesktopView && (
                     <StreamManagerWebBroadcast
                       ref={previewRef}
                       webBroadcastParentContainerRef={
@@ -157,8 +157,8 @@ const StreamManagerControlCenter = forwardRef(
                             ]
                       ]
                     )}
-                  /> */}
-                  <MultiHost/>
+                  />
+                  {/* <MultiHost/> */}
                 </div>
                 <NotificationProvider>
                   {/* <DrawingComponent
