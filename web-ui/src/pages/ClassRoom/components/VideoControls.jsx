@@ -121,7 +121,7 @@ export default function VideoControls() {
     if (broadcastStarted) {
       stopBroadcast();
     } else {
-      startBroadcast();
+     isStageOwner && startBroadcast();
     }
   }
 
@@ -136,6 +136,10 @@ export default function VideoControls() {
       state.joinAsParticipant && joinStageFn(state.groupId);
     }
   }, [state]);
+
+  useEffect(()=>{
+    stageJoined && toggleBroadcast()
+  },[stageJoined])
 
   const joinStageFn = async (groupId) => {
     if (count > 0) return;
@@ -179,10 +183,7 @@ export default function VideoControls() {
         {!state?.joinAsParticipant && (
           <button
             className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
-            onClick={async () => {
-              await joinOrLeaveStage();
-              toggleBroadcast();
-            }}
+            onClick={joinOrLeaveStage}
           >
             <span style={{ fontSize: 12, color: 'black' }}>
               {stageJoined ? 'Stop ' : 'Start '} Class
