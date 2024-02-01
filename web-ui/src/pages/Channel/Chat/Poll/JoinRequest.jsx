@@ -16,12 +16,12 @@ const JoinRequest = ({ shouldRenderInTab }) => {
   const isStreamManagerPage = pathname === '/manager' || pathname === '/stage' || pathname === '/classroom';
 
   return (
-    <div>
+    <>
       {isStreamManagerPage && isModerator && joinRequestStatus?.status === 'REQUEST_JOIN' && (
         <ApproveRejectRequest joinRequestStatus={joinRequestStatus}/>
       )}
       {!isStreamManagerPage && <RequestJoinStage />}
-    </div>
+    </>
   );
 };
 

@@ -44,7 +44,7 @@ const RequestJoinStage = () => {
         </Button>
       ) : (
         currentUser && (
-          <div className='flex flex-row fixed bottom-24 right-8 items-center justify-between w-1/4'>
+          <div className='flex flex-row fixed bottom-24 right-8 items-center justify-between'>
           <p className='  py-2 px-4' style={{ color: getStatusColor() }}>
             {getStatusMessage()}
           </p>

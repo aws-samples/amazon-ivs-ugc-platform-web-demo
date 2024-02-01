@@ -25,10 +25,10 @@ const ChatManager = () => {
         'overflow-hidden',
         'rounded-l',
         'w-full',
-        isSmall ?'h-3/4':'h-full'
+        'h-full',
       ])}
     >
-      
+
       {hasVotes && <Poll />}
       <Chat />
       <JoinRequest/>
