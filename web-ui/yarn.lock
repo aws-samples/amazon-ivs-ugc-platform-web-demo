@@ -6688,10 +6688,10 @@
   "resolved" "https://registry.npmjs.org/klona/-/klona-2.0.5.tgz"
   "version" "2.0.5"
 
-"konva@^8.0.1 || ^7.2.5 || ^9.0.0":
-  "integrity" "sha512-I4CFGVbWKpzgYi1I0pmoHz8iYfmGc/A61yfltzcuBHMFuBwDsR2VnQo4+eFQ1dGyEAmHcdvTumJ871KqkhuGng=="
-  "resolved" "https://registry.npmjs.org/konva/-/konva-9.3.2.tgz"
-  "version" "9.3.2"
+"konva@^8.0.1 || ^7.2.5 || ^9.0.0", "konva@^9.3.3":
+  "integrity" "sha512-cg/AHxnfawZ1rKxygCnzx0TZY7hQiQiAKgAHPinEwMn49MVrBkeKLj2d0EaleoFG/0y0XhEKTD0dFZiPPdWlCQ=="
+  "resolved" "https://registry.npmjs.org/konva/-/konva-9.3.3.tgz"
+  "version" "9.3.3"
 
 "language-subtag-registry@~0.3.2":
   "integrity" "sha512-tN0MCzyWnoz/4nHS6uxdlFWoUZT7ABptwKPQ52Ea7URk6vll88bWBVhodtnlfEuCcKWNGoc+uGbw1cwa9IKh/w=="
