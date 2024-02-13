@@ -43,7 +43,7 @@ const {
   END_POLL,
   SUBMIT_VOTE,
   SEND_VOTE_STATS,
-  HEART_BEAT,
+  HEART_BEAT
 } = CHAT_MESSAGE_EVENT_TYPES;
 
 const REQUEST_STATUS = {
@@ -55,8 +55,28 @@ const REQUEST_STATUS = {
   NOTIFY_USER_LEAVE: 'NOTIFY_USER_LEAVE',
   NOTIFY_ALL_USERS: 'NOTIFY_ALL_USERS'
 };
-const { REQUEST_JOIN, REQUEST_APPROVED, REQUEST_REJECTED,REQUEST_WITHDRAWN, NOTIFY_USER_JOIN, NOTIFY_USER_LEAVE, NOTIFY_ALL_USERS } = REQUEST_STATUS;
 
+const CANVAS_EVENTS = {
+  DRAW_EVENTS: 'DRAW_EVENTS',
+  OPEN_ANNOTATION_CANVAS: 'OPEN_ANNOTATION_CANVAS',
+  CLOSE_ANNOTATION_CANVAS: 'CLOSE_ANNOTATION_CANVAS',
+  OPEN_COLLABORATION_CANVAS: 'OPEN_CO_CANVAS'
+};
+const {
+  REQUEST_JOIN,
+  REQUEST_APPROVED,
+  REQUEST_REJECTED,
+  REQUEST_WITHDRAWN,
+  NOTIFY_USER_JOIN,
+  NOTIFY_USER_LEAVE,
+  NOTIFY_ALL_USERS
+} = REQUEST_STATUS;
+const {
+  DRAW_EVENTS,
+  OPEN_ANNOTATION_CANVAS,
+  CLOSE_ANNOTATION_CANVAS,
+  OPEN_COLLABORATION_CANVAS
+} = CANVAS_EVENTS;
 const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
@@ -149,16 +169,17 @@ export const Provider = ({ children }) => {
   const { username: ownUsername } = userData || {};
   const savedMessages = useRef({});
   const { channelData, refreshChannelData } = useChannel();
-  
+
   const { notifyError, dismissNotif } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
   const { state } = useLocation();
 
-// console.log("state", state);
-const { username: chatRoomOwner, isViewerBanned = false } =
-    channelData || {};
-  const chatRoomOwnerUsername = state?.hostUserName ? state?.hostUserName : chatRoomOwner
+  // console.log("state", state);
+  const { username: chatRoomOwner, isViewerBanned = false } = channelData || {};
+  const chatRoomOwnerUsername = state?.hostUserName
+    ? state?.hostUserName
+    : chatRoomOwner;
   // Connection State
   const [hasConnectionError, setHasConnectionError] = useState();
   const [sendAttemptError, setSendAttemptError] = useState();
@@ -182,6 +203,12 @@ const { username: chatRoomOwner, isViewerBanned = false } =
   const [stageData, setStageData] = useState();
   const [isStageOwner, setIsStageOwner] = useState(false);
   const [participantList, setParticipantList] = useState([]);
+  const [drawingEventHandler, setDrawingEventHandler] = useState(null);
+  const [annotationCanvasState, setAnnotationCanvasState] = useState({
+    open: false,
+    aspectRatio:0
+  });
+
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
 
   // Poll Stream Action
@@ -311,7 +338,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
     await actions.sendMessage(REQUEST_APPROVED, attributes);
 
     return true;
-  }, [actions, stageData,joinRequestStatus]);
+  }, [actions, stageData, joinRequestStatus]);
 
   const requestReject = useCallback(async () => {
     const attributes = {
@@ -330,7 +357,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
   }, [actions]);
 
   const notifyUserJoin = useCallback(async () => {
-    console.log("Notify user join called");
+    console.log('Notify user join called');
     const attributes = {
       eventType: NOTIFY_USER_JOIN,
       userId: userData.id,
@@ -341,25 +368,79 @@ const { username: chatRoomOwner, isViewerBanned = false } =
   }, [actions]);
 
   const notifyUserLeave = useCallback(async () => {
-    console.log("Notify user leave called");
+    console.log('Notify user leave called');
     const attributes = {
       eventType: NOTIFY_USER_LEAVE,
-      userId: userData.id,
+      userId: userData?.id,
       leftUsername: userData.username
     };
     await actions.sendMessage(NOTIFY_USER_LEAVE, attributes);
     return true;
-  }, [actions]);
+  }, [actions, userData]);
 
-  const notifyAllUsers = useCallback(async (list) => {
-    console.log("Notify all users called", list);
-    const attributes = {
-      eventType: NOTIFY_ALL_USERS,
-      participantList: list.join(','),
-    };
-    await actions.sendMessage(NOTIFY_ALL_USERS, attributes);
-    return true;
-  }, [actions]);
+  const notifyAllUsers = useCallback(
+    async (list) => {
+      console.log('Notify all users called', list);
+      const attributes = {
+        eventType: NOTIFY_ALL_USERS,
+        participantList: list.join(',')
+      };
+      await actions.sendMessage(NOTIFY_ALL_USERS, attributes);
+      return true;
+    },
+    [actions]
+  );
+
+  const sendDrawEvents = useCallback(
+    async (payload) => {
+      // console.log('stageData', stageData);
+      const attributes = {
+        eventType: DRAW_EVENTS,
+        userId: userData?.id,
+        drawEventsData: payload
+      };
+      await actions.sendMessage(DRAW_EVENTS, attributes);
+
+      return true;
+    },
+    [actions]
+  );
+
+  const startSSWithAnnots = useCallback(
+    async (payload) => {
+      // console.log('stageData', stageData);
+      const attributes = {
+        eventType: OPEN_ANNOTATION_CANVAS,
+        userId: userData?.id,
+        participantId : payload
+        // drawEventsData:payload
+      };
+      console.log('participantId',payload)
+      await actions.sendMessage(OPEN_ANNOTATION_CANVAS, attributes);
+
+      return true;
+    },
+    [actions]
+  );
+
+  const stopSSWithAnnots = useCallback(
+    async (payload) => {
+      // console.log('stageData', stageData);
+      const attributes = {
+        eventType: CLOSE_ANNOTATION_CANVAS,
+        userId: userData?.id
+        // drawEventsData:payload
+      };
+      await actions.sendMessage(CLOSE_ANNOTATION_CANVAS, attributes);
+
+      return true;
+    },
+    [actions]
+  );
+
+  const receiveDrawEvents = useCallback((handler) => {
+    setDrawingEventHandler(() => handler);
+  }, []);
 
   const initMessages = useCallback(() => {
     const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
@@ -419,7 +500,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
 
   const disconnect = useCallback(() => {
     refreshChannelData();
-    notifyUserLeave()
+    notifyUserLeave();
     setRoom(null);
     connection.current = null;
     chatCapabilities.current = null;
@@ -541,6 +622,8 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           joinedUsername = undefined,
           participantList = undefined,
           leftUsername = undefined,
+          drawEventsData = undefined,
+          participantId=undefined
         }
       } = message;
       switch (eventType) {
@@ -633,46 +716,65 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           endPollAndResetPollProps();
           break;
         case REQUEST_JOIN:
-          setJoinRequestStatus({ status: 'REQUEST_JOIN', userId, requestedUsername });
+          setJoinRequestStatus({
+            status: 'REQUEST_JOIN',
+            userId,
+            requestedUsername
+          });
           break;
 
         case REQUEST_APPROVED:
-          setJoinRequestStatus({ status: 'REQUEST_APPROVED', userId, requestedUsername });
+          setJoinRequestStatus({
+            status: 'REQUEST_APPROVED',
+            userId,
+            requestedUsername
+          });
           userData?.id === userId &&
-            navigate('/classroom', {
-              state: {
-                joinAsParticipant: true,
-                groupId: groupId,
-                hostUserName: hostUserName
-              }
-            }, {});
-            
+            navigate(
+              '/classroom',
+              {
+                state: {
+                  joinAsParticipant: true,
+                  groupId: groupId,
+                  hostUserName: hostUserName
+                }
+              },
+              {}
+            );
+
           break;
 
         case REQUEST_REJECTED:
-          setJoinRequestStatus({ status: 'REQUEST_REJECTED', userId, requestedUsername });
+          setJoinRequestStatus({
+            status: 'REQUEST_REJECTED',
+            userId,
+            requestedUsername
+          });
           setTimeout(() => {
             setJoinRequestStatus(null);
           }, 5000);
           break;
         case REQUEST_WITHDRAWN:
-          setJoinRequestStatus({ status: 'REQUEST_WITHDRAWN', userId, requestedUsername });
+          setJoinRequestStatus({
+            status: 'REQUEST_WITHDRAWN',
+            userId,
+            requestedUsername
+          });
           setJoinRequestStatus(null);
           break;
         case SEND_MESSAGE:
           addMessage(message);
           break;
         case NOTIFY_USER_JOIN:
-          if(isModerator){
-            let list = []
-            const tempList = participantList
-            if(participantList){
-              setParticipantList([...tempList, joinedUsername])
-              list = [...tempList, joinedUsername]
-            }
-            else{
-              setParticipantList([userData.username,joinedUsername])
-              list = [userData.username,joinedUsername]
+          if (isModerator) {
+            let list = [];
+            const tempList = participantList;
+            if (participantList) {
+              setParticipantList([...tempList, joinedUsername]);
+              list = [...tempList, joinedUsername];
+            } else {
+              setParticipantList([userData.username, joinedUsername]);
+              list = [userData.username, joinedUsername];
             }
             notifyAllUsers(list);
           }
@@ -682,12 +784,33 @@ const { username: chatRoomOwner, isViewerBanned = false } =
           setParticipantList(list);
           break;
         case NOTIFY_USER_LEAVE:
-          if(isModerator){
-            let list = []
-            const tempList = participantList.filter(item => item !== leftUsername)
-            setParticipantList(tempList)
+          if (isModerator) {
+            let list = [];
+            const tempList = participantList.filter(
+              (item) => item !== leftUsername
+            );
+            setParticipantList(tempList);
             notifyAllUsers(tempList);
           }
+          break;
+        case DRAW_EVENTS:
+          console.log(
+            'DRAW_USER',
+            drawEventsData,
+            userId,
+            userData.id,
+            drawingEventHandler
+          );
+          if (drawingEventHandler && userId !== userData.id) {
+            drawingEventHandler(drawEventsData);
+          }
+          break;
+        case OPEN_ANNOTATION_CANVAS:
+          console.log('participantId',participantId)
+          setAnnotationCanvasState({ open: true, userId ,participantId});
+          break;
+        case CLOSE_ANNOTATION_CANVAS:
+          setAnnotationCanvasState({ open: false, userId });
           break;
         default:
           break;
@@ -741,7 +864,9 @@ const { username: chatRoomOwner, isViewerBanned = false } =
     stageData,
     setStageData,
     isStageOwner,
-    setIsStageOwner
+    setIsStageOwner,
+    annotationCanvasState,
+    drawingEventHandler
   ]);
 
   // We are saving the chat messages in local state for only the currently signed-in user's chat room,
@@ -787,12 +912,18 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestReject,
       requestWithdraw,
       notifyUserJoin,
+      userData,
       joinRequestStatus,
       stageData,
       setStageData,
       isStageOwner,
       setIsStageOwner,
-      participantList
+      participantList,
+      sendDrawEvents,
+      receiveDrawEvents,
+      annotationCanvasState,
+      startSSWithAnnots,
+      stopSSWithAnnots
     }),
     [
       actions,
@@ -813,6 +944,7 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       requestReject,
       requestWithdraw,
       notifyUserJoin,
+      userData,
       deletedMessage,
       setDeletedMessage,
       joinRequestStatus,
@@ -820,7 +952,12 @@ const { username: chatRoomOwner, isViewerBanned = false } =
       setStageData,
       isStageOwner,
       setIsStageOwner,
-      participantList
+      participantList,
+      sendDrawEvents,
+      receiveDrawEvents,
+      annotationCanvasState,
+      startSSWithAnnots,
+      stopSSWithAnnots
     ]
   );
 

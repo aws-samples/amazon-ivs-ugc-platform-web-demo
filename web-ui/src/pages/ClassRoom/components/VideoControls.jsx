@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocation ,useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   CallDisconnect,
   MicOff,
@@ -11,8 +11,6 @@ import {
   WhiteBoard,
   WhiteBoardOff
 } from '../../../assets/icons/index.js';
-import { useChat } from '../../../contexts/Chat.jsx';
-import { useUser } from '../../../contexts/User.jsx';
 import { BroadcastContext } from '../contexts/BroadcastContext.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import { StageContext } from '../contexts/StageContext.js';
@@ -21,7 +19,20 @@ import { useMediaCanvas } from '../hooks/useMediaCanvas.js';
 const { StreamType } = window.IVSBroadcastClient;
 let count = 0;
 
-export default function VideoControls() {
+export default function VideoControls({
+  joinRequestStatus,
+  stageData,
+  setStageData,
+  isStageOwner,
+  setIsStageOwner,
+  sendDrawEvents,
+  receiveDrawEvents,
+  userData,
+  annotationCanvasState,
+  startSSWithAnnots,
+  stopSSWithAnnots,
+  localParticipant
+}) {
   const {
     isSmall,
     toggleScreenShare,
@@ -48,22 +59,10 @@ export default function VideoControls() {
     updateStreamKey
   } = useContext(BroadcastContext);
   console.log(init, BroadcastContext);
-  const {
-    joinStage,
-    stageJoined,
-    leaveStage,
-  } = useContext(StageContext);
+  const { joinStage, stageJoined, leaveStage } = useContext(StageContext);
 
-  const { userData } = useUser();
-  const {
-    joinRequestStatus,
-    stageData,
-    setStageData,
-    isStageOwner,
-    setIsStageOwner
-  } = useChat();
   const { state } = useLocation();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   function handleIngestChange(endpoint) {
     init(endpoint);
   }
@@ -121,7 +120,7 @@ export default function VideoControls() {
     if (broadcastStarted) {
       stopBroadcast();
     } else {
-     isStageOwner && startBroadcast();
+      isStageOwner && startBroadcast();
     }
   }
 
@@ -137,9 +136,14 @@ export default function VideoControls() {
     }
   }, [state]);
 
-  useEffect(()=>{
-    stageJoined && toggleBroadcast()
-  },[stageJoined])
+  useEffect(() => {
+    stageJoined && toggleBroadcast();
+  }, [stageJoined]);
+  useEffect(() => {
+    isScreenShareActive
+      ? startSSWithAnnots(localParticipant?.id)
+      : stopSSWithAnnots();
+  }, [isScreenShareActive, localParticipant]);
 
   const joinStageFn = async (groupId) => {
     if (count > 0) return;
@@ -224,7 +228,7 @@ export default function VideoControls() {
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
           onClick={toggleWhiteBoard}
         >
-          { !isWhiteBoardActive ? (
+          {!isWhiteBoardActive ? (
             <WhiteBoard style={{ height: 20 }} />
           ) : (
             <WhiteBoardOff style={{ height: 20 }} />
@@ -233,9 +237,10 @@ export default function VideoControls() {
         <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
           onClick={() => {
-            if(state?.joinAsParticipant){
-              count=0;
+            if (state?.joinAsParticipant) {
+              count = 0;
               leaveStage();
+              annotationCanvasState?.open && stopSSWithAnnots();
               navigate(-1);
             }
           }}
@@ -256,9 +261,13 @@ export default function VideoControls() {
 
         {/* <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={toggleVirtualBackground}
+          onClick={() =>
+            annotationCanvasState?.open
+              ? stopSSWithAnnots()
+              : startSSWithAnnots(localParticipant?.id)
+          }
         >
-          {isVirtualBackgroundActive?"Remove":"Add"} Background
+          Send Events
         </button> */}
       </div>
     </div>

@@ -4,26 +4,26 @@ import { BroadcastContext } from '../contexts/BroadcastContext.js';
 import Participant from './Participant.jsx';
 import { isLocalParticipant } from '../hooks/useStage.js';
 
-export default function StageParticipants() {
-  const { participants } = useContext(StageContext);
-  const { broadcastClient } = useContext(BroadcastContext);
-  const [stageParticipants, setStageParticipants] = useState();
-  const canvasRef = useRef(undefined);
+export default function StageParticipants({stageParticipants}) {
+  // const { participants } = useContext(StageContext);
+  // const { broadcastClient } = useContext(BroadcastContext);
+  // const [stageParticipants, setStageParticipants] = useState();
+  // const canvasRef = useRef(undefined);
 
-  useEffect(() => {
-    if (canvasRef.current && broadcastClient) {
-      broadcastClient.attachPreview(canvasRef.current);
-    }
-  }, [broadcastClient, canvasRef]);
+  // // useEffect(() => {
+  // //   if (canvasRef.current && broadcastClient) {
+  // //     broadcastClient.attachPreview(canvasRef.current);
+  // //   }
+  // // }, [broadcastClient, canvasRef]);
 
-  useEffect(() => {
-    let filteredParticipants = Array.from(participants).filter(
-      ([key, value]) => !isLocalParticipant(value)
-    );
+  // useEffect(() => {
+  //   let filteredParticipants = Array.from(participants).filter(
+  //     ([key, value]) => !isLocalParticipant(value)
+  //   );
 
-    let filteredParticipantsMap = new Map(filteredParticipants);
-    setStageParticipants(filteredParticipantsMap);
-  }, [participants]);
+  //   let filteredParticipantsMap = new Map(filteredParticipants);
+  //   setStageParticipants(filteredParticipantsMap);
+  // }, [participants]);
 
   return (
     <>

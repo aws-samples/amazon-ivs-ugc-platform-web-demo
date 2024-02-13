@@ -66,7 +66,7 @@ export default function useStage(finalStream) {
       let participant = participants.get(id);
       participant = {
         ...participant,
-        streams: [...streams, ...participant.streams]
+        streams: [...streams, ...participant?.streams]
       };
       setParticipants(new Map(participants.set(id, participant)));
     }
@@ -147,7 +147,7 @@ export default function useStage(finalStream) {
     }
   }
 
-  return { joinStage, stageJoined, leaveStage, participants };
+  return { joinStage, stageJoined, leaveStage, participants,localParticipant };
 }
 
 function createParticipant(participantInfo) {

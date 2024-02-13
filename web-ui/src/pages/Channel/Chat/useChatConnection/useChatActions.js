@@ -63,10 +63,10 @@ const useChatActions = ({
   const send = useCallback(
     async (content, attributes = {}) => {
       try {
-        if (!isConnectionOpen)
-          throw new Error(
-            'Message or event failed to send because there is no open socket connection!'
-          );
+        // if (!isConnectionOpen)
+        //   throw new Error(
+        //     'Message or event failed to send because there is no open socket connection!'
+        //   );
 
         const sendRequestId = uuidv4();
         const sendRequest = new SendMessageRequest(
@@ -97,7 +97,7 @@ const useChatActions = ({
       if (
         ![CHAT_USER_ROLE.SENDER, CHAT_USER_ROLE.MODERATOR].includes(
           chatUserRole
-        ) && msg !== 'NOTIFY_USER_JOIN' && msg !== 'NOTIFY_USER_LEAVE' && msg !== 'NOTIFY_ALL_USERS'
+        ) && msg !== 'NOTIFY_USER_JOIN' && msg !== 'NOTIFY_USER_LEAVE' && msg !== 'NOTIFY_ALL_USERS' && msg !== 'DRAW_EVENTS'
       ) {
         console.error(
           'You do not have permission to send messages to this channel!'

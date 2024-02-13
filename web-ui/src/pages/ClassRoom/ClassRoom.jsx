@@ -1,14 +1,17 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useChat } from '../../contexts/Chat.jsx';
 import { clsm } from '../../utils.js';
 import ChatManager from './components/ChatManager.jsx';
 import MainTeacher from './components/MainTeacher.jsx';
 import ParticipantList from './components/ParticipantList.jsx';
 import StageParticipants from './components/StageParticipants.jsx';
 import VideoControls from './components/VideoControls.jsx';
+import { StageContext } from './contexts/StageContext.js';
 import { useMediaCanvas } from './hooks/useMediaCanvas.js';
-import useWebcam from './hooks/useWebCam.js';
+const { LocalStageStream } = window.IVSBroadcastClient;
+const aspectRatio = 16 / 9;
 
 const Accordion = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,18 +53,137 @@ const Accordion = () => {
   );
 };
 const ClassroomApp = () => {
-  const { isSmall } = useMediaCanvas();
+  const { isSmall, combinedStream } = useMediaCanvas();
+  const {
+    joinRequestStatus,
+    stageData,
+    setStageData,
+    isStageOwner,
+    setIsStageOwner,
+    sendDrawEvents,
+    receiveDrawEvents,
+    userData,
+    annotationCanvasState,
+    startSSWithAnnots,
+    stopSSWithAnnots
+  } = useChat();
+
+  const { participants, localParticipant } = useContext(StageContext);
+  const [stageParticipants, setStageParticipants] = useState();
+  const [remoteParticipant, setRemoteParticipant] = useState({});
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const updateCanvasSize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        let height = 0;
+        if (annotationCanvasState?.aspectRatio) {
+          height = containerWidth / annotationCanvasState?.aspectRatio;
+        } else {
+          height = containerWidth / aspectRatio;
+        }
+        setDimensions({ width: containerWidth, height });
+      }
+    };
+
+    window.addEventListener('resize', updateCanvasSize);
+    updateCanvasSize();
+
+    return () => window.removeEventListener('resize', updateCanvasSize);
+  }, [annotationCanvasState]);
+
+  useEffect(() => {
+    const combinedStageStream = combinedStream
+      ? new LocalStageStream(combinedStream?.getVideoTracks()[0], {
+          simulcast: { enabled: true }
+        })
+      : null;
+
+    let newParticipantsMap = new Map(participants);
+
+    if (annotationCanvasState.participantId) {
+      const rParticipant = participants.get(
+        annotationCanvasState.participantId
+      );
+      setRemoteParticipant(rParticipant);
+
+      newParticipantsMap.delete(annotationCanvasState.participantId);
+
+      if (
+        localParticipant &&
+        localParticipant.id !== annotationCanvasState.participantId
+      ) {
+        localParticipant.streams = [
+          ...(localParticipant?.streams || []),
+          combinedStageStream
+        ];
+        newParticipantsMap.set(localParticipant.id, localParticipant);
+      }
+    } else {
+      if (localParticipant) {
+        newParticipantsMap.delete(localParticipant.id);
+        setStageParticipants((prev) => prev?.delete(localParticipant.id));
+      }
+
+      if (
+        remoteParticipant &&
+        !newParticipantsMap.has(remoteParticipant.id) &&
+        remoteParticipant.id && !annotationCanvasState.participantId
+      ) {
+        newParticipantsMap.set(remoteParticipant.id, remoteParticipant);
+      }
+    }
+
+    setStageParticipants(newParticipantsMap);
+  }, [
+    participants,
+    annotationCanvasState,
+    localParticipant,
+    remoteParticipant,
+    combinedStream
+  ]);
+
+  const chatConfig = {
+    joinRequestStatus,
+    stageData,
+    setStageData,
+    isStageOwner,
+    setIsStageOwner,
+    sendDrawEvents,
+    receiveDrawEvents,
+    annotationCanvasState,
+    startSSWithAnnots,
+    stopSSWithAnnots
+  };
 
   return (
     <div className="flex flex-row h-screen">
-      <div className="w-3/4 flex flex-col">
-        <StageParticipants />
-        <MainTeacher />
-        <VideoControls />
+      <div className="w-3/4 flex flex-col" ref={containerRef}>
+        <StageParticipants
+          stageParticipants={stageParticipants}
+          combinedStream={combinedStream}
+        />
+        <MainTeacher
+          dimensions={dimensions}
+          chatConfig={chatConfig}
+          activeUser={userData?.id}
+          localParticipant={localParticipant}
+          remoteParticipant={remoteParticipant}
+        />
+        <VideoControls
+          {...chatConfig}
+          userData={userData}
+          localParticipant={localParticipant}
+        />
       </div>
-      <div className={clsm("w-1/4 border-l-2 border-gray-300 rounded bg-gray-100 flex flex-col",
-        isSmall ? 'h-3/4' : 'h-full')}
-        >
+      <div
+        className={clsm(
+          'w-1/4 border-l-2 border-gray-300 rounded bg-gray-100 flex flex-col',
+          isSmall ? 'h-3/4' : 'h-full'
+        )}
+      >
         <div className="border-b-2 mb-1">
           <Accordion />
         </div>
@@ -69,7 +191,7 @@ const ClassroomApp = () => {
           <ChatManager />
         </div>
       </div>
-          <Modal isOpen={isSmall} />
+      <Modal isOpen={isSmall} />
     </div>
   );
 };
