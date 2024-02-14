@@ -2163,6 +2163,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-reconciler@^0.28.0", "@types/react-reconciler@^0.28.2":
+  "integrity" "sha512-SN9c4kxXZonFhbX4hJrZy37yw9e7EIxcpHCxQv5JUS18wDE5ovkQKlqQEkufdJCCMfuI9BnjUJvhYeJ9x5Ra7g=="
+  "resolved" "https://registry.npmjs.org/@types/react-reconciler/-/react-reconciler-0.28.8.tgz"
+  "version" "0.28.8"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^17.0.0 || ^18.0.0", "@types/react@>=16":
   "integrity" "sha512-7QUCOxvFgnD5Jk8ZKlUAhVcRj7GuJRjnjjiY/IUBWKgOlnvDvTMLD4RTF7NPyVmbRhNrbomZiOepg7M/2Kj1mA=="
   "resolved" "https://registry.npmjs.org/@types/react/-/react-18.0.21.tgz"

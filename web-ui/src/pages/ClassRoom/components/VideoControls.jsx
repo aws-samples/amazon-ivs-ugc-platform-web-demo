@@ -9,44 +9,39 @@ import {
   VideoCamera,
   VideoCameraOff,
   WhiteBoard,
-  WhiteBoardOff
+  WhiteBoardOff,
+  VideoBG
 } from '../../../assets/icons/index.js';
 import { BroadcastContext } from '../contexts/BroadcastContext.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext.js';
 import { StageContext } from '../contexts/StageContext.js';
-import { useMediaCanvas } from '../hooks/useMediaCanvas.js';
+import VirtualBackgroundSelector from './VirtualBackgroundSelector.jsx';
 
 const { StreamType } = window.IVSBroadcastClient;
 let count = 0;
 
 export default function VideoControls({
-  joinRequestStatus,
   stageData,
   setStageData,
   isStageOwner,
   setIsStageOwner,
-  sendDrawEvents,
-  receiveDrawEvents,
   userData,
   annotationCanvasState,
   startSSWithAnnots,
   stopSSWithAnnots,
-  localParticipant
+  localParticipant,
+  toggleScreenShare,
+  toggleWhiteBoard,
+  isWhiteBoardActive,
+  isScreenShareActive,
+  setIsVideoMuted,
+  toggleBackground
 }) {
-  const {
-    isSmall,
-    toggleScreenShare,
-    toggleWhiteBoard,
-    isWhiteBoardActive,
-    isScreenShareActive,
-    setIsVideoMuted,
-    isVirtualBackgroundActive,
-    toggleVirtualBackground
-  } = useMediaCanvas();
   const { currentAudioDevice, currentVideoDevice } =
     useContext(LocalMediaContext);
   const [audioMuted, setAudioMuted] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
+  const [openVirtualBgPanel, setOpenVirtualBgPanel] = useState(false);
 
   if (currentAudioDevice && audioMuted !== currentAudioDevice.isMuted) {
     setAudioMuted(currentAudioDevice.isMuted);
@@ -58,7 +53,7 @@ export default function VideoControls({
     broadcastStarted,
     updateStreamKey
   } = useContext(BroadcastContext);
-  console.log(init, BroadcastContext);
+
   const { joinStage, stageJoined, leaveStage } = useContext(StageContext);
 
   const { state } = useLocation();
@@ -113,7 +108,6 @@ export default function VideoControls({
       setIsStageOwner(true);
       handleUserChange(createStageResponse?.stage?.token?.token);
     }
-    // console.log(userData);
   }
 
   function toggleBroadcast() {
@@ -259,16 +253,18 @@ export default function VideoControls({
           </button>
         )} */}
 
-        {/* <button
+        <button
           className="text-xs bg-gray-300 p-2 px-5 rounded-full mx-1"
-          onClick={() =>
-            annotationCanvasState?.open
-              ? stopSSWithAnnots()
-              : startSSWithAnnots(localParticipant?.id)
-          }
+          onClick={() => setOpenVirtualBgPanel((prev) => !prev)}
+          disabled={openVirtualBgPanel}
         >
-          Send Events
-        </button> */}
+          <VideoBG style={{ height: 20 }} />
+        </button>
+        <VirtualBackgroundSelector
+          toggleBackground={toggleBackground}
+          isOpen={openVirtualBgPanel}
+          setIsOpen={setOpenVirtualBgPanel}
+        />
       </div>
     </div>
   );

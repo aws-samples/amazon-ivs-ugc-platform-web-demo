@@ -53,7 +53,17 @@ const Accordion = () => {
   );
 };
 const ClassroomApp = () => {
-  const { isSmall, combinedStream } = useMediaCanvas();
+  const {
+    isVideoMuted, displayRef, 
+    isSmall,
+    combinedStream,
+    toggleScreenShare,
+    toggleWhiteBoard,
+    isWhiteBoardActive,
+    isScreenShareActive,
+    setIsVideoMuted,
+    toggleBackground
+  } = useMediaCanvas();
   const {
     joinRequestStatus,
     stageData,
@@ -130,7 +140,8 @@ const ClassroomApp = () => {
       if (
         remoteParticipant &&
         !newParticipantsMap.has(remoteParticipant.id) &&
-        remoteParticipant.id && !annotationCanvasState.participantId
+        remoteParticipant.id &&
+        !annotationCanvasState.participantId
       ) {
         newParticipantsMap.set(remoteParticipant.id, remoteParticipant);
       }
@@ -157,14 +168,20 @@ const ClassroomApp = () => {
     startSSWithAnnots,
     stopSSWithAnnots
   };
+  const mediaConfig = {
+    toggleScreenShare,
+    toggleWhiteBoard,
+    isWhiteBoardActive,
+    isScreenShareActive,
+    setIsVideoMuted,
+    toggleBackground,
+    isVideoMuted, displayRef 
+  };
 
   return (
     <div className="flex flex-row h-screen">
       <div className="w-3/4 flex flex-col" ref={containerRef}>
-        <StageParticipants
-          stageParticipants={stageParticipants}
-          combinedStream={combinedStream}
-        />
+        <StageParticipants stageParticipants={stageParticipants} />
         <MainTeacher
           dimensions={dimensions}
           chatConfig={chatConfig}
@@ -174,6 +191,7 @@ const ClassroomApp = () => {
         />
         <VideoControls
           {...chatConfig}
+          {...mediaConfig}
           userData={userData}
           localParticipant={localParticipant}
         />
@@ -191,13 +209,12 @@ const ClassroomApp = () => {
           <ChatManager />
         </div>
       </div>
-      <Modal isOpen={isSmall} />
+      <Modal isOpen={isSmall} {...mediaConfig}/>
     </div>
   );
 };
 
-const Modal = ({ isOpen, onClose }) => {
-  const { isVideoMuted, webcamVideoRef } = useMediaCanvas();
+const Modal = ({ isOpen, isVideoMuted, displayRef  }) => {
 
   const smallVideoRef = useRef(null);
 
@@ -212,9 +229,9 @@ const Modal = ({ isOpen, onClose }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (isVideoMuted) {
         drawMutedMessage(ctx, canvas);
-      } else if (webcamVideoRef.current) {
+      } else if (displayRef.current) {
         ctx.drawImage(
-          webcamVideoRef.current,
+          displayRef.current,
           0,
           0,
           canvas.width,
@@ -230,7 +247,7 @@ const Modal = ({ isOpen, onClose }) => {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isOpen, isVideoMuted, webcamVideoRef]);
+  }, [isOpen, isVideoMuted, displayRef]);
 
   const drawMutedMessage = (ctx, canvas) => {
     ctx.font = '40px Arial';

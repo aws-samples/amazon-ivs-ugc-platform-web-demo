@@ -4,18 +4,13 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState
+  useState,
+  useRef
 } from 'react';
 import useCanvasDrawing from './useDrawingCanvas';
 import useScreenShare from './useScreenShare';
 import useVirtualBackground from './useVirtualBackground';
 import useWebcam from './useWebCam';
-
-// https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
-// https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
-// https://plus.unsplash.com/premium_photo-1677474827615-31ea6fa13efe?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
-const Image1 =
-  'https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
 const MediaCanvasContext = createContext(undefined);
 
@@ -30,7 +25,6 @@ const MediaCanvasProvider = ({ children }) => {
     getScreenShare,
     setScreenStream,
     isScreenShareActive,
-    setIsScreenShareActive
   } = useScreenShare(setIsSmall);
   const {
     displayRef,
@@ -43,14 +37,15 @@ const MediaCanvasProvider = ({ children }) => {
     displayMouseMove,
     displayMouseUp
   } = useCanvasDrawing(isSmall);
-  // const {
-  //   toggleVirtualBackground,
-  //   virtualBackgroundRef,
-  //   isVirtualBackgroundActive,
-  //   virtualBgStream
-  // } = useVirtualBackground(Image1, webcamStream);
+  const {
+    toggleBackground,
+    virtualBgRef,
+
+    virtualBgStream
+  } = useVirtualBackground(webcamStream);
 
   let ctx1 = displayRef.current ? displayRef.current.getContext('2d') : null;
+  const videoRef = useRef(null);
 
   useEffect(() => {
     if (!displayRef.current) return;
@@ -64,6 +59,11 @@ const MediaCanvasProvider = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (videoRef.current && virtualBgStream) {
+      videoRef.current.srcObject = virtualBgStream;
+    }
+  }, [virtualBgStream]);
   const toggleScreenShare = useCallback(() => {
     if (screenStream) {
       screenStream.getTracks().forEach((track) => track.stop());
@@ -108,7 +108,7 @@ const MediaCanvasProvider = ({ children }) => {
           );
         }
 
-        if (webcamStream) {
+        if (virtualBgStream) {
           const position = dragPosition || smallVideoPosition;
           const x = isSmall ? position.x : 0;
           const y = isSmall ? position.y : 0;
@@ -125,7 +125,7 @@ const MediaCanvasProvider = ({ children }) => {
             const y = height / 2;
             ctx1.fillText('Camera Off', x, y);
           } else {
-            ctx1.drawImage(webcamVideoRef.current, x, y, width, height);
+            ctx1.drawImage(virtualBgRef.current, x, y, width, height);
           }
         }
 
@@ -145,7 +145,7 @@ const MediaCanvasProvider = ({ children }) => {
       isSmall,
       isVideoMuted,
       smallVideoPosition,
-      // virtualBgStream
+      virtualBgStream
     ]
   );
 
@@ -190,10 +190,8 @@ const MediaCanvasProvider = ({ children }) => {
       setIsVideoMuted,
       webcamVideoRef,
       screenShareVideoRef,
-      // toggleVirtualBackground,
-      // virtualBackgroundRef,
-      webcamStream,
-      // isVirtualBackgroundActive
+      toggleBackground,
+      webcamStream
     }),
     [
       isSmall,
@@ -208,9 +206,7 @@ const MediaCanvasProvider = ({ children }) => {
       webcamVideoRef,
       screenShareVideoRef,
       isVideoMuted,
-      // toggleVirtualBackground,
-      // virtualBackgroundRef,
-      // isVirtualBackgroundActive,
+      toggleBackground,
       webcamStream
     ]
   );
@@ -218,16 +214,20 @@ const MediaCanvasProvider = ({ children }) => {
   return (
     <MediaCanvasContext.Provider value={contextValue}>
       <>
-      <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }}>
-        <track kind="captions" />
-      </video> {/* <canvas
-          ref={virtualBackgroundRef}
+        <video ref={videoRef} autoPlay style={{ display: 'none' }}>
+          <track kind="captions" />
+        </video>
+        <video ref={webcamVideoRef} autoPlay style={{ display: 'none' }}>
+          <track kind="captions" />
+        </video>
+        <canvas
+          ref={virtualBgRef}
           width={1280}
           height={720}
           style={{
             display: 'none'
           }}
-        /> */}
+        />
         {children}
       </>
     </MediaCanvasContext.Provider>
