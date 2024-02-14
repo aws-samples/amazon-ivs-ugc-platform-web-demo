@@ -49,16 +49,15 @@ const VirtualBackgroundSelector = ({ toggleBackground, isOpen, setIsOpen }) => {
       } transition-width  overflow-hidden z-10 rounded`}
     >
       <div className="flex flex-wrap items-center justify-center h-1/8 p-4 bg-gray-100 overflow-y-auto border shadow ">
-      <div className="flex justify-between items-center w-full p-4 bg-gray-100 border-b border-gray-300">
-  <h5 className="font-bold">Select Background</h5>
-  <button
-    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-    onClick={  ()=>  setIsOpen(false)
-    }
-  >
-    Close
-  </button>
-</div>
+        <div className="flex justify-between items-center w-full p-4 bg-gray-100 border-b border-gray-300">
+          <h5 className="font-bold">Select Background</h5>
+          <button
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+            onClick={() => setIsOpen(false)}
+          >
+            Close
+          </button>
+        </div>
 
         <div
           className={`p-2 ${
