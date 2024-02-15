@@ -177,7 +177,7 @@ export default function VideoControls({
   return (
     /* Video Controls Panel - fixed height */
     <div className="h-18  p-4">
-      <div className="flex justify-center items-center px-4 h-full ">
+      <div className="flex flex-wrap justify-center items-center px-4 h-full ">
         {!state?.joinAsParticipant && (
           <button
             className="text-xs bg-gray-300 p-3 px-5 rounded-full mx-1"
