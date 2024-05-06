@@ -94,14 +94,14 @@ const StageProfilePill = ({
           isScreenshare
             ? ''
             : shouldInvertColors
-            ? [
-                '@stage-video-lg/video:text-white',
-                '@stage-video-lg/screenshare:text-white'
-              ]
-            : [
-                '@stage-video-lg/video:text-black',
-                '@stage-video-lg/screenshare:text-black'
-              ]
+              ? [
+                  '@stage-video-lg/video:text-white',
+                  '@stage-video-lg/screenshare:text-white'
+                ]
+              : [
+                  '@stage-video-lg/video:text-black',
+                  '@stage-video-lg/screenshare:text-black'
+                ]
         ],
         'flex',
         'gap-1',
