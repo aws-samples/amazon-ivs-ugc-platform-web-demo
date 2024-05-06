@@ -17,10 +17,10 @@ import ProductViewerStreamAction from '../ViewerStreamActions/Product/components
 import QuizViewerStreamAction from '../ViewerStreamActions/QuizCard';
 
 const PlayerViewerStreamActions = ({
-  isPollActive,
+  isPollActive = false,
   isPopupOpen,
   onClickPlayerHandler,
-  shouldShowStream
+  shouldShowStream = false
 }) => {
   const {
     currentViewerStreamActionData,
@@ -94,11 +94,6 @@ PlayerViewerStreamActions.propTypes = {
   isPopupOpen: PropTypes.bool.isRequired,
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool
-};
-
-PlayerViewerStreamActions.defaultProps = {
-  isPollActive: false,
-  shouldShowStream: false
 };
 
 export default PlayerViewerStreamActions;

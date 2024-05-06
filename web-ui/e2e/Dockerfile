@@ -1,5 +1,5 @@
 FROM node:16-alpine
-FROM mcr.microsoft.com/playwright:v1.40.0-jammy
+FROM mcr.microsoft.com/playwright:v1.43.1-jammy
 
 
 # Set the work directory for the application

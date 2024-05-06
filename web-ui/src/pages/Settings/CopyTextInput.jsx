@@ -9,7 +9,7 @@ import Input from '../../components/Input';
 import { clsm } from '../../utils';
 import { INPUT_BUTTON_GROUP_CLASSES } from './SettingsTheme';
 
-const CopyTextInput = ({ label, name, successMessage, value }) => {
+const CopyTextInput = ({ label, name, successMessage, value = '' }) => {
   const { notifySuccess } = useNotif();
   const { isDefaultResponsiveView } = useResponsiveDevice();
   const inputVariant = isDefaultResponsiveView ? 'vertical' : 'horizontal';
@@ -38,10 +38,6 @@ const CopyTextInput = ({ label, name, successMessage, value }) => {
       </Button>
     </span>
   );
-};
-
-CopyTextInput.defaultProps = {
-  value: ''
 };
 
 CopyTextInput.propTypes = {

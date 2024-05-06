@@ -48,13 +48,13 @@ export const STAGE_PROFILE_TYPES = {
 const $streamManagerStage = $content.stream_manager_stage;
 
 const StageProfilePill = ({
-  avatarSrc,
-  className,
-  profileColor,
-  subEl,
-  textClassName,
-  type,
-  isScreenshare,
+  avatarSrc = '',
+  className = '',
+  profileColor = '',
+  subEl = null,
+  textClassName = '',
+  type = STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
+  isScreenshare = false,
   username
 }) => {
   const shouldInvertColors = !!profileColor
@@ -150,16 +150,6 @@ const StageProfilePill = ({
       </div>
     </div>
   );
-};
-
-StageProfilePill.defaultProps = {
-  type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: '',
-  subEl: null,
-  textClassName: '',
-  profileColor: '',
-  avatarSrc: '',
-  isScreenshare: false
 };
 
 StageProfilePill.propTypes = {

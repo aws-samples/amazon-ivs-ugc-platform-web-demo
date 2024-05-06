@@ -11,7 +11,7 @@ import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
 
-const Modal = ({ children, className, onClickAway }) => {
+const Modal = ({ children, className = '', onClickAway = null }) => {
   const { closeModal, type } = useModal();
   const { pathname } = useLocation();
   const modalRef = useRef();
@@ -60,8 +60,6 @@ const Modal = ({ children, className, onClickAway }) => {
     </motion.div>
   );
 };
-
-Modal.defaultProps = { className: '', onClickAway: null };
 
 Modal.propTypes = {
   children: PropTypes.node.isRequired,

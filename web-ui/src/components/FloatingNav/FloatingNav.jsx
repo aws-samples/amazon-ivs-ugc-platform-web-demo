@@ -9,9 +9,9 @@ import Hamburger from './Hamburger';
 import ProfileMenu from '../ProfileMenu';
 
 const FloatingNav = ({
-  containerClassName,
-  menuClassName,
-  isRequestButtonVisible
+  containerClassName = undefined,
+  menuClassName = '',
+  isRequestButtonVisible = false
 }) => {
   const { isMobileView, isLandscape } = useResponsiveDevice();
   const { isSessionValid } = useUser();
@@ -83,12 +83,6 @@ FloatingNav.propTypes = {
   containerClassName: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   menuClassName: PropTypes.string,
   isRequestButtonVisible: PropTypes.bool
-};
-
-FloatingNav.defaultProps = {
-  containerClassName: undefined,
-  menuClassName: '',
-  isRequestButtonVisible: false
 };
 
 export default FloatingNav;

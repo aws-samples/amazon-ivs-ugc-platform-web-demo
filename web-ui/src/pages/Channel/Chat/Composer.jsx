@@ -27,13 +27,13 @@ const { SEND_MESSAGE } = CHAT_MESSAGE_EVENT_TYPES;
 const $content = $channelContent.chat;
 
 const Composer = ({
-  chatUserRole,
-  isDisabled,
-  isFocusable,
-  isLoading,
-  sendAttemptError,
+  chatUserRole = undefined,
+  isDisabled = false,
+  isFocusable = true,
+  isLoading = true,
+  sendAttemptError = null,
   sendMessage,
-  isRequestButtonVisible
+  isRequestButtonVisible = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -286,15 +286,6 @@ const Composer = ({
       />
     </div>
   );
-};
-
-Composer.defaultProps = {
-  chatUserRole: undefined,
-  isDisabled: false,
-  isFocusable: true,
-  isLoading: true,
-  sendAttemptError: null,
-  isRequestButtonVisible: false
 };
 
 Composer.propTypes = {

@@ -25,7 +25,7 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
   CHANNEL: 'channel'
 };
 
-const StageVideoFeeds = ({ styles, type }) => {
+const StageVideoFeeds = ({ styles = '', type }) => {
   const { participants, isJoiningStageByRequestOrInvite, isRequestedUserType } =
     useGlobalStage();
   const {
@@ -191,10 +191,6 @@ const StageVideoFeeds = ({ styles, type }) => {
       </motion.div>
     </div>
   );
-};
-
-StageVideoFeeds.defaultProps = {
-  styles: ''
 };
 
 StageVideoFeeds.propTypes = {

@@ -21,12 +21,12 @@ const ChatLine = ({
   avatarSrc,
   color,
   displayName,
-  isFocusable,
+  isFocusable = true,
   message,
-  onClick,
-  shouldAnimateIn,
-  shouldAnimateOut,
-  variant
+  onClick = null,
+  shouldAnimateIn = true,
+  shouldAnimateOut = true,
+  variant = CHAT_LINE_VARIANT.MESSAGE
 }) => {
   const isStaticChatLine = !onClick;
   const chatLineClasses = clsm(
@@ -146,14 +146,6 @@ ChatLineWrapper.propTypes = {
   chatLineVariant: PropTypes.oneOf(Object.values(CHAT_LINE_VARIANT)).isRequired,
   children: PropTypes.node.isRequired,
   isStaticChatLine: PropTypes.bool.isRequired
-};
-
-ChatLine.defaultProps = {
-  isFocusable: true,
-  onClick: null,
-  shouldAnimateIn: true,
-  shouldAnimateOut: true,
-  variant: CHAT_LINE_VARIANT.MESSAGE
 };
 
 ChatLine.propTypes = {

@@ -17,10 +17,10 @@ import { clsm } from '../../utils';
 
 const Tooltip = ({
   children,
-  hasFixedWidth,
-  message,
-  position,
-  translate,
+  hasFixedWidth = false,
+  message = '',
+  position = 'below',
+  translate = { x: 0, y: 0 },
   shouldKeepMinWidth = true
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -152,14 +152,6 @@ const Tooltip = ({
       />
     </div>
   );
-};
-
-Tooltip.defaultProps = {
-  position: 'below',
-  hasFixedWidth: false,
-  translate: { x: 0, y: 0 },
-  message: '',
-  shouldKeepMinWidth: true
 };
 
 Tooltip.propTypes = {

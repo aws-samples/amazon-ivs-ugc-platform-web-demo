@@ -7,9 +7,9 @@ import VoteItem from './VoteItem';
 import { useChannel } from '../../../../contexts/Channel';
 
 const AnimatedVoteItems = ({
-  textColor,
-  radioBoxControls,
-  showVotePercentage
+  textColor = undefined,
+  radioBoxControls = {},
+  showVotePercentage = true
 }) => {
   const { channelData } = useChannel();
   const { color } = channelData || {};
@@ -41,12 +41,6 @@ const AnimatedVoteItems = ({
       })}
     </AnimateReorderList>
   );
-};
-
-AnimatedVoteItems.defaultProps = {
-  showVotePercentage: true,
-  textColor: undefined,
-  radioBoxControls: {}
 };
 
 AnimatedVoteItems.propTypes = {

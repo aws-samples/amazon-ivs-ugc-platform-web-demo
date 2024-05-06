@@ -91,9 +91,8 @@ class SettingsPageModel extends BasePageModel {
 
   resetStreamKey = async () => {
     // Save the current value of the stream key before we reset it so that we can compare it later to the new value
-    const initialStreamKeyValue = await this.streamKeyFieldLoc.getAttribute(
-      'value'
-    );
+    const initialStreamKeyValue =
+      await this.streamKeyFieldLoc.getAttribute('value');
 
     // Click the 'Reset' button in the Reset Stream Key form
     await this.resetStreamKeyButtonLoc.click();
@@ -129,9 +128,8 @@ class SettingsPageModel extends BasePageModel {
     );
 
     // Save the new stream key value and compare it against the previous stream key value
-    const newStreamKeyValue = await this.streamKeyFieldLoc.getAttribute(
-      'value'
-    );
+    const newStreamKeyValue =
+      await this.streamKeyFieldLoc.getAttribute('value');
 
     expect(newStreamKeyValue).not.toBe(initialStreamKeyValue);
     expect(newStreamKeyValue).toMatch(/sk_mock-region_mock-stream-key_NEW_.+/);
@@ -167,9 +165,8 @@ class SettingsPageModel extends BasePageModel {
   updateProfileAvatar = async () => {
     // Save the current value of the avatar before we change it so that we can compare it
     const initialAvatarValue = this.selectedProfileAvatarLoc;
-    const initialAvatarName = await this.selectedProfileAvatarLoc.getAttribute(
-      'name'
-    );
+    const initialAvatarName =
+      await this.selectedProfileAvatarLoc.getAttribute('name');
     // Get the currently unselected profile avatar so we can test the switch from one avatar to another
     const unSelectedAvatarValue = this.unselectedProfileAvatarLoc;
     const unSelectedAvatarName =
@@ -196,9 +193,8 @@ class SettingsPageModel extends BasePageModel {
   updateProfileColor = async () => {
     // Save the current value of the color before we change it so that we can compare it
     const initialColorValue = this.selectedProfileColorLoc;
-    const initialColorName = await this.selectedProfileColorLoc.getAttribute(
-      'name'
-    );
+    const initialColorName =
+      await this.selectedProfileColorLoc.getAttribute('name');
     // Get a current version of the profile color that isn't selected so we can test the switch from one color icon to another
     const unSelectedColorValue = this.unselectedProfileColorLoc;
     const unSelectedColorName =
@@ -252,9 +248,8 @@ class SettingsPageModel extends BasePageModel {
 
   changeUsername = async (username) => {
     // Save the current value of the username before we change it so that we can compare it later to the new value
-    const initialUsernameValue = await this.usernameInputLoc.getAttribute(
-      'value'
-    );
+    const initialUsernameValue =
+      await this.usernameInputLoc.getAttribute('value');
     // Click and fill username input field
     await this.usernameInputLoc.click();
     await this.usernameInputLoc.fill(username);

@@ -4,16 +4,16 @@ import StatusItemTooltip from './StatusItemTooltip';
 import StatusItemWrapper from './StatusItemWrapper';
 
 const StatusItem = ({
-  tooltipText,
+  tooltipText = '',
   dataTestId,
-  hasError,
+  hasError = false,
   icon,
-  isLive,
+  isLive = false,
   itemLabel,
-  itemButtonProps,
-  role,
-  value,
-  className
+  itemButtonProps = null,
+  role = '',
+  value = null,
+  className = ''
 }) => {
   return (
     <div className={clsm(['flex', 'max-w-[97px]', className])}>
@@ -63,16 +63,6 @@ const StatusItem = ({
       </StatusItemTooltip>
     </div>
   );
-};
-
-StatusItem.defaultProps = {
-  tooltipText: '',
-  hasError: false,
-  isLive: false,
-  itemButtonProps: null,
-  role: '',
-  value: null,
-  className: ''
 };
 
 StatusItem.propTypes = {

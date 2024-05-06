@@ -11,24 +11,24 @@ import useForm from './useForm';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const Form = ({
-  'data-testid': dataTestId,
-  className,
-  clearFormOnSuccess,
-  disableSubmit,
-  disableValidation,
-  errorHandler,
-  footer,
-  formVariant,
-  inputsData,
-  inputVariant,
-  onFailure,
-  onSuccess,
-  submitBtnVariant,
+  'data-testid': dataTestId = undefined,
+  className = '',
+  clearFormOnSuccess = true,
+  disableSubmit = noop,
+  disableValidation = false,
+  errorHandler = noop,
+  footer = null,
+  formVariant = 'vertical',
+  inputsData = {},
+  inputVariant = 'vertical',
+  onFailure = noop,
+  onSuccess = noop,
+  submitBtnVariant = 'primary',
   submitHandler,
-  submitText,
-  title,
-  validationCheck,
-  type
+  submitText = 'Submit',
+  title = '',
+  validationCheck = noop,
+  type = ''
 }) => {
   const [formProps, isLoading, onChange, onSubmit, presubmitValidation] =
     useForm({
@@ -159,26 +159,6 @@ const Form = ({
       {formVariant === 'vertical' && <SubmitButton />}
     </form>
   );
-};
-
-Form.defaultProps = {
-  'data-testid': undefined,
-  className: '',
-  clearFormOnSuccess: true,
-  disableSubmit: noop,
-  disableValidation: false,
-  errorHandler: noop,
-  footer: null,
-  formVariant: 'vertical',
-  inputsData: {},
-  inputVariant: 'vertical',
-  onFailure: noop,
-  onSuccess: noop,
-  submitBtnVariant: 'primary',
-  submitText: 'Submit',
-  title: '',
-  type: '',
-  validationCheck: noop
 };
 
 Form.propTypes = {

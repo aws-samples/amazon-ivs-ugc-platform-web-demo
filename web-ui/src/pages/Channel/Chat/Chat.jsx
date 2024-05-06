@@ -23,7 +23,7 @@ import RequestToJoinStageButton from './RequestToJoinStageButton';
 
 const $content = $channelContent.chat;
 
-const Chat = ({ shouldRunCelebration }) => {
+const Chat = ({ shouldRunCelebration = false }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading } = useChannel();
 
@@ -223,10 +223,6 @@ const Chat = ({ shouldRunCelebration }) => {
       </AnimatePresence>
     </>
   );
-};
-
-Chat.defaultProps = {
-  shouldRunCelebration: false
 };
 
 Chat.propTypes = {

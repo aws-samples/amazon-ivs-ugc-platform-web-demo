@@ -33,8 +33,8 @@ const {
 
 const GoLiveStreamButton = ({
   tooltipPosition,
-  tooltipCustomTranslate,
-  shouldShowTooltipMessage
+  tooltipCustomTranslate = {},
+  shouldShowTooltipMessage = true
 }) => {
   const streamButtonRef = useRef();
   const {
@@ -210,11 +210,6 @@ const GoLiveStreamButton = ({
       </Button>
     </Tooltip>
   );
-};
-
-GoLiveStreamButton.defaultProps = {
-  tooltipCustomTranslate: {},
-  shouldShowTooltipMessage: true
 };
 
 GoLiveStreamButton.propTypes = {

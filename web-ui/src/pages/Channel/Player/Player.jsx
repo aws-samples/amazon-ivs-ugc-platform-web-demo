@@ -31,7 +31,7 @@ const nonDoubleClickableIds = [
   'rendition-selector-container'
 ];
 
-const Player = ({ chatSectionRef, stagePlayerVisible }) => {
+const Player = ({ chatSectionRef, stagePlayerVisible = false }) => {
   const { notifyError } = useNotif();
   const { isSplitView } = useChannelView();
   const { isLandscape } = useResponsiveDevice();
@@ -341,10 +341,6 @@ const Player = ({ chatSectionRef, stagePlayerVisible }) => {
       />
     </motion.section>
   );
-};
-
-Player.defaultProps = {
-  stagePlayerVisible: false
 };
 
 Player.propTypes = {

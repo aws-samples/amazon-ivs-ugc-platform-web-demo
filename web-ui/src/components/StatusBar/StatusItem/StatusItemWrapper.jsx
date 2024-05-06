@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../utils';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 
-const StatusItemWrapper = ({ isActionable, children, itemButtonProps }) => {
+const StatusItemWrapper = ({
+  isActionable,
+  children,
+  itemButtonProps = null
+}) => {
   const currentPage = useCurrentPage();
   const isStreamHealthPage = currentPage === 'stream_health';
 
@@ -48,7 +52,5 @@ StatusItemWrapper.propTypes = {
   isActionable: PropTypes.bool.isRequired,
   itemButtonProps: PropTypes.shape({ onClick: PropTypes.func })
 };
-
-StatusItemWrapper.defaultProps = { itemButtonProps: null };
 
 export default StatusItemWrapper;
