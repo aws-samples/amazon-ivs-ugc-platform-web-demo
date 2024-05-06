@@ -8,13 +8,13 @@ import MobilePanel from './MobilePanel';
 
 const ResponsivePanel = ({
   children,
-  containerClasses,
-  isOpen,
-  mobileBreakpoint,
+  containerClasses = '',
+  isOpen = false,
+  mobileBreakpoint = BREAKPOINTS.md,
   panelId,
-  preserveVisible,
-  slideInDirection,
-  shouldSetVisible
+  preserveVisible = false,
+  slideInDirection = 'right',
+  shouldSetVisible = true
 }) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
@@ -51,15 +51,6 @@ const ResponsivePanel = ({
         ))}
     </AnimatePresence>
   );
-};
-
-ResponsivePanel.defaultProps = {
-  containerClasses: '',
-  isOpen: false,
-  mobileBreakpoint: BREAKPOINTS.md,
-  preserveVisible: false,
-  shouldSetVisible: true,
-  slideInDirection: 'right'
 };
 
 ResponsivePanel.propTypes = {

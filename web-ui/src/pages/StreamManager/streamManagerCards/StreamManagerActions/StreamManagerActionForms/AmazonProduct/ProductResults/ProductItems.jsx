@@ -15,7 +15,7 @@ const $content = $streamManagerContent.stream_manager_actions.amazon_product;
 const ProductItems = ({
   data,
   onClick,
-  notAvailableText,
+  notAvailableText = '',
   selectedProductIndex,
   isLoadingNextPageOfProducts
 }) => (
@@ -43,8 +43,8 @@ const ProductItems = ({
       const ariaLabel = isAtBottomOfProductList
         ? `${$content.aria_label_last_product}. ${title}`
         : shouldIndicateLoadingMoreProducts
-        ? `${$content.aria_label_load_more_products}. ${title}`
-        : title;
+          ? `${$content.aria_label_load_more_products}. ${title}`
+          : title;
 
       return (
         <ProductResultsRow
@@ -91,10 +91,6 @@ ProductItems.propTypes = {
   onClick: PropTypes.func.isRequired,
   selectedProductIndex: PropTypes.number.isRequired,
   isLoadingNextPageOfProducts: PropTypes.bool.isRequired
-};
-
-ProductItems.defaultProps = {
-  notAvailableText: ''
 };
 
 export default ProductItems;

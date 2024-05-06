@@ -120,8 +120,8 @@ const RequestToJoinStageButton = () => {
   const message = hasStageRequestBeenApproved
     ? ''
     : requestingToJoinStage
-    ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
-    : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
+      ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
+      : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
 
   const isUserAlreadyInStage = [...participants].some(
     ([_, participant]) =>

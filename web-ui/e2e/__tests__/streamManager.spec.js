@@ -68,9 +68,8 @@ test.describe('Stream Manager Page', () => {
       page
     }) => {
       for (const streamActionName of STREAM_ACTION_NAMES) {
-        const streamActionNameLocator = await getActionButtonLocator(
-          streamActionName
-        );
+        const streamActionNameLocator =
+          await getActionButtonLocator(streamActionName);
 
         expect(streamActionNameLocator).toBeVisible();
       }
@@ -291,63 +290,60 @@ test.describe('Stream Manager Page', () => {
       });
     });
   });
+});
 
-  test.describe('Live State', () => {
-    testWithoutNavigation.beforeEach(
-      async ({
-        streamManagerPage: {
-          navigate,
-          streamSessionsComponent: { updateStreamSessions }
-        }
-      }) => {
-        // Populate one live session
-        updateStreamSessions(1, true);
-
-        await navigate();
+testWithoutNavigation.describe('Stream Manager Page - Live State', () => {
+  testWithoutNavigation.beforeEach(
+    async ({
+      streamManagerPage: {
+        navigate,
+        streamSessionsComponent: { updateStreamSessions }
       }
-    );
+    }) => {
+      // Populate one live session
+      updateStreamSessions(1, true);
 
-    testWithoutNavigation(
-      'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
-      async ({
-        context,
-        streamManagerPage: {
-          sharedUIComponents: { statusBarHealthStatusBtnLoc }
-        },
-        browserName
-      }) => {
-        // Skip test on Safari (Webkit): the test runner does not always open a new tab. This is a known issue.
-        testWithoutNavigation.skip(
-          browserName === 'webkit',
-          'WebKit: Does not open a new window.'
-        );
-        // Start waiting for new page before clicking status bar health status button
-        const pagePromise = context.waitForEvent('page');
-        await statusBarHealthStatusBtnLoc.click();
-        const newPage = await pagePromise;
-        await newPage.waitForLoadState();
-        expect(newPage).toHaveURL('/health');
-      }
-    );
+      await navigate();
+    }
+  );
 
-    testWithoutNavigation(
-      'should show tooltip for live session in session status bar',
-      async ({
-        streamManagerPage: {
-          sharedUIComponents: {
-            statusBarConcurrentViewsLoc,
-            statusBarTooltipLoc
-          }
-        },
-        isMobile,
-        page
-      }) => {
-        isMobile
-          ? await statusBarConcurrentViewsLoc.click()
-          : await statusBarConcurrentViewsLoc.hover();
-        await page.mouse.down();
-        await expect(statusBarTooltipLoc).toBeVisible();
-      }
-    );
-  });
+  testWithoutNavigation(
+    'after clicking the health status button, the user should be taken to the Stream Health page to monitor the live session',
+    async ({
+      context,
+      streamManagerPage: {
+        sharedUIComponents: { statusBarHealthStatusBtnLoc }
+      },
+      browserName
+    }) => {
+      // Skip test on Safari (Webkit): the test runner does not always open a new tab. This is a known issue.
+      testWithoutNavigation.skip(
+        browserName === 'webkit',
+        'WebKit: Does not open a new window.'
+      );
+      // Start waiting for new page before clicking status bar health status button
+      const pagePromise = context.waitForEvent('page');
+      await statusBarHealthStatusBtnLoc.click();
+      const newPage = await pagePromise;
+      await newPage.waitForLoadState();
+      expect(newPage).toHaveURL('/health');
+    }
+  );
+
+  testWithoutNavigation(
+    'should show tooltip for live session in session status bar',
+    async ({
+      streamManagerPage: {
+        sharedUIComponents: { statusBarConcurrentViewsLoc, statusBarTooltipLoc }
+      },
+      isMobile,
+      page
+    }) => {
+      isMobile
+        ? await statusBarConcurrentViewsLoc.click()
+        : await statusBarConcurrentViewsLoc.hover();
+      await page.mouse.down();
+      await expect(statusBarTooltipLoc).toBeVisible();
+    }
+  );
 });

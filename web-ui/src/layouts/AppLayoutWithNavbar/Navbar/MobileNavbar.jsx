@@ -9,7 +9,7 @@ import Button from '../../../components/Button';
 
 const $content = $appContent.navbar;
 
-const MobileNavbar = ({ className, motionProps }) => {
+const MobileNavbar = ({ className = '', motionProps = {} }) => {
   const { isMobileView } = useResponsiveDevice();
   const { isSessionValid } = useUser();
 
@@ -64,8 +64,6 @@ const MobileNavbar = ({ className, motionProps }) => {
     )
   );
 };
-
-MobileNavbar.defaultProps = { className: '', motionProps: {} };
 
 MobileNavbar.propTypes = {
   className: PropTypes.string,

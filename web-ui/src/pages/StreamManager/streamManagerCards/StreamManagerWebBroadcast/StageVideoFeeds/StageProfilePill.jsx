@@ -34,11 +34,11 @@ export const STAGE_PROFILE_TYPES = {
 
 const StageProfilePill = ({
   avatarSrc,
-  className,
+  className = '',
   profileColor,
-  subEl,
-  textClassName,
-  type,
+  subEl = null,
+  textClassName = '',
+  type = STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
   username
 }) => {
   const shouldInvertColors = isTextColorInverted(profileColor);
@@ -104,12 +104,6 @@ const StageProfilePill = ({
   );
 };
 
-StageProfilePill.defaultProps = {
-  type: STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
-  className: '',
-  subEl: null,
-  textClassName: ''
-};
 StageProfilePill.propTypes = {
   avatarSrc: PropTypes.string.isRequired,
   className: PropTypes.string,

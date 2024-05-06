@@ -13,7 +13,7 @@ const MobilePanel = ({
   controls,
   panelId,
   slideInDirection,
-  shouldAnimateIn
+  shouldAnimateIn = true
 }) => {
   const { addMobileOverlay, removeMobileOverlay } = useResponsiveDevice();
   const headerRef = useRef();
@@ -53,10 +53,6 @@ const MobilePanel = ({
       {children}
     </motion.div>
   );
-};
-
-MobilePanel.defaultProps = {
-  shouldAnimateIn: true
 };
 
 MobilePanel.propTypes = {

@@ -111,11 +111,6 @@ module.exports = {
      * https://github.com/tailwindlabs/tailwindcss-container-queries
      */
     require('@tailwindcss/container-queries'),
-    /**
-     * A plugin that provides utilities for visually truncating text after a fixed number of lines.
-     * https://github.com/tailwindlabs/tailwindcss-line-clamp
-     */
-    require('@tailwindcss/line-clamp'),
 
     // @supports (overflow: overlay)
     plugin(({ addVariant, addUtilities }) => {

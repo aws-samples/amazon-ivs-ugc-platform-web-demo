@@ -24,7 +24,7 @@ import RequestIndicator from '../StageControl/RequestIndicator';
 
 const $stageContent = $content.stream_manager_stage;
 
-const StageControls = ({ shouldShowCopyLinkText }) => {
+const StageControls = ({ shouldShowCopyLinkText = true }) => {
   const participantsButtonRef = useRef();
   const { openModal } = useModal();
   const { isTouchscreenDevice, dimensions } = useResponsiveDevice();
@@ -219,10 +219,6 @@ const StageControls = ({ shouldShowCopyLinkText }) => {
       </motion.div>
     </div>
   );
-};
-
-StageControls.defaultProps = {
-  shouldShowCopyLinkText: true
 };
 
 StageControls.propTypes = {

@@ -24,11 +24,11 @@ import VolumeSetting, {
 } from './VolumeSetting';
 
 const Controls = ({
-  areControlsContained,
-  isFullscreenEnabled,
-  isPlayPauseEnabled,
-  isRenditionSettingEnabled,
-  isVolumeSettingEnabled,
+  areControlsContained = false,
+  isFullscreenEnabled = false,
+  isPlayPauseEnabled = true,
+  isRenditionSettingEnabled = true,
+  isVolumeSettingEnabled = true,
   onClickFullscreenHandler,
   openPopupIds,
   selectedQualityName,
@@ -197,14 +197,6 @@ Controls.propTypes = {
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedQualityName: PropTypes.string.isRequired,
   setOpenPopupIds: PropTypes.func.isRequired
-};
-
-Controls.defaultProps = {
-  areControlsContained: false,
-  isFullscreenEnabled: false,
-  isPlayPauseEnabled: true,
-  isRenditionSettingEnabled: true,
-  isVolumeSettingEnabled: true
 };
 
 export default Controls;

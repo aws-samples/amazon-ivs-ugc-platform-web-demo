@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { app as $content } from '../content';
 import { clsm } from '../utils';
 
-const LivePill = ({ className }) => (
+const LivePill = ({ className = '' }) => (
   <div
     className={clsm([
       'bg-lightMode-red',
@@ -28,10 +28,6 @@ const LivePill = ({ className }) => (
 
 LivePill.propTypes = {
   className: PropTypes.string
-};
-
-LivePill.defaultProps = {
-  className: ''
 };
 
 export default LivePill;

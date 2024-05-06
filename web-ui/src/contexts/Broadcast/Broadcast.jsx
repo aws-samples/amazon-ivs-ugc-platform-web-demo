@@ -63,8 +63,8 @@ Context.displayName = 'Broadcast';
 
 export const Provider = ({
   children,
-  ingestEndpoint,
-  streamKey,
+  ingestEndpoint = '',
+  streamKey = '',
   previewRef
 }) => {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
@@ -474,11 +474,6 @@ Provider.propTypes = {
   ingestEndpoint: PropTypes.string,
   streamKey: PropTypes.string,
   previewRef: PropTypes.shape({ current: PropTypes.object }).isRequired
-};
-
-Provider.defaultProps = {
-  ingestEndpoint: '',
-  streamKey: ''
 };
 
 export const useBroadcast = () => useContextHook(Context);

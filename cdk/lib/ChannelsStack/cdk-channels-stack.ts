@@ -652,8 +652,8 @@ export class ChannelsStack extends NestedStack {
       }
     );
 
-    resolver.addDependsOn(schema);
-    resolver.addDependsOn(noneDataSource);
+    resolver.addDependency(schema);
+    resolver.addDependency(noneDataSource);
 
     const apiKey = new appsync.CfnApiKey(
       this,

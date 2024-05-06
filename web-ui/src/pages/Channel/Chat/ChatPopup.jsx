@@ -21,7 +21,7 @@ const $modalContent = $channelContent.chat.modal.ban_user_modal;
 const ChatPopup = ({
   banUser,
   deleteMessage,
-  isOpen,
+  isOpen = false,
   selectedMessage: { avatarSrc, color, displayName, message, channelArn },
   setIsChatPopupOpen
 }) => {
@@ -228,8 +228,6 @@ const ChatPopup = ({
     </div>
   );
 };
-
-ChatPopup.defaultProps = { isOpen: false };
 
 ChatPopup.propTypes = {
   banUser: PropTypes.func.isRequired,

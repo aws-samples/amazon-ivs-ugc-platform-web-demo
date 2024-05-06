@@ -13,7 +13,11 @@ import useStickyScroll from '../../../../hooks/useStickyScroll';
 import useResize from '../../../../hooks/useResize';
 const $content = $channelContent.chat;
 
-const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
+const Messages = ({
+  isChatPopupOpen = false,
+  isModerator = false,
+  openChatPopup
+}) => {
   const { channelData } = useChannel();
   const { username: chatRoomOwnerUsername } = channelData || {};
   const chatRef = useRef();
@@ -139,8 +143,6 @@ const Messages = ({ isChatPopupOpen, isModerator, openChatPopup }) => {
     </div>
   );
 };
-
-Messages.defaultProps = { isChatPopupOpen: false, isModerator: false };
 
 Messages.propTypes = {
   isChatPopupOpen: PropTypes.bool,

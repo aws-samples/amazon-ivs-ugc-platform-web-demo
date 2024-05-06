@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../utils';
 
-const RequestIndicator = ({ stageRequestsCount, className }) => {
+const RequestIndicator = ({ stageRequestsCount, className = '' }) => {
   return (
     <div
       className={clsm([
@@ -27,10 +27,6 @@ const RequestIndicator = ({ stageRequestsCount, className }) => {
 RequestIndicator.propTypes = {
   stageRequestsCount: PropTypes.number.isRequired,
   className: PropTypes.string
-};
-
-RequestIndicator.defaultProps = {
-  className: ''
 };
 
 export default RequestIndicator;

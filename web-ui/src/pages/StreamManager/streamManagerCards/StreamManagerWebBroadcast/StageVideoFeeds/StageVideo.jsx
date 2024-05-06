@@ -22,7 +22,7 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const StageVideo = ({ type, participantKey, className }) => {
+const StageVideo = ({ type, participantKey, className = '' }) => {
   const videoRef = useRef(null);
   const { participants, isChannelStagePlayerMuted } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
@@ -220,10 +220,6 @@ const StageVideo = ({ type, participantKey, className }) => {
       )}
     </div>
   );
-};
-
-StageVideo.defaultProps = {
-  className: ''
 };
 
 StageVideo.propTypes = {

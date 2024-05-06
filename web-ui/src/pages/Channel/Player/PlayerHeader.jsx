@@ -28,9 +28,9 @@ const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
 };
 
 const PlayerHeader = ({
-  avatarSrc,
-  color,
-  username,
+  avatarSrc = '',
+  color = 'default',
+  username = '',
   openPopupIds,
   stagePlayerVisible
 }) => {
@@ -287,12 +287,6 @@ const PlayerHeader = ({
       </PlayerOverlay>
     </div>
   );
-};
-
-PlayerHeader.defaultProps = {
-  avatarSrc: '',
-  color: 'default',
-  username: ''
 };
 
 PlayerHeader.propTypes = {
