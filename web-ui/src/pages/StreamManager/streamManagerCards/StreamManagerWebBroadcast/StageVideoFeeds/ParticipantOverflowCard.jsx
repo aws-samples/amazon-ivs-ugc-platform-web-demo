@@ -2,7 +2,11 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../../../utils';
 import UserAvatar from '../../../../../components/UserAvatar';
 
-const ParticipantOverflowCard = ({ avatars, additionalCount, isMinified }) => {
+const ParticipantOverflowCard = ({
+  avatars,
+  additionalCount = 0,
+  isMinified = false
+}) => {
   const totalOverflowParticipants = avatars.length + additionalCount;
 
   return (
@@ -74,11 +78,6 @@ const ParticipantOverflowCard = ({ avatars, additionalCount, isMinified }) => {
       )}
     </div>
   );
-};
-
-ParticipantOverflowCard.defaultProps = {
-  additionalCount: 0,
-  isMinified: false
 };
 
 ParticipantOverflowCard.propTypes = {

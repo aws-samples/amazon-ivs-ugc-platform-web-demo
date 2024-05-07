@@ -21,7 +21,7 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const ScreenshareVideo = ({ type, participantKey, className }) => {
+const ScreenshareVideo = ({ type, participantKey, className = '' }) => {
   const videoRef = useRef(null);
   const { participants, isChannelStagePlayerMuted } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
@@ -179,10 +179,6 @@ const ScreenshareVideo = ({ type, participantKey, className }) => {
       )}
     </div>
   );
-};
-
-ScreenshareVideo.defaultProps = {
-  className: ''
 };
 
 ScreenshareVideo.propTypes = {

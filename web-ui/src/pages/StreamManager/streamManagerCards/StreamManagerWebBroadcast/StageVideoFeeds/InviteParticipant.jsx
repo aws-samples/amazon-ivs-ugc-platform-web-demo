@@ -15,7 +15,7 @@ import Tooltip from '../../../../../components/Tooltip/Tooltip';
 
 const $stageContent = $content.stream_manager_stage;
 
-const InviteParticipant = ({ type, className, hideText }) => {
+const InviteParticipant = ({ type, className = '', hideText = false }) => {
   const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { isTouchscreenDevice, isDesktopView, isDefaultResponsiveView } =
     useResponsiveDevice();
@@ -109,11 +109,6 @@ const InviteParticipant = ({ type, className, hideText }) => {
       )}
     </div>
   );
-};
-
-InviteParticipant.defaultProps = {
-  className: '',
-  hideText: false
 };
 
 InviteParticipant.propTypes = {
