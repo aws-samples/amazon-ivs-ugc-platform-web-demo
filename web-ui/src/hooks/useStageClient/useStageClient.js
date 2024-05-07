@@ -41,15 +41,19 @@ const useStageClient = (
     [attachStageEvents]
   );
 
-  const leaveStageClient = useCallback(() => {
-    strategy.stopAndResetTracks();
+  const leaveStageClient = useCallback(
+    (strategyParam = null) => {
+      const _strategy = strategyParam ?? strategy;
+      if (_strategy?.stopAndResetTracks) _strategy.stopAndResetTracks();
 
-    if (clientRef?.current) {
-      clientRef.current.removeAllListeners();
-      clientRef.current.leave();
-      clientRef.current = undefined;
-    }
-  }, [strategy]);
+      if (clientRef.current) {
+        clientRef.current.removeAllListeners();
+        clientRef.current.leave();
+        clientRef.current = undefined;
+      }
+    },
+    [strategy]
+  );
 
   const resetAllStageState = useCallback(
     ({ omit } = {}) => {

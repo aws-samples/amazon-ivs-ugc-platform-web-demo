@@ -90,11 +90,11 @@ export const Provider = ({ children }) => {
         return [this.audioTrack, this.videoTrack];
       },
 
-      shouldPublishParticipant(participant) {
+      shouldPublishParticipant() {
         return true;
       },
 
-      shouldSubscribeToParticipant(participant) {
+      shouldSubscribeToParticipant() {
         return SubscribeType.AUDIO_VIDEO;
       },
 
@@ -122,10 +122,10 @@ export const Provider = ({ children }) => {
       stageStreamsToPublish() {
         return [this.videoTrack];
       },
-      shouldPublishParticipant: (participant) => {
+      shouldPublishParticipant: () => {
         return true;
       },
-      shouldSubscribeToParticipant: (participant) => {
+      shouldSubscribeToParticipant: () => {
         return SubscribeType.AUDIO_VIDEO;
       },
       setStream(videoTrack) {
@@ -136,6 +136,10 @@ export const Provider = ({ children }) => {
       },
       stopTracks() {
         this.videoTrack?.mediaStreamTrack.stop();
+      },
+      stopAndResetTracks() {
+        this.stopTracks();
+        this.resetStrategy();
       }
     }),
     []
