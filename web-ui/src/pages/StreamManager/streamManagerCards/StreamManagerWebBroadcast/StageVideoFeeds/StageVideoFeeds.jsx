@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import StageVideo from './StageVideo';
 
 import './StageVideoGrid.css';
-import {
-  ANIMATION_DURATION,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
+import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { PARTICIPANT_TYPE_SCREENSHARE } from '../../../../../constants';
 import { useGlobalStage } from '../../../../../contexts/Stage';
@@ -16,7 +13,7 @@ import InviteParticipant from './InviteParticipant';
 import ParticipantOverflowCard from './ParticipantOverflowCard';
 import ScreenshareVideo from './ScreenshareVideo';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
-import useScreenshareColumns from '../../../hooks/useScreenshareColumns';
+import useScreenshareRow from '../../../hooks/useScreenshareRow';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -33,55 +30,50 @@ const StageVideoFeeds = ({ styles = '', type }) => {
     fullscreenAnimationControls,
     dimensionClasses
   } = useBroadcastFullScreen();
-
-  const participantList = Array.from(participants).slice(0, 12);
-  const pubSubParticipantList = participantList.filter(
-    (participant) =>
-      participant[1]?.attributes?.type !== PARTICIPANT_TYPE_SCREENSHARE
-  );
-  const screenshareList = participantList.filter(
-    (participant) =>
-      participant[1]?.attributes?.type === PARTICIPANT_TYPE_SCREENSHARE
-  );
-  const participantSize = pubSubParticipantList.length;
+  const { pathname } = useLocation();
   const stageVideoFeedsRef = useRef();
   const { parentRef: containerRef } = useCalculatedAspectRatio({
     childRef: stageVideoFeedsRef,
-    delay: (ANIMATION_DURATION + 100) * 100
+    isAnimated: false
   });
-  const { pathname } = useLocation();
+
+  const participantList = Array.from(participants).slice(0, 12);
+  const videoAudioParticipants = participantList.filter(
+    (participant) =>
+      participant[1]?.attributes?.type !== PARTICIPANT_TYPE_SCREENSHARE
+  );
+  const videoAudioParticipantsLength = videoAudioParticipants.length;
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
-  const isScreenshareLayout = screenshareList.length > 0;
+  const containerMinHeightPX = isFullScreenViewOpen || isChannelType ? 200 : 0;
+  const isInviteParticipantCardVisible =
+    pathname === '/manager' &&
+    !isChannelType &&
+    !isRequestedUserType &&
+    videoAudioParticipantsLength <= 1;
 
   let gridItemCountClasses;
-  if (participantSize > 2 || isChannelType) {
-    gridItemCountClasses = `grid-${participantSize}`;
-  } else if (isRequestedUserType && participantSize === 1) {
+  if (videoAudioParticipantsLength > 2 || isChannelType) {
+    gridItemCountClasses = `grid-${videoAudioParticipantsLength}`;
+  } else if (isRequestedUserType && videoAudioParticipantsLength === 1) {
     gridItemCountClasses = ['grid-rows-1', 'grid-cols-1'];
   } else {
     gridItemCountClasses = ['grid-rows-1', 'grid-cols-2'];
   }
 
   const {
-    displayOverflowCard,
-    visibleOverflowAvatars,
-    additionalOverflowCount,
+    hiddenOverflowAvatarsLength,
+    isOverflowCardVisible,
+    isScreenshareVisible,
+    maxColumnCount,
     screenshareParticipantColCount,
-    maxColumnCount
-  } = useScreenshareColumns({
-    participantSize,
-    isScreenshareLayout,
+    screenshareParticipants,
+    visibleOverflowAvatars
+  } = useScreenshareRow({
+    participantList,
     containerRef: stageVideoFeedsRef,
-    participantList: pubSubParticipantList
+    videoAudioParticipants,
+    containerMinHeightPX
   });
-  const shouldRenderInviteParticipant =
-    pathname === '/manager' &&
-    !isChannelType &&
-    participantSize <= 1 &&
-    !isRequestedUserType;
-
-  const shouldRenderEmptyInviteParticipantCard =
-    shouldRenderInviteParticipant && isJoiningStageByRequestOrInvite;
 
   return (
     <div
@@ -95,10 +87,12 @@ const StageVideoFeeds = ({ styles = '', type }) => {
         'relative',
         'rounded-xl',
         'w-full',
-        (isFullScreenViewOpen || isChannelType) && 'min-h-[200px]',
         styles
       ])}
       ref={containerRef}
+      style={{
+        minHeight: `${containerMinHeightPX}px`
+      }}
     >
       <motion.div
         animate={fullscreenAnimationControls}
@@ -111,7 +105,7 @@ const StageVideoFeeds = ({ styles = '', type }) => {
           'overflow-hidden',
           'top-1/2',
           'w-full',
-          isScreenshareLayout && [
+          isScreenshareVisible && [
             'grid',
             'gap-4',
             'grid-rows-[calc(80%-16px)_1fr]'
@@ -119,9 +113,9 @@ const StageVideoFeeds = ({ styles = '', type }) => {
           dimensionClasses
         ])}
       >
-        {isScreenshareLayout && (
+        {isScreenshareVisible && (
           <div className={clsm(['flex', 'flex-wrap', 'gap-4'])}>
-            {screenshareList.map(([userId, _]) => (
+            {screenshareParticipants.map(([userId, _]) => (
               <ScreenshareVideo
                 key={`stage-screenshare-video-${userId}`}
                 participantKey={userId}
@@ -134,20 +128,20 @@ const StageVideoFeeds = ({ styles = '', type }) => {
           className={clsm([
             'h-full',
             isFullScreenViewOpen || isChannelType ? 'gap-4' : 'gap-1',
-            isScreenshareLayout
+            isScreenshareVisible
               ? ['justify-center', 'flex', 'mx-auto']
               : ['w-full', 'grid', gridItemCountClasses]
           ])}
           style={{
-            ...(isScreenshareLayout && {
+            ...(isScreenshareVisible && {
               width: `calc(((10% * ${screenshareParticipantColCount}) - 16px) * 16 / 9)`
             })
           }}
         >
           {!isJoiningStageByRequestOrInvite &&
-            pubSubParticipantList.map(([userId, _], index) => {
+            videoAudioParticipants.map(([userId, _], index) => {
               const isHidden =
-                displayOverflowCard && maxColumnCount <= index + 1;
+                isOverflowCardVisible && maxColumnCount <= index + 1;
 
               return (
                 <StageVideo
@@ -155,36 +149,42 @@ const StageVideoFeeds = ({ styles = '', type }) => {
                   participantKey={userId}
                   type={type}
                   className={clsm(
-                    isScreenshareLayout
+                    isScreenshareVisible
                       ? ['flex-1', isHidden && 'hidden']
-                      : [participantSize > 2 && `slot-${index + 1}`]
+                      : [
+                          videoAudioParticipantsLength > 2 &&
+                            `slot-${index + 1}`
+                        ]
                   )}
                 />
               );
             })}
-          {!isJoiningStageByRequestOrInvite &&
-            isScreenshareLayout &&
-            displayOverflowCard &&
-            !!visibleOverflowAvatars.length && (
-              <ParticipantOverflowCard
-                avatars={visibleOverflowAvatars}
-                additionalCount={additionalOverflowCount}
-                isMinified={!isFullScreenViewOpen}
-              />
-            )}
-
-          {shouldRenderEmptyInviteParticipantCard && (
-            <InviteParticipant
-              type={type}
-              className={isScreenshareLayout ? 'flex-1' : ''}
-              hideText={isScreenshareLayout}
+          {isOverflowCardVisible && (
+            <ParticipantOverflowCard
+              avatars={visibleOverflowAvatars}
+              additionalCount={hiddenOverflowAvatarsLength}
+              isMinified={!isFullScreenViewOpen}
             />
           )}
-          {shouldRenderInviteParticipant && (
+          {isInviteParticipantCardVisible && (
             <InviteParticipant
               type={type}
-              className={isScreenshareLayout ? 'flex-1' : ''}
-              hideText={isScreenshareLayout}
+              className={isScreenshareVisible ? 'flex-1' : ''}
+              hideText={isScreenshareVisible}
+            />
+          )}
+          {isJoiningStageByRequestOrInvite && (
+            <div
+              className={clsm([
+                '@container/invite-participant-container',
+                'dark:bg-darkMode-gray-medium',
+                'bg-lightMode-gray-light',
+                'flex',
+                'justify-center',
+                'items-center',
+                'rounded-xl',
+                'flex-1'
+              ])}
             />
           )}
         </div>
