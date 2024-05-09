@@ -45,17 +45,11 @@ const StageParticipant = ({ participant }) => {
       REPLACEMENT_TEXT,
       username
     );
-
   const isScreenshare = type === PARTICIPANT_TYPES.SCREENSHARE;
-
-  const isHostOrScreenshare =
+  const isHost =
     userId.includes(PARTICIPANT_TYPES.HOST) ||
     localParticipant?.userId.split(':')[1] ===
       participant?.attributes.channelId;
-
-  const profilePillUsername = isHostOrScreenshare
-    ? `${username} ${$stageContent.participants_modal.you}`
-    : username;
 
   const handleDisconnectParticipant = () => {
     closeModal();
@@ -147,7 +141,7 @@ const StageParticipant = ({ participant }) => {
       <StageProfilePill
         avatarSrc={avatarSrc}
         profileColor={profileColor}
-        username={profilePillUsername}
+        username={username}
         type={STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL}
         className={clsm([
           '[&>img]:w-11',
@@ -158,6 +152,8 @@ const StageParticipant = ({ participant }) => {
           'w-full'
         ])}
         textClassName="text-[15px]"
+        isScreenshare={isScreenshare}
+        isHost={isHost}
       />
       <div
         className={clsm([
@@ -168,7 +164,7 @@ const StageParticipant = ({ participant }) => {
           'max-w-[200px]',
           'min-w-[136px]',
           'items-center',
-          isHostOrScreenshare && currentBreakpoint && '-ml-7'
+          isHost && currentBreakpoint && '-ml-7'
         ])}
       >
         <div
@@ -189,7 +185,7 @@ const StageParticipant = ({ participant }) => {
           {participantStreamingStatusIcon}
         </div>
 
-        {type !== PARTICIPANT_TYPES.HOST && !isHostOrScreenshare && (
+        {type !== PARTICIPANT_TYPES.HOST && !isHost && (
           <div className={clsm(['min-w-[44px]', 'min-h-[44px]'])}>
             <Tooltip
               key="remove-participant-control-tooltip"

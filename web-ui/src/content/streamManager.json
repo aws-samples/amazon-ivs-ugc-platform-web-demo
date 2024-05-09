@@ -46,7 +46,7 @@
     }
   },
   "stream_manager_stage": {
-    "screenshare": "(Screen share)",
+    "screenshare": "'s screenshare",
     "join_now": "Join now",
     "participants": "Participants",
     "requests": "Requests",

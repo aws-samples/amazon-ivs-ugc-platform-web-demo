@@ -55,17 +55,24 @@ const StageProfilePill = ({
   textClassName = '',
   type = STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED,
   isScreenshare = false,
-  username
+  username,
+  isHost = false
 }) => {
   const shouldInvertColors = !!profileColor
     ? isTextColorInverted(profileColor)
     : true;
+  const isTypeFullscreenVideoFeed =
+    type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED;
+  const isTypeParticipantsModal =
+    type === STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL;
+  const isProfileImageVisible =
+    (isTypeFullscreenVideoFeed && !isScreenshare) || isTypeParticipantsModal;
 
   return (
     <div
       className={clsm([
         '[&>img]:rounded-full',
-        type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+        isTypeFullscreenVideoFeed && [
           '[&>img]:hidden',
           // @container video
           '@stage-video-lg/video:[&>img]:block',
@@ -120,7 +127,7 @@ const StageProfilePill = ({
         className
       ])}
     >
-      {!isScreenshare && <img src={avatarSrc} alt="" />}
+      {isProfileImageVisible && <img src={avatarSrc} alt="" />}
       <div className="overflow-hidden">
         <h3
           className={clsm([
@@ -129,7 +136,7 @@ const StageProfilePill = ({
             'truncate',
             '@stage-video-lg/screenshare:max-w-[120px]',
             '@stage-video-xl/screenshare:max-w-[168px]',
-            type === STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED && [
+            isTypeFullscreenVideoFeed && [
               'drop-shadow-stage-profile',
               '@stage-video-lg/video:drop-shadow-none',
               '@stage-video-xl/video:font-bold',
@@ -140,12 +147,11 @@ const StageProfilePill = ({
           ])}
         >
           {username}
+          {isScreenshare && $streamManagerStage.screenshare}
+          {isTypeParticipantsModal &&
+            isHost &&
+            ` ${$streamManagerStage.participants_modal.you}`}
         </h3>
-        {isScreenshare && (
-          <h3 className={clsm(['whitespace-nowrap', textStyles])}>
-            {$streamManagerStage.screenshare}
-          </h3>
-        )}
         {subEl}
       </div>
     </div>
@@ -160,7 +166,8 @@ StageProfilePill.propTypes = {
   textClassName: PropTypes.string,
   type: PropTypes.string,
   username: PropTypes.string.isRequired,
-  isScreenshare: PropTypes.bool
+  isScreenshare: PropTypes.bool,
+  isHost: PropTypes.bool
 };
 
 export default StageProfilePill;
