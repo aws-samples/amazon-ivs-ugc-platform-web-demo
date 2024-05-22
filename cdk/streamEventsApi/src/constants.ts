@@ -3,7 +3,7 @@ export const UNEXPECTED_EXCEPTION = 'UnexpectedException';
 
 // Event names
 export const SESSION_CREATED = 'Session Created';
-export const SESSION_ENDED = 'Session Ended';
+export const STREAM_END = 'Stream End';
 export const STARVATION_START = 'Starvation Start';
 
 // Event types
