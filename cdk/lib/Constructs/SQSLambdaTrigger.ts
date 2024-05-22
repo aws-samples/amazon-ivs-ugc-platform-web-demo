@@ -7,9 +7,8 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { DefaultLambdaParams } from '../constants';
+import { defaultLambdaParams } from '../constants';
 
 type FunctionProps = lambda.NodejsFunctionProps & {
   entryFunctionName: string;
@@ -22,7 +21,6 @@ interface SQSLambdaTriggerProps {
   dlqHandler: FunctionProps;
   srcQueueProps?: sqs.QueueProps;
   dlqQueueProps?: sqs.QueueProps;
-  defaultLambdaParams?: DefaultLambdaParams;
 }
 
 const getLambdaEntryPath = (functionName: string) =>
@@ -68,8 +66,7 @@ export default class SQSLambdaTrigger extends Construct {
         ...dlqHandlerProps
       },
       srcQueueProps,
-      dlqQueueProps,
-      defaultLambdaParams
+      dlqQueueProps
     } = props;
     const srcId = `${name}-Src`;
     const dlqId = `${name}-Dlq`;
@@ -85,6 +82,7 @@ export default class SQSLambdaTrigger extends Construct {
       entry: srcHandlerEntry || getLambdaEntryPath(srcHandlerEntryFunctionName),
       description:
         'Triggered by Amazon SQS when new messages arrive in the queue',
+      logRetention: 7,
       ...srcHandlerProps
     });
     // Dead-letter Queue Lambda Trigger

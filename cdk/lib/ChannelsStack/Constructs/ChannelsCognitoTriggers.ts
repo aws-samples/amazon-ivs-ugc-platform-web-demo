@@ -1,13 +1,10 @@
 import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { ChannelsResourceConfig, DefaultLambdaParams } from '../../constants';
+import { ChannelsResourceConfig, defaultLambdaParams } from '../../constants';
 
-interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {
-  defaultLambdaParams?: DefaultLambdaParams;
-}
+interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {}
 
 const getCognitoLambdaTriggersEntryPath = (functionName: string) =>
   join(__dirname, '../../../lambdas', 'cognitoTriggers', `${functionName}.ts`);
@@ -24,14 +21,20 @@ export default class ChannelsCognitoTriggers extends Construct {
   ) {
     super(scope, id);
 
-    const { enableUserAutoVerify, clientBaseUrl, defaultLambdaParams } = props;
+    const { logRetention, enableUserAutoVerify, clientBaseUrl } = props;
+
+    // Default lambda parameters
+    const defaultCognitoLambdaParams = {
+      ...(logRetention ? { logRetention } : {}),
+      ...defaultLambdaParams
+    };
 
     // Lambda to auto verify new users, not suitable for production
     let preSignUpLambda;
 
     if (enableUserAutoVerify) {
       preSignUpLambda = new lambda.NodejsFunction(this, 'PreSignUpLambda', {
-        ...defaultLambdaParams,
+        ...defaultCognitoLambdaParams,
         entry: getCognitoLambdaTriggersEntryPath('preSignUp'),
         environment: { ENABLE_USER_AUTO_VERIFY: `${enableUserAutoVerify}` }
       });
@@ -43,7 +46,7 @@ export default class ChannelsCognitoTriggers extends Construct {
       this,
       'CustomMessageLambda',
       {
-        ...defaultLambdaParams,
+        ...defaultCognitoLambdaParams,
         entry: getCognitoLambdaTriggersEntryPath('customMessage'),
         environment: {
           CLIENT_BASE_URL: clientBaseUrl
@@ -57,7 +60,7 @@ export default class ChannelsCognitoTriggers extends Construct {
       this,
       'PreAuthenticationLambda',
       {
-        ...defaultLambdaParams,
+        ...defaultCognitoLambdaParams,
         entry: getCognitoLambdaTriggersEntryPath('preAuthentication')
       }
     );

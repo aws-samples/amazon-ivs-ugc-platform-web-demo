@@ -4,7 +4,6 @@ import {
 } from 'aws-cdk-lib';
 import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
 import { BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
@@ -28,10 +27,14 @@ export interface ChannelsResourceConfig {
   signUpAllowedDomains: string[];
 };
 
-export interface DefaultLambdaParams {
-  logRetention?: RetentionDays;
+interface DefaultLambdaParams {
   bundling: BundlingOptions;
   runtime: Runtime;
+};
+
+export const defaultLambdaParams: DefaultLambdaParams = {
+  bundling: { minify: true },
+  runtime: Runtime.NODEJS_18_X
 };
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
