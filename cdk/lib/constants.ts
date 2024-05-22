@@ -15,7 +15,7 @@ export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   productApiLocale: string;
   productLinkRegionCode: string;
   enableAmazonProductStreamAction: boolean;
-}
+};
 
 export interface ChannelsResourceConfig {
   allowedOrigins: string[];
@@ -26,13 +26,13 @@ export interface ChannelsResourceConfig {
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
   signUpAllowedDomains: string[];
-}
+};
 
 export interface DefaultLambdaParams {
   logRetention?: RetentionDays;
   bundling: BundlingOptions;
   runtime: Runtime;
-}
+};
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
   healthCheck: { path: '/status' },

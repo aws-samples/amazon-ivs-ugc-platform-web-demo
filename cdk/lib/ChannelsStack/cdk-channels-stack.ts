@@ -74,7 +74,7 @@ export class ChannelsStack extends NestedStack {
       ...(logRetention ? { logRetention } : {}),
       bundling: { minify: true },
       runtime: Runtime.NODEJS_18_X
-    }
+    };
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =

@@ -6,7 +6,7 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ChannelsResourceConfig, DefaultLambdaParams } from '../../constants';
 
 interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {
-  defaultLambdaParams?: DefaultLambdaParams
+  defaultLambdaParams?: DefaultLambdaParams;
 }
 
 const getCognitoLambdaTriggersEntryPath = (functionName: string) =>
