@@ -3,9 +3,11 @@ import { Construct } from 'constructs';
 import { join } from 'path';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
-import { ChannelsResourceConfig } from '../../constants';
+import { ChannelsResourceConfig, DefaultLambdaParams } from '../../constants';
 
-interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {}
+interface ChannelsCognitoTriggersProps extends ChannelsResourceConfig {
+  defaultLambdaParams?: DefaultLambdaParams
+}
 
 const getCognitoLambdaTriggersEntryPath = (functionName: string) =>
   join(__dirname, '../../../lambdas', 'cognitoTriggers', `${functionName}.ts`);
@@ -22,14 +24,7 @@ export default class ChannelsCognitoTriggers extends Construct {
   ) {
     super(scope, id);
 
-    const { logRetention, enableUserAutoVerify, clientBaseUrl } = props;
-
-    // Default lambda parameters
-    const defaultLambdaParams = {
-      ...(logRetention ? { logRetention } : {}),
-      bundling: { minify: true },
-      runtime: Runtime.NODEJS_16_X
-    };
+    const { enableUserAutoVerify, clientBaseUrl, defaultLambdaParams } = props;
 
     // Lambda to auto verify new users, not suitable for production
     let preSignUpLambda;

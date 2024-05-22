@@ -19,11 +19,13 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
-  ChannelsResourceConfig
+  ChannelsResourceConfig,
+  DefaultLambdaParams
 } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
@@ -63,15 +65,23 @@ export class ChannelsStack extends NestedStack {
       enableUserAutoVerify,
       ivsAdvancedChannelTranscodePreset,
       ivsChannelType,
-      signUpAllowedDomains
+      signUpAllowedDomains,
+      logRetention
     } = resourceConfig;
+
+    // Default lambda parameters
+    const defaultLambdaParams: DefaultLambdaParams = {
+      ...(logRetention ? { logRetention } : {}),
+      bundling: { minify: true },
+      runtime: Runtime.NODEJS_18_X
+    }
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
       new ChannelsCognitoTriggers(
         this,
         `${nestedStackName}-ChannelsCognitoTriggers`,
-        { ...resourceConfig }
+        { ...resourceConfig, defaultLambdaParams }
       );
 
     // Cognito User Pool
@@ -277,7 +287,8 @@ export class ChannelsStack extends NestedStack {
             entryFunctionName: 'updateVersionIdDlq',
             description:
               'Triggered by an Amazon SQS DLQ to handle S3 event message consumption failures when updating the channel asset versionIds, and to manage the life cycle of unconsumed messages'
-          }
+          },
+          defaultLambdaParams
         }
       );
 
@@ -406,9 +417,7 @@ export class ChannelsStack extends NestedStack {
       this,
       `${stackNamePrefix}-CleanupUnverifiedUsers-Handler`,
       {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
+        ...defaultLambdaParams,
         functionName: `${stackNamePrefix}-CleanupUnverifiedUsers`,
         entry: getLambdaEntryPath('cleanupUnverifiedUsers'),
         timeout: Duration.minutes(10),

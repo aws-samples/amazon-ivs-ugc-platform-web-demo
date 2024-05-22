@@ -3,6 +3,9 @@ import {
   aws_logs as logs
 } from 'aws-cdk-lib';
 import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
+import { BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   deploySeparateContainers: boolean;
@@ -23,6 +26,12 @@ export interface ChannelsResourceConfig {
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
   signUpAllowedDomains: string[];
+}
+
+export interface DefaultLambdaParams {
+  logRetention?: RetentionDays;
+  bundling: BundlingOptions;
+  runtime: Runtime;
 }
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
