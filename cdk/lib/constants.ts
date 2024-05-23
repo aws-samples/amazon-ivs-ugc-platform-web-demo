@@ -1,8 +1,10 @@
 import {
   aws_elasticloadbalancingv2 as elbv2,
+  aws_lambda_nodejs as lambda,
   aws_logs as logs
 } from 'aws-cdk-lib';
 import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   deploySeparateContainers: boolean;
@@ -24,6 +26,11 @@ export interface ChannelsResourceConfig {
   minScalingCapacity: number;
   signUpAllowedDomains: string[];
 }
+
+export const defaultLambdaParams: Partial<lambda.NodejsFunctionProps> = {
+  bundling: { minify: true },
+  runtime: Runtime.NODEJS_18_X
+};
 
 export const defaultTargetProps: Partial<elbv2.AddApplicationTargetsProps> = {
   healthCheck: { path: '/status' },

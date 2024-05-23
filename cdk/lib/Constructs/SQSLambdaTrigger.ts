@@ -7,7 +7,9 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+
+import { defaultLambdaParams } from '../constants';
 
 type FunctionProps = lambda.NodejsFunctionProps & {
   entryFunctionName: string;
@@ -74,28 +76,24 @@ export default class SQSLambdaTrigger extends Construct {
      * Lambda Triggers
      */
 
-    const defaultLambdaProps = {
-      bundling: { minify: true },
-      runtime: Runtime.NODEJS_16_X
-    };
     // Source Queue Lambda Trigger
     this.srcLambda = new lambda.NodejsFunction(this, `${srcId}-Lambda`, {
-      ...defaultLambdaProps,
+      ...defaultLambdaParams,
       functionName: `${srcId}-handler`,
       entry: srcHandlerEntry || getLambdaEntryPath(srcHandlerEntryFunctionName),
       description:
         'Triggered by Amazon SQS when new messages arrive in the queue',
-      logRetention: 7,
+      logRetention: RetentionDays.ONE_WEEK,
       ...srcHandlerProps
     });
     // Dead-letter Queue Lambda Trigger
     this.dlqLambda = new lambda.NodejsFunction(this, `${dlqId}-Lambda`, {
-      ...defaultLambdaProps,
+      ...defaultLambdaParams,
       functionName: `${dlqId}-handler`,
       entry: dlqHandlerEntry || getLambdaEntryPath(dlqHandlerEntryFunctionName),
       description:
         'Triggered by Amazon SQS to handle message consumption failures and gracefully manage the life cycle of unconsumed messages',
-      logRetention: 14,
+      logRetention: RetentionDays.TWO_WEEKS,
       ...dlqHandlerProps
     });
 

@@ -5,7 +5,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   LIMIT_BREACH_EVENT_TYPE,
   SESSION_CREATED,
-  SESSION_ENDED,
+  STREAM_END,
   STARVATION_START,
   STREAM_HEALTH_CHANGE_EVENT_TYPE,
   UNEXPECTED_EXCEPTION
@@ -137,15 +137,15 @@ const handler = async (
       additionalAttributes.startTime = eventTime;
 
       if (
-        // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED event
-        !streamEvents.find((streamEvent) => streamEvent.name === SESSION_ENDED)
+        // Handle the case where a SESSION_CREATED event is dispatched after a STREAM_END event
+        !streamEvents.find((streamEvent) => streamEvent.name === STREAM_END)
       ) {
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
       }
     }
 
-    if (eventName === SESSION_ENDED) {
+    if (eventName === STREAM_END) {
       additionalAttributes.endTime = eventTime;
       attributesToRemove.push('isOpen');
     }

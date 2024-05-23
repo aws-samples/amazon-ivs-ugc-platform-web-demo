@@ -9,7 +9,7 @@ import * as sharedHelpers from '../helpers';
 import buildServer from '../buildServer';
 import {
   SESSION_CREATED,
-  SESSION_ENDED,
+  STREAM_END,
   STREAM_HEALTH_CHANGE_EVENT_TYPE,
   UNEXPECTED_EXCEPTION
 } from '../constants';
@@ -301,9 +301,9 @@ describe('postStreamEvents', () => {
     });
   });
 
-  describe('SESSION_ENDED', () => {
+  describe('STREAM_END', () => {
     beforeAll(() => {
-      requestBody.detail.event_name = SESSION_ENDED;
+      requestBody.detail.event_name = STREAM_END;
     });
 
     it('should return a 200 status code when all dynamoDB are successful', async () => {
