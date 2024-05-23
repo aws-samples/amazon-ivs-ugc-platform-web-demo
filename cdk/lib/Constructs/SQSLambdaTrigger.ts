@@ -7,6 +7,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 import { defaultLambdaParams } from '../constants';
 
@@ -82,7 +83,7 @@ export default class SQSLambdaTrigger extends Construct {
       entry: srcHandlerEntry || getLambdaEntryPath(srcHandlerEntryFunctionName),
       description:
         'Triggered by Amazon SQS when new messages arrive in the queue',
-      logRetention: 7,
+      logRetention: RetentionDays.ONE_WEEK,
       ...srcHandlerProps
     });
     // Dead-letter Queue Lambda Trigger
@@ -92,7 +93,7 @@ export default class SQSLambdaTrigger extends Construct {
       entry: dlqHandlerEntry || getLambdaEntryPath(dlqHandlerEntryFunctionName),
       description:
         'Triggered by Amazon SQS to handle message consumption failures and gracefully manage the life cycle of unconsumed messages',
-      logRetention: 14,
+      logRetention: RetentionDays.TWO_WEEKS,
       ...dlqHandlerProps
     });
 

@@ -18,6 +18,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 import {
@@ -63,8 +64,7 @@ export class ChannelsStack extends NestedStack {
       enableUserAutoVerify,
       ivsAdvancedChannelTranscodePreset,
       ivsChannelType,
-      signUpAllowedDomains,
-      logRetention
+      signUpAllowedDomains
     } = resourceConfig;
 
     // Cognito Lambda triggers
@@ -408,7 +408,7 @@ export class ChannelsStack extends NestedStack {
       `${stackNamePrefix}-CleanupUnverifiedUsers-Handler`,
       {
         ...defaultLambdaParams,
-        logRetention: 7,
+        logRetention: RetentionDays.ONE_WEEK,
         functionName: `${stackNamePrefix}-CleanupUnverifiedUsers`,
         entry: getLambdaEntryPath('cleanupUnverifiedUsers'),
         timeout: Duration.minutes(10),
