@@ -1,9 +1,9 @@
 import {
   aws_elasticloadbalancingv2 as elbv2,
+  aws_lambda_nodejs as lambda,
   aws_logs as logs
 } from 'aws-cdk-lib';
 import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
-import { BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
@@ -14,7 +14,7 @@ export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
   productApiLocale: string;
   productLinkRegionCode: string;
   enableAmazonProductStreamAction: boolean;
-};
+}
 
 export interface ChannelsResourceConfig {
   allowedOrigins: string[];
@@ -25,14 +25,9 @@ export interface ChannelsResourceConfig {
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
   signUpAllowedDomains: string[];
-};
+}
 
-interface DefaultLambdaParams {
-  bundling: BundlingOptions;
-  runtime: Runtime;
-};
-
-export const defaultLambdaParams: DefaultLambdaParams = {
+export const defaultLambdaParams: Partial<lambda.NodejsFunctionProps> = {
   bundling: { minify: true },
   runtime: Runtime.NODEJS_18_X
 };
