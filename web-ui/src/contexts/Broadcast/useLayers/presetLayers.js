@@ -1,4 +1,4 @@
-import { CAMERA_LAYER_NAME } from '.';
+import { VIDEO_LAYER_NAME } from '.';
 import { VideoCameraOff } from '../../../assets/icons';
 import { IMAGE_LAYER_TYPE } from './layers';
 
@@ -22,7 +22,7 @@ export const createNoCameraLayerPreset = ({ addImageLayer, removeLayer }) => ({
   add: () =>
     addImageLayer(NO_CAMERA_LAYER_NAME, {
       tag: IMAGE_LAYER_TYPE.CANVAS,
-      layerGroupId: CAMERA_LAYER_NAME,
+      layerGroupId: VIDEO_LAYER_NAME,
       position: { index: 2 },
       fill: 'hsl(0, 0%, 80%)',
       drawings: ({ width: canvasWidth, height: canvasHeight }) => [

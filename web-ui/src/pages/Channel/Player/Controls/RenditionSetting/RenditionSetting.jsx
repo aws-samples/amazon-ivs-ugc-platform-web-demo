@@ -13,10 +13,10 @@ import useDidChange from '../../../../../hooks/useDidChange';
 export const POPUP_ID = 'rendition';
 
 const RenditionSetting = ({
-  className,
-  isDisabled,
-  isExpanded,
-  qualities,
+  className = '',
+  isDisabled = false,
+  isExpanded = false,
+  qualities = [{ name: 'Auto' }],
   selectedQualityName,
   setOpenPopupIds,
   updateQuality
@@ -93,13 +93,6 @@ const RenditionSetting = ({
       )}
     </div>
   );
-};
-
-RenditionSetting.defaultProps = {
-  isDisabled: false,
-  isExpanded: false,
-  qualities: [{ name: 'Auto' }],
-  className: ''
 };
 
 RenditionSetting.propTypes = {

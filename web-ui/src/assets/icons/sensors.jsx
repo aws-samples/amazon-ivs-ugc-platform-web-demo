@@ -8,7 +8,7 @@ const BASE_GROUP_CLASSES = [
 ];
 
 // https://fonts.google.com/icons?selected=Material%20Icons%20Round%3Asensors%3A
-const Sensors = ({ isLive }) => (
+const Sensors = ({ isLive = false }) => (
   <svg
     width="36"
     height="36"
@@ -54,10 +54,6 @@ const Sensors = ({ isLive }) => (
 
 Sensors.propTypes = {
   isLive: PropTypes.bool
-};
-
-Sensors.defaultProps = {
-  isLive: false
 };
 
 export default Sensors;

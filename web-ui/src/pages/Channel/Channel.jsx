@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 
 import { channel as $channelContent } from '../../content';
-import { clsm } from '../../utils';
-import { Provider as NotificationProvider } from '../../contexts/Notification';
+import { clsm, extractChannelIdfromChannelArn } from '../../utils';
+import {
+  Provider as NotificationProvider,
+  useNotif
+} from '../../contexts/Notification';
 import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as PlayerProvider } from './contexts/Player';
 import { sanitizeAmazonProductData } from '../../helpers/streamActionHelpers';
@@ -26,12 +29,77 @@ import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
 import Poll from './Chat/Poll/Poll';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
+import { useGlobalStage } from '../../contexts/Stage';
+import { player as $playerContent } from '../../content';
+import Notification from '../../components/Notification/Notification';
+import { useAppSync } from '../../contexts/AppSync';
+import channelEvents from '../../contexts/AppSync/channelEvents';
+import { useUser } from '../../contexts/User';
+import { apiBaseUrl } from '../../api/utils';
+import { useStageManager } from '../../contexts/StageManager';
+import { useLocation, useNavigate, useRevalidator } from 'react-router-dom';
+import usePrevious from '../../hooks/usePrevious';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
-  const { channelError } = useChannel();
+  const { channelError, channelData: { userStageId, channelArn } = {} } =
+    useChannel();
+
+  const revalidator = useRevalidator();
+
+  const {
+    updateError,
+    error: stageError,
+    success: stageSuccessMessage,
+    updateSuccess,
+    requestingToJoinStage,
+    updateRequestingToJoinStage
+  } = useGlobalStage();
+  const { notifyError, notifySuccess } = useNotif();
+  const { publish } = useAppSync();
+  const { userData } = useUser();
+
+  useEffect(() => {
+    if (stageSuccessMessage) {
+      if (
+        stageSuccessMessage ===
+        $channelContent.notifications.success.request_to_join_stage_success
+      ) {
+        notifySuccess(stageSuccessMessage);
+      }
+
+      updateSuccess(null);
+    }
+
+    if (stageError) {
+      const { message, err } = stageError;
+      if (err) console.error(err, message);
+
+      if (
+        message ===
+          $channelContent.notifications.error.request_to_join_stage_fail ||
+        message === $playerContent.notification.error.error_loading_stream
+      ) {
+        notifyError(message);
+      }
+
+      updateError(null);
+    }
+
+    return;
+  }, [
+    stageError,
+    notifyError,
+    updateError,
+    stageSuccessMessage,
+    notifySuccess,
+    updateSuccess
+  ]);
+
+  const { user: userStage = null, isEnterLock } = useStageManager() || {};
+  const { isUserStageConnected } = userStage || {};
   const { isLandscape, isMobileView } = useResponsiveDevice();
   const { isStackedView, isSplitView } = useChannelView();
   const { getProfileViewAnimationProps, chatAnimationControls } =
@@ -44,20 +112,28 @@ const Channel = () => {
     shouldRenderActionInTab,
     isChannelPageStackedView
   } = useViewerStreamActions();
-  const { isActive: isPollActive, pollTabLabel, hasVotes } = usePoll();
+  const {
+    isActive: isPollActive,
+    pollTabLabel,
+    hasVotes,
+    shouldHideActivePoll
+  } = usePoll();
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
   const channelRef = useRef();
   const chatSectionRef = useRef();
   const isMounted = useMount();
+  const shouldDisplayStagePlayer = isUserStageConnected;
 
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
   else if (isStackedView) visibleChatWidth = '100%';
 
   const isTabView =
-    shouldRenderActionInTab || (isPollActive && isChannelPageStackedView);
+    shouldRenderActionInTab ||
+    (isPollActive && isChannelPageStackedView && !shouldHideActivePoll);
 
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
@@ -79,16 +155,85 @@ const Channel = () => {
   }, [isMobileView, isStackedView]);
 
   useResize(updateChatSectionHeight, { shouldCallOnMount: true });
-
   // Ensures we have computed and set the chat section min-height before the first render
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();
   }, [isMounted, updateChatSectionHeight]);
 
+  const prevUserStageId = usePrevious(userStageId);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (
+      revalidator.state === 'idle' &&
+      userStageId &&
+      prevUserStageId !== userStageId
+    ) {
+      revalidator.revalidate();
+    }
+  }, [
+    userStageId,
+    navigate,
+    pathname,
+    revalidator,
+    prevUserStageId,
+    isEnterLock
+  ]);
+
+  // Triggered when navigating away from the channel page
+  useEffect(() => {
+    return () => {
+      if (channelArn) {
+        const channelId = extractChannelIdfromChannelArn(channelArn);
+
+        publish(
+          channelId,
+          JSON.stringify({
+            type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
+            channelId: userData?.channelId?.toLowerCase()
+          })
+        );
+
+        updateRequestingToJoinStage(false);
+      }
+    };
+  }, [channelArn, publish, updateRequestingToJoinStage, userData?.channelId]);
+
+  // Triggered on page refresh or closed tab
+  const beforeUnloadHandler = useCallback(() => {
+    queueMicrotask(() => {
+      setTimeout(() => {
+        const channelId =
+          channelArn && extractChannelIdfromChannelArn(channelArn);
+        const body = {
+          senderChannelId: userData?.channelId.toLowerCase(),
+          receiverChannelId: channelId
+        };
+
+        // GraphQL API will throw a RequestAbortedException if attempting to do a AppSync publish here
+        if (requestingToJoinStage) {
+          navigator.sendBeacon(
+            `${apiBaseUrl}/stages/revokeStageRequest`,
+            JSON.stringify(body)
+          );
+        }
+      }, 0);
+    });
+  }, [channelArn, requestingToJoinStage, userData?.channelId]);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+    };
+  }, [beforeUnloadHandler]);
+
   if (channelError) return <PageUnavailable />;
 
   return (
     <PlayerProvider>
+      <Notification />
       <div
         className={clsm([
           'flex',
@@ -113,9 +258,10 @@ const Channel = () => {
         ])}
         ref={channelRef}
       >
-        <NotificationProvider>
-          <Player chatSectionRef={chatSectionRef} />
-        </NotificationProvider>
+        <Player
+          chatSectionRef={chatSectionRef}
+          stagePlayerVisible={shouldDisplayStagePlayer}
+        />
         <ProductDescriptionModal />
         <motion.section
           {...getProfileViewAnimationProps(
@@ -187,7 +333,9 @@ const Channel = () => {
                     {hasVotes && (
                       <NotificationProvider>
                         <ChatProvider>
-                          <Poll shouldRenderInTab={true} />
+                          {!shouldHideActivePoll && (
+                            <Poll shouldRenderInTab={true} />
+                          )}
                         </ChatProvider>
                       </NotificationProvider>
                     )}
@@ -245,7 +393,9 @@ const Channel = () => {
               >
                 <NotificationProvider>
                   <ChatProvider>
-                    {!isTabView && hasVotes && <Poll />}
+                    {!isTabView && hasVotes && !shouldHideActivePoll && (
+                      <Poll />
+                    )}
                     <Chat
                       shouldRunCelebration={
                         currentViewerStreamActionName ===

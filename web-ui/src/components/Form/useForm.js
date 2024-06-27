@@ -5,6 +5,10 @@ import { useNotif } from '../../contexts/Notification';
 import { userManagement as $content } from '../../content';
 import { validateForm, defaultErrorHandler } from './validateForm';
 
+export const FORM_TYPES = {
+  SIGN_IN: 'signIn'
+};
+
 const camelize = (str) =>
   str
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, i) =>
@@ -12,16 +16,26 @@ const camelize = (str) =>
     )
     .replace(/\s+/g, '');
 
-const defaultInputProps = (inputLabel, isConfirm) => {
+const getPlaceholder = (type, isConfirm, inputLabel) => {
+  const label =
+    inputLabel === 'username' && type === FORM_TYPES.SIGN_IN
+      ? $content.form.username_or_email
+      : inputLabel.toLowerCase();
+
+  return `${
+    isConfirm ? $content.form.confirm_your : $content.form.enter_your
+  } ${label}`;
+};
+
+const defaultInputProps = (type, inputLabel, isConfirm) => {
   const label = isConfirm ? `${$content.confirm} ${inputLabel}` : inputLabel;
+  const placeholder = getPlaceholder(type, isConfirm, inputLabel);
 
   return {
     isRequired: true,
     label: label.charAt(0).toUpperCase() + label.slice(1),
     name: camelize(label),
-    placeholder: `${
-      isConfirm ? $content.form.confirm_your : $content.form.enter_your
-    } ${inputLabel.toLowerCase()}`,
+    placeholder,
     error: null,
     ...(isConfirm && {
       footer: null,
@@ -33,12 +47,12 @@ const defaultInputProps = (inputLabel, isConfirm) => {
   };
 };
 
-const generateInputProps = (inputsData) =>
+const generateInputProps = (inputsData, type) =>
   Object.entries(inputsData).reduce((inputProps, [inputLabel, options]) => {
     const { confirmedBy, ...restOptions } = options;
     const camelizedInputLabel = camelize(inputLabel);
     inputProps[camelizedInputLabel] = {
-      ...defaultInputProps(inputLabel),
+      ...defaultInputProps(type, inputLabel),
       ...options
     };
 
@@ -46,7 +60,7 @@ const generateInputProps = (inputsData) =>
       // Add another input that will be used to confirm this input
       const confirmProps = {
         ...restOptions,
-        ...defaultInputProps(inputLabel, true)
+        ...defaultInputProps(type, inputLabel, true)
       };
       inputProps[confirmedBy] = confirmProps;
     }
@@ -61,9 +75,12 @@ const useForm = ({
   onFailure = noop,
   onSuccess = noop,
   submitHandler,
-  validationCheck = noop
+  validationCheck = noop,
+  type
 }) => {
-  const [formProps, setFormProps] = useState(generateInputProps(inputsData));
+  const [formProps, setFormProps] = useState(
+    generateInputProps(inputsData, type)
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { notifyError } = useNotif();
 

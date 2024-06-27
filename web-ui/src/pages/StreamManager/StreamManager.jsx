@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import { clsm } from '../../utils';
-import { Provider as NotificationProvider } from '../../contexts/Notification';
+import {
+  Provider as NotificationProvider,
+  useNotif
+} from '../../contexts/Notification';
 import { Provider as PollProvider } from '../../contexts/StreamManagerActions/Poll';
 import { Provider as ChatProvider } from '../../contexts/Chat';
 import { Provider as StreamManagerActionsProvider } from '../../contexts/StreamManagerActions';
 import { Provider as StreamManagerWebBroadcastProvider } from '../../contexts/Broadcast';
-import { useRef } from 'react';
+import { Provider as BroadcastFullscreenProvider } from '../../contexts/BroadcastFullscreen';
 import { useStreams } from '../../contexts/Streams';
 import { useUser } from '../../contexts/User';
 import Notification from '../../components/Notification';
@@ -14,6 +17,7 @@ import StatusBar from '../../components/StatusBar';
 import StreamManagerControlCenter from './StreamManagerControlCenter';
 import useStreamSessionData from '../../contexts/Streams/useStreamSessionData';
 import withVerticalScroller from '../../components/withVerticalScroller';
+import { useGlobal } from '../../contexts/Stage/Global';
 
 const StreamManager = () => {
   const { isLive, streamSessions, setStreamSessions } = useStreams();
@@ -33,6 +37,29 @@ const StreamManager = () => {
       updateStreamSessionDataFetchKey(latestStreamSession);
     }
   }, [isLive, streamSessions, updateStreamSessionDataFetchKey]);
+
+  /**
+   * Notify stage success and errors
+   */
+  const { success, error, updateSuccess, updateError } = useGlobal();
+  const { notifyError, notifySuccess } = useNotif();
+
+  useEffect(() => {
+    if (error) {
+      const { message, err } = error;
+      if (err) console.error(err, message);
+
+      if (message) notifyError(message, { asPortal: true });
+
+      updateError(null);
+    }
+
+    if (success) {
+      notifySuccess(success, { asPortal: true });
+
+      updateSuccess(null);
+    }
+  }, [success, error, updateSuccess, updateError, notifyError, notifySuccess]);
 
   return (
     <div
@@ -63,15 +90,17 @@ const StreamManager = () => {
             ingestEndpoint={ingestEndpoint}
             streamKey={streamKey}
           >
-            <ChatProvider>
-              <StreamManagerActionsProvider>
-                <Notification />
-                <StreamManagerControlCenter
-                  ref={previewRef}
-                  setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
-                />
-              </StreamManagerActionsProvider>
-            </ChatProvider>
+            <BroadcastFullscreenProvider previewRef={previewRef}>
+              <ChatProvider>
+                <StreamManagerActionsProvider>
+                  <Notification />
+                  <StreamManagerControlCenter
+                    ref={previewRef}
+                    setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
+                  />
+                </StreamManagerActionsProvider>
+              </ChatProvider>
+            </BroadcastFullscreenProvider>
           </StreamManagerWebBroadcastProvider>
         </NotificationProvider>
       </PollProvider>

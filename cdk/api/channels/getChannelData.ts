@@ -19,7 +19,7 @@ import {
 } from '../shared/helpers';
 import { getUser, getUserByUsername } from '../channel/helpers';
 import { StreamSessionDbRecord } from '../shared/helpers';
-import authorizer from '../channel/authorizer';
+import authorizer from '../shared/authorizer';
 
 interface GetChannelDataResponseBody extends ResponseBody {
   avatar?: string;
@@ -33,6 +33,9 @@ interface GetChannelDataResponseBody extends ResponseBody {
   playbackUrl?: string;
   username?: string;
   channelArn?: string;
+  userStageId?: string;
+  displayStageId?: string;
+  stageCreationDate?: string;
 }
 
 interface GetChannelDataParams {
@@ -80,7 +83,10 @@ const handler = async (
       color,
       playbackUrl,
       username,
-      id: channelSub
+      id: channelSub,
+      userStageId,
+      displayStageId,
+      stageCreationDate
     } = unmarshall(UserItems[0]);
 
     responseBody.avatar = avatar;
@@ -91,6 +97,9 @@ const handler = async (
     responseBody.isViewerFollowing = false;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
     responseBody.channelArn = channelArn;
+    responseBody.userStageId = userStageId;
+    responseBody.displayStageId = displayStageId;
+    responseBody.stageCreationDate = stageCreationDate;
 
     if (viewerSub) {
       try {

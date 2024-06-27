@@ -11,13 +11,13 @@ export const ICON_TYPE = { IMAGE: 'image', COLOR: 'color' };
 const commonIconClasses = ['h-12', 'w-12', 'rounded-full'];
 
 const Icon = ({
-  isLoading,
-  isSelected,
-  CustomMarker,
-  name,
-  onClick,
+  isLoading = false,
+  isSelected = false,
+  CustomMarker = null,
+  name = '',
+  onClick = noop,
   type,
-  value
+  value = ''
 }) => {
   let _Icon;
   if (type === ICON_TYPE.IMAGE) {
@@ -112,15 +112,6 @@ Icon.propTypes = {
   onClick: PropTypes.func,
   type: PropTypes.oneOf(Object.values(ICON_TYPE)).isRequired,
   value: PropTypes.string
-};
-
-Icon.defaultProps = {
-  CustomMarker: null,
-  isLoading: false,
-  isSelected: false,
-  name: '',
-  onClick: noop,
-  value: ''
 };
 
 export default Icon;

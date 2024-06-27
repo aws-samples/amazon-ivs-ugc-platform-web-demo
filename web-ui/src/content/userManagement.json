@@ -25,6 +25,7 @@
     "username": "Username",
     "password": "Password",
     "email": "Email",
+    "username_or_email": "username or email address",
     "confirm": "Confirm",
     "enter_your": "Enter your",
     "confirm_your": "Confirm your"

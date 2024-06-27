@@ -5,7 +5,7 @@ import { clsm } from '../../../../../../../utils';
 import { createAnimationProps } from '../../../../../../../helpers/animationPropsHelper';
 import Spinner from '../../../../../../../components/Spinner';
 
-const ProductResultsLoader = ({ className }) => (
+const ProductResultsLoader = ({ className = '' }) => (
   <motion.div
     key={'results-loader'}
     {...createAnimationProps({
@@ -20,10 +20,6 @@ const ProductResultsLoader = ({ className }) => (
 
 ProductResultsLoader.propTypes = {
   className: PropTypes.string
-};
-
-ProductResultsLoader.defaultProps = {
-  className: ''
 };
 
 export default ProductResultsLoader;

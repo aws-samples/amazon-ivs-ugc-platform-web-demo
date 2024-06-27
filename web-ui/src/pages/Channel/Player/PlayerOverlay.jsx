@@ -8,10 +8,10 @@ const POSITION = { TOP: 'top', BOTTOM: 'bottom' };
 
 const PlayerOverlay = ({
   children,
-  className,
-  isGradientVisible,
+  className = '',
+  isGradientVisible = true,
   isVisible,
-  position
+  position = 'bottom'
 }) => (
   <motion.div
     {...createAnimationProps({
@@ -67,12 +67,6 @@ PlayerOverlay.propTypes = {
   isGradientVisible: PropTypes.bool,
   isVisible: PropTypes.bool.isRequired,
   position: PropTypes.oneOf(Object.values(POSITION))
-};
-
-PlayerOverlay.defaultProps = {
-  className: '',
-  isGradientVisible: true,
-  position: 'bottom'
 };
 
 export default PlayerOverlay;

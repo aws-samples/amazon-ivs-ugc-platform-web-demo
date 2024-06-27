@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CAMERA_LAYER_NAME } from '../useLayers';
+import { VIDEO_LAYER_NAME } from '../useLayers';
 import { captureScreenShareStream } from './utils';
 import { streamManager as $streamManagerContent } from '../../../content';
 import useLatest from '../../../hooks/useLatest';
@@ -35,7 +35,7 @@ const useScreenShare = ({
   const updateCameraLayerGroupComposition = useCallback(
     (shouldShowCamera) =>
       updateLayerGroup(
-        CAMERA_LAYER_NAME,
+        VIDEO_LAYER_NAME,
         ({ width: canvasWidth, height: canvasHeight }) => ({
           width: shouldShowCamera ? canvasWidth / CAMERA_SIZE_DIVISOR : 0,
           height: shouldShowCamera ? canvasHeight / CAMERA_SIZE_DIVISOR : 0,
@@ -55,7 +55,7 @@ const useScreenShare = ({
     // Stop and close the media tracks bound to the shared screen
     for (const track of screenCaptureStreamTracks.current) track.stop();
 
-    updateLayerGroup(CAMERA_LAYER_NAME, {});
+    updateLayerGroup(VIDEO_LAYER_NAME, {});
     removeLayer(SCREEN_SHARE_VIDEO_LAYER_NAME);
     removeAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME);
     setScreenCaptureStream(null);

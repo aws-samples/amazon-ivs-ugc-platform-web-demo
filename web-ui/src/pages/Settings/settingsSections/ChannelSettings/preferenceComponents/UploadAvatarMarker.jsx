@@ -5,7 +5,7 @@ import { Close } from '../../../../../assets/icons';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 
-const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
+const UploadAvatarMarker = ({ isOpen = true, isUploaded = true }) => (
   <>
     <motion.span
       {...createAnimationProps({
@@ -42,11 +42,6 @@ const UploadAvatarMarker = ({ isOpen, isUploaded }) => (
 UploadAvatarMarker.propTypes = {
   isOpen: PropTypes.bool,
   isUploaded: PropTypes.bool
-};
-
-UploadAvatarMarker.defaultProps = {
-  isOpen: true,
-  isUploaded: true
 };
 
 export default UploadAvatarMarker;

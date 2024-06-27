@@ -132,16 +132,19 @@ export default class SQSLambdaTrigger extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       retentionPeriod
     };
+    const isFifoQueue =
+      dlqQueueProps?.hasOwnProperty('fifo') && dlqQueueProps?.fifo === true;
+
     // Dead-letter Queue
     this.dlqQueue = new sqs.Queue(this, `${dlqId}-Queue`, {
       ...defaultQueueProps,
-      queueName: dlqId,
+      queueName: `${dlqId}${isFifoQueue ? '.fifo' : ''}`,
       ...dlqQueueProps
     });
     // Source Queue
     this.srcQueue = new sqs.Queue(this, `${srcId}-Queue`, {
       ...defaultQueueProps,
-      queueName: srcId,
+      queueName: `${srcId}${isFifoQueue ? '.fifo' : ''}`,
       visibilityTimeout,
       deadLetterQueue: {
         maxReceiveCount: 5, // maxReceiveCount allows for throttled messages to get processed after a burst of messages
@@ -151,10 +154,12 @@ export default class SQSLambdaTrigger extends Construct {
     });
 
     // Add the Source Queue and DLQ as Event Sources to the Lambda function handlers
-    const defaultEventSourceProps = {
-      batchSize: 10, // Process SQS messages in batches of 10
-      maxBatchingWindow
-    };
+    const defaultEventSourceProps = isFifoQueue
+      ? {}
+      : {
+          batchSize: 10, // Process SQS messages in batches of 10
+          maxBatchingWindow
+        };
     this.srcLambda.addEventSource(
       new eventSources.SqsEventSource(this.srcQueue, {
         ...defaultEventSourceProps,

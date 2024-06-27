@@ -1,24 +1,15 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
-import {
-  DisconnectUserCommand,
-  SendEventCommand
-} from '@aws-sdk/client-ivschat';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 
-import {
-  dynamoDbClient,
-  getUserByChannelArn,
-  isIvsChatError,
-  ivsChatClient
-} from '../../shared/helpers';
+import { dynamoDbClient, getUserByChannelArn } from '../../shared/helpers';
 import { getUser } from '../helpers';
 import {
   UNEXPECTED_EXCEPTION,
   BAN_USER_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 type BanUserRequestBody = { bannedChannelArn?: string };
 
@@ -30,7 +21,7 @@ const handler = async (
     'user'
   ) as UserContext;
   const { bannedChannelArn } = request.body;
-  let chatRoomArn, chatRoomOwnerChannelArn, bannedUsername;
+  let chatRoomOwnerChannelArn;
 
   // Check input
   if (!bannedChannelArn) {
@@ -46,8 +37,7 @@ const handler = async (
   // Retrieve the chat room data for the requester's channel
   try {
     const { Item: UserItem = {} } = await getUser(sub);
-    ({ chatRoomArn, channelArn: chatRoomOwnerChannelArn } =
-      unmarshall(UserItem));
+    ({ channelArn: chatRoomOwnerChannelArn } = unmarshall(UserItem));
 
     // Disallow users from banning themselves from their own channel
     if (bannedChannelArn === chatRoomOwnerChannelArn) {
@@ -83,8 +73,7 @@ const handler = async (
     }
 
     // Add the bannedUserSub to the bannedUserSubs set in the user table
-    const { id: bannedUserSub, username } = unmarshall(BannedUserItems[0]);
-    bannedUsername = username;
+    const { id: bannedUserSub } = unmarshall(BannedUserItems[0]);
 
     await dynamoDbClient.send(
       new UpdateItemCommand({

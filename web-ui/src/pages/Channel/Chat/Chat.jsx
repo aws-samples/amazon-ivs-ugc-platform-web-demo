@@ -1,6 +1,7 @@
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 import { BREAKPOINTS, MODERATOR_PILL_TIMEOUT } from '../../../constants';
 import { channel as $channelContent } from '../../../content';
@@ -18,14 +19,16 @@ import ConnectingOverlay from './ConnectingOverlay';
 import Messages from './Messages';
 import Notification from '../../../components/Notification';
 import useResizeObserver from '../../../hooks/useResizeObserver';
+import RequestToJoinStageButton from './RequestToJoinStageButton';
+import { useStageManager } from '../../../contexts/StageManager';
 
 const $content = $channelContent.chat;
 
-const Chat = ({ shouldRunCelebration }) => {
+const Chat = ({ shouldRunCelebration = false }) => {
   const [chatContainerDimensions, setChatContainerDimensions] = useState();
   const { channelData, isChannelLoading } = useChannel();
 
-  const { color: channelColor } = channelData || {};
+  const { color: channelColor, isViewerBanned } = channelData || {};
   const { isSessionValid, userData } = useUser();
   const { notifyError, notifySuccess, notifyInfo } = useNotif();
   const {
@@ -62,6 +65,32 @@ const Chat = ({ shouldRunCelebration }) => {
   const isModerator = chatUserRole === CHAT_USER_ROLE.MODERATOR;
   const [isChatPopupOpen, setIsChatPopupOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState({});
+  const { pathname } = useLocation();
+
+  let channelId = '';
+
+  if (channelData?.channelArn)
+    channelId = extractChannelIdfromChannelArn(channelData?.channelArn);
+  const isChannelOwner = channelId === userData?.channelId?.toLowerCase();
+  const { user: userStage } = useStageManager() || {};
+  const isSpectatorInMeet =
+    isChannelOwner ||
+    userStage
+      ?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      })
+      .some(
+        (participant) => participant.attributes.username === userData?.username
+      );
+
+  const isRequestButtonVisible =
+    channelData?.userStageId &&
+    isSessionValid &&
+    !isViewerBanned &&
+    !pathname.includes('/manager') &&
+    !isSpectatorInMeet;
+
   const openChatPopup = useCallback(
     (messageData) => {
       setIsChatPopupOpen(true);
@@ -166,14 +195,28 @@ const Chat = ({ shouldRunCelebration }) => {
         />
         <ConnectingOverlay isLoading={isLoading} />
         {(!isMobileView || isSessionValid) && (
-          <Composer
-            chatUserRole={chatUserRole}
-            isDisabled={hasConnectionError}
-            isFocusable={!isChatPopupOpen}
-            isLoading={isLoading}
-            sendAttemptError={sendAttemptError}
-            sendMessage={actions.sendMessage}
-          />
+          <div
+            className={clsm([
+              'flex',
+              'flex-row',
+              'w-full',
+              'pt-5',
+              'pb-6',
+              'px-[18px]',
+              isRequestButtonVisible && ['gap-3']
+            ])}
+          >
+            <Composer
+              isRequestButtonVisible={isRequestButtonVisible}
+              chatUserRole={chatUserRole}
+              isDisabled={hasConnectionError}
+              isFocusable={!isChatPopupOpen}
+              isLoading={isLoading}
+              sendAttemptError={sendAttemptError}
+              sendMessage={actions.sendMessage}
+            />
+            {isRequestButtonVisible && <RequestToJoinStageButton />}
+          </div>
         )}
       </div>
       <AnimatePresence>
@@ -191,10 +234,6 @@ const Chat = ({ shouldRunCelebration }) => {
       </AnimatePresence>
     </>
   );
-};
-
-Chat.defaultProps = {
-  shouldRunCelebration: false
 };
 
 Chat.propTypes = {
