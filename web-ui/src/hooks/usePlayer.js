@@ -81,8 +81,6 @@ const usePlayer = ({
     if (newState === PLAYING) setIsLoading(false);
     if (newState !== ENDED) resetIntervalId();
     setError(null);
-
-    console.log(`Player State - ${newState}`);
   }, [resetIntervalId]);
 
   // Generic PlayerEventType event listener

@@ -6,7 +6,13 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import ProductButtons from './ProductButtons';
 import ProductCardImage from './ProductCardImage';
 
-const ProductDescription = ({ color, title, description, price, imageUrl }) => {
+const ProductDescription = ({
+  color = 'default',
+  title,
+  description,
+  price = '',
+  imageUrl = ''
+}) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isSmallBreakpoint = currentBreakpoint <= BREAKPOINTS.sm;
   const customProductImageClasses = [
@@ -89,12 +95,6 @@ const ProductDescription = ({ color, title, description, price, imageUrl }) => {
       </div>
     </div>
   );
-};
-
-ProductDescription.defaultProps = {
-  color: 'default',
-  imageUrl: '',
-  price: ''
 };
 
 ProductDescription.propTypes = {

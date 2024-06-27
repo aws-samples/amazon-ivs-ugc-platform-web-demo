@@ -41,6 +41,11 @@ export interface ResponseBody {
   [key: string]: any;
 }
 
+export interface ChannelStageAttributes {
+  stageId: string | null;
+  creationTime: string | null;
+}
+
 export type Period = 3600 | 300 | 60 | 5;
 
 export type FormattedMetricData = {
@@ -85,6 +90,8 @@ export interface ChannelDbRecord {
   streamKeyValue?: string;
   username?: string;
   trackingId?: string;
+  stageId?: string;
+  stageCreationDate?: string;
 }
 
 export type FollowUserRequestBody = {
@@ -214,7 +221,7 @@ export const getIsLive = (
     (truncatedEvent) => truncatedEvent.name === 'Stream Start'
   );
 
-type ChannelAssets = Partial<
+export type ChannelAssets = Partial<
   Record<
     (typeof ALLOWED_CHANNEL_ASSET_TYPES)[number],
     {

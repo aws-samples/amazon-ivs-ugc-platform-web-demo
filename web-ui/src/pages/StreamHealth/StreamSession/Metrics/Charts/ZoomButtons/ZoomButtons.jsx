@@ -33,7 +33,11 @@ const BUTTON_BASE_CLASSES = [
 ];
 const BUTTON_SELECTED_CLASSES = ['font-bold', 'text-black', 'dark:text-white'];
 
-const ZoomButtons = ({ handleSelectZoom, isEnabled, selectedZoomLevel }) => {
+const ZoomButtons = ({
+  handleSelectZoom,
+  isEnabled = false,
+  selectedZoomLevel
+}) => {
   const isSelected = (zoomLevel) =>
     isEnabled && selectedZoomLevel === zoomLevel;
   const defaultButtonProps = {
@@ -104,10 +108,6 @@ ZoomButtons.propTypes = {
   handleSelectZoom: PropTypes.func.isRequired,
   isEnabled: PropTypes.bool,
   selectedZoomLevel: PropTypes.oneOf(Object.values(ZOOM_LEVELS)).isRequired
-};
-
-ZoomButtons.defaultProps = {
-  isEnabled: false
 };
 
 export default ZoomButtons;

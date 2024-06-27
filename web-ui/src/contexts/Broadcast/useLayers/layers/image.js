@@ -40,6 +40,8 @@ export const addImageLayer = async ({ name, data }) => {
       return image;
     }
     case IMAGE_LAYER_TYPE.CANVAS: {
+      if (!client) return;
+
       const { fill, drawings } = data;
 
       const canvas = document.createElement('canvas');

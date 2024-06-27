@@ -96,7 +96,8 @@ export const authFetch = async ({
   method = 'GET',
   body = {},
   includeUserData = false,
-  signal
+  signal,
+  keepalive = false
 }) => {
   let result, error;
 
@@ -122,7 +123,8 @@ export const authFetch = async ({
         'Content-Type': 'application/json'
       },
       method,
-      signal
+      signal,
+      keepalive
     });
 
     let data;

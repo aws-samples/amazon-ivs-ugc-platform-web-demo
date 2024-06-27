@@ -35,23 +35,25 @@ export const register = async (userData) =>
  */
 export const signIn = async (userData) => {
   const { username, password } = userData;
-  const cognitoUser = await getCognitoUser(username);
-  const authenticationDetails = new AuthenticationDetails({
-    ClientMetadata: { submittedUsername: username },
-    Username: username,
-    Password: password
-  });
+  const trimmedUsername = (username || '').trim();
+
   let result, error;
 
-  cognitoUser.authenticateUser[promisify.custom] = () =>
-    new Promise((resolve, reject) => {
-      cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: resolve,
-        onFailure: reject
-      });
+  try {
+    const cognitoUser = await getCognitoUser(trimmedUsername);
+    const authenticationDetails = new AuthenticationDetails({
+      ClientMetadata: { submittedUsername: trimmedUsername },
+      Username: trimmedUsername,
+      Password: password
     });
 
-  try {
+    cognitoUser.authenticateUser[promisify.custom] = () =>
+      new Promise((resolve, reject) => {
+        cognitoUser.authenticateUser(authenticationDetails, {
+          onSuccess: resolve,
+          onFailure: reject
+        });
+      });
     const authenticate = promisify(cognitoUser.authenticateUser);
     result = await authenticate();
   } catch (err) {
@@ -378,4 +380,10 @@ export const unfollowChannel = async (followedUsername) =>
     method: 'PUT',
     url: `${apiBaseUrl}/channel/followingList/remove`,
     body: { followedUsername }
+  });
+
+export const getChannelLiveStatus = async () =>
+  await authFetch({
+    method: 'GET',
+    url: `${apiBaseUrl}/channel/liveStatus`
   });

@@ -8,7 +8,7 @@ import {
   StreamSessionDbRecord
 } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 import { getUser } from '../helpers';
 import { buildChannelArn } from '../../metrics/helpers';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -162,9 +162,13 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       responseBody.channels = unmarshalledFollowingChannelItems.reduce<
         ChannelData[]
       >((acc, channel) => {
-        const { avatar, color, username, channelAssets, isLive } = channel;
+        const { avatar, color, username, channelAssets, isLive, stageId } =
+          channel;
         const channelAssetUrls = getChannelAssetUrls(channelAssets);
-        return [...acc, { avatar, color, username, channelAssetUrls, isLive }];
+        return [
+          ...acc,
+          { avatar, color, username, channelAssetUrls, isLive, stageId }
+        ];
       }, []);
     }
   } catch (error) {

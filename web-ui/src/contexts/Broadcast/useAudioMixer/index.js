@@ -9,6 +9,7 @@ const AUDIO_INPUT_TYPE = {
   SCREEN_SHARE: 'SCREEN_SHARE'
 };
 export const MICROPHONE_AUDIO_INPUT_NAME = 'microphone';
+export const AUDIO_INPUT_NAME = 'audio';
 
 const useAudioMixer = () => {
   const audioInputs = useMap();
@@ -20,7 +21,7 @@ const useAudioMixer = () => {
 
   const removeAudioInput = useCallback(
     (audioInputName) => {
-      const device = client.getAudioInputDevice(audioInputName);
+      const device = client?.getAudioInputDevice(audioInputName);
 
       if (device) {
         for (const track of device.getAudioTracks()) track.stop();
@@ -32,10 +33,6 @@ const useAudioMixer = () => {
     },
     [audioInputs]
   );
-
-  const clearAudioInputs = useCallback(() => {
-    for (const name of audioInputs.keys()) removeAudioInput(name);
-  }, [audioInputs, removeAudioInput]);
 
   const addAudioInput = useCallback(
     async ({ name, data, type }) => {
@@ -137,7 +134,6 @@ const useAudioMixer = () => {
     addScreenShareAudioInput: _addScreenShareAudioInput,
     toggleMute,
     removeAudioInput,
-    clearAudioInputs,
     isAudioInputMuted
   };
 };

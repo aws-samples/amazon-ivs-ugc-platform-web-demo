@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bound, clsm } from '../../../utils';
 import { useEffect, useRef, useCallback } from 'react';
 
-const ProgressBar = ({ color, duration, startTime }) => {
+const ProgressBar = ({ color = 'default', duration = 10, startTime }) => {
   const durationInMs = duration * 1000;
   const remainingTimeRef = useRef(null);
   const intervalIdRef = useRef();
@@ -55,11 +55,6 @@ const ProgressBar = ({ color, duration, startTime }) => {
       ></div>
     </div>
   );
-};
-
-ProgressBar.defaultProps = {
-  color: 'default',
-  duration: 10
 };
 
 ProgressBar.propTypes = {

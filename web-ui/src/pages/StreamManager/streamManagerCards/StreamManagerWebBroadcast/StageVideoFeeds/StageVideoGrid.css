@@ -1,0 +1,239 @@
+/* Grid definitions */
+
+.slot-1 {
+  grid-area: s-1;
+}
+
+.slot-2 {
+  grid-area: s-2;
+}
+
+.slot-3 {
+  grid-area: s-3;
+}
+
+.slot-4 {
+  grid-area: s-4;
+}
+
+.slot-5 {
+  grid-area: s-5;
+}
+
+.slot-6 {
+  grid-area: s-6;
+}
+
+.slot-7 {
+  grid-area: s-7;
+}
+
+.slot-8 {
+  grid-area: s-8;
+}
+
+.slot-9 {
+  grid-area: s-9;
+}
+
+.slot-10 {
+  grid-area: s-10;
+}
+
+.slot-11 {
+  grid-area: s-11;
+}
+
+.slot-12 {
+  grid-area: s-12;
+}
+
+.slot-13 {
+  grid-area: s-13;
+}
+
+.slot-14 {
+  grid-area: s-14;
+}
+
+.slot-15 {
+  grid-area: s-15;
+}
+
+.slot-16 {
+  grid-area: s-16;
+}
+
+.slot-17 {
+  grid-area: s-17;
+}
+
+.slot-18 {
+  grid-area: s-18;
+}
+
+.slot-19 {
+  grid-area: s-19;
+}
+
+.slot-20 {
+  grid-area: s-20;
+}
+
+.grid-1 {
+  @apply grid-cols-1 grid-rows-1;
+  grid-template-areas: 's-1';
+}
+
+.grid-2 {
+  @apply grid-cols-2 grid-rows-1;
+  grid-template-areas: 's-1 s-2';
+}
+
+.grid-3 {
+  @apply grid-cols-4 grid-rows-2;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2'
+    '... s-3 s-3 ...';
+}
+
+.grid-4 {
+  @apply grid-cols-2 grid-rows-2;
+  grid-template-areas:
+    's-1 s-2'
+    's-3 s-4';
+}
+
+.grid-5 {
+  @apply grid-cols-6 grid-rows-2;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2 s-3 s-3'
+    '... s-4 s-4 s-5 s-5 ...';
+}
+
+.grid-6 {
+  @apply grid-cols-3 grid-rows-2;
+  grid-template-areas:
+    's-1 s-2 s-3'
+    's-4 s-5 s-6';
+}
+
+.grid-7 {
+  @apply grid-cols-6 grid-rows-3;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2 s-3 s-3'
+    's-4 s-4 s-5 s-5 s-6 s-6'
+    '... ... s-7 s-7 ... ...';
+}
+
+.grid-8 {
+  @apply grid-cols-6 grid-rows-3;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2 s-3 s-3'
+    's-4 s-4 s-5 s-5 s-6 s-6'
+    '... s-7 s-7 s-8 s-8 ...';
+}
+
+.grid-9 {
+  @apply grid-cols-3 grid-rows-3;
+  grid-template-areas:
+    's-1 s-2 s-3'
+    's-4 s-5 s-6'
+    's-7 s-8 s-9';
+}
+
+.grid-10 {
+  @apply grid-cols-8 grid-rows-3;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2 s-3  s-3  s-4 s-4'
+    's-5 s-5 s-6 s-6 s-7  s-7  s-8 s-8'
+    '... ... s-9 s-9 s-10 s-10 ... ...';
+}
+
+.grid-11 {
+  @apply grid-cols-8 grid-rows-3;
+  grid-template-areas:
+    's-1 s-1 s-2 s-2  s-3  s-3  s-4  s-4'
+    's-5 s-5 s-6 s-6  s-7  s-7  s-8  s-8'
+    '... s-9 s-9 s-10 s-10 s-11 s-11 ...';
+}
+
+.grid-12 {
+  @apply grid-cols-4 grid-rows-3;
+  grid-template-areas:
+    's-1 s-2  s-3  s-4'
+    's-5 s-6  s-7  s-8'
+    's-9 s-10 s-11 s-12';
+}
+
+.grid-13 {
+  @apply grid-cols-8 grid-rows-4;
+  grid-template-areas:
+    's-1 s-1 s-2  s-2  s-3  s-3  s-4  s-4'
+    's-5 s-5 s-6  s-6  s-7  s-7  s-8  s-8'
+    's-9 s-9 s-10 s-10 s-11 s-11 s-12 s-12'
+    '... ... .... s-13 s-13 .... .... ....';
+}
+
+.grid-14 {
+  @apply grid-cols-8 grid-rows-4;
+  grid-template-areas:
+    's-1 s-1 s-2  s-2  s-3  s-3  s-4  s-4'
+    's-5 s-5 s-6  s-6  s-7  s-7  s-8  s-8'
+    's-9 s-9 s-10 s-10 s-11 s-11 s-12 s-12'
+    '... ... s-13 s-13 s-14 s-14 .... ....';
+}
+
+.grid-15 {
+  @apply grid-cols-8 grid-rows-4;
+  grid-template-areas:
+    's-1 s-1  s-2  s-2  s-3  s-3  s-4  s-4'
+    's-5 s-5  s-6  s-6  s-7  s-7  s-8  s-8'
+    's-9 s-9  s-10 s-10 s-11 s-11 s-12 s-12'
+    '... s-13 s-13 s-14 s-14 s-15 s-15 ....';
+}
+
+.grid-16 {
+  @apply grid-cols-4 grid-rows-4;
+  grid-template-areas:
+    's-1  s-2  s-3  s-4'
+    's-5  s-6  s-7  s-8'
+    's-9  s-10 s-11 s-12'
+    's-13 s-14 s-15 s-16';
+}
+
+.grid-17 {
+  @apply grid-cols-10 grid-rows-4;
+  grid-template-areas:
+    's-1  s-1  s-2  s-2  s-3  s-3  s-4  s-4  s-5  s-5'
+    's-6  s-6  s-7  s-7  s-8  s-8  s-9  s-9  s-10 s-10'
+    's-11 s-11 s-12 s-12 s-13 s-13 s-14 s-14 s-15 s-15'
+    '.... .... .... s-16 s-16 s-17 s-17 .... .... ....';
+}
+
+.grid-18 {
+  @apply grid-cols-10 grid-rows-4;
+  grid-template-areas:
+    's-1  s-1  s-2  s-2  s-3  s-3  s-4  s-4  s-5  s-5'
+    's-6  s-6  s-7  s-7  s-8  s-8  s-9  s-9  s-10 s-10'
+    's-11 s-11 s-12 s-12 s-13 s-13 s-14 s-14 s-15 s-15'
+    '.... .... s-16 s-16 s-17 s-17 s-18 s-18 .... ....';
+}
+
+.grid-19 {
+  @apply grid-cols-10 grid-rows-4;
+  grid-template-areas:
+    's-1  s-1  s-2  s-2  s-3  s-3  s-4  s-4  s-5  s-5'
+    's-6  s-6  s-7  s-7  s-8  s-8  s-9  s-9  s-10 s-10'
+    's-11 s-11 s-12 s-12 s-13 s-13 s-14 s-14 s-15 s-15'
+    '.... s-16 s-16 s-17 s-17 s-18 s-18 s-19 s-19 ....';
+}
+
+.grid-20 {
+  @apply grid-cols-5 grid-rows-4;
+  grid-template-areas:
+    's-1  s-2  s-3  s-4  s-5 '
+    's-6  s-7  s-8  s-9  s-10'
+    's-11 s-12 s-13 s-14 s-15'
+    's-16 s-17 s-18 s-19 s-20';
+}

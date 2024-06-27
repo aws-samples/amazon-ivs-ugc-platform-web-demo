@@ -10,6 +10,7 @@ import { useStreamManagerActions } from '../../../../contexts/StreamManagerActio
 import { useUser } from '../../../../contexts/User';
 import useCountdown from '../../../../hooks/useCountdown';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const $content = $streamManagerContent.stream_manager_actions;
 const PROGRESS_PIE_RADIUS = 14;
@@ -35,6 +36,8 @@ const StreamManagerActionButton = forwardRef(
       endPollOnExpiry,
       cancelActivePoll
     } = useStreamManagerActions();
+    const { user: userStage = null } = useStageManager() || {};
+    const isStageActive = userStage?.isUserStageConnected;
 
     let activeStreamManagerActionDuration;
     let activeStreamManagerActionName;
@@ -102,14 +105,19 @@ const StreamManagerActionButton = forwardRef(
 
     if (!hasFetchedInitialUserData) return null;
 
+    const isButtonDisabled =
+      isStageActive && ![STREAM_ACTION_NAME.POLL].includes(name);
+
     return (
       <button
+        disabled={isButtonDisabled}
         data-testid={`stream-manager-${name}-action-button`}
         ref={ref}
         onClick={handleClick}
         aria-label={ariaLabel}
         className={clsm(
           [
+            isButtonDisabled && 'opacity-[.3]',
             'dark:shadow-white',
             'focus:outline-none',
             'focus:shadow-focus',
@@ -121,7 +129,7 @@ const StreamManagerActionButton = forwardRef(
             'sm:h-auto',
             'text-black',
             `bg-profile-${color}`,
-            `hover:bg-profile-${color}-hover`
+            !isButtonDisabled && `hover:bg-profile-${color}-hover`
           ],
           BUTTON_OUTLINE_CLASSES,
           DEFAULT_TRANSITION_CLASSES,

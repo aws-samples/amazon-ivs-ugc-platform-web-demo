@@ -10,7 +10,8 @@ module.exports = {
     DEFAULT: 'hsl(var(--base-color-white), 0%)',
     hover: 'hsl(var(--base-color-white), 10%)',
     gradient: 'hsl(var(--base-color-white), 0%, 0.75)',
-    gradientLight: 'hsl(var(--base-color-white), 0%, 0.4)'
+    gradientLight: 'hsl(var(--base-color-white), 0%, 0.4)',
+    unmuteButtonOverlay: 'hsl(0, 0%, 0%, 0.5)'
   },
   darkMode: {
     sliderThumb: {

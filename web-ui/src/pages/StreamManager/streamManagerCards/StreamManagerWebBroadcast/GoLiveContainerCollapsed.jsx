@@ -10,7 +10,7 @@ import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useModal } from '../../../../contexts/Modal';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import Button from '../../../../components/Button';
-import WebBroadcastControl from './WebBroadcastControl';
+import BroadcastControlWrapper from './BroadcastControl';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -29,11 +29,7 @@ const createAnimationWithDelay = (delay = 0.25) =>
     }
   });
 
-const GoLiveContainerCollapsed = ({
-  onExpand,
-  isOpen,
-  webBroadcastControllerButtons
-}) => {
+const GoLiveContainerCollapsed = ({ onExpand, isOpen }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const { stopBroadcast } = useBroadcast();
   const stopBroadcastButtonRef = useRef();
@@ -89,9 +85,9 @@ const GoLiveContainerCollapsed = ({
       </div>
       <div className={clsm(['flex', 'items-center'])}>
         <motion.div {...createAnimationWithDelay()}>
-          <WebBroadcastControl
+          <BroadcastControlWrapper
             isOpen={isOpen}
-            buttons={webBroadcastControllerButtons}
+            withScreenshareButton={false}
           />
         </motion.div>
         <motion.div {...createAnimationWithDelay(0.1)}>
@@ -104,12 +100,14 @@ const GoLiveContainerCollapsed = ({
               'bg-darkMode-red',
               'ml-3',
               'dark:bg-darkMode-red',
-              'bg-darkMode-red',
+              'dark:bg-darkMode-red',
+              'bg-lightMode-red',
               !isTouchscreenDevice && [
                 'hover:dark:bg-darkMode-red-hover',
-                'hover:bg-darkMode-red-hover'
+                'hover:bg-lightMode-red-hover'
               ],
-              'focus:bg-darkMode-red'
+              'focus:bg-lightMode-red',
+              'dark:focus:bg-darkMode-red'
             ])}
           >
             <motion.div
@@ -130,8 +128,7 @@ const GoLiveContainerCollapsed = ({
 };
 GoLiveContainerCollapsed.propTypes = {
   onExpand: PropTypes.func.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  webBroadcastControllerButtons: PropTypes.array.isRequired
+  isOpen: PropTypes.bool.isRequired
 };
 
 export default GoLiveContainerCollapsed;
