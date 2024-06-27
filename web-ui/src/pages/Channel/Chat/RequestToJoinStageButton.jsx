@@ -14,14 +14,20 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
 import Spinner from '../../../components/Spinner';
 import { useNavigate } from 'react-router-dom';
+import {
+  DISPLAY_STAGE_ID_URL_PARAM,
+  REQUEST_URL_PARAM_KEY,
+  USER_STAGE_ID_URL_PARAM
+} from '../../../helpers/stagesHelpers';
+import { useStageManager } from '../../../contexts/StageManager';
 
 const RequestToJoinStageButton = () => {
+  const navigate = useNavigate();
   const {
     requestingToJoinStage,
     updateRequestingToJoinStage,
     updateError,
     updateSuccess,
-    participants,
     hasStageRequestBeenApproved,
     updateHasStageRequestBeenApproved
   } = useGlobalStage();
@@ -29,7 +35,12 @@ const RequestToJoinStageButton = () => {
   const { channelData } = useChannel();
   const { userData, isSessionValid } = useUser();
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
-  const navigate = useNavigate();
+  const { user: userStage = null } = useStageManager() || {};
+  const publishingUserParticipants =
+    userStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || [];
 
   let channelId;
 
@@ -98,16 +109,15 @@ const RequestToJoinStageButton = () => {
       setTimeout(() => {
         updateHasStageRequestBeenApproved(false);
         updateRequestingToJoinStage(false);
-        navigate('/manager', {
-          state: {
-            isJoiningStageByRequest: true,
-            stageId: channelData?.stageId
-          }
-        });
+        navigate(
+          `/manager/collab?${USER_STAGE_ID_URL_PARAM}=${channelData?.userStageId}&${DISPLAY_STAGE_ID_URL_PARAM}=${channelData?.displayStageId}&${REQUEST_URL_PARAM_KEY}=true`
+        );
       }, 1500);
     }
   }, [
+    channelData?.displayStageId,
     channelData.stageId,
+    channelData?.userStageId,
     hasStageRequestBeenApproved,
     navigate,
     updateHasStageRequestBeenApproved,
@@ -123,12 +133,12 @@ const RequestToJoinStageButton = () => {
       ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
       : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
 
-  const isUserAlreadyInStage = [...participants].some(
-    ([_, participant]) =>
-      participant.attributes.channelId === userData.channelId
+  const isUserAlreadyInStage = publishingUserParticipants.some(
+    (participant) => participant.attributes.channelId === userData.channelId
   );
 
-  const isDisabled = participants?.size >= 12 || isUserAlreadyInStage;
+  const isDisabled =
+    publishingUserParticipants?.length >= 12 || isUserAlreadyInStage;
 
   return (
     <Tooltip

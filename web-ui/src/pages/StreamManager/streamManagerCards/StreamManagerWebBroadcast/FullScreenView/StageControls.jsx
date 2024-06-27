@@ -14,13 +14,11 @@ import Button from '../../../../../components/Button';
 import { PersonAdd, Group, Menu } from '../../../../../assets/icons';
 import { CONTROLLER_BUTTON_THEME } from '../BroadcastControl/BroadcastControllerTheme';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { StageMenu } from '../StageControl';
 import RequestIndicator from '../StageControl/RequestIndicator';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $stageContent = $content.stream_manager_stage;
 
@@ -28,13 +26,16 @@ const StageControls = ({ shouldShowCopyLinkText = true }) => {
   const participantsButtonRef = useRef();
   const { openModal } = useModal();
   const { isTouchscreenDevice, dimensions } = useResponsiveDevice();
+  const { stageRequestList } = useGlobalStage();
   const {
-    handleCopyJoinParticipantLinkAndNotify,
-    shouldDisableCopyLinkButton,
-    stageControlsVisibility
-  } = useStreamManagerStage();
-  const { isStageActive, isHost, stageRequestList } = useGlobalStage();
-  const { shouldRenderInviteLinkButton } = stageControlsVisibility;
+    user: userStage = null,
+    stageControls = null,
+    participantRole
+  } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const isSpectator = participantRole === 'spectator';
+  const shouldDisableCopyLinkButton = isStageActive && isSpectator;
+  const { shouldRenderInviteLinkButton, copyInviteUrl } = stageControls || {};
 
   const handleOpenParticipantsModal = () => {
     openModal({
@@ -43,6 +44,7 @@ const StageControls = ({ shouldShowCopyLinkText = true }) => {
     });
   };
 
+  const isHost = participantRole === 'host';
   const shouldDisplayInviteParticipantButton = isStageActive && isHost;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
@@ -199,7 +201,7 @@ const StageControls = ({ shouldShowCopyLinkText = true }) => {
                     CONTROLLER_BUTTON_THEME,
                     !shouldShowCopyLinkText && ['min-w-0']
                   ])}
-                  onClick={handleCopyJoinParticipantLinkAndNotify}
+                  onClick={copyInviteUrl}
                   variant="secondary"
                   isDisabled={shouldDisableCopyLinkButton}
                 >

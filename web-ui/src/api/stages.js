@@ -1,8 +1,8 @@
 import { apiBaseUrl, authFetch, unauthFetch } from './utils';
 
-export const getSpectatorToken = async (stageId) =>
+export const getSpectatorToken = async (userStageId, displayStageId) =>
   await unauthFetch({
-    url: `${apiBaseUrl}/stages/createSpectatorToken/${stageId}`
+    url: `${apiBaseUrl}/stages/createSpectatorToken/${userStageId}/${displayStageId}`
   });
 
 export const getStage = async (stageId) =>
@@ -21,9 +21,13 @@ export const deleteStage = async () =>
     method: 'PUT'
   });
 
-export const getParticipationToken = async (stageId, participantType) =>
+export const getParticipationToken = async ({
+  userStageId,
+  displayStageId,
+  participantType
+}) =>
   await authFetch({
-    url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}/${participantType}`
+    url: `${apiBaseUrl}/stages/createParticipantToken/${userStageId}/${displayStageId}/${participantType}`
   });
 
 export const sendHostDisconnectedMessage = async (hostChannelId) => {

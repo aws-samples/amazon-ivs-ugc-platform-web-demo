@@ -85,7 +85,10 @@ const GoLiveContainerCollapsed = ({ onExpand, isOpen }) => {
       </div>
       <div className={clsm(['flex', 'items-center'])}>
         <motion.div {...createAnimationWithDelay()}>
-          <BroadcastControlWrapper isOpen={isOpen} />
+          <BroadcastControlWrapper
+            isOpen={isOpen}
+            withScreenshareButton={false}
+          />
         </motion.div>
         <motion.div {...createAnimationWithDelay(0.1)}>
           <Button

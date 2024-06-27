@@ -49,6 +49,11 @@ export const updateIsBlockingRoute = (bool) => ({
   payload: bool
 });
 
+export const updateIsScreensharing = (bool) => ({
+  type: actionTypes.UPDATE_IS_SCREEN_SHARING,
+  payload: bool
+});
+
 export const updateShouldOpenSettingsModal = (bool) => ({
   type: actionTypes.UPDATE_SHOULD_OPEN_SETTINGS_MODAL,
   payload: bool
@@ -127,6 +132,17 @@ export const updateIsJoiningStageByRequest = (bool) => ({
 
 export const updateIsJoiningStageByInvite = (bool) => ({
   type: actionTypes.IS_JOINING_STAGE_BY_INVITE,
+  payload: bool
+});
+
+// Real-time screenshare
+export const updateLocalScreenshareStream = (stream) => ({
+  type: actionTypes.UPDATE_LOCAL_SCREEN_SHARE_STREAM,
+  payload: stream
+});
+
+export const updateIsScreensharePermissionRevoked = (bool) => ({
+  type: actionTypes.UPDATE_IS_SCREEN_SHARE_PERMISSION_REVOKED,
   payload: bool
 });
 

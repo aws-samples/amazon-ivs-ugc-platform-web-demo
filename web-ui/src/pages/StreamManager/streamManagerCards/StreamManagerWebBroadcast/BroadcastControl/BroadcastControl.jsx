@@ -8,7 +8,7 @@ import Tooltip from '../../../../../components/Tooltip';
 import { CONTROLLER_BUTTON_THEME } from './BroadcastControllerTheme';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { BREAKPOINTS } from '../../../../../constants';
-import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const ACTIVE_BUTTON_COLORS = [
   'bg-darkMode-blue',
@@ -23,7 +23,8 @@ const ACTIVE_BUTTON_COLORS = [
 const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
   const { isDesktopView, isTouchscreenDevice, currentBreakpoint, dimensions } =
     useResponsiveDevice();
-  const { isHost } = useGlobalStage();
+  const { participantRole } = useStageManager() || {};
+  const isHost = participantRole === 'host';
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
 
   const getSpaceBetween = () => {

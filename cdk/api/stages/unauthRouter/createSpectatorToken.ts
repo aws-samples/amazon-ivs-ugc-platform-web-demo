@@ -6,11 +6,13 @@ import {
   handleCreateStageParams,
   handleCreateParticipantToken,
   PARTICIPANT_USER_TYPES,
-  isStageActive
+  isStageActive,
+  PARTICIPANT_GROUP
 } from '../helpers';
 
 interface GetParticipantTokenParams {
-  stageId: string;
+  userStageId: string;
+  displayStageId: string;
 }
 
 const handler = async (
@@ -22,32 +24,60 @@ const handler = async (
   const participantType = PARTICIPANT_USER_TYPES.SPECTATOR;
 
   try {
-    const { stageId } = request.params;
-    const shouldJoinStage = await isStageActive(stageId);
+    const { userStageId, displayStageId } = request.params;
+    const shouldJoinStage = await isStageActive(userStageId);
+
     if (!shouldJoinStage) {
       throw new Error('Stage is empty');
     }
 
-    const { duration, userId, capabilities } = await handleCreateStageParams({
-      participantType
-    });
+    const { duration, userId, capabilities, userType } =
+      await handleCreateStageParams({
+        participantType
+      });
 
-    const stageArn = buildStageArn(stageId);
+    const userStageArn = buildStageArn(userStageId);
+    const displayStageArn = buildStageArn(displayStageId);
 
-    const params = {
-      stageArn,
-      duration,
-      userId,
-      capabilities,
-      attributes: {
-        type: PARTICIPANT_USER_TYPES.SPECTATOR
-      }
-    };
-
-    const token = await handleCreateParticipantToken(params);
+    const { token: userToken, participantId: userParticipantId } =
+      await handleCreateParticipantToken({
+        stageArn: userStageArn,
+        duration,
+        userId,
+        capabilities,
+        attributes: {
+          type: PARTICIPANT_USER_TYPES.SPECTATOR,
+          participantGroup: PARTICIPANT_GROUP.USER
+        }
+      });
+    const { token: displayToken, participantId: displayParticipantId } =
+      await handleCreateParticipantToken({
+        stageArn: displayStageArn,
+        duration,
+        userId,
+        capabilities,
+        attributes: {
+          type: PARTICIPANT_USER_TYPES.SPECTATOR,
+          participantGroup: PARTICIPANT_GROUP.DISPLAY
+        }
+      });
 
     reply.statusCode = 200;
-    return reply.send({ token });
+    return reply.send({
+      [PARTICIPANT_GROUP.USER]: {
+        token: userToken,
+        stageId: userStageId,
+        participantId: userParticipantId,
+        participantGroup: PARTICIPANT_GROUP.USER
+      },
+      [PARTICIPANT_GROUP.DISPLAY]: {
+        token: displayToken,
+        stageId: displayStageId,
+        participantId: displayParticipantId,
+        participantGroup: PARTICIPANT_GROUP.DISPLAY
+      },
+      participantRole: userType
+    });
   } catch (error) {
     console.error(error);
 

@@ -14,6 +14,8 @@ import useContextHook from './useContextHook';
 import useResize from '../hooks/useResize';
 import { useGlobalStage } from './Stage';
 import { useResponsiveDevice } from './ResponsiveDevice';
+import { useStageManager } from './StageManager';
+import usePrevious from '../hooks/usePrevious';
 
 export const STREAM_BUTTON_ANIMATION_DURATION = 0.55;
 export const ANIMATION_DURATION = 0.25;
@@ -31,7 +33,6 @@ export const Provider = ({ children, previewRef }) => {
   const webBroadcastContainerRef = useRef();
   const goLiveButtonRef = useRef();
   const broadcastControllerRef = useRef();
-  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
   const { isDesktopView, isMobileView } = useResponsiveDevice();
   const [isFullScreenViewOpen, setIsFullScreenViewOpen] = useState(false);
   const [
@@ -43,12 +44,13 @@ export const Provider = ({ children, previewRef }) => {
   const [dimensionClasses, setDimensionClasses] = useState([]);
   const webBroadcastCanvasContainerRef = useRef();
   const {
-    isStageActive,
     collaborateButtonAnimationControls,
-    animationCollapseStageControlsStart,
-    shouldCloseFullScreenViewOnConnectionError
+    shouldCloseFullScreenViewOnConnectionError,
+    animationCollapseStageControlsStart
   } = useGlobalStage();
-
+  const { user: userStage, isJoiningStageByRequestOrInvite } =
+    useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
   const [dimensions, updateDimensions] = useReducer(
     (prevState, nextState) => ({ ...prevState, ...nextState }),
     {
@@ -101,8 +103,8 @@ export const Provider = ({ children, previewRef }) => {
       broadcastControllerInitialMarginLeft
     } = calculateTopAndLeftValues();
 
-    const width = webBroadcastContainerRef.current.offsetWidth;
-    const height = webBroadcastContainerRef.current.offsetHeight;
+    const width = webBroadcastContainerRef.current?.offsetWidth;
+    const height = webBroadcastContainerRef.current?.offsetHeight;
 
     updateDimensions({
       animationInitialWidth: width,
@@ -114,31 +116,18 @@ export const Provider = ({ children, previewRef }) => {
     });
   }, [calculateTopAndLeftValues]);
 
-  const handleToggleFullscreen = useCallback(() => {
-    if (isFullScreenViewOpen) {
-      setIsFullScreenViewOpen(false);
-    } else {
-      initializeGoLiveContainerDimensions();
-
-      setIsFullScreenViewOpen(true);
-    }
-  }, [
-    isFullScreenViewOpen,
-    setIsFullScreenViewOpen,
-    initializeGoLiveContainerDimensions
-  ]);
-
-  const handleOpenFullScreen = useCallback(() => {
+  const handleOpenFullscreenWithAnimations = useCallback(() => {
     if (!isStageActive) {
       setShouldRenderFullScreenCollaborateButton(true);
     }
 
     collaborateButtonAnimationControls.start({ zIndex: 0 });
-    handleToggleFullscreen();
+    initializeGoLiveContainerDimensions();
+    setIsFullScreenViewOpen(true);
   }, [
     isStageActive,
     collaborateButtonAnimationControls,
-    handleToggleFullscreen
+    initializeGoLiveContainerDimensions
   ]);
 
   const calculateBaseTopAndLeftOnResize = () => {
@@ -167,7 +156,6 @@ export const Provider = ({ children, previewRef }) => {
       });
       animationCollapseStageControlsStart();
     } else {
-      // reset web broadcast canvas classes and animate the canvas dimensions back to initial values
       setTimeout(
         () => setShouldRenderFullScreenCollaborateButton(false),
         ANIMATION_DURATION * 1000
@@ -181,13 +169,12 @@ export const Provider = ({ children, previewRef }) => {
       transition: ANIMATION_TRANSITION
     });
 
-    handleToggleFullscreen();
+    setIsFullScreenViewOpen(false);
   }, [
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    handleToggleFullscreen,
     isStageActive,
-    fullscreenAnimationControls
+    fullscreenAnimationControls,
+    collaborateButtonAnimationControls,
+    animationCollapseStageControlsStart
   ]);
 
   const handleOpenFullScreenView = useCallback(() => {
@@ -215,13 +202,40 @@ export const Provider = ({ children, previewRef }) => {
     shouldCloseFullScreenViewOnConnectionError
   ]);
 
+  // Open fullscreen view on stage collaborate start
+  const prevConnectState = usePrevious(userStage?.connectState);
+  const wasUserStagePrevConnected = prevConnectState !== 'connected';
+  useEffect(() => {
+    if (isStageActive && wasUserStagePrevConnected) {
+      handleOpenFullscreenWithAnimations();
+    }
+  }, [
+    isStageActive,
+    handleOpenFullscreenWithAnimations,
+    wasUserStagePrevConnected
+  ]);
+
+  useEffect(() => {
+    // Trigger fullscreen expand animation when isFullScreenViewOpen is true
+    if (!isFullScreenViewOpen) return;
+    collaborateButtonAnimationControls.start({
+      zIndex: 0,
+      opacity: 0
+    });
+    initializeGoLiveContainerDimensions();
+    setIsFullScreenViewOpen(true);
+  }, [
+    collaborateButtonAnimationControls,
+    isFullScreenViewOpen,
+    initializeGoLiveContainerDimensions
+  ]);
+
   const value = useMemo(
     () => ({
       isFullScreenViewOpen,
       setIsFullScreenViewOpen,
       // Stage
       dimensions,
-      handleToggleFullscreen,
       initializeGoLiveContainerDimensions,
       // WebBroadcast
       webBroadcastCanvasContainerRef,
@@ -231,7 +245,7 @@ export const Provider = ({ children, previewRef }) => {
       // Shared between broadcast and stage
       collaborateButtonAnimationControls,
       handleOnClose,
-      handleOpenFullScreen,
+      handleOpenFullscreenWithAnimations,
       previewRef,
       setShouldRenderFullScreenCollaborateButton,
       shouldRenderFullScreenCollaborateButton,
@@ -247,8 +261,7 @@ export const Provider = ({ children, previewRef }) => {
       collaborateButtonAnimationControls,
       dimensions,
       handleOnClose,
-      handleOpenFullScreen,
-      handleToggleFullscreen,
+      handleOpenFullscreenWithAnimations,
       initializeGoLiveContainerDimensions,
       isFullScreenViewOpen,
       previewRef,

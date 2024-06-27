@@ -5,227 +5,95 @@ import { useAnimationControls } from 'framer-motion';
 
 import useGlobalReducers from './useGlobalReducer';
 import useContextHook from '../../useContextHook';
-import { LOCAL_KEY, PARTICIPANT_TYPES } from './reducer/globalReducer';
 
 const Context = createContext(null);
 Context.displayName = 'Global';
 
-export const ENABLE_LEAVE_SESSION_BUTTON_DELAY = 7000;
-
-const { SubscribeType } = window.IVSBroadcastClient;
-
 export const Provider = ({ children }) => {
   const {
     state,
-    addParticipant,
     animationCollapseStageControlsStart,
-    creatingStage,
-    removeParticipant,
-    resetParticipants,
-    resetStageState,
-    toggleCameraState,
-    toggleMicrophoneState,
     updateAnimateCollapseStageContainerWithDelay,
     updateError,
-    updateIsBlockingRoute,
-    updateIsSpectator,
-    updateParticipant,
     updateRequestingToJoinStage,
     updateShouldAnimateGoLiveButtonChevronIcon,
     updateShouldDisableStageButtonWithDelay,
-    updateStageId,
-    updateStreams,
     updateSuccess,
-    updateShouldCloseFullScreenViewOnConnectionError,
     updateHasStageRequestBeenApproved,
     updateStageRequestList,
     deleteRequestToJoin,
-    updateIsChannelStagePlayerMuted,
-    updateIsJoiningStageByRequest,
-    updateIsJoiningStageByInvite,
-    updateShouldOpenSettingsModal
+    updateIsChannelStagePlayerMuted
   } = useGlobalReducers();
+
   const {
-    participants,
-    stageId,
-    isSpectator,
     animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon,
     shouldDisableStageButtonWithDelay,
-    isCreatingStage,
     error,
     success,
-    isBlockingRoute,
     isChannelStagePlayerMuted,
     shouldCloseFullScreenViewOnConnectionError,
     requestingToJoinStage,
     hasStageRequestBeenApproved,
-    stageRequestList,
-    isJoiningStageByRequest,
-    isJoiningStageByInvite,
-    shouldOpenSettingsModal
+    stageRequestList
   } = state;
-  const localParticipant = participants.get(LOCAL_KEY);
   const collaborateButtonAnimationControls = useAnimationControls();
-  const isStageActive = !!stageId;
-
-  const strategy = useMemo(
-    () => ({
-      audioTrack: undefined,
-      videoTrack: undefined,
-
-      updateTracks(newAudioTrack, newVideoTrack) {
-        this.audioTrack = newAudioTrack;
-        this.videoTrack = newVideoTrack;
-      },
-
-      stageStreamsToPublish() {
-        return [this.audioTrack, this.videoTrack];
-      },
-
-      shouldPublishParticipant(participant) {
-        return true;
-      },
-
-      shouldSubscribeToParticipant(participant) {
-        return SubscribeType.AUDIO_VIDEO;
-      },
-
-      stopTracks() {
-        this.audioTrack?.mediaStreamTrack.stop();
-        this.videoTrack?.mediaStreamTrack.stop();
-      },
-
-      resetTracks() {
-        this.updateTracks(undefined, undefined);
-      },
-
-      stopAndResetTracks() {
-        this.stopTracks();
-        this.resetTracks();
-      }
-    }),
-    []
-  );
-
-  const { type = undefined } = localParticipant?.attributes || {};
-  const isHost = type === PARTICIPANT_TYPES.HOST;
-  const isRequestedUserType = type === PARTICIPANT_TYPES.REQUESTED;
-
-  const isJoiningStageByRequestOrInvite =
-    isJoiningStageByRequest || isJoiningStageByInvite;
 
   const value = useMemo(() => {
     return {
-      // State
-      error,
-      hasStageRequestBeenApproved,
-      isBlockingRoute,
+      // Channel
       isChannelStagePlayerMuted,
-      isCreatingStage,
-      isSpectator,
-      isStageActive,
-      localParticipant,
-      participants,
-      requestingToJoinStage,
-      stageId,
-      strategy,
-      success,
-      isHost,
-      isRequestedUserType,
-      shouldCloseFullScreenViewOnConnectionError,
       updateIsChannelStagePlayerMuted,
-      updateIsJoiningStageByRequest,
-      isJoiningStageByRequest,
-      updateIsJoiningStageByInvite,
-      isJoiningStageByInvite,
-      isJoiningStageByRequestOrInvite,
-      shouldOpenSettingsModal,
-      updateShouldOpenSettingsModal,
-      // Actions
-      addParticipant,
-      creatingStage,
-      removeParticipant,
-      resetParticipants,
-      resetStageState,
-      toggleCameraState,
-      toggleMicrophoneState,
+
+      // Success & Error
+      error,
+      success,
       updateError,
-      updateIsBlockingRoute,
-      updateIsSpectator,
-      updateParticipant,
-      updateRequestingToJoinStage,
-      updateStageId,
-      updateStreams,
       updateSuccess,
-      updateShouldCloseFullScreenViewOnConnectionError,
-      updateHasStageRequestBeenApproved,
+      shouldCloseFullScreenViewOnConnectionError,
+
       // Stage Animations
       animationCollapseStageControlsStart,
       collaborateButtonAnimationControls,
-      updateAnimateCollapseStageContainerWithDelay,
-      updateShouldAnimateGoLiveButtonChevronIcon,
-      updateShouldDisableStageButtonWithDelay,
       animateCollapseStageContainerWithDelay,
       shouldAnimateGoLiveButtonChevronIcon,
       shouldDisableStageButtonWithDelay,
+      updateAnimateCollapseStageContainerWithDelay,
+      updateShouldAnimateGoLiveButtonChevronIcon,
+      updateShouldDisableStageButtonWithDelay,
+
+      // Stage Request States
+      hasStageRequestBeenApproved,
+      requestingToJoinStage,
+      updateHasStageRequestBeenApproved,
+      updateRequestingToJoinStage,
       updateStageRequestList,
       stageRequestList,
       deleteRequestToJoin
     };
   }, [
+    animationCollapseStageControlsStart,
+    animateCollapseStageContainerWithDelay,
+    collaborateButtonAnimationControls,
+    deleteRequestToJoin,
     error,
     hasStageRequestBeenApproved,
-    isBlockingRoute,
     isChannelStagePlayerMuted,
-    isCreatingStage,
-    isSpectator,
-    isStageActive,
-    localParticipant,
-    participants,
     requestingToJoinStage,
-    stageId,
-    strategy,
     success,
     shouldCloseFullScreenViewOnConnectionError,
     updateIsChannelStagePlayerMuted,
-    addParticipant,
-    creatingStage,
-    removeParticipant,
-    resetParticipants,
-    resetStageState,
-    toggleCameraState,
-    toggleMicrophoneState,
-    updateError,
-    updateHasStageRequestBeenApproved,
-    updateIsBlockingRoute,
-    updateIsSpectator,
-    updateParticipant,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    updateShouldDisableStageButtonWithDelay,
-    isHost,
-    isRequestedUserType,
-    updateRequestingToJoinStage,
-    updateStageId,
-    updateStreams,
-    updateSuccess,
-    updateShouldCloseFullScreenViewOnConnectionError,
-    animationCollapseStageControlsStart,
-    collaborateButtonAnimationControls,
-    updateAnimateCollapseStageContainerWithDelay,
-    animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon,
     shouldDisableStageButtonWithDelay,
-    updateStageRequestList,
     stageRequestList,
-    deleteRequestToJoin,
-    updateIsJoiningStageByRequest,
-    isJoiningStageByRequest,
-    updateIsJoiningStageByInvite,
-    isJoiningStageByInvite,
-    isJoiningStageByRequestOrInvite,
-    shouldOpenSettingsModal,
-    updateShouldOpenSettingsModal
+    updateAnimateCollapseStageContainerWithDelay,
+    updateError,
+    updateHasStageRequestBeenApproved,
+    updateRequestingToJoinStage,
+    updateShouldAnimateGoLiveButtonChevronIcon,
+    updateShouldDisableStageButtonWithDelay,
+    updateStageRequestList,
+    updateSuccess
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

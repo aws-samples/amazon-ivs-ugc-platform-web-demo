@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
 
 import { BREAKPOINTS } from '../../../../constants';
-import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
+import { VIDEO_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
 import { Close, AccountBox } from '../../../../assets/icons';
 import { clsm } from '../../../../utils';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
+import { AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 import {
   MODAL_CLOSE_BUTTON_CLASSES,
   MODAL_OVERFLOW_DIVIDER_CLASSES,
@@ -14,27 +14,42 @@ import {
 } from '../StreamManagerModalTheme';
 import { MODAL_TYPE, useModal } from '../../../../contexts/Modal';
 import { streamManager as $streamManagerContent } from '../../../../content';
-import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../contexts/Stage';
+import { useDeviceManager } from '../../../../contexts/DeviceManager';
 import Button from '../../../../components/Button';
 import Dropdown from '../../../../components/Dropdown';
 import Modal from '../../../../components/Modal';
 import ResponsivePanel from '../../../../components/ResponsivePanel';
 import SwitchGroup from './formElements/SwitchGroup';
 import useResizeObserver from '../../../../hooks/useResizeObserver';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const $content = $streamManagerContent.web_broadcast_audio_video_settings_modal;
 
 const WebBroadcastSettingsModal = () => {
-  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const {
+    userMedia: {
+      activeDevices,
+      updateActiveDevice,
+      devices,
+      videoStopped,
+      audioMuted,
+      broadcast: {
+        shouldShowCameraOnScreenShare,
+        updateShouldShowCameraOnScreenShare
+      }
+    }
+  } = useDeviceManager();
+  const {
+    user: userStage = null,
+    stageControls = null,
+    isJoiningStageByRequestOrInvite
+  } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const { handleOpenJoinModal } = stageControls || {};
   const { closeModal, handleConfirm, isModalOpen, type } = useModal();
   const { isTouchscreenDevice, isMobileView, isLandscape } =
     useResponsiveDevice();
-  const { handleOpenJoinModal } = useStreamManagerStage();
 
   const openStageJoinModal = () => {
     closeModal({ shouldCancel: false, shouldRefocus: false });
@@ -65,21 +80,8 @@ const WebBroadcastSettingsModal = () => {
     }
   };
 
-  const {
-    activeDevices,
-    devices,
-    isCameraHidden,
-    isMicrophoneMuted,
-    shouldShowCameraOnScreenShare,
-    updateActiveDevice,
-    updateShouldShowCameraOnScreenShare
-  } = useBroadcast();
-
-  const { isStageActive } = useStreamManagerStage();
-
   const [isContentOverflowing, setIsContentOverflowing] = useState(false);
   const mainContentRef = useRef();
-
   useResizeObserver(
     mainContentRef,
     (entry) => {
@@ -143,10 +145,7 @@ const WebBroadcastSettingsModal = () => {
           <div className={clsm(['flex', 'flex-col', 'space-y-8', 'pb-12'])}>
             {Object.entries(devices)
               .sort(([n1], [n2]) => {
-                const sortingArr = [
-                  MICROPHONE_AUDIO_INPUT_NAME,
-                  CAMERA_LAYER_NAME
-                ];
+                const sortingArr = [AUDIO_INPUT_NAME, VIDEO_LAYER_NAME];
 
                 return sortingArr.indexOf(n1) - sortingArr.indexOf(n2);
               })
@@ -162,14 +161,15 @@ const WebBroadcastSettingsModal = () => {
                     label: label || `${deviceName} ${index + 1}`
                   })
                 );
+
                 let label, updateActiveDeviceOptions;
-                if (deviceName === CAMERA_LAYER_NAME) {
+                if (deviceName === VIDEO_LAYER_NAME || deviceName === 'video') {
                   label = $content.camera;
-                  updateActiveDeviceOptions = { hidden: isCameraHidden };
+                  updateActiveDeviceOptions = { hidden: videoStopped };
                 }
-                if (deviceName === MICROPHONE_AUDIO_INPUT_NAME) {
+                if (deviceName === AUDIO_INPUT_NAME || deviceName === 'audio') {
                   label = $content.microphone;
-                  updateActiveDeviceOptions = { muted: isMicrophoneMuted };
+                  updateActiveDeviceOptions = { muted: audioMuted };
                 }
 
                 const onChange = (e) => {
@@ -178,11 +178,11 @@ const WebBroadcastSettingsModal = () => {
                     ({ deviceId }) => selectedDeviceId === deviceId
                   );
 
-                  updateActiveDevice({
+                  updateActiveDevice(
                     deviceName,
                     device,
-                    options: updateActiveDeviceOptions
-                  });
+                    updateActiveDeviceOptions
+                  );
                 };
 
                 return (

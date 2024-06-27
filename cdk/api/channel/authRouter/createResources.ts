@@ -103,7 +103,7 @@ const handler = async (
         { key: 'streamKeyValue', value: streamKeyValue },
         { key: 'trackingId', value: trackingId },
         {
-          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID,
+          key: CHANNELS_TABLE_STAGE_FIELDS.USER_STAGE_ID,
           value: null
         },
         {

@@ -13,7 +13,7 @@ import StatusItem from './StatusItem/StatusItem';
 import useCurrentPage from '../../hooks/useCurrentPage';
 import useElapsedTime from '../../hooks/useElapsedTime';
 import { useChannel } from '../../contexts/Channel';
-import { useGlobalStage } from '../../contexts/Stage';
+import { useStageManager } from '../../contexts/StageManager';
 
 const $content = $appContent.status_bar;
 
@@ -27,7 +27,14 @@ const StatusBar = () => {
     hasStreamSessions,
     activeStreamSession
   } = useStreams();
-  const { isStageActive, participants, isHost } = useGlobalStage();
+  const { user: userStage = null, participantRole } = useStageManager() || {};
+  const { isUserStageConnected: isStageActive } = userStage || {};
+  const isHost = participantRole === 'host';
+  const publishingUserParticipants =
+    userStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || [];
   const shouldDisplayStageStatusBar = isStageActive && isHost;
   const { currentBreakpoint } = useResponsiveDevice();
   const { channelData } = useChannel();
@@ -153,7 +160,7 @@ const StatusBar = () => {
           icon={<Group />}
           isLive={isStageActive}
           itemLabel="Stage participants count"
-          value={participants.size}
+          value={publishingUserParticipants.length}
           className={clsm(['mr-6'])}
         />
       )}

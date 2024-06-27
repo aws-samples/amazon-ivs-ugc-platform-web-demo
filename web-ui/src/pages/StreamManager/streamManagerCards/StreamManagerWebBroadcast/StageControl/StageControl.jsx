@@ -4,11 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { streamManager as $content } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 import Spinner from '../../../../../components/Spinner';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
@@ -18,6 +14,10 @@ import { BREAKPOINTS } from '../../../../../constants';
 import Tooltip from '../../../../../components/Tooltip';
 import Button from '../../../../../components/Button';
 import StageControls from '../FullScreenView/StageControls';
+import { useStageManager } from '../../../../../contexts/StageManager/StageManager';
+import { useNavigate, useNavigation } from 'react-router-dom';
+import { useBroadcast } from '../../../../../contexts/Broadcast';
+import { useStreams } from '../../../../../contexts/Streams';
 
 const $stageContent = $content.stream_manager_stage;
 const {
@@ -34,20 +34,20 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
   };
   const { isTouchscreenDevice, isDesktopView, currentBreakpoint } =
     useResponsiveDevice();
+  const navigate = useNavigate();
 
-  const {
-    initializeStageClient,
-    isStageActive,
-    isCreatingStage,
-    shouldDisableCollaborateButton,
-    hasPermissions,
-    shouldDisableCopyLinkButton
-  } = useStreamManagerStage();
+  const { user: userStage = null, participantRole } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const { isBroadcasting, hasPermissions } = useBroadcast();
+  const { isLive } = useStreams();
+  const isSpectator = participantRole === 'spectator';
+  const shouldDisableCopyLinkButton = isStageActive && isSpectator;
+  const shouldDisableCollaborateButton = isLive || isBroadcasting;
+
   const {
     collaborateButtonAnimationControls,
     animateCollapseStageContainerWithDelay
   } = useGlobalStage();
-  const { handleToggleFullscreen } = useBroadcastFullScreen();
   const isCollaborateDisabled =
     shouldDisableCollaborateButton ||
     !hasPermissions ||
@@ -63,7 +63,10 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
 
   let icon;
 
-  if (isCreatingStage) {
+  const { state: navigationState } = useNavigation();
+  const isLoadingCollaborate = navigationState === 'loading';
+
+  if (isLoadingCollaborate) {
     icon = <Spinner variant="light" />;
   } else {
     icon = animateCollapseStageContainerWithDelay ? (
@@ -108,20 +111,6 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
     );
   }
 
-  const handleOpenStageFullScreen = () => {
-    if (isStageActive) return;
-
-    const openFullscreenViewCallback = () => {
-      collaborateButtonAnimationControls.start({
-        zIndex: 0,
-        opacity: 0
-      });
-      handleToggleFullscreen();
-    };
-
-    initializeStageClient(openFullscreenViewCallback);
-  };
-
   return (
     <motion.div className={clsm(['flex', 'items-center'])}>
       <Tooltip
@@ -163,7 +152,7 @@ const StageControl = ({ goLiveContainerVideoContainerRef }) => {
                 onClick={
                   isStageActive
                     ? handleToggleStageMenu
-                    : handleOpenStageFullScreen
+                    : () => navigate('/manager/collab')
                 }
                 isDisabled={isCollaborateDisabled}
                 disableHover={isTouchscreenDevice}

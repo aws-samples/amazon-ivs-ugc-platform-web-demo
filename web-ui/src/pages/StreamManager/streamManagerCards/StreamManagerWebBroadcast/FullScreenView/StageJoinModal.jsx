@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import { BREAKPOINTS } from '../../../../../constants';
 import { clsm } from '../../../../../utils';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
@@ -14,18 +16,24 @@ import { Close } from '../../../../../assets/icons';
 import Button from '../../../../../components/Button/Button';
 import GoLiveContainer from '../GoLiveContainer';
 import { useBroadcast } from '../../../../../contexts/Broadcast';
-import { useGlobalStage } from '../../../../../contexts/Stage';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import { useEffect } from 'react';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $stageContent = $content.stream_manager_stage;
+
+const { StageLeftReason } = window.IVSBroadcastClient;
 
 const JoinModal = () => {
   const { isModalOpen, type, closeModal } = useModal();
   const { isLandscape, isMobileView } = useResponsiveDevice();
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
-  const { previewRef, resetPreview } = useBroadcast();
-  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const {
+    user: userStage = null,
+    stageControls = null,
+    isJoiningStageByRequestOrInvite
+  } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const { handleOpenJoinModal } = stageControls || {};
+  const { previewRef } = useBroadcast();
+  const isStageJoinModal = type === MODAL_TYPE.STAGE_JOIN;
 
   const renderJoinModal = (children) => (
     <>
@@ -62,12 +70,49 @@ const JoinModal = () => {
     </>
   );
 
+  const isUserStageDeleted =
+    userStage?.stageLeftReason === StageLeftReason.STAGE_DELETED;
+  const isUserDisconnected =
+    userStage?.stageLeftReason === StageLeftReason.PARTICIPANT_DISCONNECTED;
+  const openModalLock = useRef(false);
   useEffect(() => {
-    resetPreview();
-  }, [resetPreview, isModalOpen, isMobileView]);
+    // Open modal when invited or requested stage user is joining
+    if (
+      !openModalLock.current &&
+      isJoiningStageByRequestOrInvite &&
+      !isUserStageDeleted &&
+      !isUserDisconnected
+    ) {
+      handleOpenJoinModal();
+      openModalLock.current = true;
+    }
+  }, [
+    handleOpenJoinModal,
+    isJoiningStageByRequestOrInvite,
+    isUserStageDeleted,
+    isUserDisconnected
+  ]);
+
+  useEffect(() => {
+    // Close modal when participant has joined
+    if (
+      isStageJoinModal &&
+      isModalOpen &&
+      !isJoiningStageByRequestOrInvite &&
+      isStageActive
+    ) {
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+    }
+  }, [
+    closeModal,
+    isJoiningStageByRequestOrInvite,
+    isModalOpen,
+    isStageActive,
+    isStageJoinModal
+  ]);
 
   return (
-    type === MODAL_TYPE.STAGE_JOIN &&
+    isStageJoinModal &&
     renderJoinModal(
       <div
         className={clsm(
@@ -97,7 +142,7 @@ const JoinModal = () => {
           </h2>
           <GoLiveContainer
             ref={
-              isFullScreenViewOpen && isJoiningStageByRequestOrInvite
+              isStageJoinModal && isModalOpen && isJoiningStageByRequestOrInvite
                 ? previewRef
                 : null
             }

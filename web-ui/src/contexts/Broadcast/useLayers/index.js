@@ -13,7 +13,7 @@ export const LAYER_TYPE = {
   IMAGE: 'IMAGE',
   SCREEN_SHARE: 'SCREEN_SHARE'
 };
-export const CAMERA_LAYER_NAME = 'camera';
+export const VIDEO_LAYER_NAME = 'video';
 
 const useLayers = () => {
   const layers = useMap({}, true);

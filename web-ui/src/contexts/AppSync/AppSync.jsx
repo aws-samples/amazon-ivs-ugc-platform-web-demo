@@ -9,8 +9,9 @@ import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import { streamManager as $streamManagerContent } from '../../content';
 import { useGlobalStage } from '../Stage';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useChannel } from '../Channel';
+import { extractChannelIdfromChannelArn } from '../../utils';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -18,17 +19,23 @@ const $contentNotification =
 const Context = createContext(null);
 Context.displayName = 'AppSync';
 
-export const Provider = ({ children }) => {
+export const Provider = ({ children = null }) => {
   const { userData } = useUser();
   const { notifyNeutral, notifyError } = useNotif();
   const {
-    isHost,
     updateStageRequestList,
     updateRequestingToJoinStage,
     updateHasStageRequestBeenApproved
   } = useGlobalStage();
   const { pathname } = useLocation();
   const { channelData } = useChannel();
+  const channelId = channelData?.channelArn
+    ? extractChannelIdfromChannelArn(channelData.channelArn)
+    : null;
+  const isChannelOwner =
+    channelId &&
+    userData?.channelId &&
+    channelId.toLowerCase() === userData.channelId.toLowerCase();
 
   /**
    * @param  {string} name the name of the channel
@@ -62,12 +69,12 @@ export const Provider = ({ children }) => {
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
         case channelEvents.STAGE_REQUEST_TO_JOIN:
-          if (!isHost) return;
+          if (!isChannelOwner) return;
 
           updateStageRequestList(channelEvent);
           break;
         case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
-          if (!isHost) {
+          if (!isChannelOwner) {
             notifyNeutral($contentNotification.neutral.joining_session, {
               asPortal: true
             });
@@ -79,7 +86,7 @@ export const Provider = ({ children }) => {
           updateRequestingToJoinStage(false);
           break;
         case channelEvents.STAGE_PARTICIPANT_KICKED:
-          if (!isHost) {
+          if (!isChannelOwner) {
             notifyError(
               $contentNotification.error.you_have_been_removed_from_session,
               {
@@ -87,6 +94,8 @@ export const Provider = ({ children }) => {
               }
             );
           }
+          break;
+        case channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE:
           break;
         default:
           return;
@@ -96,7 +105,7 @@ export const Provider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [
     channelData,
-    isHost,
+    isChannelOwner,
     notifyNeutral,
     pathname,
     subscribe,
@@ -114,9 +123,11 @@ export const Provider = ({ children }) => {
     [publish]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>{children || <Outlet />}</Context.Provider>
+  );
 };
 
-Provider.propTypes = { children: PropTypes.node.isRequired };
+Provider.propTypes = { children: PropTypes.node };
 
 export const useAppSync = () => useContextHook(Context);

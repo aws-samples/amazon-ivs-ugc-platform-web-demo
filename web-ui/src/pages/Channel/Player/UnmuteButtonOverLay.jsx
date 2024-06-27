@@ -10,12 +10,12 @@ import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
 const UnmuteButtonOverLay = () => {
   const { updateIsChannelStagePlayerMuted } = useGlobalStage();
   const { isTouchscreenDevice } = useResponsiveDevice();
+  const { isProfileViewAnimationRunning, isProfileViewExpanded } =
+    useProfileViewAnimation();
 
   const handleOnClick = () => {
     updateIsChannelStagePlayerMuted(false);
   };
-
-  const { isProfileViewExpanded } = useProfileViewAnimation();
 
   return (
     <div
@@ -44,7 +44,10 @@ const UnmuteButtonOverLay = () => {
           !isTouchscreenDevice && [
             'hover:bg-lightMode-gray-hover',
             'dark:hover:bg-darkMode-gray-hover'
-          ]
+          ],
+          'duration-75',
+          'transition-opacity',
+          isProfileViewAnimationRunning ? 'opacity-0' : 'opacity-100'
         ])}
         onClick={handleOnClick}
       >

@@ -3,7 +3,7 @@ import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
 import {
-  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
+  CHANNEL_ARN_CHANNEL_ID_SEPARATOR,
   CHANNEL_TYPE,
   NUM_MILLISECONDS_TO_BLOCK
 } from './constants';
@@ -329,10 +329,8 @@ export const convertConcurrentViews = (views) => {
 
 export const isS3Url = (url = '') => url.includes('.s3.');
 
-export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
-  bannedUserChannelArn
-    .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
-    ?.toLowerCase();
+export const extractChannelIdfromChannelArn = (channelArn) =>
+  channelArn.split(CHANNEL_ARN_CHANNEL_ID_SEPARATOR)[1]?.toLowerCase();
 
 export const updateVotes = (message, votes) => {
   const selectedOption = message.attributes?.option;

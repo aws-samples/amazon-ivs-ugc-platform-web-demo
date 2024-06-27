@@ -22,6 +22,7 @@ interface GetUserResponseBody extends ResponseBody {
   streamKeyValue?: string;
   username?: string;
   trackingId?: string;
+  userStageId?: string;
 }
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -31,6 +32,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
+    const data = unmarshall(Item);
+    let channelId;
     const {
       avatar,
       channelArn,
@@ -40,9 +43,9 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       playbackUrl,
       streamKeyValue,
       username,
-      trackingId
-    } = unmarshall(Item);
-    let channelId;
+      trackingId,
+      userStageId
+    } = data;
 
     if (!channelArn) {
       throw new Error('No IVS resources have been created for this user.');
@@ -64,6 +67,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
     responseBody.trackingId = trackingId;
     responseBody.channelId = channelId;
+    responseBody.userStageId = userStageId;
   } catch (error) {
     console.error(error);
 

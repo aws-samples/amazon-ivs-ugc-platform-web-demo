@@ -46,6 +46,15 @@ const useGlobalReducers = () => {
     dispatch(actions.resetParticipants());
   }, []);
 
+  const updateIsScreensharePermissionRevoked = useCallback(
+    (spectatorParticipantId) => {
+      dispatch(
+        actions.updateIsScreensharePermissionRevoked(spectatorParticipantId)
+      );
+    },
+    []
+  );
+
   // Stage
   const creatingStage = useCallback((isCreating) => {
     dispatch(actions.creatingStage(isCreating));
@@ -119,6 +128,15 @@ const useGlobalReducers = () => {
     dispatch(actions.updateHasStageRequestBeenApproved(bool));
   }, []);
 
+  // Real-time screenshare
+  const updateLocalScreenshareStream = useCallback((stream) => {
+    dispatch(actions.updateLocalScreenshareStream(stream));
+  }, []);
+
+  const updateIsScreensharing = useCallback((bool) => {
+    dispatch(actions.updateIsScreensharing(bool));
+  }, []);
+
   // Channel page
   const updateIsChannelStagePlayerMuted = useCallback((bool) => {
     dispatch(actions.updateIsChannelStagePlayerMuted(bool));
@@ -171,9 +189,12 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnConnectionError,
       updateStageRequestList,
       deleteRequestToJoin,
+      updateIsScreensharing,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateShouldOpenSettingsModal
+      updateShouldOpenSettingsModal,
+      updateIsScreensharePermissionRevoked,
+      updateLocalScreenshareStream
     }),
     [
       state,
@@ -201,9 +222,12 @@ const useGlobalReducers = () => {
       updateShouldCloseFullScreenViewOnConnectionError,
       updateStageRequestList,
       deleteRequestToJoin,
+      updateIsScreensharing,
       updateIsJoiningStageByRequest,
       updateIsJoiningStageByInvite,
-      updateShouldOpenSettingsModal
+      updateShouldOpenSettingsModal,
+      updateIsScreensharePermissionRevoked,
+      updateLocalScreenshareStream
     ]
   );
 };

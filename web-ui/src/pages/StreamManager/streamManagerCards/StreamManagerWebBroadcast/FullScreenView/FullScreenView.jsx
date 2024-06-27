@@ -1,22 +1,17 @@
 import { motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import {
   ANIMATION_TRANSITION,
   useBroadcastFullScreen
 } from '../../../../../contexts/BroadcastFullscreen';
-import { clsm, noop } from '../../../../../utils';
+import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
-import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
+import { useModal } from '../../../../../contexts/Modal';
 import StageVideoFeeds, {
   STAGE_VIDEO_FEEDS_TYPES
 } from '../StageVideoFeeds/StageVideoFeeds';
-import { useBroadcast } from '../../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
@@ -24,22 +19,18 @@ import Header from './Header';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
 import useResize from '../../../../../hooks/useResize';
 import withPortal from '../../../../../components/withPortal';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const FullScreenView = () => {
-  const { isStageActive } = useStreamManagerStage();
-  const {
-    isJoiningStageByRequestOrInvite,
-    shouldOpenSettingsModal,
-    updateShouldOpenSettingsModal
-  } = useGlobalStage();
-  const { handleOpenJoinModal } = useStreamManagerStage();
+  const { user: userStage = null, isJoiningStageByRequestOrInvite } =
+    useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
   const {
     isFullScreenViewOpen,
     dimensions,
     initializeGoLiveContainerDimensions
   } = useBroadcastFullScreen();
-  const { resetPreview } = useBroadcast();
-  const { openModal, isModalOpen } = useModal();
+  const { isModalOpen } = useModal();
   const fullScreenViewContainerRef = useRef();
   const { isMobileView, dimensions: windowDimensions } = useResponsiveDevice();
   const { height: windowHeight } = windowDimensions;
@@ -63,35 +54,6 @@ const FullScreenView = () => {
   } = dimensions;
 
   useResize(initializeGoLiveContainerDimensions);
-
-  useEffect(() => {
-    if (!isModalOpen && isJoiningStageByRequestOrInvite) {
-      handleOpenJoinModal();
-      resetPreview();
-    }
-  }, [
-    isModalOpen,
-    handleOpenJoinModal,
-    resetPreview,
-    isJoiningStageByRequestOrInvite
-  ]);
-
-  useEffect(() => {
-    if (shouldOpenSettingsModal && !isMobileView) {
-      openModal({
-        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-        onCancel: isJoiningStageByRequestOrInvite ? handleOpenJoinModal : noop
-      });
-      updateShouldOpenSettingsModal(false);
-    }
-  }, [
-    isJoiningStageByRequestOrInvite,
-    handleOpenJoinModal,
-    openModal,
-    isMobileView,
-    shouldOpenSettingsModal,
-    updateShouldOpenSettingsModal
-  ]);
 
   return (
     <motion.div

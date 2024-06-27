@@ -47,7 +47,8 @@ const {
 const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
-const isDebug = false;
+
+let chatHistoryCache = [];
 
 const Context = createContext(null);
 Context.displayName = 'Chat';
@@ -82,21 +83,25 @@ const actionTypes = {
 };
 
 const reducer = (messages, action) => {
+  let newMessages;
+
   switch (action.type) {
     case actionTypes.INIT_MESSAGES: {
-      return action.initialMessages || [];
+      newMessages = [...chatHistoryCache, ...action.initialMessages];
+      break;
     }
     case actionTypes.ADD_MESSAGE: {
       const { message: newMessage, isOwnMessage } = action;
 
-      return [...messages, { ...newMessage, isOwnMessage }];
+      newMessages = [...messages, { ...newMessage, isOwnMessage }];
+      break;
     }
     case actionTypes.DELETE_MESSAGE: {
       const { messageId: messageIdToDelete, deletedMessageIds } = action;
       const wasDeletedByUser =
         deletedMessageIds.current.includes(messageIdToDelete);
 
-      const newMessages = messages.reduce(
+      newMessages = messages.reduce(
         (acc, msg) => [
           ...acc,
           msg.id === messageIdToDelete
@@ -105,21 +110,23 @@ const reducer = (messages, action) => {
         ],
         []
       );
-
-      return newMessages;
+      break;
     }
     case actionTypes.DELETE_MESSAGES_BY_USER_ID: {
       const { userId: userIdToDelete } = action;
 
-      const newMessages = messages.filter(
+      newMessages = messages.filter(
         (msg) => msg.sender.attributes.channelArn !== userIdToDelete
       );
-
-      return newMessages;
+      break;
     }
     default:
       throw new Error('Unexpected action type');
   }
+
+  chatHistoryCache = newMessages;
+
+  return newMessages;
 };
 
 export const Provider = ({ children }) => {
@@ -139,7 +146,7 @@ export const Provider = ({ children }) => {
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned = false } =
     channelData || {};
-  const { notifyError } = useNotif();
+  const { notifyError, dismissNotif } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
 
@@ -185,8 +192,7 @@ export const Provider = ({ children }) => {
     saveVotesToLocalStorage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps,
-    pollCreatorId
+    endPollAndResetPollProps
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -236,8 +242,7 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(savedPollData?.voters || {}),
-        pollCreatorId: JSON.stringify(pollCreatorId)
+        voters: JSON.stringify(savedPollData?.voters || {})
       });
     }
   }, [
@@ -247,7 +252,6 @@ export const Provider = ({ children }) => {
     isActive,
     isModerator,
     noVotesCaptured,
-    pollCreatorId,
     question,
     savedPollData?.voters,
     showFinalResults,
@@ -383,8 +387,7 @@ export const Provider = ({ children }) => {
       }
     });
 
-    room.logLevel =
-      process.env.REACT_APP_STAGE === 'prod' ? info : isDebug && debug;
+    room.logLevel = process.env.REACT_APP_STAGE === 'prod' ? info : debug;
     room.connect();
     setRoom(room);
     connection.current = room;
@@ -407,6 +410,7 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnConnect = room.addListener('connect', () => {
       updateUserRole();
+      dismissNotif();
     });
 
     const unsubscribeOnDisconnect = room.addListener('disconnect', () => {
@@ -458,8 +462,7 @@ export const Provider = ({ children }) => {
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
-            delay,
-            pollCreatorId: JSON.parse(message.attributes.pollCreatorId)
+            delay
           });
 
           const votersList = JSON.parse(message.attributes.voters);
@@ -504,8 +507,7 @@ export const Provider = ({ children }) => {
             question,
             expiry,
             startTime,
-            delay: del = 0,
-            pollCreatorId
+            delay: del = 0
           } = JSON.parse(pollStreamActionData);
 
           if (isModerator && isStreamManagerPage) {
@@ -517,13 +519,11 @@ export const Provider = ({ children }) => {
               votes: options,
               voters: {},
               isActive: true,
-              name: STREAM_ACTION_NAME.POLL,
-              pollCreatorId
+              name: STREAM_ACTION_NAME.POLL
             });
           }
 
           updatePollData({
-            pollCreatorId,
             duration,
             question,
             votes: options,
@@ -566,6 +566,7 @@ export const Provider = ({ children }) => {
     addMessage,
     room,
     updateUserRole,
+    dismissNotif,
     handleDeleteMessage,
     handleUserDisconnect,
     userData,
@@ -604,6 +605,7 @@ export const Provider = ({ children }) => {
         }));
       }
     } else {
+      chatHistoryCache = [];
       savedMessages.current = {};
     }
   }, [isSessionValid, messages, ownUsername, chatRoomOwnerUsername]);

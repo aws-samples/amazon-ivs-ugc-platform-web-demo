@@ -67,9 +67,9 @@ const handler = async (
       const scanChannelTableForActiveStageCommand = new ScanCommand({
         TableName: process.env.CHANNELS_TABLE_NAME,
         FilterExpression:
-          'attribute_exists(stageId) AND #stageId <> :nullValue',
+          'attribute_exists(userStageId) AND #userStageId <> :nullValue',
         ExpressionAttributeNames: {
-          '#stageId': 'stageId'
+          '#userStageId': 'userStageId'
         },
         ExpressionAttributeValues: {
           ':nullValue': { NULL: true }

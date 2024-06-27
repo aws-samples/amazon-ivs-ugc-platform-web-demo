@@ -7,21 +7,22 @@ import { ChevronDown, ChevronUp, ExpandScreen } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import Button from '../../../../components/Button/Button';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../../../contexts/Stage';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const GoLiveHeader = ({ onCollapse }) => {
   const { isBroadcasting, resetPreview } = useBroadcast();
-  const { isStageActive } = useStreamManagerStage();
+  const { user: userStage = null } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
   const {
     collaborateButtonAnimationControls,
     animateCollapseStageContainerWithDelay,
     shouldAnimateGoLiveButtonChevronIcon
   } = useGlobalStage();
   const {
-    handleToggleFullscreen,
+    handleOpenFullscreenWithAnimations,
     isFullScreenViewOpen,
     setShouldRenderFullScreenCollaborateButton
   } = useBroadcastFullScreen();
@@ -29,7 +30,7 @@ const GoLiveHeader = ({ onCollapse }) => {
   const handleOpenFullScreen = () => {
     if (!isStageActive) setShouldRenderFullScreenCollaborateButton(true);
     collaborateButtonAnimationControls.start({ zIndex: 0 });
-    handleToggleFullscreen();
+    handleOpenFullscreenWithAnimations();
   };
 
   useEffect(() => {

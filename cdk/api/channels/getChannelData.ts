@@ -33,7 +33,8 @@ interface GetChannelDataResponseBody extends ResponseBody {
   playbackUrl?: string;
   username?: string;
   channelArn?: string;
-  stageId?: string;
+  userStageId?: string;
+  displayStageId?: string;
   stageCreationDate?: string;
 }
 
@@ -83,7 +84,8 @@ const handler = async (
       playbackUrl,
       username,
       id: channelSub,
-      stageId,
+      userStageId,
+      displayStageId,
       stageCreationDate
     } = unmarshall(UserItems[0]);
 
@@ -95,7 +97,8 @@ const handler = async (
     responseBody.isViewerFollowing = false;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
     responseBody.channelArn = channelArn;
-    responseBody.stageId = stageId;
+    responseBody.userStageId = userStageId;
+    responseBody.displayStageId = displayStageId;
     responseBody.stageCreationDate = stageCreationDate;
 
     if (viewerSub) {

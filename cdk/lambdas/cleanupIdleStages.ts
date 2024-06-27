@@ -1,4 +1,4 @@
-import { ListStagesCommand } from '@aws-sdk/client-ivs-realtime'
+import { ListStagesCommand } from '@aws-sdk/client-ivs-realtime';
 
 import {
   ivsRealTimeClient,
@@ -7,7 +7,7 @@ import {
   updateMultipleChannelDynamoItems,
   getBatchChannelWriteUpdates,
   getIdleStages
-} from './helpers'
+} from './helpers';
 
 export const handler = async () => {
   try {
@@ -15,31 +15,32 @@ export const handler = async () => {
       const listStagesCommand = new ListStagesCommand({
         maxResults: 100,
         nextToken
-      })
-      const response = await ivsRealTimeClient.send(listStagesCommand)
+      });
+      const response = await ivsRealTimeClient.send(listStagesCommand);
 
-      const stages = response?.stages || []
-      const _nextToken = response?.nextToken || ''
+      const stages = response?.stages || [];
+      const _nextToken = response?.nextToken || '';
 
       if (stages.length) {
-        const idleStages = getIdleStages(stages)
-        const idleStageArns = getIdleStageArns(idleStages)
-        const batchChannelWriteUpdates = getBatchChannelWriteUpdates(idleStages)
+        const idleStages = getIdleStages(stages);
+        const idleStageArns = getIdleStageArns(idleStages);
+        const batchChannelWriteUpdates =
+          getBatchChannelWriteUpdates(idleStages);
         await Promise.all([
           deleteStagesWithRetry(idleStageArns),
           updateMultipleChannelDynamoItems(batchChannelWriteUpdates)
-        ])
+        ]);
       }
 
-      if (_nextToken) await deleteIdleStages(_nextToken)
-    }
+      if (_nextToken) await deleteIdleStages(_nextToken);
+    };
 
-    await deleteIdleStages()
+    await deleteIdleStages();
   } catch (error) {
-    console.error(error)
+    console.error(error);
 
-    throw new Error('Failed to remove idle stages due to unexpected error')
+    throw new Error('Failed to remove idle stages due to unexpected error');
   }
-}
+};
 
-export default handler
+export default handler;

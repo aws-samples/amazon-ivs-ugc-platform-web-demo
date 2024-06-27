@@ -18,9 +18,12 @@ const handler = async (
 
     const { sub } = request.requestContext.get('user') as UserContext;
 
-    const { stageId } = await verifyUserIsStageHost(sub);
+    const { userStageId, displayStageId } = await verifyUserIsStageHost(sub);
 
-    await handleDisconnectParticipant(participantId, stageId);
+    await Promise.allSettled([
+      handleDisconnectParticipant(participantId, userStageId),
+      handleDisconnectParticipant(participantId, displayStageId)
+    ]);
 
     reply.statusCode = 200;
     return reply.send({

@@ -9,49 +9,45 @@ import {
 } from '../../../../../contexts/BroadcastFullscreen';
 import { CreateStage } from '../../../../../assets/icons';
 import { streamManager as $content } from '../../../../../content';
-import { useGlobalStage } from '../../../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import BroadcastControlWrapper from '../BroadcastControl/BroadcastControlWrapper';
 import Button from '../../../../../components/Button/Button';
 import GoLiveStreamButton from '../GoLiveStreamButton';
 import Spinner from '../../../../../components/Spinner';
 import StageControls from './StageControls';
 import Tooltip from '../../../../../components/Tooltip/Tooltip';
+import { useStageManager } from '../../../../../contexts/StageManager';
+import { useStreams } from '../../../../../contexts/Streams';
+import { useBroadcast } from '../../../../../contexts/Broadcast';
+import { useNavigate, useNavigation } from 'react-router-dom';
 
 const $stageContent = $content.stream_manager_stage;
 
 const Footer = ({ shouldAddScrollbar }) => {
+  const navigate = useNavigate();
+  const { state: navigationState } = useNavigation();
+  const isLoadingCollaborate = navigationState === 'loading';
   const {
-    initializeStageClient,
-    isStageActive,
-    shouldDisableCollaborateButton,
-    hasPermissions
-  } = useStreamManagerStage();
-  const {
-    collaborateButtonAnimationControls,
-    isCreatingStage,
+    user: userStage = null,
+    participantRole,
     isJoiningStageByRequestOrInvite
-  } = useGlobalStage();
+  } = useStageManager() || {};
+  const isInvitedStageUser = participantRole === 'invited';
+  const isRequestedStageUser = participantRole === 'requested';
+  const shouldAnimateGoLiveButton =
+    !isInvitedStageUser && !isRequestedStageUser;
+  const isStageActive = userStage?.isUserStageConnected;
   const {
     shouldRenderFullScreenCollaborateButton,
-    setShouldRenderFullScreenCollaborateButton,
     isFullScreenViewOpen,
     dimensions
   } = useBroadcastFullScreen();
   const { goLiveButtonInitialWidth, broadcastControllerInitialMarginLeft } =
     dimensions;
-
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
-
-  const handleCreateStage = async () => {
-    await initializeStageClient();
-    setShouldRenderFullScreenCollaborateButton(false);
-    collaborateButtonAnimationControls.start({
-      zIndex: 0,
-      opacity: 0
-    });
-  };
+  const { isLive } = useStreams();
+  const { isBroadcasting, hasPermissions } = useBroadcast();
+  const shouldDisableCollaborateButton = isLive || isBroadcasting;
 
   const getMarginLeft = () => {
     if (isStageActive || isJoiningStageByRequestOrInvite) {
@@ -113,7 +109,7 @@ const Footer = ({ shouldAddScrollbar }) => {
               ariaLabel={$stageContent.collaborate}
               key="create-stage-control-btn"
               variant="icon"
-              onClick={handleCreateStage}
+              onClick={() => navigate('/manager/collab')}
               className={clsm([
                 'w-11',
                 'h-11',
@@ -126,7 +122,11 @@ const Footer = ({ shouldAddScrollbar }) => {
               ])}
               isDisabled={isCollaborateDisabled}
             >
-              {isCreatingStage ? <Spinner variant="light" /> : <CreateStage />}
+              {isLoadingCollaborate ? (
+                <Spinner variant="light" />
+              ) : (
+                <CreateStage />
+              )}
             </Button>
           </Tooltip>
         </div>
@@ -141,24 +141,35 @@ const Footer = ({ shouldAddScrollbar }) => {
           isStageActive && shouldAddScrollbar && 'right-1',
           'w-full'
         ])}
-        {...createAnimationProps({
-          customVariants: {
-            hidden: {
-              width: goLiveButtonInitialWidth,
-              marginLeft: 0,
-              opacity: 1
-            },
-            visible: {
-              width:
-                isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
-              marginLeft: getMarginLeft()
-            }
-          },
-          options: {
-            shouldAnimatedIn: !isJoiningStageByRequestOrInvite
-          },
-          transition: ANIMATION_TRANSITION
-        })}
+        style={
+          !shouldAnimateGoLiveButton
+            ? {
+                width:
+                  isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+                marginLeft: getMarginLeft()
+              }
+            : {}
+        }
+        {...(shouldAnimateGoLiveButton
+          ? createAnimationProps({
+              customVariants: {
+                hidden: {
+                  width: goLiveButtonInitialWidth,
+                  marginLeft: 0,
+                  opacity: 1
+                },
+                visible: {
+                  width:
+                    isStageActive || isJoiningStageByRequestOrInvite ? 40 : 140,
+                  marginLeft: getMarginLeft()
+                }
+              },
+              options: {
+                shouldAnimatedIn: !isJoiningStageByRequestOrInvite
+              },
+              transition: ANIMATION_TRANSITION
+            })
+          : {})}
       >
         <GoLiveStreamButton
           tooltipPosition="above"

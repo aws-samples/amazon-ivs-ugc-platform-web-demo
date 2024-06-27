@@ -5,6 +5,7 @@ import {
   Close,
   MicOff,
   MicOn,
+  ScreenShare,
   VideoCamera,
   VideoCameraOff
 } from '../../../../../assets/icons';
@@ -26,26 +27,33 @@ import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/
 const $stageContent = $content.stream_manager_stage;
 
 const StageParticipant = ({ participant }) => {
-  const { isTouchscreenDevice } = useResponsiveDevice();
-  const { id, attributes, isCameraHidden, isMicrophoneMuted } = participant;
+  const { isTouchscreenDevice, currentBreakpoint } = useResponsiveDevice();
+  const {
+    videoStopped: isCameraHidden,
+    audioMuted: isMicrophoneMuted,
+    attributes,
+    id
+  } = participant;
   const { username, profileColor, channelId, type } = attributes;
   const avatarSrc = getAvatarSrc(attributes);
   const { publish } = useAppSync();
   const { closeModal, openModal } = useModal();
   const { updateError } = useGlobalStage();
+  const isHost = type === PARTICIPANT_TYPES.HOST;
   const REPLACEMENT_TEXT = 'USERNAME';
   const message = $stageContent.remove_participant_confirmation_text.replace(
     REPLACEMENT_TEXT,
     username
   );
-  const profilePillUsername =
-    type === PARTICIPANT_TYPES.HOST
-      ? `${username} ${$stageContent.participants_modal.you}`
-      : username;
+  const removeScreenshareMessage =
+    $stageContent.participants_modal.remove_screen_share.replace(
+      REPLACEMENT_TEXT,
+      username
+    );
+  const isScreenshare = type === PARTICIPANT_TYPES.SCREENSHARE;
 
   const handleDisconnectParticipant = () => {
     closeModal();
-
     openModal({
       content: {
         confirmText: $stageContent.remove_participant,
@@ -64,7 +72,7 @@ const StageParticipant = ({ participant }) => {
         } else {
           if (result?.message) {
             publish(
-              channelId?.toLowerCase(),
+              channelId.toLowerCase(),
               JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
             );
           }
@@ -77,6 +85,48 @@ const StageParticipant = ({ participant }) => {
       }
     });
   };
+
+  const handleDisconnectParticipantScreenshare = () => {
+    closeModal();
+    openModal({
+      content: {
+        confirmText: $stageContent.remove_participant,
+        isDestructive: true,
+        message: removeScreenshareMessage
+      },
+      onConfirm: () => {
+        publish(
+          channelId.toLowerCase(),
+          JSON.stringify({
+            type: channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE
+          })
+        );
+      },
+      onCancel: () => {
+        openModal({
+          type: MODAL_TYPE.STAGE_PARTICIPANTS
+        });
+      }
+    });
+  };
+
+  const participantStreamingStatusIcon =
+    type === PARTICIPANT_TYPES.SCREENSHARE ? (
+      <ScreenShare />
+    ) : (
+      <>
+        {isCameraHidden ? (
+          <VideoCameraOff className="!fill-darkMode-gray" />
+        ) : (
+          <VideoCamera />
+        )}
+        {isMicrophoneMuted ? (
+          <MicOff className="!fill-darkMode-gray" />
+        ) : (
+          <MicOn />
+        )}
+      </>
+    );
 
   return (
     <div
@@ -92,7 +142,7 @@ const StageParticipant = ({ participant }) => {
       <StageProfilePill
         avatarSrc={avatarSrc}
         profileColor={profileColor}
-        username={profilePillUsername}
+        username={username}
         type={STAGE_PROFILE_TYPES.PARTICIPANTS_MODAL}
         className={clsm([
           '[&>img]:w-11',
@@ -103,6 +153,8 @@ const StageParticipant = ({ participant }) => {
           'w-full'
         ])}
         textClassName="text-[15px]"
+        isScreenshare={isScreenshare}
+        isHost={isHost}
       />
       <div
         className={clsm([
@@ -112,7 +164,8 @@ const StageParticipant = ({ participant }) => {
           'sm:w-auto',
           'max-w-[200px]',
           'min-w-[136px]',
-          'items-center'
+          'items-center',
+          isHost && currentBreakpoint && '-ml-7'
         ])}
       >
         <div
@@ -130,16 +183,7 @@ const StageParticipant = ({ participant }) => {
             'rounded-[20px]'
           ])}
         >
-          {isCameraHidden ? (
-            <VideoCameraOff className="!fill-darkMode-gray" />
-          ) : (
-            <VideoCamera />
-          )}
-          {isMicrophoneMuted ? (
-            <MicOff className="!fill-darkMode-gray" />
-          ) : (
-            <MicOn />
-          )}
+          {participantStreamingStatusIcon}
         </div>
 
         {type !== PARTICIPANT_TYPES.HOST && (
@@ -162,7 +206,11 @@ const StageParticipant = ({ participant }) => {
                   'dark:focus:bg-darkMode-gray',
                   'bg-lightMode-gray'
                 ])}
-                onClick={handleDisconnectParticipant}
+                onClick={
+                  isScreenshare
+                    ? handleDisconnectParticipantScreenshare
+                    : handleDisconnectParticipant
+                }
                 variant="icon"
               >
                 <Close />
@@ -184,8 +232,10 @@ StageParticipant.propTypes = {
       profileColor: PropTypes.string,
       type: PropTypes.string
     }),
-    isCameraHidden: PropTypes.bool,
-    isMicrophoneMuted: PropTypes.bool
+    userId: PropTypes.string,
+    videoStopped: PropTypes.bool,
+    audioMuted: PropTypes.bool,
+    mediaStream: PropTypes.instanceOf(MediaStream)
   }).isRequired
 };
 

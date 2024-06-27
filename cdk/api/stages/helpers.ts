@@ -29,7 +29,7 @@ import {
 import { getUser } from '../channel/helpers';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
-import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
 
@@ -37,6 +37,7 @@ interface HandleCreateStageParams {
   userSub?: string;
   participantType: string;
   isHostInStage?: boolean;
+  channelData?: Record<string, AttributeValue>;
 }
 
 const CHANNEL_ASSET_AVATAR_DELIMITER = 'https://';
@@ -49,14 +50,21 @@ export enum PARTICIPANT_TYPES {
   HOST = 'host',
   SPECTATOR = 'spectator',
   INVITED = 'invited',
-  REQUESTED = 'requested'
+  REQUESTED = 'requested',
+  SCREENSHARE = 'screenshare'
 }
 
 export const PARTICIPANT_USER_TYPES = {
   HOST: 'host',
   SPECTATOR: 'spectator',
   INVITED: 'invited',
-  REQUESTED: 'requested'
+  REQUESTED: 'requested',
+  SCREENSHARE: 'screenshare'
+};
+
+export const PARTICIPANT_GROUP = {
+  USER: 'user',
+  DISPLAY: 'display'
 };
 
 const PARTICIPANT_CONNECTION_STATES = {
@@ -66,6 +74,13 @@ const PARTICIPANT_CONNECTION_STATES = {
 const shouldFetchUserData = [
   PARTICIPANT_USER_TYPES.HOST,
   PARTICIPANT_USER_TYPES.INVITED,
+  PARTICIPANT_USER_TYPES.REQUESTED,
+  PARTICIPANT_USER_TYPES.SCREENSHARE
+];
+
+export const participantTypesArray = [
+  PARTICIPANT_USER_TYPES.HOST,
+  PARTICIPANT_USER_TYPES.INVITED,
   PARTICIPANT_USER_TYPES.REQUESTED
 ];
 
@@ -73,7 +88,8 @@ export type ParticipantType =
   | PARTICIPANT_TYPES.HOST
   | PARTICIPANT_TYPES.SPECTATOR
   | PARTICIPANT_TYPES.INVITED
-  | PARTICIPANT_TYPES.REQUESTED;
+  | PARTICIPANT_TYPES.REQUESTED
+  | PARTICIPANT_TYPES.SCREENSHARE;
 
 const client = new IVSRealTimeClient({});
 
@@ -89,11 +105,13 @@ export const handleCreateStage = async (input: CreateStageCommandInput) => {
   const { participantTokens, stage } = await client.send(command);
 
   const token = participantTokens?.[0].token;
+  const participantId = participantTokens?.[0].participantId;
   const stageId = extractStageIdfromStageArn(stage?.arn);
 
   return {
     token,
-    stageId
+    stageId,
+    participantId
   };
 };
 
@@ -106,16 +124,26 @@ export const handleDeleteStage = async (stageId: string) => {
 };
 
 export const handleCreateParticipantToken = async (
-  input: CreateParticipantTokenCommandInput
+  input: CreateParticipantTokenCommandInput,
+  shouldThrowError = true
 ) => {
+  let response = {
+    token: null as string | null,
+    participantId: null as string | null
+  };
   try {
     const command = new CreateParticipantTokenCommand(input);
-    const { participantToken } = await client.send(command);
+    const { participantToken = null } = await client.send(command);
 
-    return participantToken?.token;
+    response = {
+      token: participantToken?.token ?? null,
+      participantId: participantToken?.participantId ?? null
+    };
   } catch (err) {
-    throw new Error('Failed to create token');
+    console.error(err);
+    if (shouldThrowError) throw new Error('Failed to create token');
   }
+  return response;
 };
 
 export const buildStageArn = (stageId: string) =>
@@ -134,7 +162,7 @@ const updateHostChannelTable = async (hostChannelArn: string) => {
   const { id } = unmarshall(Items[0]);
   await updateDynamoItemAttributes({
     attributes: [
-      { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID, value: null },
+      { key: CHANNELS_TABLE_STAGE_FIELDS.USER_STAGE_ID, value: null },
       {
         key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
         value: null
@@ -186,7 +214,8 @@ export const getEncodedChannelAssetAvatarURL = (
 export const handleCreateStageParams = async ({
   userSub,
   participantType,
-  isHostInStage = false
+  isHostInStage = false,
+  channelData
 }: HandleCreateStageParams) => {
   const shouldCreateHostUserType =
     participantType === PARTICIPANT_USER_TYPES.HOST && !isHostInStage;
@@ -197,16 +226,24 @@ export const handleCreateStageParams = async ({
     channelAssets,
     channelArn,
     channelId = '',
-    channelAssetsAvatarUrl = '';
+    channelAssetsAvatarUrl = '',
+    userStageId = null,
+    displayStageId = null;
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
-    const { Item: UserItem = {} } = await getUser(userSub);
+    let UserItem = {};
+    if (channelData) {
+      ({ Item: UserItem = {} } = await getUser(userSub));
+    }
+
     ({
       avatar,
       color: profileColor,
       channelAssets,
       username,
-      channelArn
+      channelArn,
+      userStageId,
+      displayStageId
     } = unmarshall(UserItem));
 
     if (channelArn) {
@@ -231,13 +268,20 @@ export const handleCreateStageParams = async ({
     ? generateHostUserId(channelArn)
     : uuidv4();
 
-  let userType = shouldCreateHostUserType
-    ? PARTICIPANT_USER_TYPES.HOST
-    : PARTICIPANT_USER_TYPES.INVITED;
-  if (participantType === PARTICIPANT_USER_TYPES.SPECTATOR) {
-    userType = PARTICIPANT_USER_TYPES.SPECTATOR;
-  } else if (participantType === PARTICIPANT_USER_TYPES.REQUESTED) {
-    userType = PARTICIPANT_USER_TYPES.REQUESTED;
+  let userType;
+
+  if (shouldCreateHostUserType) {
+    userType = PARTICIPANT_USER_TYPES.HOST;
+  } else {
+    switch (participantType) {
+      case PARTICIPANT_USER_TYPES.SPECTATOR:
+      case PARTICIPANT_USER_TYPES.SCREENSHARE:
+      case PARTICIPANT_USER_TYPES.REQUESTED:
+        userType = participantType;
+        break;
+      default:
+        userType = PARTICIPANT_USER_TYPES.INVITED;
+    }
   }
 
   return {
@@ -249,7 +293,10 @@ export const handleCreateStageParams = async ({
     userId,
     capabilities,
     userType,
-    channelId
+    channelId,
+    channelArn,
+    userStageId,
+    displayStageId
   };
 };
 
@@ -370,12 +417,18 @@ export const validateRequestParams = (...requestParams: string[]) => {
 
 export const verifyUserIsStageHost = async (sub: string) => {
   const { Item: UserItem = {} } = await getUser(sub);
-  const { stageId = null, channelArn } = unmarshall(UserItem);
-  if (!stageId) {
-    throw new Error('No active stage found.');
+  const response = unmarshall(UserItem);
+  console.log(JSON.stringify(response));
+  const { userStageId = null, displayStageId = null, channelArn } = response;
+  if (!userStageId && !displayStageId) {
+    throw new Error('Both user and display stage ID were not found.');
+  } else if (!userStageId) {
+    throw new Error('User stage ID was not found.');
+  } else if (!displayStageId) {
+    throw new Error('Display stage ID was not found.');
   }
 
-  const { stage } = await getStage(stageId);
+  const { stage } = await getStage(userStageId);
   const channelId = getChannelId(channelArn);
   const stageOwnerChannelId = stage?.tags?.stageOwnerChannelId;
   const isStageHost = stageOwnerChannelId === channelId;
@@ -386,7 +439,8 @@ export const verifyUserIsStageHost = async (sub: string) => {
 
   return {
     isStageHost,
-    stageId
+    userStageId,
+    displayStageId
   };
 };
 

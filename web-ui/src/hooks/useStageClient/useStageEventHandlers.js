@@ -7,6 +7,7 @@ import { PARTICIPANT_TYPES } from '../../contexts/Stage/Global/reducer/globalRed
 import { useUser } from '../../contexts/User';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
+import useParticipants from '../../contexts/Stage/useParticipants';
 
 const {
   StageEvents,
@@ -26,16 +27,15 @@ const useStageEventHandlers = ({
     hostChannelId: null
   });
 
+  const { toggleMicrophoneState, toggleCameraState, strategy } =
+    useGlobalStage();
   const {
     addParticipant,
     updateStreams,
-    toggleMicrophoneState,
-    toggleCameraState,
     isSpectator,
     updateIsSpectator,
-    removeParticipant,
-    strategy
-  } = useGlobalStage();
+    removeParticipant
+  } = useParticipants();
   const { userData } = useUser();
   const localParticipantAttributes = useRef();
 

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
@@ -10,10 +10,7 @@ import { useStreams } from '../../../../contexts/Streams';
 import Button from '../../../../components/Button';
 import Spinner from '../../../../components/Spinner';
 import Tooltip from '../../../../components/Tooltip';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../contexts/Stage';
+import { useGlobalStage } from '../../../../contexts/Stage';
 import {
   ANIMATION_DURATION,
   useBroadcastFullScreen
@@ -21,9 +18,14 @@ import {
 import { LeaveSession } from '../../../../assets/icons';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
+import { useDeviceManager } from '../../../../contexts/DeviceManager';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
+const $contentStageConfirmationModal =
+  $content.stream_manager_stage.leave_stage_modal;
+
 const {
   your_channel_is_already_live: YourChannelIsAlreadyLive,
   notifications: {
@@ -44,17 +46,18 @@ const GoLiveStreamButton = ({
     isConnecting,
     hasPermissions
   } = useBroadcast();
+  const { collaborateButtonAnimationControls } = useGlobalStage();
   const {
-    isStageActive,
-    collaborateButtonAnimationControls,
-    isHost,
-    shouldDisableStageButtonWithDelay,
-    isJoiningStageByRequestOrInvite,
-    isCreatingStage
-  } = useGlobalStage();
+    user: userStage = null,
+    stageControls = null,
+    participantRole,
+    isJoiningStageByRequestOrInvite
+  } = useStageManager() || {};
+  const { enterMeeting, leaveStage } = stageControls || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const isHost = participantRole === 'host';
+  const isUserStageConnecting = userStage?.connectState === 'connecting';
 
-  const { handleOnConfirmLeaveStage, handleParticipantJoinStage } =
-    useStreamManagerStage();
   const {
     setIsFullScreenViewOpen,
     isFullScreenViewOpen,
@@ -63,16 +66,44 @@ const GoLiveStreamButton = ({
   const { openModal, isModalOpen, type: modalType } = useModal();
   const { isLive } = useStreams();
   const { isDesktopView } = useResponsiveDevice();
-  const shouldDisableLeaveStageButton =
-    isStageActive && shouldDisableStageButtonWithDelay;
-  const isDisabled =
-    !hasPermissions ||
-    shouldDisableLeaveStageButton ||
-    (isLive && !isBroadcasting);
+  const isStageJoinModal = isModalOpen && modalType === MODAL_TYPE.STAGE_JOIN;
+  const isDisabled = !hasPermissions || (isLive && !isBroadcasting);
 
   const stageButtonContent = isHost
     ? $stageContent.end_session
     : $stageContent.leave_session;
+
+  const handleOnConfirmLeaveStage = useCallback(
+    ({
+      closeFullscreenAndAnimateStreamButtonCallback = undefined,
+      lastFocusedElementRef = {}
+    } = {}) => {
+      const message = isHost
+        ? $contentStageConfirmationModal.exit_stage_session_host
+        : $contentStageConfirmationModal.exit_stage_session;
+
+      openModal({
+        content: {
+          confirmText: $contentStageConfirmationModal.confirm_exit,
+          isDestructive: true,
+          message
+        },
+        onConfirm: () => {
+          if (
+            typeof closeFullscreenAndAnimateStreamButtonCallback === 'function'
+          ) {
+            closeFullscreenAndAnimateStreamButtonCallback();
+          }
+
+          leaveStage({
+            shouldShowSuccessNotification: participantRole !== 'host'
+          });
+        },
+        lastFocusedElement: lastFocusedElementRef
+      });
+    },
+    [isHost, leaveStage, openModal, participantRole]
+  );
 
   const handleStartStopBroadcastingAction = () => {
     if (isStageActive) {
@@ -111,21 +142,14 @@ const GoLiveStreamButton = ({
 
   let tooltipMessage;
   if (shouldShowTooltipMessage) {
-    if (
-      isStageActive &&
-      isFullScreenViewOpen &&
-      !shouldDisableStageButtonWithDelay
-    )
+    if (isStageActive && isFullScreenViewOpen)
       tooltipMessage = stageButtonContent;
     if (isLive && !isBroadcasting) tooltipMessage = YourChannelIsAlreadyLive;
     else if (!hasPermissions) tooltipMessage = PermissionDenied;
   }
 
   let buttonTextContent;
-  if (
-    isConnecting ||
-    (isCreatingStage && isModalOpen && modalType === MODAL_TYPE.STAGE_JOIN)
-  ) {
+  if (isConnecting || (isUserStageConnecting && isStageJoinModal)) {
     buttonTextContent = <Spinner />;
   } else if (isBroadcasting) {
     buttonTextContent = <p>{$webBroadcastContent.end_stream}</p>;
@@ -169,6 +193,19 @@ const GoLiveStreamButton = ({
     );
   }
 
+  const {
+    userMedia: { startUserMedia }
+  } = useDeviceManager();
+  const initLocked = useRef(false);
+  async function initializeMeeting() {
+    if (!startUserMedia || typeof enterMeeting !== 'function') return;
+
+    initLocked.current = true;
+    const userStreamToPublish = await startUserMedia();
+
+    await enterMeeting({ userStreamToPublish });
+  }
+
   return (
     <Tooltip
       position={tooltipPosition}
@@ -179,7 +216,7 @@ const GoLiveStreamButton = ({
         ref={streamButtonRef}
         onClick={
           isJoiningStageByRequestOrInvite
-            ? handleParticipantJoinStage
+            ? initializeMeeting
             : handleStartStopBroadcastingAction
         }
         variant="primary"

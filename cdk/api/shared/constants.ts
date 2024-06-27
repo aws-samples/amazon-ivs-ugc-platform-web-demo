@@ -97,7 +97,8 @@ export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
 export const STAGE_TOKEN_DURATION = 1440; // Minutes
 
 export const CHANNELS_TABLE_STAGE_FIELDS = {
-  STAGE_ID: 'stageId',
+  USER_STAGE_ID: 'userStageId',
+  DISPLAY_STAGE_ID: 'displayStageId',
   STAGE_CREATION_DATE: 'stageCreationDate'
 };
 

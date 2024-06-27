@@ -14,7 +14,7 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.get('/:stageId', getStage);
   resource.get('/create', createStage);
   resource.get(
-    '/createParticipantToken/:stageId/:participantType',
+    '/createParticipantToken/:userStageId/:displayStageId/:participantType',
     createParticipantToken
   );
   resource.put('/delete', deleteStage);

@@ -11,7 +11,7 @@ import Button from '../../../../components/Button';
 import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
-import { useGlobalStage } from '../../../../contexts/Stage';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
@@ -24,7 +24,7 @@ const StreamManagerWebBroadcast = forwardRef(
     const { webBroadcastContainerRef, isFullScreenViewOpen } =
       useBroadcastFullScreen();
     const { isDesktopView } = useResponsiveDevice();
-    const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+    const { isJoiningStageByRequestOrInvite } = useStageManager() || {};
 
     const isDefaultGoLiveButton =
       !isBroadcastCardOpen && !isBroadcasting && isDesktopView;

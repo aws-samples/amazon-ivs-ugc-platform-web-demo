@@ -11,13 +11,17 @@ import { UserContext } from '../../shared/authorizer';
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const { sub } = request.requestContext.get('user') as UserContext;
-    const { stageId } = await verifyUserIsStageHost(sub);
+    const { userStageId, displayStageId } = await verifyUserIsStageHost(sub);
 
-    await handleDeleteStage(stageId);
+    await Promise.allSettled([
+      handleDeleteStage(userStageId),
+      handleDeleteStage(displayStageId)
+    ]);
 
     await updateDynamoItemAttributes({
       attributes: [
-        { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID, value: null },
+        { key: CHANNELS_TABLE_STAGE_FIELDS.USER_STAGE_ID, value: null },
+        { key: CHANNELS_TABLE_STAGE_FIELDS.DISPLAY_STAGE_ID, value: null },
         { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE, value: null }
       ],
       primaryKey: { key: 'id', value: sub },
@@ -26,7 +30,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
 
     reply.statusCode = 200;
     return reply.send({
-      message: `Stage, with stageId: ${stageId}, has been deleted.`
+      message: `Stage, with stageId: ${userStageId} and ${displayStageId}, has been deleted.`
     });
   } catch (error) {
     console.error(error);

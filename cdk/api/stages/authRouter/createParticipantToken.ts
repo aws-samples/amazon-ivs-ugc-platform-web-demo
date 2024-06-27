@@ -10,11 +10,15 @@ import {
   isUserInStage,
   shouldAllowParticipantToJoin,
   PARTICIPANT_USER_TYPES,
-  validateRequestParams
+  validateRequestParams,
+  participantTypesArray,
+  PARTICIPANT_GROUP
 } from '../helpers';
+import { getUser } from '../../channel/helpers';
 
 interface GetParticipantTokenParams {
-  stageId: string;
+  userStageId: string;
+  displayStageId: string;
   participantType: ParticipantType;
 }
 
@@ -25,9 +29,12 @@ const handler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { stageId, participantType } = request.params;
-
-    const missingParams = validateRequestParams(stageId, participantType);
+    const { userStageId, displayStageId, participantType } = request.params;
+    const missingParams = validateRequestParams(
+      userStageId,
+      displayStageId,
+      participantType
+    );
     if (missingParams) {
       throw new Error(`Missing ${missingParams}`);
     }
@@ -37,54 +44,92 @@ const handler = async (
     let isHostInStage = false;
     if (participantType === PARTICIPANT_USER_TYPES.HOST) {
       // Check for host presence
-      isHostInStage = await isUserInStage(stageId, sub);
+      isHostInStage = await isUserInStage(userStageId, sub);
     } else if (participantType === PARTICIPANT_USER_TYPES.INVITED) {
       const isParticipantAllowedToJoin = await shouldAllowParticipantToJoin(
-        stageId
+        userStageId
       );
       if (!isParticipantAllowedToJoin) {
         throw new Error('Stage is at capacity');
       }
     }
 
+    const { Item: channelData = {} } = await getUser(sub);
+
     const {
       username: preferredUsername,
       profileColor,
       avatar,
       channelAssetsAvatarUrl,
-      duration,
+      duration: userTokenDuration,
       userId,
-      capabilities,
-      userType: type,
+      capabilities: userCapabilities,
+      userType,
       channelId
     } = await handleCreateStageParams({
       userSub: sub,
       participantType,
-      isHostInStage
+      channelData
     });
-
-    const stageArn = buildStageArn(stageId);
-
-    const params = {
-      stageArn,
-      duration,
-      userId,
-      attributes: {
-        channelId,
-        username: preferredUsername || username,
-        profileColor,
-        avatar,
-        channelAssetsAvatarUrl,
-        participantTokenCreationDate: Date.now().toString(),
-        type
-      },
-      capabilities
+    const {
+      duration: displayTokenDuration,
+      userId: displayId,
+      capabilities: displayCapabilities,
+      userType: screenshareType
+    } = await handleCreateStageParams({
+      userSub: sub,
+      participantType: PARTICIPANT_USER_TYPES.SCREENSHARE,
+      channelData
+    });
+    const sharedAttrParams = {
+      username: preferredUsername || username,
+      profileColor,
+      avatar,
+      channelAssetsAvatarUrl,
+      ...(participantTypesArray.includes(participantType) && {
+        participantTokenCreationDate: Date.now().toString()
+      }),
+      channelId
     };
 
-    const token = await handleCreateParticipantToken(params);
+    const userStageArn = buildStageArn(userStageId);
+    const displayStageArn = buildStageArn(displayStageId);
+
+    const userStageConfig = await handleCreateParticipantToken({
+      stageArn: userStageArn,
+      duration: userTokenDuration,
+      userId,
+      attributes: {
+        ...sharedAttrParams,
+        type: userType,
+        participantGroup: PARTICIPANT_GROUP.USER
+      },
+      capabilities: userCapabilities
+    });
+    const displayStageConfig = await handleCreateParticipantToken({
+      stageArn: displayStageArn,
+      duration: displayTokenDuration,
+      userId: displayId,
+      attributes: {
+        ...sharedAttrParams,
+        type: screenshareType,
+        participantGroup: PARTICIPANT_GROUP.DISPLAY
+      },
+      capabilities: displayCapabilities
+    });
 
     reply.statusCode = 200;
-    return reply.send({ token });
+    return reply.send({
+      [PARTICIPANT_GROUP.USER]: {
+        ...userStageConfig,
+        participantGroup: PARTICIPANT_GROUP.USER
+      },
+      [PARTICIPANT_GROUP.DISPLAY]: {
+        ...displayStageConfig,
+        participantGroup: PARTICIPANT_GROUP.DISPLAY
+      },
+      participantRole: userType
+    });
   } catch (error) {
     console.error(error);
 

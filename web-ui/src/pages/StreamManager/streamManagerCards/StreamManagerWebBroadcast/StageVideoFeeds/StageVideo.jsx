@@ -15,6 +15,7 @@ import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
 import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
 import { useGlobalStage } from '../../../../../contexts/Stage';
+import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -22,33 +23,39 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const StageVideo = ({ type, participantKey, className = '' }) => {
+const StageVideo = ({ type, participant, className = '' }) => {
   const videoRef = useRef(null);
-  const { participants, isChannelStagePlayerMuted } = useGlobalStage();
+  const { isChannelStagePlayerMuted } = useGlobalStage();
   const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 
-  const participant = participants.get(participantKey);
-  const { streams, isCameraHidden, isMicrophoneMuted, attributes } =
-    participant;
-  const { profileColor = null, username = null } = attributes || {};
+  const {
+    mediaStream,
+    videoStopped: isCameraHidden,
+    audioMuted: isMicrophoneMuted,
+    attributes,
+    isLocal
+  } = participant;
+  const {
+    profileColor = null,
+    username = null,
+    type: userType
+  } = attributes || {};
   const avatarSrc = getAvatarSrc(attributes);
 
   const isFullscreenType = type === STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN;
   const isGoLiveType = type === STAGE_VIDEO_FEEDS_TYPES.GO_LIVE;
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
-  const updateVideoSource = useCallback((streams) => {
-    videoRef.current.srcObject = new MediaStream(
-      streams.map((stream) => stream.mediaStreamTrack)
-    );
+  const updateVideoSource = useCallback((mediaStream) => {
+    videoRef.current.srcObject = mediaStream;
   }, []);
 
   useEffect(() => {
-    if (!isChannelType || !streams || !isLoading) return;
+    if (!isChannelType || !mediaStream || !isLoading) return;
 
-    updateVideoSource(streams);
-  }, [streams, updateVideoSource, isLoading, isChannelType]);
+    updateVideoSource(mediaStream);
+  }, [updateVideoSource, isLoading, isChannelType, mediaStream]);
 
   useEffect(() => {
     const videoElement = videoRef?.current;
@@ -74,15 +81,15 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
    * Only one set should have videos with source object set to streams
    */
   const toggleVideoSource = useCallback(() => {
-    if (!videoRef?.current || !streams) return;
+    if (!videoRef?.current || !mediaStream) return;
     const isSrcObjectNull = isFullScreenViewOpen && isGoLiveType;
 
     if (isSrcObjectNull) {
       videoRef.current.srcObject = null;
     } else {
-      updateVideoSource(streams);
+      updateVideoSource(mediaStream);
     }
-  }, [streams, isFullScreenViewOpen, isGoLiveType, updateVideoSource]);
+  }, [mediaStream, isFullScreenViewOpen, isGoLiveType, updateVideoSource]);
 
   useEffect(() => {
     if (isChannelType) return;
@@ -119,7 +126,9 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
           isCameraHidden ? 'hidden' : ['w-full', 'h-full']
         ])}
         playsInline
-        {...(isChannelType && { muted: isChannelStagePlayerMuted })}
+        {...(isChannelType
+          ? { muted: isChannelStagePlayerMuted }
+          : { muted: isLocal })}
         aria-label="Local participant IVS stage video"
       >
         <track label="empty" kind="captions" srcLang="en" />
@@ -146,12 +155,13 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
               'w-full'
             ])}
           >
-            {profileColor && username && (
+            {username && (
               <StageProfilePill
                 type={STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED}
                 avatarSrc={avatarSrc}
                 profileColor={profileColor}
                 username={username}
+                isScreenshare={userType === PARTICIPANT_TYPES.SCREENSHARE}
               />
             )}
             {isMicrophoneMuted && (
@@ -223,7 +233,20 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
 };
 
 StageVideo.propTypes = {
-  participantKey: PropTypes.string.isRequired,
+  participant: PropTypes.shape({
+    mediaStream: PropTypes.instanceOf(MediaStream),
+    videoStopped: PropTypes.bool,
+    audioMuted: PropTypes.bool,
+    attributes: PropTypes.shape({
+      avatar: PropTypes.string,
+      channelAssetsAvatarUrl: PropTypes.string,
+      participantGroup: PropTypes.oneOf(['user', 'display']),
+      profileColor: PropTypes.string,
+      type: PropTypes.string,
+      username: PropTypes.string
+    }),
+    isLocal: PropTypes.bool
+  }).isRequired,
   type: PropTypes.oneOf(['golive', 'fullscreen', 'channel']).isRequired,
   className: PropTypes.string
 };

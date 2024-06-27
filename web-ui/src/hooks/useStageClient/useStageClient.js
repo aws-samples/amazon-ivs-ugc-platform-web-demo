@@ -5,6 +5,7 @@ import { apiBaseUrl } from '../../api/utils';
 import { noop } from '../../utils';
 import { useGlobalStage } from '../../contexts/Stage';
 import { useUser } from '../../contexts/User';
+import useParticipants from '../../contexts/Stage/useParticipants';
 
 const { Stage } = window.IVSBroadcastClient;
 
@@ -16,13 +17,8 @@ const useStageClient = (
 ) => {
   const clientRef = useRef();
   const [isClientDefined, setIsClientDefined] = useState(false);
-  const {
-    resetParticipants,
-    strategy,
-    resetStageState,
-    isHost,
-    localParticipant
-  } = useGlobalStage();
+  const { resetStageState, strategy } = useGlobalStage();
+  const { isHost, localParticipant, resetParticipants } = useParticipants();
   const { attachStageEvents } = useStageEventHandlers({
     client: clientRef?.current,
     updateSuccess,
@@ -31,25 +27,29 @@ const useStageClient = (
   const { userData } = useUser();
 
   const joinStageClient = useCallback(
-    async ({ token, strategy }) => {
+    async ({ token, strategy, shouldAttachEvents = true }) => {
       clientRef.current = new Stage(token, strategy);
       setIsClientDefined(!!clientRef.current);
-      attachStageEvents(clientRef.current);
+      if (shouldAttachEvents) attachStageEvents(clientRef.current);
 
       await clientRef.current.join();
     },
     [attachStageEvents]
   );
 
-  const leaveStageClient = useCallback(() => {
-    strategy.stopAndResetTracks();
+  const leaveStageClient = useCallback(
+    (strategyParam = null) => {
+      const _strategy = strategyParam ?? strategy;
+      if (_strategy?.stopAndResetTracks) _strategy.stopAndResetTracks();
 
-    if (clientRef?.current) {
-      clientRef.current.removeAllListeners();
-      clientRef.current.leave();
-      clientRef.current = undefined;
-    }
-  }, [strategy]);
+      if (clientRef.current) {
+        clientRef.current.removeAllListeners();
+        clientRef.current.leave();
+        clientRef.current = undefined;
+      }
+    },
+    [strategy]
+  );
 
   const resetAllStageState = useCallback(
     ({ omit } = {}) => {

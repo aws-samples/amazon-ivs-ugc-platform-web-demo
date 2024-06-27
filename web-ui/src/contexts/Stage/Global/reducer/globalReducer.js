@@ -44,7 +44,8 @@ export const PARTICIPANT_TYPES = {
   HOST: 'host',
   INVITED: 'invited',
   REQUESTED: 'requested',
-  SPECTATOR: 'spectator'
+  SPECTATOR: 'spectator',
+  SCREENSHARE: 'screenshare'
 };
 
 export const defaultParticipant = {
@@ -75,6 +76,8 @@ export const STATE_KEYS = {
   ERROR: 'error',
   IS_BLOCKING_ROUTE: 'isBlockingRoute',
   IS_CHANNEL_STAGE_PLAYER_MUTED: 'isChannelStagePlayerMuted',
+  IS_SCREEN_SHARING: 'isScreensharing',
+  LOCAL_SCREEN_SHARE_STREAM: 'localScreenshareStream',
   SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR:
     'shouldCloseFullScreenViewOnConnectionError',
   REQUESTING_TO_JOIN_STAGE: 'requestingToJoinStage',
@@ -82,7 +85,8 @@ export const STATE_KEYS = {
   STAGE_REQUEST_LIST: 'stageRequestList',
   IS_JOINING_STAGE_BY_REQUEST: 'isJoiningStageByRequest',
   IS_JOINING_STAGE_BY_INVITE: 'isJoiningStageByInvite',
-  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal'
+  SHOULD_OPEN_SETTINGS_MODAL: 'shouldOpenSettingsModal',
+  IS_SCREEN_SHARE_PERMISSION_REVOKED: 'isScreensharePermissionRevoked'
 };
 
 const defaultStageReducerState = {
@@ -93,7 +97,9 @@ const defaultStageReducerState = {
   [STATE_KEYS.SUCCESS]: null,
   [STATE_KEYS.ERROR]: null,
   [STATE_KEYS.IS_BLOCKING_ROUTE]: false,
+  [STATE_KEYS.IS_SCREEN_SHARING]: false,
   [STATE_KEYS.IS_CHANNEL_STAGE_PLAYER_MUTED]: true,
+  [STATE_KEYS.LOCAL_SCREEN_SHARE_STREAM]: null,
   [STATE_KEYS.SHOULD_CLOSE_FULL_SCREEN_VIEW_ON_CONNECTION_ERROR]: false,
   [STATE_KEYS.REQUESTING_TO_JOIN_STAGE]: false,
   [STATE_KEYS.HAS_STAGE_REQUEST_BEEN_APPROVED]: false,
@@ -101,7 +107,8 @@ const defaultStageReducerState = {
   [STATE_KEYS.IS_JOINING_STAGE_BY_REQUEST]: false,
   [STATE_KEYS.IS_JOINING_STAGE_BY_INVITE]: false,
   [STATE_KEYS.SPECTATOR_PARTICIPANT_ID]: null,
-  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false
+  [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: false,
+  [STATE_KEYS.IS_SCREEN_SHARE_PERMISSION_REVOKED]: false
 };
 
 const stageAnimationReducerState = {
@@ -351,6 +358,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       };
     }
 
+    case actionTypes.UPDATE_LOCAL_SCREEN_SHARE_STREAM: {
+      return {
+        ...state,
+        [STATE_KEYS.LOCAL_SCREEN_SHARE_STREAM]: action.payload
+      };
+    }
+
     case actionTypes.UPDATE_REQUESTING_TO_JOIN_STAGE: {
       return {
         ...state,
@@ -397,6 +411,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       };
     }
 
+    case actionTypes.UPDATE_IS_SCREEN_SHARING: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_SCREEN_SHARING]: action.payload
+      };
+    }
+
     case actionTypes.IS_JOINING_STAGE_BY_REQUEST: {
       return {
         ...state,
@@ -422,6 +443,13 @@ const globalReducer = (state = defaultReducerState, action) => {
       return {
         ...state,
         [STATE_KEYS.SHOULD_OPEN_SETTINGS_MODAL]: action.payload
+      };
+    }
+
+    case actionTypes.UPDATE_IS_SCREEN_SHARE_PERMISSION_REVOKED: {
+      return {
+        ...state,
+        [STATE_KEYS.IS_SCREEN_SHARE_PERMISSION_REVOKED]: action.payload
       };
     }
 

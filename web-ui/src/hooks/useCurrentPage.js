@@ -9,7 +9,11 @@ const ROUTES = [
   },
   { path: 'following', name: 'following' },
   { path: 'settings', name: 'settings' },
-  { path: 'manager', name: 'stream_manager' },
+  {
+    path: 'manager',
+    name: 'stream_manager',
+    children: [{ index: true }, { path: 'collab' }]
+  },
   {
     path: '/health',
     name: 'stream_health',
@@ -22,6 +26,7 @@ const ROUTES = [
 
 const useCurrentPage = () => {
   const location = useLocation();
+
   const [match] = matchRoutes(ROUTES, location) || [];
 
   return match?.route?.name;

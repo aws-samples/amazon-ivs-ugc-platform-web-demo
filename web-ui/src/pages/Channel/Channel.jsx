@@ -2,11 +2,7 @@ import { motion } from 'framer-motion';
 import { useCallback, useState, useRef, useEffect } from 'react';
 
 import { channel as $channelContent } from '../../content';
-import {
-  clsm,
-  extractChannelIdfromChannelArn,
-  retryWithExponentialBackoff
-} from '../../utils';
+import { clsm, extractChannelIdfromChannelArn } from '../../utils';
 import {
   Provider as NotificationProvider,
   useNotif
@@ -33,28 +29,27 @@ import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
 import Poll from './Chat/Poll/Poll';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
-import { getSpectatorToken } from '../../api/stages';
-import useStageClient from '../../hooks/useStageClient';
-import { Provider as BroadcastFullscreenProvider } from '../../contexts/BroadcastFullscreen';
 import { useGlobalStage } from '../../contexts/Stage';
 import { player as $playerContent } from '../../content';
-import usePrevious from '../../hooks/usePrevious';
 import Notification from '../../components/Notification/Notification';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
 import { useUser } from '../../contexts/User';
 import { apiBaseUrl } from '../../api/utils';
+import { useStageManager } from '../../contexts/StageManager';
+import { useLocation, useNavigate, useRevalidator } from 'react-router-dom';
+import usePrevious from '../../hooks/usePrevious';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
 const Channel = () => {
-  const shouldFetchSpectatorTokenRef = useRef(true);
-  const { channelError, channelData: { stageId, channelArn } = {} } =
+  const { channelError, channelData: { userStageId, channelArn } = {} } =
     useChannel();
+
+  const revalidator = useRevalidator();
+
   const {
-    strategy,
-    resetParticipants,
     updateError,
     error: stageError,
     success: stageSuccessMessage,
@@ -103,8 +98,8 @@ const Channel = () => {
     updateSuccess
   ]);
 
-  const { joinStageClient, leaveStageClient, resetAllStageState } =
-    useStageClient();
+  const { user: userStage = null, isEnterLock } = useStageManager() || {};
+  const { isUserStageConnected } = userStage || {};
   const { isLandscape, isMobileView } = useResponsiveDevice();
   const { isStackedView, isSplitView } = useChannelView();
   const { getProfileViewAnimationProps, chatAnimationControls } =
@@ -128,13 +123,9 @@ const Channel = () => {
     DEFAULT_SELECTED_TAB_INDEX
   );
   const channelRef = useRef();
-  const previewRef = useRef();
   const chatSectionRef = useRef();
   const isMounted = useMount();
-  const prevStageId = usePrevious(stageId);
-  const shouldDisplayStagePlayerRef = useRef(false);
-  const shouldDisplayStagePlayer =
-    shouldDisplayStagePlayerRef.current && !!stageId;
+  const shouldDisplayStagePlayer = isUserStageConnected;
 
   let visibleChatWidth = 360;
   if (isSplitView) visibleChatWidth = 308;
@@ -168,56 +159,26 @@ const Channel = () => {
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();
   }, [isMounted, updateChatSectionHeight]);
-  /**
-   * IVS Real-time streaming
-   */
+
+  const prevUserStageId = usePrevious(userStageId);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   useEffect(() => {
-    if (!shouldFetchSpectatorTokenRef.current || !stageId) return;
-
-    shouldFetchSpectatorTokenRef.current = false;
-
-    (async function () {
-      try {
-        const { result } = await retryWithExponentialBackoff({
-          promiseFn: () => getSpectatorToken(stageId),
-          maxRetries: 3
-        });
-
-        if (result?.token) {
-          await joinStageClient({
-            token: result.token,
-            strategy
-          });
-          shouldDisplayStagePlayerRef.current = true;
-        }
-      } catch (err) {
-        updateError({
-          message: $playerContent.notification.error.error_loading_stream,
-          err
-        });
-      }
-    })();
-  }, [
-    joinStageClient,
-    leaveStageClient,
-    resetAllStageState,
-    prevStageId,
-    stageId,
-    strategy,
-    resetParticipants,
-    updateError
-  ]);
-
-  useEffect(() => {
-    const isRealTimeStreamEnded =
-      (!stageId && prevStageId) || (prevStageId && prevStageId !== stageId);
-
-    if (isRealTimeStreamEnded) {
-      leaveStageClient();
-      resetAllStageState();
-      shouldFetchSpectatorTokenRef.current = true;
+    if (
+      revalidator.state === 'idle' &&
+      userStageId &&
+      prevUserStageId !== userStageId
+    ) {
+      revalidator.revalidate();
     }
-  }, [leaveStageClient, prevStageId, resetAllStageState, stageId]);
+  }, [
+    userStageId,
+    navigate,
+    pathname,
+    revalidator,
+    prevUserStageId,
+    isEnterLock
+  ]);
 
   // Triggered when navigating away from the channel page
   useEffect(() => {
@@ -234,18 +195,9 @@ const Channel = () => {
         );
 
         updateRequestingToJoinStage(false);
-        resetAllStageState();
-        leaveStageClient();
       }
     };
-  }, [
-    leaveStageClient,
-    channelArn,
-    publish,
-    updateRequestingToJoinStage,
-    userData?.channelId,
-    resetAllStageState
-  ]);
+  }, [channelArn, publish, updateRequestingToJoinStage, userData?.channelId]);
 
   // Triggered on page refresh or closed tab
   const beforeUnloadHandler = useCallback(() => {
@@ -280,186 +232,184 @@ const Channel = () => {
   if (channelError) return <PageUnavailable />;
 
   return (
-    <BroadcastFullscreenProvider previewRef={previewRef}>
-      <PlayerProvider>
-        <Notification />
-        <div
+    <PlayerProvider>
+      <Notification />
+      <div
+        className={clsm([
+          'flex',
+          'items-center',
+          'justify-center',
+          /* Default View */
+          'w-full',
+          'h-screen',
+          'flex-row',
+          /* Stacked View */
+          'lg:flex-col',
+          'lg:h-full',
+          'lg:min-h-screen',
+          'overflow-hidden',
+          /* Split View */
+          isLandscape && [
+            'md:flex-row',
+            'md:h-screen',
+            'touch-screen-device:lg:flex-row',
+            'touch-screen-device:lg:h-screen'
+          ]
+        ])}
+        ref={channelRef}
+      >
+        <Player
+          chatSectionRef={chatSectionRef}
+          stagePlayerVisible={shouldDisplayStagePlayer}
+        />
+        <ProductDescriptionModal />
+        <motion.section
+          {...getProfileViewAnimationProps(
+            chatAnimationControls,
+            {
+              desktop: { collapsed: { width: 360 }, expanded: { width: 0 } },
+              stacked: { width: '100%' },
+              split: { collapsed: { width: 308 }, expanded: { width: 0 } }
+            },
+            {
+              visible: { width: visibleChatWidth },
+              hidden: { width: 0 }
+            }
+          )}
           className={clsm([
+            'relative',
             'flex',
-            'items-center',
-            'justify-center',
-            /* Default View */
-            'w-full',
-            'h-screen',
-            'flex-row',
-            /* Stacked View */
-            'lg:flex-col',
-            'lg:h-full',
-            'lg:min-h-screen',
+            'shrink-0',
             'overflow-hidden',
+            /* Default View */
+            'h-screen',
+            /* Stacked View */
+            'lg:h-full',
             /* Split View */
             isLandscape && [
-              'md:flex-row',
               'md:h-screen',
-              'touch-screen-device:lg:flex-row',
-              'touch-screen-device:lg:h-screen'
+              'md:min-h-[auto]',
+              'touch-screen-device:lg:w-[308px]',
+              'touch-screen-device:lg:h-screen',
+              'touch-screen-device:lg:min-h-[auto]'
             ]
           ])}
-          ref={channelRef}
         >
-          <Player
-            chatSectionRef={chatSectionRef}
-            stagePlayerVisible={shouldDisplayStagePlayer}
-          />
-          <ProductDescriptionModal />
-          <motion.section
-            {...getProfileViewAnimationProps(
-              chatAnimationControls,
-              {
-                desktop: { collapsed: { width: 360 }, expanded: { width: 0 } },
-                stacked: { width: '100%' },
-                split: { collapsed: { width: 308 }, expanded: { width: 0 } }
-              },
-              {
-                visible: { width: visibleChatWidth },
-                hidden: { width: 0 }
-              }
-            )}
+          <div
+            ref={chatSectionRef}
             className={clsm([
               'relative',
               'flex',
-              'shrink-0',
-              'overflow-hidden',
+              'bg-white',
+              'dark:bg-darkMode-gray-dark',
               /* Default View */
-              'h-screen',
+              'min-w-[360px]',
               /* Stacked View */
-              'lg:h-full',
+              'lg:min-w-full',
               /* Split View */
               isLandscape && [
-                'md:h-screen',
-                'md:min-h-[auto]',
-                'touch-screen-device:lg:w-[308px]',
-                'touch-screen-device:lg:h-screen',
-                'touch-screen-device:lg:min-h-[auto]'
+                'md:min-w-[308px]',
+                'touch-screen-device:lg:min-w-[308px]'
               ]
             ])}
           >
-            <div
-              ref={chatSectionRef}
-              className={clsm([
-                'relative',
-                'flex',
-                'bg-white',
-                'dark:bg-darkMode-gray-dark',
-                /* Default View */
-                'min-w-[360px]',
-                /* Stacked View */
-                'lg:min-w-full',
-                /* Split View */
-                isLandscape && [
-                  'md:min-w-[308px]',
-                  'touch-screen-device:lg:min-w-[308px]'
-                ]
-              ])}
-            >
-              <Tabs>
-                {isTabView && (
-                  <>
-                    <Tabs.List
-                      selectedIndex={selectedTabIndex}
-                      setSelectedIndex={setSelectedTabIndex}
-                      tabs={[
-                        {
-                          label: isPollActive
-                            ? pollTabLabel
-                            : currentViewerStreamActionTitle,
-                          panelIndex: 0
-                        },
-                        { label: $channelContent.tabs.chat, panelIndex: 1 }
-                      ]}
-                    />
-                    <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
-                      {hasVotes && (
-                        <NotificationProvider>
-                          <ChatProvider>
-                            {!shouldHideActivePoll && (
-                              <Poll shouldRenderInTab={true} />
-                            )}
-                          </ChatProvider>
-                        </NotificationProvider>
-                      )}
-                      {!isPollActive &&
-                        currentViewerStreamActionName ===
-                          STREAM_ACTION_NAME.QUIZ && (
-                          <QuizViewerStreamAction
-                            {...currentViewerStreamActionData}
-                            setCurrentViewerAction={setCurrentViewerAction}
-                            shouldRenderActionInTab={shouldRenderActionInTab}
-                          />
-                        )}
-                      {!isPollActive &&
-                        [
-                          STREAM_ACTION_NAME.AMAZON_PRODUCT,
-                          STREAM_ACTION_NAME.PRODUCT
-                        ].includes(currentViewerStreamActionName) && (
-                          <div
-                            className={clsm([
-                              'absolute',
-                              'h-full',
-                              'no-scrollbar',
-                              'overflow-x-hidden',
-                              'overflow-y-auto',
-                              'pb-5',
-                              'px-5',
-                              'supports-overlay:overflow-y-overlay',
-                              'w-full'
-                            ])}
-                          >
-                            <ProductViewerStreamAction
-                              {...(currentViewerStreamActionName ===
-                              STREAM_ACTION_NAME.AMAZON_PRODUCT
-                                ? sanitizeAmazonProductData(
-                                    currentViewerStreamActionData
-                                  )
-                                : currentViewerStreamActionData)}
-                            />
-                          </div>
-                        )}
-                    </Tabs.Panel>
-                  </>
-                )}
-                {selectedTabIndex === 0 && isTabView && (
-                  <ProfileViewFloatingNav
-                    containerClassName="fixed"
-                    reverseVisibility
+            <Tabs>
+              {isTabView && (
+                <>
+                  <Tabs.List
+                    selectedIndex={selectedTabIndex}
+                    setSelectedIndex={setSelectedTabIndex}
+                    tabs={[
+                      {
+                        label: isPollActive
+                          ? pollTabLabel
+                          : currentViewerStreamActionTitle,
+                        panelIndex: 0
+                      },
+                      { label: $channelContent.tabs.chat, panelIndex: 1 }
+                    ]}
                   />
-                )}
-                <Tabs.Panel
-                  index={1}
-                  selectedIndex={
-                    isTabView ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
-                  }
-                >
-                  <NotificationProvider>
-                    <ChatProvider>
-                      {!isTabView && hasVotes && !shouldHideActivePoll && (
-                        <Poll />
+                  <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
+                    {hasVotes && (
+                      <NotificationProvider>
+                        <ChatProvider>
+                          {!shouldHideActivePoll && (
+                            <Poll shouldRenderInTab={true} />
+                          )}
+                        </ChatProvider>
+                      </NotificationProvider>
+                    )}
+                    {!isPollActive &&
+                      currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.QUIZ && (
+                        <QuizViewerStreamAction
+                          {...currentViewerStreamActionData}
+                          setCurrentViewerAction={setCurrentViewerAction}
+                          shouldRenderActionInTab={shouldRenderActionInTab}
+                        />
                       )}
-                      <Chat
-                        shouldRunCelebration={
-                          currentViewerStreamActionName ===
-                          STREAM_ACTION_NAME.CELEBRATION
-                        }
-                      />
-                    </ChatProvider>
-                  </NotificationProvider>
-                </Tabs.Panel>
-              </Tabs>
-            </div>
-          </motion.section>
-        </div>
-      </PlayerProvider>
-    </BroadcastFullscreenProvider>
+                    {!isPollActive &&
+                      [
+                        STREAM_ACTION_NAME.AMAZON_PRODUCT,
+                        STREAM_ACTION_NAME.PRODUCT
+                      ].includes(currentViewerStreamActionName) && (
+                        <div
+                          className={clsm([
+                            'absolute',
+                            'h-full',
+                            'no-scrollbar',
+                            'overflow-x-hidden',
+                            'overflow-y-auto',
+                            'pb-5',
+                            'px-5',
+                            'supports-overlay:overflow-y-overlay',
+                            'w-full'
+                          ])}
+                        >
+                          <ProductViewerStreamAction
+                            {...(currentViewerStreamActionName ===
+                            STREAM_ACTION_NAME.AMAZON_PRODUCT
+                              ? sanitizeAmazonProductData(
+                                  currentViewerStreamActionData
+                                )
+                              : currentViewerStreamActionData)}
+                          />
+                        </div>
+                      )}
+                  </Tabs.Panel>
+                </>
+              )}
+              {selectedTabIndex === 0 && isTabView && (
+                <ProfileViewFloatingNav
+                  containerClassName="fixed"
+                  reverseVisibility
+                />
+              )}
+              <Tabs.Panel
+                index={1}
+                selectedIndex={
+                  isTabView ? selectedTabIndex : CHAT_PANEL_TAB_INDEX
+                }
+              >
+                <NotificationProvider>
+                  <ChatProvider>
+                    {!isTabView && hasVotes && !shouldHideActivePoll && (
+                      <Poll />
+                    )}
+                    <Chat
+                      shouldRunCelebration={
+                        currentViewerStreamActionName ===
+                        STREAM_ACTION_NAME.CELEBRATION
+                      }
+                    />
+                  </ChatProvider>
+                </NotificationProvider>
+              </Tabs.Panel>
+            </Tabs>
+          </div>
+        </motion.section>
+      </div>
+    </PlayerProvider>
   );
 };
 

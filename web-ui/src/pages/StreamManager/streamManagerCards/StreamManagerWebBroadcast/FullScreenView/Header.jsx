@@ -12,39 +12,35 @@ import {
   useBroadcastFullScreen
 } from '../../../../../contexts/BroadcastFullscreen';
 import { streamManager as $content } from '../../../../../content';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
+import { useGlobalStage } from '../../../../../contexts/Stage';
 import { useCallback, useRef } from 'react';
 import Tooltip from '../../../../../components/Tooltip';
-import { useChannel } from '../../../../../contexts/Channel';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
 
 const Header = () => {
   const buttonRef = useRef();
-  const { channelData } = useChannel();
-  const { stageId } = channelData || {};
+  const { collaborateButtonAnimationControls } = useGlobalStage();
+
   const {
-    isStageActive,
-    collaborateButtonAnimationControls,
-    shouldDisableStageButtonWithDelay,
-    isHost
-  } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, shouldGetHostRejoinTokenRef } =
-    useStreamManagerStage();
+    user: userStage = null,
+    stageControls,
+    participantRole
+  } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const isHost = participantRole === 'host';
+  const { leaveStage } = stageControls || {};
+
   const { handleOnClose, setIsFullScreenViewOpen } = useBroadcastFullScreen();
 
   const isCollapseButton = isHost || !isStageActive;
-  const isDisabled =
-    (!isCollapseButton && shouldDisableStageButtonWithDelay) || false;
 
   const icon = isCollapseButton ? <Collapse /> : <Close />;
 
-  const handleOnCloseAndLeaveStage = useCallback(() => {
-    const closeFullscreenAndAnimateStreamButtonCallback = async () => {
+  const handleOnCloseAndLeaveStage = useCallback(async () => {
+    const closeFullscreenAndAnimateStreamButton = async () => {
       setIsFullScreenViewOpen(false);
       await collaborateButtonAnimationControls.start({
         zIndex: 1000,
@@ -54,19 +50,9 @@ const Header = () => {
       collaborateButtonAnimationControls.start({ zIndex: 'unset' });
     };
 
-    if (!isHost && !!stageId) shouldGetHostRejoinTokenRef.current = false;
-    handleOnConfirmLeaveStage({
-      closeFullscreenAndAnimateStreamButtonCallback,
-      lastFocusedElementRef: buttonRef
-    });
-  }, [
-    collaborateButtonAnimationControls,
-    handleOnConfirmLeaveStage,
-    isHost,
-    setIsFullScreenViewOpen,
-    shouldGetHostRejoinTokenRef,
-    stageId
-  ]);
+    await leaveStage();
+    closeFullscreenAndAnimateStreamButton();
+  }, [collaborateButtonAnimationControls, leaveStage, setIsFullScreenViewOpen]);
 
   const handleCloseFullScreen = useCallback(() => {
     if (isCollapseButton) {
@@ -99,16 +85,10 @@ const Header = () => {
       <Tooltip
         position="below"
         translate={{ y: -2 }}
-        message={
-          isStageActive &&
-          !isHost &&
-          !shouldDisableStageButtonWithDelay &&
-          $stageContent.leave_session
-        }
+        message={isStageActive && !isHost && $stageContent.leave_session}
       >
         <Button
           ref={buttonRef}
-          isDisabled={isDisabled}
           ariaLabel={$webBroadcastContent.collapse}
           variant="icon"
           onClick={handleCloseFullScreen}
@@ -134,7 +114,7 @@ const Header = () => {
               'rounded-[50%]',
               'w-11',
               'pointer-events-none',
-              isDisabled ? ['opacity-100', 'block'] : ['opacity-0', 'hidden']
+              ['opacity-0', 'hidden']
             ])}
           />
         )}

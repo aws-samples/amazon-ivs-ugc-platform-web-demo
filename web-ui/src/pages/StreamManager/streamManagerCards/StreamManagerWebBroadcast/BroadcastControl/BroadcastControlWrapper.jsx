@@ -1,8 +1,7 @@
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import BroadcastControl from './BroadcastControl';
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import {
   MicOff,
   MicOn,
@@ -15,81 +14,96 @@ import {
 import { useBroadcast } from '../../../../../contexts/Broadcast';
 import { streamManager as $streamManagerContent } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/useAudioMixer';
-import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
+import { AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/useAudioMixer';
+import { VIDEO_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useDeviceManager } from '../../../../../contexts/DeviceManager';
+import {
+  StageFactory,
+  useStageManager
+} from '../../../../../contexts/StageManager';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const BroadcastControlWrapper = forwardRef(
   ({ isOpen, withSettingsButton, withScreenshareButton }, ref) => {
-    const {
-      isStageActive,
-      isJoiningStageByRequestOrInvite,
-      updateShouldOpenSettingsModal
-    } = useGlobalStage();
     const settingsButtonRef = useRef();
-    const { isTouchscreenDevice, isDesktopView, isMobileView } =
-      useResponsiveDevice();
+    const { isTouchscreenDevice } = useResponsiveDevice();
     const { openModal, closeModal } = useModal();
-    const {
-      toggleMicrophone: toggleStageMicrophone,
-      toggleCamera: toggleStageCamera,
-      stageControlsVisibility
-    } = useStreamManagerStage();
-    const {
-      localParticipant,
-      isSpectator: isStageSpectator,
-      animateCollapseStageContainerWithDelay
-    } = useGlobalStage();
-    const {
-      isMicrophoneMuted: isStageMicrophoneMuted,
-      isCameraHidden: isStageCameraHidden
-    } = localParticipant || {};
-    const { isFullScreenViewOpen } = useBroadcastFullScreen();
     const {
       toggleMicrophone: toggleBroadcastMicrophone,
       toggleCamera: toggleBroadcastCamera,
       toggleScreenShare,
-      isScreenSharing,
       isMicrophoneMuted: isBroadcastMicrophoneMuted,
       isCameraHidden: isBroadcastCameraHidden,
       activeDevices: {
-        [MICROPHONE_AUDIO_INPUT_NAME]: activeMicrophone,
-        [CAMERA_LAYER_NAME]: activeCamera
+        [AUDIO_INPUT_NAME]: activeMicrophone,
+        [VIDEO_LAYER_NAME]: activeCamera
       }
     } = useBroadcast();
+    const {
+      userMedia: { audioMuted, videoStopped },
+      displayMedia: { isScreenSharing, startScreenShare, stopScreenShare }
+    } = useDeviceManager();
+    const {
+      user: userStage = null,
+      display: displayStage = null,
+      stageControls,
+      participantRole,
+      isJoiningStageByRequestOrInvite
+    } = useStageManager() || {};
+    const isStageActive = userStage?.isUserStageConnected;
+    const isStageSpectator = participantRole === 'spectator';
 
-    const { shouldRenderShareScreenButton } = stageControlsVisibility;
+    const publishingUserParticipants =
+      userStage?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      }) || [];
+    const publishingDisplayParticipants =
+      displayStage?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      }) || [];
+    const shouldDisableScreenshareButton =
+      (publishingDisplayParticipants.length >= 2 ||
+        publishingUserParticipants.length >= 12) &&
+      !isScreenSharing;
+
+    const { shouldRenderShareScreenButton } = stageControls || {};
 
     const shouldRenderStageScreenShareButton =
-      isStageActive &&
-      shouldRenderShareScreenButton &&
-      !isTouchscreenDevice &&
-      isDesktopView;
+      shouldRenderShareScreenButton && !isTouchscreenDevice;
     const shouldRenderBroadcastScreenShareButton =
       !isTouchscreenDevice && withScreenshareButton;
 
     const {
+      toggleCamera,
       toggleMicrophone,
       isMicrophoneMuted,
-      toggleCamera,
       isCameraHidden
-    } = isStageActive
-      ? {
-          toggleMicrophone: toggleStageMicrophone,
-          isMicrophoneMuted: isStageMicrophoneMuted,
-          toggleCamera: toggleStageCamera,
-          isCameraHidden: isStageCameraHidden
-        }
-      : {
-          toggleMicrophone: toggleBroadcastMicrophone,
-          isMicrophoneMuted: isBroadcastMicrophoneMuted,
-          toggleCamera: toggleBroadcastCamera,
-          isCameraHidden: isBroadcastCameraHidden
-        };
+    } =
+      isStageActive || isJoiningStageByRequestOrInvite
+        ? {
+            toggleMicrophone: stageControls.toggleAudio,
+            isMicrophoneMuted: audioMuted,
+            toggleCamera: stageControls.toggleVideo,
+            isCameraHidden: videoStopped
+          }
+        : {
+            toggleMicrophone: toggleBroadcastMicrophone,
+            isMicrophoneMuted: isBroadcastMicrophoneMuted,
+            toggleCamera: toggleBroadcastCamera,
+            isCameraHidden: isBroadcastCameraHidden
+          };
+
+    const handleScreenShare = useCallback(() => {
+      if (isScreenSharing) {
+        stopScreenShare();
+      } else if (StageFactory.hasPublishCapacity) {
+        startScreenShare();
+      }
+    }, [isScreenSharing, startScreenShare, stopScreenShare]);
 
     const controllerButtonProps = useMemo(
       () => [
@@ -114,7 +128,7 @@ const BroadcastControlWrapper = forwardRef(
           tooltip: isCameraHidden ? $content.show_camera : $content.hide_camera
         },
         {
-          onClick: toggleScreenShare,
+          onClick: isStageActive ? handleScreenShare : toggleScreenShare,
           ariaLabel: isScreenSharing
             ? 'Start screen sharing'
             : 'Stop screen sharing',
@@ -124,10 +138,9 @@ const BroadcastControlWrapper = forwardRef(
           isActive: isScreenSharing,
           isDisabled:
             isStageSpectator ||
-            (isFullScreenViewOpen && isStageActive) ||
-            animateCollapseStageContainerWithDelay ||
             !activeCamera ||
-            !activeMicrophone,
+            !activeMicrophone ||
+            shouldDisableScreenshareButton,
           icon: isScreenSharing ? <ScreenShareOff /> : <ScreenShare />,
           tooltip: isScreenSharing
             ? $content.stop_sharing
@@ -142,26 +155,22 @@ const BroadcastControlWrapper = forwardRef(
         toggleCamera,
         isCameraHidden,
         activeCamera,
+        isStageActive,
+        handleScreenShare,
         toggleScreenShare,
         isScreenSharing,
-        isStageActive,
         shouldRenderStageScreenShareButton,
         shouldRenderBroadcastScreenShareButton,
-        isFullScreenViewOpen,
-        animateCollapseStageContainerWithDelay
+        shouldDisableScreenshareButton
       ]
     );
 
     const handleSettingsClick = () => {
-      if (isJoiningStageByRequestOrInvite && !isMobileView) {
-        closeModal({ shouldCancel: false, shouldRefocus: true });
-        updateShouldOpenSettingsModal(true);
-      } else {
-        openModal({
-          type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-          lastFocusedElement: settingsButtonRef
-        });
-      }
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+      openModal({
+        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
+        lastFocusedElement: settingsButtonRef
+      });
     };
 
     const controllerButtonPropsWithSettingsButton = [

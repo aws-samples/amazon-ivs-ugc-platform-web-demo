@@ -34,7 +34,7 @@ export const CHAT_MESSAGE_EVENT_TYPES = {
   SEND_VOTE_STATS: 'SEND_VOTE_STATS',
   HEART_BEAT: 'HEART_BEAT'
 };
-export const BANNED_USERNAME_CHANNEL_ID_SEPARATOR = 'channel/';
+export const CHANNEL_ARN_CHANNEL_ID_SEPARATOR = 'channel/';
 export const MAX_RECONNECT_ATTEMPTS = 7;
 
 export const CHAT_LOG_LEVELS = {
@@ -332,15 +332,15 @@ const ADVANCED_DEFAULT_CONFIG = {
 };
 
 const {
-  BASIC_FULL_HD_LANDSCAPE,
-  BASIC_FULL_HD_PORTRAIT,
+  BASIC_LANDSCAPE,
+  BASIC_PORTRAIT,
   STANDARD_LANDSCAPE,
   STANDARD_PORTRAIT
 } = window.IVSBroadcastClient;
 export const BROADCAST_STREAM_CONFIG_PRESETS = {
   [CHANNEL_TYPE.BASIC]: {
-    landscape: BASIC_FULL_HD_LANDSCAPE,
-    portrait: BASIC_FULL_HD_PORTRAIT
+    landscape: BASIC_LANDSCAPE,
+    portrait: BASIC_PORTRAIT
   },
   [CHANNEL_TYPE.STANDARD]: {
     landscape: STANDARD_LANDSCAPE,
@@ -364,6 +364,9 @@ export const LOCAL_STAGE_STREAM_OPTIONS = {
     enabled: true
   }
 };
+
+export const PARTICIPANT_TYPE_HOST = 'host';
+export const PARTICIPANT_TYPE_SCREENSHARE = 'screenshare';
 
 /**
  * CHANNEL DIRECTORY, FOLLOWING

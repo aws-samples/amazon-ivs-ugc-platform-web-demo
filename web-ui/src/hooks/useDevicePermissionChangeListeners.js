@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { updateIsBlockingRoute } from '../contexts/Stage/Global/reducer/actions';
-import { useLocation, useSearchParams } from 'react-router-dom';
-import { useGlobalStage } from '../contexts/Stage';
+import { useSearchParams } from 'react-router-dom';
 import { useBroadcast } from '../contexts/Broadcast';
-import { JOIN_PARTICIPANT_URL_PARAM_KEY } from '../helpers/stagesHelpers';
+import { USER_STAGE_ID_URL_PARAM } from '../helpers/stagesHelpers';
+import { useStageManager } from '../contexts/StageManager';
 
 const useDevicePermissionChangeListeners = () => {
   const cameraPermissionRef = useRef();
   const microphonePermissionRef = useRef();
-  const { state } = useLocation();
-  const { isJoiningStageByRequest, isJoiningStageByInvite } = useGlobalStage();
+  const { participantRole } = useStageManager() || {};
+  const isInvitedStageUser = participantRole === 'invited';
+  const isRequestedStageUser = participantRole === 'requested';
+
   const { detectDevicePermissions } = useBroadcast();
 
   const [searchParams] = useSearchParams();
-  const stageIdUrlParam = searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY);
+  const stageIdUrlParam = searchParams.get(USER_STAGE_ID_URL_PARAM);
 
   const handlePermissionsRevoked = useCallback(
     (devicePermission) => {
@@ -35,7 +37,7 @@ const useDevicePermissionChangeListeners = () => {
         updateIsBlockingRoute(false);
 
         const isJoiningStageByModal =
-          isJoiningStageByRequest || isJoiningStageByInvite;
+          isInvitedStageUser || isRequestedStageUser;
 
         if (isJoiningStageByModal) {
           // Responsible for showing a notification + disabling join button
@@ -53,7 +55,7 @@ const useDevicePermissionChangeListeners = () => {
         }
       }
     },
-    [detectDevicePermissions, isJoiningStageByInvite, isJoiningStageByRequest]
+    [detectDevicePermissions, isInvitedStageUser, isRequestedStageUser]
   );
 
   const cameraAndMicrophonePermissionsChangeListener = useCallback(async () => {
@@ -84,8 +86,7 @@ const useDevicePermissionChangeListeners = () => {
     }
 
     // Do not attach event listeners if reducer states have not been updated
-    if (state?.isJoiningStageByRequest && !isJoiningStageByRequest) return;
-    if (stageIdUrlParam && !isJoiningStageByInvite) return;
+    if (isInvitedStageUser || isRequestedStageUser) return;
 
     cameraAndMicrophonePermissionsChangeListener();
 
@@ -104,10 +105,9 @@ const useDevicePermissionChangeListeners = () => {
   }, [
     cameraAndMicrophonePermissionsChangeListener,
     handlePermissionsRevoked,
-    isJoiningStageByInvite,
-    isJoiningStageByRequest,
-    stageIdUrlParam,
-    state?.isJoiningStageByRequest
+    isInvitedStageUser,
+    isRequestedStageUser,
+    stageIdUrlParam
   ]);
 };
 

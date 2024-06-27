@@ -15,13 +15,26 @@ import ResponsivePanel from '../../../../../components/ResponsivePanel';
 import { useGlobalStage } from '../../../../../contexts/Stage';
 import StageParticipant from './StageParticipant';
 import StageRequestee from './StageRequestee';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
   const { closeModal, isModalOpen, type } = useModal();
-  const { stageRequestList, participants } = useGlobalStage();
+  const { stageRequestList } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
+  const { user: userStage = null, display: displayStage } =
+    useStageManager() || {};
+  const publishingParticipants = [
+    ...(displayStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || []),
+    ...(userStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || [])
+  ];
 
   const renderStageParticipantsModal = (children) => (
     <>
@@ -57,7 +70,7 @@ const StageParticipantsModal = () => {
     </>
   );
 
-  const availableSpotMessage = `${$content.participants} (${participants.size}/12)`;
+  const availableSpotMessage = `${$content.participants} (${publishingParticipants.length}/12)`;
 
   return (
     type === MODAL_TYPE.STAGE_PARTICIPANTS &&
@@ -88,19 +101,19 @@ const StageParticipantsModal = () => {
           </h2>
           <div className="mt-12">
             <h4>{availableSpotMessage}</h4>
-            {[...participants].map(([_, participant], i) => (
+            {publishingParticipants.map((participant, index) => (
               <StageParticipant
                 participant={participant}
-                key={`${participant.id}-${i}`}
+                key={`${participant.id}-${index}`}
               />
             ))}
           </div>
           <div className="mt-12">
             <h4>{$content.requests}</h4>
-            {stageRequestList.map((requestee, i) => (
+            {stageRequestList.map((requestee, index) => (
               <StageRequestee
                 requestee={requestee}
-                key={`${requestee.channelId}-${i}`}
+                key={`${requestee.channelId}-${index}`}
               />
             ))}
           </div>

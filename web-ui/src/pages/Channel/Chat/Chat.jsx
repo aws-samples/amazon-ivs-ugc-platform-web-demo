@@ -20,6 +20,7 @@ import Messages from './Messages';
 import Notification from '../../../components/Notification';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 import RequestToJoinStageButton from './RequestToJoinStageButton';
+import { useStageManager } from '../../../contexts/StageManager';
 
 const $content = $channelContent.chat;
 
@@ -70,14 +71,25 @@ const Chat = ({ shouldRunCelebration = false }) => {
 
   if (channelData?.channelArn)
     channelId = extractChannelIdfromChannelArn(channelData?.channelArn);
-  const isHost = channelId === userData?.channelId?.toLowerCase();
+  const isChannelOwner = channelId === userData?.channelId?.toLowerCase();
+  const { user: userStage } = useStageManager() || {};
+  const isSpectatorInMeet =
+    isChannelOwner ||
+    userStage
+      ?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      })
+      .some(
+        (participant) => participant.attributes.username === userData?.username
+      );
 
   const isRequestButtonVisible =
-    !isHost &&
-    channelData?.stageId &&
+    channelData?.userStageId &&
     isSessionValid &&
     !isViewerBanned &&
-    pathname !== '/manager';
+    !pathname.includes('/manager') &&
+    !isSpectatorInMeet;
 
   const openChatPopup = useCallback(
     (messageData) => {
@@ -203,7 +215,6 @@ const Chat = ({ shouldRunCelebration = false }) => {
               sendAttemptError={sendAttemptError}
               sendMessage={actions.sendMessage}
             />
-
             {isRequestButtonVisible && <RequestToJoinStageButton />}
           </div>
         )}

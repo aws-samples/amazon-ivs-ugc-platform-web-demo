@@ -5,7 +5,11 @@ import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscr
 import useResize from '../../../../../hooks/useResize';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
-const useCalculatedAspectRatio = ({ childRef, delay = 0 } = {}) => {
+const useCalculatedAspectRatio = ({
+  childRef,
+  delay = 0,
+  isAnimated = true
+} = {}) => {
   const {
     setDimensionClasses,
     fullscreenAnimationControls,
@@ -26,18 +30,24 @@ const useCalculatedAspectRatio = ({ childRef, delay = 0 } = {}) => {
           parentRef?.current?.clientWidth,
           parentRef?.current?.clientHeight
         );
-
-      fullscreenAnimationControls.start({
+      const controlAnimDefinition = {
         width: newCanvasWidth,
         height: newCanvasHeight
-      });
+      };
+
+      if (isAnimated) {
+        fullscreenAnimationControls.start(controlAnimDefinition);
+      } else {
+        fullscreenAnimationControls.set(controlAnimDefinition);
+      }
     }, delay);
   }, [
     delay,
     isFullScreenViewOpen,
     setDimensionClasses,
     childRef,
-    fullscreenAnimationControls
+    fullscreenAnimationControls,
+    isAnimated
   ]);
 
   useResize(animateWidthHeight);

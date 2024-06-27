@@ -5,24 +5,40 @@ import { STREAM_ACTION_NAME } from '../constants';
 const userJoinedNotificationContent =
   $streamManagerContent.stream_manager_stage.notifications.success
     .user_has_joined_the_session;
+const userScreenshareNameContent =
+  $streamManagerContent.stream_manager_stage.screenshare;
 const REPLACEMENT_TEXT = 'USERNAME';
 
-export const JOIN_PARTICIPANT_URL_PARAM_KEY = 'session';
+export const USER_STAGE_ID_URL_PARAM = 'user';
+export const DISPLAY_STAGE_ID_URL_PARAM = 'display';
+export const REQUEST_URL_PARAM_KEY = 'Request';
 
 export const createJoinParticipantLink = (stageId) => {
   const url = new URL(window.location.href);
-  if (!url.searchParams.get(JOIN_PARTICIPANT_URL_PARAM_KEY)) {
-    url.searchParams.append(JOIN_PARTICIPANT_URL_PARAM_KEY, stageId);
+  if (!url.searchParams.get(USER_STAGE_ID_URL_PARAM)) {
+    url.searchParams.append(USER_STAGE_ID_URL_PARAM, stageId);
   }
 
   return url.href;
 };
 
-export const createUserJoinedSuccessMessage = (username) => {
-  const successMessageWithUsername = userJoinedNotificationContent.replace(
-    REPLACEMENT_TEXT,
-    username
-  );
+export const createUserJoinedSuccessMessage = (
+  username,
+  participantGroup = 'user'
+) => {
+  let successMessageWithUsername;
+  if (participantGroup === 'user') {
+    successMessageWithUsername = userJoinedNotificationContent.replace(
+      REPLACEMENT_TEXT,
+      username
+    );
+  }
+  if (participantGroup === 'display') {
+    successMessageWithUsername = userJoinedNotificationContent.replace(
+      REPLACEMENT_TEXT,
+      `${username}${userScreenshareNameContent}`
+    );
+  }
 
   return successMessageWithUsername;
 };

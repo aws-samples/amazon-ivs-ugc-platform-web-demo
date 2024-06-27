@@ -7,15 +7,12 @@ import { PersonAdd, Group } from '../../../../../assets/icons';
 import { clsm, noop } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
 import Button from '../../../../../components/Button';
 import useClickAway from '../../../../../hooks/useClickAway';
 import withPortal from '../../../../../components/withPortal';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
 import { BREAKPOINTS } from '../../../../../constants';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $stageContent = $content.stream_manager_stage;
 const BUTTON_TEXT_CLASSES = ['text-black', 'dark:text-white'];
@@ -28,8 +25,15 @@ const IconClasses = clsm([
 
 const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
   const menuRef = useRef();
-  const { handleCopyJoinParticipantLinkAndNotify } = useStreamManagerStage();
-  const { isHost, isStageActive } = useGlobalStage();
+  const {
+    user: userStage = null,
+    stageControls = null,
+    participantRole
+  } = useStageManager() || {};
+  const isStageActive = userStage?.isUserStageConnected;
+  const isHost = participantRole === 'host';
+  const { copyInviteUrl } = stageControls || {};
+
   const { isMobileView, currentBreakpoint } = useResponsiveDevice();
   const shouldDisplayParticipantsModalButton = isStageActive && isHost;
 
@@ -81,7 +85,7 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
         )}
         <Button
           variant="tertiaryText"
-          onClick={handleCopyJoinParticipantLinkAndNotify}
+          onClick={copyInviteUrl}
           className={clsm(BUTTON_TEXT_CLASSES)}
         >
           <PersonAdd className={IconClasses} />

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
@@ -13,6 +13,7 @@ import StageVideoFeeds from '../../StreamManager/streamManagerCards/StreamManage
 import { STAGE_VIDEO_FEEDS_TYPES } from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds/StageVideoFeeds';
 import UnmuteButtonOverLay from './UnmuteButtonOverLay';
 import { useGlobalStage } from '../../../contexts/Stage';
+import { Provider as BroadcastFullscreenProvider } from '../../../contexts/BroadcastFullscreen';
 
 const StreamVideo = forwardRef(
   (
@@ -29,6 +30,7 @@ const StreamVideo = forwardRef(
     },
     ref
   ) => {
+    const previewRef = useRef();
     const { isChannelStagePlayerMuted } = useGlobalStage();
 
     const {
@@ -84,21 +86,23 @@ const StreamVideo = forwardRef(
     }, [isPaused, isPlayerAnimationRunning, openOverlayAndResetTimeout]);
 
     const renderVideo = stagePlayerVisible ? (
-      <motion.div
-        {...playerProfileViewAnimationProps}
-        className={clsm(videoStyles, isViewerBanned && '!hidden')}
-        ref={ref}
-      >
-        <StageVideoFeeds
-          type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
-          isProfileViewExpanded={isProfileViewExpanded}
-          styles={clsm(
-            isProfileViewExpanded
-              ? ['bg-lightMode-gray-extraLight', 'dark:bg-darkMode-gray-dark']
-              : 'bg-lightMode-gray'
-          )}
-        />
-      </motion.div>
+      <BroadcastFullscreenProvider previewRef={previewRef}>
+        <motion.div
+          {...playerProfileViewAnimationProps}
+          className={clsm(videoStyles, isViewerBanned && '!hidden')}
+          ref={ref}
+        >
+          <StageVideoFeeds
+            type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
+            isProfileViewExpanded={isProfileViewExpanded}
+            styles={clsm(
+              isProfileViewExpanded
+                ? ['bg-lightMode-gray-extraLight', 'dark:bg-darkMode-gray-dark']
+                : 'bg-lightMode-gray'
+            )}
+          />
+        </motion.div>
+      </BroadcastFullscreenProvider>
     ) : (
       <motion.video
         {...playerProfileViewAnimationProps}
