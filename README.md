@@ -16,7 +16,7 @@ This demo uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK
 
 ## To use and deploy this project
 
-**\*IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.\*
+***IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.*
 
 Deploying the CDK stack will:
 
@@ -41,6 +41,7 @@ Deploying the CDK stack will:
 ![Amazon UGC Demo Architecture](screenshots/architecture/ugc-architecture.png)
 
 ## Features
+
 
 ### User Registration, Login and Password Reset using Amazon Cognito
 
@@ -100,7 +101,7 @@ All stream actions (with the exception of hosting a poll) are received by the vi
 
 ![Viewer stream actions architecture](screenshots/architecture/receive-stream-actions.png)
 
-The poll stream overlay action on the otherhand leverages the IVS Chat Messaging [SDK](https://aws.github.io/amazon-ivs-chat-messaging-sdk-js/1.0.2/) to receive and emit different poll action events.
+The poll stream overlay action on the otherhand leverages the IVS Chat Messaging [SDK](https://aws.github.io/amazon-ivs-chat-messaging-sdk-js/1.0.2/) to receive and emit different poll action events. 
 
 Note: The processing of votes happens on the streamer's side while they are on the stream manager page. Navigating away from this page will effectively skip votes.
 
@@ -108,7 +109,7 @@ Note: The processing of votes happens on the streamer's side while they are on t
 
 #### Viewing a real-time stream
 
-Users can spectate a live [IVS Web Broadcast Real-time stream](#real-time-streaming). To participate in a collaborative session, spectators first need to authenticate. Subsequently, they can submit a request by clicking on the "Request to join" button on the channel page. Notification of the request to the host is managed by [AWS AppSync](https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html). When the host accepts the request, the spectator will be automatically routed to the "Ready to join?" modal view for collaboration.
+Users can spectate a live [IVS Web Broadcast Real-time stream](#real-time-streaming). To participate in a collaborative session, spectators first need to authenticate. Subsequently, they can submit a request by clicking on the "Request to join" button on the channel page.  Notification of the request to the host is managed by [AWS AppSync](https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html). When the host accepts the request, the spectator will be automatically routed to the "Ready to join?" modal view for collaboration.
 
 ![Poll stream action architecture](screenshots/features/collaborate-stream.png)
 
@@ -162,7 +163,7 @@ Non-host participants will initially encounter a "Ready to join?" modal, providi
 
 ![IVS Real-time join modal](screenshots/features/collaborate-join.png)
 
-Creating and joining a real-time session is accomplished using [Amazon IVS Web Broadcast Real-time streaming](https://docs.aws.amazon.com/ivs/latest/RealTimeUserGuide/what-is.html).
+Creating and joining a real-time session is accomplished using [Amazon IVS Web Broadcast Real-time streaming](https://docs.aws.amazon.com/ivs/latest/RealTimeUserGuide/what-is.html). 
 
 ![IVS Real-time architecture diagram](screenshots/architecture/ivs-real-time.png)
 
@@ -237,37 +238,38 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 - `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides [section](#guides) before setting a value.
 
-  Note: updating this value will require a new stack deployment.
+   Note: updating this value will require a new stack deployment.
 
-  Example:
+   Example:
 
-  ```json
-  "enableAmazonProductStreamAction": true
-  ```
+   ```json
+   "enableAmazonProductStreamAction": true
+   ```
 
 - `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the [Amazon PAAPI 5 documentation](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region).
 
-  Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
+   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
-  Example:
+   Example:
 
-  ```json
-  "productApiLocale": "United States"
-  ```
+   ```json
+   "productApiLocale": "United States"
+   ```
 
-- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America).
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
 
-  By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
+   By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
 
-  Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
+   Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
 
-  Example:
+   Example:
 
-  ```json
-  "productLinkRegionCode": "20"
-  ```
+   ```json
+   "productLinkRegionCode": "20"
+   ```
 
 ## Guides
+
 
 ### Configuring cdk.json to enable the Amazon Product stream action
 
@@ -312,7 +314,6 @@ For improved communication between a stage host and a requestee (for example, re
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
-
 1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
 2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.
@@ -356,7 +357,7 @@ After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/
 
 ## Deployment
 
-**\*IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.\*
+***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
 
 1. To set up the backend, navigate to the `cdk` directory and run:
 
@@ -384,7 +385,7 @@ After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/
 
    Deploying with the `PUBLISH` flag set to `true` will also append the CloudFront distribution URL to the list of `allowedOrigins` defined in your `cdk.json` config. It will also override the value of `clientBaseUrl`.
 
-   **\*NOTE:** the deployment might take up to 20 minutes or more if you are also publishing the frontend application.\*
+   ***NOTE:** the deployment might take up to 20 minutes or more if you are also publishing the frontend application.*
 
 2. Go to the `web-ui` directory and run the following commands to start the React frontend host:
 
@@ -410,7 +411,7 @@ make deploy STAGE=prod
 ### Summary
 
 The following recaps all the most common commands that you can run to easily deploy the app to AWS.  
-**\*NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.\*
+***NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.*
 
 Deploy the backend with the "dev" config:
 
@@ -553,36 +554,37 @@ The following is a detailed usage-based summary. Use it as a guide to estimate p
 
 ### Overall Usage
 
-| Service                                                                                                                                |                              1 user |                             10 users |                             100 users |
-| -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------: | -----------------------------------: | ------------------------------------: |
-| Total number of requests in a month (average request size 5kB):                                                                        |                    1 request/second |                    10 request/second |                    100 request/second |
-| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)                                                                             |                           2,592,000 |                           25,920,000 |                           259,200,000 |
-| Homepage size is 317B. Total of GB downloaded from visits to the homepage:                                                             |               1 request/second (GB) |               10 request/second (GB) |               100 request/second (GB) |
-| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)                                                                               |                                0.82 |                                 8.22 |                                 82.17 |
-| 1KB of log per request. Total GB of logs generated by traffic:                                                                         |               1 request/second (GB) |               10 request/second (GB) |               100 request/second (GB) |
-| [CloudWatch Logs](https://aws.amazon.com/cloudwatch/pricing/)                                                                          |                                2.59 |                                25.92 |                                259.20 |
-| Monthly Active Users (MAU). With no advanced features. No SAML or OIDC Auth:                                                           |                       Number of MAU |                        Number of MAU |                         Number of MAU |
-| [Cognito](https://aws.amazon.com/cognito/pricing/)                                                                                     |                              50,000 |                              100,000 |                             1,000,000 |
-| Average item size 105 Bytes. Asumming Monthly Active Users. Each user going live once a day:                                           |                     MAU 50,000 (GB) |                     MAU 100,000 (GB) |                    MAU 1,000,000 (GB) |
-| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)                                                                         |                                0.01 |                                 0.01 |                                  0.11 |
-| Average build size 103.01 MB:                                                                                                          | 1 deployment a day for a month (GB) | 10 deployment a day for a month (GB) | 100 deployment a day for a month (GB) |
-| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)                                                                      |                                0.10 |                                 1.03 |                                 10.30 |
-| Number of x86 pods with 0.25vCPU and 512 RAM. 20GB ephemeral storage:                                                                  |                    1 request/second |                    10 request/second |                    100 request/second |
-| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/)                                                                   |                                   1 |                                    1 |                                     2 |
-| Total number of requests in a month that go to API destinations:                                                                       |                    1 request/second |                    10 request/second |                    100 request/second |
-| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)                                                                             |                           2,592,000 |                           25,920,000 |                           259,200,000 |
-| Total number of requests in a month ( 0.125GB memory allocated and 0.5 GB ephemeral storage allocated and 699ms average billable time: |                    1 request/second |                    10 request/second |                    100 request/second |
-| [Lambda](https://aws.amazon.com/lambda/pricing/)                                                                                       |                           2,592,000 |                           25,920,000 |                           259,200,000 |
-| Total number of requests in a month. We have 3 secrets in the manager:                                                                 |                    1 request/second |                    10 request/second |                    100 request/second |
-| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)                                                                     |                           2,592,000 |                           25,920,000 |                           259,200,000 |
+| Service                                                              | 1 user | 10 users | 100 users |
+| -------------------------------------------------------------------- | -----: | -------: | --------: |
+| Total number of requests in a month (average request size 5kB):      | 1 request/second | 10 request/second | 100 request/second |
+| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)           | 2,592,000 |   25,920,000 |    259,200,000 |
+| Homepage size is 317B. Total of GB downloaded from visits to the homepage: | 1 request/second (GB) | 10 request/second (GB) | 100 request/second (GB)
+| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)             | 0.82 |    8.22 |     82.17 |
+| 1KB of log per request. Total GB of logs generated by traffic:       | 1 request/second (GB) | 10 request/second (GB) | 100 request/second (GB) |
+| [CloudWatch Logs](https://aws.amazon.com/cloudwatch/pricing/)             |  2.59 |    25.92 |    259.20 |
+| Monthly Active Users (MAU). With no advanced features. No SAML or OIDC Auth: | Number of MAU | Number of MAU | Number of MAU |
+| [Cognito](https://aws.amazon.com/cognito/pricing/)                   | 50,000 |    100,000 |     1,000,000 |
+| Average item size 105 Bytes. Asumming Monthly Active Users. Each user going live once a day: | MAU 50,000 (GB) | MAU 100,000 (GB) | MAU 1,000,000 (GB) |
+| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)       | 0.01 |   0.01 |    0.11 |
+| Average build size 103.01 MB:                                        | 1 deployment a day for a month (GB) | 10 deployment a day for a month (GB) | 100 deployment a day for a month (GB) |
+| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)    | 0.10 | 1.03 | 10.30 |
+| Number of x86 pods with 0.25vCPU and 512 RAM. 20GB ephemeral storage: | 1 request/second | 10 request/second | 100 request/second |
+| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/) | 1 | 1 | 2 |
+| Total number of requests in a month that go to API destinations:     | 1 request/second | 10 request/second | 100 request/second |
+| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)           | 2,592,000 |   25,920,000 |    259,200,000 |
+| Total number of requests in a month ( 0.125GB memory allocated and 0.5 GB ephemeral storage allocated and 699ms average billable time: | 1 request/second | 10 request/second | 100 request/second | 
+| [Lambda](https://aws.amazon.com/lambda/pricing/)                     | 2,592,000 |   25,920,000 |    259,200,000 |
+| Total number of requests in a month. We have 3 secrets in the manager: | 1 request/second | 10 request/second | 100 request/second |
+| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)   | 2,592,000 |   25,920,000 |    259,200,000 |
 
 ### IVS usage
 
-| Service                                                                            | Hours streamed per channel | Hours streamed per channel | Hours streamed per channel |
-| ---------------------------------------------------------------------------------- | -------------------------: | -------------------------: | -------------------------: |
-| Channel Type: Standard, Output Quality: 1080p. Average viewer watch duration: 50%: |                          2 |                          4 |                          8 |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)                   |         Viewer per channel |         Viewer per channel |         Viewer per channel |
-|                                                                                    |                         50 |                        100 |                       1000 |
+| Service                                                              | Hours streamed per channel | Hours streamed per channel | Hours streamed per channel |
+| -------------------------------------------------------------------- | -----: | -------: | --------: |
+| Channel Type: Standard, Output Quality: 1080p. Average viewer watch duration: 50%: | 2 | 4 | 8 |
+| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/) | Viewer per channel | Viewer per channel | Viewer per channel |
+|     | 50 | 100 | 1000 |
+
 
 </details>
 
