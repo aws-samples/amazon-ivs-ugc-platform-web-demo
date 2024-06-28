@@ -57,7 +57,7 @@ export default class ChannelsCognitoTriggers extends Construct {
 
     this.customMessageLambda = customMessageLambda;
 
-    let preAuthenticationLambdßa = new lambda.NodejsFunction(
+    let preAuthenticationLambda = new lambda.NodejsFunction(
       this,
       'PreAuthenticationLambda',
       {
