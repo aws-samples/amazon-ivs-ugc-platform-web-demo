@@ -24,12 +24,12 @@ const MOBILE_INPUT_RANGE_HEIGHT = 112;
 export const POPUP_ID = 'volume';
 
 const VolumeSetting = ({
-  className,
-  isDisabled,
-  isExpanded,
+  className = '',
+  isDisabled = false,
+  isExpanded = false,
   setOpenPopupIds,
   updateVolume,
-  volumeLevel
+  volumeLevel = VOLUME_MAX
 }) => {
   const [muted, setMuted] = useState(volumeLevel === VOLUME_MIN);
   const [volume, setVolume] = useState(volumeLevel);
@@ -186,13 +186,6 @@ const VolumeSetting = ({
       )}
     </div>
   );
-};
-
-VolumeSetting.defaultProps = {
-  className: '',
-  isDisabled: false,
-  isExpanded: false,
-  volumeLevel: VOLUME_MAX
 };
 
 VolumeSetting.propTypes = {

@@ -4,7 +4,7 @@ import { clsm } from '../../../utils';
 import { SETTINGS_ORIENTATION, useSettingsOrientation } from '../Settings';
 import InputLabel from '../../../components/Input/InputLabel';
 
-const SettingContainer = ({ label, children }) => {
+const SettingContainer = ({ label = '', children }) => {
   const settingsFormOrientation = useSettingsOrientation();
 
   return (
@@ -42,7 +42,5 @@ SettingContainer.propTypes = {
   children: PropTypes.node.isRequired,
   label: PropTypes.string
 };
-
-SettingContainer.defaultProps = { label: '' };
 
 export default SettingContainer;

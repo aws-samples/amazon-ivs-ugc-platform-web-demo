@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.582.0",
     "@aws-sdk/client-ivs": "^3.582.0",
+     "@aws-sdk/client-ivs-realtime": "^3.568.0",
     "aws-cdk-lib": "^2.142.1",
     "cdk-ecr-deployment": "^2.5.41",
     "constructs": "^10.1.130",

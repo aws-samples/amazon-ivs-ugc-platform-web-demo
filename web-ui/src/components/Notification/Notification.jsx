@@ -11,7 +11,7 @@ import useCurrentPage from '../../hooks/useCurrentPage';
 import usePrevious from '../../hooks/usePrevious';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const Notification = ({ className }) => {
+const Notification = ({ className = '' }) => {
   const { notif, dismissNotif } = useNotif();
   const { asPortal, message, type } = notif || {};
   const [shouldAnimateOut, setShouldAnimateOut] = useStateWithCallback(true);
@@ -26,7 +26,6 @@ const Notification = ({ className }) => {
     type,
     message,
     className,
-    key: `${type}-${message}`,
     Icon: NotifIcon,
     animationProps: createAnimationProps({
       animations: ['fadeIn-full'],
@@ -51,16 +50,18 @@ const Notification = ({ className }) => {
       onExitComplete={() => setShouldAnimateOut(true)}
     >
       {asPortal ? (
-        <PortalNotification isOpen={isOpen} {...props} />
+        <PortalNotification
+          key={`${type}-${message}`}
+          isOpen={isOpen}
+          {...props}
+        />
       ) : (
-        isOpen && <InlineNotification {...props} />
+        isOpen && <InlineNotification key={`${type}-${message}`} {...props} />
       )}
     </AnimatePresence>
   );
 };
 
 Notification.propTypes = { className: PropTypes.string };
-
-Notification.defaultProps = { className: '' };
 
 export default Notification;

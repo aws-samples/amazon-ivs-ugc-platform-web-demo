@@ -14,9 +14,9 @@ import FloatingNav from '../../components/FloatingNav';
  * expanded. This behavior can be reversed by setting the reverseVisibility prop to true.
  */
 const ProfileViewFloatingNav = ({
-  className,
-  containerClassName,
-  reverseVisibility
+  className = '',
+  containerClassName = '',
+  reverseVisibility = false
 }) => {
   const { chatAnimationControls, getProfileViewAnimationProps } =
     useProfileViewAnimation();
@@ -60,12 +60,6 @@ ProfileViewFloatingNav.propTypes = {
   className: PropTypes.string,
   containerClassName: PropTypes.string,
   reverseVisibility: PropTypes.bool
-};
-
-ProfileViewFloatingNav.defaultProps = {
-  className: '',
-  containerClassName: '',
-  reverseVisibility: false
 };
 
 export default ProfileViewFloatingNav;

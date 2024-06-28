@@ -58,21 +58,63 @@ const handler = async (
 
   if (query.isLive === 'true') {
     try {
-      const scanCommand = new ScanCommand({
+      const scanStreamTableCommand = new ScanCommand({
         IndexName: 'isOpenIndex',
         ProjectionExpression: 'endTime, truncatedEvents, channelArn, startTime',
         TableName: process.env.STREAM_TABLE_NAME
       });
 
-      const { Items: openStreamSessions = [] } = await dynamoDbClient.send(
-        scanCommand
-      );
+      const scanChannelTableForActiveStageCommand = new ScanCommand({
+        TableName: process.env.CHANNELS_TABLE_NAME,
+        FilterExpression:
+          'attribute_exists(stageId) AND #stageId <> :nullValue',
+        ExpressionAttributeNames: {
+          '#stageId': 'stageId'
+        },
+        ExpressionAttributeValues: {
+          ':nullValue': { NULL: true }
+        }
+      });
 
-      const unmarshalledStreamSessions: StreamSessionDbRecord[] =
-        openStreamSessions.map((openStreamSession) =>
-          unmarshall(openStreamSession)
-        );
-      const sortedStreamSessions = [...unmarshalledStreamSessions]
+      const [activeStreamSessionsResult, activeStageSessionsResult] =
+        await Promise.allSettled([
+          dynamoDbClient.send(scanStreamTableCommand),
+          dynamoDbClient.send(scanChannelTableForActiveStageCommand)
+        ]);
+
+      if (
+        activeStageSessionsResult.status === 'rejected' ||
+        activeStreamSessionsResult.status === 'rejected'
+      ) {
+        throw new Error('Something went wrong');
+      }
+
+      const { Items: activeStageSessions } = activeStageSessionsResult.value;
+      const { Items: activeStreamSessions } = activeStreamSessionsResult.value;
+
+      const unmarshalledActiveStageSessions: ChannelDbRecord[] = (
+        activeStageSessions || []
+      ).map((activeStageSession) => unmarshall(activeStageSession));
+
+      const unmarshalledStreamSessions: StreamSessionDbRecord[] = (
+        activeStreamSessions || []
+      ).map((activeStreamSession) => unmarshall(activeStreamSession));
+
+      const sortedActiveStageSessions = unmarshalledActiveStageSessions
+        .sort(
+          (
+            { stageCreationDate: stageCreationDate1 },
+            { stageCreationDate: stageCreationDate2 }
+          ) => {
+            /* istanbul ignore else */
+            if (stageCreationDate1 && stageCreationDate2) {
+              return stageCreationDate1 < stageCreationDate2 ? 1 : -1; // Descending order
+            } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+          }
+        )
+        .slice(0, maxResults);
+
+      const sortedStreamSessions = unmarshalledStreamSessions
         .sort(({ startTime: startTime1 }, { startTime: startTime2 }) => {
           /* istanbul ignore else */
           if (startTime1 && startTime2) {
@@ -96,7 +138,7 @@ const handler = async (
         [] as string[]
       );
 
-      if (sortedLiveChannelArns.length) {
+      if (sortedLiveChannelArns.length || sortedActiveStageSessions.length) {
         const promises = sortedLiveChannelArns.map((liveChannelArn) => {
           return new Promise<ChannelDbRecord>(async (resolve, rejects) => {
             try {
@@ -109,6 +151,7 @@ const handler = async (
                 }
               });
 
+              /* istanbul ignore next */
               const { Items = [] } = await dynamoDbClient.send(queryCommand);
               resolve(unmarshall(Items[0]));
             } catch (err) {
@@ -128,15 +171,19 @@ const handler = async (
           return acc;
         }, []);
 
-        responseBody.channels = unmarshalledLiveChannels.reduce<ChannelData[]>(
-          (acc, liveChannel) => {
-            const { avatar, color, username, channelAssets } = liveChannel;
-            const channelAssetUrls = getChannelAssetUrls(channelAssets!);
+        const combinedLiveChannelsAndActiveStages = [
+          ...unmarshalledLiveChannels,
+          ...sortedActiveStageSessions
+        ];
 
-            return [...acc, { avatar, color, username, channelAssetUrls }];
-          },
-          []
-        );
+        responseBody.channels = combinedLiveChannelsAndActiveStages.reduce<
+          ChannelData[]
+        >((acc, liveChannel) => {
+          const { avatar, color, username, channelAssets } = liveChannel;
+          const channelAssetUrls = getChannelAssetUrls(channelAssets!);
+
+          return [...acc, { avatar, color, username, channelAssetUrls }];
+        }, []);
       }
     } catch (error) {
       console.error(error);

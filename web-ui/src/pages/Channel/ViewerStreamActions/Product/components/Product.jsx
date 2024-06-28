@@ -12,11 +12,11 @@ import ProductCardImage from './ProductCardImage';
 import ProductDescription from './ProductDescription';
 
 const Product = ({
-  color,
-  description,
+  color = 'default',
+  description = '',
   imageUrl,
   price,
-  productUrl,
+  productUrl = '',
   title
 }) => {
   const learnMoreButtonRef = useRef();
@@ -63,8 +63,6 @@ const Product = ({
     </div>
   );
 };
-
-Product.defaultProps = { color: 'default', description: '', productUrl: '' };
 
 Product.propTypes = {
   color: PropTypes.string,

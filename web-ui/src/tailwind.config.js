@@ -37,6 +37,12 @@ module.exports = {
       ]
     },
     extend: {
+      containers: {
+        'stage-video-xl': '320px',
+        'stage-video-lg': '240px',
+        'stage-video-md': '180px',
+        'stage-video-sm': '120px'
+      },
       animation,
       transitionDuration: { 0: '0ms' },
       boxShadow: {
@@ -89,16 +95,22 @@ module.exports = {
       maxWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
       minHeight: { screen: 'calc(var(--mobile-vh,1vh) * 100)' },
       minWidth: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
-      width: { screen: 'calc(var(--mobile-vw,1vw) * 100)' }
+      width: { screen: 'calc(var(--mobile-vw,1vw) * 100)' },
+      dropShadow: {
+        'stage-profile': [
+          '0px 2px 2px rgba(0, 0, 0, 0.1)',
+          '0px 0px 4px rgba(0, 0, 0, 0.2)'
+        ]
+      }
     }
   },
   safelist,
   plugins: [
     /**
-     * A plugin that provides utilities for visually truncating text after a fixed number of lines.
-     * https://github.com/tailwindlabs/tailwindcss-line-clamp
+     * A plugin for Tailwind CSS v3.2+ that provides utilities for container queries.
+     * https://github.com/tailwindlabs/tailwindcss-container-queries
      */
-    require('@tailwindcss/line-clamp'),
+    require('@tailwindcss/container-queries'),
 
     // @supports (overflow: overlay)
     plugin(({ addVariant, addUtilities }) => {

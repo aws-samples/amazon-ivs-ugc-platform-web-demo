@@ -22,10 +22,10 @@ import usePrevious from '../../../../../../hooks/usePrevious';
 const bisectDate = bisector(getDate).left;
 
 const Chart = ({
-  eventMarkers,
-  formatter,
+  eventMarkers = [],
+  formatter = (data) => data,
   height,
-  initialData,
+  initialData = [],
   width,
   zoomBounds
 }) => {
@@ -419,12 +419,6 @@ Chart.propTypes = {
   initialData: PropTypes.arrayOf(PropTypes.object),
   width: PropTypes.number.isRequired,
   zoomBounds: PropTypes.arrayOf(PropTypes.number).isRequired
-};
-
-Chart.defaultProps = {
-  eventMarkers: [],
-  initialData: [],
-  formatter: (data) => data
 };
 
 export default Chart;

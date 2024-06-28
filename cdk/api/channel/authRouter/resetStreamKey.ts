@@ -13,7 +13,7 @@ import {
   ResponseBody,
   updateDynamoItemAttributes
 } from '../../shared/helpers';
-import { UserContext } from '../authorizer';
+import { UserContext } from '../../shared/authorizer';
 
 interface ResetStreamKeyResponseBody extends ResponseBody {
   streamKeyValue?: string;

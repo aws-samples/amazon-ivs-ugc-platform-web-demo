@@ -1,19 +1,9 @@
-import { forwardRef, useRef, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  CreateVideo,
-  MicOn,
-  MicOff,
-  ScreenShare,
-  ScreenShareOff,
-  VideoCamera,
-  VideoCameraOff
-} from '../../../../assets/icons';
-import { CAMERA_LAYER_NAME } from '../../../../contexts/Broadcast/useLayers';
+import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
+import { CreateVideo } from '../../../../assets/icons';
 import { clsm, noop } from '../../../../utils';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../contexts/Broadcast/useAudioMixer';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
@@ -21,107 +11,27 @@ import Button from '../../../../components/Button';
 import FloatingNav from '../../../../components/FloatingNav';
 import GoLiveContainer from './GoLiveContainer';
 import GoLiveContainerCollapsed from './GoLiveContainerCollapsed';
+import { useGlobalStage } from '../../../../contexts/Stage';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 
 const StreamManagerWebBroadcast = forwardRef(
   (
-    {
-      isBroadcastCardOpen,
-      onCollapse,
-      onExpand,
-      setIsWebBroadcastAnimating,
-      webBroadcastParentContainerRef
-    },
+    { isBroadcastCardOpen, onCollapse, onExpand, setIsWebBroadcastAnimating },
     previewRef
   ) => {
-    const {
-      activeDevices,
-      isBroadcasting,
-      isCameraHidden,
-      isMicrophoneMuted,
-      isScreenSharing,
-      toggleCamera,
-      toggleMicrophone,
-      toggleScreenShare
-    } = useBroadcast();
+    const { isBroadcasting } = useBroadcast();
+    const { webBroadcastContainerRef, isFullScreenViewOpen } =
+      useBroadcastFullScreen();
+    const { isDesktopView } = useResponsiveDevice();
+    const { isJoiningStageByRequestOrInvite } = useGlobalStage();
 
-    const webBroadcastContainerRef = useRef();
-    const { isDesktopView, isTouchscreenDevice } = useResponsiveDevice();
-    const { state } = useLocation();
-    const isUserRedirectedFromSettingsPageRef = useRef(
-      state?.isWebBroadcastContainerOpen || false
-    );
     const isDefaultGoLiveButton =
-      !isUserRedirectedFromSettingsPageRef.current &&
-      !isBroadcastCardOpen &&
-      !isBroadcasting &&
-      isDesktopView;
-    const {
-      [CAMERA_LAYER_NAME]: activeCamera,
-      [MICROPHONE_AUDIO_INPUT_NAME]: activeMicrophone
-    } = activeDevices;
+      !isBroadcastCardOpen && !isBroadcasting && isDesktopView;
 
     const handleOnCollapse = () => {
-      if (isUserRedirectedFromSettingsPageRef.current)
-        isUserRedirectedFromSettingsPageRef.current = false;
       onCollapse();
     };
-
-    const isGoLiveContainerOpen =
-      isBroadcastCardOpen || isUserRedirectedFromSettingsPageRef.current;
-
-    const webBroadcastControllerButtons = useMemo(
-      () => [
-        {
-          onClick: toggleMicrophone,
-          ariaLabel: isMicrophoneMuted
-            ? 'Turn on microphone'
-            : 'Turn off microphone',
-          isDeviceControl: true,
-          isActive: !isMicrophoneMuted,
-          isDisabled: !activeMicrophone,
-          icon: isMicrophoneMuted ? <MicOff /> : <MicOn />,
-          tooltip: isMicrophoneMuted
-            ? $webBroadcastContent.unmute
-            : $webBroadcastContent.mute
-        },
-        {
-          onClick: toggleCamera,
-          ariaLabel: isCameraHidden ? 'Turn on camera' : 'Turn off camera',
-          isDeviceControl: true,
-          isActive: !isCameraHidden,
-          isDisabled: !activeCamera,
-          icon: isCameraHidden ? <VideoCameraOff /> : <VideoCamera />,
-          tooltip: isCameraHidden
-            ? $webBroadcastContent.show_camera
-            : $webBroadcastContent.hide_camera
-        },
-        {
-          onClick: toggleScreenShare,
-          ariaLabel: isScreenSharing
-            ? 'Start screen sharing'
-            : 'Stop screen sharing',
-          isVisible: !isTouchscreenDevice,
-          isActive: isScreenSharing,
-          icon: isScreenSharing ? <ScreenShareOff /> : <ScreenShare />,
-          tooltip: isScreenSharing
-            ? $webBroadcastContent.stop_sharing
-            : $webBroadcastContent.share_your_screen
-        }
-      ],
-      [
-        activeCamera,
-        activeMicrophone,
-        isCameraHidden,
-        isMicrophoneMuted,
-        isScreenSharing,
-        isTouchscreenDevice,
-        toggleCamera,
-        toggleMicrophone,
-        toggleScreenShare
-      ]
-    );
 
     return (
       <section
@@ -140,19 +50,18 @@ const StreamManagerWebBroadcast = forwardRef(
         ])}
       >
         <GoLiveContainer
-          ref={previewRef}
-          isBroadcastCardOpen={isBroadcastCardOpen}
-          webBroadcastParentContainerRef={webBroadcastParentContainerRef}
-          webBroadcastContainerRef={webBroadcastContainerRef}
-          webBroadcastControllerButtons={webBroadcastControllerButtons}
-          isOpen={isGoLiveContainerOpen}
+          ref={
+            !isFullScreenViewOpen && !isJoiningStageByRequestOrInvite
+              ? previewRef
+              : null
+          }
+          isOpen={isBroadcastCardOpen}
           onCollapse={handleOnCollapse}
           setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
         />
         {!isBroadcastCardOpen && isBroadcasting && isDesktopView && (
           <GoLiveContainerCollapsed
-            isOpen={isGoLiveContainerOpen}
-            webBroadcastControllerButtons={webBroadcastControllerButtons}
+            isOpen={isBroadcastCardOpen}
             onExpand={onExpand}
           />
         )}
@@ -185,8 +94,7 @@ StreamManagerWebBroadcast.propTypes = {
   isBroadcastCardOpen: PropTypes.bool.isRequired,
   onCollapse: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
-  setIsWebBroadcastAnimating: PropTypes.func,
-  webBroadcastParentContainerRef: PropTypes.object.isRequired
+  setIsWebBroadcastAnimating: PropTypes.func
 };
 
 StreamManagerWebBroadcast.defaultProps = {

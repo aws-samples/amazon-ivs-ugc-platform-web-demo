@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from '@fastify/request-context';
 
-import authorizer, { UserContext } from '../authorizer';
+import authorizer, { UserContext } from '../../shared/authorizer';
 import banUser from './banUser';
 import changeUsername from './changeUsername';
 import changeUserPreferences from './changeUserPreferences';
@@ -16,6 +16,7 @@ import unbanUser from './unbanUser';
 import addToFollowingList from './addToFollowingList';
 import removeFromFollowingList from './removeFromFollowingList';
 import getFollowingChannels from './getFollowingChannels';
+import getLiveStatus from './getLiveStatus';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -30,6 +31,7 @@ const router: FastifyPluginAsync = async (resource) => {
   resource.get('/', getUser);
   resource.get('/streamKey/reset', resetStreamKey);
   resource.get('/followingList', getFollowingChannels);
+  resource.get('/liveStatus', getLiveStatus);
 
   resource.post('/actions/send', sendStreamAction);
   resource.post('/ban', banUser);

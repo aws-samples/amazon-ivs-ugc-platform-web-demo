@@ -8,7 +8,7 @@ import { useResponsiveDevice } from '../../../../contexts/ResponsiveDevice';
 import { useChat } from '../../../../contexts/Chat';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
 
-const Poll = ({ shouldRenderInTab }) => {
+const Poll = ({ shouldRenderInTab = false }) => {
   const { pathname } = useLocation();
   const { isActive } = usePoll();
   const { isModerator } = useChat();
@@ -36,10 +36,6 @@ const Poll = ({ shouldRenderInTab }) => {
       )}
     </div>
   );
-};
-
-Poll.defaultProps = {
-  shouldRenderInTab: false
 };
 
 Poll.propTypes = {

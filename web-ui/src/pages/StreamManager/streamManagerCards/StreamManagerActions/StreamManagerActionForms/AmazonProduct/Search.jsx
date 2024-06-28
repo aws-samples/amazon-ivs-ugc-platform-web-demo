@@ -6,11 +6,11 @@ import { Search } from '../../../../../../assets/icons';
 import Input from '../formElements/Input';
 
 export const SearchGroup = ({
-  errors,
-  keyword,
-  onBlur,
-  onChange,
-  placeholder
+  errors = {},
+  keyword = '',
+  onBlur = noop,
+  onChange = noop,
+  placeholder = ''
 }) => {
   const keywordSearchFieldRef = useRef();
 
@@ -57,14 +57,6 @@ SearchGroup.propTypes = {
   onBlur: PropTypes.func,
   onChange: PropTypes.func,
   placeholder: PropTypes.string
-};
-
-SearchGroup.defaultProps = {
-  errors: {},
-  keyword: '',
-  onBlur: noop,
-  onChange: noop,
-  placeholder: ''
 };
 
 export default SearchGroup;

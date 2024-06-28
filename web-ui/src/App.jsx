@@ -17,12 +17,13 @@ import { Provider as StreamsProvider } from './contexts/Streams';
 import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
+import { Provider as AppSyncProvider } from './contexts/AppSync/AppSync';
+import { GlobalStageProvider } from './contexts/Stage';
 
 // Pages
 import {
   Channel,
   ChannelDirectory,
-  // Feed,
   Following,
   Settings,
   StreamHealth,
@@ -36,6 +37,8 @@ import {
   ResetPassword,
   SigninUser
 } from './pages/UserManagement/subpages';
+
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Page Layouts
 import { AppLayoutWithNavbar, RequireAuth } from './layouts';
@@ -57,27 +60,33 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
       element={
-        <MotionConfig reducedMotion="user">
-          <LastFocusedElementProvider>
-            <ResponsiveDeviceProvider>
-              <NotificationProvider>
-                <ModalProvider>
-                  <TooltipsProvider>
-                    <UserProvider />
-                  </TooltipsProvider>
-                </ModalProvider>
-              </NotificationProvider>
-            </ResponsiveDeviceProvider>
-          </LastFocusedElementProvider>
-        </MotionConfig>
+        <ErrorBoundary>
+          <MotionConfig reducedMotion="user">
+            <LastFocusedElementProvider>
+              <ResponsiveDeviceProvider>
+                <NotificationProvider>
+                  <ModalProvider>
+                    <TooltipsProvider>
+                      <UserProvider />
+                    </TooltipsProvider>
+                  </ModalProvider>
+                </NotificationProvider>
+              </ResponsiveDeviceProvider>
+            </LastFocusedElementProvider>
+          </MotionConfig>
+        </ErrorBoundary>
       }
     >
       <Route
         element={
           <StreamsProvider>
-            <ChannelProvider>
-              <AppLayoutWithNavbar />
-            </ChannelProvider>
+            <GlobalStageProvider>
+              <ChannelProvider>
+                <AppSyncProvider>
+                  <AppLayoutWithNavbar />
+                </AppSyncProvider>
+              </ChannelProvider>
+            </GlobalStageProvider>
           </StreamsProvider>
         }
       >
@@ -93,8 +102,6 @@ const router = createBrowserRouter(
             />
           </Route>
         </Route>
-        {/* <Route path="feed" element={<Feed />} /> */}
-
         {/* PRIVATE PAGES */}
         <Route element={<RequireAuth />}>
           <Route path="following" element={<Following />} />

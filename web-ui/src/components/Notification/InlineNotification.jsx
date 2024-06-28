@@ -6,8 +6,8 @@ import { NOTIF_TYPES } from '../../contexts/Notification';
 
 const InlineNotification = ({
   animationProps,
-  className,
-  Icon,
+  className = '',
+  Icon = null,
   message,
   type
 }) => (
@@ -55,6 +55,10 @@ const InlineNotification = ({
         type === NOTIF_TYPES.INFO && [
           'bg-lightMode-turquoise',
           'dark:bg-darkMode-turquoise'
+        ],
+        type === NOTIF_TYPES.NEUTRAL && [
+          'bg-lightMode-gray-medium',
+          'dark:bg-darkMode-gray-light'
         ]
       ])}
     >
@@ -73,7 +77,5 @@ InlineNotification.propTypes = {
   message: PropTypes.string.isRequired,
   type: PropTypes.oneOf(Object.values(NOTIF_TYPES)).isRequired
 };
-
-InlineNotification.defaultProps = { className: '', Icon: null };
 
 export default InlineNotification;

@@ -18,13 +18,13 @@ const thumbHoverClasses = [
 ];
 
 const ZoomSlider = ({
-  chartsRef,
-  dataLength,
-  eventsToDisplay,
-  isEnabled,
+  chartsRef = { current: null },
+  dataLength = 0,
+  eventsToDisplay = [],
+  isEnabled = false,
   setSelectedZoomLevel,
   setZoomBounds,
-  zoomBounds
+  zoomBounds = [0, 0]
 }) => {
   const [lowerBound, upperBound] = zoomBounds;
   const pointerDownEventData = useRef(null);
@@ -344,14 +344,6 @@ const ZoomSlider = ({
       }
     />
   );
-};
-
-ZoomSlider.defaultProps = {
-  chartsRef: { current: null },
-  dataLength: 0,
-  eventsToDisplay: [],
-  isEnabled: false,
-  zoomBounds: [0, 0]
 };
 
 ZoomSlider.propTypes = {

@@ -16,7 +16,7 @@ This demo uses [AWS Cloud Development Kit](https://aws.amazon.com/cdk/) (AWS CDK
 
 ## To use and deploy this project
 
-***IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.*
+**\*IMPORTANT NOTE:** this demo will create and use AWS resources on your AWS account, which will cost money.\*
 
 Deploying the CDK stack will:
 
@@ -28,19 +28,19 @@ Deploying the CDK stack will:
 - create an API Gateway, a Network Load Balancer and an ECS Service to handle EventBridge Amazon IVS events and store them in the Metrics DynamoDB table
 - create an EventBridge rule to dispatch the Amazon IVS events to the aforementioned API Gateway
 - create the Secrets Manager with the necessary secret(s) depending on the enabled features
+- create EventBridge rules to schedule an IVS Real-time streaming idle stage cleanup Lambda and a Cognito unverified users cleanup Lambda
 
 ## Quick links 🔗
 
 - [Configure the demo](#configuration)
 - [Deploy the demo](#deployment)
-- [Known limitations](#limitations)
+- [Limitations and known issues](#limitations-and-known-issues)
 
 ## Architecture
 
 ![Amazon UGC Demo Architecture](screenshots/architecture/ugc-architecture.png)
 
 ## Features
-
 
 ### User Registration, Login and Password Reset using Amazon Cognito
 
@@ -100,11 +100,17 @@ All stream actions (with the exception of hosting a poll) are received by the vi
 
 ![Viewer stream actions architecture](screenshots/architecture/receive-stream-actions.png)
 
-The poll stream overlay action on the otherhand leverages the IVS Chat Messaging [SDK](https://aws.github.io/amazon-ivs-chat-messaging-sdk-js/1.0.2/) to receive and emit different poll action events. 
+The poll stream overlay action on the otherhand leverages the IVS Chat Messaging [SDK](https://aws.github.io/amazon-ivs-chat-messaging-sdk-js/1.0.2/) to receive and emit different poll action events.
 
 Note: The processing of votes happens on the streamer's side while they are on the stream manager page. Navigating away from this page will effectively skip votes.
 
 ![Poll stream action architecture](screenshots/architecture//poll.png)
+
+#### Viewing a real-time stream
+
+Users can spectate a live [IVS Web Broadcast Real-time stream](#real-time-streaming). To participate in a collaborative session, spectators first need to authenticate. Subsequently, they can submit a request by clicking on the "Request to join" button on the channel page. Notification of the request to the host is managed by [AWS AppSync](https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html). When the host accepts the request, the spectator will be automatically routed to the "Ready to join?" modal view for collaboration.
+
+![Poll stream action architecture](screenshots/features/collaborate-stream.png)
 
 ### Stream health monitoring
 
@@ -126,25 +132,51 @@ The video bitrate, frame rate, concurrent views and keyframe interval metrics co
 
 ### Stream management
 
-The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, trigger stream overlays, as well as monitor and moderate their chat room. Users can also prepare and save stream overlay configurations for later use.
+The stream management page is only accessible to authenticated users, from the `/manager` URL. On this page, streamers can start a web broadcast, start and join a collaborate session, trigger stream overlays, as well as monitor and moderate their chat room. Users can also prepare and save stream overlay configurations for later use.
 
 ![Stream Manager page](screenshots/features/stream-manager-page.png)
 
-#### Web broadcast
+#### IVS web broadcast
 
-Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use this feature. Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
+Users are prompted to grant camera and microphone permissions when accessing the `/manager` URL. The user must allow both the camera and microphone permissions to use both low-latency and real-time streaming features.
 
-Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/introduction).
+#### Low-latency streaming
 
-Read about [web broadcast known issues and limitations](#web-broadcast-known-issues).
+Users can toggle their camera and microphone, and can also share their screen. Inside Settings, users can change the camera and microphone device used, and toggle the display of their camera when sharing their screen. Users can also enter a "full-screen" view while streaming.
+
+![IVS Low-latency streaming](screenshots/features/stream-manager-page-live.png)
+
+#### Real-time streaming
+
+Users can toggle their camera and microphone. Within the settings, users can change the camera and microphone device used. The "full-screen" view will automatically expand when a collaborate session is started or joined. Once a collaborate session has started, the collaborate stream will go live and can be viewed on the channel page by other users.
+
+Participants can join a collaborate session by requesting access from the channel page or using an invitation via a session link. Hosts and invited participants who joined using a session link can use the "copy session link" button. A maximum of 12 participants can publish to a session. Once a session is full, any new participant will join as a spectator.
+
+![IVS Real-time collaborate](screenshots/features/collaborate.png)
+
+As a host, clicking on the "Participants" button opens a modal displaying actively publishing users and pending join requests. Within this modal, the host can remove session participants, reject requests, and view camera/microphone status.
+
+![IVS Real-time participants modal](screenshots/features/collaborate-participants.png)
+
+Non-host participants will initially encounter a "Ready to join?" modal, providing the option to change devices and device status before joining the session.
+
+![IVS Real-time join modal](screenshots/features/collaborate-join.png)
+
+Creating and joining a real-time session is accomplished using [Amazon IVS Web Broadcast Real-time streaming](https://docs.aws.amazon.com/ivs/latest/RealTimeUserGuide/what-is.html).
+
+![IVS Real-time architecture diagram](screenshots/architecture/ivs-real-time.png)
+
+Read more about the Amazon IVS Web broadcast SDK from the [official SDK guide](https://aws.github.io/amazon-ivs-web-broadcast/).
+
+Read about [web broadcast known issues and limitations](#limitations-and-known-issues).
 
 #### Chat monitoring
 
-The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#chat))
+The chat component on this page works exactly like the chat component from the Channel page. More information and an architecture diagram are available in the [corresponding section](#stream-chat).
 
 #### Stream overlay configuration
 
-Streamers can trigger [overlays](#stream-overlays). Only one stream action can be active at a time. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action.
+Streamers can trigger [overlays](#stream-overlays). Only one stream action can be active at a time. A stream action will remain active until the action expires, until it is stopped or until it is replaced by a different action. While a real-time stream is live, only a poll can be activated, and the rest of the stream action buttons are disabled.
 
 ![Send stream action](screenshots/features/send-stream-action.png)
 
@@ -205,46 +237,45 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
 - `enableAmazonProductStreamAction` as the name suggests, the value of this feature flag will either hide or show the Amazon Product stream action on the stream manager page. Setting the value to false will hide the stream action while setting the value to true will show the stream action. Please review "Configuring cdk.json to enable the Amazon Product stream action" under the guides [section](#guides) before setting a value.
 
-   Note: updating this value will require a new stack deployment.
+  Note: updating this value will require a new stack deployment.
 
-   Example:
+  Example:
 
-   ```json
-   "enableAmazonProductStreamAction": true
-   ```
+  ```json
+  "enableAmazonProductStreamAction": true
+  ```
 
-- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+- `productApiLocale` in order to start retrieving marketplace information for the Amazon Product stream action we must set a `productApiLocale` value. You will need to identify the locale in which your Associates account is registered to. For a list of supported locale values, please refer to the [Amazon PAAPI 5 documentation](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region).
 
-   Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
+  Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
-   Example:
+  Example:
 
-   ```json
-   "productApiLocale": "United States"
-   ```
+  ```json
+  "productApiLocale": "United States"
+  ```
 
-- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America). 
+- `productLinkRegionCode` the region code set here is simply a suffix that is added to the end of your unique tracking id that will appear on every product link for monetizing purposes. It is a 2 digit code that appears at the end of your provided partnerTag as an Amazon Associate. For example, if your partnerTag (or store ID) is store-20. 20 is your region code (North America).
 
-   By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
+  By not setting a value and leaving it blank, you wish to not participate in the tracking and monetization of product affiliate links.
 
-   Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
+  Note: The region code value should be surrounded by double quotes (ie. "20" not 20).
 
-   Example:
+  Example:
 
-   ```json
-   "productLinkRegionCode": "20"
-   ```
+  ```json
+  "productLinkRegionCode": "20"
+  ```
 
 ## Guides
 
-
 ### Configuring cdk.json to enable the Amazon Product stream action
 
-1. Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html)
+1. Before enabling this feature, you MUST have an Amazon Associates account that has been reviewed and received final acceptance into the Amazon Associates Program. If you do not have an Amazon Associate account, you must sign up for Amazon Associates. For more information, see [Sign Up as an Amazon Associate](https://webservices.amazon.com/paapi5/documentation/troubleshooting/sign-up-as-an-associate.html).
 
 2. Once accepted, you may set the value of `enableAmazonProductStreamAction` to true.
 
-3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following link, https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region.
+3. If true, you can proceed to identify the `productApiLocale` value. This value will be the locale to which your Associates account is registered to. For a list of supported locale values, please refer to the following [link](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region).
 
    Associate accounts are registered to particular marketplaces, so attempting to access a locale to which you are not registered for will throw an error. Further, setting a locale that is incorrectly spelt, left blank or not supported will attempt to retrieve products from the US marketplace. If products are still not showing you can view the logs for further details.
 
@@ -264,18 +295,33 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
 
    Note: Failure to set your credentials or typing incorrect values will throw an error in the application when attempting to search Amazon products.
 
+### Setting your AppSync GraphQL API credentials
+
+For improved communication between a stage host and a requestee (for example, retracting a previously submitted join request to the stage host), it is recommended to configure your AppSync GraphQL API credentials within the AWS console's Secrets Manager. To do this, follow these steps:
+
+1. Navigate to the AWS console's Secrets Manager (AWS Secrets Manager > Secrets).
+
+2. Identify the secret named AppSyncGraphQLAPISecretKeys followed by a unique string generated during deployment, and click on it.
+
+3. Scroll down the page and select "Retrieve secret value."
+
+4. Choose "Edit" and configure your apiKey and graphQlApiEndpoint. Retrieve these values from the CDK deployment output or visit AWS AppSync in the console. To locate your API key and endpoint, click on your API then navigate to Settings.
+
+5. Save your changes by clicking on the "Save" button.
+
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
-1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets)
 
-2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it
+1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
-3. Scroll down the page and click "Retrieve secret value"
+2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.
 
-4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID)
+3. Scroll down the page and click "Retrieve secret value".
 
-5. Click Save
+4. Click "Edit" and set your secretKey, accessKey and partnerTag (Store ID).
+
+5. Click Save.
 
 ![Set your credentials](screenshots/features/secrets-manager.png)
 
@@ -310,7 +356,7 @@ After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/
 
 ## Deployment
 
-***IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.*
+**\*IMPORTANT NOTE:** Before setting up the backend, make sure that you have Docker running.\*
 
 1. To set up the backend, navigate to the `cdk` directory and run:
 
@@ -338,7 +384,7 @@ After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/
 
    Deploying with the `PUBLISH` flag set to `true` will also append the CloudFront distribution URL to the list of `allowedOrigins` defined in your `cdk.json` config. It will also override the value of `clientBaseUrl`.
 
-   ***NOTE:** the deployment might take up to 20 minutes or more if you are also publishing the frontend application.*
+   **\*NOTE:** the deployment might take up to 20 minutes or more if you are also publishing the frontend application.\*
 
 2. Go to the `web-ui` directory and run the following commands to start the React frontend host:
 
@@ -364,7 +410,7 @@ make deploy STAGE=prod
 ### Summary
 
 The following recaps all the most common commands that you can run to easily deploy the app to AWS.  
-***NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.*
+**\*NOTE:** if you are running the command for the first time, you need to replace `deploy` with `app` in the `make` command.\*
 
 Deploy the backend with the "dev" config:
 
@@ -446,8 +492,9 @@ Currently, the E2E testing suite covers only the most common user management flo
 
 Testing is automated using two GitHub Actions workflows: one for running the backend unit tests (`backend-unit-test-on-pull-request`) and another for running the E2E tests (`e2e-test-on-pull-request`). Each workflow is configured to run on every pull request made to the `master` branch. Additionally, to save on GitHub Actions execution minutes, the backend unit testing workflow is run only if changes were made to the files inside the `cdk/api` directory, and the E2E testing workflow is run only if changes were made to the files inside the `web-ui` directory. In the instance that the E2E workflow fails at the testing step, an artifact will be generated containing the playwright test report. These artifacts have a retention period of 7 days, after which they are automatically deleted from the workflow run results.
 
-## Limitations
+## Limitations and known issues
 
+- Browser compatibility: This app has undergone thorough testing on Chrome desktop browsers; while functionality is optimized for this environment, users may encounter issues on other browsers and mobile devices. For optimal performance, it is recommended to run the app on Chrome desktop.
 - Currently only tested in the us-west-2 (Oregon) and us-east-1 (N. Virginia) regions. Additional regions may be supported depending on service availability.
 - Backend: In the Metrics DynamoDB table, the metrics data is overwritten in order to decrease the resolution of the data as per the [CloudWatch schedule](https://docs.aws.amazon.com/ivs/latest/userguide/cloudwatch.html)
 - Backend: While this demo relies on EventBridge to gather information about a user's stream(s), the streaming configuration details are still retrieved via the Amazon IVS API. Therefore, during high traffic conditions, these requests may be throttled once the [quota limit](https://docs.aws.amazon.com/ivs/latest/userguide/service-quotas.html) is reached. From the users' perspective, there may be a delay before the streaming configuration details are available; however this delay will only occur once per stream, as they are immediately saved in the DynamoDB table once retrieved via the Amazon IVS API.
@@ -463,7 +510,7 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
 - Backend: The user registration flow involves the creation and coordination of multiple AWS resources, including the Cognito user pool, the Amazon IVS channel and chat room, and the DynamoDB channels table. This registration flow also includes important validation checks to ensure that the submitted data meets a set of constraints before the user is allowed to sign up for a new account. Therefore, we highly advise against creating or managing any user account from the AWS Cognito console or directly from the DynamoDB channels table as any such changes will be out of sync with the other user-related AWS resources. If at any point you see an error message pertaining to a manual change that was made from the AWS Cognito console (e.g. a password reset), a new account should be created using the frontend application's dedicated registration page.
 
 - Web Broadcast: Currently set to 720p resolution to ensure best performance across a wide range of devices.
-- Web Broadcast: For other Amazon IVS Web Broadcast SDK known issues, please refer to the [official SDK Guide](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-guides/known-issues).
+- Web Broadcast: For additional information on known issues and workarounds, please refer to the [Low-latency streaming known-issues SDK page](https://aws.github.io/amazon-ivs-web-broadcast/docs/low-latency-sdk-guides/known-issues) or [Real-time streaming known-issues SDK page](https://aws.github.io/amazon-ivs-web-broadcast/docs/real-time-sdk-guides/known-issues) in the Amazon IVS Web Broadcast documentation."
 
 - iOS: devices do not currently support the fullscreen API, which prevents a fullscreen player experience that includes custom player controls and header.
 - iOS: the volume level of the video player is always under the user's physical control and not settable using JavaScript.
@@ -472,6 +519,14 @@ Testing is automated using two GitHub Actions workflows: one for running the bac
   Note: that your account will lose access to Product Advertising API 5.0 if it has not generated referring sales for a consecutive 30-day period.
 
 See [Api Rates](https://webservices.amazon.com/paapi5/documentation/troubleshooting/api-rates.html) for more information.
+
+- Mozilla Firefox: While navigating through the app on pages that necessitate microphone and camera permissions, a size window on occasion appears, revealing an XML Parsing error at the top left corner of the screen.
+
+XML Parsing Error: no root element found
+Location: chrome://browser/content/webrtcLegacyIndicator.xhtml
+Line Number: 1, Column 1:
+
+For more details see [here](https://bugzilla.mozilla.org/show_bug.cgi?id=1639821).
 
 ## Services Used
 
@@ -488,60 +543,58 @@ Below is a list of the all the services used for the UGC Demo.
 - [Lambda](https://aws.amazon.com/lambda/pricing/)
 - [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)
 - [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)
+- [AppSync](https://aws.amazon.com/appsync/pricing/)
+- [Simple Queue Service](https://aws.amazon.com/sqs/pricing/)
 
 <br>
-
 The following is a detailed usage-based summary. Use it as a guide to estimate project costs.
-
 <details>
 <summary>Click here to view details</summary>
 
 ### Overall Usage
 
-| Service                                                              | 1 user | 10 users | 100 users |
-| -------------------------------------------------------------------- | -----: | -------: | --------: |
-| Total number of requests in a month (average request size 5kB):      | 1 request/second | 10 request/second | 100 request/second |
-| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)           | 2,592,000 |   25,920,000 |    259,200,000 |
-| Homepage size is 317B. Total of GB downloaded from visits to the homepage: | 1 request/second (GB) | 10 request/second (GB) | 100 request/second (GB)
-| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)             | 0.82 |    8.22 |     82.17 |
-| 1KB of log per request. Total GB of logs generated by traffic:       | 1 request/second (GB) | 10 request/second (GB) | 100 request/second (GB) |
-| [CloudWatch Logs](https://aws.amazon.com/cloudwatch/pricing/)             |  2.59 |    25.92 |    259.20 |
-| Monthly Active Users (MAU). With no advanced features. No SAML or OIDC Auth: | Number of MAU | Number of MAU | Number of MAU |
-| [Cognito](https://aws.amazon.com/cognito/pricing/)                   | 50,000 |    100,000 |     1,000,000 |
-| Average item size 105 Bytes. Asumming Monthly Active Users. Each user going live once a day: | MAU 50,000 (GB) | MAU 100,000 (GB) | MAU 1,000,000 (GB) |
-| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)       | 0.01 |   0.01 |    0.11 |
-| Average build size 103.01 MB:                                        | 1 deployment a day for a month (GB) | 10 deployment a day for a month (GB) | 100 deployment a day for a month (GB) |
-| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)    | 0.10 | 1.03 | 10.30 |
-| Number of x86 pods with 0.25vCPU and 512 RAM. 20GB ephemeral storage: | 1 request/second | 10 request/second | 100 request/second |
-| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/) | 1 | 1 | 2 |
-| Total number of requests in a month that go to API destinations:     | 1 request/second | 10 request/second | 100 request/second |
-| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)           | 2,592,000 |   25,920,000 |    259,200,000 |
-| Total number of requests in a month ( 0.125GB memory allocated and 0.5 GB ephemeral storage allocated and 699ms average billable time: | 1 request/second | 10 request/second | 100 request/second | 
-| [Lambda](https://aws.amazon.com/lambda/pricing/)                     | 2,592,000 |   25,920,000 |    259,200,000 |
-| Total number of requests in a month. We have 3 secrets in the manager: | 1 request/second | 10 request/second | 100 request/second |
-| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)   | 2,592,000 |   25,920,000 |    259,200,000 |
+| Service                                                                                                                                |                              1 user |                             10 users |                             100 users |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------: | -----------------------------------: | ------------------------------------: |
+| Total number of requests in a month (average request size 5kB):                                                                        |                    1 request/second |                    10 request/second |                    100 request/second |
+| [API Gateway](https://aws.amazon.com/api-gateway/pricing/)                                                                             |                           2,592,000 |                           25,920,000 |                           259,200,000 |
+| Homepage size is 317B. Total of GB downloaded from visits to the homepage:                                                             |               1 request/second (GB) |               10 request/second (GB) |               100 request/second (GB) |
+| [CloudFront](https://aws.amazon.com/cloudfront/pricing/)                                                                               |                                0.82 |                                 8.22 |                                 82.17 |
+| 1KB of log per request. Total GB of logs generated by traffic:                                                                         |               1 request/second (GB) |               10 request/second (GB) |               100 request/second (GB) |
+| [CloudWatch Logs](https://aws.amazon.com/cloudwatch/pricing/)                                                                          |                                2.59 |                                25.92 |                                259.20 |
+| Monthly Active Users (MAU). With no advanced features. No SAML or OIDC Auth:                                                           |                       Number of MAU |                        Number of MAU |                         Number of MAU |
+| [Cognito](https://aws.amazon.com/cognito/pricing/)                                                                                     |                              50,000 |                              100,000 |                             1,000,000 |
+| Average item size 105 Bytes. Asumming Monthly Active Users. Each user going live once a day:                                           |                     MAU 50,000 (GB) |                     MAU 100,000 (GB) |                    MAU 1,000,000 (GB) |
+| [DynamoDB](https://aws.amazon.com/dynamodb/pricing/on-demand/)                                                                         |                                0.01 |                                 0.01 |                                  0.11 |
+| Average build size 103.01 MB:                                                                                                          | 1 deployment a day for a month (GB) | 10 deployment a day for a month (GB) | 100 deployment a day for a month (GB) |
+| [Elastic Container Registry](https://aws.amazon.com/ecr/pricing/)                                                                      |                                0.10 |                                 1.03 |                                 10.30 |
+| Number of x86 pods with 0.25vCPU and 512 RAM. 20GB ephemeral storage:                                                                  |                    1 request/second |                    10 request/second |                    100 request/second |
+| [Elastic Container Service](https://aws.amazon.com/fargate/pricing/)                                                                   |                                   1 |                                    1 |                                     2 |
+| Total number of requests in a month that go to API destinations:                                                                       |                    1 request/second |                    10 request/second |                    100 request/second |
+| [EventBridge](https://aws.amazon.com/eventbridge/pricing/)                                                                             |                           2,592,000 |                           25,920,000 |                           259,200,000 |
+| Total number of requests in a month ( 0.125GB memory allocated and 0.5 GB ephemeral storage allocated and 699ms average billable time: |                    1 request/second |                    10 request/second |                    100 request/second |
+| [Lambda](https://aws.amazon.com/lambda/pricing/)                                                                                       |                           2,592,000 |                           25,920,000 |                           259,200,000 |
+| Total number of requests in a month. We have 3 secrets in the manager:                                                                 |                    1 request/second |                    10 request/second |                    100 request/second |
+| [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/)                                                                     |                           2,592,000 |                           25,920,000 |                           259,200,000 |
 
-### Amazon IVS usage
+### IVS usage
 
-| Service                                                              | Based on  | Based on  | Based on |
-| -------------------------------------------------------------------- | -----: | -------: | --------: |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/) Low-latency streaming input | Hours streamed | Hours streamed | Hours streamed |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/) Low-latency streaming output | Hours watched | Hours watched | Hours watched |
-| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/) Chat | Chat usage | Chat usage | Chat usage |
-
+| Service                                                                            | Hours streamed per channel | Hours streamed per channel | Hours streamed per channel |
+| ---------------------------------------------------------------------------------- | -------------------------: | -------------------------: | -------------------------: |
+| Channel Type: Standard, Output Quality: 1080p. Average viewer watch duration: 50%: |                          2 |                          4 |                          8 |
+| [Interactive Video Service](https://aws.amazon.com/ivs/pricing/)                   |         Viewer per channel |         Viewer per channel |         Viewer per channel |
+|                                                                                    |                         50 |                        100 |                       1000 |
 
 </details>
 
 ## About Amazon IVS
 
-Amazon Interactive Video Service (Amazon IVS) is a managed live streaming solution that is quick and easy to set up, and ideal for creating interactive video experiences. [Learn more](https://aws.amazon.com/ivs/).
+Amazon Interactive Video Service (IVS) is a managed, live-video streaming service with both low-latency and real-time streaming capabilities. It handles everything from video ingesting and transcoding to global distribution for playback, so you can focus on building your own interactive application and audience experience. With Amazon IVS, you can stream without needing to manage or develop components on your own.
 
-- [Amazon IVS docs](https://docs.aws.amazon.com/ivs/)
-- [User Guide](https://docs.aws.amazon.com/ivs/latest/userguide/)
-- [API Reference](https://docs.aws.amazon.com/ivs/latest/APIReference/)
+- [Amazon IVS documentation](https://docs.aws.amazon.com/ivs/)
 - [Setting Up for Streaming with Amazon Interactive Video Service](https://aws.amazon.com/blogs/media/setting-up-for-streaming-with-amazon-ivs/)
 - [Learn more about Amazon IVS on IVS.rocks](https://ivs.rocks/)
 - [View more demos like this](https://ivs.rocks/examples)
+- [Cost estimator](https://ivs.rocks/calculator)
 
 ## Security
 

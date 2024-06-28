@@ -14,9 +14,8 @@ const Context = createContext(null);
 Context.displayName = 'Channel';
 
 const channelDataFetcher = async (username) => {
-  const { result: data, error } = await channelsAPI.getUserChannelData(
-    username
-  );
+  const { result: data, error } =
+    await channelsAPI.getUserChannelData(username);
 
   if (error) throw error;
 

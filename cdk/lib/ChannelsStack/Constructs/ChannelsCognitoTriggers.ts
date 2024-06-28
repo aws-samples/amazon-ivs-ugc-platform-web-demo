@@ -1,6 +1,7 @@
 import { aws_lambda_nodejs as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 import { ChannelsResourceConfig, defaultLambdaParams } from '../../constants';
 
@@ -56,7 +57,7 @@ export default class ChannelsCognitoTriggers extends Construct {
 
     this.customMessageLambda = customMessageLambda;
 
-    let preAuthenticationLambda = new lambda.NodejsFunction(
+    let preAuthenticationLambdßa = new lambda.NodejsFunction(
       this,
       'PreAuthenticationLambda',
       {

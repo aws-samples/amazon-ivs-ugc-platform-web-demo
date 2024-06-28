@@ -1,14 +1,27 @@
 import { convertToAttr } from '@aws-sdk/util-dynamodb';
 import {
+  AttributeValueUpdate,
   BatchWriteItemCommand,
+  BatchWriteItemInput,
   DynamoDBClient,
   QueryCommand,
+  UpdateItemCommand,
   WriteRequest
 } from '@aws-sdk/client-dynamodb';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import {
+  IVSRealTimeClient,
+  StageSummary,
+  DeleteStageCommand
+} from '@aws-sdk/client-ivs-realtime';
+import { buildChannelArn } from '../api/metrics/helpers';
+import { CHANNELS_TABLE_STAGE_FIELDS } from '../api/shared/constants';
 
 export const cognitoClient = new CognitoIdentityProviderClient({});
 export const dynamoDbClient = new DynamoDBClient({});
+export const ivsRealTimeClient = new IVSRealTimeClient({});
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getChannelByChannelAssetId = (channelAssetId: string) => {
   const queryCommand = new QueryCommand({
@@ -68,4 +81,216 @@ export const batchDeleteItemsWithRetry = async (
 
     return batchDeleteItemsWithRetry(response.UnprocessedItems, retryCount + 1);
   }
+};
+
+/**
+ * Cleanup Idle Stages
+ */
+
+export const getIdleStages = (stages: StageSummary[]) => {
+  const currentTimestamp = Date.now();
+  const millisecondsPerHour = 60 * 60 * 1000;
+  const hoursThreshold = 1;
+
+  return stages
+    .filter((stage) => stage.activeSessionId === '')
+    .filter((idleStage) => {
+      const creationDate: string = idleStage?.tags?.creationDate || '';
+      if (!creationDate) return false;
+
+      const timeDifferenceHours: number =
+        (currentTimestamp - parseInt(creationDate)) / millisecondsPerHour;
+
+      return timeDifferenceHours > hoursThreshold;
+    });
+};
+
+export const getBatchChannelWriteUpdates = (idleStages: StageSummary[]) => {
+  const channelWriteUpdates: WriteRequest[] = [];
+
+  idleStages.forEach((idleAndOldStage) => {
+    let hostChannelArn;
+    if (idleAndOldStage?.tags?.stageOwnerChannelId) {
+      hostChannelArn = buildChannelArn(
+        idleAndOldStage?.tags.stageOwnerChannelId
+      );
+    }
+    if (hostChannelArn) {
+      const channelUpdate = {
+        PutRequest: {
+          Item: {
+            primaryKey: { S: hostChannelArn },
+            [CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID]: { NULL: true },
+            [CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE]: { NULL: true }
+          }
+        }
+      };
+      channelWriteUpdates.push(channelUpdate);
+    }
+  });
+
+  return channelWriteUpdates;
+};
+
+export const getIdleStageArns = (idleStages: StageSummary[]) =>
+  idleStages
+    .map((idleAndOldStage) => idleAndOldStage.arn)
+    .filter((arn) => typeof arn === 'string') as string[];
+
+const getDeleteStagePromises = (stageArns: string[]) =>
+  stageArns.map((stageArn) => {
+    return new Promise(async (resolve, rejects) => {
+      const deleteStageCommand = new DeleteStageCommand({
+        arn: stageArn
+      });
+
+      try {
+        const response = await ivsRealTimeClient.send(deleteStageCommand);
+
+        resolve(response);
+      } catch (e) {
+        console.error(e);
+        rejects({ stageArn });
+      }
+    });
+  });
+
+const chunkIntoArrayBatches = (arr: string[], maxItemsPerBatch: number = 5) => {
+  const batches = [];
+  let currentIndex = 0;
+
+  while (currentIndex < arr.length) {
+    batches.push(arr.slice(currentIndex, currentIndex + maxItemsPerBatch));
+    currentIndex += maxItemsPerBatch;
+  }
+
+  return batches;
+};
+
+const analyzeDeleteStageResponse = (
+  deleteStageResponse: PromiseSettledResult<unknown>[],
+  stageArnBatch: string[],
+  isRetry: boolean = false
+) => {
+  const failedToDeleteStages: string[] = deleteStageResponse
+    .filter((promise) => isRejected(promise))
+    .map((promiseResult) => {
+      const reason = (promiseResult as PromiseRejectedResult).reason;
+
+      return reason.stageArn;
+    });
+
+  const deletedStages = stageArnBatch.filter(
+    (stageArn: string) => !failedToDeleteStages.includes(stageArn)
+  );
+
+  if (deletedStages.length) {
+    console.log(
+      `A total of ${
+        deletedStages.length
+      } stages have successfully been deleted: ${deletedStages.join(', ')}${
+        isRetry ? 'on retry attempt 2.' : '.'
+      }`
+    );
+  }
+
+  if (isRetry && failedToDeleteStages.length) {
+    console.log(
+      `A total of ${
+        deletedStages.length
+      } stages have failed to delete ${failedToDeleteStages.join(
+        ', '
+      )} on retry.`
+    );
+  }
+
+  return {
+    failedToDeleteStages
+  };
+};
+
+export const deleteStagesWithRetry = async (stageArns: string[]) => {
+  if (!stageArns.length) return;
+
+  const stagesToDelete = chunkIntoArrayBatches(stageArns, 5);
+  const retryDeleteBatchArray: string[][] = [];
+
+  for (let i = 0; i < stagesToDelete.length; i++) {
+    const batch = stagesToDelete[i];
+    const response = await Promise.allSettled(getDeleteStagePromises(batch));
+    const { failedToDeleteStages } = analyzeDeleteStageResponse(
+      response,
+      batch
+    );
+
+    if (failedToDeleteStages.length)
+      retryDeleteBatchArray.push(failedToDeleteStages);
+
+    // Allow for 1s to pass to avoid 5TPS limit set by IVS
+    await wait(i > 0 ? 1000 : 0);
+  }
+
+  // Retry
+  for (let i = 0; i < retryDeleteBatchArray.length; i++) {
+    const retryBatch = retryDeleteBatchArray[i];
+    const response = await Promise.allSettled(
+      getDeleteStagePromises(retryBatch)
+    );
+
+    analyzeDeleteStageResponse(response, retryBatch, true);
+  }
+};
+
+type DynamoKey = { key: string; value: string };
+
+export const updateDynamoItemAttributes = ({
+  attributes = [],
+  primaryKey,
+  sortKey,
+  tableName
+}: {
+  attributes: { key: string; value: any }[];
+  primaryKey: DynamoKey;
+  sortKey?: DynamoKey;
+  tableName: string;
+}) => {
+  if (!attributes.length) return;
+
+  const attributesToUpdate = attributes.reduce(
+    (acc, { key, value }) => ({
+      ...acc,
+      [key]: {
+        Action: 'PUT',
+        Value: convertToAttr(value, {
+          removeUndefinedValues: true
+        })
+      }
+    }),
+    {}
+  ) as { [key: string]: AttributeValueUpdate };
+
+  const putItemCommand = new UpdateItemCommand({
+    AttributeUpdates: attributesToUpdate,
+    Key: {
+      [primaryKey.key]: convertToAttr(primaryKey.value),
+      ...(sortKey ? { [sortKey.key]: convertToAttr(sortKey.value) } : {})
+    },
+    TableName: tableName
+  });
+
+  return dynamoDbClient.send(putItemCommand);
+};
+
+export const updateMultipleChannelDynamoItems = (
+  idleStagesChannelArns: WriteRequest[]
+) => {
+  const batchWriteInput: BatchWriteItemInput = {
+    RequestItems: {
+      [process.env.CHANNELS_TABLE_NAME as string]: idleStagesChannelArns
+    }
+  };
+
+  const batchWriteCommand = new BatchWriteItemCommand(batchWriteInput);
+
+  return dynamoDbClient.send(batchWriteCommand);
 };

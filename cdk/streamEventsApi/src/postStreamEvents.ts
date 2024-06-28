@@ -163,7 +163,9 @@ const handler = async (
       userSub
     });
   } catch (error) {
-    console.error(error, JSON.stringify(request.body));
+    console.error(error);
+    console.error(`Event body: ${JSON.stringify(request.body)}`);
+
     reply.statusCode = 500;
 
     return reply.send({ __type: UNEXPECTED_EXCEPTION });
