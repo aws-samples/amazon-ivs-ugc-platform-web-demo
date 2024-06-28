@@ -27,8 +27,7 @@ const DEFAULT_CLIENT_BASE_URLS = ['', 'http://localhost:3000'];
 
 interface UGCDashboardStackProps extends StackProps {
   resourceConfig: UGCResourceWithChannelsConfig;
-  cognitoCleanupScheduleExp: string;
-  stageCleanupScheduleExp: string;
+  scheduleExp: string;
   shouldPublish: boolean;
 }
 
@@ -36,7 +35,7 @@ export class UGCStack extends Stack {
   constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
-    const { resourceConfig, cognitoCleanupScheduleExp, stageCleanupScheduleExp, shouldPublish, tags = {} } = props;
+    const { resourceConfig, scheduleExp, shouldPublish, tags = {} } = props;
     const {
       deploySeparateContainers,
       ivsChannelType,
@@ -136,8 +135,7 @@ export class UGCStack extends Stack {
     // Channels Stack
     const channelsStack = new ChannelsStack(this, 'Channels', {
       resourceConfig,
-      cognitoCleanupScheduleExp,
-      stageCleanupScheduleExp,
+      scheduleExp,
       tags
     });
     const {
@@ -146,8 +144,7 @@ export class UGCStack extends Stack {
         userPoolId,
         userPoolClientId,
         channelsTable,
-        productApiSecretName,
-        appSyncGraphQlApi
+        productApiSecretName
       },
       policies: channelsPolicies
     } = channelsStack;
@@ -199,8 +196,7 @@ export class UGCStack extends Stack {
       PRODUCT_API_LOCALE: productApiLocale,
       PRODUCT_LINK_REGION_CODE: productLinkRegionCode,
       ENABLE_AMAZON_PRODUCT_STREAM_ACTION: `${enableAmazonProductStreamAction}`,
-      PRODUCT_API_SECRET_NAME: productApiSecretName,
-      APPSYNC_GRAPHQL_API_SECRET_NAME: appSyncGraphQlApi.secretName
+      PRODUCT_API_SECRET_NAME: productApiSecretName
     };
     const sharedContainerEnv = {
       ...baseContainerEnv,
@@ -366,9 +362,6 @@ export class UGCStack extends Stack {
       value: `${enableAmazonProductStreamAction}`
     });
     new CfnOutput(this, 'channelType', { value: ivsChannelType });
-    new CfnOutput(this, 'appSyncGraphQlApiKey', { value: appSyncGraphQlApi.apiKey })
-    new CfnOutput(this, 'appSyncGraphQlApiEndpoint', { value: appSyncGraphQlApi.endpoint })
-    new CfnOutput(this, 'appSyncGraphQlAuthenticationType', { value: appSyncGraphQlApi.authType })
 
     if (frontendAppBaseUrl) {
       new CfnOutput(this, 'frontendAppBaseUrl', {

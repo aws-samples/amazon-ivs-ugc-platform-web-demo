@@ -13,14 +13,14 @@ const commonProductImgClasses = [
 ];
 
 const StreamManagerActionProductResultsRow = ({
-  imgSrc = '',
+  imgSrc,
   index,
-  merchantInfo = '',
-  onClick = noop,
-  price = '',
+  merchantInfo,
+  onClick,
+  price,
   selectedProductIndex,
-  title = '',
-  ariaLabel = null
+  title,
+  ariaLabel
 }) => {
   const [hasImgError, setHasImgError] = useState(false);
 
@@ -130,6 +130,15 @@ const StreamManagerActionProductResultsRow = ({
       </div>
     </div>
   );
+};
+
+StreamManagerActionProductResultsRow.defaultProps = {
+  ariaLabel: null,
+  imgSrc: '',
+  merchantInfo: '',
+  onClick: noop,
+  price: '',
+  title: ''
 };
 
 StreamManagerActionProductResultsRow.propTypes = {

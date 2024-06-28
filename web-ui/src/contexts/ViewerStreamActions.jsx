@@ -6,7 +6,6 @@ import {
   useState
 } from 'react';
 import { Outlet, useOutletContext } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { BREAKPOINTS, STREAM_ACTION_NAME } from '../constants';
 import { useChannel } from './Channel';
@@ -23,7 +22,7 @@ const TIME_BASED_VIEWER_ACTIONS = [
 const Context = createContext(null);
 Context.displayName = 'ViewerStreamActions';
 
-export const Provider = ({ children = null }) => {
+export const Provider = () => {
   const { channelData } = useChannel();
   const { color, isLive } = channelData || {};
   const { currentBreakpoint } = useResponsiveDevice();
@@ -118,13 +117,9 @@ export const Provider = ({ children = null }) => {
 
   return (
     <Context.Provider value={value}>
-      {children || <Outlet context={outletCtx} />}
+      <Outlet context={outletCtx} />
     </Context.Provider>
   );
-};
-
-Provider.propTypes = {
-  children: PropTypes.node
 };
 
 export const useViewerStreamActions = () => useContextHook(Context);

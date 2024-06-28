@@ -32,7 +32,7 @@ const commonClasses = clsm([
   'text-lightMode-gray-dark'
 ]);
 
-const ConfigRow = ({ label, value, error = null }) => {
+const ConfigRow = ({ label, value, error }) => {
   const { activeStreamSession, isLoadingStreamData } = useStreams();
   const { notifySuccess } = useNotif();
   const renderedValue = isLoadingStreamData ? NO_DATA_VALUE : value;
@@ -145,6 +145,8 @@ const ConfigRow = ({ label, value, error = null }) => {
     </span>
   );
 };
+
+ConfigRow.defaultProps = { error: null };
 
 ConfigRow.propTypes = {
   label: PropTypes.string.isRequired,

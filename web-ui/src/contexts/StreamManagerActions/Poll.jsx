@@ -87,16 +87,8 @@ export const Provider = ({ children }) => {
     dispatchPollState({ hasPollEnded: true });
   }, []);
 
-  const {
-    votes,
-    question,
-    isActive,
-    duration,
-    expiry,
-    startTime,
-    delay,
-    pollCreatorId
-  } = pollProps;
+  const { votes, question, isActive, duration, expiry, startTime, delay } =
+    pollProps;
   const {
     isSubmitting,
     isVoting,
@@ -134,8 +126,7 @@ export const Provider = ({ children }) => {
     expiry,
     startTime,
     isActive,
-    delay = 0,
-    pollCreatorId
+    delay = 0
   }) => {
     const props = {
       ...(duration && { duration }),
@@ -144,8 +135,7 @@ export const Provider = ({ children }) => {
       ...(expiry && { expiry }),
       ...(isActive && { isActive }),
       ...(startTime && { startTime }),
-      ...(delay && { delay }),
-      ...(pollCreatorId && { pollCreatorId })
+      ...(delay && { delay })
     };
 
     dispatchPollProps(props);
@@ -178,12 +168,10 @@ export const Provider = ({ children }) => {
         duration,
         startTime,
         votes: options,
-        expiry,
-        pollCreatorId
+        expiry
       } = savedPollData;
 
       updatePollData({
-        pollCreatorId,
         expiry,
         startTime,
         question,
@@ -259,17 +247,17 @@ export const Provider = ({ children }) => {
     }
   }, [hasPollEnded, noVotesCaptured, showFinalResults, tieFound, votes]);
 
+  // The value set here will determine the min height of the chat + poll container.
+  // The reason its calculated this way is because the poll has a position: absolute
+  const containerMinHeight = `${
+    pollHeight + SPACE_BETWEEN_COMPOSER_AND_POLL + COMPOSER_HEIGHT
+  }px`;
+
   useEffect(() => {
     if (pollRef) {
       dispatchPollState({ pollHeight: pollRef.offsetHeight });
     }
-  }, [pollRef]);
-
-  // Setting this value determines the minimum height for the chat container on the stream manager page.
-  // The chosen calculation is a result of the poll being positioned with position: absolute.
-  const containerMinHeight = `${
-    pollHeight + SPACE_BETWEEN_COMPOSER_AND_POLL + COMPOSER_HEIGHT
-  }px`;
+  }, [pollRef, isExpanded]);
 
   const getPollDetails = (votes) => {
     return votes.reduce(
@@ -322,13 +310,6 @@ export const Provider = ({ children }) => {
     isAbleToVote && isSessionValid && !isStreamManagerPage;
 
   const shouldRenderVoteButton = isAbleToVote && !!userData;
-
-  const viewingOwnChannel =
-    !isStreamManagerPage && userData?.trackingId?.toLowerCase() === channelId;
-
-  const isCreatorOfActivePoll =
-    isActive && pollCreatorId === userData?.trackingId?.toLowerCase();
-  const shouldHideActivePoll = viewingOwnChannel && !isCreatorOfActivePoll;
 
   const shouldRenderProgressbar =
     !showFinalResults && !noVotesCaptured && !tieFound && startTime;
@@ -411,12 +392,9 @@ export const Provider = ({ children }) => {
       shouldRenderVoteButton,
       endPollAndResetPollProps,
       hasVotes: votes.length > 0,
-      shouldRenderProgressbar,
-      pollCreatorId,
-      shouldHideActivePoll
+      shouldRenderProgressbar
     }),
     [
-      pollCreatorId,
       isExpanded,
       pollHeight,
       containerMinHeight,
@@ -449,8 +427,7 @@ export const Provider = ({ children }) => {
       shouldRenderRadioInput,
       shouldRenderVoteButton,
       endPollAndResetPollProps,
-      shouldRenderProgressbar,
-      shouldHideActivePoll
+      shouldRenderProgressbar
     ]
   );
 

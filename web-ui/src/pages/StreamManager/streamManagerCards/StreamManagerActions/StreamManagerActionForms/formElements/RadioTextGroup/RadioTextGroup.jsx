@@ -12,17 +12,17 @@ import usePrevious from '../../../../../../../hooks/usePrevious';
 const $content = $streamManagerContent.stream_manager_actions;
 
 const StreamManagerActionRadioTextGroup = ({
-  addOptionButtonText = '',
+  addOptionButtonText,
   dataKey,
-  label = '',
-  maxOptions = Infinity,
-  minOptions = 0,
+  label,
+  maxOptions,
+  minOptions,
   name,
-  optionErrors = [],
+  optionErrors,
   options,
-  placeholder = '',
-  selectedDataKey = undefined,
-  selectedOptionIndex = 0,
+  placeholder,
+  selectedDataKey,
+  selectedOptionIndex,
   updateData,
   inputType,
   formType
@@ -141,6 +141,17 @@ const StreamManagerActionRadioTextGroup = ({
       </div>
     </div>
   );
+};
+
+StreamManagerActionRadioTextGroup.defaultProps = {
+  addOptionButtonText: '',
+  optionErrors: [],
+  label: '',
+  maxOptions: Infinity,
+  minOptions: 0,
+  placeholder: '',
+  selectedOptionIndex: 0,
+  selectedDataKey: undefined
 };
 
 StreamManagerActionRadioTextGroup.propTypes = {

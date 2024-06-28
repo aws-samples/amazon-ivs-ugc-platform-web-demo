@@ -8,13 +8,7 @@ import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import withPortal from '../withPortal';
 
-const MobilePanel = ({
-  children,
-  controls,
-  panelId,
-  slideInDirection,
-  shouldAnimateIn = true
-}) => {
+const MobilePanel = ({ children, controls, panelId, slideInDirection }) => {
   const { addMobileOverlay, removeMobileOverlay } = useResponsiveDevice();
   const headerRef = useRef();
   const panelRef = useRef();
@@ -44,10 +38,7 @@ const MobilePanel = ({
       className={clsm(['absolute', 'h-full', 'w-full', 'pointer-events-auto'])}
       {...createAnimationProps({
         animations: [`slideIn-${slideInDirection}`],
-        controls,
-        options: {
-          shouldAnimateIn
-        }
+        controls
       })}
     >
       {children}
@@ -59,7 +50,6 @@ MobilePanel.propTypes = {
   children: PropTypes.node.isRequired,
   controls: PropTypes.object.isRequired,
   panelId: PropTypes.string.isRequired,
-  shouldAnimateIn: PropTypes.bool,
   slideInDirection: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
     .isRequired
 };

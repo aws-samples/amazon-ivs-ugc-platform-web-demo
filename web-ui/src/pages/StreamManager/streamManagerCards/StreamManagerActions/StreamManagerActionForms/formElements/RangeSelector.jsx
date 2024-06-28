@@ -7,12 +7,12 @@ import Label from '../../../../../../components/Input/InputLabel';
 
 const RangeSelector = ({
   dataKey,
-  label = '',
-  max = 100,
-  min = 0,
+  label,
+  max,
+  min,
   name,
-  updateData = noop,
-  value = 0
+  updateData,
+  value
 }) => {
   const handleOnChange = (value) => {
     updateData({ [dataKey]: parseInt(value) });
@@ -49,6 +49,14 @@ const RangeSelector = ({
       </div>
     </div>
   );
+};
+
+RangeSelector.defaultProps = {
+  label: '',
+  max: 100,
+  min: 0,
+  updateData: noop,
+  value: 0
 };
 
 RangeSelector.propTypes = {

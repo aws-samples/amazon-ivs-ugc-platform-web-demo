@@ -14,7 +14,6 @@ import ProfileViewMenu from './ProfileViewMenu';
 import UserAvatar from '../../../components/UserAvatar';
 import { POPUP_ID } from './Controls/RenditionSetting';
 import useResize from '../../../hooks/useResize';
-import { useGlobalStage } from '../../../contexts/Stage';
 
 const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
   return clsm([
@@ -27,13 +26,7 @@ const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
   ]);
 };
 
-const PlayerHeader = ({
-  avatarSrc = '',
-  color = 'default',
-  username = '',
-  openPopupIds,
-  stagePlayerVisible
-}) => {
+const PlayerHeader = ({ avatarSrc, color, username, openPopupIds }) => {
   const {
     getProfileViewAnimationProps,
     headerAnimationControls,
@@ -42,7 +35,6 @@ const PlayerHeader = ({
     shouldAnimateProfileView,
     toggleProfileView
   } = useProfileViewAnimation();
-  const { isChannelStagePlayerMuted } = useGlobalStage();
 
   const isRenditionSettingPopupExpanded = !!openPopupIds.find(
     (openPopupId) => openPopupId === POPUP_ID
@@ -117,11 +109,9 @@ const PlayerHeader = ({
 
   const { isOverlayVisible } = usePlayerContext();
   const { isSessionValid } = useUser();
-  const { channelData: { isLive: isBroadcastLive, stageId } = {} } =
-    useChannel();
+  const { channelData: { isLive } = {} } = useChannel();
   const layoutDependency = useRef(null);
   const animationDuration = DEFAULT_PROFILE_VIEW_TRANSITION.duration;
-  const isLive = isBroadcastLive || !!stageId;
   const shouldShowHeaderOverlay =
     isOverlayVisible || isLive === false || isProfileViewExpanded;
 
@@ -136,7 +126,6 @@ const PlayerHeader = ({
   return (
     <div
       className={clsm(
-        isChannelStagePlayerMuted && stagePlayerVisible && 'z-50',
         'absolute',
         'w-full',
         'top-0',
@@ -289,9 +278,14 @@ const PlayerHeader = ({
   );
 };
 
+PlayerHeader.defaultProps = {
+  avatarSrc: '',
+  color: 'default',
+  username: ''
+};
+
 PlayerHeader.propTypes = {
   avatarSrc: PropTypes.string,
-  stagePlayerVisible: PropTypes.bool.isRequired,
   color: PropTypes.string,
   openPopupIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   username: PropTypes.string

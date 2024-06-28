@@ -16,8 +16,8 @@ const $content = $dashboardContent.stream_session_page.stream_events;
 
 const StreamEventItem = ({
   handleEventClick,
-  isLive = false,
-  selectedEventId = null,
+  isLive,
+  selectedEventId,
   setSelectedEventRef,
   streamEvent,
   toggleLearnMore,
@@ -219,6 +219,11 @@ const StreamEventItem = ({
       </div>
     </div>
   );
+};
+
+StreamEventItem.defaultProps = {
+  isLive: false,
+  selectedEventId: null
 };
 
 StreamEventItem.propTypes = {

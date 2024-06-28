@@ -50,9 +50,8 @@ const Following = () => {
       >
         {hasFollowingListData &&
           followingList.map((followedChannel) => {
-            const { channelAssetUrls, color, isLive, username, stageId } =
+            const { channelAssetUrls, color, isLive, username } =
               followedChannel;
-            const isChannelLive = isLive || !!stageId;
 
             return (
               <ChannelCard
@@ -61,7 +60,7 @@ const Following = () => {
                 color={color}
                 key={username}
                 username={username}
-                variant={isChannelLive ? 'live' : 'offline'}
+                variant={isLive ? 'live' : 'offline'}
               />
             );
           })}

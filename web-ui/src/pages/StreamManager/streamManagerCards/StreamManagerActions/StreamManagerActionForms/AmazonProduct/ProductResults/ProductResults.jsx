@@ -24,9 +24,9 @@ const ProductResults = ({
   data,
   isLoading,
   isLoadingNextPageOfProducts,
-  keyword = '',
-  searched = false,
-  onClick = noop,
+  keyword,
+  searched,
+  onClick,
   selectedProductIndex,
   isValidKeyword
 }) => {
@@ -100,6 +100,12 @@ ProductResults.propTypes = {
   onClick: PropTypes.func,
   searched: PropTypes.bool,
   selectedProductIndex: PropTypes.number.isRequired
+};
+
+ProductResults.defaultProps = {
+  keyword: '',
+  searched: false,
+  onClick: noop
 };
 
 export default ProductResults;

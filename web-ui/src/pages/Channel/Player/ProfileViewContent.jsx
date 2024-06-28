@@ -7,10 +7,7 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import useDidChange from '../../../hooks/useDidChange';
 import useResizeObserver from '../../../hooks/useResizeObserver';
 
-const ProfileViewContent = ({
-  playerSectionRef = { current: null },
-  targetPlayerRef = { current: null }
-}) => {
+const ProfileViewContent = ({ playerSectionRef, targetPlayerRef }) => {
   const { isProfileViewExpanded } = useProfileViewAnimation();
   const { isLandscape } = useResponsiveDevice();
   const didDeviceOrientationChange = useDidChange(isLandscape);
@@ -74,6 +71,11 @@ const ProfileViewContent = ({
       ref={profileViewContentRef}
     />
   );
+};
+
+ProfileViewContent.defaultProps = {
+  playerSectionRef: { current: null },
+  targetPlayerRef: { current: null }
 };
 
 ProfileViewContent.propTypes = {

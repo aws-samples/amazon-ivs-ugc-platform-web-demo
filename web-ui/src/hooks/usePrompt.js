@@ -1,4 +1,4 @@
-import { useBlocker } from 'react-router-dom';
+import { unstable_useBlocker as useBlocker } from 'react-router-dom';
 import { useCallback } from 'react';
 
 import useBeforeUnload from './useBeforeUnload';
@@ -10,7 +10,7 @@ import useBeforeUnload from './useBeforeUnload';
  * may attempt to stay on the page but the app navigates anyway, or the app may stay
  * on the correct page but the browser's history stack gets out of whack.
  */
-const usePrompt = (when, displayRefreshPrompt = true) => {
+const usePrompt = (when) => {
   const blocker = useBlocker(when);
   const isBlocked = blocker.state === 'blocked';
 
@@ -22,12 +22,7 @@ const usePrompt = (when, displayRefreshPrompt = true) => {
     if (isBlocked) blocker.reset();
   }, [blocker, isBlocked]);
 
-  // Triggered via browser's refresh button or attempting to navigate by entering a URL
-  const shouldShowBrowserLeavePrompt = ![when, displayRefreshPrompt].includes(
-    false
-  );
-
-  useBeforeUnload(shouldShowBrowserLeavePrompt);
+  useBeforeUnload(when);
 
   return { isBlocked, onConfirm, onCancel };
 };

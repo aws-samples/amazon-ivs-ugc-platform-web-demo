@@ -19,7 +19,6 @@ import useStreamManagerActionValidation from './useStreamManagerActionValidation
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { v4 as uuidv4 } from 'uuid';
 import { usePoll } from './Poll';
-import { useUser } from '../User';
 
 const Context = createContext(null);
 Context.displayName = 'StreamManagerActions';
@@ -36,7 +35,6 @@ export const Provider = ({ children }) => {
     updateSavedPollPropsOnTimerExpiry
   } = usePoll();
   const { startPoll, endPoll } = useChat();
-  const { userData } = useUser();
   const [isSendingStreamAction, setIsSendingStreamAction] = useState(false);
 
   const {
@@ -228,19 +226,11 @@ export const Provider = ({ children }) => {
    * Resets the form data to the last data saved in local storage
    */
   const resetStreamManagerActionData = useCallback(() => {
-    if (!shouldEnableLocalStorage(activeStreamManagerActionData?.name)) {
-      return;
-    }
-
     updateStreamManagerActionData({
       dataOrFn: latestStoredStreamManagerActionData.current,
       shouldValidate: false
     });
-  }, [
-    activeStreamManagerActionData?.name,
-    latestStoredStreamManagerActionData,
-    updateStreamManagerActionData
-  ]);
+  }, [latestStoredStreamManagerActionData, updateStreamManagerActionData]);
 
   /**
    * Resets the Amazon product data
@@ -288,8 +278,7 @@ export const Provider = ({ children }) => {
             return acc;
           }, []),
           voters: {},
-          isActive: true,
-          pollCreatorId: userData?.trackingId?.toLowerCase()
+          isActive: true
         };
         const result = await startPoll(pollStreamActionData);
 
@@ -367,8 +356,9 @@ export const Provider = ({ children }) => {
 
       const onCancel = () => {
         dismissNotif();
-
-        resetStreamManagerActionData();
+        if (shouldEnableLocalStorage(actionName)) {
+          resetStreamManagerActionData();
+        }
         resetStreamManagerActionErrorData();
       };
 

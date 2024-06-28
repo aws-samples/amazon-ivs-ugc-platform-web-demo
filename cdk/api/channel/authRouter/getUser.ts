@@ -5,11 +5,10 @@ import { getChannelArnParams, getUser } from '../helpers';
 import {
   ChannelAssetURLs,
   getChannelAssetUrls,
-  getChannelId,
   ResponseBody
 } from '../../shared/helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 interface GetUserResponseBody extends ResponseBody {
   avatar?: string;
@@ -22,7 +21,6 @@ interface GetUserResponseBody extends ResponseBody {
   streamKeyValue?: string;
   username?: string;
   trackingId?: string;
-  userStageId?: string;
 }
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -32,8 +30,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     // Get user from channelsTable
     const { Item = {} } = await getUser(sub);
-    const data = unmarshall(Item);
-    let channelId;
     const {
       avatar,
       channelArn,
@@ -43,9 +39,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       playbackUrl,
       streamKeyValue,
       username,
-      trackingId,
-      userStageId
-    } = data;
+      trackingId
+    } = unmarshall(Item);
 
     if (!channelArn) {
       throw new Error('No IVS resources have been created for this user.');
@@ -54,8 +49,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     if (channelArn) {
       responseBody.channelResourceId =
         getChannelArnParams(channelArn).resourceId;
-
-      channelId = getChannelId(channelArn);
     }
     responseBody.avatar = avatar;
     responseBody.color = color;
@@ -66,8 +59,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
     responseBody.username = username;
     responseBody.channelAssetUrls = getChannelAssetUrls(channelAssets);
     responseBody.trackingId = trackingId;
-    responseBody.channelId = channelId;
-    responseBody.userStageId = userStageId;
   } catch (error) {
     console.error(error);
 

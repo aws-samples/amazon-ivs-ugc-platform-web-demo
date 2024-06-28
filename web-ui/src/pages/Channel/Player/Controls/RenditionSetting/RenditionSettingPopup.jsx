@@ -15,10 +15,10 @@ export const POPUP_ID = 'rendition';
 
 const RenditionSettingPopup = ({
   closeQualitiesContainer,
-  isOpen = false,
-  qualities = [{ name: 'Auto' }],
+  isOpen,
+  qualities,
   selectedQualityName,
-  settingsButtonRef = { current: null },
+  settingsButtonRef,
   updateQuality
 }) => {
   const [qualitiesContainerPos, setQualitiesContainerPos] = useState(null);
@@ -192,6 +192,12 @@ RenditionSettingPopup.propTypes = {
   selectedQualityName: PropTypes.string.isRequired,
   settingsButtonRef: PropTypes.shape({ current: PropTypes.object }),
   updateQuality: PropTypes.func.isRequired
+};
+
+RenditionSettingPopup.defaultProps = {
+  isOpen: false,
+  qualities: [{ name: 'Auto' }],
+  settingsButtonRef: { current: null }
 };
 
 export default RenditionSettingPopup;

@@ -7,13 +7,10 @@ const ROUTES = [
     name: 'channel',
     children: [{ index: true }, { path: 'profile' }]
   },
+  { path: 'feed', name: 'feed' },
   { path: 'following', name: 'following' },
   { path: 'settings', name: 'settings' },
-  {
-    path: 'manager',
-    name: 'stream_manager',
-    children: [{ index: true }, { path: 'collab' }]
-  },
+  { path: 'manager', name: 'stream_manager' },
   {
     path: '/health',
     name: 'stream_health',

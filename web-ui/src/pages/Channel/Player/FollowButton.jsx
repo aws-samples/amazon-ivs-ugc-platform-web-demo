@@ -31,7 +31,7 @@ const textAnimationProps = createAnimationProps({
   transition: customSpringTransition
 });
 
-const FollowButton = ({ isExpandedView = false, setFollowButtonRefState }) => {
+const FollowButton = ({ isExpandedView, setFollowButtonRefState }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { notifyError } = useNotif();
@@ -280,6 +280,10 @@ const FollowButton = ({ isExpandedView = false, setFollowButtonRefState }) => {
       </Tooltip>
     </AnimatePresence>
   );
+};
+
+FollowButton.defaultProps = {
+  isExpandedView: false
 };
 
 FollowButton.propTypes = {

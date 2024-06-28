@@ -5,7 +5,6 @@ import channelRouters from './channel';
 import channelsRouters from './channels';
 import metricsRouter from './metrics/';
 import productsRouters from './product';
-import stagesRouter from './stages';
 
 import configureRoute from './shared/hooks/configureRoute';
 import { MAX_SERVER_PARAM_LENGTH } from './shared/constants';
@@ -50,8 +49,6 @@ const buildServer = () => {
       // Create /products authenticated resources
       server.register(productsRouters, { prefix: 'products' });
     }
-
-    server.register(stagesRouter, { prefix: 'stages' });
   }
 
   if (['all', 'metrics'].includes(serviceName)) {

@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from '@fastify/request-context';
 
-import authorizer from '../shared/authorizer';
+import authorizer from '../channel/authorizer';
 import getStreamSession from './getStreamSession';
 import getStreamSessions from './getStreamSessions';
 

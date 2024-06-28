@@ -13,17 +13,15 @@ const test = extendTestFixtures(
   { isAuthenticated: true }
 );
 
-loggedOutTest.describe('Directory Page - Logged Out', () => {
-  loggedOutTest(
-    'should show empty state text for live stream and try again button',
-    async ({ directoryPage: { loggedOutEmptyState } }) => {
-      await loggedOutEmptyState();
-    }
-  );
-});
-
 test.describe('Directory Page', () => {
   test.describe('General Cases', () => {
+    loggedOutTest(
+      'should show empty state text for live stream and try again button',
+      async ({ directoryPage: { loggedOutEmptyState } }) => {
+        await loggedOutEmptyState();
+      }
+    );
+
     // Following Carousel
 
     test.describe('Followers State', () => {

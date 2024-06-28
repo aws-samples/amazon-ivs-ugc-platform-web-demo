@@ -2,11 +2,9 @@
   "notifications": {
     "success": {
       "user_banned": "User banned from channel",
-      "user_unbanned": "User unbanned from channel",
-      "request_to_join_stage_success": "Request sent"
+      "user_unbanned": "User unbanned from channel"
     },
     "error": {
-      "request_to_join_stage_fail": "Failed to send request",
       "ban_user": "Failed to ban user",
       "unban_user": "Failed to unban user"
     }
@@ -67,12 +65,6 @@
       }
     }
   },
-  "request_to_join_stage_button": {
-    "tooltip": {
-      "request_to_join": "Request to join",
-      "cancel_request": "Cancel request"
-    }
-  },
   "follow_button": {
     "follow": "Follow",
     "follow_channel": "Follow channel",
@@ -87,8 +79,5 @@
         "unfollow_user": "Failed to unfollow user"
       }
     }
-  },
-  "stage": {
-    "click_to_unmute": "Click to unmute"
   }
 }

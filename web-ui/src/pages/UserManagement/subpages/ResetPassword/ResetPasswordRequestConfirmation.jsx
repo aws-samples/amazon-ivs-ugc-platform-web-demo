@@ -12,8 +12,9 @@ const ResetPasswordRequestConfirmation = ({ email }) => {
 
   const resend = async () => {
     const userData = { email };
-    const { result, error } =
-      await channelAPI.sendResetPasswordRequest(userData);
+    const { result, error } = await channelAPI.sendResetPasswordRequest(
+      userData
+    );
 
     if (result) {
       notifySuccess($content.notification.success.resent_confirmation);

@@ -11,8 +11,8 @@ const $content =
     .search_parameters;
 
 const SortDropdown = ({
-  isDropdownOpen = false,
-  onClick = noop,
+  isDropdownOpen,
+  onClick,
   selectedSortCategory,
   sortCategories
 }) => {
@@ -137,6 +137,11 @@ const SortDropdown = ({
       )}
     </AnimatePresence>
   );
+};
+
+SortDropdown.defaultProps = {
+  isDropdownOpen: false,
+  onClick: noop
 };
 
 SortDropdown.propTypes = {

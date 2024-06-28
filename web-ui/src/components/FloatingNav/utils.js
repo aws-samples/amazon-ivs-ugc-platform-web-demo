@@ -1,5 +1,6 @@
 import {
   Favorite,
+  // Feed,
   Home,
   Settings,
   StreamHealth,
@@ -16,6 +17,12 @@ export const navMenuButtonData = [
     to: '/',
     pageName: 'channel_directory'
   },
+  // {
+  //   label: $content.feed,
+  //   icon: <Feed />,
+  //   to: '/feed',
+  //   pageName: 'feed'
+  // },
   {
     label: $content.following,
     icon: <Favorite />,

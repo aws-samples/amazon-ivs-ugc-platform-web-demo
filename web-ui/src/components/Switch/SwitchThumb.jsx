@@ -17,10 +17,10 @@ const customTransition = {
 };
 
 const SwitchThumb = ({
-  className = '',
-  ownerState = {},
-  style = {},
-  shouldShowFocusState = false,
+  className,
+  ownerState,
+  style,
+  shouldShowFocusState,
   ...restProps
 }) => (
   <AnimatePresence initial={false}>
@@ -54,6 +54,13 @@ const SwitchThumb = ({
     />
   </AnimatePresence>
 );
+
+SwitchThumb.defaultProps = {
+  className: '',
+  ownerState: {},
+  shouldShowFocusState: false,
+  style: {}
+};
 
 SwitchThumb.propTypes = {
   className: PropTypes.string,

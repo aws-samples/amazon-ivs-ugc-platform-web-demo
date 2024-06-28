@@ -8,7 +8,7 @@ import {
 import { deleteS3Object, getUser } from '../helpers';
 import { dynamoDbClient } from '../../shared/helpers';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 interface DeleteChannelAssetRequestBody {
   assetType: string;

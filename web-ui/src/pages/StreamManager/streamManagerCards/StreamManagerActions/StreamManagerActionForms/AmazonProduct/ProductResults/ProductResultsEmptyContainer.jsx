@@ -4,10 +4,10 @@ import { Search } from '../../../../../../../assets/icons';
 import { clsm } from '../../../../../../../utils';
 
 const ProductResultsEmptyContainer = ({
-  className = '',
-  emptyText = '',
-  keyword = '',
-  noResultsText = '',
+  className,
+  emptyText,
+  keyword,
+  noResultsText,
   searched,
   isValidKeyword
 }) => {
@@ -46,6 +46,13 @@ ProductResultsEmptyContainer.propTypes = {
   noResultsText: PropTypes.string,
   searched: PropTypes.bool.isRequired,
   isValidKeyword: PropTypes.bool.isRequired
+};
+
+ProductResultsEmptyContainer.defaultProps = {
+  className: '',
+  emptyText: '',
+  keyword: '',
+  noResultsText: ''
 };
 
 export default ProductResultsEmptyContainer;

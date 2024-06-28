@@ -27,13 +27,12 @@ const { SEND_MESSAGE } = CHAT_MESSAGE_EVENT_TYPES;
 const $content = $channelContent.chat;
 
 const Composer = ({
-  chatUserRole = undefined,
-  isDisabled = false,
-  isFocusable = true,
-  isLoading = true,
-  sendAttemptError = null,
-  sendMessage,
-  isRequestButtonVisible = false
+  chatUserRole,
+  isDisabled,
+  isFocusable,
+  isLoading,
+  sendAttemptError,
+  sendMessage
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,7 +161,7 @@ const Composer = ({
   }, [sendAttemptError, isLoading]);
 
   return (
-    <div className="w-full">
+    <div className={clsm(['w-full', 'pt-5', 'pb-6', 'px-[18px]'])}>
       <motion.div
         animate={shouldShake ? 'shake' : 'default'}
         variants={{
@@ -175,13 +174,8 @@ const Composer = ({
           className={clsm(
             'relative',
             isSessionValid && [
-              isRequestButtonVisible
-                ? 'w-full'
-                : [
-                    'md:w-[calc(100%_-_60px)]',
-                    isLandscape &&
-                      'touch-screen-device:lg:w-[calc(100%_-_60px)]'
-                  ]
+              'md:w-[calc(100%_-_60px)]',
+              isLandscape && 'touch-screen-device:lg:w-[calc(100%_-_60px)]'
             ]
           )}
           onSubmit={handleSendMessage}
@@ -202,7 +196,7 @@ const Composer = ({
                   'dark:hover:text-white',
                   'dark:placeholder-darkMode-gray-light',
                   'focus:bg-darkMode-gray-medium',
-                  'h-11',
+                  'h-12',
                   'placeholder-lightMode-gray-dark'
                 ],
                 errorMessage && [
@@ -261,7 +255,6 @@ const Composer = ({
         </form>
       </motion.div>
       <FloatingNav
-        isRequestButtonVisible={isRequestButtonVisible}
         {...(isStreamManagerPage && {
           containerClassName: (isOpen) =>
             clsm([
@@ -288,14 +281,21 @@ const Composer = ({
   );
 };
 
+Composer.defaultProps = {
+  chatUserRole: undefined,
+  isDisabled: false,
+  isFocusable: true,
+  isLoading: true,
+  sendAttemptError: null
+};
+
 Composer.propTypes = {
   chatUserRole: PropTypes.oneOf(Object.values(CHAT_USER_ROLE)),
   isDisabled: PropTypes.bool,
   isFocusable: PropTypes.bool,
   isLoading: PropTypes.bool,
   sendAttemptError: PropTypes.shape({ message: PropTypes.string }),
-  sendMessage: PropTypes.func.isRequired,
-  isRequestButtonVisible: PropTypes.bool
+  sendMessage: PropTypes.func.isRequired
 };
 
 export default Composer;

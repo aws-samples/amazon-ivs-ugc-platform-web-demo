@@ -15,7 +15,7 @@ import {
   ResponseBody,
   updateDynamoItemAttributes
 } from '../../shared/helpers';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 type ChangeUsernameRequestBody = { newUsername: string | undefined };
 

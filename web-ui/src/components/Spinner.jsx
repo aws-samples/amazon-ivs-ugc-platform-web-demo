@@ -9,7 +9,7 @@ const DIAMETER = {
   xlarge: '40px'
 };
 
-const Spinner = ({ variant = 'dark', size = 'small', className = '' }) => {
+const Spinner = ({ variant, size, className }) => {
   const classes = clsm(
     [
       'spinner',
@@ -49,6 +49,12 @@ const Spinner = ({ variant = 'dark', size = 'small', className = '' }) => {
       </svg>
     </span>
   );
+};
+
+Spinner.defaultProps = {
+  className: '',
+  variant: 'dark',
+  size: 'small'
 };
 
 Spinner.propTypes = {

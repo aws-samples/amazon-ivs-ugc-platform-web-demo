@@ -16,9 +16,7 @@ export const addAudioInputByDeviceId = async ({ name, data }) => {
     audio: { deviceId }
   });
 
-  if (client) {
-    await client.addAudioInputDevice(stream, name);
-  }
+  await client.addAudioInputDevice(stream, name);
 
   return stream;
 };

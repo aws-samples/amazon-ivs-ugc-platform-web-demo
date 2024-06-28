@@ -5,11 +5,11 @@ import { SmartToy } from '../../assets/icons';
 import Button from '../../components/Button';
 
 const DataUnavailable = ({
-  className = '',
-  noDataText = '',
-  hasError = false,
-  tryAgainFn = noop,
-  tryAgainText = ''
+  className,
+  noDataText,
+  hasError,
+  tryAgainFn,
+  tryAgainText
 }) => (
   <div className={clsm([className, 'space-y-8'])}>
     <div
@@ -38,6 +38,14 @@ const DataUnavailable = ({
     )}
   </div>
 );
+
+DataUnavailable.defaultProps = {
+  className: '',
+  hasError: false,
+  noDataText: '',
+  tryAgainFn: noop,
+  tryAgainText: ''
+};
 
 DataUnavailable.propTypes = {
   className: PropTypes.string,

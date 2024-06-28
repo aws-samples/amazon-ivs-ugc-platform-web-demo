@@ -7,7 +7,6 @@ import { channelAPI } from '../../../api';
 import { userManagement as $content } from '../../../content';
 import { useUser } from '../../../contexts/User';
 import Form from '../../../components/Form';
-import { FORM_TYPES } from '../../../components/Form/useForm';
 
 const SigninUser = () => {
   const { checkSessionStatus, initUserResources, logOutAction } = useUser();
@@ -67,7 +66,6 @@ const SigninUser = () => {
     <>
       <AcmeLrg className="fill-lightMode-gray-dark dark:fill-darkMode-gray" />
       <Form
-        type={FORM_TYPES.SIGN_IN}
         disableValidation
         submitHandler={channelAPI.signIn}
         submitText={$content.sign_in}

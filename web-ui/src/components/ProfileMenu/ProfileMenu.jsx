@@ -10,12 +10,12 @@ import MenuPopup from './MenuPopup';
 import useClickAway from '../../hooks/useClickAway';
 
 const ProfileMenu = ({
-  asPortal = false,
+  asPortal,
   children: ToggleBtn,
-  containerClassName = undefined,
-  fadeBackground = false,
-  menuClassName = undefined,
-  navData = []
+  containerClassName,
+  fadeBackground,
+  menuClassName,
+  navData
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
@@ -87,6 +87,14 @@ const ProfileMenu = ({
       </div>
     </div>
   );
+};
+
+ProfileMenu.defaultProps = {
+  asPortal: false,
+  containerClassName: undefined,
+  fadeBackground: false,
+  menuClassName: undefined,
+  navData: []
 };
 
 ProfileMenu.propTypes = {

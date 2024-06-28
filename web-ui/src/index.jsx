@@ -2,11 +2,9 @@ import { StrictMode } from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 
 import './index.css';
-import { noop, connectToAppSyncGraphQlApi } from './utils';
+import { noop } from './utils';
 import { RESTRICTED_PROD_CONSOLE_TYPES } from './constants';
 import App from './App';
-
-connectToAppSyncGraphQlApi();
 
 const container = document.getElementById('root');
 const root = ReactDOMClient.createRoot(container);

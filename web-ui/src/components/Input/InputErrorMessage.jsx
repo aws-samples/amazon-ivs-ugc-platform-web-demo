@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { ErrorIcon } from '../../assets/icons';
 
-const ErrorMessage = ({ error = null }) => {
+const ErrorMessage = ({ error }) => {
   if (!error) return;
 
   return (
@@ -22,6 +22,10 @@ const ErrorMessage = ({ error = null }) => {
       <p className="text-p3">{error}</p>
     </span>
   );
+};
+
+ErrorMessage.defaultProps = {
+  error: null
 };
 
 ErrorMessage.propTypes = {

@@ -8,7 +8,7 @@ import {
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 type BanUserRequestBody = { bannedChannelArn?: string };
 

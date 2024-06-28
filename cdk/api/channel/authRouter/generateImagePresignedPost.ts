@@ -10,7 +10,7 @@ import {
   UNEXPECTED_EXCEPTION
 } from '../../shared/constants';
 import { generatePresignedPost, getUser } from '../helpers';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 type ASSET_TYPE = (typeof ALLOWED_CHANNEL_ASSET_TYPES)[number];
 type CONTENT_TYPE = (typeof ALLOWED_IMAGE_CONTENT_TYPES)[number];

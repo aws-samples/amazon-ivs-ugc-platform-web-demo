@@ -13,7 +13,7 @@ export const LAYER_TYPE = {
   IMAGE: 'IMAGE',
   SCREEN_SHARE: 'SCREEN_SHARE'
 };
-export const VIDEO_LAYER_NAME = 'video';
+export const CAMERA_LAYER_NAME = 'camera';
 
 const useLayers = () => {
   const layers = useMap({}, true);
@@ -40,7 +40,7 @@ const useLayers = () => {
       if (!doesLayerExist(layerName)) return;
 
       const { type } = getLayer(layerName) || {};
-      const device = client?.getVideoInputDevice(layerName);
+      const device = client.getVideoInputDevice(layerName);
 
       switch (type) {
         case LAYER_TYPE.VIDEO:
@@ -65,12 +65,20 @@ const useLayers = () => {
     [doesLayerExist, getLayer, layers]
   );
 
+  const clearLayers = useCallback(() => {
+    for (const name of layers.keys()) removeLayer(name);
+
+    layers.reset();
+    hiddenLayers.reset();
+    layerGroupCompositions.reset();
+  }, [hiddenLayers, layerGroupCompositions, layers, removeLayer]);
+
   const updateLayer = useCallback(
     (layerName, composition) => {
       if (!layerName || !composition || !doesLayerExist(layerName)) return;
 
       const layerData = getLayer(layerName);
-      const canvasDimensions = client?.getCanvasDimensions();
+      const canvasDimensions = client.getCanvasDimensions();
       const nextComposition = {
         index: layerData.position.index, // by default, preserve existing layer index
         ...(typeof composition === 'function'
@@ -86,7 +94,7 @@ const useLayers = () => {
       }
 
       try {
-        client?.updateVideoDeviceComposition(layerName, nextComposition);
+        client.updateVideoDeviceComposition(layerName, nextComposition);
         layers.set(layerName, nextLayerData);
 
         return nextComposition;
@@ -257,6 +265,7 @@ const useLayers = () => {
     toggleLayer,
     updateLayerGroup,
     removeLayer,
+    clearLayers,
     isLayerHidden
   };
 };

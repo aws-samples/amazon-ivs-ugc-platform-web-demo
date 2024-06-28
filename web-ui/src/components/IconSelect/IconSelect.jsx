@@ -4,13 +4,7 @@ import { clsm, noop } from '../../utils';
 import Icon, { ICON_TYPE } from './Icon';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
-const IconSelect = ({
-  selected,
-  isLoading = false,
-  items,
-  onSelect = noop,
-  type
-}) => {
+const IconSelect = ({ selected, isLoading, items, onSelect, type }) => {
   const throttledOnSelect = useThrottledCallback(onSelect, 250);
 
   return (
@@ -46,5 +40,7 @@ IconSelect.propTypes = {
   selected: PropTypes.string.isRequired,
   type: PropTypes.oneOf(Object.values(ICON_TYPE)).isRequired
 };
+
+IconSelect.defaultProps = { isLoading: false, onSelect: noop };
 
 export default IconSelect;

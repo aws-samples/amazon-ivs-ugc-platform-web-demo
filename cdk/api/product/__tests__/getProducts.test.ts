@@ -74,7 +74,7 @@ describe('getProducts controller', () => {
   });
 
   describe('general cases', () => {
-    beforeAll(() => {
+    const oldAmazonStreamActionFeatureFlag = beforeAll(() => {
       const searchProduct = searchProducts as jest.Mock;
       const fetchSecrets = getSecrets as jest.Mock;
       const fetchUser = getUser as jest.Mock;

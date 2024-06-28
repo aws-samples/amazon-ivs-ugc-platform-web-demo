@@ -1,9 +1,8 @@
-import Amplify from '@aws-amplify/core';
 import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
 import {
-  CHANNEL_ARN_CHANNEL_ID_SEPARATOR,
+  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
   CHANNEL_TYPE,
   NUM_MILLISECONDS_TO_BLOCK
 } from './constants';
@@ -67,8 +66,7 @@ export const retryWithExponentialBackoff = ({
   maxRetries,
   onRetry = noop,
   onSuccess = noop,
-  onFailure = noop,
-  shouldReturnErrorOnValidation = undefined
+  onFailure = noop
 }) => {
   const waitFor = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -82,19 +80,6 @@ export const retryWithExponentialBackoff = ({
 
       // evaluate
       const result = await promiseFn();
-
-      // handle scenario where the promiseFn involves the use of a fetch wrapper (unauthFetch or authFetch)
-      const fetchWrapperError = !!result?.error;
-
-      if (fetchWrapperError) {
-        if (shouldReturnErrorOnValidation) {
-          const shouldReturnError = shouldReturnErrorOnValidation(result);
-          if (shouldReturnError) return result;
-        }
-
-        throw new Error();
-      }
-
       onSuccess();
 
       return result;
@@ -329,8 +314,10 @@ export const convertConcurrentViews = (views) => {
 
 export const isS3Url = (url = '') => url.includes('.s3.');
 
-export const extractChannelIdfromChannelArn = (channelArn) =>
-  channelArn.split(CHANNEL_ARN_CHANNEL_ID_SEPARATOR)[1]?.toLowerCase();
+export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
+  bannedUserChannelArn
+    .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
+    ?.toLowerCase();
 
 export const updateVotes = (message, votes) => {
   const selectedOption = message.attributes?.option;
@@ -353,45 +340,4 @@ export const isElementsOverlapping = (element1, element2) => {
   const el2 = element2?.getBoundingClientRect();
 
   return el1?.bottom > el2?.top && el1?.top < el2?.bottom;
-};
-
-export const decodeJWT = (token) => {
-  const tokenParts = token.split('.');
-  if (tokenParts.length !== 3) {
-    throw new Error('Invalid JWT format');
-  }
-  const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
-
-  const jsonPayload = decodeURIComponent(
-    window
-      .atob(base64)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join('')
-  );
-
-  return JSON.parse(jsonPayload);
-};
-
-export const containsURL = (text) => {
-  const urlRegex = /(www\.|http:\/\/|https:\/\/)/;
-  return urlRegex.test(text);
-};
-
-export const connectToAppSyncGraphQlApi = () => {
-  const {
-    REACT_APP_APPSYNC_GRAPHQL_APIKEY,
-    REACT_APP_APPSYNC_GRAPHQL_AUTH_TYPE,
-    REACT_APP_APPSYNC_GRAPHQL_ENDPOINT,
-    REACT_APP_REGION
-  } = process.env;
-
-  Amplify.configure({
-    aws_appsync_graphqlEndpoint: REACT_APP_APPSYNC_GRAPHQL_ENDPOINT,
-    aws_appsync_region: REACT_APP_REGION,
-    aws_appsync_authenticationType: REACT_APP_APPSYNC_GRAPHQL_AUTH_TYPE,
-    aws_appsync_apiKey: REACT_APP_APPSYNC_GRAPHQL_APIKEY
-  });
 };

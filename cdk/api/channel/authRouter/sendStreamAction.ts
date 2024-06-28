@@ -18,7 +18,7 @@ import {
 import { getUser } from '../helpers';
 import { ivsClient } from '../../shared/helpers';
 import { retryWithConstantBackoff } from '../../shared/utils';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 type SendStreamActionRequestBody = { metadata: string };
 

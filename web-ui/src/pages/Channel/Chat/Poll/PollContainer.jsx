@@ -22,8 +22,6 @@ const PROGRESS_BAR_HEIGHT_PX = 46;
 const FOOTER_HEIGHT_PX = VOTE_BUTTON_HEIGHT_PX + PROGRESS_BAR_HEIGHT_PX;
 const SPACE_BETWEEN_POLL_AND_COMPOSER_PX = 20;
 
-let previousHeight = window?.innerHeight;
-
 const PollContainer = forwardRef(({ children }, ref) => {
   const marginBotttomRef = useRef();
   const [height, setHeight] = useState();
@@ -45,7 +43,8 @@ const PollContainer = forwardRef(({ children }, ref) => {
   const { color } = channelData || {};
   const pollComponent = ref?.current;
   const composerComponent = composerRefState?.current;
-  const isStreamManagerPage = pathname === '/manager';
+
+  let previousHeight = window.innerHeight;
 
   const getScrollableContentHeight = (windowHeight, hasPollEnded, isVoting) => {
     const remainingHeightToFill =
@@ -97,9 +96,6 @@ const PollContainer = forwardRef(({ children }, ref) => {
 
   useResize(
     useDebouncedCallback(() => {
-      if (isStreamManagerPage) return;
-
-      // Adjust poll height and scrollbar on channel page
       if (pollComponent && composerComponent) {
         const poll = pollComponent?.getBoundingClientRect();
         const composer = composerComponent?.getBoundingClientRect();
@@ -178,6 +174,7 @@ const PollContainer = forwardRef(({ children }, ref) => {
     }, 200),
     { shouldCallOnMount: true }
   );
+  const isStreamManagerPage = pathname === '/manager';
   const defaultBounceTransition = getDefaultBounceTransition(isActive);
 
   return (

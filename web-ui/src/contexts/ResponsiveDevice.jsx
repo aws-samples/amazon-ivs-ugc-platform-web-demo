@@ -12,7 +12,6 @@ const Context = createContext(null);
 Context.displayName = 'ResponsiveDevice';
 
 export const Provider = ({ children }) => {
-  const [dimensions, setDimensions] = useState();
   const [currentBreakpoint, setCurrentBreakpoint] = useState();
   const mainRef = useRef();
   const mobileOverlayIds = useRef([]);
@@ -91,16 +90,6 @@ export const Provider = ({ children }) => {
     [unlockBody]
   );
 
-  // Set current width and height
-  const updateCurrentDimensions = useCallback(() => {
-    if (!window?.innerWidth && !window?.innerHeight) return;
-
-    setDimensions({
-      height: window.innerHeight,
-      width: window.innerWidth
-    });
-  }, []);
-
   // Set current breakpoint
   const updateCurrentBreakpoint = useCallback(() => {
     const innerWidth = window.innerWidth;
@@ -141,13 +130,7 @@ export const Provider = ({ children }) => {
       updateMobileVh();
       updateCurrentBreakpoint();
       updateOrientation();
-      updateCurrentDimensions();
-    }, [
-      updateCurrentBreakpoint,
-      updateCurrentDimensions,
-      updateMobileVh,
-      updateOrientation
-    ]),
+    }, [updateCurrentBreakpoint, updateMobileVh, updateOrientation]),
     { shouldCallOnMount: true }
   );
 
@@ -155,7 +138,6 @@ export const Provider = ({ children }) => {
     () => ({
       addMobileOverlay,
       currentBreakpoint,
-      dimensions,
       isDefaultResponsiveView,
       isDesktopView,
       isLandscape,
@@ -169,7 +151,6 @@ export const Provider = ({ children }) => {
     [
       addMobileOverlay,
       currentBreakpoint,
-      dimensions,
       isDefaultResponsiveView,
       isDesktopView,
       isLandscape,

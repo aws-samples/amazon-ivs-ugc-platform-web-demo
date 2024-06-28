@@ -10,7 +10,6 @@ import { dynamoDbClient } from '../../shared/helpers';
 import buildServer from '../../buildServer';
 import offlineStreamSession from '../__mocks__/offlineStreamSession.json';
 import onlineStreamSessions from '../__mocks__/onlineStreamSessions.json';
-import onlineStageSessions from '../__mocks__/onlineStageSession.json';
 
 const mockDynamoDbClient = mockClient(dynamoDbClient);
 const url = '/channels';
@@ -55,9 +54,6 @@ describe('getChannels controller', () => {
       .on(ScanCommand, { TableName: 'streamTableName' })
       .resolves({ Items: [] });
     mockDynamoDbClient
-      .on(ScanCommand, { TableName: 'channelsTableName' })
-      .resolves({ Items: [] });
-    mockDynamoDbClient
       .on(QueryCommand, { TableName: 'channelsTableName' })
       .resolves({ Items: [] });
   });
@@ -88,9 +84,6 @@ describe('getChannels controller', () => {
       mockDynamoDbClient
         .on(ScanCommand, { TableName: 'streamTableName' })
         .rejects({});
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'channelsTableName' })
-        .rejects({});
 
       const response = await server.inject({ url, query: { isLive: 'true' } });
       const { __type } = JSON.parse(response.payload);
@@ -105,49 +98,11 @@ describe('getChannels controller', () => {
         .on(ScanCommand, { TableName: 'streamTableName' })
         .resolves({});
 
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'channelsTableName' })
-        .resolves({});
-
       const response = await server.inject({ url, query: { isLive: 'true' } });
       const { channels, maxResults } = JSON.parse(response.payload);
 
       expect(maxResults).toBe(50);
       expect(channels.length).toBe(0);
-    });
-
-    it('should return an error if stream table scan call fails', async () => {
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'streamTableName' })
-        .rejects({});
-
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'channelsTableName' })
-        .resolves({});
-
-      const response = await server.inject({ url, query: { isLive: 'true' } });
-      const { __type } = JSON.parse(response.payload);
-
-      expect(mockConsoleError).toHaveBeenCalledTimes(1);
-      expect(response.statusCode).toBe(500);
-      expect(__type).toBe(UNEXPECTED_EXCEPTION);
-    });
-
-    it('should return an error if channel table scan call fails', async () => {
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'streamTableName' })
-        .resolves({});
-
-      mockDynamoDbClient
-        .on(ScanCommand, { TableName: 'channelsTableName' })
-        .rejects({});
-
-      const response = await server.inject({ url, query: { isLive: 'true' } });
-      const { __type } = JSON.parse(response.payload);
-
-      expect(mockConsoleError).toHaveBeenCalledTimes(1);
-      expect(response.statusCode).toBe(500);
-      expect(__type).toBe(UNEXPECTED_EXCEPTION);
     });
 
     it('should return an empty list of channels when the channels table returns undefined Items', async () => {
@@ -245,14 +200,6 @@ describe('getChannels controller', () => {
 
           throw new Error();
         })
-        .callsFakeOnce(({ TableName }) => {
-          if (TableName === 'channelsTableName')
-            return {
-              Items: []
-            };
-
-          throw new Error();
-        })
         .callsFake(({ TableName, ExpressionAttributeValues }) => {
           for (let i = 0; i < onlineStreamSessions.length; i += 1) {
             const { channelArn } = onlineStreamSessions[i];
@@ -309,73 +256,6 @@ describe('getChannels controller', () => {
         ...expectedChannelData,
         channelAssetUrls,
         username: 'user3'
-      });
-    });
-
-    it('should return a list of sorted channels when stageId is not null', async () => {
-      mockDynamoDbClient
-        .callsFakeOnce(({ TableName }) => {
-          if (TableName === 'streamTableName')
-            return {
-              Items: []
-            };
-
-          throw new Error();
-        })
-        .callsFakeOnce(({ TableName }) => {
-          if (TableName === 'channelsTableName')
-            return {
-              Items: onlineStageSessions.map((onlineStageSession, i) => {
-                const { channelArn } = onlineStreamSessions[i];
-                return marshall({
-                  ...onlineStageSession,
-                  ...channelObject,
-                  username: channelArn.split('channelArn-')[1],
-                  channelArn
-                });
-              })
-            };
-
-          throw new Error();
-        })
-        .callsFake(({ TableName, ExpressionAttributeValues }) => {
-          for (let i = 0; i < onlineStreamSessions.length; i += 1) {
-            const { channelArn } = onlineStageSessions[i];
-            if (
-              TableName === 'channelsTableName' &&
-              ExpressionAttributeValues[':channelArn'].S === channelArn
-            )
-              return {
-                Items: []
-              };
-          }
-
-          throw new Error();
-        });
-
-      const response = await server.inject({ url, query: { isLive: 'true' } });
-      const { channels, maxResults } = JSON.parse(response.payload);
-      const { channelAssets, ...expectedChannelData } = channelObject;
-      const channelAssetUrls = {
-        avatar: channelAssets.avatar.url,
-        banner: channelAssets.banner.url
-      };
-      expect(maxResults).toBe(50);
-      expect(channels.length).toBe(3);
-      expect(channels[0]).toEqual({
-        ...expectedChannelData,
-        channelAssetUrls,
-        username: 'user1'
-      });
-      expect(channels[1]).toEqual({
-        ...expectedChannelData,
-        channelAssetUrls,
-        username: 'user3'
-      });
-      expect(channels[2]).toEqual({
-        ...expectedChannelData,
-        channelAssetUrls,
-        username: 'user2'
       });
     });
   });

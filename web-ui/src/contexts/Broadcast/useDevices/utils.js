@@ -1,4 +1,4 @@
-import { VIDEO_LAYER_NAME } from '../useLayers';
+import { CAMERA_LAYER_NAME } from '../useLayers';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../useAudioMixer';
 
 const { permissions, mediaDevices } = navigator;
@@ -85,14 +85,14 @@ export const getMediaDevices = async () => {
     );
 
     return {
-      [VIDEO_LAYER_NAME]: videoInputDevices,
+      [CAMERA_LAYER_NAME]: videoInputDevices,
       [MICROPHONE_AUDIO_INPUT_NAME]: audioInputDevices
     };
   } catch (error) {
     console.error(error);
 
     return {
-      [VIDEO_LAYER_NAME]: [],
+      [CAMERA_LAYER_NAME]: [],
       [MICROPHONE_AUDIO_INPUT_NAME]: []
     };
   }

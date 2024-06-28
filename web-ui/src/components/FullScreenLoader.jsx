@@ -7,11 +7,7 @@ import { SyncError } from '../assets/icons';
 import Button from './Button';
 import Spinner from './Spinner';
 
-const FullScreenLoader = ({
-  hasError = false,
-  mobileBreakpoint = BREAKPOINTS.md,
-  onClick = noop
-}) =>
+const FullScreenLoader = ({ hasError, mobileBreakpoint, onClick }) =>
   hasError ? (
     <div
       className={clsm([
@@ -61,6 +57,12 @@ FullScreenLoader.propTypes = {
   hasError: PropTypes.bool,
   mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
   onClick: PropTypes.func
+};
+
+FullScreenLoader.defaultProps = {
+  hasError: false,
+  mobileBreakpoint: BREAKPOINTS.md,
+  onClick: noop
 };
 
 export default FullScreenLoader;

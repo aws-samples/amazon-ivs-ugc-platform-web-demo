@@ -87,7 +87,7 @@ const VoteItem = forwardRef(
 
       parentDivs.forEach((item) => {
         if (hasWon) return;
-        item.classList.add(shouldResizeAllContainers ? '!h-14' : '!h-11');
+        item.classList.add(shouldResizeAllContainers ? 'h-14' : 'h-11');
       });
     }, [option, color, hasWon]);
 

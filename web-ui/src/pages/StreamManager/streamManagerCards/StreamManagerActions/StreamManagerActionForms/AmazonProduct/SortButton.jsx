@@ -7,7 +7,7 @@ import Button from '../../../../../../components/Button';
 
 const $content = $streamManagerContent.stream_manager_actions.amazon_product;
 
-export const SortButton = ({ isDropdownOpen = false, onClick = noop }) => (
+export const SortButton = ({ isDropdownOpen, onClick }) => (
   <Button
     ariaLabel={
       isDropdownOpen ? $content.dropdown.collapse : $content.dropdown.expand
@@ -41,6 +41,11 @@ export const SortButton = ({ isDropdownOpen = false, onClick = noop }) => (
 SortButton.propTypes = {
   isDropdownOpen: PropTypes.bool,
   onClick: PropTypes.func
+};
+
+SortButton.defaultProps = {
+  isDropdownOpen: false,
+  onClick: noop
 };
 
 export default SortButton;

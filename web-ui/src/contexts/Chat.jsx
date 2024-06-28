@@ -48,8 +48,6 @@ const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
 
-let chatHistoryCache = [];
-
 const Context = createContext(null);
 Context.displayName = 'Chat';
 
@@ -83,25 +81,21 @@ const actionTypes = {
 };
 
 const reducer = (messages, action) => {
-  let newMessages;
-
   switch (action.type) {
     case actionTypes.INIT_MESSAGES: {
-      newMessages = [...chatHistoryCache, ...action.initialMessages];
-      break;
+      return action.initialMessages || [];
     }
     case actionTypes.ADD_MESSAGE: {
       const { message: newMessage, isOwnMessage } = action;
 
-      newMessages = [...messages, { ...newMessage, isOwnMessage }];
-      break;
+      return [...messages, { ...newMessage, isOwnMessage }];
     }
     case actionTypes.DELETE_MESSAGE: {
       const { messageId: messageIdToDelete, deletedMessageIds } = action;
       const wasDeletedByUser =
         deletedMessageIds.current.includes(messageIdToDelete);
 
-      newMessages = messages.reduce(
+      const newMessages = messages.reduce(
         (acc, msg) => [
           ...acc,
           msg.id === messageIdToDelete
@@ -110,23 +104,21 @@ const reducer = (messages, action) => {
         ],
         []
       );
-      break;
+
+      return newMessages;
     }
     case actionTypes.DELETE_MESSAGES_BY_USER_ID: {
       const { userId: userIdToDelete } = action;
 
-      newMessages = messages.filter(
+      const newMessages = messages.filter(
         (msg) => msg.sender.attributes.channelArn !== userIdToDelete
       );
-      break;
+
+      return newMessages;
     }
     default:
       throw new Error('Unexpected action type');
   }
-
-  chatHistoryCache = newMessages;
-
-  return newMessages;
 };
 
 export const Provider = ({ children }) => {
@@ -605,7 +597,6 @@ export const Provider = ({ children }) => {
         }));
       }
     } else {
-      chatHistoryCache = [];
       savedMessages.current = {};
     }
   }, [isSessionValid, messages, ownUsername, chatRoomOwnerUsername]);

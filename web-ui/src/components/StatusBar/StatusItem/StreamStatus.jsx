@@ -10,7 +10,7 @@ import StatusItemTooltip from './StatusItemTooltip';
 
 const $content = $appContent.status_bar;
 
-const StreamStatus = ({ isLive = false }) => {
+const StreamStatus = ({ isLive }) => {
   const { userData } = useUser();
 
   const handleViewChannelClick = useCallback(() => {
@@ -39,6 +39,10 @@ const StreamStatus = ({ isLive = false }) => {
       </Button>
     </StatusItemTooltip>
   );
+};
+
+StreamStatus.defaultProps = {
+  isLive: false
 };
 
 StreamStatus.propTypes = {

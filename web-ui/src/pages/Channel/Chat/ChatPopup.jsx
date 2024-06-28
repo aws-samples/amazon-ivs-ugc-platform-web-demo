@@ -21,11 +21,11 @@ const $modalContent = $channelContent.chat.modal.ban_user_modal;
 const ChatPopup = ({
   banUser,
   deleteMessage,
-  isOpen = false,
+  isOpen,
   selectedMessage: { avatarSrc, color, displayName, message, channelArn },
   setIsChatPopupOpen
 }) => {
-  const { isMobileView, isTouchscreenDevice } = useResponsiveDevice();
+  const { isMobileView } = useResponsiveDevice();
   const { userData } = useUser();
   const { username } = userData || {};
   const { openModal } = useModal();
@@ -171,13 +171,11 @@ const ChatPopup = ({
               'dark:bg-white',
               'dark:focus:bg-white',
               'dark:focus:shadow-darkMode-red',
+              'dark:hover:bg-white-hover',
               'dark:text-darkMode-red',
               'focus:bg-white',
               'focus:shadow-lightMode-red',
-              !isTouchscreenDevice && [
-                'hover:bg-lightMode-gray-light-hover',
-                'dark:hover:bg-white-hover'
-              ],
+              'hover:bg-lightMode-gray-light-hover',
               'text-lightMode-red'
             ])}
             variant="tertiary"
@@ -195,13 +193,11 @@ const ChatPopup = ({
                 'dark:bg-darkMode-red',
                 'dark:focus:bg-darkMode-red',
                 'dark:focus:shadow-white',
+                'dark:hover:bg-darkMode-red-hover',
+                'dark:text-white',
                 'focus:bg-lightMode-red',
                 'focus:shadow-black',
-                !isTouchscreenDevice && [
-                  'hover:bg-lightMode-red-hover',
-                  'dark:hover:bg-darkMode-red-hover'
-                ],
-                'dark:text-black',
+                'hover:bg-lightMode-red-hover',
                 'text-white'
               )}
               variant="destructive"
@@ -216,7 +212,7 @@ const ChatPopup = ({
               'dark:focus:shadow-white',
               'focus:bg-lightMode-gray',
               'focus:shadow-black',
-              !isTouchscreenDevice && ['hover:bg-lightMode-gray-hover']
+              'hover:bg-lightMode-gray-hover'
             ])}
             variant="secondary"
             onClick={handleCancelAndRefocus}
@@ -228,6 +224,8 @@ const ChatPopup = ({
     </div>
   );
 };
+
+ChatPopup.defaultProps = { isOpen: false };
 
 ChatPopup.propTypes = {
   banUser: PropTypes.func.isRequired,

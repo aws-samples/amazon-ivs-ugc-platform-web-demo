@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from '@fastify/request-context';
-import authorizer from '../shared/authorizer';
+import authorizer from '../channel/authorizer';
 import getProducts from './getProducts';
 
 const router: FastifyPluginAsync = async (resource) => {

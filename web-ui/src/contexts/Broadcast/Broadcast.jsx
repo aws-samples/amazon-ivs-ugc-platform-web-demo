@@ -8,15 +8,23 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import { BROADCAST_STREAM_CONFIG_PRESETS } from '../../constants';
+import { BREAKPOINTS, BROADCAST_STREAM_CONFIG_PRESETS } from '../../constants';
+import {
+  createBackgroundLayerPreset,
+  createNoCameraLayerPreset
+} from './useLayers/presetLayers';
 import { streamManager as $streamManagerContent } from '../../content';
+import { useModal } from '../Modal';
 import { useNotif } from '../Notification';
-import { AUDIO_INPUT_NAME } from './useAudioMixer';
+import useAudioMixer, { MICROPHONE_AUDIO_INPUT_NAME } from './useAudioMixer';
 import useContextHook from '../useContextHook';
-import { VIDEO_LAYER_NAME } from './useLayers';
+import useDevices from './useDevices';
+import useLayers, { CAMERA_LAYER_NAME } from './useLayers';
 import useMount from '../../hooks/useMount';
+import usePrompt from '../../hooks/usePrompt';
+import useScreenShare from './useScreenShare';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
-import { useDeviceManager } from '../DeviceManager';
+import { useResponsiveDevice } from '../ResponsiveDevice';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -39,11 +47,13 @@ const {
  * }
  * - The stream config must match IVS account config
  */
-const orientation = 'landscape';
 const channelType = process.env.REACT_APP_CHANNEL_TYPE;
-const streamConfig = BROADCAST_STREAM_CONFIG_PRESETS[channelType][orientation];
-
-const logLevel = LOG_LEVEL.TRACE;
+const orientation = 'landscape';
+const streamConfig = {
+  ...BROADCAST_STREAM_CONFIG_PRESETS[channelType][orientation],
+  maxResolution: { width: 1280, height: 720 } // max resolution override to avoid full HD performance issues
+};
+const logLevel = LOG_LEVEL.ERROR;
 const CONNECTION_TIMEOUT = 10_000; // 10s
 
 // Singleton IVS Web Broadcast client instance
@@ -55,59 +65,113 @@ Context.displayName = 'Broadcast';
 
 export const Provider = ({
   children,
-  ingestEndpoint = '',
-  streamKey = '',
+  ingestEndpoint,
+  streamKey,
   previewRef
 }) => {
+  const { currentBreakpoint } = useResponsiveDevice();
+  const isMobile = currentBreakpoint < BREAKPOINTS.sm;
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const connectionTimeoutRef = useRef(null);
+
+  const { openModal } = useModal();
   const { notifyError, notifySuccess } = useNotif();
   const isMounted = useMount();
 
+  /**
+   * Layers
+   */
   const {
-    userMedia: {
-      broadcast: {
-        isLayerHidden,
-        isAudioInputMuted,
-        isScreenSharing,
-        shouldShowCameraOnScreenShare,
-        stopScreenShare,
-        toggleScreenShare,
-        updateShouldShowCameraOnScreenShare,
-        presetLayers,
-        addVideoLayer,
-        addMicAudioInput,
-        detectDevicePermissions
-      },
-      permissions,
-      activeDevices,
-      devices,
-      updateActiveDevice,
-      startUserMedia: initializeDevices,
-      toggleVideo,
-      toggleAudio
-    }
-  } = useDeviceManager();
-  const hasPermissions = permissions.audio && permissions.video;
+    addVideoLayer,
+    addScreenShareLayer,
+    addImageLayer,
+    toggleLayer,
+    updateLayerGroup,
+    removeLayer,
+    clearLayers,
+    isLayerHidden
+  } = useLayers();
+  const presetLayers = useMemo(() => {
+    const handlers = { addImageLayer, removeLayer };
+
+    return {
+      noCamera: createNoCameraLayerPreset(handlers),
+      background: createBackgroundLayerPreset(handlers)
+    };
+  }, [addImageLayer, removeLayer]);
+
+  /**
+   * Audio inputs
+   */
+  const {
+    addMicAudioInput,
+    addScreenShareAudioInput,
+    toggleMute,
+    removeAudioInput,
+    clearAudioInputs,
+    isAudioInputMuted
+  } = useAudioMixer();
+
+  /**
+   * Screen share
+   */
+  const {
+    isScreenSharing,
+    shouldShowCameraOnScreenShare,
+    stopScreenShare,
+    toggleScreenShare,
+    updateShouldShowCameraOnScreenShare
+  } = useScreenShare({
+    addScreenShareAudioInput,
+    addScreenShareLayer,
+    removeAudioInput,
+    removeLayer,
+    updateLayerGroup,
+    setError
+  });
+
+  /**
+   * Devices
+   */
+  const {
+    permissions,
+    initializeDevices,
+    devices,
+    activeDevices,
+    updateActiveDevice,
+    detectDevicePermissions
+  } = useDevices({
+    addMicAudioInput,
+    addVideoLayer,
+    presetLayers,
+    removeAudioInput,
+    removeLayer,
+    setError,
+    setSuccess
+  });
 
   /**
    * Camera helpers
    */
-  const isCameraHidden = isLayerHidden(VIDEO_LAYER_NAME);
+  const isCameraHidden = isLayerHidden(CAMERA_LAYER_NAME);
   const toggleCameraThrottled = useThrottledCallback((options) => {
-    toggleVideo({ ...options, isBroadcast: true });
+    const isHidden = toggleLayer(CAMERA_LAYER_NAME, options);
+
+    if (isHidden) presetLayers.noCamera.add();
+    else presetLayers.noCamera.remove();
   }, 250);
 
   /**
    * Microphone helpers
    */
-  const isMicrophoneMuted = isAudioInputMuted(AUDIO_INPUT_NAME);
-  const toggleMicrophoneThrottled = useThrottledCallback((options) => {
-    toggleAudio({ ...options, isBroadcast: true });
-  }, 250);
+  const isMicrophoneMuted = isAudioInputMuted(MICROPHONE_AUDIO_INPUT_NAME);
+  const toggleMicrophoneThrottled = useThrottledCallback(
+    (options) => toggleMute(MICROPHONE_AUDIO_INPUT_NAME, options),
+    250
+  );
 
   /**
    * Screen share helpers
@@ -115,11 +179,11 @@ export const Provider = ({
   const toggleScreenShareThrottled = useThrottledCallback(
     toggleScreenShare,
     250
-  );
+  ); // throttled version of toggleScreenShare
 
-  const stopBroadcast = useCallback(() => {
-    client?.stopBroadcast();
-  }, []);
+  const { isBlocked, onCancel, onConfirm } = usePrompt(isBroadcasting);
+
+  const stopBroadcast = useCallback(() => client?.stopBroadcast(), []);
 
   const startBroadcast = useCallback(async () => {
     try {
@@ -147,6 +211,7 @@ export const Provider = ({
           `Failed to start broadcast stream due to missing required permission(s): ${missingPermissionsStr}.`
         );
       }
+
       connectionTimeoutRef.current = setTimeout(() => {
         stopBroadcast();
         console.error(
@@ -170,164 +235,91 @@ export const Provider = ({
         err: error
       });
     }
-  }, [ingestEndpoint, stopBroadcast, streamKey, detectDevicePermissions]);
+  }, [detectDevicePermissions, ingestEndpoint, stopBroadcast, streamKey]);
 
   const resetPreview = useCallback(() => {
     if (!client || !previewRef.current) return;
+
     client.detachPreview();
     client.attachPreview(previewRef.current);
   }, [previewRef]);
-
-  // ACTIVE_STATE_CHANGE events indicate that the broadcast start/stop state has changed
-  const onActiveStateChange = (activeState) => {
-    setIsBroadcasting(activeState);
-  };
-
-  // CONNECTION_STATE_CHANGE events indicate that the WebRTC connection state has changed
-  const onConnectionStateChange = (state) => {
-    const { NEW, CONNECTED, CONNECTING } = ConnectionState;
-    if (state === CONNECTED) clearTimeout(connectionTimeoutRef.current);
-    setIsConnecting([NEW, CONNECTING].includes(state));
-  };
-
-  // ERROR events indicate that the client has encountered an error
-  const onClientError = (clientError) => {
-    console.error(clientError);
-
-    if (clientError.code === 10001) {
-      setError({
-        message: $content.notifications.error.stream_disconnected
-      });
-    }
-  };
-
-  const initializeBroadcastClient = useCallback(async () => {
-    // Create the IVS Web Broadcast client instance
-    client = create({ streamConfig, logLevel });
-
-    // Register the IVS broadcast client event listeners
-    client.on(ACTIVE_STATE_CHANGE, onActiveStateChange);
-    client.on(CONNECTION_STATE_CHANGE, onConnectionStateChange);
-    client.on(ERROR, onClientError);
-
-    // Add a background layer for permissions prompt state
-    await presetLayers.background.add();
-
-    // Attach an HTMLCanvasElement to display a preview of the output
-    client.attachPreview(previewRef.current);
-  }, [presetLayers.background, previewRef]);
-
-  const restartBroadcastClient = useCallback(
-    async (_isCameraHidden = false, _isMicrophoneMuted = false) => {
-      let addDevice, options;
-
-      await initializeBroadcastClient();
-
-      if (_isCameraHidden) presetLayers.noCamera.add();
-
-      // Setup video layer and audio input
-      for (const deviceName in activeDevices) {
-        if (deviceName === VIDEO_LAYER_NAME) {
-          addDevice = addVideoLayer;
-          options = {
-            position: { index: 1 },
-            layerGroupId: VIDEO_LAYER_NAME,
-            hidden: _isCameraHidden
-          };
-        }
-        if (deviceName === AUDIO_INPUT_NAME) {
-          addDevice = addMicAudioInput;
-          options = { muted: _isMicrophoneMuted };
-        }
-        if (addDevice) {
-          const didUpdate = await addDevice(deviceName, {
-            deviceId: activeDevices[deviceName]?.deviceId,
-            ...options
-          });
-
-          if (!didUpdate) {
-            let errorMessage;
-            if (deviceName === VIDEO_LAYER_NAME)
-              errorMessage =
-                $content.notifications.error.failed_to_access_camera;
-            if (deviceName === AUDIO_INPUT_NAME)
-              errorMessage = $content.notifications.error.failed_to_access_mic;
-
-            errorMessage && setError({ message: errorMessage });
-          }
-        }
-      }
-      isInitialized = true;
-    },
-    [
-      activeDevices,
-      addMicAudioInput,
-      addVideoLayer,
-      initializeBroadcastClient,
-      presetLayers.noCamera
-    ]
-  );
-
-  const removeBroadcastClient = useCallback(() => {
-    if (!!client) {
-      // Remove all input devices
-      client.disableVideo();
-      client.disableAudio();
-      if (!!client.getVideoInputDevice(VIDEO_LAYER_NAME)) {
-        client.removeVideoInputDevice(VIDEO_LAYER_NAME);
-      }
-      if (!!client.getAudioInputDevice(AUDIO_INPUT_NAME)) {
-        client.removeAudioInputDevice(AUDIO_INPUT_NAME);
-      }
-
-      clearTimeout(connectionTimeoutRef.current);
-      stopScreenShare();
-      stopBroadcast(); // Stop the broadcast
-
-      client?.off(ACTIVE_STATE_CHANGE, onActiveStateChange);
-      client?.off(CONNECTION_STATE_CHANGE, onConnectionStateChange);
-      client?.off(ERROR, onClientError);
-
-      client.delete(); // Explicitly stop and/or free internal client components that would otherwise leak
-      client = undefined;
-      isInitialized = false;
-
-      // Set preview canvas initial black background
-      if (previewRef && previewRef.current) {
-        const canvas = previewRef.current;
-        const canvasContext = previewRef.current.getContext('2d');
-
-        canvasContext.fillStyle = 'black';
-        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-  }, [previewRef, stopBroadcast, stopScreenShare]);
 
   /**
    * Initialize client, request permissions and refresh devices
    */
   useEffect(() => {
+    // ACTIVE_STATE_CHANGE events indicate that the broadcast start/stop state has changed
+    const onActiveStateChange = (activeState) => setIsBroadcasting(activeState);
+
+    // CONNECTION_STATE_CHANGE events indicate that the WebRTC connection state has changed
+    const onConnectionStateChange = (state) => {
+      const { NEW, CONNECTED, CONNECTING } = ConnectionState;
+      if (state === CONNECTED) clearTimeout(connectionTimeoutRef.current);
+      setIsConnecting([NEW, CONNECTING].includes(state));
+    };
+
+    // ERROR events indicate that the client has encountered an error
+    const onClientError = (clientError) => {
+      console.error(clientError);
+
+      if (clientError.code === 10001) {
+        setError({
+          message: $content.notifications.error.stream_disconnected
+        });
+      }
+    };
+
     if (!isInitialized && previewRef.current) {
-      (async function () {
-        await initializeBroadcastClient();
+      (async function init() {
+        // Create the IVS Web Broadcast client instance
+        client = create({ streamConfig, logLevel });
+
+        // Register the IVS broadcast client event listeners
+        client.on(ACTIVE_STATE_CHANGE, onActiveStateChange);
+        client.on(CONNECTION_STATE_CHANGE, onConnectionStateChange);
+        client.on(ERROR, onClientError);
+
+        // Add a background layer for permissions prompt state
+        await presetLayers.background.add();
+
+        // Attach an HTMLCanvasElement to display a preview of the output
+        client.attachPreview(previewRef.current);
       })();
 
       isInitialized = true;
     }
-  }, [initializeBroadcastClient, previewRef]);
 
-  useEffect(() => {
     return () => {
       if (!isMounted()) return;
-      removeBroadcastClient();
+
+      clearTimeout(connectionTimeoutRef.current);
+      stopScreenShare();
+      stopBroadcast(); // Stop the broadcast
+      clearLayers(); // Remove all video layers and resets state map
+      clearAudioInputs(); // Remove all audio inputs and resets state map
+
+      client?.off(ACTIVE_STATE_CHANGE, onActiveStateChange);
+      client?.off(CONNECTION_STATE_CHANGE, onConnectionStateChange);
+      client?.off(ERROR, onClientError);
+      client?.delete(); // Explicitly stop and/or free internal client components that would otherwise leak
+      client = undefined;
+      isInitialized = false;
     };
-  }, [isMounted, removeBroadcastClient]);
+  }, [
+    clearAudioInputs,
+    clearLayers,
+    isMounted,
+    presetLayers.background,
+    previewRef,
+    stopBroadcast,
+    stopScreenShare
+  ]);
 
   useEffect(() => {
     if (error) {
       const { message, err } = error;
 
-      if (err) console.error(err, message);
+      if (err) console.error(...[err, message].filter((data) => !!data));
 
       if (message) notifyError(message, { asPortal: true });
 
@@ -343,15 +335,33 @@ export const Provider = ({
     }
   }, [success, notifySuccess]);
 
+  useEffect(() => {
+    if (isBlocked && isBroadcasting) {
+      openModal({
+        content: {
+          confirmText: $content.leave_page,
+          isDestructive: true,
+          message: (
+            <p>
+              {$content.confirm_leave_page_L1}
+              {isMobile ? ' ' : <br />}
+              {$content.confirm_leave_page_L2}
+            </p>
+          )
+        },
+        onConfirm,
+        onCancel
+      });
+    }
+  }, [isBlocked, onCancel, onConfirm, openModal, isMobile, isBroadcasting]);
+
   const value = useMemo(
     () => ({
       // Devices and permissions
       devices,
-      detectDevicePermissions,
       activeDevices,
       updateActiveDevice,
       permissions,
-      hasPermissions,
       initializeDevices,
       // Layers
       toggleCamera: toggleCameraThrottled,
@@ -365,24 +375,18 @@ export const Provider = ({
       isMicrophoneMuted,
       toggleMicrophone: toggleMicrophoneThrottled,
       // Controls
-      previewRef,
       startBroadcast,
       stopBroadcast,
       resetPreview,
       // Indicators
       isBroadcasting,
       isConnecting,
-      error,
-      // Client
-      restartBroadcastClient,
-      removeBroadcastClient
+      error
     }),
     [
       activeDevices,
-      devices,
-      detectDevicePermissions,
       error,
-      hasPermissions,
+      devices,
       initializeDevices,
       isBroadcasting,
       isCameraHidden,
@@ -391,18 +395,15 @@ export const Provider = ({
       isScreenSharing,
       permissions,
       presetLayers,
-      previewRef,
-      removeBroadcastClient,
       resetPreview,
-      restartBroadcastClient,
+      updateShouldShowCameraOnScreenShare,
       shouldShowCameraOnScreenShare,
       startBroadcast,
       stopBroadcast,
       toggleCameraThrottled,
       toggleMicrophoneThrottled,
       toggleScreenShareThrottled,
-      updateActiveDevice,
-      updateShouldShowCameraOnScreenShare
+      updateActiveDevice
     ]
   );
 
@@ -414,6 +415,11 @@ Provider.propTypes = {
   ingestEndpoint: PropTypes.string,
   streamKey: PropTypes.string,
   previewRef: PropTypes.shape({ current: PropTypes.object }).isRequired
+};
+
+Provider.defaultProps = {
+  ingestEndpoint: '',
+  streamKey: ''
 };
 
 export const useBroadcast = () => useContextHook(Context);

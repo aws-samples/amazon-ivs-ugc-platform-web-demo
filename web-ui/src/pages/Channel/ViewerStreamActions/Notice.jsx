@@ -22,11 +22,11 @@ const PARAGRAPH_BASE_CLASSES = [
 const DEFAULT_ANIMATION_DURATION = 5; // in seconds
 
 const Notice = ({
-  color = 'default',
-  message = '',
+  color,
+  message,
   onClickPlayerHandler,
-  shouldShowStream = false,
-  title = ''
+  shouldShowStream,
+  title
 }) => {
   const messageRef = useRef();
   const marqueeRef = useRef();
@@ -164,6 +164,13 @@ Notice.propTypes = {
   onClickPlayerHandler: PropTypes.func.isRequired,
   shouldShowStream: PropTypes.bool,
   title: PropTypes.string
+};
+
+Notice.defaultProps = {
+  color: 'default',
+  message: '',
+  shouldShowStream: false,
+  title: ''
 };
 
 export default Notice;

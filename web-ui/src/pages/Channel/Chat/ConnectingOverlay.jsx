@@ -10,7 +10,7 @@ import {
 import Spinner from '../../../components/Spinner';
 import useCurrentPage from '../../../hooks/useCurrentPage';
 
-const ConnectingOverlay = ({ isLoading = false }) => {
+const ConnectingOverlay = ({ isLoading }) => {
   const currentPage = useCurrentPage();
   const isStreamManagerPage = currentPage === 'stream_manager';
   const [shouldShowConnectingOverlay, setShouldShowConnectingOverlay] =
@@ -22,12 +22,9 @@ const ConnectingOverlay = ({ isLoading = false }) => {
     if (isLoading) {
       setShouldShowConnectingOverlay(true);
     } else {
-      loaderTimeoutId.current = setTimeout(
-        () => {
-          setShouldShowConnectingOverlay(false);
-        },
-        (defaultTransition.duration / 2) * 1000
-      );
+      loaderTimeoutId.current = setTimeout(() => {
+        setShouldShowConnectingOverlay(false);
+      }, (defaultTransition.duration / 2) * 1000);
     }
 
     return () => clearTimeout(loaderTimeoutId.current);
@@ -75,6 +72,8 @@ const ConnectingOverlay = ({ isLoading = false }) => {
     </AnimatePresence>
   );
 };
+
+ConnectingOverlay.defaultProps = { isLoading: false };
 
 ConnectingOverlay.propTypes = { isLoading: PropTypes.bool };
 

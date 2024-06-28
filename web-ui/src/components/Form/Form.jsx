@@ -11,24 +11,23 @@ import useForm from './useForm';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 
 const Form = ({
-  'data-testid': dataTestId = undefined,
-  className = '',
-  clearFormOnSuccess = true,
-  disableSubmit = noop,
-  disableValidation = false,
-  errorHandler = noop,
-  footer = null,
-  formVariant = 'vertical',
-  inputsData = {},
-  inputVariant = 'vertical',
-  onFailure = noop,
-  onSuccess = noop,
-  submitBtnVariant = 'primary',
+  'data-testid': dataTestId,
+  className,
+  clearFormOnSuccess,
+  disableSubmit,
+  disableValidation,
+  errorHandler,
+  footer,
+  formVariant,
+  inputsData,
+  inputVariant,
+  onFailure,
+  onSuccess,
+  submitBtnVariant,
   submitHandler,
-  submitText = 'Submit',
-  title = '',
-  validationCheck = noop,
-  type = ''
+  submitText,
+  title,
+  validationCheck
 }) => {
   const [formProps, isLoading, onChange, onSubmit, presubmitValidation] =
     useForm({
@@ -38,8 +37,7 @@ const Form = ({
       onFailure,
       onSuccess,
       submitHandler,
-      validationCheck,
-      type
+      validationCheck
     });
 
   const isFormComplete = Object.values(formProps).every(({ value }) => value);
@@ -161,6 +159,25 @@ const Form = ({
   );
 };
 
+Form.defaultProps = {
+  'data-testid': undefined,
+  className: '',
+  clearFormOnSuccess: true,
+  disableSubmit: noop,
+  disableValidation: false,
+  errorHandler: noop,
+  footer: null,
+  formVariant: 'vertical',
+  inputsData: {},
+  inputVariant: 'vertical',
+  onFailure: noop,
+  onSuccess: noop,
+  submitBtnVariant: 'primary',
+  submitText: 'Submit',
+  title: '',
+  validationCheck: noop
+};
+
 Form.propTypes = {
   'data-testid': PropTypes.string,
   className: PropTypes.string,
@@ -184,7 +201,6 @@ Form.propTypes = {
   submitHandler: PropTypes.func.isRequired,
   submitText: PropTypes.string.isRequired,
   title: PropTypes.string,
-  type: PropTypes.string,
   validationCheck: PropTypes.func
 };
 

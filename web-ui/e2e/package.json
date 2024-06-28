@@ -14,12 +14,12 @@
     "test:e2e:ci": "npx playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.45.0",
-    "amazon-cognito-identity-js": "^6.3.12",
-    "dotenv-cli": "^7.4.2",
-    "jsonwebtoken": "^9.0.2",
-    "serve": "^14.2.3",
-    "uuid": "^9.0.1",
-    "ws": "^8.17.0"
+    "@playwright/test": "v1.36.0",
+    "amazon-cognito-identity-js": "^5.2.12",
+    "dotenv-cli": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "serve": "^14.1.1",
+    "uuid": "^9.0.0",
+    "ws": "^8.11.0"
   }
 }

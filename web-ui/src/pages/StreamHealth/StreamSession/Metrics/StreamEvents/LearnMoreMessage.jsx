@@ -9,10 +9,7 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { useStreams } from '../../../../../contexts/Streams';
 import Button from '../../../../../components/Button';
 
-const LearnMoreMessage = ({
-  event: { name, longMsg } = {},
-  toggleLearnMore
-}) => {
+const LearnMoreMessage = ({ event: { name, longMsg }, toggleLearnMore }) => {
   const { activeStreamSession } = useStreams();
   const { isDefaultResponsiveView } = useResponsiveDevice();
   const subbedMsg = substitutePlaceholders(longMsg, activeStreamSession);
@@ -136,6 +133,8 @@ const LearnMoreMessage = ({
     </motion.div>
   );
 };
+
+LearnMoreMessage.defaultProps = { event: {} };
 
 LearnMoreMessage.propTypes = {
   event: PropTypes.object,

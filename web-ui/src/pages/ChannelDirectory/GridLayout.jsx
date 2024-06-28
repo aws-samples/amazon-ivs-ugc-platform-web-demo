@@ -19,14 +19,14 @@ const PAGE_CENTERED_CONTENT_BASE_CLASSES = [
 
 const GridLayout = ({
   children,
-  className = '',
-  hasError = false,
-  hasData = false,
-  isLoading = false,
-  noDataText = '',
-  title = '',
-  tryAgainFn = noop,
-  tryAgainText = ''
+  className,
+  hasError,
+  hasData,
+  isLoading,
+  noDataText,
+  title,
+  tryAgainFn,
+  tryAgainText
 }) => {
   const currentPage = useCurrentPage();
   const isFollowingPage = currentPage === 'following';
@@ -75,6 +75,18 @@ const GridLayout = ({
       )}
     </section>
   );
+};
+
+GridLayout.defaultProps = {
+  className: '',
+  hasError: false,
+  hasData: false,
+  isLoading: false,
+  loadingError: '',
+  noDataText: '',
+  title: '',
+  tryAgainFn: noop,
+  tryAgainText: ''
 };
 
 GridLayout.propTypes = {

@@ -17,14 +17,7 @@ const commonChannelCardClasses = [
   'rounded-t-xl',
   'transition-colors'
 ];
-
-const ChannelCard = ({
-  avatarSrc = '',
-  bannerSrc = '',
-  color = 'default',
-  username = '',
-  variant = 'default'
-}) => {
+const ChannelCard = ({ avatarSrc, bannerSrc, color, username, variant }) => {
   const [hasBannerError, setHasBannerError] = useState(false);
   const [shouldHavePointerEvents, setShouldHavePointerEvents] = useState(false);
   const { isTouchscreenDevice } = useResponsiveDevice();
@@ -166,6 +159,14 @@ ChannelCard.propTypes = {
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   username: PropTypes.string,
   variant: PropTypes.oneOf(['default', 'offline', 'live'])
+};
+
+ChannelCard.defaultProps = {
+  avatarSrc: '',
+  bannerSrc: '',
+  color: 'default',
+  username: '',
+  variant: 'default'
 };
 
 export default ChannelCard;

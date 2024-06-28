@@ -7,6 +7,7 @@
     "log_out": "Log out",
     "settings": "Settings",
     "home": "Home",
+    "feed": "Feed",
     "following": "Following",
     "stream_health": "Stream health",
     "stream_manager": "Stream manager",
@@ -31,7 +32,6 @@
     "just_now": "just now"
   },
   "status_bar": {
-    "session_participants": "Session participants",
     "concurrent_views_offline": "Average concurrent views for the entire session",
     "concurrent_views": "Concurrent views",
     "offline": "Offline",
@@ -43,9 +43,5 @@
   "hide": "Hide",
   "show": "Show",
   "page_unavailable": "This page is unavailable",
-  "back_to_directory": "Back to directory",
-  "error_boundary": {
-    "message_L1": "Something went wrong",
-    "message_L2": "try going back or returning to the directory"
-  }
+  "back_to_directory": "Back to directory"
 }

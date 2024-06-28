@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import { clsm } from '../../../../../utils';
 import Switch from '../../../../../components/Switch';
 
-const SwitchGroup = ({
-  icon,
-  isDisabled = false,
-  label = '',
-  onChange,
-  initialChecked = false
-}) => (
+const SwitchGroup = ({ icon, isDisabled, label, onChange, initialChecked }) => (
   <div className={clsm(['flex', 'w-full', 'justify-between'])}>
     <div
       className={clsm([
@@ -37,6 +31,12 @@ const SwitchGroup = ({
     />
   </div>
 );
+
+SwitchGroup.defaultProps = {
+  initialChecked: false,
+  isDisabled: false,
+  label: ''
+};
 
 SwitchGroup.propTypes = {
   icon: PropTypes.node.isRequired,

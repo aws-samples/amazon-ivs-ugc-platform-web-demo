@@ -9,7 +9,7 @@ import { DownArrow } from '../../../../assets/icons';
 
 const $content = $channelContent.chat;
 
-const StickScrollButton = ({ isSticky = true, scrollToBottom }) => (
+const StickScrollButton = ({ isSticky, scrollToBottom }) => (
   <AnimatePresence>
     {!isSticky && (
       <motion.div
@@ -53,6 +53,8 @@ const StickScrollButton = ({ isSticky = true, scrollToBottom }) => (
     )}
   </AnimatePresence>
 );
+
+StickScrollButton.defaultProps = { isSticky: true };
 
 StickScrollButton.propTypes = {
   isSticky: PropTypes.bool,

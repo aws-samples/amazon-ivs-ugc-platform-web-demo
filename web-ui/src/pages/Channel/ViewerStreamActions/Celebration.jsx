@@ -22,11 +22,7 @@ const creatorGradientTransition = {
   type: 'tween'
 };
 
-const Celebration = ({
-  chatContainerDimensions = null,
-  color = 'default',
-  shouldRun = false
-}) => {
+const Celebration = ({ chatContainerDimensions, color, shouldRun }) => {
   const [isIconOpen, setIsIconOpen] = useState(false);
   const [hasBannerEntered, setHasBannerEntered] = useState(false);
   const animationIntervalIdRef = useRef();
@@ -154,6 +150,12 @@ Celebration.propTypes = {
   }),
   color: PropTypes.oneOf([...PROFILE_COLORS, 'default']),
   shouldRun: PropTypes.bool
+};
+
+Celebration.defaultProps = {
+  chatContainerDimensions: null,
+  color: 'default',
+  shouldRun: false
 };
 
 export default Celebration;

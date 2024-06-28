@@ -28,7 +28,7 @@ const BUTTON_TEXT_CLASSES = ['text-black', 'dark:text-white'];
 
 const IconClasses = clsm([
   'dark:fill-white',
-  'dark:fill-white-player',
+  'fill-white-player',
   'h-6',
   'w-6'
 ]);

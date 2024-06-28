@@ -10,7 +10,7 @@ import {
 import { getFollowingChannelArn } from './addToFollowingList';
 import { getUser } from '../helpers';
 import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
-import { UserContext } from '../../shared/authorizer';
+import { UserContext } from '../authorizer';
 
 const handler = async (
   request: FastifyRequest<{

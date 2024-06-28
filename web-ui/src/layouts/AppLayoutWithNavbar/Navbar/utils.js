@@ -1,4 +1,5 @@
 import {
+  // Feed,
   Home,
   Favorite,
   StreamHealth,
@@ -16,6 +17,13 @@ export const navPageData = [
     route: '/',
     isAuth: false
   },
+  // {
+  //   pageName: 'feed',
+  //   displayName: $content.feed,
+  //   icon: <Feed />,
+  //   route: '/feed',
+  //   isAuth: false
+  // },
   {
     pageName: 'following',
     displayName: $content.following,

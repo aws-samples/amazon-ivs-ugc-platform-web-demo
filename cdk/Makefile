@@ -4,16 +4,15 @@ RESET := \033[0m
 
 .PHONY: help app install bootstrap deploy destroy clean
 
-AWS_PROFILE_FLAG		 =	--profile $(AWS_PROFILE)
-STAGE					 ?=	dev
-PUBLISH					 ?=	false
-STACK 					 ?=	UGC-$(STAGE)
-COGNITO_CLEANUP_SCHEDULE ?= rate(48 hours)
-STAGE_CLEANUP_SCHEDULE   ?= rate(24 hours)
-CDK_OPTIONS 			 =	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c cognitoCleanupScheduleExp="$(strip $(COGNITO_CLEANUP_SCHEDULE))" -c stageCleanupScheduleExp="$(strip $(STAGE_CLEANUP_SCHEDULE))"
-FE_DEPLOYMENT_STACK		 =	UGC-Frontend-Deployment-$(STAGE)
-SEED_COUNT 				 ?=	50
-OFFLINE_SESSION_COUNT	 ?=	1
+AWS_PROFILE_FLAG		=	--profile $(AWS_PROFILE)
+STAGE					?=	dev
+PUBLISH					?=	false
+STACK 					?=	UGC-$(STAGE)
+SCHEDULE 				?= 	rate(48 hours)
+CDK_OPTIONS 			=	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c scheduleExp="$(strip $(SCHEDULE))"
+FE_DEPLOYMENT_STACK		=	UGC-Frontend-Deployment-$(STAGE)
+SEED_COUNT 				?=	50
+OFFLINE_SESSION_COUNT	?=	1
 
 help: ## Shows this help message
 	@echo "\n$$(tput bold)Available Rules:$$(tput sgr0)\n"

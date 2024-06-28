@@ -81,15 +81,14 @@ export const Provider = ({ children }) => {
   );
 
   const updateProfilePath = useCallback(
-    (isExpanded, options) => {
+    (isExpanded, options) =>
       navigate(
         generatePath('/:username/:profile', {
           username: channelUsername,
           profile: isExpanded ? 'profile' : ''
         }).replace(/\/$/, ''),
         options
-      );
-    },
+      ),
     [channelUsername, navigate]
   );
 

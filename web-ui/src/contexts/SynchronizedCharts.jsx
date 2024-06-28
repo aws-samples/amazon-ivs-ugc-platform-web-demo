@@ -19,7 +19,7 @@ export const ZOOM_LEVELS = {
 };
 export const MIN_DISTANCE = 6;
 
-export const Provider = ({ children, isLive = false }) => {
+export const Provider = ({ children, isLive }) => {
   const [zoomBounds, setZoomBounds] = useState([0, 0]); // [lowerBound, upperBound]
   const [selectedZoomLevel, setSelectedZoomLevel] = useState(
     isLive ? ZOOM_LEVELS.FIVE_MIN : ZOOM_LEVELS.ALL
@@ -159,5 +159,7 @@ Provider.propTypes = {
   children: PropTypes.node.isRequired,
   isLive: PropTypes.bool
 };
+
+Provider.defaultProps = { isLive: false };
 
 export const useSynchronizedCharts = () => useContextHook(Context);

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
 
-const Hamburger = ({ isOpen = false }) => {
+const Hamburger = ({ isOpen }) => {
   const width = 24;
   const height = 16;
   const unitHeight = 4;
@@ -76,6 +76,8 @@ const Hamburger = ({ isOpen = false }) => {
     </motion.svg>
   );
 };
+
+Hamburger.defaultProps = { isOpen: false };
 
 Hamburger.propTypes = { isOpen: PropTypes.bool };
 

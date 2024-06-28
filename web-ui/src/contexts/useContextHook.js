@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 
-const useContextHook = (Context, strict = true) => {
+const useContextHook = (Context) => {
   const contextValue = useContext(Context);
 
-  if (strict && contextValue === null) {
+  if (contextValue === null) {
     const contextName = Context.displayName;
 
     throw new Error(

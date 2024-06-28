@@ -9,15 +9,15 @@ import InputErrorMessage from '../../../../../../components/Input/InputErrorMess
 import Label from '../../../../../../components/Input/InputLabel';
 
 const StreamManagerActionTextArea = ({
-  cols = '20',
+  cols,
   dataKey,
-  error = '',
-  label = '',
+  error,
+  label,
   name,
   onChange,
-  placeholder = '',
-  rows = '4',
-  value = ''
+  placeholder,
+  rows,
+  value
 }) => {
   const handleOnChange = ({ target }) => {
     onChange({ [dataKey]: target.value });
@@ -51,6 +51,15 @@ const StreamManagerActionTextArea = ({
       <InputErrorMessage error={error} />
     </div>
   );
+};
+
+StreamManagerActionTextArea.defaultProps = {
+  cols: '20',
+  error: '',
+  label: '',
+  placeholder: '',
+  rows: '4',
+  value: ''
 };
 
 StreamManagerActionTextArea.propTypes = {

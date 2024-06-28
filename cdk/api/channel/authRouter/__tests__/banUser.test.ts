@@ -2,6 +2,10 @@ import {
   GetItemCommandOutput,
   UpdateItemCommand
 } from '@aws-sdk/client-dynamodb';
+import {
+  DisconnectUserCommand,
+  SendEventCommand
+} from '@aws-sdk/client-ivschat';
 import { mockClient } from 'aws-sdk-client-mock';
 
 import buildServer from '../../../buildServer';

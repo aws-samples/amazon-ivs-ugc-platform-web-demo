@@ -8,21 +8,14 @@ import {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import { clsm } from '../../utils';
 import { keepWithinViewport } from './utils';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import { useTooltips } from '../../contexts/Tooltips';
 import TooltipPortal from './TooltipPortal';
 import useClickAway from '../../hooks/useClickAway';
-import { clsm } from '../../utils';
 
-const Tooltip = ({
-  children,
-  hasFixedWidth = false,
-  message = '',
-  position = 'below',
-  translate = { x: 0, y: 0 },
-  shouldKeepMinWidth = true
-}) => {
+const Tooltip = ({ children, hasFixedWidth, message, position, translate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [offsets, setOffsets] = useState();
   const { addTooltip, removeTooltip } = useTooltips();
@@ -139,7 +132,7 @@ const Tooltip = ({
             onMouseUp: hideTooltip
           }
         : { onMouseEnter: showTooltip, onMouseLeave: hideTooltip })}
-      className={clsm([shouldKeepMinWidth && ['min-w-0', 'relative']])}
+      className={clsm(['min-w-0', 'relative'])}
       ref={parentRef}
     >
       {children}
@@ -154,13 +147,19 @@ const Tooltip = ({
   );
 };
 
+Tooltip.defaultProps = {
+  position: 'below',
+  hasFixedWidth: false,
+  translate: { x: 0, y: 0 },
+  message: ''
+};
+
 Tooltip.propTypes = {
   children: PropTypes.node.isRequired,
   hasFixedWidth: PropTypes.bool,
   message: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   position: PropTypes.oneOf(['above', 'below', 'right', 'left']),
-  translate: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
-  shouldKeepMinWidth: PropTypes.bool
+  translate: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number })
 };
 
 export default Tooltip;

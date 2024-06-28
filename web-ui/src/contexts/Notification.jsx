@@ -12,8 +12,7 @@ Context.displayName = 'Notification';
 export const NOTIF_TYPES = {
   SUCCESS: 'success',
   ERROR: 'error',
-  INFO: 'info',
-  NEUTRAL: 'neutral'
+  INFO: 'info'
 };
 
 const defaultNotifOptions = {
@@ -82,11 +81,6 @@ export const Provider = ({ children }) => {
     [notify]
   );
 
-  const notifyNeutral = useCallback(
-    (message, options) => notify(message, NOTIF_TYPES.NEUTRAL, options),
-    [notify]
-  );
-
   useEffect(() => {
     if (notif && notif.withTimeout && notif.timeout >= 0) {
       timeoutID.current = setTimeout(dismissNotif, notif.timeout);
@@ -101,10 +95,9 @@ export const Provider = ({ children }) => {
       notif,
       notifyError,
       notifyInfo,
-      notifySuccess,
-      notifyNeutral
+      notifySuccess
     }),
-    [dismissNotif, notif, notifyError, notifySuccess, notifyInfo, notifyNeutral]
+    [dismissNotif, notif, notifyError, notifySuccess, notifyInfo]
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

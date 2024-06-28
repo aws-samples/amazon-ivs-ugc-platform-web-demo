@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "28e40d14-eb4c-4967-a1a2-40d8bddbc61d",
+		"_postman_id": "6d1e7d79-3943-45a0-bb3f-e4ad0e04816f",
 		"name": "UGC",
 		"description": "The UGC backend is divided into three resources:\n\n- Channels\n- Channel\n- Metrics",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -12,6 +12,7 @@
 			"item": [
 				{
 					"name": "Products",
+					"description": "This folder provides operations used to retrieve products from the Product Advertising API",
 					"item": [
 						{
 							"name": "/products",
@@ -19,7 +20,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{apiBaseUrl}}/products/:keyword?page=1&sort=Featured",
+									"raw": "{{apiBaseUrl}}/products/:keyword",
 									"host": [
 										"{{apiBaseUrl}}"
 									],
@@ -48,8 +49,7 @@
 							},
 							"response": []
 						}
-					],
-					"description": "This folder provides operations used to retrieve products from the Product Advertising API"
+					]
 				},
 				{
 					"name": "Chat",
@@ -926,173 +926,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "Stages",
-			"item": [
-				{
-					"name": "/stages/create",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/create",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"create"
-							]
-						},
-						"description": "This endpoint creates a new Amazon IVS Stage."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/:stageId",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/:stageId",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								":stageId"
-							],
-							"variable": [
-								{
-									"key": "stageId"
-								}
-							]
-						},
-						"description": "This endpoint retrieves the requested stage"
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/createParticipantToken/:stageId/:participantType",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/createParticipantToken/:stageId/:participantType",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"createParticipantToken",
-								":stageId",
-								":participantType"
-							],
-							"variable": [
-								{
-									"key": "stageId"
-								}
-							]
-						},
-						"description": "This endpoint creates a new Amazon IVS Stage participant token."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/delete",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/delete",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"delete"
-							]
-						},
-						"description": "This endpoint both deletes an Amazon IVS Stage and updates the user's Channel DynamoDB table."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/createSpectatorToken",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/createSpectatorToken/:stageId",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"createSpectatorToken",
-								":stageId"
-							],
-							"variable": [
-								{
-									"key": "stageId",
-									"value": ""
-								}
-							]
-						},
-						"description": "This unauthenticated endpoint fetches a AWS IVS real-time participant token. The token is for a spectator partipant type that can view a real-time stream on the UGC channel page."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/sendHostDisconnectedMessage",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"stageId\": \"{{stageId}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/sendHostDisconnectedMessage",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"sendHostDisconnectedMessage"
-							]
-						},
-						"description": "This endpoint sends a new message to the SQS delete stage queue. Either a `stageId` or `stageArn` parameters are required in order to send the message.\n\nThe \"deleteStage\" lambda function trigged by the SQS queue will check if the stage \"host\" is in the list of participants. If the \"host\" is not, the lambda function will update the host's DynamoDB channels record `stageId` and `stageArn` fields to null. Once this is done, the IVS stage is deleted."
-					},
-					"response": []
-				},
-				{
-					"name": "/stages/disconnectParticipant",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{apiBaseUrl}}/stages/disconnectParticipant",
-							"host": [
-								"{{apiBaseUrl}}"
-							],
-							"path": [
-								"stages",
-								"disconnectParticipant"
-							]
-						},
-						"description": "This endpoint removes/disconnects a participant from the Amazon IVS Stage."
-					},
-					"response": []
-				}
-			],
-			"description": "This API serves the purpose of creating an Amazon IVS stage and providing the client with a stage id and token to enter the stage."
 		}
 	],
 	"auth": {

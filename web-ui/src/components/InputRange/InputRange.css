@@ -3,9 +3,7 @@
   appearance: none;
   outline: none;
   opacity: 1;
-  transition:
-    opacity 0,
-    0.2s;
+  transition: opacity 0, 0.2s;
   background: linear-gradient(
     to right,
     var(--palette-color-white) 0%,

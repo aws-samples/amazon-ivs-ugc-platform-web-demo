@@ -7,12 +7,7 @@ import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
 import SwitchThumb from '../Switch/SwitchThumb';
 import useStateWithCallback from '../../hooks/useStateWithCallback';
 
-const Switch = ({
-  ariaLabel = '',
-  isDisabled = false,
-  onChange = noop,
-  initialChecked = false
-}) => {
+const Switch = ({ ariaLabel, isDisabled, onChange, initialChecked }) => {
   const [checked, setChecked] = useStateWithCallback(initialChecked);
   const [isFocused, setIsFocused] = useState(false);
   const { isTouchscreenDevice } = useResponsiveDevice();
@@ -129,6 +124,13 @@ const Switch = ({
       components={{ Thumb: SwitchThumb }}
     />
   );
+};
+
+Switch.defaultProps = {
+  ariaLabel: '',
+  initialChecked: false,
+  isDisabled: false,
+  onChange: noop
 };
 
 Switch.propTypes = {

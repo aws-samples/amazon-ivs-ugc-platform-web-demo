@@ -14,14 +14,7 @@ const rangeLight = {
   offset: 'var(--palette-color-gray)'
 };
 
-const InputRange = ({
-  className = '',
-  name = '',
-  value = 100,
-  onChange = noop,
-  max = 100,
-  min = 0
-}) => {
+const InputRange = ({ className, name, value, onChange, max, min }) => {
   const inputRef = useRef(null);
   const prefersColorSchemeDark = useMediaQuery('(prefers-color-scheme: dark)');
 
@@ -80,6 +73,15 @@ InputRange.propTypes = {
   name: PropTypes.string,
   onChange: PropTypes.func,
   value: PropTypes.number
+};
+
+InputRange.defaultProps = {
+  className: '',
+  max: 100,
+  min: 0,
+  name: '',
+  onChange: noop,
+  value: 100
 };
 
 export default InputRange;

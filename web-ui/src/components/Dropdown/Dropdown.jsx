@@ -4,14 +4,7 @@ import { ChevronDown } from '../../assets/icons';
 import { clsm } from '../../utils';
 import Label from '../../components/Input/InputLabel';
 
-const Dropdown = ({
-  id,
-  label = null,
-  selected,
-  options = [],
-  onChange = () => {},
-  placeholder = ''
-}) => (
+const Dropdown = ({ id, label, selected, options, onChange, placeholder }) => (
   <div
     className={clsm([
       '[&>label]:text-black',
@@ -94,6 +87,13 @@ Dropdown.propTypes = {
   ),
   onChange: PropTypes.func,
   placeholder: PropTypes.string
+};
+
+Dropdown.defaultProps = {
+  label: null,
+  options: [],
+  onChange: () => {},
+  placeholder: ''
 };
 
 export default Dropdown;

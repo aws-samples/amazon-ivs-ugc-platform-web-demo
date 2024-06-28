@@ -4,12 +4,7 @@ import { app as $content } from '../../content';
 import { clsm, noop } from '../../utils';
 import { Visibility, VisibilityOff } from '../../assets/icons';
 
-const PasswordPeekButton = ({
-  label = '',
-  inputType = 'password',
-  setInputType = noop,
-  isVisible = false
-}) => {
+const PasswordPeekButton = ({ label, inputType, setInputType, isVisible }) => {
   if (!isVisible) return;
 
   const isPasswordHidden = inputType === 'password';
@@ -59,6 +54,13 @@ const PasswordPeekButton = ({
       )}
     </button>
   );
+};
+
+PasswordPeekButton.defaultProps = {
+  label: '',
+  inputType: 'password',
+  setInputType: noop,
+  isVisible: false
 };
 
 PasswordPeekButton.propTypes = {
