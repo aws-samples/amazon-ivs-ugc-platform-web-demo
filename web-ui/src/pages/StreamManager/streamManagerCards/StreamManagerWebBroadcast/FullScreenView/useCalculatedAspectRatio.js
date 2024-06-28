@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { fitRectIntoContainer } from '../../../../../helpers/webBroadcastHelpers';
 import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import useResize from '../../../../../hooks/useResize';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
+import useResizeObserver from '../../../../../hooks/useResizeObserver';
 
 const useCalculatedAspectRatio = ({
   childRef,
@@ -50,7 +50,8 @@ const useCalculatedAspectRatio = ({
     isAnimated
   ]);
 
-  useResize(animateWidthHeight);
+  useResizeObserver(childRef, animateWidthHeight);
+  useResizeObserver(parentRef, animateWidthHeight);
 
   useEffect(() => {
     if (!isFullScreenViewOpen) return;

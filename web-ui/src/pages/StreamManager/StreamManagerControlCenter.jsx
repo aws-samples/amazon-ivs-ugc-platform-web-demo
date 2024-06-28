@@ -27,7 +27,6 @@ import Tabs from '../../components/Tabs/Tabs';
 import useDevicePermissionChangeListeners from '../../hooks/useDevicePermissionChangeListeners';
 import useHostRejoin from './hooks/useHostRejoin';
 import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
-import { AnimatePresence } from 'framer-motion';
 import usePrompt from '../../hooks/usePrompt';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
 import { useModal } from '../../contexts/Modal';
@@ -360,15 +359,13 @@ const StreamManagerControlCenter = forwardRef(
             </Tabs.Panel>
           )}
         </Tabs>
-        <AnimatePresence>
-          {isFullScreenViewOpen && (
-            <FullScreenView
-              isOpen={isFullScreenViewPortalOpen}
-              parentEl={document.body}
-              dimensions={dimensions}
-            />
-          )}
-        </AnimatePresence>
+        {isFullScreenViewOpen && (
+          <FullScreenView
+            isOpen={isFullScreenViewPortalOpen}
+            parentEl={document.body}
+            dimensions={dimensions}
+          />
+        )}
       </div>
     );
   }

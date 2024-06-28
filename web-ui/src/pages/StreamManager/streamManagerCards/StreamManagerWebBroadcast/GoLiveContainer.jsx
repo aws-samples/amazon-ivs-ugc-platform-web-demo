@@ -22,6 +22,8 @@ import GoLiveStreamButton from './GoLiveStreamButton';
 import StageVideoFeeds from './StageVideoFeeds';
 import useLatest from '../../../../hooks/useLatest';
 import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
+import Spinner from '../../../../components/Spinner';
+import StageJoinVideo from '../StageJoinVideo';
 
 const GoLiveContainer = forwardRef(
   (
@@ -46,7 +48,7 @@ const GoLiveContainer = forwardRef(
       isFullScreenViewOpen,
       collapsedContainerRef: goLiveCollapsedContainerRef
     } = useBroadcastFullScreen();
-    const { isHost } = useGlobalStage();
+    const { isHost, isJoiningStageByRequestOrInvite } = useGlobalStage();
     const shouldAnimateStreamingButton = useLatest(false);
     const shouldShowTooltipMessageRef = useRef();
 
@@ -65,6 +67,36 @@ const GoLiveContainer = forwardRef(
       setIsWebBroadcastAnimating(true);
       shouldShowTooltipMessageRef.current = false;
     };
+
+    let videoPlayer = (
+      <div
+        className={clsm([
+          'flex',
+          'justify-center',
+          'align-center',
+          'aspect-video'
+        ])}
+      >
+        <Spinner variant="light" size="large" />
+      </div>
+    );
+    if (isStageActive && !isFullScreenViewOpen) {
+      videoPlayer = (
+        <div className={clsm(['flex', 'aspect-video'])}>
+          <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.GO_LIVE} />
+        </div>
+      );
+    } else if (isJoiningStageByRequestOrInvite) {
+      videoPlayer = <StageJoinVideo />;
+    } else {
+      videoPlayer = (
+        <canvas
+          ref={previewRef}
+          className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
+          aria-label="Amazon IVS web broadcast video and audio stream"
+        />
+      );
+    }
 
     return (
       <>
@@ -102,17 +134,7 @@ const GoLiveContainer = forwardRef(
               <GoLiveHeader onCollapse={handleOnCollapse} />
             )}
             <div ref={goLiveCollapsedContainerRef} className="relative">
-              {isStageActive && !isFullScreenViewOpen ? (
-                <div className={clsm(['flex', 'aspect-video'])}>
-                  <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.GO_LIVE} />
-                </div>
-              ) : (
-                <canvas
-                  ref={previewRef}
-                  className={clsm(['aspect-video', 'rounded-xl', 'w-full'])}
-                  aria-label="Amazon IVS web broadcast video and audio stream"
-                />
-              )}
+              {videoPlayer}
             </div>
 
             <div

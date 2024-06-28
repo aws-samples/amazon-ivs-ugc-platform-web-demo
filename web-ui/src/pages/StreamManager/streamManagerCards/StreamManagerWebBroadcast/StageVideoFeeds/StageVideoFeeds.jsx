@@ -49,7 +49,8 @@ const StageVideoFeeds = ({ styles = '', type }) => {
     pathname === '/manager' &&
     !isChannelType &&
     !isRequestedUserType &&
-    videoAudioParticipantsLength <= 1;
+    videoAudioParticipantsLength <= 1 &&
+    isFullScreenViewOpen;
 
   let gridItemCountClasses;
   if (videoAudioParticipantsLength > 2 || isChannelType) {
@@ -70,9 +71,10 @@ const StageVideoFeeds = ({ styles = '', type }) => {
     visibleOverflowAvatars
   } = useScreenshareRow({
     participantList,
-    containerRef: stageVideoFeedsRef,
+    containerRef,
     videoAudioParticipants,
-    containerMinHeightPX
+    containerMinHeightPX,
+    isInviteParticipantCardVisible
   });
 
   return (

@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getAvatarSrc } from '../../../helpers';
-import useDebouncedCallback from '../../../hooks/useDebouncedCallback';
 import usePrevious from '../../../hooks/usePrevious';
-import useResize from '../../../hooks/useResize';
 import { PARTICIPANT_TYPE_SCREENSHARE } from '../../../constants';
+import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const useScreenshareRow = ({
   containerMinHeightPX = 0,
   containerRef,
   participantList,
-  videoAudioParticipants = []
+  videoAudioParticipants = [],
+  isInviteParticipantCardVisible
 }) => {
   const screenshareParticipants = participantList.filter(
     (participant) =>
@@ -21,9 +21,10 @@ const useScreenshareRow = ({
   const prevVAParticipantLength = usePrevious(videoAudioParticipantsLength);
   const [maxColumnCount, setMaxColumnCount] = useState(0);
   const [overflowAvatars, setOverflowAvatars] = useState([]);
+  const minRows = isInviteParticipantCardVisible ? 2 : 1;
   const screenshareParticipantColCount =
     maxColumnCount > videoAudioParticipantsLength
-      ? Math.max(2, videoAudioParticipantsLength)
+      ? Math.max(minRows, videoAudioParticipantsLength)
       : maxColumnCount;
   const visibleOverflowAvatars = overflowAvatars.slice(0, 2);
   const isOverflowCardVisible = isScreenshareVisible
@@ -49,6 +50,7 @@ const useScreenshareRow = ({
       const videoHeight = vpHeight * 0.2;
       const videoWidth = videoHeight * cardAspectRatio;
       const maxColumnCount = Math.max(2, Math.floor(vpWidth / videoWidth));
+
       setMaxColumnCount(maxColumnCount);
     } else {
       requestAnimationFrame(updateMaxColumnCount);
@@ -82,9 +84,7 @@ const useScreenshareRow = ({
     screenshareParticipantColCount
   ]);
 
-  useResize(
-    useDebouncedCallback(updateMaxColumnCount, 250, { immediate: false })
-  );
+  useResizeObserver(containerRef, updateMaxColumnCount);
 
   return {
     hiddenOverflowAvatarsLength,
