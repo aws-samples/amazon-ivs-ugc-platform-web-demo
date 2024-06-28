@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { clsm } from '../../utils';
 
-const InputDescription = ({ isVisible, description }) => {
+const InputDescription = ({ isVisible = false, description }) => {
   if (!isVisible) return;
 
   return (
@@ -9,10 +9,6 @@ const InputDescription = ({ isVisible, description }) => {
       <p className="text-p3">{description}</p>
     </span>
   );
-};
-
-InputDescription.defaultProps = {
-  isVisible: false
 };
 
 InputDescription.propTypes = {

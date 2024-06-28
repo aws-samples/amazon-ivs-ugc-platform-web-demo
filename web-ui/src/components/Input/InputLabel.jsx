@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { clsm } from '../../utils';
 
-const InputLabel = ({ label, htmlFor, variant }) => {
+const InputLabel = ({ label, htmlFor = undefined, variant = 'vertical' }) => {
   if (!label) return;
 
   return (
@@ -15,11 +15,6 @@ const InputLabel = ({ label, htmlFor, variant }) => {
       {label}
     </label>
   );
-};
-
-InputLabel.defaultProps = {
-  htmlFor: undefined,
-  variant: 'vertical'
 };
 
 InputLabel.propTypes = {

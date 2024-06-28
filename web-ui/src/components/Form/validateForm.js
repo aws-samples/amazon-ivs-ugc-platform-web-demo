@@ -18,7 +18,7 @@ const validateUsernameLength = (username) => {
 
 const validatePasswordStrength = (password) => {
   const regex =
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\^$*.[\]{}()?\-"!@#%&/,><':;|_~`])/;
+    /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\^$*.[\]{}()?\-+"!@#%&/,><':;|_~`])/;
   return !!password && regex.test(password);
 };
 

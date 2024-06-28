@@ -51,10 +51,12 @@ export const Provider = ({ children }) => {
   } = useStreamSessions({ isRevalidationEnabled: isDashboardPage });
 
   const isLive = useMemo(
-    () => streamSessions?.some(({ isLive }) => isLive) || false,
+    () =>
+      streamSessions
+        ? streamSessions.some(({ isLive }) => isLive)
+        : false || undefined,
     [streamSessions]
   );
-
   /**
    * ACTIVE STREAM SESSION DATA
    */

@@ -5,20 +5,31 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
 import { createAnimationProps } from '../../helpers/animationPropsHelper';
-import { useModal } from '../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../contexts/Modal';
 import useClickAway from '../../hooks/useClickAway';
 import useFocusTrap from '../../hooks/useFocusTrap';
 import usePrevious from '../../hooks/usePrevious';
 import withPortal from '../withPortal';
 
-const Modal = ({ children, className }) => {
-  const { closeModal } = useModal();
+const Modal = ({ children, className = '', onClickAway = null }) => {
+  const { closeModal, type } = useModal();
   const { pathname } = useLocation();
   const modalRef = useRef();
   const prevPathname = usePrevious(pathname);
+  const clickAwayEnabled = type !== MODAL_TYPE.STAGE_JOIN;
 
   useFocusTrap([modalRef]);
-  useClickAway([modalRef], () => closeModal({ shouldRefocus: false }));
+  useClickAway(
+    [modalRef],
+    () => {
+      if (onClickAway) {
+        onClickAway();
+      } else {
+        closeModal({ shouldRefocus: false });
+      }
+    },
+    clickAwayEnabled
+  );
 
   // Close the modal on page change
   useEffect(() => {
@@ -50,11 +61,10 @@ const Modal = ({ children, className }) => {
   );
 };
 
-Modal.defaultProps = { className: '' };
-
 Modal.propTypes = {
   children: PropTypes.node.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  onClickAway: PropTypes.func
 };
 
 export default withPortal(Modal, 'modal', {

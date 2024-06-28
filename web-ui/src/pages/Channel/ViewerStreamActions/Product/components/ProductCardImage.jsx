@@ -8,7 +8,13 @@ import {
 } from '../ProductTheme';
 import { clsm } from '../../../../../utils';
 
-const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => {
+const ProductCardImage = ({
+  imageUrl,
+  title,
+  price,
+  color = 'default',
+  customClasses = ''
+}) => {
   const imgRef = useRef();
 
   const onErrorHandler = () => {
@@ -61,11 +67,6 @@ const ProductCardImage = ({ imageUrl, title, price, color, customClasses }) => {
       )}
     </div>
   );
-};
-
-ProductCardImage.defaultProps = {
-  customClasses: '',
-  color: 'default'
 };
 
 ProductCardImage.propTypes = {

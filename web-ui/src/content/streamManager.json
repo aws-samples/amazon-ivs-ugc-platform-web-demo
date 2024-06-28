@@ -45,6 +45,63 @@
       }
     }
   },
+  "stream_manager_stage": {
+    "screenshare": "'s screenshare",
+    "join_now": "Join now",
+    "participants": "Participants",
+    "requests": "Requests",
+    "collaborate": "Collaborate",
+    "leave_session": "Leave session",
+    "end_session": "End session",
+    "copy_session_link": "Copy session link",
+    "copy_link": "Copy link",
+    "invite_participant": "Invite participant",
+    "remove_participant": "Remove",
+    "remove_participant_confirmation_text": "Are you sure you want to remove USERNAME from the session?",
+    "notifications": {
+      "neutral": {
+        "the_session_ended": "The session ended",
+        "joining_session": "Joining session..."
+      },
+      "success": {
+        "you_have_left_the_session": "You have left the session",
+        "session_link_has_been_copied_to_clipboard": "Session link has been copied to clipboard",
+        "user_has_joined_the_session": "USERNAME has joined the session"
+      },
+      "error": {
+        "failed_to_remove_participant": "Failed to remove participant",
+        "you_have_been_removed_from_session": "You have been removed from the session",
+        "unable_to_create_session": "Unable to create session",
+        "unable_to_start_screenshare": "Unable to start screenshare",
+        "unable_to_join_session": "Unable to join session",
+        "unable_to_leave_session": "Unable to leave session",
+        "permissions_denied": "You must allow access to both your camera and microphone",
+        "your_screen_share_has_been_removed": "Your screen share has been removed"
+      }
+    },
+    "leave_stage_modal": {
+      "exit_stage_session": "Are you sure you want to exit the session?",
+      "exit_stage_session_host": "Leave and end session for everyone?",
+      "confirm_exit": "Leave",
+      "leave_page": "Leave page",
+      "confirm_leave_page_L1": "Are you sure you want to leave this page?",
+      "confirm_leave_page_L2": "You will also leave this session."
+    },
+    "participants_modal": {
+      "you": "(You)",
+      "remove_from_session": "Remove from session",
+      "remove_screen_share": "Are you sure you want to remove USERNAME (Screen share) from the session?",
+      "remove_participant": "Remove participant",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "just_now": "Just now",
+      "min_ago": "min ago",
+      "hr_ago": "hr ago"
+    },
+    "join_modal": {
+      "ready_to_join": "Ready to join?"
+    }
+  },
   "stream_manager_actions": {
     "unit_seconds": "s",
     "save": "Save",

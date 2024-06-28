@@ -19,14 +19,14 @@ import ProgressBar from './ProgressBar';
 const defaultQuizAnswerHeight = 42;
 
 const QuizCard = ({
-  answers,
-  color,
-  correctAnswerIndex,
-  duration,
+  answers = [],
+  color = 'default',
+  correctAnswerIndex = 0,
+  duration = 10,
   question,
   setCurrentViewerAction,
-  shouldRenderActionInTab,
-  shouldShowStream,
+  shouldRenderActionInTab = false,
+  shouldShowStream = false,
   startTime
 }) => {
   const [answerHeight, setAnswerHeight] = useState(defaultQuizAnswerHeight);
@@ -172,15 +172,6 @@ const QuizCard = ({
       </motion.div>
     </div>
   );
-};
-
-QuizCard.defaultProps = {
-  answers: [],
-  color: 'default',
-  correctAnswerIndex: 0,
-  duration: 10,
-  shouldRenderActionInTab: false,
-  shouldShowStream: false
 };
 
 QuizCard.propTypes = {

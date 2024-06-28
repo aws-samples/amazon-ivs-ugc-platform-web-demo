@@ -7,7 +7,12 @@
     "react-hooks/exhaustive-deps": "error",
     "react/no-unused-prop-types": "error",
     "react/prop-types": "error",
-    "react/require-default-props": "error",
+    "react/require-default-props": [
+      2,
+      {
+        "functions": "defaultArguments"
+      }
+    ],
     "require-await": "error"
   }
 }

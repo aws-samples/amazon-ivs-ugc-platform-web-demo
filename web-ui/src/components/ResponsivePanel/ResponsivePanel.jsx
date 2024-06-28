@@ -8,24 +8,29 @@ import MobilePanel from './MobilePanel';
 
 const ResponsivePanel = ({
   children,
-  containerClasses,
-  isOpen,
-  mobileBreakpoint,
+  containerClasses = '',
+  isOpen = false,
+  mobileBreakpoint = BREAKPOINTS.md,
   panelId,
-  preserveVisible,
-  slideInDirection
+  preserveVisible = false,
+  slideInDirection = 'right',
+  shouldSetVisible = true
 }) => {
   const { currentBreakpoint } = useResponsiveDevice();
   const isResponsiveView = currentBreakpoint < mobileBreakpoint;
   const controls = useAnimation();
 
   useEffect(() => {
+    if (!shouldSetVisible) return;
+
     if (isOpen) controls.start('visible');
-  }, [controls, isOpen]);
+  }, [controls, isOpen, shouldSetVisible]);
 
   useEffect(() => {
+    if (!shouldSetVisible) return;
+
     if (preserveVisible && isOpen) controls.set('visible');
-  }, [controls, isOpen, preserveVisible, isResponsiveView]);
+  }, [controls, isOpen, preserveVisible, isResponsiveView, shouldSetVisible]);
 
   return (
     <AnimatePresence>
@@ -37,6 +42,7 @@ const ResponsivePanel = ({
             isOpen
             panelId={panelId}
             slideInDirection={slideInDirection}
+            shouldAnimateIn={shouldSetVisible}
           >
             {children}
           </MobilePanel>
@@ -47,18 +53,11 @@ const ResponsivePanel = ({
   );
 };
 
-ResponsivePanel.defaultProps = {
-  containerClasses: '',
-  isOpen: false,
-  mobileBreakpoint: BREAKPOINTS.md,
-  preserveVisible: false,
-  slideInDirection: 'right'
-};
-
 ResponsivePanel.propTypes = {
   children: PropTypes.node.isRequired,
   containerClasses: PropTypes.string,
   isOpen: PropTypes.bool,
+  shouldSetVisible: PropTypes.bool,
   mobileBreakpoint: PropTypes.oneOf(Object.values(BREAKPOINTS)),
   panelId: PropTypes.string.isRequired,
   preserveVisible: PropTypes.bool,

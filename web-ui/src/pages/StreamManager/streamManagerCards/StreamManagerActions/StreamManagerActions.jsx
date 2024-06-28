@@ -42,7 +42,7 @@ export const STREAM_MANAGER_ACTION_MODAL_FORMS = {
   )
 };
 
-const StreamManagerActions = ({ className }) => {
+const StreamManagerActions = ({ className = '' }) => {
   const { openStreamManagerActionModal, sendStreamAction } =
     useStreamManagerActions();
   const streamManagerActionButtonRefsMap = useRef(new Map());
@@ -138,10 +138,6 @@ const StreamManagerActions = ({ className }) => {
       })}
     </section>
   );
-};
-
-StreamManagerActions.defaultProps = {
-  className: ''
 };
 
 StreamManagerActions.propTypes = {

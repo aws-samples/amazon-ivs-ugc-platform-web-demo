@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import { clsm } from '../../utils';
 
-const NoImageSrcIcon = ({ shape, className }) => (
+const NoImageSrcIcon = ({ shape = 'round', className = '' }) => (
   <div
     className={clsm([
       'before:absolute',
@@ -28,7 +28,5 @@ NoImageSrcIcon.propTypes = {
   ]),
   shape: PropTypes.oneOf(['round', '16/9'])
 };
-
-NoImageSrcIcon.defaultProps = { className: '', shape: 'round' };
 
 export default NoImageSrcIcon;

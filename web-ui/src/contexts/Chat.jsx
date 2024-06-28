@@ -47,6 +47,7 @@ const {
 const $content = $channelContent.chat;
 
 const { INFO: info, DEBUG: debug } = CHAT_LOG_LEVELS;
+const isDebug = false;
 
 const Context = createContext(null);
 Context.displayName = 'Chat';
@@ -138,7 +139,7 @@ export const Provider = ({ children }) => {
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned = false } =
     channelData || {};
-  const { notifyError, dismissNotif } = useNotif();
+  const { notifyError } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
 
@@ -184,7 +185,8 @@ export const Provider = ({ children }) => {
     saveVotesToLocalStorage,
     savePollDataToLocalStorage,
     dispatchPollState,
-    endPollAndResetPollProps
+    endPollAndResetPollProps,
+    pollCreatorId
   } = usePoll();
   const { pathname } = useLocation();
 
@@ -234,7 +236,8 @@ export const Provider = ({ children }) => {
         question: JSON.stringify(question),
         expiry: JSON.stringify(expiry),
         startTime: JSON.stringify(startTime),
-        voters: JSON.stringify(savedPollData?.voters || {})
+        voters: JSON.stringify(savedPollData?.voters || {}),
+        pollCreatorId: JSON.stringify(pollCreatorId)
       });
     }
   }, [
@@ -244,6 +247,7 @@ export const Provider = ({ children }) => {
     isActive,
     isModerator,
     noVotesCaptured,
+    pollCreatorId,
     question,
     savedPollData?.voters,
     showFinalResults,
@@ -379,7 +383,8 @@ export const Provider = ({ children }) => {
       }
     });
 
-    room.logLevel = process.env.REACT_APP_STAGE === 'prod' ? info : debug;
+    room.logLevel =
+      process.env.REACT_APP_STAGE === 'prod' ? info : isDebug && debug;
     room.connect();
     setRoom(room);
     connection.current = room;
@@ -402,7 +407,6 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnConnect = room.addListener('connect', () => {
       updateUserRole();
-      dismissNotif();
     });
 
     const unsubscribeOnDisconnect = room.addListener('disconnect', () => {
@@ -454,7 +458,8 @@ export const Provider = ({ children }) => {
             isActive: true,
             expiry: JSON.parse(message.attributes.expiry),
             startTime: JSON.parse(message.attributes.startTime),
-            delay
+            delay,
+            pollCreatorId: JSON.parse(message.attributes.pollCreatorId)
           });
 
           const votersList = JSON.parse(message.attributes.voters);
@@ -499,7 +504,8 @@ export const Provider = ({ children }) => {
             question,
             expiry,
             startTime,
-            delay: del = 0
+            delay: del = 0,
+            pollCreatorId
           } = JSON.parse(pollStreamActionData);
 
           if (isModerator && isStreamManagerPage) {
@@ -511,11 +517,13 @@ export const Provider = ({ children }) => {
               votes: options,
               voters: {},
               isActive: true,
-              name: STREAM_ACTION_NAME.POLL
+              name: STREAM_ACTION_NAME.POLL,
+              pollCreatorId
             });
           }
 
           updatePollData({
+            pollCreatorId,
             duration,
             question,
             votes: options,
@@ -558,7 +566,6 @@ export const Provider = ({ children }) => {
     addMessage,
     room,
     updateUserRole,
-    dismissNotif,
     handleDeleteMessage,
     handleUserDisconnect,
     userData,

@@ -5,11 +5,11 @@ import { clsm } from '../utils';
 import { PROFILE_COLORS } from '../constants';
 
 const UserAvatar = ({
-  avatarSrc,
-  className,
-  profileColor,
-  size,
-  isOffline
+  avatarSrc = '',
+  className = '',
+  profileColor = 'default',
+  size = 'lg',
+  isOffline = false
 }) => {
   const [hasAvatarError, setHasAvatarError] = useState(false);
   const onError = useCallback(() => {
@@ -48,14 +48,6 @@ const UserAvatar = ({
   ) : (
     <div className={avatarClassNames} />
   );
-};
-
-UserAvatar.defaultProps = {
-  avatarSrc: '',
-  className: '',
-  isOffline: false,
-  profileColor: 'default',
-  size: 'lg'
 };
 
 UserAvatar.propTypes = {

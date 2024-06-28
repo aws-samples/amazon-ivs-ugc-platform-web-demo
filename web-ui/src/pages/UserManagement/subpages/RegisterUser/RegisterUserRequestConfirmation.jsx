@@ -12,9 +12,8 @@ const RegisterUserRequestConfirmation = ({ username }) => {
   const { notifySuccess, notifyError } = useNotif();
 
   const resend = async () => {
-    const { result, error } = await channelAPI.resendVerificationRequest(
-      username
-    );
+    const { result, error } =
+      await channelAPI.resendVerificationRequest(username);
 
     if (result) {
       notifySuccess($content.notification.success.resent_confirmation);

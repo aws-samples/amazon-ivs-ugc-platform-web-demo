@@ -34,7 +34,7 @@ The outcome of the seed command above is 50 new channels and streams, 20 of thes
 make seed JSON=./seed.example.json
 ```
 
-**\*NOTE:** Please refer to the [seed.example.json file](./seed.example.json) so that you may create data that the DynamoDB client can use. Incorrect JSON data will lead to errors when seeding.\*
+***NOTE:** Please refer to the [seed.example.json file](./seed.example.json) so that you may create data that the DynamoDB client can use. Incorrect JSON data will lead to errors when seeding.*
 
 All the environment variables can be used together to generate mock data that suites your needs:
 
@@ -82,3 +82,49 @@ When the postStreamEvents function receives an event with a `session created` ev
 When a `session ended` event is received, the corresponding stream record is grabbed and updated by removing the `isOpen` attribute.
 
 You can find the Stream events API code in the `/streamEventsApi` folder.
+
+## Scheduled resource cleanup AWS Lambdas
+
+The scheduled resource cleanup lambdas are created when the stack is deployed. No additional steps are necessary to set up and trigger these functions. The lambda functions exist in the `cdk/lambdas` folder. The schedule can be customized in the `cdk/Makefile`. AWS Lambda supports standard rate and cron expressions for frequencies of up to once per minute. Read more about [schedule expressions using rate or cron](https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents-expressions.html).
+
+### Amazon IVS idle stages cleanup
+
+The cleanup lambda function follows these steps:
+1. It retrieves a list of all stages
+2. The `getIdleStageArn` helper function is employed to filter out idle stages that have been in existence for at least 1 hour
+3. Subsequently, the filtered idle stages are deleted.
+
+### Amazon Cognito unverified users cleanup
+
+The cleanup lambda function follows these steps:
+1. It retrieves a list of users with a `UNCONFIRMED` status
+2. Within the unconfirmed users, we filter for users that have existed for at least 24 hours
+3. Finally, the filtered unverified and expired users are deleted both from the Cognito user pool and AWS DynamoDB channels table.
+
+
+## Amazon IVS Real-time host disconnect event handler
+
+Amazon IVS host disconnect event cleanup is designed to delete active stages for which hosts have been disconnected from the session for at least 3 minutes. Upon a host's disconnection from a stage, the responsible endpoint follows these steps:
+1. Extracts the host's channel ID from the request body, accommodating both object and JSON string formats
+2. It retrieves the corresponding host details, including the stage and session, and formats them into a message body
+3. This structured data is sent to an Amazon SQS queue for additional processing. It's important to highlight that the message comes with a 3-minute delay, allowing the host sufficient time to rejoin if they choose to
+4. After 3-minute wait time, SQS triggers deleteStage lambda function.
+
+### Amazon IVS Real-time host disconnect event cleanup triggers
+
+This flow is triggered by:
+1. Beacon API [Beacon API documention](https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API)
+2. Stage participantConnectionChangedEvent event [STAGE_CONNECTION_STATE_CHANGED](https://aws.github.io/amazon-ivs-web-broadcast/docs/sdk-reference/enums/StageEvents#stage_connection_state_changed)
+3. EventBridge
+4. SQS [Amazon FIFO SQS](#amazon-fifo-sqs)
+
+### Amazon IVS real-time host disconnect event lamnda cleanup
+
+The cleanup lambda function follows these steps:
+1. Lambda receives a message from the SQS queue
+2. Checks if the host is present in the stage for potential reconnection
+3. If the host is not detected in the stage, deletes the stage
+4. Updates the channel table to reflect changes such as the removal/nullification of the stageId and stageCreationDate fields.
+
+### Amazon FIFO SQS
+A FIFO queue using content body for message deduplication and a 3-minute delayed delivery, allowing the host sufficient time to rejoin if they choose to.
