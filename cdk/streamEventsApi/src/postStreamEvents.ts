@@ -88,9 +88,11 @@ const handler = async (
       streamEvents.sort(
         ({ eventTime: eventTime1 }, { eventTime: eventTime2 }) => {
           /* istanbul ignore else */
-          if (eventTime1 && eventTime2) {
+          if (eventTime1 === eventTime2) {
+            return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+          } else {
             return eventTime1 > eventTime2 ? 1 : -1; // Ascending order
-          } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+          }
         }
       ) || [];
     const latestStreamHealthChangeEvent = sortedStreamEvents
