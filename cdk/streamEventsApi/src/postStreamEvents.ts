@@ -1,5 +1,5 @@
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { UpdateItemCommandOutput } from '@aws-sdk/client-dynamodb';
+import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
@@ -12,6 +12,7 @@ import {
 } from './constants';
 import {
   AdditionalStreamAttributes,
+  dynamoDbClient,
   getStreamEvents,
   getStreamsByChannelArn,
   StreamEvent,
@@ -107,26 +108,30 @@ const handler = async (
 
     if (eventName === SESSION_CREATED) {
       // Older stream sessions that have isOpen set to true will have isOpen attribute removed
-      const { Items: streamSessions = [] } = await getStreamsByChannelArn(
-        channelArn
+      const { Items: liveStreamSessions = [] } = await dynamoDbClient.send(
+        new QueryCommand({
+          TableName: process.env.STREAM_TABLE_NAME,
+          IndexName: 'isOpenIndex',
+          ExpressionAttributeValues: {
+            ':userChannelArn': convertToAttr(channelArn)
+          },
+          KeyConditionExpression: 'channelArn=:userChannelArn',
+          ProjectionExpression: 'id'
+        })
       );
-
-      const updateStreamSessionToOfflinePromises: Promise<
-        UpdateItemCommandOutput | undefined
-      >[] = [];
-      streamSessions.forEach((streamSession) => {
-        const unmarshalledStreamSession = unmarshall(streamSession);
-        if (unmarshalledStreamSession.id !== streamId) {
-          updateStreamSessionToOfflinePromises.push(
-            updateStreamSessionToOffline({
-              channelArn,
-              streamId: unmarshalledStreamSession.id
-            })
-          );
+      const updateLiveStreamsPromises = liveStreamSessions.map(
+        (liveStreamSession) => {
+          const { id } = unmarshall(liveStreamSession);
+          return updateStreamSessionToOffline({ channelArn, streamId: id });
         }
+      );
+      const updateLiveStreamsResults = await Promise.allSettled(
+        updateLiveStreamsPromises
+      );
+      updateLiveStreamsResults.forEach((result) => {
+        if (result.status === 'rejected')
+          console.error('Failed to update stream session:', result.reason);
       });
-
-      await Promise.all(updateStreamSessionToOfflinePromises);
 
       additionalAttributes.startTime = eventTime;
 
