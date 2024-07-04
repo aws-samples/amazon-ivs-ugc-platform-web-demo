@@ -7,6 +7,7 @@ import {
   SESSION_CREATED,
   SESSION_ENDED,
   STARVATION_START,
+  STREAM_END,
   STREAM_HEALTH_CHANGE_EVENT_TYPE,
   UNEXPECTED_EXCEPTION
 } from './constants';
@@ -137,7 +138,11 @@ const handler = async (
 
       if (
         // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED event
-        !streamEvents.find((streamEvent) => streamEvent.name === SESSION_ENDED)
+        !streamEvents.find(
+          (streamEvent) =>
+            streamEvent.name === SESSION_ENDED ||
+            streamEvent.name === STREAM_END
+        )
       ) {
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
