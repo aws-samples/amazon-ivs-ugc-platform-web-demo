@@ -11,7 +11,6 @@ import {
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
-  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
