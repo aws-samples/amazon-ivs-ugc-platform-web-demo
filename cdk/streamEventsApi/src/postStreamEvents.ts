@@ -1,5 +1,4 @@
-import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
-import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
@@ -13,12 +12,11 @@ import {
 } from './constants';
 import {
   AdditionalStreamAttributes,
-  dynamoDbClient,
   getStreamEvents,
   getStreamsByChannelArn,
+  setOldLiveStreamsOffline,
   StreamEvent,
-  updateStreamEvents,
-  updateStreamSessionToOffline
+  updateStreamEvents
 } from './helpers';
 import { getUserByChannelArn } from './helpers';
 
@@ -108,38 +106,8 @@ const handler = async (
       latestStreamHealthChangeEvent?.name !== STARVATION_START;
 
     if (eventName === SESSION_CREATED) {
-      try {
-        // Older stream sessions that have isOpen set to true will have isOpen attribute removed
-        const { Items: liveStreamSessions = [] } = await dynamoDbClient.send(
-          new QueryCommand({
-            TableName: process.env.STREAM_TABLE_NAME,
-            IndexName: 'isOpenIndex',
-            ExpressionAttributeValues: {
-              ':userChannelArn': convertToAttr(channelArn)
-            },
-            KeyConditionExpression: 'channelArn=:userChannelArn',
-            ProjectionExpression: 'id'
-          })
-        );
-        const updateLiveStreamsPromises = liveStreamSessions.map(
-          (liveStreamSession) => {
-            const { id } = unmarshall(liveStreamSession);
-            return updateStreamSessionToOffline({ channelArn, streamId: id });
-          }
-        );
-        const updateLiveStreamsResults = await Promise.allSettled(
-          updateLiveStreamsPromises
-        );
-        updateLiveStreamsResults.forEach((result) => {
-          if (result.status === 'rejected')
-            console.error('Failed to update stream session:', result.reason);
-        });
-      } catch (error) {
-        console.error(
-          'Error occurred while updating old live stream sessions:',
-          error
-        );
-      }
+      // Older stream sessions with isOpen set to true will have the isOpen attribute removed
+      await setOldLiveStreamsOffline(channelArn);
 
       additionalAttributes.startTime = eventTime;
 
