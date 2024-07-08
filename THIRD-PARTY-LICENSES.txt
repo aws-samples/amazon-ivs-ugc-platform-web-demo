@@ -19,6 +19,7 @@ The Amazon IVS UGC Web Demo includes the following third-party software/licensin
 * web-ui/src/assets/icons/expand-screen.svg
 * web-ui/src/assets/icons/fact-check.svg
 * web-ui/src/assets/icons/favorite.svg
+* web-ui/src/assets/icons/feed.svg
 * web-ui/src/assets/icons/fullscreen-exit.svg
 * web-ui/src/assets/icons/fullscreen.svg
 * web-ui/src/assets/icons/home.svg

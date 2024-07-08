@@ -330,7 +330,7 @@ To set your Product Advertising API credentials you must:
 
 After deployment, through [Amazon OneLink](https://affiliate-program.amazon.com/resource-center/onelink-launch), you can best earn money via product affiliate links by redirecting international traffic to the appropriate Amazon store for their location, increasing the likelihood that they will make a purchase. To get started:
 
-1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://associates.amazon.ca/). If you're not already signed up, go to the Amazon Associates website and create an account.
+1. Sign up for Amazon Associates: To use Amazon OneLink, you need to be an [Amazon Associate](https://affiliate-program.amazon.com/). If you're not already signed up, go to the Amazon Associates website and create an account.
 
 2. Enable OneLink: Once you've signed up for Amazon Associates, navigate to the 'Manage Tracking IDs' section located at the top right-hand corner
    of the Amazon Associates portal.

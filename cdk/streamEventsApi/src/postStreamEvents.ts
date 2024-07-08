@@ -38,6 +38,14 @@ const handler = async (
       time: eventTime,
       resources
     } = request.body;
+
+    // Ignore "AWS API Call via CloudTrail" events
+    if (eventType === 'AWS API Call via CloudTrail') {
+      return;
+    }
+
+    console.info('Incoming Event', JSON.stringify(request.body));
+
     let {
       detail: { stream_id: streamId = '' }
     } = request.body;
