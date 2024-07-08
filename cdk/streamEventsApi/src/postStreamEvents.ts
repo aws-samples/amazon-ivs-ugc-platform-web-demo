@@ -108,42 +108,54 @@ const handler = async (
       latestStreamHealthChangeEvent?.name !== STARVATION_START;
 
     if (eventName === SESSION_CREATED) {
-      // Older stream sessions that have isOpen set to true will have isOpen attribute removed
-      const { Items: liveStreamSessions = [] } = await dynamoDbClient.send(
-        new QueryCommand({
-          TableName: process.env.STREAM_TABLE_NAME,
-          IndexName: 'isOpenIndex',
-          ExpressionAttributeValues: {
-            ':userChannelArn': convertToAttr(channelArn)
-          },
-          KeyConditionExpression: 'channelArn=:userChannelArn',
-          ProjectionExpression: 'id'
-        })
-      );
-      const updateLiveStreamsPromises = liveStreamSessions.map(
-        (liveStreamSession) => {
-          const { id } = unmarshall(liveStreamSession);
-          return updateStreamSessionToOffline({ channelArn, streamId: id });
-        }
-      );
-      const updateLiveStreamsResults = await Promise.allSettled(
-        updateLiveStreamsPromises
-      );
-      updateLiveStreamsResults.forEach((result) => {
-        if (result.status === 'rejected')
-          console.error('Failed to update stream session:', result.reason);
-      });
+      try {
+        // Older stream sessions that have isOpen set to true will have isOpen attribute removed
+        const { Items: liveStreamSessions = [] } = await dynamoDbClient.send(
+          new QueryCommand({
+            TableName: process.env.STREAM_TABLE_NAME,
+            IndexName: 'isOpenIndex',
+            ExpressionAttributeValues: {
+              ':userChannelArn': convertToAttr(channelArn)
+            },
+            KeyConditionExpression: 'channelArn=:userChannelArn',
+            ProjectionExpression: 'id'
+          })
+        );
+        const updateLiveStreamsPromises = liveStreamSessions.map(
+          (liveStreamSession) => {
+            const { id } = unmarshall(liveStreamSession);
+            return updateStreamSessionToOffline({ channelArn, streamId: id });
+          }
+        );
+        const updateLiveStreamsResults = await Promise.allSettled(
+          updateLiveStreamsPromises
+        );
+        updateLiveStreamsResults.forEach((result) => {
+          if (result.status === 'rejected')
+            console.error('Failed to update stream session:', result.reason);
+        });
+      } catch (error) {
+        console.error(
+          'Error occurred while updating old live stream sessions:',
+          error
+        );
+      }
 
       additionalAttributes.startTime = eventTime;
 
+      // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED or STREAM_END event
       if (
-        // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED event
-        !streamEvents.find(
+        streamEvents.some(
           (streamEvent) =>
             streamEvent.name === SESSION_ENDED ||
             streamEvent.name === STREAM_END
         )
       ) {
+        console.log(
+          'Session not set to live: a SESSION_ENDED or STREAM_END event was already detected. Stream ID: ',
+          streamId
+        );
+      } else {
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
       }
