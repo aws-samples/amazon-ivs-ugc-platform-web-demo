@@ -82,7 +82,8 @@ export class MetricsStack extends NestedStack {
       effect: iam.Effect.ALLOW,
       resources: [
         streamTable.tableArn,
-        `${streamTable.tableArn}/index/startTimeIndex`
+        `${streamTable.tableArn}/index/startTimeIndex`,
+        `${streamTable.tableArn}/index/isOpenIndex`
       ]
     });
     const metricsCloudWatchPolicyStatement = new iam.PolicyStatement({

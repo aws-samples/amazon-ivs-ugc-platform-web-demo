@@ -60,7 +60,7 @@ const handler = async (
     } = await handleCreateStageParams({
       userSub: sub,
       participantType,
-    isHostInStage
+      isHostInStage
     });
 
     const stageArn = buildStageArn(stageId);
