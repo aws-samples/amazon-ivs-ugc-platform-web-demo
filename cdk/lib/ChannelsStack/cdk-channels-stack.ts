@@ -7,11 +7,9 @@ import {
   aws_events as events,
   aws_events_targets as targets,
   aws_iam as iam,
-  aws_lambda as lambda,
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
-  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
@@ -43,7 +41,6 @@ interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
   tags: { [key: string]: string };
   cognitoCleanupScheduleExp: string;
-  stageCleanupScheduleExp: string;
 }
 
 export class ChannelsStack extends NestedStack {
@@ -70,12 +67,7 @@ export class ChannelsStack extends NestedStack {
     const region = Stack.of(this.nestedStackParent!).region;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
-    const {
-      resourceConfig,
-      cognitoCleanupScheduleExp,
-      stageCleanupScheduleExp,
-      tags
-    } = props;
+    const { resourceConfig, cognitoCleanupScheduleExp, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
@@ -496,21 +488,6 @@ export class ChannelsStack extends NestedStack {
       resources: [userPool.userPoolArn]
     });
 
-    // Cleanup idle stages lambda
-    const cleanupIdleStagesHandler = new nodejsLambda.NodejsFunction(
-      this,
-      `${stackNamePrefix}-CleanupIdleStages-Handler`,
-      {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
-        functionName: `${stackNamePrefix}-CleanupIdleStages`,
-        entry: getLambdaEntryPath('cleanupIdleStages'),
-        timeout: Duration.minutes(10),
-        initialPolicy: [deleteIdleStagesIvsPolicyStatement]
-      }
-    );
-
     // Cleanup unverified users lambda
     const cleanupUnverifiedUsersHandler = new nodejsLambda.NodejsFunction(
       this,
@@ -528,18 +505,6 @@ export class ChannelsStack extends NestedStack {
       }
     );
 
-    // Scheduled cleanup idle stages lambda function
-    new events.Rule(this, 'Cleanup-Idle-Stages-Schedule-Rule', {
-      schedule: events.Schedule.expression(stageCleanupScheduleExp),
-      ruleName: `${stackNamePrefix}-CleanupIdleStages-Schedule`,
-      targets: [
-        new targets.LambdaFunction(cleanupIdleStagesHandler, {
-          maxEventAge: Duration.minutes(2),
-          retryAttempts: 2
-        })
-      ]
-    });
-
     // Scheduled cleanup unverified users lambda function
     new events.Rule(this, 'Cleanup-Unverified-Users-Schedule-Rule', {
       schedule: events.Schedule.expression(cognitoCleanupScheduleExp),
@@ -553,29 +518,32 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create a SQS message on Stage Participant Unpublished event
-    const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
-      ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
-      eventPattern: {
-        source: ['aws.ivs'],
-        detailType: ['IVS Stage Update'],
-        detail: {
-          'event_name': ['Participant Unpublished'],
-          'user_id': [{ 'prefix': 'host:' }]
+    const unpublishedParticipantRule = new events.Rule(
+      this,
+      `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+      {
+        ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+        eventPattern: {
+          source: ['aws.ivs'],
+          detailType: ['IVS Stage Update'],
+          detail: {
+            event_name: ['Participant Unpublished'],
+            user_id: [{ prefix: 'host:' }]
+          }
         }
       }
-    });
+    );
 
     unpublishedParticipantRule.addTarget(
       new targets.SqsQueue(deleteStageQueue, {
         messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
-        message: 
-        RuleTargetInput.fromObject({
+        message: RuleTargetInput.fromObject({
           stageArn: EventField.fromPath('$.resources[0]'),
           sessionId: EventField.fromPath('$.detail.session_id'),
-          userId: EventField.fromPath('$.detail.user_id'),
+          userId: EventField.fromPath('$.detail.user_id')
         })
       })
-    )
+    );
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
