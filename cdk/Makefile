@@ -10,7 +10,7 @@ PUBLISH					 ?=	false
 STACK 					 ?=	UGC-$(STAGE)
 COGNITO_CLEANUP_SCHEDULE ?= rate(48 hours)
 STAGE_CLEANUP_SCHEDULE   ?= rate(24 hours)
-CDK_OPTIONS 			 =	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c cognitoCleanupScheduleExp="$(strip $(COGNITO_CLEANUP_SCHEDULE))" -c stageCleanupScheduleExp="$(strip $(STAGE_CLEANUP_SCHEDULE))"
+CDK_OPTIONS 			 =	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c cognitoCleanupScheduleExp="$(strip $(COGNITO_CLEANUP_SCHEDULE))"
 FE_DEPLOYMENT_STACK		 =	UGC-Frontend-Deployment-$(STAGE)
 SEED_COUNT 				 ?=	50
 OFFLINE_SESSION_COUNT	 ?=	1

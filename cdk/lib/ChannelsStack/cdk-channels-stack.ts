@@ -41,7 +41,6 @@ interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
   tags: { [key: string]: string };
   cognitoCleanupScheduleExp: string;
-  stageCleanupScheduleExp: string;
 }
 
 export class ChannelsStack extends NestedStack {
@@ -68,12 +67,7 @@ export class ChannelsStack extends NestedStack {
     const region = Stack.of(this.nestedStackParent!).region;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
-    const {
-      resourceConfig,
-      cognitoCleanupScheduleExp,
-      stageCleanupScheduleExp,
-      tags
-    } = props;
+    const { resourceConfig, cognitoCleanupScheduleExp, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
