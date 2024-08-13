@@ -479,7 +479,7 @@ export class ChannelsStack extends NestedStack {
 
     // Cleanup idle stages users policies
     const deleteIdleStagesIvsPolicyStatement = new iam.PolicyStatement({
-      actions: ['ivs:ListStages', 'ivs:DeleteStage'],
+      actions: ['ivs:ListStages', 'ivs:DeleteStage', 'dynamodb:BatchWriteItem'],
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
@@ -501,13 +501,15 @@ export class ChannelsStack extends NestedStack {
       this,
       `${stackNamePrefix}-CleanupIdleStages-Handler`,
       {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
+        ...defaultLambdaParams,
+        logRetention: RetentionDays.ONE_WEEK,
         functionName: `${stackNamePrefix}-CleanupIdleStages`,
         entry: getLambdaEntryPath('cleanupIdleStages'),
         timeout: Duration.minutes(10),
-        initialPolicy: [deleteIdleStagesIvsPolicyStatement]
+        initialPolicy: [deleteIdleStagesIvsPolicyStatement],
+        environment: {
+          PROJECT_TAG: tags.project
+        }
       }
     );
 
@@ -553,29 +555,32 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create a SQS message on Stage Participant Unpublished event
-    const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
-      ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
-      eventPattern: {
-        source: ['aws.ivs'],
-        detailType: ['IVS Stage Update'],
-        detail: {
-          'event_name': ['Participant Unpublished'],
-          'user_id': [{ 'prefix': 'host:' }]
+    const unpublishedParticipantRule = new events.Rule(
+      this,
+      `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+      {
+        ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+        eventPattern: {
+          source: ['aws.ivs'],
+          detailType: ['IVS Stage Update'],
+          detail: {
+            event_name: ['Participant Unpublished'],
+            user_id: [{ prefix: 'host:' }]
+          }
         }
       }
-    });
+    );
 
     unpublishedParticipantRule.addTarget(
       new targets.SqsQueue(deleteStageQueue, {
         messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
-        message: 
-        RuleTargetInput.fromObject({
+        message: RuleTargetInput.fromObject({
           stageArn: EventField.fromPath('$.resources[0]'),
           sessionId: EventField.fromPath('$.detail.session_id'),
-          userId: EventField.fromPath('$.detail.user_id'),
+          userId: EventField.fromPath('$.detail.user_id')
         })
       })
-    )
+    );
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,

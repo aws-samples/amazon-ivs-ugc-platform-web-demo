@@ -22,7 +22,13 @@ export const handler = async () => {
       const _nextToken = response?.nextToken || '';
 
       if (stages.length) {
-        const idleStages = getIdleStages(stages);
+        // Filter list of stages by project
+        const projectStages = stages.filter((stage) =>
+          Object.entries(stage.tags || {}).some(([key, value]) => {
+            return key === 'project' && value === process.env.PROJECT_TAG;
+          })
+        );
+        const idleStages = getIdleStages(projectStages);
         const idleStageArns = getIdleStageArns(idleStages);
         const batchChannelWriteUpdates =
           getBatchChannelWriteUpdates(idleStages);
