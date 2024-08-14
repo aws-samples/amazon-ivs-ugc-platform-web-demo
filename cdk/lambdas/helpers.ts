@@ -87,7 +87,7 @@ export const batchDeleteItemsWithRetry = async (
  * Cleanup Idle Stages
  */
 
-export const getIdleStages = (stages: StageSummary[]) => {
+export const getIdleStages = (stages: StageSummary[] = []) => {
   const currentTimestamp = Date.now();
   const millisecondsPerHour = 60 * 60 * 1000;
   const hoursThreshold = 1;
@@ -105,7 +105,9 @@ export const getIdleStages = (stages: StageSummary[]) => {
     });
 };
 
-export const getBatchChannelWriteUpdates = (idleStages: StageSummary[]) => {
+export const getBatchChannelWriteUpdates = (
+  idleStages: StageSummary[] = []
+) => {
   const channelWriteUpdates: WriteRequest[] = [];
 
   idleStages.forEach((idleAndOldStage) => {
@@ -132,7 +134,7 @@ export const getBatchChannelWriteUpdates = (idleStages: StageSummary[]) => {
   return channelWriteUpdates;
 };
 
-export const getIdleStageArns = (idleStages: StageSummary[]) =>
+export const getIdleStageArns = (idleStages: StageSummary[] = []) =>
   idleStages
     .map((idleAndOldStage) => idleAndOldStage.arn)
     .filter((arn) => typeof arn === 'string') as string[];
@@ -209,7 +211,7 @@ const analyzeDeleteStageResponse = (
   };
 };
 
-export const deleteStagesWithRetry = async (stageArns: string[]) => {
+export const deleteStagesWithRetry = async (stageArns: string[] = []) => {
   if (!stageArns.length) return;
 
   const stagesToDelete = chunkIntoArrayBatches(stageArns, 5);
@@ -282,8 +284,10 @@ export const updateDynamoItemAttributes = ({
 };
 
 export const updateMultipleChannelDynamoItems = (
-  idleStagesChannelArns: WriteRequest[]
+  idleStagesChannelArns: WriteRequest[] = []
 ) => {
+  if (!idleStagesChannelArns.length) return;
+
   const batchWriteInput: BatchWriteItemInput = {
     RequestItems: {
       [process.env.CHANNELS_TABLE_NAME as string]: idleStagesChannelArns

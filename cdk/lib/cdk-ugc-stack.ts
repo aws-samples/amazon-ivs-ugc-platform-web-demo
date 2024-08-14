@@ -28,6 +28,7 @@ const DEFAULT_CLIENT_BASE_URLS = ['', 'http://localhost:3000'];
 interface UGCDashboardStackProps extends StackProps {
   resourceConfig: UGCResourceWithChannelsConfig;
   cognitoCleanupScheduleExp: string;
+  stageCleanupScheduleExp: string;
   shouldPublish: boolean;
 }
 
@@ -38,6 +39,7 @@ export class UGCStack extends Stack {
     const {
       resourceConfig,
       cognitoCleanupScheduleExp,
+      stageCleanupScheduleExp,
       shouldPublish,
       tags = {}
     } = props;
@@ -141,6 +143,7 @@ export class UGCStack extends Stack {
     const channelsStack = new ChannelsStack(this, 'Channels', {
       resourceConfig,
       cognitoCleanupScheduleExp,
+      stageCleanupScheduleExp,
       tags
     });
     const {
@@ -203,7 +206,8 @@ export class UGCStack extends Stack {
       PRODUCT_LINK_REGION_CODE: productLinkRegionCode,
       ENABLE_AMAZON_PRODUCT_STREAM_ACTION: `${enableAmazonProductStreamAction}`,
       PRODUCT_API_SECRET_NAME: productApiSecretName,
-      APPSYNC_GRAPHQL_API_SECRET_NAME: appSyncGraphQlApi.secretName
+      APPSYNC_GRAPHQL_API_SECRET_NAME: appSyncGraphQlApi.secretName,
+      STACK: stackNamePrefix
     };
     const sharedContainerEnv = {
       ...baseContainerEnv,
