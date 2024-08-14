@@ -22,11 +22,9 @@ export const handler = async () => {
       const _nextToken = response?.nextToken || '';
 
       if (stages.length) {
-        // Filter list of stages by project
-        const projectStages = stages.filter((stage) =>
-          Object.entries(stage.tags || {}).some(([key, value]) => {
-            return key === 'stack' && value === process.env.STACK_TAG;
-          })
+        // Filter list of stages by stack name
+        const projectStages = stages.filter(
+          ({ tags }) => !!tags?.stack && tags.stack === process.env.STACK_TAG
         );
         const idleStages = getIdleStages(projectStages);
         const idleStageArns = getIdleStageArns(idleStages);
