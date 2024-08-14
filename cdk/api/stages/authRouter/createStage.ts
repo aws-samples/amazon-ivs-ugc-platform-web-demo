@@ -65,7 +65,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       tags: {
         creationDate: stageCreationDate,
         stageOwnerChannelId: channelId,
-        project: process.env.PROJECT_TAG as string
+        stack: process.env.STACK as string
       }
     };
 

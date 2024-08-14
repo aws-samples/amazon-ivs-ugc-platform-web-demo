@@ -508,7 +508,7 @@ export class ChannelsStack extends NestedStack {
         timeout: Duration.minutes(10),
         initialPolicy: [deleteIdleStagesIvsPolicyStatement],
         environment: {
-          PROJECT_TAG: tags.project
+          STACK_TAG: parentStackName
         }
       }
     );

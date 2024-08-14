@@ -25,7 +25,7 @@ export const handler = async () => {
         // Filter list of stages by project
         const projectStages = stages.filter((stage) =>
           Object.entries(stage.tags || {}).some(([key, value]) => {
-            return key === 'project' && value === process.env.PROJECT_TAG;
+            return key === 'stack' && value === process.env.STACK_TAG;
           })
         );
         const idleStages = getIdleStages(projectStages);
