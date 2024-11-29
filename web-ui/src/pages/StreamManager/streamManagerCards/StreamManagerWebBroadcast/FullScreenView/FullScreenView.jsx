@@ -1,11 +1,8 @@
 import { motion } from 'framer-motion';
-import { useRef } from 'react';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { useMemo, useRef } from 'react';
 
-import {
-  ANIMATION_TRANSITION,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useModal } from '../../../../../contexts/Modal';
@@ -17,43 +14,84 @@ import BroadcastFullScreenVideoFeed from './BroadcastFullScreenVideoFeed';
 import Footer from './Footer';
 import Header from './Header';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
-import useResize from '../../../../../hooks/useResize';
 import withPortal from '../../../../../components/withPortal';
 import { useStageManager } from '../../../../../contexts/StageManager';
+import Spinner from '../../../../../components/Spinner';
+import {
+  STREAM_MODES,
+  updateFullscreenStates
+} from '../../../../../reducers/streamManager';
+import {
+  COLLABORATE_ROUTE_PATH,
+  FULLSCREEN_ANIMATION_DURATION,
+  FULLSCREEN_ANIMATION_TRANSITION
+} from '../../../../../constants';
 
 const FullScreenView = () => {
-  const { user: userStage = null, isJoiningStageByRequestOrInvite } =
-    useStageManager() || {};
-  const isStageActive = userStage?.isUserStageConnected;
+  const dispatch = useDispatch();
   const {
-    isFullScreenViewOpen,
-    dimensions,
-    initializeGoLiveContainerDimensions
-  } = useBroadcastFullScreen();
+    fullscreen: { isOpen: isFullscreenOpen },
+    animationInitialPos,
+    fullscreen,
+    streamMode
+  } = useSelector((state) => state.streamManager);
+  const { collaborate } = useSelector((state) => state.shared);
+  const { user: { isConnected: isStageConnected = false } = {} } =
+    useStageManager() || {};
   const { isModalOpen } = useModal();
+  const { pathname } = useLocation();
   const fullScreenViewContainerRef = useRef();
   const { isMobileView, dimensions: windowDimensions } = useResponsiveDevice();
   const { height: windowHeight } = windowDimensions;
   const shouldAddScrollbar = windowHeight <= 350;
-  const content =
-    isStageActive || isJoiningStageByRequestOrInvite ? (
-      <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />
-    ) : (
-      <BroadcastFullScreenVideoFeed />
+
+  const onAnimationStart = () => {
+    dispatch(updateFullscreenStates({ isAnimating: true }));
+  };
+
+  const onAnimationComplete = () => {
+    // When fullscreen view is already open, do not animate it in
+    dispatch(
+      updateFullscreenStates({
+        animateIn: !isFullscreenOpen,
+        isAnimating: false
+      })
     );
+  };
+
+  const videoFeedsContent = useMemo(() => {
+    let content = (
+      <div
+        className={clsm([
+          'bg-black',
+          'flex',
+          'h-full',
+          'items-center',
+          'justify-center'
+        ])}
+      >
+        <Spinner variant="light" size="large" />
+      </div>
+    );
+    if (
+      isStageConnected &&
+      streamMode === STREAM_MODES.REAL_TIME &&
+      pathname === COLLABORATE_ROUTE_PATH
+    ) {
+      content = <StageVideoFeeds type={STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN} />;
+    } else if (
+      streamMode === STREAM_MODES.LOW_LATENCY &&
+      pathname === '/manager'
+    ) {
+      content = <BroadcastFullScreenVideoFeed />;
+    }
+
+    return content;
+  }, [isStageConnected, streamMode, pathname]);
 
   useFocusTrap([fullScreenViewContainerRef], !isModalOpen, {
     shouldReFocusBackOnLastClickedItem: true
   });
-
-  const {
-    animationInitialTop,
-    animationInitialLeft,
-    animationInitialWidth,
-    animationInitialHeight
-  } = dimensions;
-
-  useResize(initializeGoLiveContainerDimensions);
 
   return (
     <motion.div
@@ -62,10 +100,10 @@ const FullScreenView = () => {
       {...createAnimationProps({
         customVariants: {
           hidden: {
-            top: animationInitialTop,
-            left: animationInitialLeft,
-            width: animationInitialWidth,
-            height: animationInitialHeight,
+            top: animationInitialPos.fullscreenTop,
+            left: animationInitialPos.fullscreenLeft,
+            width: animationInitialPos.fullscreenWidth,
+            height: animationInitialPos.fullscreenHeight,
             borderRadius: 24
           },
           visible: {
@@ -77,35 +115,36 @@ const FullScreenView = () => {
             display: 'block'
           }
         },
-        transition: ANIMATION_TRANSITION,
+        transition: FULLSCREEN_ANIMATION_TRANSITION,
         options: {
-          isVisible: isFullScreenViewOpen,
-          shouldAnimateIn: !isJoiningStageByRequestOrInvite
+          isVisible: isFullscreenOpen,
+          shouldAnimateIn: fullscreen.animateIn,
+          shouldAnimate: fullscreen.animate
         }
       })}
+      onAnimationStart={onAnimationStart}
+      onAnimationComplete={onAnimationComplete}
       className={clsm([
         'absolute',
         'bg-lightMode-gray-extraLight',
         'dark:bg-darkMode-gray-dark',
         'overflow-hidden',
+        'w-full',
+        'h-full',
+        'top-0',
+        'left-0',
         shouldAddScrollbar && ['overflow-y-scroll', 'overflow-x-hidden'],
-        isMobileView ? 'z-[300]' : 'z-[700]',
-        isJoiningStageByRequestOrInvite && [
-          'w-full',
-          'h-full',
-          'top-0',
-          'left-0'
-        ]
+        isMobileView ? 'z-[300]' : 'z-[700]'
       ])}
     >
-      {!isJoiningStageByRequestOrInvite && <Header />}
+      {!collaborate.isJoining && <Header />}
       <motion.div
         className={clsm([
           'flex',
           'flex-col',
           'justify-between',
           'h-full',
-          isJoiningStageByRequestOrInvite && ['p-8', 'pb-0']
+          collaborate.isJoining && ['p-8', 'pb-0']
         ])}
         {...createAnimationProps({
           customVariants: {
@@ -122,23 +161,21 @@ const FullScreenView = () => {
               paddingTop: isMobileView ? 16 : 32
             }
           },
-          transition: ANIMATION_TRANSITION,
+          transition: FULLSCREEN_ANIMATION_TRANSITION,
           options: {
-            shouldAnimateIn: !isJoiningStageByRequestOrInvite
+            isVisible: isFullscreenOpen,
+            shouldAnimateIn: fullscreen.animateIn
           }
         })}
       >
-        {content}
+        {videoFeedsContent}
         <Footer shouldAddScrollbar={shouldAddScrollbar} />
       </motion.div>
     </motion.div>
   );
 };
 
-FullScreenView.propTypes = {
-  dimensions: PropTypes.object.isRequired
-};
-
 export default withPortal(FullScreenView, 'full-screen-view', {
-  isAnimated: true
+  isAnimated: true,
+  animationDuration: FULLSCREEN_ANIMATION_DURATION * 1000
 });

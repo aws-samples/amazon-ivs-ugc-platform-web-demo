@@ -14,7 +14,6 @@ import { useNotif } from '../Notification';
 import { AUDIO_INPUT_NAME } from './useAudioMixer';
 import useContextHook from '../useContextHook';
 import { VIDEO_LAYER_NAME } from './useLayers';
-import useMount from '../../hooks/useMount';
 import useThrottledCallback from '../../hooks/useThrottledCallback';
 import { useDeviceManager } from '../DeviceManager';
 
@@ -65,7 +64,6 @@ export const Provider = ({
   const [success, setSuccess] = useState(null);
   const connectionTimeoutRef = useRef(null);
   const { notifyError, notifySuccess } = useNotif();
-  const isMounted = useMount();
 
   const {
     userMedia: {
@@ -172,11 +170,21 @@ export const Provider = ({
     }
   }, [ingestEndpoint, stopBroadcast, streamKey, detectDevicePermissions]);
 
-  const resetPreview = useCallback(() => {
-    if (!client || !previewRef.current) return;
-    client.detachPreview();
-    client.attachPreview(previewRef.current);
-  }, [previewRef]);
+  const setupVideoPreview = useCallback(
+    async (videoRef) => {
+      if (!client || !videoRef?.current) return;
+
+      // If no video or audio devices are saved, then initialize devices
+      if (!activeDevices.video || !activeDevices.audio) {
+        await initializeDevices();
+        presetLayers.background.remove();
+      }
+
+      client.detachPreview();
+      client.attachPreview(videoRef.current);
+    },
+    [activeDevices, initializeDevices, presetLayers.background]
+  );
 
   // ACTIVE_STATE_CHANGE events indicate that the broadcast start/stop state has changed
   const onActiveStateChange = (activeState) => {
@@ -212,10 +220,7 @@ export const Provider = ({
 
     // Add a background layer for permissions prompt state
     await presetLayers.background.add();
-
-    // Attach an HTMLCanvasElement to display a preview of the output
-    client.attachPreview(previewRef.current);
-  }, [presetLayers.background, previewRef]);
+  }, [presetLayers.background]);
 
   const restartBroadcastClient = useCallback(
     async (_isCameraHidden = false, _isMicrophoneMuted = false) => {
@@ -307,21 +312,23 @@ export const Provider = ({
    * Initialize client, request permissions and refresh devices
    */
   useEffect(() => {
-    if (!isInitialized && previewRef.current) {
+    if (!isInitialized) {
       (async function () {
         await initializeBroadcastClient();
       })();
 
       isInitialized = true;
     }
-  }, [initializeBroadcastClient, previewRef]);
+  }, [initializeBroadcastClient]);
 
+  /**
+   * Remove the broadcast client when unmounting: route changes
+   */
   useEffect(() => {
     return () => {
-      if (!isMounted()) return;
       removeBroadcastClient();
     };
-  }, [isMounted, removeBroadcastClient]);
+  }, [removeBroadcastClient]);
 
   useEffect(() => {
     if (error) {
@@ -368,7 +375,7 @@ export const Provider = ({
       previewRef,
       startBroadcast,
       stopBroadcast,
-      resetPreview,
+      setupVideoPreview,
       // Indicators
       isBroadcasting,
       isConnecting,
@@ -393,7 +400,7 @@ export const Provider = ({
       presetLayers,
       previewRef,
       removeBroadcastClient,
-      resetPreview,
+      setupVideoPreview,
       restartBroadcastClient,
       shouldShowCameraOnScreenShare,
       startBroadcast,

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useCallback, useRef, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { clsm, isElementsOverlapping } from '../../../utils';
@@ -14,7 +15,6 @@ import ProfileViewMenu from './ProfileViewMenu';
 import UserAvatar from '../../../components/UserAvatar';
 import { POPUP_ID } from './Controls/RenditionSetting';
 import useResize from '../../../hooks/useResize';
-import { useGlobalStage } from '../../../contexts/Stage';
 
 const getHeaderButtonClasses = (shouldRemoveZIndex = false) => {
   return clsm([
@@ -34,6 +34,7 @@ const PlayerHeader = ({
   openPopupIds,
   stagePlayerVisible
 }) => {
+  const { isPlayerMuted } = useSelector((state) => state.channel);
   const {
     getProfileViewAnimationProps,
     headerAnimationControls,
@@ -42,7 +43,6 @@ const PlayerHeader = ({
     shouldAnimateProfileView,
     toggleProfileView
   } = useProfileViewAnimation();
-  const { isChannelStagePlayerMuted } = useGlobalStage();
 
   const isRenditionSettingPopupExpanded = !!openPopupIds.find(
     (openPopupId) => openPopupId === POPUP_ID
@@ -136,7 +136,7 @@ const PlayerHeader = ({
   return (
     <div
       className={clsm(
-        isChannelStagePlayerMuted && stagePlayerVisible && 'z-50',
+        isPlayerMuted && stagePlayerVisible && 'z-50',
         'absolute',
         'w-full',
         'top-0',

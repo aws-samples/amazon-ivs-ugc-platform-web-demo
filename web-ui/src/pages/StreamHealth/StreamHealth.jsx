@@ -64,6 +64,7 @@ const StreamHealth = () => {
         panelId="nav-panel"
         preserveVisible
         slideInDirection="top"
+        shouldAnimateIn={false}
       >
         <NavigatorPopup
           ref={navPopupRef}

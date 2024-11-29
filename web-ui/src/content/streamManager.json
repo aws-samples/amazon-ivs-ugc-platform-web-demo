@@ -76,7 +76,8 @@
         "unable_to_join_session": "Unable to join session",
         "unable_to_leave_session": "Unable to leave session",
         "permissions_denied": "You must allow access to both your camera and microphone",
-        "your_screen_share_has_been_removed": "Your screen share has been removed"
+        "your_screen_share_has_been_removed": "Your screen share has been removed",
+        "unable_to_copy_link": "Unable to copy link"
       }
     },
     "leave_stage_modal": {

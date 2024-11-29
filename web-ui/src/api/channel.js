@@ -240,6 +240,12 @@ export const changeUsername = async ({ username: newUsername }) =>
     url: `${apiBaseUrl}/channel/username/update`
   });
 
+export const updateChannelConfig = async () =>
+  await authFetch({
+    method: 'PUT',
+    url: `${apiBaseUrl}/channel/config/update`
+  });
+
 /**
  * Changes a user's preferences
  * @param {object} userPreferences user preferences to change

@@ -4,14 +4,14 @@ import {
   Navigate,
   Route,
   RouterProvider,
-  redirect,
   Await,
   useLoaderData,
   Outlet,
-  defer,
   useOutletContext
 } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
+import { PersistGate } from 'redux-persist/integration/react';
+import { Provider as ReduxProvider } from 'react-redux';
 import { Suspense } from 'react';
 
 // Context Providers
@@ -25,7 +25,6 @@ import { Provider as TooltipsProvider } from './contexts/Tooltips';
 import { Provider as UserProvider } from './contexts/User';
 import { Provider as ViewerStreamActionsProvider } from './contexts/ViewerStreamActions';
 import { Provider as AppSyncProvider } from './contexts/AppSync/AppSync';
-import { GlobalStageProvider } from './contexts/Stage';
 
 // Pages
 import {
@@ -46,6 +45,7 @@ import {
 } from './pages/UserManagement/subpages';
 
 import ErrorBoundary from './components/ErrorBoundary';
+import store, { persistor } from './store';
 
 // Page Layouts
 import { AppLayoutWithNavbar, RequireAuth } from './layouts';
@@ -54,12 +54,11 @@ import { SWRConfig } from 'swr';
 import { StageManagerProvider } from './contexts/StageManager';
 import { DeviceManagerProvider } from './contexts/DeviceManager';
 import {
-  DISPLAY_STAGE_ID_URL_PARAM,
-  REQUEST_URL_PARAM_KEY,
-  USER_STAGE_ID_URL_PARAM
-} from './helpers/stagesHelpers';
-import { PARTICIPANT_TYPES } from './contexts/Stage/Global/reducer/globalReducer';
-import { channelAPI, channelsAPI, stagesAPI } from './api';
+  channelStageLoader,
+  managerLoader,
+  stageLoader,
+  stateCleanupLoader
+} from './loaders';
 
 const updateTo = (to) => {
   const { pathname } = new URL(window.location.href);
@@ -78,38 +77,46 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
       element={
-        <ErrorBoundary>
-          <MotionConfig reducedMotion="user">
-            <LastFocusedElementProvider>
-              <ResponsiveDeviceProvider>
-                <NotificationProvider>
-                  <ModalProvider>
-                    <TooltipsProvider>
-                      <UserProvider>
-                        <SWRConfig value={{ provider: localStorageProvider }} />
-                      </UserProvider>
-                    </TooltipsProvider>
-                  </ModalProvider>
-                </NotificationProvider>
-              </ResponsiveDeviceProvider>
-            </LastFocusedElementProvider>
-          </MotionConfig>
-        </ErrorBoundary>
+        <ReduxProvider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <ErrorBoundary>
+              <MotionConfig reducedMotion="user">
+                <LastFocusedElementProvider>
+                  <ResponsiveDeviceProvider>
+                    <NotificationProvider>
+                      <ModalProvider>
+                        <TooltipsProvider>
+                          <UserProvider>
+                            <SWRConfig
+                              value={{ provider: localStorageProvider }}
+                            />
+                          </UserProvider>
+                        </TooltipsProvider>
+                      </ModalProvider>
+                    </NotificationProvider>
+                  </ResponsiveDeviceProvider>
+                </LastFocusedElementProvider>
+              </MotionConfig>
+            </ErrorBoundary>
+          </PersistGate>
+        </ReduxProvider>
       }
     >
       <Route
         element={
           <StreamsProvider>
-            <GlobalStageProvider>
-              <ChannelProvider>
-                <AppLayoutWithNavbar />
-              </ChannelProvider>
-            </GlobalStageProvider>
+            <ChannelProvider>
+              <AppLayoutWithNavbar />
+            </ChannelProvider>
           </StreamsProvider>
         }
       >
         {/* PUBLIC PAGES - UGC */}
-        <Route index element={<ChannelDirectory />} />
+        <Route
+          index
+          element={<ChannelDirectory />}
+          loader={stateCleanupLoader}
+        />
         <Route
           path=":username"
           loader={channelStageLoader}
@@ -140,8 +147,18 @@ const router = createBrowserRouter(
         </Route>
         {/* PRIVATE PAGES */}
         <Route element={<RequireAuth />}>
-          <Route path="following" element={<Following />} />
-          <Route path="settings" element={<Settings />} />
+          <Route
+            path="following"
+            element={<Following />}
+            loader={stateCleanupLoader}
+            shouldRevalidate={() => false}
+          />
+          <Route
+            path="settings"
+            element={<Settings />}
+            loader={stateCleanupLoader}
+            shouldRevalidate={() => false}
+          />
           <Route
             loader={managerLoader}
             shouldRevalidate={() => false}
@@ -152,7 +169,12 @@ const router = createBrowserRouter(
               </AppSyncProvider>
             }
           >
-            <Route index element={<StreamManager />} />
+            <Route
+              index
+              element={<StreamManager />}
+              loader={stateCleanupLoader}
+              shouldRevalidate={() => false}
+            />
             <Route
               path="collab"
               loader={stageLoader}
@@ -164,7 +186,12 @@ const router = createBrowserRouter(
               }
             />
           </Route>
-          <Route path="health" element={<AppSyncProvider />}>
+          <Route
+            path="health"
+            element={<AppSyncProvider />}
+            loader={stateCleanupLoader}
+            shouldRevalidate={() => false}
+          >
             <Route index element={<StreamHealth />} />
             <Route path=":streamId" element={<StreamHealth />} />
             <Route path="*" element={<Navigate replace to="/health" />} />
@@ -174,7 +201,7 @@ const router = createBrowserRouter(
       </Route>
 
       {/* PUBLIC PAGES - User Management */}
-      <Route element={<UserManagement />}>
+      <Route element={<UserManagement />} loader={stateCleanupLoader}>
         <Route path="login" element={<SigninUser />} />
         <Route path="register" element={<RegisterUser />} />
         <Route path="reset" element={<ResetPassword />} />
@@ -204,92 +231,6 @@ function ChannelLoader() {
       </Await>
     </Suspense>
   );
-}
-
-async function stageLoader({ params, request }) {
-  const { pathname, searchParams } = new URL(request.url);
-  if (pathname !== '/manager/collab') {
-    throw redirect('/manager');
-  }
-  if (searchParams.size > 0) {
-    // Joining by invite or request
-    const userStageId = searchParams.get(USER_STAGE_ID_URL_PARAM);
-    const displayStageId = searchParams.get(DISPLAY_STAGE_ID_URL_PARAM);
-    const isJoiningStageByRequest =
-      searchParams.get(REQUEST_URL_PARAM_KEY) || false;
-
-    const participantType = isJoiningStageByRequest
-      ? PARTICIPANT_TYPES.REQUESTED
-      : PARTICIPANT_TYPES.INVITED;
-
-    const { result, error } = await stagesAPI.getParticipationToken({
-      userStageId,
-      displayStageId,
-      participantType
-    });
-    if (result) {
-      return result;
-    }
-    if (error) {
-      throw redirect('/manager');
-    }
-  } else {
-    // Host: create stage resource
-    const { result, error } = await stagesAPI.createStage();
-    if (result) {
-      return result;
-    }
-    if (error) {
-      throw redirect('/manager');
-    }
-  }
-}
-
-function channelStageLoader({ params, request }) {
-  return defer({
-    channelStageResponse: new Promise((resolve, reject) => {
-      channelsAPI
-        .getUserChannelData(params.username)
-        .then((response) => {
-          const {
-            result: { userStageId, displayStageId } = {},
-            error: getChannelDataError
-          } = response;
-
-          if (!userStageId) return resolve(null);
-
-          if (getChannelDataError) throw getChannelDataError;
-
-          return stagesAPI.getSpectatorToken(userStageId, displayStageId);
-        })
-        .then((response) => {
-          const { result: stageConfig, error: getTokenError } = response;
-
-          if (stageConfig) return resolve(stageConfig);
-
-          if (getTokenError) throw getTokenError;
-        })
-        .catch(reject);
-    })
-  });
-}
-
-async function managerLoader({ request }) {
-  const { pathname } = new URL(request.url);
-  if (pathname === '/manager/collab') return {};
-  const { result, error } = await channelAPI.getUserData();
-
-  if (result) {
-    const { userStageId } = result;
-
-    if (userStageId) {
-      return redirect('/manager/collab');
-    } else {
-      return {};
-    }
-  }
-
-  if (error) return {};
 }
 
 const App = () => <RouterProvider router={router} />;

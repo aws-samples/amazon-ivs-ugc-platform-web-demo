@@ -24,6 +24,18 @@ import {
   USER_NOT_FOUND_EXCEPTION
 } from '../shared/constants';
 import { dynamoDbClient, ivsChatClient, s3Client } from '../shared/helpers';
+import {
+  ChannelType,
+  ContainerFormat,
+  MultitrackInputConfiguration
+} from '@aws-sdk/client-ivs';
+
+type ChannelTypeValues = (typeof ChannelType)[keyof typeof ChannelType];
+
+export interface ChannelConfiguration {
+  type: ChannelTypeValues;
+  multitrackInputConfiguration: MultitrackInputConfiguration;
+}
 
 export const getUser = (sub: string) => {
   const getItemCommand = new GetItemCommand({
@@ -147,7 +159,7 @@ export const createChatRoomToken = async (
     color?: string;
     displayName?: string;
   },
-  capabilities?: (ChatTokenCapability | string)[]
+  capabilities?: ChatTokenCapability[] | undefined
 ) => {
   let chatRoomArn, bannedUserSubs;
   const { Items } = await getUserByUsername(chatRoomOwnerUsername);
@@ -341,4 +353,54 @@ export const processAssetPreference = (
       reject(error);
     }
   });
+};
+
+export const getMultitrackChannelInputFields = () => {
+  const multitrackInputConfiguration: MultitrackInputConfiguration = JSON.parse(
+    process.env.CHANNEL_MULTITRACK_INPUT_CONFIGURATION || '{}'
+  );
+
+  if (!multitrackInputConfiguration.enabled) {
+    return {};
+  }
+
+  return {
+    containerFormat: ContainerFormat.FragmentedMP4,
+    multitrackInputConfiguration
+  };
+};
+
+/**
+ * Compares two values to determine if they are the same.
+ * For objects, it checks if they have the same keys and values.
+ * For non-objects, it performs a strict equality check.
+ *
+ * @param {*} obj1 - The first value to compare.
+ * @param {*} obj2 - The second value to compare.
+ * @returns {boolean} - Returns true if the values are the same; otherwise, false.
+ */
+export const areObjectsSame = <T extends Record<string, any>>(
+  obj1: T,
+  obj2: T
+): boolean => {
+  // Handle null/undefined and non-object cases
+  if (obj1 === obj2) return true;
+  if (
+    obj1 == null ||
+    obj2 == null ||
+    typeof obj1 !== 'object' ||
+    typeof obj2 !== 'object'
+  )
+    return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // Check if the number of keys is the same
+  if (keys1.length !== keys2.length) return false;
+
+  // Check if all keys and values are the same
+  return keys1.every(
+    (key) => keys2.includes(key) && areObjectsSame(obj1[key], obj2[key])
+  );
 };

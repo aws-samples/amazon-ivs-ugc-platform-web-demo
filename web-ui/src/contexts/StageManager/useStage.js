@@ -1,9 +1,11 @@
 import memoize from 'fast-memoize';
+import { useDispatch } from 'react-redux';
 import { useMemo, useState } from 'react';
 
 import StageFactory from './StageFactory';
 import useParticipants from './useParticipants';
 import useStreams from './useStreams';
+import { updateCollaborateStates } from '../../reducers/shared';
 
 const {
   StageConnectionState,
@@ -34,6 +36,7 @@ const { CONNECTED, DISCONNECTED } = StageConnectionState;
 const { PUBLISHED, NOT_PUBLISHED } = StageParticipantPublishState;
 
 function useStage(stageConfig = {}, options = {}) {
+  const dispatch = useDispatch();
   const {
     mediaStreams,
     streamMetadata,
@@ -41,7 +44,6 @@ function useStage(stageConfig = {}, options = {}) {
     ...streamHandlers
   } = useStreams(stageConfig);
   const { participants, ...participantHandlers } = useParticipants(stageConfig);
-  const [stageLeftReason, setStageLeftReason] = useState();
   const [connectError, setConnectError] = useState(null);
   const [publishError, setPublishError] = useState(null);
   const [connectState, setConnectState] = useState(DISCONNECTED);
@@ -61,7 +63,7 @@ function useStage(stageConfig = {}, options = {}) {
 
     // Register stage events strictly for UI state management
     stg.on(STAGE_ERROR, onStageError);
-    stg.on(STAGE_LEFT, setStageLeftReason);
+    stg.on(STAGE_LEFT, onStageLeft);
     stg.on(STAGE_CONNECTION_STATE_CHANGED, onConnectionStateChanged);
     stg.on(STAGE_PARTICIPANT_PUBLISH_STATE_CHANGED, onPublishStateChanged);
     stg.on(STAGE_PARTICIPANT_REPUBLISH_STATE_CHANGED, setRepublishing);
@@ -81,11 +83,16 @@ function useStage(stageConfig = {}, options = {}) {
     }
   });
 
+  function onStageLeft(reason) {
+    dispatch(updateCollaborateStates({ leftReason: reason, isLeaving: true }));
+  }
+
   function onConnectionStateChanged(state) {
     setConnectState(state);
 
     if (state !== DISCONNECTED) {
-      setStageLeftReason(undefined);
+      // Reset the Redux shared slice collaborate state "leftReason"
+      dispatch(updateCollaborateStates({ leftReason: null }));
     }
 
     if (state === CONNECTED || state === DISCONNECTED) {
@@ -147,7 +154,6 @@ function useStage(stageConfig = {}, options = {}) {
       publishError,
       republishing,
       subscribeOnly,
-      stageLeftReason,
       getParticipants,
       toggleLocalStageStreamMutedState,
       on: stage.on,
@@ -168,7 +174,6 @@ function useStage(stageConfig = {}, options = {}) {
       publishError,
       republishing,
       subscribeOnly,
-      stageLeftReason,
       getParticipants,
       toggleLocalStageStreamMutedState
     ]

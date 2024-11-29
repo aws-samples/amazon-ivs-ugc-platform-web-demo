@@ -4,10 +4,7 @@ import sendHostDisconnectedMessage from './sendHostDisconnectedMessage';
 import revokeStageRequest from './revokeStageRequest';
 
 const router: FastifyPluginAsync = async (resource) => {
-  resource.get(
-    '/createSpectatorToken/:userStageId/:displayStageId',
-    createSpectatorToken
-  );
+  resource.get('/createSpectatorToken/:stageId', createSpectatorToken);
 
   resource.post('/sendHostDisconnectedMessage', sendHostDisconnectedMessage);
   resource.post('/revokeStageRequest', revokeStageRequest);

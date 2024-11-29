@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { useCallback, useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { channel as $channelContent } from '../../content';
 import { clsm, extractChannelIdfromChannelArn } from '../../utils';
@@ -29,81 +30,50 @@ import useMount from '../../hooks/useMount';
 import useResize from '../../hooks/useResize';
 import Poll from './Chat/Poll/Poll';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
-import { useGlobalStage } from '../../contexts/Stage';
-import { player as $playerContent } from '../../content';
 import Notification from '../../components/Notification/Notification';
 import { useAppSync } from '../../contexts/AppSync';
 import channelEvents from '../../contexts/AppSync/channelEvents';
 import { useUser } from '../../contexts/User';
 import { apiBaseUrl } from '../../api/utils';
-import { useStageManager } from '../../contexts/StageManager';
-import { useLocation, useNavigate, useRevalidator } from 'react-router-dom';
+import { StageFactory, useStageManager } from '../../contexts/StageManager';
+import { useRevalidator } from 'react-router-dom';
 import usePrevious from '../../hooks/usePrevious';
+import {
+  updateError,
+  updateNeutral,
+  updateSuccess
+} from '../../reducers/shared';
 
 const DEFAULT_SELECTED_TAB_INDEX = 0;
 const CHAT_PANEL_TAB_INDEX = 1;
 
+const { leaveStages } = StageFactory;
+
 const Channel = () => {
-  const { channelError, channelData: { userStageId, channelArn } = {} } =
+  const dispatch = useDispatch();
+  const { collaborate, success, error, neutral } = useSelector(
+    (state) => state.shared
+  );
+  const { channelError, channelData: { stageId, channelArn } = {} } =
     useChannel();
-
-  const revalidator = useRevalidator();
-
-  const {
-    updateError,
-    error: stageError,
-    success: stageSuccessMessage,
-    updateSuccess,
-    requestingToJoinStage,
-    updateRequestingToJoinStage
-  } = useGlobalStage();
-  const { notifyError, notifySuccess } = useNotif();
+  const { isLandscape, isMobileView } = useResponsiveDevice();
   const { publish } = useAppSync();
   const { userData } = useUser();
 
-  useEffect(() => {
-    if (stageSuccessMessage) {
-      if (
-        stageSuccessMessage ===
-        $channelContent.notifications.success.request_to_join_stage_success
-      ) {
-        notifySuccess(stageSuccessMessage);
-      }
+  // Refs
+  const channelRef = useRef();
+  const chatSectionRef = useRef();
 
-      updateSuccess(null);
-    }
+  // Revalidator
+  const revalidator = useRevalidator();
+  const prevUserStageId = usePrevious(stageId);
 
-    if (stageError) {
-      const { message, err } = stageError;
-      if (err) console.error(err, message);
+  // Real-time stage
+  const { user: userStage = null } = useStageManager() || {};
+  const { isConnected } = userStage || {};
+  const shouldDisplayStagePlayer = isConnected;
 
-      if (
-        message ===
-          $channelContent.notifications.error.request_to_join_stage_fail ||
-        message === $playerContent.notification.error.error_loading_stream
-      ) {
-        notifyError(message);
-      }
-
-      updateError(null);
-    }
-
-    return;
-  }, [
-    stageError,
-    notifyError,
-    updateError,
-    stageSuccessMessage,
-    notifySuccess,
-    updateSuccess
-  ]);
-
-  const { user: userStage = null, isEnterLock } = useStageManager() || {};
-  const { isUserStageConnected } = userStage || {};
-  const { isLandscape, isMobileView } = useResponsiveDevice();
-  const { isStackedView, isSplitView } = useChannelView();
-  const { getProfileViewAnimationProps, chatAnimationControls } =
-    useProfileViewAnimation();
+  // Stream actions
   const {
     currentViewerStreamActionData,
     currentViewerStreamActionName,
@@ -119,22 +89,30 @@ const Channel = () => {
     shouldHideActivePoll
   } = usePoll();
 
+  // Channel UI
+  const isMounted = useMount();
+  const { notifyError, notifySuccess, notifyNeutral } = useNotif();
+  const { isStackedView, isSplitView } = useChannelView();
+  const { getProfileViewAnimationProps, chatAnimationControls } =
+    useProfileViewAnimation();
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     DEFAULT_SELECTED_TAB_INDEX
   );
-  const channelRef = useRef();
-  const chatSectionRef = useRef();
-  const isMounted = useMount();
-  const shouldDisplayStagePlayer = isUserStageConnected;
-
-  let visibleChatWidth = 360;
-  if (isSplitView) visibleChatWidth = 308;
-  else if (isStackedView) visibleChatWidth = '100%';
-
   const isTabView =
     shouldRenderActionInTab ||
     (isPollActive && isChannelPageStackedView && !shouldHideActivePoll);
 
+  const visibleChatWidth = useMemo(() => {
+    let width = 360;
+    if (isSplitView) width = 308;
+    else if (isStackedView) width = '100%';
+
+    return width;
+  }, [isSplitView, isStackedView]);
+
+  /**
+   * Chat section height
+   */
   const updateChatSectionHeight = useCallback(() => {
     let chatSectionHeight = 200;
 
@@ -155,30 +133,53 @@ const Channel = () => {
   }, [isMobileView, isStackedView]);
 
   useResize(updateChatSectionHeight, { shouldCallOnMount: true });
+
   // Ensures we have computed and set the chat section min-height before the first render
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();
   }, [isMounted, updateChatSectionHeight]);
 
-  const prevUserStageId = usePrevious(userStageId);
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+  /**
+   * Success, error and neutral notifications
+   */
   useEffect(() => {
-    if (
-      revalidator.state === 'idle' &&
-      userStageId &&
-      prevUserStageId !== userStageId
-    ) {
-      revalidator.revalidate();
+    if (success) {
+      notifySuccess(success);
+
+      dispatch(updateSuccess(null));
+    }
+
+    if (error) {
+      notifyError(error);
+
+      dispatch(updateError(null));
+    }
+
+    if (neutral) {
+      notifyNeutral(neutral, { asPortal: true });
+      dispatch(updateNeutral(null));
     }
   }, [
-    userStageId,
-    navigate,
-    pathname,
-    revalidator,
-    prevUserStageId,
-    isEnterLock
+    error,
+    notifyError,
+    success,
+    notifySuccess,
+    dispatch,
+    neutral,
+    notifyNeutral
   ]);
+
+  /**
+   * Revalidate (run channel page loader) when stageId updates
+   * and does not equal to the previous stageId.
+   * This should occur when the channel owner's stage session live status changes.
+   */
+  useEffect(() => {
+    if (revalidator.state === 'idle' && prevUserStageId !== stageId) {
+      leaveStages();
+      revalidator.revalidate();
+    }
+  }, [prevUserStageId, revalidator, stageId]);
 
   // Triggered when navigating away from the channel page
   useEffect(() => {
@@ -193,11 +194,9 @@ const Channel = () => {
             channelId: userData?.channelId?.toLowerCase()
           })
         );
-
-        updateRequestingToJoinStage(false);
       }
     };
-  }, [channelArn, publish, updateRequestingToJoinStage, userData?.channelId]);
+  }, [channelArn, publish, userData?.channelId]);
 
   // Triggered on page refresh or closed tab
   const beforeUnloadHandler = useCallback(() => {
@@ -211,7 +210,7 @@ const Channel = () => {
         };
 
         // GraphQL API will throw a RequestAbortedException if attempting to do a AppSync publish here
-        if (requestingToJoinStage) {
+        if (collaborate.isRequesting) {
           navigator.sendBeacon(
             `${apiBaseUrl}/stages/revokeStageRequest`,
             JSON.stringify(body)
@@ -219,7 +218,7 @@ const Channel = () => {
         }
       }, 0);
     });
-  }, [channelArn, requestingToJoinStage, userData?.channelId]);
+  }, [channelArn, collaborate.isRequesting, userData?.channelId]);
 
   useEffect(() => {
     window.addEventListener('beforeunload', beforeUnloadHandler);

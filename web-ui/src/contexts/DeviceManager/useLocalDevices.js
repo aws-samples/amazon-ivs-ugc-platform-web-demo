@@ -88,10 +88,8 @@ function useLocalDevices({
                 errorMessage = permissions.audio
                   ? $content.notifications.error.failed_to_change_mic
                   : $content.notifications.error.failed_to_access_mic;
+
               console.error(errorMessage);
-              // errorMessage &&
-              // !hasDevicesReset.current &&
-              // setError({ message: errorMessage });
             }
           }
         );
@@ -230,13 +228,17 @@ function useLocalDevices({
 
     const initialActiveDevices = Object.entries(initialDevices).reduce(
       (acc, [deviceKind, devicesList]) => {
+        const activeDevice = activeDevices[deviceKind];
         const grantedDeviceLabel = grantedDevices[deviceKind];
         const storedDeviceId = devicePreferences?.deviceIds?.[deviceKind];
         const initialActiveDevice =
-          devicesList.find(({ label }) => label === grantedDeviceLabel) || // 1. Specific device for which permissions were granted (Firefox only)
-          devicesList.find(({ deviceId }) => deviceId === storedDeviceId) || // 2. Device stored in local storage as a user preference
-          devicesList.find(({ deviceId }) => deviceId === 'default') || // 3. Default device in the list
-          devicesList[0]; // 4. First device in the list
+          devicesList.find(
+            ({ deviceId }) => deviceId === activeDevice?.deviceId
+          ) || // 1. Use the active device already is set
+          devicesList.find(({ label }) => label === grantedDeviceLabel) || // 2. Specific device for which permissions were granted (Firefox only)
+          devicesList.find(({ deviceId }) => deviceId === storedDeviceId) || // 3. Device stored in local storage as a user preference
+          devicesList.find(({ deviceId }) => deviceId === 'default') || // 4. Default device in the list
+          devicesList[0]; // 5. First device in the list
 
         if (initialActiveDevice) {
           updateActiveDevice(deviceKind, initialActiveDevice);
@@ -248,7 +250,12 @@ function useLocalDevices({
     );
 
     return initialActiveDevices;
-  }, [refreshDevices, devicePreferences?.deviceIds, updateActiveDevice]);
+  }, [
+    refreshDevices,
+    devicePreferences?.deviceIds,
+    updateActiveDevice,
+    activeDevices
+  ]);
 
   const detectDevicePermissions = useCallback(async () => {
     let _permissions = permissions;

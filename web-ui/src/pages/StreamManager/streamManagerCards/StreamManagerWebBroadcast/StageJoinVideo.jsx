@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
+
 import { clsm } from '../../../../utils';
-import { useDeviceManager } from '../../../../contexts/DeviceManager';
 import { MicOff, VideoCameraOff } from '../../../../assets/icons';
+import { useDeviceManager } from '../../../../contexts/DeviceManager';
 
 const StageJoinVideo = () => {
   const videoRef = useRef();
@@ -10,10 +11,12 @@ const StageJoinVideo = () => {
   } = useDeviceManager();
 
   useEffect(() => {
+    if (mediaStream.active) return;
+
     (async function () {
       await startUserMedia();
     })();
-  }, [startUserMedia]);
+  }, [startUserMedia, mediaStream]);
 
   useEffect(() => {
     if (!mediaStream || !videoRef.current) return;

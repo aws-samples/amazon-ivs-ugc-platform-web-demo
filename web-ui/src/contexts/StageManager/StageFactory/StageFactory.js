@@ -1,3 +1,4 @@
+import { stagesAPI } from '../../../api';
 import { STAGE_PUBLISHING_CAPACITY } from '../constants';
 
 import Stage from './Stage';
@@ -52,7 +53,7 @@ class StageFactory {
     }
   }
 
-  static destroyStage(stage) {
+  static async destroyStage(stage) {
     stage.leave();
     stage.removeAllListeners();
     StageFactory.stages.delete(stage.localParticipantId);
@@ -60,6 +61,11 @@ class StageFactory {
     if (!StageFactory.stages.size) {
       StageFactory.publishers.clear();
       delete window.stages; // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
+
+    // Use the stage token to identify if the user is the host and then call the "endStage" API
+    if (stage?.token?.userID?.includes('host:')) {
+      await stagesAPI.endStage();
     }
   }
 

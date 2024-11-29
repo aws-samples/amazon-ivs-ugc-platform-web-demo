@@ -29,7 +29,7 @@ const createAnimationWithDelay = (delay = 0.25) =>
     }
   });
 
-const GoLiveContainerCollapsed = ({ onExpand, isOpen }) => {
+const CollapsedGoLiveContainer = ({ onExpand, isOpen }) => {
   const { isTouchscreenDevice } = useResponsiveDevice();
   const { stopBroadcast } = useBroadcast();
   const stopBroadcastButtonRef = useRef();
@@ -126,9 +126,10 @@ const GoLiveContainerCollapsed = ({ onExpand, isOpen }) => {
     </div>
   );
 };
-GoLiveContainerCollapsed.propTypes = {
+
+CollapsedGoLiveContainer.propTypes = {
   onExpand: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired
 };
 
-export default GoLiveContainerCollapsed;
+export default CollapsedGoLiveContainer;

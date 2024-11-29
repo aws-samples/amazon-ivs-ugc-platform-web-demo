@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   getUserMedia,
@@ -14,6 +15,7 @@ import {
 } from '../Broadcast/useLayers/presetLayers';
 import useScreenShare from '../Broadcast/useScreenShare';
 import { noop } from './utils';
+import { updateUserMediaStates } from '../../reducers/streamManager';
 
 let mediaStream = new MediaStream();
 
@@ -21,10 +23,9 @@ let mediaStream = new MediaStream();
  * Creates and manages a single user media stream
  */
 function useUserMedia() {
+  const dispatch = useDispatch();
   const [audioMuted, setAudioMuted] = useState(false);
   const [videoStopped, setVideoStopped] = useState(false);
-  const [shouldUpdateStreamsToPublish, setShouldUpdateStreamsToPublish] =
-    useState(false);
 
   /**
    * Broadcast Audio inputs
@@ -160,25 +161,28 @@ function useUserMedia() {
     removeAudioInput
   });
 
-  const updateMediaStream = useCallback(async (deviceIds) => {
-    let newMediaStream;
+  const updateMediaStream = useCallback(
+    async (deviceIds) => {
+      let newMediaStream;
 
-    try {
-      newMediaStream = await getUserMedia(deviceIds);
-    } catch (error) {
-      console.error(error);
+      try {
+        newMediaStream = await getUserMedia(deviceIds);
+      } catch (error) {
+        console.error(error);
 
-      return;
-    }
+        return;
+      }
 
-    if (newMediaStream) {
-      const newTracks = newMediaStream?.getTracks();
-      updateMediaStreamTracks(mediaStream, newTracks);
-      setShouldUpdateStreamsToPublish(true);
-    }
+      if (newMediaStream) {
+        const newTracks = newMediaStream?.getTracks();
+        updateMediaStreamTracks(mediaStream, newTracks);
+        dispatch(updateUserMediaStates({ shouldUpdate: true }));
+      }
 
-    return mediaStream;
-  }, []);
+      return mediaStream;
+    },
+    [dispatch]
+  );
 
   const startUserMedia = useCallback(async () => {
     const activeDeviceInfo = await startLocalDevices();
@@ -226,8 +230,6 @@ function useUserMedia() {
       userMediaError,
       videoStopped,
       permissions,
-      shouldUpdateStreamsToPublish,
-      setShouldUpdateStreamsToPublish,
       broadcast: {
         toggleLayer,
         isLayerHidden,
@@ -256,7 +258,6 @@ function useUserMedia() {
       userMediaError,
       videoStopped,
       permissions,
-      shouldUpdateStreamsToPublish,
       toggleLayer,
       isLayerHidden,
       toggleMute,

@@ -1,30 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+
 import { getAvatarSrc } from '../../../helpers';
-import useDebouncedCallback from '../../../hooks/useDebouncedCallback';
 import usePrevious from '../../../hooks/usePrevious';
-import useResize from '../../../hooks/useResize';
-import { useStageManager } from '../../../contexts/StageManager';
+import { PARTICIPANT_TYPES } from '../../../constants';
+import useResizeObserver from '../../../hooks/useResizeObserver';
 
 const useScreenshareRow = ({
   containerMinHeightPX = 0,
-  containerRef,
+  videoContainerRef,
   publishingDisplayParticipants,
-  videoAudioParticipants = []
+  videoAudioParticipants = [],
+  parentContainerRef
 }) => {
-  const { participantRole } = useStageManager() || {};
-  const isScreenshareVisible = publishingDisplayParticipants.length > 0;
+  const { collaborate } = useSelector((state) => state.shared);
   const overflowAvatarsInitialized = useRef(false);
-  const videoAudioParticipantsLength = videoAudioParticipants.length;
-  const prevVAParticipantLength = usePrevious(videoAudioParticipantsLength);
   const [maxColumnCount, setMaxColumnCount] = useState(0);
   const [overflowAvatars, setOverflowAvatars] = useState([]);
-  const isSpectator = participantRole === 'spectator';
+
+  // Participants
+  const videoAudioParticipantsLength = videoAudioParticipants.length;
+  const prevVAParticipantLength = usePrevious(videoAudioParticipantsLength);
+  const isSpectator =
+    collaborate.participantType === PARTICIPANT_TYPES.SPECTATOR;
   const screenshareParticipantColCount =
     maxColumnCount > videoAudioParticipantsLength
       ? isSpectator
         ? videoAudioParticipantsLength
         : Math.max(2, videoAudioParticipantsLength)
       : maxColumnCount;
+
+  // Screen-share
+  const isScreenshareVisible = publishingDisplayParticipants.length > 0;
+
+  // Overflow card
   const visibleOverflowAvatars = overflowAvatars.slice(0, 2);
   const isOverflowCardVisible = isScreenshareVisible
     ? videoAudioParticipantsLength > maxColumnCount &&
@@ -39,10 +48,10 @@ const useScreenshareRow = ({
       prevVAParticipantLength === videoAudioParticipantsLength);
 
   const updateMaxColumnCount = useCallback(() => {
-    if (!isScreenshareVisible || !containerRef.current) return;
+    if (!isScreenshareVisible || !videoContainerRef.current) return;
 
     const { clientWidth: vpWidth, clientHeight: vpHeight } =
-      containerRef.current;
+      videoContainerRef.current;
     const cardAspectRatio = 16 / 9;
 
     if (vpHeight > containerMinHeightPX) {
@@ -53,7 +62,7 @@ const useScreenshareRow = ({
     } else {
       requestAnimationFrame(updateMaxColumnCount);
     }
-  }, [isScreenshareVisible, containerRef, containerMinHeightPX]);
+  }, [isScreenshareVisible, videoContainerRef, containerMinHeightPX]);
 
   useEffect(() => {
     if (skipUpdateOverflowAvatarsState) return;
@@ -63,7 +72,7 @@ const useScreenshareRow = ({
     );
     setOverflowAvatars(
       overflowParticipants.reduce((acc, participant) => {
-        const { attributes } = participant[1];
+        const { attributes } = participant;
         const avatarSrc = getAvatarSrc(attributes);
 
         return [...acc, avatarSrc];
@@ -82,9 +91,7 @@ const useScreenshareRow = ({
     screenshareParticipantColCount
   ]);
 
-  useResize(
-    useDebouncedCallback(updateMaxColumnCount, 250, { immediate: false })
-  );
+  useResizeObserver(parentContainerRef, updateMaxColumnCount);
 
   return {
     hiddenOverflowAvatarsLength,

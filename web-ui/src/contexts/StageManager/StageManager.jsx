@@ -9,41 +9,61 @@ import {
 } from 'react';
 import {
   useAsyncValue,
-  useBeforeUnload,
   useLoaderData,
   useLocation,
   useNavigate
 } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import copyToClipboard from 'copy-to-clipboard';
+import PropTypes from 'prop-types';
 
-import { useLocalStorage, useMount } from './hooks';
+import { useLocalStorage } from './hooks';
 import useContextHook from '../useContextHook';
 import { PARTICIPANT_GROUP } from './constants';
 import useStage from './useStage';
 import { useDeviceManager } from '../DeviceManager';
-import { useGlobal } from '../Stage/Global';
 import StageFactory from './StageFactory';
-import { PARTICIPANT_TYPES } from '../Stage/Global/reducer/globalReducer';
 import { streamManager as $streamManagerContent } from '../../content';
-import { retryWithExponentialBackoff } from '../../utils';
 import { stagesAPI } from '../../api';
-import { MODAL_TYPE, useModal } from '../Modal';
+import { useModal } from '../Modal';
 import {
-  DISPLAY_STAGE_ID_URL_PARAM,
-  USER_STAGE_ID_URL_PARAM,
+  STAGE_ID_URL_PARAM,
   createUserJoinedSuccessMessage
 } from '../../helpers/stagesHelpers';
 import { useUser } from '../User';
 import { apiBaseUrl } from '../../api/utils';
+import {
+  STREAM_MODES,
+  updateGoLiveContainerStates,
+  updateUserMediaStates,
+  updateStreamMode,
+  updateDisplayMediaStates,
+  updateStageJoinTime
+} from '../../reducers/streamManager';
+import {
+  COLLABORATE_HOST_STATUS,
+  finalizeCollaborationExit,
+  updateCollaborateStates,
+  updateError,
+  updateSuccess
+} from '../../reducers/shared';
+import channelEvents from '../AppSync/channelEvents';
+import { useAppSync } from '../AppSync';
+import {
+  COLLABORATE_ROUTE_PATH,
+  PARTICIPANT_TYPES,
+  STAGE_LEFT_REASONS
+} from '../../constants';
+import useFetchHostData from '../../pages/StreamManager/hooks/useFetchHostData';
 
 const {
-  StageParticipantPublishState,
-  StreamType,
+  StageConnectionState,
   StageEvents,
-  StageLeftReason
+  StageParticipantPublishState,
+  StreamType
 } = window.IVSBroadcastClient;
 const { PUBLISHED } = StageParticipantPublishState;
+const { CONNECTED, CONNECTING } = StageConnectionState;
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -58,44 +78,150 @@ function useStageManager() {
 }
 
 function StageManagerProvider({ children }) {
+  const dispatch = useDispatch();
+  const {
+    collaborate: {
+      participantType,
+      isLeaving: isLeavingStage,
+      leftReason: stageLeftReason,
+      isJoining: isJoiningStage,
+      stageId: storedStageId,
+      host
+    }
+  } = useSelector((state) => state.shared);
+  const {
+    userMedia,
+    displayMedia,
+    stageJoinTime: localStageJoinTime,
+    streamMode
+  } = useSelector((state) => state.streamManager);
+  const navigate = useNavigate();
+  const { publish } = useAppSync();
+  const isEnterLockedRef = useRef(false); // If true, participant has entered the collaborate session
+  const isLeavingStreamManagerRef = useRef(false); // If true, when leaving stage, will not force navigate to the '/manager' route
+  const { pathname } = useLocation();
+  const { closeModal } = useModal();
+  const { userData } = useUser();
+
+  // Stage config and options (from page loader)
   const asyncValue = useAsyncValue();
   const loaderData = useLoaderData();
   const {
-    user: userConfig,
-    display: displayConfig,
-    participantRole
+    [PARTICIPANT_GROUP.USER]: userConfig,
+    [PARTICIPANT_GROUP.DISPLAY]: displayConfig,
+    stageId: loaderDataStageId
   } = asyncValue ?? loaderData;
-
-  const navigate = useNavigate();
+  const stageId = storedStageId || loaderDataStageId;
   const [audioOnly] = useLocalStorage('audioOnly');
   const [simulcast] = useLocalStorage('simulcast');
-  const {
-    updateSuccess,
-    updateError,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon
-  } = useGlobal();
   const userOptions = { audioOnly, simulcast };
-  const url = new URL(window.location.href);
-  const [inviteUrl] = useState(
-    userConfig.stageId
-      ? `${url.origin}/manager/collab?${USER_STAGE_ID_URL_PARAM}=${userConfig.stageId}&${DISPLAY_STAGE_ID_URL_PARAM}=${displayConfig.stageId}`
-      : null
-  );
-  const isInvitedStageUser = participantRole === 'invited';
-  const isRequestedStageUser = participantRole === 'requested';
 
+  // Fetch Host Data using SWR
+  const { hostChannelData, fetchHostChannelError, setShouldFetchHostData } =
+    useFetchHostData();
+
+  // Stage instances
   const userStage = useStage(userConfig, userOptions);
   const displayStage = useStage(displayConfig);
 
+  // User stage status
+  const { connectState: userConnectState, join: joinUserStage } = userStage;
+
+  // Local participant
+  const publishingLocalParticipant = userStage.getParticipants({
+    isPublishing: true,
+    canSubscribeTo: true,
+    isLocal: true
+  })[0];
+
+  // Invite URL
+  const url = new URL(window.location.href);
+  const [inviteUrl] = useState(
+    stageId
+      ? `${url.origin}${COLLABORATE_ROUTE_PATH}?${STAGE_ID_URL_PARAM}=${stageId}`
+      : null
+  );
+
+  /**
+   * On the stream manager page,
+   * When joining participant is local, save own join time
+   * This own join time is used to notify the user when new participants join
+   * by comparing both participant's join times.
+   * Also, use AppSync to delete request to join session.
+   */
+  const handleSessionJoined = useCallback(
+    (participant) => {
+      const joinTime = new Date().toISOString();
+      const {
+        attributes: {
+          username,
+          participantGroup,
+          type: participantType,
+          channelId
+        },
+        isLocal: isLocalParticipant
+      } = participant;
+      const joinNotificationBuffer = 3000; // This buffer prevents join notifications for participants who were already in the session when the local user joined (ms)
+      if (isLocalParticipant) {
+        dispatch(updateStageJoinTime(joinTime));
+      } else if (!isLocalParticipant && localStageJoinTime) {
+        const localStageJoinTimeMs = Date.parse(localStageJoinTime);
+        const joinTimeMs = Date.parse(joinTime);
+        /**
+         * Display the "participant joined session" notification only if the local participant
+         * joined the session later than the joining participant.
+         * This approach prevents notifications for participants who were already
+         * in the session when the local user joined.
+         */
+        if (joinTimeMs - localStageJoinTimeMs > joinNotificationBuffer) {
+          const successMessage = createUserJoinedSuccessMessage(
+            username,
+            participantGroup
+          );
+          dispatch(updateSuccess(successMessage));
+        }
+      }
+
+      if (PARTICIPANT_TYPES.REQUESTED === participantType) {
+        publish(
+          channelId.toLowerCase(),
+          JSON.stringify({
+            type: channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN,
+            channelId
+          })
+        );
+      }
+    },
+    [dispatch, localStageJoinTime, publish]
+  );
+
+  useEffect(() => {
+    if (pathname !== COLLABORATE_ROUTE_PATH || !userStage) return;
+
+    userStage.on(StageEvents.STAGE_PARTICIPANT_JOINED, handleSessionJoined);
+
+    return () => {
+      userStage.off(StageEvents.STAGE_PARTICIPANT_JOINED, handleSessionJoined);
+    };
+  }, [
+    userStage,
+    publishingLocalParticipant,
+    dispatch,
+    publish,
+    handleSessionJoined,
+    pathname,
+    streamMode
+  ]);
+
+  /**
+   * User Media
+   */
   const {
     userMedia: {
       toggleAudio,
       toggleVideo,
       updateActiveDevice,
       mediaStream: userMediaStream,
-      shouldUpdateStreamsToPublish,
-      setShouldUpdateStreamsToPublish,
       publishState,
       subscribeOnly,
       stopUserMedia,
@@ -104,77 +230,18 @@ function StageManagerProvider({ children }) {
     displayMedia: {
       stopScreenShare,
       mediaStreamToPublish,
-      setMediaStreamToPublish,
-      shouldUnpublishScreenshare,
-      setShouldUnpublishScreenshare,
-      isScreenSharing
+      setMediaStreamToPublish
     },
     stopDevices
   } = useDeviceManager();
 
-  const publishingLocalParticipant = userStage.getParticipants({
-    isPublishing: true,
-    canSubscribeTo: true,
-    isLocal: true
-  })[0];
+  const userPublishStateDeferred = useDeferredValue(publishState);
+  const userUnpublished =
+    subscribeOnly && userPublishStateDeferred === PUBLISHED;
 
-  /**
-   * Successfully joined notification
-   */
-  useEffect(() => {
-    if (!publishingLocalParticipant || userStage.connectState !== 'connected')
-      return;
-    function onJoin(participant) {
-      const {
-        attributes: {
-          username,
-          participantGroup,
-          participantTokenCreationDate
-        },
-        isLocal
-      } = participant;
-      const joinTokenCreatedDate = new Date(
-        parseInt(participantTokenCreationDate, 10)
-      );
-      const localTokenCreatedUnix = parseInt(
-        publishingLocalParticipant?.attributes.participantTokenCreationDate,
-        10
-      );
-      const localTokenCreatedDate = isNaN(localTokenCreatedUnix)
-        ? new Date()
-        : new Date(localTokenCreatedUnix);
-
-      if (!isLocal && joinTokenCreatedDate > localTokenCreatedDate) {
-        const successMessage = createUserJoinedSuccessMessage(
-          username,
-          participantGroup
-        );
-        updateSuccess(successMessage);
-      }
-    }
-
-    [userStage.on, displayStage.on].forEach((on) => {
-      on(StageEvents.STAGE_PARTICIPANT_JOINED, onJoin);
-    });
-    return () => {
-      [userStage.off, displayStage.off].forEach((off) => {
-        off(StageEvents.STAGE_PARTICIPANT_JOINED, onJoin);
-      });
-    };
-  }, [
-    userStage,
-    updateSuccess,
-    displayStage.on,
-    publishingLocalParticipant,
-    displayStage.off
-  ]);
-
-  /**
-   * User Media
-   */
+  // If available, the audio local stage stream should be the source of truth for the next muted state
   const toggleLocalStreamAudio = useCallback(
     ({ muted }) => {
-      // If available, the audio local stage stream should be the source of truth for the next muted state
       const isAudioLocalStageStreamMuted =
         userStage.toggleLocalStageStreamMutedState(StreamType.AUDIO, muted);
 
@@ -183,9 +250,9 @@ function StageManagerProvider({ children }) {
     [toggleAudio, userStage]
   );
 
+  // If available, the video local stage stream should be the source of truth for the next muted state
   const toggleLocalStreamVideo = useCallback(
     ({ stopped }) => {
-      // If available, the video local stage stream should be the source of truth for the next muted state
       const isVideoLocalStageStreamMuted =
         userStage.toggleLocalStageStreamMutedState(StreamType.VIDEO, stopped);
       toggleVideo({ stopped: isVideoLocalStageStreamMuted });
@@ -193,34 +260,31 @@ function StageManagerProvider({ children }) {
     [toggleVideo, userStage]
   );
 
+  // when the media stream is updated, should also update the stage streams to publish
   useEffect(() => {
-    // when the media stream is updated, should also update the stage streams to publish
     if (
       typeof userStage.updateStreamsToPublish === 'function' &&
-      shouldUpdateStreamsToPublish
+      userMedia.shouldUpdate
     ) {
       userStage.updateStreamsToPublish(userMediaStream);
-      setShouldUpdateStreamsToPublish(false);
+      dispatch(updateUserMediaStates({ shouldUpdate: false }));
     }
-  }, [
-    userMediaStream,
-    setShouldUpdateStreamsToPublish,
-    shouldUpdateStreamsToPublish,
-    userStage
-  ]);
+  }, [userMediaStream, userMedia.shouldUpdate, userStage, dispatch]);
 
-  const userPublishStateDeferred = useDeferredValue(publishState);
-  const userUnpublished =
-    subscribeOnly && userPublishStateDeferred === PUBLISHED;
   useEffect(() => {
     if (userUnpublished) {
+      console.log('User unpublished... Stopping user media');
       stopUserMedia();
     }
   }, [userUnpublished, stopUserMedia]);
 
   /**
-   * Display Media
+   * Display (screen-share) Media
    */
+  const screensharePublishStateDeferred = useDeferredValue(publishState);
+  const screenshareUnpublished =
+    subscribeOnly && screensharePublishStateDeferred === PUBLISHED;
+
   useEffect(() => {
     if (mediaStreamToPublish) {
       displayStage.publish(mediaStreamToPublish);
@@ -229,15 +293,16 @@ function StageManagerProvider({ children }) {
   }, [displayStage, mediaStreamToPublish, setMediaStreamToPublish]);
 
   useEffect(() => {
-    if (shouldUnpublishScreenshare) {
+    if (displayMedia.shouldUnpublish) {
       displayStage.unpublish();
-      setShouldUnpublishScreenshare(false);
+      dispatch(
+        updateDisplayMediaStates({
+          shouldUnpublish: false
+        })
+      );
     }
-  }, [displayStage, shouldUnpublishScreenshare, setShouldUnpublishScreenshare]);
+  }, [dispatch, displayStage, displayMedia.shouldUnpublish]);
 
-  const screensharePublishStateDeferred = useDeferredValue(publishState);
-  const screenshareUnpublished =
-    subscribeOnly && screensharePublishStateDeferred === PUBLISHED;
   useEffect(() => {
     if (displayStage.publishError || screenshareUnpublished) {
       stopScreenShare();
@@ -245,14 +310,17 @@ function StageManagerProvider({ children }) {
   }, [screenshareUnpublished, displayStage, stopScreenShare]);
 
   /**
-   * Enter and leave meeting (stage session)
+   * Enter and leave stage collaborate session
    */
-  const { closeModal } = useModal();
-  const { pathname } = useLocation();
-  const enterMeeting = useCallback(
+  const handleLeaveStages = useCallback(() => {
+    dispatch(updateStreamMode(STREAM_MODES.LOW_LATENCY));
+    leaveStages();
+  }, [dispatch]);
+
+  const enterCollaborateSession = useCallback(
     async ({
       joinMuted = false,
-      joinAsViewer = false,
+      joinAsSpectator = false,
       userStreamToPublish = userMediaStream
     } = {}) => {
       if (!userStage) return;
@@ -262,150 +330,109 @@ function StageManagerProvider({ children }) {
       }
 
       try {
-        joinAsViewer
+        joinAsSpectator
           ? await userStage.join()
           : await userStage.join(userStreamToPublish);
         await displayStage.join();
 
-        if (joinAsViewer) {
+        dispatch(updateStreamMode(STREAM_MODES.REAL_TIME));
+
+        if (joinAsSpectator) {
           stopDevices();
         }
       } catch (error) {
-        updateError({
-          message: $contentNotification.error.unable_to_join_session,
-          err: error
-        });
-        leaveStages();
-        if (participantRole !== 'spectator') {
-          // Return back to default state on /manager route
-          navigate('/manager');
-          closeModal({ shouldCancel: false, shouldRefocus: false });
-        }
+        console.error(error);
+        dispatch(
+          updateCollaborateStates({
+            isLeaving: true,
+            leftReason: STAGE_LEFT_REASONS.FAILED_TO_JOIN
+          })
+        );
+      }
+      if (joinAsSpectator) {
+        isEnterLockedRef.current = false;
       }
     },
     [
+      dispatch,
+      displayStage,
       stopDevices,
       toggleLocalStreamAudio,
       userMediaStream,
-      userStage,
-      displayStage,
-      participantRole,
-      navigate,
-      closeModal,
-      updateError
+      userStage
     ]
   );
 
-  const isEnterLock = useRef(false);
-  const isMounted = useMount();
-
-  const { connectState: userConnectState, join: joinUserStage } = userStage;
-
   useEffect(() => {
     if (
-      userStage.stageLeftReason !== StageLeftReason.STAGE_DELETED &&
+      !isEnterLockedRef.current &&
+      stageLeftReason !== STAGE_LEFT_REASONS.STAGE_DELETED &&
       userConnectState === 'disconnected' &&
       typeof joinUserStage === 'function' &&
       typeof startUserMedia === 'function'
     ) {
-      if (!isEnterLock.current && participantRole === 'host') {
-        isEnterLock.current = true;
+      isEnterLockedRef.current = true;
+
+      if (participantType === PARTICIPANT_TYPES.HOST) {
         (async function () {
           const userStreamToPublish = await startUserMedia();
 
-          enterMeeting({ userStreamToPublish });
+          enterCollaborateSession({ userStreamToPublish });
         })();
-      }
-
-      if (participantRole === 'spectator') {
-        enterMeeting({
+      } else if (participantType === PARTICIPANT_TYPES.SPECTATOR) {
+        enterCollaborateSession({
           joinMuted: true,
-          joinAsViewer: true
+          joinAsSpectator: true
         });
       }
     }
   }, [
-    enterMeeting,
+    enterCollaborateSession,
     startUserMedia,
     userConnectState,
     joinUserStage,
-    participantRole,
-    userStage.stageLeftReason
+    participantType,
+    stageLeftReason,
+    isJoiningStage
   ]);
-
-  useEffect(() => {
-    return () => {
-      // Leave stages on unmount
-      if (!isMounted()) {
-        leaveStages();
-      }
-    };
-  }, [isMounted, participantRole]);
-
-  const isUserStageDeleted =
-    userStage?.stageLeftReason === StageLeftReason.STAGE_DELETED;
-  const isUserDisconnected =
-    userStage?.stageLeftReason === StageLeftReason.PARTICIPANT_DISCONNECTED;
-  useEffect(() => {
-    // Navigate to /manager route when stage resource is deleted on stream manager page
-    if (isUserStageDeleted || isUserDisconnected) {
-      updateError({
-        message: $contentNotification.error.you_have_been_removed_from_session
-      });
-      navigate(participantRole === 'spectator' ? pathname : '/manager');
-    }
-  }, [
-    isUserDisconnected,
-    isUserStageDeleted,
-    navigate,
-    participantRole,
-    pathname,
-    updateError
-  ]);
-
-  useBeforeUnload(
-    useCallback(() => {
-      if (participantRole === 'spectator') destroyStages();
-    }, [participantRole])
-  );
 
   /**
    * Start grace period to delete stage if idle
    */
-  const { userData } = useUser();
-  useEffect(() => {
-    const beforeUnloadHandler = () => {
-      if (userStage || displayStage) {
-        queueMicrotask(() => {
-          setTimeout(() => {
-            if (participantRole === 'host') {
-              const body = {
-                hostChannelId:
-                  publishingLocalParticipant?.attributes?.channelId ||
-                  userData?.channelId
-              };
-              navigator.sendBeacon(
-                `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
-                JSON.stringify(body)
-              );
-            }
-          }, 0);
-        });
-      }
-    };
+  const beforeUnloadHandler = useCallback(() => {
+    if (participantType === PARTICIPANT_TYPES.HOST) {
+      queueMicrotask(() => {
+        const body = {
+          hostChannelId:
+            publishingLocalParticipant?.attributes?.channelId ||
+            userData?.channelId,
+          stageId
+        };
 
+        navigator.sendBeacon(
+          `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
+          JSON.stringify(body)
+        );
+      });
+    }
+
+    if (participantType === PARTICIPANT_TYPES.SPECTATOR) {
+      destroyStages();
+    }
+  }, [
+    participantType,
+    publishingLocalParticipant?.attributes?.channelId,
+    stageId,
+    userData?.channelId
+  ]);
+
+  useEffect(() => {
     window.addEventListener('beforeunload', beforeUnloadHandler);
 
     return () => {
       window.removeEventListener('beforeunload', beforeUnloadHandler);
     };
-  }, [
-    userStage,
-    displayStage,
-    userData?.channelId,
-    participantRole,
-    publishingLocalParticipant?.attributes?.channelId
-  ]);
+  }, [beforeUnloadHandler]);
 
   /**
    * Stage Controls
@@ -427,90 +454,161 @@ function StageManagerProvider({ children }) {
   const copyInviteUrl = useCallback(() => {
     if (inviteUrl) {
       copyToClipboard(inviteUrl);
-      updateSuccess(
-        $contentNotification.success.session_link_has_been_copied_to_clipboard
+      dispatch(
+        updateSuccess(
+          $contentNotification.success.session_link_has_been_copied_to_clipboard
+        )
       );
+    } else {
+      console.error('The invite URL is not available');
+      dispatch(updateError($contentNotification.error.unable_to_copy_link));
     }
-  }, [inviteUrl, updateSuccess]);
+  }, [dispatch, inviteUrl]);
 
-  const leaveStage = useCallback(async () => {
-    destroyStages();
-    updateActiveDevice('video', null);
-    updateActiveDevice('audio', null);
+  const leaveStage = useCallback(
+    async ({ isLeavingStreamManager = false } = {}) => {
+      let result, error;
+      updateActiveDevice('video', null);
+      updateActiveDevice('audio', null);
 
-    if (participantRole === 'host') {
-      const { result, error } = await retryWithExponentialBackoff({
-        promiseFn: () => stagesAPI.deleteStage(),
-        maxRetries: 2
-      });
+      if (participantType === PARTICIPANT_TYPES.HOST) {
+        ({ result, error } = await stagesAPI.endStage());
 
-      if (result) {
-        updateAnimateCollapseStageContainerWithDelay(false);
-        updateShouldAnimateGoLiveButtonChevronIcon(false);
+        if (result) {
+          isLeavingStreamManagerRef.current = isLeavingStreamManager;
 
-        if (isScreenSharing) stopScreenShare();
-        updateSuccess($contentNotification.success.you_have_left_the_session);
+          dispatch(
+            updateGoLiveContainerStates({
+              animateGoLiveButtonChevronIcon: false,
+              delayAnimation: false
+            })
+          );
+
+          if (displayMedia.isScreenSharing) stopScreenShare();
+
+          dispatch(updateCollaborateStates({ isLeaving: true }));
+        }
+        if (error) {
+          console.error(error);
+          dispatch(
+            updateError($contentNotification.error.unable_to_leave_session)
+          );
+        }
+      } else {
+        result = true;
+        isLeavingStreamManagerRef.current = isLeavingStreamManager;
+
+        dispatch(updateCollaborateStates({ isLeaving: true }));
       }
-      if (error) {
-        updateError({
-          message: $contentNotification.error.unable_to_leave_session,
-          err: error
-        });
+
+      return { result, error };
+    },
+    [
+      updateActiveDevice,
+      participantType,
+      dispatch,
+      displayMedia.isScreenSharing,
+      stopScreenShare
+    ]
+  );
+
+  /**
+   * Navigate to the '/manager' route when the shared collaborate state "isLeaving" becomes true.
+   * The "isLeaving" state is set to true under these conditions:
+   * 1. When a host successfully deletes the stage they own.
+   * 2. When a non-host participant triggers the "leaveStage" function.
+   * 3. When the STAGE_LEFT event is received
+   * 4. When user fails to join stage in "enterCollaborateSession"
+   * This navigation ensures users are redirected after leaving a collaboration session.
+   */
+  useEffect(() => {
+    if (isLeavingStage) {
+      handleLeaveStages();
+      if (
+        !isLeavingStreamManagerRef.current &&
+        pathname === COLLABORATE_ROUTE_PATH
+      ) {
+        navigate('/manager');
       }
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+      stopDevices();
+      dispatch(finalizeCollaborationExit(stageLeftReason));
+      isLeavingStreamManagerRef.current = false;
     }
-    navigate('/manager');
   }, [
-    updateActiveDevice,
-    participantRole,
+    stopDevices,
+    closeModal,
+    dispatch,
+    handleLeaveStages,
+    isLeavingStage,
     navigate,
-    updateAnimateCollapseStageContainerWithDelay,
-    updateShouldAnimateGoLiveButtonChevronIcon,
-    isScreenSharing,
-    stopScreenShare,
-    updateSuccess,
-    updateError
+    pathname,
+    stageLeftReason
   ]);
 
   /**
-   * Stage join modal
+   * As an invited or requested participant,
+   * If the host leaves the collaborate session then leave stage
    */
+  useEffect(() => {
+    if (
+      [
+        PARTICIPANT_TYPES.INVITED,
+        PARTICIPANT_TYPES.REQUESTED,
+        PARTICIPANT_TYPES.SPECTATOR
+      ].includes(participantType) &&
+      host.username &&
+      !isJoiningStage
+    ) {
+      if (host.status === COLLABORATE_HOST_STATUS.DISCONNECTED) {
+        setShouldFetchHostData(true);
 
-  const { openModal } = useModal();
+        if (hostChannelData && !fetchHostChannelError) {
+          const { stageId } = hostChannelData;
 
-  const handleCloseJoinModal = useCallback(() => {
-    setTimeout(() => {
-      window.history.replaceState({}, document.title);
-      window.location.href = '/manager';
-    }, 100);
-  }, []);
-
-  const handleOpenJoinModal = useCallback(() => {
-    openModal({
-      type: MODAL_TYPE.STAGE_JOIN,
-      onCancel: handleCloseJoinModal
-    });
-  }, [openModal, handleCloseJoinModal]);
+          if (!stageId) {
+            dispatch(
+              updateCollaborateStates({
+                leftReason: STAGE_LEFT_REASONS.SESSION_ENDED
+              })
+            );
+            leaveStage();
+            setShouldFetchHostData(false);
+          }
+        }
+      } else {
+        // Host has connected, therefore stop fetching host channel data
+        setShouldFetchHostData(false);
+      }
+    }
+  }, [
+    dispatch,
+    fetchHostChannelError,
+    host.status,
+    host.username,
+    hostChannelData,
+    isJoiningStage,
+    leaveStage,
+    participantType,
+    setShouldFetchHostData
+  ]);
 
   const value = useMemo(
     () => ({
       [PARTICIPANT_GROUP.USER]: {
         ...userStage,
-        isUserStageConnected: userStage.connectState === 'connected'
+        isConnected: userStage.connectState === CONNECTED,
+        isConnecting: userStage.connectState === CONNECTING
       },
       [PARTICIPANT_GROUP.DISPLAY]: displayStage,
       stageControls: {
         ...stageControlsStates,
         toggleAudio: toggleLocalStreamAudio,
         toggleVideo: toggleLocalStreamVideo,
-        enterMeeting,
+        enterCollaborateSession,
         copyInviteUrl,
-        leaveStage,
-        handleOpenJoinModal
-      },
-      participantRole,
-      isJoiningStageByRequestOrInvite:
-        (isInvitedStageUser || isRequestedStageUser) &&
-        userStage.connectState === 'disconnected'
+        leaveStage
+      }
     }),
     [
       userStage,
@@ -518,13 +616,9 @@ function StageManagerProvider({ children }) {
       stageControlsStates,
       toggleLocalStreamAudio,
       toggleLocalStreamVideo,
-      enterMeeting,
+      enterCollaborateSession,
       copyInviteUrl,
-      leaveStage,
-      handleOpenJoinModal,
-      participantRole,
-      isInvitedStageUser,
-      isRequestedStageUser
+      leaveStage
     ]
   );
 

@@ -14,9 +14,9 @@ import withVerticalScroller from '../../components/withVerticalScroller';
 
 const UserManagement = () => {
   const {
-    hasErrorCreatingResources,
+    hasErrorProvisioningResources,
     initUserResources,
-    isCreatingResources,
+    isProvisioningResources,
     isSessionValid
   } = useUser();
   const { currentBreakpoint, mainRef } = useResponsiveDevice();
@@ -36,8 +36,8 @@ const UserManagement = () => {
 
   if (
     isSessionValid === true &&
-    !isCreatingResources &&
-    !hasErrorCreatingResources
+    !isProvisioningResources &&
+    !hasErrorProvisioningResources
   ) {
     /**
      * Send the user back to the page they tried to visit when they were
@@ -69,9 +69,9 @@ const UserManagement = () => {
       ref={mainRef}
     >
       <Notification />
-      {isCreatingResources || hasErrorCreatingResources ? (
+      {isProvisioningResources || hasErrorProvisioningResources ? (
         <FullScreenLoader
-          hasError={hasErrorCreatingResources}
+          hasError={hasErrorProvisioningResources}
           mobileBreakpoint={BREAKPOINTS.lg}
           onClick={initUserResources}
         />

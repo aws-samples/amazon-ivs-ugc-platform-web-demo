@@ -1,10 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { v4 as uuidv4 } from 'uuid';
 
-import {
-  CHANNELS_TABLE_STAGE_FIELDS,
-  UNEXPECTED_EXCEPTION
-} from '../../shared/constants';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { getUser } from '../../channel/helpers';
 import {
   handleCreateStageParams,
@@ -12,10 +8,11 @@ import {
   PARTICIPANT_USER_TYPES,
   handleCreateParticipantToken,
   participantTypesArray,
-  PARTICIPANT_GROUP
+  PARTICIPANT_GROUP,
+  isUserInStage,
+  PARTICIPANT_TYPES,
+  generateHostUserId
 } from '../helpers';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { getChannelId, updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../../shared/authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -30,11 +27,11 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       avatar,
       channelAssetsAvatarUrl,
       duration: userTokenDuration,
-      userId: hostUserId,
+      userId,
       capabilities: userCapabilities,
       userType: hostType,
-      userStageId,
-      displayStageId
+      stageId,
+      channelId
     } = await handleCreateStageParams({
       userSub: sub,
       participantType: PARTICIPANT_USER_TYPES.HOST,
@@ -47,7 +44,6 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       capabilities: displayCapabilities,
       userType: screenshareType
     } = await handleCreateStageParams({
-      userSub: sub,
       participantType: PARTICIPANT_USER_TYPES.SCREENSHARE,
       channelData
     });
@@ -56,10 +52,8 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       throw new Error('No IVS resources have been created for this user.');
     }
 
-    if (userStageId && displayStageId) {
-      // throw new Error('Operation cannot be completed. active stage found.');
-      const userStageArn = `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:stage/${userStageId}`;
-      const displayStageArn = `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:stage/${displayStageId}`;
+    if (stageId) {
+      const stageArn = `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:stage/${stageId}`;
 
       const sharedAttrParams = {
         username: preferredUsername || username,
@@ -68,18 +62,28 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
         channelAssetsAvatarUrl,
         ...(participantTypesArray.includes(PARTICIPANT_USER_TYPES.HOST) && {
           participantTokenCreationDate: Date.now().toString()
-        })
+        }),
+        channelId
       };
+
+      // Check if user, the host, is in the stage. If so, then the participantRole should be set to INVITE instead of HOST.
+      const isInStage = await isUserInStage(stageId, sub);
+      const participantRole = isInStage ? PARTICIPANT_TYPES.INVITED : hostType;
+      const userStageUserId = isInStage
+        ? userId
+        : generateHostUserId(channelArn);
+
+      console.log('User stage participantRole: ', participantRole);
 
       const { token: userToken, participantId: userParticipantId } =
         await handleCreateParticipantToken(
           {
-            stageArn: userStageArn,
+            stageArn,
             duration: userTokenDuration,
-            userId: hostUserId,
+            userId: userStageUserId,
             attributes: {
               ...sharedAttrParams,
-              type: hostType,
+              type: participantRole,
               participantGroup: PARTICIPANT_GROUP.USER
             },
             capabilities: userCapabilities
@@ -89,7 +93,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       const { token: displayToken, participantId: displayParticipantId } =
         await handleCreateParticipantToken(
           {
-            stageArn: displayStageArn,
+            stageArn,
             duration: displayTokenDuration,
             userId: displayUserId,
             attributes: {
@@ -110,118 +114,34 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       ) {
         reply.statusCode = 200;
         return reply.send({
-          user: {
+          [PARTICIPANT_GROUP.USER]: {
             token: userToken,
-            stageId: userStageId,
             participantId: userParticipantId,
             participantGroup: PARTICIPANT_GROUP.USER
           },
-          display: {
+          [PARTICIPANT_GROUP.DISPLAY]: {
             token: displayToken,
-            stageId: displayStageId,
             participantId: displayParticipantId,
             participantGroup: PARTICIPANT_GROUP.DISPLAY
           },
-          participantRole: 'host'
+          stageId,
+          participantRole
         });
       }
     }
 
-    const channelId = getChannelId(channelArn);
-    const stageCreationDate = Date.now().toString();
-    const sharedAttrParams = {
+    const newStageConfig = await handleCreateStage({
       username: preferredUsername || username,
       profileColor,
       avatar,
-      channelAssetsAvatarUrl
-    };
-
-    const {
-      token: userToken,
-      stageId: newUserStageId,
-      participantId: userParticipantId
-    } = await handleCreateStage({
-      name: `${username}-${uuidv4()}`,
-      participantTokenConfigurations: [
-        {
-          attributes: {
-            ...sharedAttrParams,
-            type: hostType,
-            participantGroup: PARTICIPANT_GROUP.USER
-          },
-          capabilities: userCapabilities,
-          duration: userTokenDuration,
-          userId: hostUserId
-        }
-      ],
-      tags: {
-        creationDate: stageCreationDate,
-        stageOwnerChannelId: channelId
-      }
-    });
-    const {
-      token: displayToken,
-      stageId: newDisplayStageId,
-      participantId: displayParticipantId
-    } = await handleCreateStage({
-      name: `${username}-${uuidv4()}`,
-      participantTokenConfigurations: [
-        {
-          attributes: {
-            ...sharedAttrParams,
-            type: screenshareType,
-            participantGroup: PARTICIPANT_GROUP.DISPLAY
-          },
-          capabilities: displayCapabilities,
-          duration: displayTokenDuration,
-          userId: displayUserId
-        }
-      ],
-      tags: {
-        creationDate: stageCreationDate,
-        stageOwnerChannelId: channelId
-      }
-    });
-
-    console.log('CREATE STAGE - WRITING TO DYNAMO');
-
-    await updateDynamoItemAttributes({
-      attributes: [
-        {
-          key: CHANNELS_TABLE_STAGE_FIELDS.USER_STAGE_ID,
-          value: newUserStageId
-        },
-        {
-          key: CHANNELS_TABLE_STAGE_FIELDS.DISPLAY_STAGE_ID,
-          value: newDisplayStageId
-        },
-        {
-          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
-          value: stageCreationDate
-        },
-        {
-          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
-          value: stageCreationDate
-        }
-      ],
-      primaryKey: { key: 'id', value: sub },
-      tableName: process.env.CHANNELS_TABLE_NAME as string
+      channelAssetsAvatarUrl,
+      channelArn,
+      sub
     });
 
     reply.statusCode = 200;
     return reply.send({
-      [PARTICIPANT_GROUP.USER]: {
-        token: userToken,
-        stageId: newUserStageId,
-        participantId: userParticipantId,
-        participantGroup: PARTICIPANT_GROUP.USER
-      },
-      [PARTICIPANT_GROUP.DISPLAY]: {
-        token: displayToken,
-        stageId: newDisplayStageId,
-        participantId: displayParticipantId,
-        participantGroup: PARTICIPANT_GROUP.DISPLAY
-      },
+      ...newStageConfig,
       participantRole: hostType
     });
   } catch (error) {

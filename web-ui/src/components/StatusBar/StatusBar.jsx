@@ -1,7 +1,12 @@
 import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { app as $appContent } from '../../content';
-import { BREAKPOINTS, CONCURRENT_VIEWS } from '../../constants';
+import {
+  BREAKPOINTS,
+  CONCURRENT_VIEWS,
+  PARTICIPANT_TYPES
+} from '../../constants';
 import { clsm } from '../../utils';
 import { convertConcurrentViews } from '../../utils';
 import { Hourglass, Visibility, Group } from '../../assets/icons';
@@ -21,27 +26,18 @@ const NO_DATA_VALUE = '------';
 const NO_ELAPSED_TIME_VALUE = '--:--:--';
 
 const StatusBar = () => {
+  const { collaborate } = useSelector((state) => state.shared);
   const {
     updateActiveStreamSession,
     streamSessions,
     hasStreamSessions,
     activeStreamSession
   } = useStreams();
-  const { user: userStage = null, participantRole } = useStageManager() || {};
-  const { isUserStageConnected: isStageActive } = userStage || {};
-  const isHost = participantRole === 'host';
-  const publishingUserParticipants =
-    userStage?.getParticipants({
-      isPublishing: true,
-      canSubscribeTo: true
-    }) || [];
-  const shouldDisplayStageStatusBar = isStageActive && isHost;
   const { currentBreakpoint } = useResponsiveDevice();
   const { channelData } = useChannel();
-  const { stageCreationDate } = channelData || {};
+  const { user: userStage = null } = useStageManager() || {};
 
-  const isCurrentScreenXxs = currentBreakpoint === BREAKPOINTS.xxs;
-
+  // Session data
   const latestStreamSessionData = hasStreamSessions ? streamSessions[0] : {};
   const activeStreamSessionData = activeStreamSession
     ? activeStreamSession
@@ -51,12 +47,21 @@ const StatusBar = () => {
   const streamSessionData = isStreamHealthPage
     ? activeStreamSessionData
     : latestStreamSessionData;
-
   const { isHealthy, isLive, metrics, startTime, hasErrorEvent } =
     streamSessionData;
+
+  // Stage
+  const { isConnected: isStageActive } = userStage || {};
+  const isHost = collaborate.participantType === PARTICIPANT_TYPES.HOST;
+  const publishingUserParticipants =
+    userStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || [];
+  const { stageCreationDate } = channelData || {};
+  const shouldDisplayStageStatusBar = isStageActive && isHost;
+
   const isChannelLive = isLive || shouldDisplayStageStatusBar;
-  const shouldShowStreamHealth =
-    !isStreamHealthPage && !shouldDisplayStageStatusBar;
 
   // Elapsed Stream/Stage Time
   const eventStartTime = isStageActive ? Number(stageCreationDate) : startTime;
@@ -177,7 +182,7 @@ const StatusBar = () => {
         />
       )}
 
-      {shouldShowStreamHealth && (
+      {!isStreamHealthPage && !shouldDisplayStageStatusBar && (
         <StatusItem
           {...(isLive
             ? {
@@ -193,7 +198,7 @@ const StatusBar = () => {
           icon={<HealthIndicator health={health} />}
           itemLabel="Stream health status"
           className={clsm([
-            !isCurrentScreenXxs
+            currentBreakpoint !== BREAKPOINTS.xxs
               ? ['sm:min-w-[66px]', 'min-w-[76px]', 'mr-2']
               : ['w-auto', 'ml-1', 'mr-2'],
             'sm:[&>div>button]:px-1'

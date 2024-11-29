@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef, useState, forwardRef } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, forwardRef, useCallback, useRef } from 'react';
 
 import {
   StreamManagerActions,
@@ -8,85 +8,126 @@ import {
   StreamManagerWebBroadcast
 } from './streamManagerCards';
 import { clsm } from '../../utils';
-import {
-  USER_STAGE_ID_URL_PARAM,
-  getLeavePromptText
-} from '../../helpers/stagesHelpers';
+import { getLeavePromptText } from '../../helpers/stagesHelpers';
 import { Provider as NotificationProvider } from '../../contexts/Notification';
 import { streamManager as $content } from '../../content';
 import { useBroadcast } from '../../contexts/Broadcast';
-import { useBroadcastFullScreen } from '../../contexts/BroadcastFullscreen';
-import { useChannel } from '../../contexts/Channel';
-import { useGlobalStage } from '../../contexts/Stage';
 import { useResponsiveDevice } from '../../contexts/ResponsiveDevice';
-import BroadcastSettingsModal from './streamManagerCards/StreamManagerWebBroadcast/BroadcastSettingsModal';
+import BroadcastSettingsModal from './streamManagerCards/BroadcastSettingsModal';
 import StageJoinModal from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/StageJoinModal';
 import StageParticipantsModal from './streamManagerCards/StreamManagerWebBroadcast/StageModal/StageParticipantsModal';
 import StreamManagerActionModal from './streamManagerCards/StreamManagerActions/StreamManagerActionModal';
 import Tabs from '../../components/Tabs/Tabs';
 import FullScreenView from './streamManagerCards/StreamManagerWebBroadcast/FullScreenView/FullScreenView';
-import { AnimatePresence } from 'framer-motion';
 import usePrompt from '../../hooks/usePrompt';
 import { usePoll } from '../../contexts/StreamManagerActions/Poll';
-import { useModal } from '../../contexts/Modal';
+import { MODAL_TYPE, useModal } from '../../contexts/Modal';
 import { useStageManager } from '../../contexts/StageManager';
+import useResize from '../../hooks/useResize';
+import {
+  initializeFullscreenOpen,
+  STREAM_MODES,
+  switchTabAndUpdateState,
+  TAB_INDEX,
+  updateAnimationInitialStates,
+  updateFullscreenStates,
+  updateGoLiveContainerStates,
+  updateStreamMode,
+  updateTabIndex
+} from '../../reducers/streamManager';
+import useDebouncedCallback from '../../hooks/useDebouncedCallback';
+import usePrevious from '../../hooks/usePrevious';
+import { updateError } from '../../reducers/shared';
+import { streamManager as $streamManagerContent } from '../../content';
 
-const STREAM_MANAGER_DEFAULT_TAB = 0;
-const GO_LIVE_TAB_INDEX = 1;
+const $streamManagerNotification =
+  $streamManagerContent.stream_manager_stage.notifications;
 
 const StreamManagerControlCenter = forwardRef(
   ({ setIsWebBroadcastAnimating }, previewRef) => {
-    const { updateShouldAnimateStageVideoFeedsContainer } = useGlobalStage();
+    const dispatch = useDispatch();
     const {
-      user: userStage = null,
-      stageControls = null,
-      isJoiningStageByRequestOrInvite
-    } = useStageManager() || {};
-    const isStageActive = userStage?.isUserStageConnected;
-    const { leaveStage } = stageControls || {};
-    const {
-      webBroadcastParentContainerRef,
-      isFullScreenViewOpen,
-      handleOpenFullScreenView,
-      dimensions
-    } = useBroadcastFullScreen();
-    const { openModal } = useModal();
-    const { state } = useLocation();
-    const { isDesktopView, currentBreakpoint, isLandscape, isMobile } =
-      useResponsiveDevice();
-    const { initializeDevices, isBroadcasting, presetLayers, resetPreview } =
-      useBroadcast();
+      fullscreen: { isOpen: isFullscreenOpen },
+      goLiveContainer,
+      tabIndex
+    } = useSelector((state) => state.streamManager);
+    const { collaborate } = useSelector((state) => state.shared);
+    const { user: userStage = null, stageControls } = useStageManager() || {};
+    const { isBroadcasting } = useBroadcast();
     const { isActive: isPollActive } = usePoll();
-    const enablePrompt = isBroadcasting || isPollActive;
+    const { openModal } = useModal();
+    const { isModalOpen, type: modalType } = useModal();
+    const { isDesktopView, isMobileView, currentBreakpoint, isMobile } =
+      useResponsiveDevice();
+    const prevIsDesktopView = usePrevious(isDesktopView);
+
+    // Refs
+    const containerRef = useRef();
+    const isPromptLockRef = useRef(false);
+
+    // Stage
+    const isStageActive = userStage?.isConnected;
+    const isStageJoinModalOpen =
+      isModalOpen && modalType === MODAL_TYPE.STAGE_JOIN;
+    const isStreamActive = isStageActive || isBroadcasting;
+
+    // Fullscreen
+    const isOfflineMobileView =
+      !isStageActive &&
+      !isBroadcasting &&
+      !isDesktopView &&
+      !collaborate.isJoining;
+    const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
+    const isFullScreenViewPortalOpen =
+      isFullscreenOpen && !isBroadcastingMobileView && !isOfflineMobileView;
+
+    // Prompt
+    const enablePrompt =
+      isBroadcasting ||
+      isPollActive ||
+      (isStageActive && !collaborate.isLeaving);
+
     const {
       isBlocked,
       onConfirm: onPromptConfirm,
       onCancel
-    } = usePrompt(enablePrompt);
+    } = usePrompt(enablePrompt, !isStageActive);
 
-    const { channelData } = useChannel();
-    const { stageId: channelTableStageId } = channelData || {};
-    const sParams = useSearchParams();
-    const [searchParams] = sParams;
-    const stageIdUrlParam = searchParams.get(USER_STAGE_ID_URL_PARAM);
+    const handleTabSelection = (tabIndex) => {
+      dispatch(switchTabAndUpdateState(tabIndex));
+    };
 
-    const { pathname } = useLocation();
-    const isCollaboratePath = pathname === '/manager/collab';
+    const handlePromptLeaveStage = useCallback(async () => {
+      if (isPromptLockRef.current) return;
 
-    const areDevicesInitialized = useRef(false);
-    const [selectedTabIndex, setSelectedTabIndex] = useState(
-      state?.streamManagerSelectedTab || 0
-    );
-    const [isBroadcastCardOpen, setIsBroadcastCardOpen] = useState(
-      state?.isJoiningStageByRequest ||
-        state?.isWebBroadcastContainerOpen ||
-        window.history.state?.isWebBroadcastContainerOpen ||
-        !!stageIdUrlParam ||
-        isCollaboratePath
-    );
+      isPromptLockRef.current = true;
 
+      try {
+        const { result, error } = await stageControls.leaveStage({
+          isLeavingStreamManager: true
+        });
+
+        if (result) {
+          onPromptConfirm();
+        } else if (error) {
+          console.error(error);
+          dispatch(
+            updateError(
+              $streamManagerNotification.error.unable_to_leave_session
+            )
+          );
+          onCancel();
+        }
+      } finally {
+        isPromptLockRef.current = false;
+      }
+    }, [dispatch, onCancel, onPromptConfirm, stageControls]);
+
+    /**
+     * Page blocker prompt
+     */
     useEffect(() => {
-      if (isBlocked) {
+      if (isBlocked && !isPromptLockRef.current) {
         const { message, confirmText } = getLeavePromptText({
           isMobile,
           isPollActive,
@@ -94,10 +135,7 @@ const StreamManagerControlCenter = forwardRef(
           isBroadcasting
         });
         const onConfirm = isStageActive
-          ? async () => {
-              onPromptConfirm();
-              await leaveStage();
-            }
+          ? handlePromptLeaveStage
           : onPromptConfirm;
 
         openModal({
@@ -111,115 +149,114 @@ const StreamManagerControlCenter = forwardRef(
         });
       }
     }, [
-      isPollActive,
+      handlePromptLeaveStage,
       isBlocked,
       isBroadcasting,
       isMobile,
+      isPollActive,
       isStageActive,
-      leaveStage,
       onCancel,
       onPromptConfirm,
       openModal
     ]);
 
-    // Initialize devices when the user opens the broadcast card for the first time
+    /**
+     * Only on desktop size screens,
+     * While connecting to a real-time stage, open the fullscreen view with animation.
+     * Case: Clicking the collaborate button from the "GoLive" component
+     */
     useEffect(() => {
-      if (areDevicesInitialized.current || !isBroadcastCardOpen) return;
-
-      (async function () {
-        await initializeDevices();
-        presetLayers.background.remove();
-      })();
-
-      areDevicesInitialized.current = true;
-    }, [initializeDevices, presetLayers, isBroadcastCardOpen]);
-
-    useEffect(() => {
-      resetPreview();
-
-      if (isDesktopView) {
-        setSelectedTabIndex(STREAM_MANAGER_DEFAULT_TAB);
+      if (isDesktopView && userStage && userStage.isConnecting) {
+        dispatch(initializeFullscreenOpen());
       }
+    }, [dispatch, isStageActive, isFullscreenOpen, userStage, isDesktopView]);
 
+    useResize(
+      useDebouncedCallback(() => {
+        if (!containerRef.current) return;
+
+        /**
+         * The Stream manager container's offset left and top is used
+         * to position the fullscreen component before it is expanded
+         */
+
+        const topOffset = isDesktopView ? 0 : 56; // tab height
+        const leftOffset = isMobileView ? 0 : 64; // add sidebar width
+        const initialLeftOffset = containerRef.current?.offsetLeft + leftOffset;
+        const initialTopOffset = containerRef.current?.offsetTop + topOffset;
+
+        dispatch(
+          updateAnimationInitialStates({
+            fullscreenLeft: initialLeftOffset,
+            fullscreenTop: initialTopOffset
+          })
+        );
+      }, 1000),
+      { shouldCallOnMount: true }
+    );
+
+    const setupResponsiveStoreState = useCallback(() => {
+      // When a stream is active on mobile, select the "GoLive" tab
+      const tabIndex = isStreamActive
+        ? TAB_INDEX.GO_LIVE
+        : TAB_INDEX.MANAGE_STREAM;
+      // On desktop view, the tab index should always be set to 0
+      dispatch(
+        updateTabIndex(isDesktopView ? TAB_INDEX.MANAGE_STREAM : tabIndex)
+      );
+      /**
+       * On mobile view, hide the expand fullscreen button (fullscreen is not available).
+       * On desktop view, if a stream is active, the container is opened.
+       */
+      dispatch(
+        updateGoLiveContainerStates({
+          isExpandButtonVisible: isDesktopView,
+          isOpen: isStreamActive
+        })
+      );
+      // On mobile view, close fullscreen view without animation
+      if (!isDesktopView) {
+        dispatch(
+          updateFullscreenStates({
+            isOpen: false,
+            animate: false
+          })
+        );
+      }
+    }, [dispatch, isDesktopView, isStreamActive]);
+
+    useEffect(() => {
+      // Call "setupResponsiveStoreState" only when the view switches between desktop and mobile
       if (
-        (isStageActive || stageIdUrlParam || channelTableStageId) &&
-        !isDesktopView
-      ) {
-        setSelectedTabIndex(GO_LIVE_TAB_INDEX);
+        prevIsDesktopView === undefined ||
+        prevIsDesktopView === isDesktopView
+      )
+        return;
+
+      setupResponsiveStoreState();
+    }, [isDesktopView, prevIsDesktopView, setupResponsiveStoreState]);
+
+    /**
+     * The fullscreen view should be opened when the stage join modal is visible.
+     * This modal is visible when a user is joining a collaborate session.
+     */
+    const handleCollabJoiningStates = useCallback(() => {
+      if (collaborate.isJoining && isStageJoinModalOpen) {
+        dispatch(
+          updateFullscreenStates({
+            isOpen: true,
+            animate: false
+          })
+        );
+        dispatch(updateStreamMode(STREAM_MODES.REAL_TIME));
       }
-    }, [
-      isDesktopView,
-      resetPreview,
-      state,
-      isBroadcasting,
-      isFullScreenViewOpen,
-      isLandscape,
-      isStageActive,
-      stageIdUrlParam,
-      channelTableStageId
-    ]);
+    }, [collaborate.isJoining, dispatch, isStageJoinModalOpen]);
 
-    useEffect(() => {
-      if (!isBroadcasting && isStageActive && !isDesktopView) {
-        setSelectedTabIndex(GO_LIVE_TAB_INDEX);
-      }
-    }, [isBroadcasting, isDesktopView, isStageActive]);
-
-    useEffect(() => {
-      if (
-        !isDesktopView &&
-        window.history.state?.isWebBroadcastContainerOpen &&
-        setSelectedTabIndex
-      ) {
-        setSelectedTabIndex(GO_LIVE_TAB_INDEX);
-      }
-
-      return () => {
-        if (!window.history.state?.isWebBroadcastContainerOpen) return;
-        window.history.replaceState({}, document.title);
-      };
-    }, [isDesktopView, setSelectedTabIndex]);
-
-    useEffect(() => {
-      // Close fullscreen (desktop) or set tab to GoLive tab (mobile) when invite/request participant leaves
-      if (!isStageActive && channelData && isJoiningStageByRequestOrInvite) {
-        if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
-        handleOpenFullScreenView();
-      }
-    }, [
-      channelData,
-      isStageActive,
-      isDesktopView,
-      handleOpenFullScreenView,
-      isJoiningStageByRequestOrInvite
-    ]);
-
-    useEffect(() => {
-      if (!state?.isJoiningStageByRequest || isStageActive) return;
-
-      if (!isDesktopView) setSelectedTabIndex(GO_LIVE_TAB_INDEX);
-      handleOpenFullScreenView();
-    }, [
-      state?.isJoiningStageByRequest,
-      channelData,
-      updateShouldAnimateStageVideoFeedsContainer,
-      isStageActive,
-      isDesktopView,
-      handleOpenFullScreenView
-    ]);
-
-    const isOfflineMobileView =
-      !isStageActive &&
-      !isBroadcasting &&
-      !isDesktopView &&
-      !isJoiningStageByRequestOrInvite;
-    const isBroadcastingMobileView = isBroadcasting && !isDesktopView;
-    const isFullScreenViewPortalOpen =
-      isFullScreenViewOpen && !isBroadcastingMobileView && !isOfflineMobileView;
+    useResize(handleCollabJoiningStates, { shouldCallOnMount: true });
 
     return (
       <div
-        ref={webBroadcastParentContainerRef}
+        ref={containerRef}
         className={clsm(['flex', 'h-full', 'w-full', 'max-w-[960px]'])}
       >
         <Tabs
@@ -235,13 +272,8 @@ const StreamManagerControlCenter = forwardRef(
           <BroadcastSettingsModal />
           {!isDesktopView && (
             <Tabs.List
-              selectedIndex={selectedTabIndex}
-              setSelectedIndex={(tab) => {
-                if (!isBroadcasting) {
-                  setIsBroadcastCardOpen(tab === 1);
-                }
-                setSelectedTabIndex(tab);
-              }}
+              selectedIndex={tabIndex}
+              setSelectedIndex={handleTabSelection}
               tabs={[
                 {
                   label:
@@ -259,7 +291,7 @@ const StreamManagerControlCenter = forwardRef(
               ]}
             />
           )}
-          <Tabs.Panel index={0} selectedIndex={selectedTabIndex}>
+          <Tabs.Panel index={0} selectedIndex={tabIndex}>
             <div
               className={clsm([
                 'gap-6',
@@ -282,26 +314,21 @@ const StreamManagerControlCenter = forwardRef(
                   'w-full',
                   isDesktopView && [
                     'min-h-[calc(212px+96px)]', // firstRowOfStreamActionHeight + collapsedWebBroadcastHeight
-                    isBroadcastCardOpen && 'min-h-[calc(212px+395px)]' // firstRowOfStreamActionHeight+ expandedWebBroadcastHeight
+                    goLiveContainer.isOpen && 'min-h-[calc(212px+395px)]' // firstRowOfStreamActionHeight+ expandedWebBroadcastHeight
                   ]
                 ])}
               >
                 {isDesktopView && (
                   <StreamManagerWebBroadcast
                     ref={previewRef}
-                    isBroadcastCardOpen={isBroadcastCardOpen}
-                    onExpand={() => {
-                      setIsBroadcastCardOpen(true);
-                      resetPreview();
-                    }}
-                    onCollapse={() => setIsBroadcastCardOpen(false)}
+                    isBroadcastCardOpen={goLiveContainer.isOpen}
                     setIsWebBroadcastAnimating={setIsWebBroadcastAnimating}
                   />
                 )}
                 <StreamManagerActions
                   className={clsm(
                     isDesktopView && [
-                      isBroadcastCardOpen
+                      goLiveContainer.isOpen
                         ? [
                             'max-h-[calc(100vh-419px-72px-48px)]', // exclude expandedWebBroadcastHeight + statusBarHeight + space
                             'min-h-[188px]' // streamActionButtonHeight + space
@@ -320,25 +347,15 @@ const StreamManagerControlCenter = forwardRef(
             </div>
           </Tabs.Panel>
           {!isDesktopView && (
-            <Tabs.Panel index={1} selectedIndex={selectedTabIndex}>
-              <StreamManagerWebBroadcast
-                ref={previewRef}
-                isBroadcastCardOpen={isBroadcastCardOpen}
-                onExpand={() => setIsBroadcastCardOpen(true)}
-                onCollapse={() => setIsBroadcastCardOpen(false)}
-              />
+            <Tabs.Panel index={1} selectedIndex={tabIndex}>
+              <StreamManagerWebBroadcast ref={previewRef} />
             </Tabs.Panel>
           )}
         </Tabs>
-        <AnimatePresence>
-          {isFullScreenViewOpen && (
-            <FullScreenView
-              isOpen={isFullScreenViewPortalOpen}
-              parentEl={document.body}
-              dimensions={dimensions}
-            />
-          )}
-        </AnimatePresence>
+        <FullScreenView
+          isOpen={isFullScreenViewPortalOpen}
+          parentEl={document.body}
+        />
       </div>
     );
   }

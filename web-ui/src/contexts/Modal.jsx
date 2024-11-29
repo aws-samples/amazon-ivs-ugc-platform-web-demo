@@ -79,6 +79,7 @@ export const Provider = ({ children }) => {
 
   const handleConfirm = useCallback(
     async (data) => {
+      setIsModalOpen(false);
       const shouldCloseModal = await onConfirm(data);
 
       if (shouldCloseModal === false) return;

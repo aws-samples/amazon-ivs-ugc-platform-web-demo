@@ -12,14 +12,16 @@ import {
   PARTICIPANT_USER_TYPES,
   validateRequestParams,
   participantTypesArray,
-  PARTICIPANT_GROUP
+  PARTICIPANT_GROUP,
+  getStageHostDataAndSize,
+  HostData
 } from '../helpers';
 import { getUser } from '../../channel/helpers';
 
 interface GetParticipantTokenParams {
-  userStageId: string;
-  displayStageId: string;
+  stageId: string;
   participantType: ParticipantType;
+  hostData: HostData;
 }
 
 const handler = async (
@@ -29,12 +31,8 @@ const handler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { userStageId, displayStageId, participantType } = request.params;
-    const missingParams = validateRequestParams(
-      userStageId,
-      displayStageId,
-      participantType
-    );
+    const { stageId, participantType } = request.params;
+    const missingParams = validateRequestParams(stageId, participantType);
     if (missingParams) {
       throw new Error(`Missing ${missingParams}`);
     }
@@ -42,13 +40,22 @@ const handler = async (
     const { sub, username } = request.requestContext.get('user') as UserContext;
 
     let isHostInStage = false;
+    let hostData = null;
     if (participantType === PARTICIPANT_USER_TYPES.HOST) {
       // Check for host presence
-      isHostInStage = await isUserInStage(userStageId, sub);
-    } else if (participantType === PARTICIPANT_USER_TYPES.INVITED) {
-      const isParticipantAllowedToJoin = await shouldAllowParticipantToJoin(
-        userStageId
-      );
+      isHostInStage = await isUserInStage(stageId, sub);
+    } else if (
+      participantType === PARTICIPANT_USER_TYPES.INVITED ||
+      participantType === PARTICIPANT_USER_TYPES.REQUESTED
+    ) {
+      const stageHostDataAndSize = await getStageHostDataAndSize(stageId);
+      hostData = stageHostDataAndSize.hostData;
+
+      const isParticipantAllowedToJoin = await shouldAllowParticipantToJoin({
+        hostStatus: hostData.status,
+        numberOfParticipantInStage: stageHostDataAndSize.size
+      });
+
       if (!isParticipantAllowedToJoin) {
         throw new Error('Stage is at capacity');
       }
@@ -77,7 +84,6 @@ const handler = async (
       capabilities: displayCapabilities,
       userType: screenshareType
     } = await handleCreateStageParams({
-      userSub: sub,
       participantType: PARTICIPANT_USER_TYPES.SCREENSHARE,
       channelData
     });
@@ -92,22 +98,10 @@ const handler = async (
       channelId
     };
 
-    const userStageArn = buildStageArn(userStageId);
-    const displayStageArn = buildStageArn(displayStageId);
+    const stageArn = buildStageArn(stageId);
 
-    const userStageConfig = await handleCreateParticipantToken({
-      stageArn: userStageArn,
-      duration: userTokenDuration,
-      userId,
-      attributes: {
-        ...sharedAttrParams,
-        type: userType,
-        participantGroup: PARTICIPANT_GROUP.USER
-      },
-      capabilities: userCapabilities
-    });
     const displayStageConfig = await handleCreateParticipantToken({
-      stageArn: displayStageArn,
+      stageArn,
       duration: displayTokenDuration,
       userId: displayId,
       attributes: {
@@ -116,6 +110,18 @@ const handler = async (
         participantGroup: PARTICIPANT_GROUP.DISPLAY
       },
       capabilities: displayCapabilities
+    });
+    const userStageConfig = await handleCreateParticipantToken({
+      stageArn,
+      duration: userTokenDuration,
+      userId,
+      attributes: {
+        ...sharedAttrParams,
+        type: userType,
+        participantGroup: PARTICIPANT_GROUP.USER,
+        displayParticipantId: displayStageConfig.participantId || ''
+      },
+      capabilities: userCapabilities
     });
 
     reply.statusCode = 200;
@@ -128,7 +134,8 @@ const handler = async (
         ...displayStageConfig,
         participantGroup: PARTICIPANT_GROUP.DISPLAY
       },
-      participantRole: userType
+      participantRole: userType,
+      hostData
     });
   } catch (error) {
     console.error(error);

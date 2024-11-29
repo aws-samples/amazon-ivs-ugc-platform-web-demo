@@ -40,6 +40,7 @@ export const handler: SQSHandler = async (message) => {
       let channelId;
       let { stageId, stageArn, sessionId, userId } = JSON.parse(body);
 
+      // User
       if (!stageArn && stageId) {
         stageArn = buildStageArn(stageId);
       }
@@ -104,6 +105,9 @@ export const handler: SQSHandler = async (message) => {
           }
 
           if (shouldDeleteStage) {
+            /**
+             * Attempt to delete stageIds from the host's channel table
+             */
             const queryCommand = new QueryCommand({
               IndexName: 'channelArnIndex',
               TableName: process.env.CHANNELS_TABLE_NAME,
@@ -116,29 +120,28 @@ export const handler: SQSHandler = async (message) => {
             const { Items } = await dynamoDbClient.send(queryCommand);
 
             if (Items) {
-              const { id: userSub, stageId: channelStageId } = unmarshall(
-                Items[0]
-              );
+              const channelTableResponse = unmarshall(Items[0]);
+              const { id: userSub, stageId: channelStageId } =
+                channelTableResponse;
 
-              if (stageId !== channelStageId)
-                throw new Error(
-                  `Provided stageId (${stageId}) does not match recorded stageId (${channelStageId})`
-                );
+              if (channelStageId && stageId === channelStageId) {
+                await updateDynamoItemAttributes({
+                  attributes: [
+                    {
+                      key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID,
+                      value: null
+                    },
+                    {
+                      key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
+                      value: null
+                    }
+                  ],
+                  primaryKey: { key: 'id', value: userSub },
+                  tableName: process.env.CHANNELS_TABLE_NAME as string
+                });
 
-              await updateDynamoItemAttributes({
-                attributes: [
-                  {
-                    key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID,
-                    value: null
-                  },
-                  {
-                    key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
-                    value: null
-                  }
-                ],
-                primaryKey: { key: 'id', value: userSub },
-                tableName: process.env.CHANNELS_TABLE_NAME as string
-              });
+                console.log('Channel record has been successfully updated!');
+              }
             }
           }
 
@@ -149,7 +152,7 @@ export const handler: SQSHandler = async (message) => {
             shouldDeleteStage
           });
         } catch (error) {
-          console.error(error)
+          console.error(error);
           reject({ messageId, error });
         }
       });
@@ -165,7 +168,7 @@ export const handler: SQSHandler = async (message) => {
     if (isFulfilled(result)) {
       const { stageArn, messageId, shouldDeleteStage } = result.value;
 
-      if (shouldDeleteStage) {
+      if (shouldDeleteStage && stageArn) {
         acc.push(
           new Promise<{}>(async (resolve, reject) => {
             try {

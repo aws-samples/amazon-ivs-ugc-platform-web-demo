@@ -33,6 +33,9 @@ export const Provider = ({ children }) => {
     'stream_manager',
     'settings'
   ].includes(currentPage);
+  const isMultitrackEnabled =
+    userData?.channelConfiguration?.multitrackInputConfiguration?.enabled ??
+    false;
 
   /**
    * STREAM SESSIONS LIST DATA
@@ -272,6 +275,7 @@ export const Provider = ({ children }) => {
       isLive,
       isLoadingNextStreamSessionsPage,
       isLoadingStreamData,
+      isMultitrackEnabled,
       streamSessions,
       setStreamSessions,
       refreshCurrentActiveStreamSession:
@@ -293,6 +297,7 @@ export const Provider = ({ children }) => {
       isLive,
       isLoadingNextStreamSessionsPage,
       isLoadingStreamData,
+      isMultitrackEnabled,
       refreshCurrentActiveStreamSessionWithLoading,
       refreshCurrentStreamSessions,
       refreshCurrentStreamSessionsWithLoading,

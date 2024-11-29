@@ -1,14 +1,13 @@
-import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
+import { forwardRef } from 'react';
+import { useSelector } from 'react-redux';
 
 import { clsm } from '../../../../../utils';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import Button from '../../../../../components/Button';
 import Tooltip from '../../../../../components/Tooltip';
 import { CONTROLLER_BUTTON_THEME } from './BroadcastControllerTheme';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
-import { BREAKPOINTS } from '../../../../../constants';
-import { useStageManager } from '../../../../../contexts/StageManager';
+import { BREAKPOINTS, PARTICIPANT_TYPES } from '../../../../../constants';
 
 const ACTIVE_BUTTON_COLORS = [
   'bg-darkMode-blue',
@@ -21,14 +20,14 @@ const ACTIVE_BUTTON_COLORS = [
 ];
 
 const BroadcastControl = forwardRef(({ buttons, isOpen }, ref) => {
+  const { fullscreen } = useSelector((state) => state.streamManager);
+  const { collaborate } = useSelector((state) => state.shared);
   const { isDesktopView, isTouchscreenDevice, currentBreakpoint, dimensions } =
     useResponsiveDevice();
-  const { participantRole } = useStageManager() || {};
-  const isHost = participantRole === 'host';
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
+  const isHost = collaborate.participantType === PARTICIPANT_TYPES.HOST;
 
   const getSpaceBetween = () => {
-    if (isFullScreenViewOpen) {
+    if (fullscreen.isOpen) {
       return (isHost && dimensions?.width < 375) ||
         currentBreakpoint === BREAKPOINTS.xxs
         ? ['space-x-1']

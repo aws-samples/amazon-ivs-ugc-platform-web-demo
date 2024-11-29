@@ -4,8 +4,6 @@ import {
   ivsRealTimeClient,
   getIdleStageArns,
   deleteStagesWithRetry,
-  updateMultipleChannelDynamoItems,
-  getBatchChannelWriteUpdates,
   getIdleStages
 } from './helpers';
 
@@ -24,12 +22,9 @@ export const handler = async () => {
       if (stages.length) {
         const idleStages = getIdleStages(stages);
         const idleStageArns = getIdleStageArns(idleStages);
-        const batchChannelWriteUpdates =
-          getBatchChannelWriteUpdates(idleStages);
-        await Promise.all([
-          deleteStagesWithRetry(idleStageArns),
-          updateMultipleChannelDynamoItems(batchChannelWriteUpdates)
-        ]);
+
+        console.log('list of idle stage arns: ', idleStageArns);
+        await deleteStagesWithRetry(idleStageArns);
       }
 
       if (_nextToken) await deleteIdleStages(_nextToken);

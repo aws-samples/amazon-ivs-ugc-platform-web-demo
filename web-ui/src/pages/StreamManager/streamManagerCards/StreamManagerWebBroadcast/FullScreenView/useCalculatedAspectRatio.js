@@ -1,81 +1,70 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { fitRectIntoContainer } from '../../../../../helpers/webBroadcastHelpers';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import useResize from '../../../../../hooks/useResize';
-import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 
-const useCalculatedAspectRatio = ({
-  childRef,
-  delay = 0,
-  isAnimated = true
-} = {}) => {
+const VIDEO_CLASSES_DEFAULT = [];
+
+const useCalculatedAspectRatio = ({ childRef, delay = 0 } = {}) => {
   const {
-    setDimensionClasses,
-    fullscreenAnimationControls,
-    isFullScreenViewOpen
-  } = useBroadcastFullScreen();
-  const { isDesktopView } = useResponsiveDevice();
+    fullscreen: { isOpen: isFullscreenOpen }
+  } = useSelector((state) => state.streamManager);
   const parentRef = useRef();
+  const [responsiveVideoClasses, setResponsiveVideoClasses] = useState(
+    VIDEO_CLASSES_DEFAULT
+  );
+  const [controlAnimDefinition, setControlAnimDefinition] = useState(null);
+
+  const getResponsiveVideoClasses = useCallback(() => {
+    if (isFullscreenOpen) {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const aspectRatioProportion = 0.667; // 3:2 aspect ratio or 2/3
+      const responsiveVideoClasses = [
+        'aspect-video',
+        'max-w-[calc(100vw_-_64px)]', // Maximum width considering 64px combined padding
+        windowHeight / windowWidth < aspectRatioProportion
+          ? ['w-auto', 'h-full']
+          : ['w-full', 'h-auto']
+      ];
+
+      // Updating the initial responsive video classes of the canvas will make the canvas dimension animation smoother once the animation completes
+      setResponsiveVideoClasses(responsiveVideoClasses);
+    } else {
+      setResponsiveVideoClasses(VIDEO_CLASSES_DEFAULT);
+    }
+  }, [isFullscreenOpen]);
 
   const animateWidthHeight = useCallback(() => {
-    if (!isFullScreenViewOpen) return;
+    getResponsiveVideoClasses();
 
-    setDimensionClasses([]);
-    setTimeout(() => {
-      const { width: newCanvasWidth, height: newCanvasHeight } =
-        fitRectIntoContainer(
-          childRef?.current?.clientWidth,
-          childRef?.current?.clientHeight,
-          parentRef?.current?.clientWidth,
-          parentRef?.current?.clientHeight
-        );
-      const controlAnimDefinition = {
-        width: newCanvasWidth,
-        height: newCanvasHeight
-      };
+    if (isFullscreenOpen) {
+      setTimeout(() => {
+        const { width: newCanvasWidth, height: newCanvasHeight } =
+          fitRectIntoContainer(
+            childRef?.current?.clientWidth,
+            childRef?.current?.clientHeight,
+            parentRef?.current?.clientWidth,
+            parentRef?.current?.clientHeight
+          );
+        const controlAnimDefinition = {
+          width: newCanvasWidth,
+          height: newCanvasHeight
+        };
 
-      if (isAnimated) {
-        fullscreenAnimationControls.start(controlAnimDefinition);
-      } else {
-        fullscreenAnimationControls.set(controlAnimDefinition);
-      }
-    }, delay);
-  }, [
-    delay,
-    isFullScreenViewOpen,
-    setDimensionClasses,
-    childRef,
-    fullscreenAnimationControls,
-    isAnimated
-  ]);
+        setControlAnimDefinition(controlAnimDefinition);
+      }, delay);
+    }
+  }, [getResponsiveVideoClasses, isFullscreenOpen, delay, childRef]);
 
-  useResize(animateWidthHeight);
-
-  useEffect(() => {
-    if (!isFullScreenViewOpen) return;
-
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const aspectRatioProportion = 0.667; // 3:2 aspect ratio or 2/3
-    const initialDimensionClasses = [
-      'aspect-video',
-      'max-w-[calc(100vw_-_64px)]', // Maximum width considering 64px combined padding
-      windowHeight / windowWidth < aspectRatioProportion
-        ? ['w-auto', 'h-full']
-        : ['w-full', 'h-auto']
-    ];
-
-    // Updating the initial dimensions of the canvas will make the canvas dimension animation smoother once the animation completes
-    setDimensionClasses(initialDimensionClasses);
-  }, [setDimensionClasses, isFullScreenViewOpen]);
-
-  useEffect(() => {
-    if (!isFullScreenViewOpen) setDimensionClasses([]);
-  }, [isDesktopView, setDimensionClasses, isFullScreenViewOpen]);
+  useResize(animateWidthHeight, { shouldCallOnMount: true });
 
   return {
-    parentRef
+    parentRef,
+    responsiveVideoClasses,
+    controlAnimDefinition,
+    setControlAnimDefinition
   };
 };
 

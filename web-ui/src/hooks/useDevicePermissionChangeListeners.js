@@ -1,21 +1,23 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { updateIsBlockingRoute } from '../contexts/Stage/Global/reducer/actions';
 import { useSearchParams } from 'react-router-dom';
 import { useBroadcast } from '../contexts/Broadcast';
-import { USER_STAGE_ID_URL_PARAM } from '../helpers/stagesHelpers';
-import { useStageManager } from '../contexts/StageManager';
+import { STAGE_ID_URL_PARAM } from '../helpers/stagesHelpers';
+import { useSelector } from 'react-redux';
+import { PARTICIPANT_TYPES } from '../constants';
 
 const useDevicePermissionChangeListeners = () => {
+  const { collaborate } = useSelector((state) => state.shared);
   const cameraPermissionRef = useRef();
   const microphonePermissionRef = useRef();
-  const { participantRole } = useStageManager() || {};
-  const isInvitedStageUser = participantRole === 'invited';
-  const isRequestedStageUser = participantRole === 'requested';
+  const isInvitedStageUser =
+    collaborate.participantType === PARTICIPANT_TYPES.INVITED;
+  const isRequestedStageUser =
+    collaborate.participantType === PARTICIPANT_TYPES.REQUESTED;
 
   const { detectDevicePermissions } = useBroadcast();
 
   const [searchParams] = useSearchParams();
-  const stageIdUrlParam = searchParams.get(USER_STAGE_ID_URL_PARAM);
+  const stageIdUrlParam = searchParams.get(STAGE_ID_URL_PARAM);
 
   const handlePermissionsRevoked = useCallback(
     (devicePermission) => {
@@ -33,8 +35,6 @@ const useDevicePermissionChangeListeners = () => {
           'change',
           handlePermissionsRevoked
         );
-
-        updateIsBlockingRoute(false);
 
         const isJoiningStageByModal =
           isInvitedStageUser || isRequestedStageUser;

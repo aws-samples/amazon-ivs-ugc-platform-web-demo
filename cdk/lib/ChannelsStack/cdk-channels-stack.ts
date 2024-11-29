@@ -11,7 +11,6 @@ import {
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
-  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
@@ -23,6 +22,11 @@ import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { readFileSync } from 'fs';
+import {
+  ChannelType,
+  MultitrackMaximumResolution,
+  MultitrackPolicy
+} from '@aws-sdk/client-ivs';
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
@@ -36,6 +40,20 @@ import { EventField, RuleTargetInput } from 'aws-cdk-lib/aws-events';
 
 const getLambdaEntryPath = (functionName: string) =>
   join(__dirname, '../../lambdas', `${functionName}.ts`);
+
+const validateMultitrackConfig = (
+  value: string,
+  enumObj: object,
+  fieldName: string
+) => {
+  if (!Object.values(enumObj).includes(value)) {
+    throw new Error(
+      `Invalid multitrack ${fieldName}: "${value}". ` +
+        `Valid options are: ${Object.values(enumObj).join(', ')}. ` +
+        `Please correct the ${fieldName} in the CDK configuration (cdk.json).`
+    );
+  }
+};
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
@@ -81,8 +99,29 @@ export class ChannelsStack extends NestedStack {
       enableUserAutoVerify,
       ivsAdvancedChannelTranscodePreset,
       ivsChannelType,
-      signUpAllowedDomains
+      signUpAllowedDomains,
+      multitrackInputConfiguration
     } = resourceConfig;
+
+    // Validate IVS channel multitrack configuration
+    if (multitrackInputConfiguration.enabled) {
+      if (ivsChannelType !== ChannelType.StandardChannelType) {
+        throw new Error(
+          `IVS channel multitrack requires a STANDARD channel type. Current type: ${ivsChannelType}. ` +
+            'Please update the channel type in the CDK configuration (cdk.json).'
+        );
+      }
+      validateMultitrackConfig(
+        multitrackInputConfiguration.maximumResolution as string,
+        MultitrackMaximumResolution,
+        'maximum resolution'
+      );
+      validateMultitrackConfig(
+        multitrackInputConfiguration.policy as string,
+        MultitrackPolicy,
+        'policy'
+      );
+    }
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
@@ -415,6 +454,7 @@ export class ChannelsStack extends NestedStack {
     const ivsPolicyStatement = new iam.PolicyStatement({
       actions: [
         'ivs:CreateChannel',
+        'ivs:UpdateChannel',
         'ivs:CreateParticipantToken',
         'ivs:CreateStage',
         'ivs:CreateStreamKey',
@@ -505,7 +545,10 @@ export class ChannelsStack extends NestedStack {
         functionName: `${stackNamePrefix}-CleanupIdleStages`,
         entry: getLambdaEntryPath('cleanupIdleStages'),
         timeout: Duration.minutes(10),
-        initialPolicy: [deleteIdleStagesIvsPolicyStatement]
+        initialPolicy: [deleteIdleStagesIvsPolicyStatement],
+        environment: {
+          PROJECT_TAG: tags.project
+        }
       }
     );
 
@@ -552,29 +595,32 @@ export class ChannelsStack extends NestedStack {
     });
 
     // Create a SQS message on Stage Participant Unpublished event
-    const unpublishedParticipantRule = new events.Rule(this, `${stackNamePrefix}-UnpublishedParticipant-Rule`, {
-      ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
-      eventPattern: {
-        source: ['aws.ivs'],
-        detailType: ['IVS Stage Update'],
-        detail: {
-          'event_name': ['Participant Unpublished'],
-          'user_id': [{ 'prefix': 'host:' }]
+    const unpublishedParticipantRule = new events.Rule(
+      this,
+      `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+      {
+        ruleName: `${stackNamePrefix}-UnpublishedParticipant-Rule`,
+        eventPattern: {
+          source: ['aws.ivs'],
+          detailType: ['IVS Stage Update'],
+          detail: {
+            event_name: ['Participant Unpublished'],
+            user_id: [{ prefix: 'host:' }]
+          }
         }
       }
-    });
+    );
 
     unpublishedParticipantRule.addTarget(
       new targets.SqsQueue(deleteStageQueue, {
         messageGroupId: MESSAGE_GROUP_IDS.DELETE_STAGE_MESSAGE,
-        message: 
-        RuleTargetInput.fromObject({
+        message: RuleTargetInput.fromObject({
           stageArn: EventField.fromPath('$.resources[0]'),
           sessionId: EventField.fromPath('$.detail.session_id'),
-          userId: EventField.fromPath('$.detail.user_id'),
+          userId: EventField.fromPath('$.detail.user_id')
         })
       })
-    )
+    );
 
     const containerEnv = {
       CHANNEL_ASSETS_BUCKET_NAME: channelAssetsBucket.bucketName,
@@ -585,7 +631,10 @@ export class ChannelsStack extends NestedStack {
       SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,
-      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl
+      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl,
+      CHANNEL_MULTITRACK_INPUT_CONFIGURATION: JSON.stringify(
+        multitrackInputConfiguration
+      )
     };
     this.containerEnv = containerEnv;
 

@@ -1,3 +1,6 @@
+import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+
 import { BREAKPOINTS } from '../../../../../constants';
 import { Close } from '../../../../../assets/icons';
 import { clsm } from '../../../../../utils';
@@ -12,19 +15,21 @@ import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import Button from '../../../../../components/Button';
 import Modal from '../../../../../components/Modal';
 import ResponsivePanel from '../../../../../components/ResponsivePanel';
-import { useGlobalStage } from '../../../../../contexts/Stage';
 import StageParticipant from './StageParticipant';
 import StageRequestee from './StageRequestee';
 import { useStageManager } from '../../../../../contexts/StageManager';
+import { PARTICIPANT_GROUP } from '../../../../../contexts/StageManager/constants';
 
 const $content = $streamManagerContent.stream_manager_stage;
 
 const StageParticipantsModal = () => {
+  const { collaborate } = useSelector((state) => state.shared);
   const { closeModal, isModalOpen, type } = useModal();
-  const { stageRequestList } = useGlobalStage();
   const { isMobileView, isLandscape } = useResponsiveDevice();
-  const { user: userStage = null, display: displayStage } =
-    useStageManager() || {};
+  const {
+    [PARTICIPANT_GROUP.USER]: userStage = null,
+    [PARTICIPANT_GROUP.DISPLAY]: displayStage
+  } = useStageManager() || {};
   const publishingParticipants = [
     ...(displayStage?.getParticipants({
       isPublishing: true,
@@ -36,38 +41,43 @@ const StageParticipantsModal = () => {
     }) || [])
   ];
 
-  const renderStageParticipantsModal = (children) => (
-    <>
-      {
-        /**
-         * We mount/unmount the responsive panel to skip the enter and exit
-         * animations when switching between desktop and mobile views
-         */
-        isMobileView && (
-          <ResponsivePanel
-            isOpen={isModalOpen}
-            mobileBreakpoint={isLandscape ? BREAKPOINTS.lg : BREAKPOINTS.md}
-            panelId="stage-participants-panel"
-            preserveVisible
-          >
-            {children}
-          </ResponsivePanel>
-        )
-      }
-      <Modal
-        isOpen={isModalOpen && !isMobileView}
-        className={clsm([
-          'bg-white',
-          'dark:bg-darkMode-gray-medium',
-          'max-w-[592px]',
-          'p-0',
-          'relative',
-          'w-full'
-        ])}
-      >
-        {children}
-      </Modal>
-    </>
+  const renderStageParticipantsModal = useCallback(
+    (children) => (
+      <>
+        {
+          /**
+           * We mount/unmount the responsive panel to skip the enter and exit
+           * animations when switching between desktop and mobile views
+           */
+          isMobileView ? (
+            <ResponsivePanel
+              isOpen={isModalOpen}
+              mobileBreakpoint={isLandscape ? BREAKPOINTS.lg : BREAKPOINTS.md}
+              panelId="stage-participants-panel"
+              preserveVisible
+              shouldSetVisible={false}
+            >
+              {children}
+            </ResponsivePanel>
+          ) : (
+            <Modal
+              isOpen={isModalOpen && !isMobileView}
+              className={clsm([
+                'bg-white',
+                'dark:bg-darkMode-gray-medium',
+                'max-w-[592px]',
+                'p-0',
+                'relative',
+                'w-full'
+              ])}
+            >
+              {children}
+            </Modal>
+          )
+        }
+      </>
+    ),
+    [isLandscape, isMobileView, isModalOpen]
   );
 
   const availableSpotMessage = `${$content.participants} (${publishingParticipants.length}/12)`;
@@ -110,7 +120,7 @@ const StageParticipantsModal = () => {
           </div>
           <div className="mt-12">
             <h4>{$content.requests}</h4>
-            {stageRequestList.map((requestee, index) => (
+            {collaborate.requestList.map((requestee, index) => (
               <StageRequestee
                 requestee={requestee}
                 key={`${requestee.channelId}-${index}`}

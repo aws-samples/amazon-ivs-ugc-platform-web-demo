@@ -10,7 +10,7 @@ import ConfigRow from './ConfigRow';
 const $content = $dashboardContent.stream_session_page.encoder_configuration;
 
 const EncoderConfiguration = () => {
-  const { activeStreamSession } = useStreams();
+  const { activeStreamSession, isMultitrackEnabled } = useStreams();
   const encoderConfigValues = useMemo(() => {
     const { ingestConfiguration, channel, metrics } = activeStreamSession || {};
     const { type: channelType } = channel || {};
@@ -29,8 +29,12 @@ const EncoderConfiguration = () => {
       };
     }
 
-    return processEncoderConfigData(extendedIngestConfiguration, channelType);
-  }, [activeStreamSession]);
+    return processEncoderConfigData({
+      ingestConfiguration: extendedIngestConfiguration,
+      channelType,
+      isMultitrackEnabled
+    });
+  }, [activeStreamSession, isMultitrackEnabled]);
 
   return (
     <section className={clsm(['w-full', 'p-[30px]', 'md:px-4'])}>

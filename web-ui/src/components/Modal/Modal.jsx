@@ -68,6 +68,7 @@ Modal.propTypes = {
 };
 
 export default withPortal(Modal, 'modal', {
+  isAnimated: true,
   baseContainerClasses: [
     'flex',
     'items-center',

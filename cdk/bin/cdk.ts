@@ -12,8 +12,12 @@ const app = new App();
 const stage = app.node.tryGetContext('stage');
 const stackName = app.node.tryGetContext('stackName');
 const shouldPublish = app.node.tryGetContext('publish') === 'true';
-const cognitoCleanupScheduleExp = app.node.tryGetContext('cognitoCleanupScheduleExp');
-const stageCleanupScheduleExp = app.node.tryGetContext('stageCleanupScheduleExp')
+const cognitoCleanupScheduleExp = app.node.tryGetContext(
+  'cognitoCleanupScheduleExp'
+);
+const stageCleanupScheduleExp = app.node.tryGetContext(
+  'stageCleanupScheduleExp'
+);
 // Get the config for the current stage
 const { resourceConfig }: { resourceConfig: UGCResourceWithChannelsConfig } =
   app.node.tryGetContext(stage);
@@ -22,7 +26,7 @@ const region = process.env.CDK_DEFAULT_REGION;
 
 new UGCStack(app, stackName, {
   env: { account, region },
-  tags: { stage, project: 'ugc' },
+  tags: { stage, project: stackName },
   resourceConfig,
   shouldPublish,
   cognitoCleanupScheduleExp,
@@ -31,6 +35,6 @@ new UGCStack(app, stackName, {
 
 new UGCFrontendDeploymentStack(app, `UGC-Frontend-Deployment-${stage}`, {
   env: { account, region },
-  tags: { stage, project: 'ugc' },
+  tags: { stage, project: stackName },
   ugcStackId: stackName
 });

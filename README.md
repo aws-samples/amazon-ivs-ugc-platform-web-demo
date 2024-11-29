@@ -42,7 +42,6 @@ Deploying the CDK stack will:
 
 ## Features
 
-
 ### User Registration, Login and Password Reset using Amazon Cognito
 
 New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
@@ -268,6 +267,31 @@ The `cdk/cdk.json` file provides two configuration objects: one for the `dev` st
    "productLinkRegionCode": "20"
    ```
 
+- The `multitrackInputConfiguration` object configures [Amazon IVS multitrack video](https://docs.aws.amazon.com/ivs/latest/LowLatencyUserGuide/multitrack-video.html) streaming for a channel.
+
+  It's important to note that to enable multitrack, the ivsChannelType must be set to "STANDARD".
+
+  When `enabled` is set to true, it allows the channel to accept multiple video tracks from a single streaming source.
+
+  The `maximumResolution` field sets the highest input resolution allowed, with options being "SD" (480p or less), "HD" (720p or less), or "FULL_HD" (1080p or less).
+
+  The `policy` field determines whether multitrack input is optional ("ALLOW") or mandatory ("REQUIRE") for broadcasters connecting to the channel.
+
+  This configuration optimizes streaming efficiency, potentially reducing costs and improving viewer experience by enabling adaptive bitrate streaming without server-side transcoding. Remember, multitrack functionality is only available for Standard channels, so ensuring the correct channel type is crucial for this feature to work.
+
+  For more information on the feature, please refer to the [CDK README.md](<(./cdk/README.md#Amazon-IVS-multitrack-video)>) file.
+
+  Example:
+
+  ```json
+   "ivsChannelType": "STANDARD",
+   "multitrackInputConfiguration": {
+      "enabled": true,
+      "maximumResolution": "FULL_HD",
+      "policy": "ALLOW"
+   }
+  ```
+
 ## Guides
 
 
@@ -314,6 +338,7 @@ For improved communication between a stage host and a requestee (for example, re
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
+
 1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
 2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.

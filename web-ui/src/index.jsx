@@ -1,5 +1,5 @@
-import { StrictMode } from 'react';
 import * as ReactDOMClient from 'react-dom/client';
+import { StrictMode } from 'react';
 
 import './index.css';
 import { noop, connectToAppSyncGraphQlApi } from './utils';

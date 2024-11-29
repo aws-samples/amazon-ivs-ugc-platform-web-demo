@@ -335,12 +335,12 @@ export const Provider = ({ children }) => {
       };
 
       const onConfirm = async (data) => {
-        const shouldCheckForDuplicateValidaton = [
+        const shouldCheckForDuplicateValidation = [
           STREAM_ACTION_NAME.POLL,
           STREAM_ACTION_NAME.QUIZ
         ].includes(actionName);
         const options = {
-          enableDuplicateValidation: shouldCheckForDuplicateValidaton
+          enableDuplicateValidation: shouldCheckForDuplicateValidation
         };
 
         if (

@@ -11,8 +11,7 @@ import {
 } from '../helpers';
 
 interface GetParticipantTokenParams {
-  userStageId: string;
-  displayStageId: string;
+  stageId: string;
 }
 
 const handler = async (
@@ -24,8 +23,8 @@ const handler = async (
   const participantType = PARTICIPANT_USER_TYPES.SPECTATOR;
 
   try {
-    const { userStageId, displayStageId } = request.params;
-    const shouldJoinStage = await isStageActive(userStageId);
+    const { stageId } = request.params;
+    const shouldJoinStage = await isStageActive(stageId);
 
     if (!shouldJoinStage) {
       throw new Error('Stage is empty');
@@ -36,12 +35,11 @@ const handler = async (
         participantType
       });
 
-    const userStageArn = buildStageArn(userStageId);
-    const displayStageArn = buildStageArn(displayStageId);
+    const stageArn = buildStageArn(stageId);
 
     const { token: userToken, participantId: userParticipantId } =
       await handleCreateParticipantToken({
-        stageArn: userStageArn,
+        stageArn,
         duration,
         userId,
         capabilities,
@@ -52,7 +50,7 @@ const handler = async (
       });
     const { token: displayToken, participantId: displayParticipantId } =
       await handleCreateParticipantToken({
-        stageArn: displayStageArn,
+        stageArn,
         duration,
         userId,
         capabilities,
@@ -66,16 +64,15 @@ const handler = async (
     return reply.send({
       [PARTICIPANT_GROUP.USER]: {
         token: userToken,
-        stageId: userStageId,
         participantId: userParticipantId,
         participantGroup: PARTICIPANT_GROUP.USER
       },
       [PARTICIPANT_GROUP.DISPLAY]: {
         token: displayToken,
-        stageId: displayStageId,
         participantId: displayParticipantId,
         participantGroup: PARTICIPANT_GROUP.DISPLAY
       },
+      stageId,
       participantRole: userType
     });
   } catch (error) {

@@ -1,5 +1,6 @@
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -12,8 +13,6 @@ import PlayerOverlay from './PlayerOverlay';
 import StageVideoFeeds from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds';
 import { STAGE_VIDEO_FEEDS_TYPES } from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds/StageVideoFeeds';
 import UnmuteButtonOverLay from './UnmuteButtonOverLay';
-import { useGlobalStage } from '../../../contexts/Stage';
-import { Provider as BroadcastFullscreenProvider } from '../../../contexts/BroadcastFullscreen';
 
 const StreamVideo = forwardRef(
   (
@@ -30,8 +29,7 @@ const StreamVideo = forwardRef(
     },
     ref
   ) => {
-    const previewRef = useRef();
-    const { isChannelStagePlayerMuted } = useGlobalStage();
+    const { isPlayerMuted } = useSelector((state) => state.channel);
 
     const {
       isProfileViewExpanded,
@@ -86,23 +84,20 @@ const StreamVideo = forwardRef(
     }, [isPaused, isPlayerAnimationRunning, openOverlayAndResetTimeout]);
 
     const renderVideo = stagePlayerVisible ? (
-      <BroadcastFullscreenProvider previewRef={previewRef}>
-        <motion.div
-          {...playerProfileViewAnimationProps}
-          className={clsm(videoStyles, isViewerBanned && '!hidden')}
-          ref={ref}
-        >
-          <StageVideoFeeds
-            type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
-            isProfileViewExpanded={isProfileViewExpanded}
-            styles={clsm(
-              isProfileViewExpanded
-                ? ['bg-lightMode-gray-extraLight', 'dark:bg-darkMode-gray-dark']
-                : 'bg-lightMode-gray'
-            )}
-          />
-        </motion.div>
-      </BroadcastFullscreenProvider>
+      <motion.div
+        {...playerProfileViewAnimationProps}
+        className={clsm(videoStyles, isViewerBanned && '!hidden')}
+        ref={ref}
+      >
+        <StageVideoFeeds
+          type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
+          isProfileViewExpanded={isProfileViewExpanded}
+          styles={clsm(
+            'dark:bg-black',
+            isProfileViewExpanded ? 'bg-white' : 'bg-lightMode-gray'
+          )}
+        />
+      </motion.div>
     ) : (
       <motion.video
         {...playerProfileViewAnimationProps}
@@ -147,9 +142,7 @@ const StreamVideo = forwardRef(
               isVolumeSettingEnabled={!stagePlayerVisible}
             />
           </PlayerOverlay>
-          {stagePlayerVisible && isChannelStagePlayerMuted && (
-            <UnmuteButtonOverLay />
-          )}
+          {stagePlayerVisible && isPlayerMuted && <UnmuteButtonOverLay />}
           {!shouldShowControlsOverlay && (
             <div
               className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}

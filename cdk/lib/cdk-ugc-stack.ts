@@ -36,7 +36,13 @@ export class UGCStack extends Stack {
   constructor(scope: Construct, id: string, props: UGCDashboardStackProps) {
     super(scope, id, props);
 
-    const { resourceConfig, cognitoCleanupScheduleExp, stageCleanupScheduleExp, shouldPublish, tags = {} } = props;
+    const {
+      resourceConfig,
+      cognitoCleanupScheduleExp,
+      stageCleanupScheduleExp,
+      shouldPublish,
+      tags = {}
+    } = props;
     const {
       deploySeparateContainers,
       ivsChannelType,
@@ -366,9 +372,15 @@ export class UGCStack extends Stack {
       value: `${enableAmazonProductStreamAction}`
     });
     new CfnOutput(this, 'channelType', { value: ivsChannelType });
-    new CfnOutput(this, 'appSyncGraphQlApiKey', { value: appSyncGraphQlApi.apiKey })
-    new CfnOutput(this, 'appSyncGraphQlApiEndpoint', { value: appSyncGraphQlApi.endpoint })
-    new CfnOutput(this, 'appSyncGraphQlAuthenticationType', { value: appSyncGraphQlApi.authType })
+    new CfnOutput(this, 'appSyncGraphQlApiKey', {
+      value: appSyncGraphQlApi.apiKey
+    });
+    new CfnOutput(this, 'appSyncGraphQlApiEndpoint', {
+      value: appSyncGraphQlApi.endpoint
+    });
+    new CfnOutput(this, 'appSyncGraphQlAuthenticationType', {
+      value: appSyncGraphQlApi.authType
+    });
 
     if (frontendAppBaseUrl) {
       new CfnOutput(this, 'frontendAppBaseUrl', {

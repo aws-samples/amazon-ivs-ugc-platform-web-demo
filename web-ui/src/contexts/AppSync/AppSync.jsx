@@ -1,6 +1,7 @@
-import { createContext, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { createContext, useCallback, useEffect, useMemo } from 'react';
 import { graphqlOperation, API } from '@aws-amplify/api';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { publishDoc, subscribeDoc } from './graphql';
 import useContextHook from '../useContextHook';
@@ -8,10 +9,16 @@ import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import { streamManager as $streamManagerContent } from '../../content';
-import { useGlobalStage } from '../Stage';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useChannel } from '../Channel';
 import { extractChannelIdfromChannelArn } from '../../utils';
+import {
+  addToCollaborateRequestList,
+  removeFromCollaborateRequestList,
+  updateCollaborateStates,
+  updateError
+} from '../../reducers/shared';
+import { updateDisplayMediaStates } from '../../reducers/streamManager';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -20,13 +27,10 @@ const Context = createContext(null);
 Context.displayName = 'AppSync';
 
 export const Provider = ({ children = null }) => {
+  const dispatch = useDispatch();
+  const { displayMedia } = useSelector((state) => state.streamManager);
   const { userData } = useUser();
   const { notifyNeutral, notifyError } = useNotif();
-  const {
-    updateStageRequestList,
-    updateRequestingToJoinStage,
-    updateHasStageRequestBeenApproved
-  } = useGlobalStage();
   const { pathname } = useLocation();
   const { channelData } = useChannel();
   const channelId = channelData?.channelArn
@@ -68,10 +72,14 @@ export const Provider = ({ children = null }) => {
       const channelEvent = JSON.parse(data);
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
+          if (!isChannelOwner) return;
+
+          dispatch(removeFromCollaborateRequestList(channelEvent.channelId));
+          break;
         case channelEvents.STAGE_REQUEST_TO_JOIN:
           if (!isChannelOwner) return;
 
-          updateStageRequestList(channelEvent);
+          dispatch(addToCollaborateRequestList(channelEvent));
           break;
         case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
           if (!isChannelOwner) {
@@ -79,23 +87,29 @@ export const Provider = ({ children = null }) => {
               asPortal: true
             });
 
-            updateHasStageRequestBeenApproved(true);
-          }
-          break;
-        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
-          updateRequestingToJoinStage(false);
-          break;
-        case channelEvents.STAGE_PARTICIPANT_KICKED:
-          if (!isChannelOwner) {
-            notifyError(
-              $contentNotification.error.you_have_been_removed_from_session,
-              {
-                asPortal: true
-              }
+            dispatch(
+              updateCollaborateStates({
+                isJoining: true,
+                stageId: channelData.stageId
+              })
             );
           }
           break;
+        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
+          dispatch(updateCollaborateStates({ isRequesting: false }));
+          break;
+        case channelEvents.STAGE_PARTICIPANT_KICKED:
+          break;
         case channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE:
+          if (displayMedia.participantId !== channelEvent.participantId) return;
+
+          dispatch(
+            updateError(
+              $contentNotification.error.your_screen_share_has_been_removed
+            )
+          );
+          dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
+
           break;
         default:
           return;
@@ -109,11 +123,10 @@ export const Provider = ({ children = null }) => {
     notifyNeutral,
     pathname,
     subscribe,
-    updateHasStageRequestBeenApproved,
     notifyError,
-    updateStageRequestList,
-    updateRequestingToJoinStage,
-    userData?.channelId
+    userData?.channelId,
+    dispatch,
+    displayMedia.participantId
   ]);
 
   const value = useMemo(

@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useMemo, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import BroadcastControl from './BroadcastControl';
@@ -22,11 +23,19 @@ import {
   StageFactory,
   useStageManager
 } from '../../../../../contexts/StageManager';
+import { PARTICIPANT_TYPES } from '../../../../../constants';
+import { updateDisplayMediaStates } from '../../../../../reducers/streamManager';
+import { PARTICIPANT_GROUP } from '../../../../../contexts/StageManager/constants';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const BroadcastControlWrapper = forwardRef(
   ({ isOpen, withSettingsButton, withScreenshareButton }, ref) => {
+    const dispatch = useDispatch();
+    const { collaborate } = useSelector((state) => state.shared);
+    const {
+      displayMedia: { isScreenSharing }
+    } = useSelector((state) => state.streamManager);
     const settingsButtonRef = useRef();
     const { isTouchscreenDevice } = useResponsiveDevice();
     const { openModal, closeModal } = useModal();
@@ -42,18 +51,16 @@ const BroadcastControlWrapper = forwardRef(
       }
     } = useBroadcast();
     const {
-      userMedia: { audioMuted, videoStopped },
-      displayMedia: { isScreenSharing, startScreenShare, stopScreenShare }
+      userMedia: { audioMuted, videoStopped }
     } = useDeviceManager();
     const {
-      user: userStage = null,
-      display: displayStage = null,
-      stageControls,
-      participantRole,
-      isJoiningStageByRequestOrInvite
+      [PARTICIPANT_GROUP.USER]: userStage = null,
+      [PARTICIPANT_GROUP.DISPLAY]: displayStage = null,
+      stageControls
     } = useStageManager() || {};
-    const isStageActive = userStage?.isUserStageConnected;
-    const isStageSpectator = participantRole === 'spectator';
+    const isStageActive = userStage?.isConnected;
+    const isStageSpectator =
+      collaborate.participantType === PARTICIPANT_TYPES.SPECTATOR;
 
     const publishingUserParticipants =
       userStage?.getParticipants({
@@ -83,7 +90,7 @@ const BroadcastControlWrapper = forwardRef(
       isMicrophoneMuted,
       isCameraHidden
     } =
-      isStageActive || isJoiningStageByRequestOrInvite
+      isStageActive || collaborate.isJoining
         ? {
             toggleMicrophone: stageControls.toggleAudio,
             isMicrophoneMuted: audioMuted,
@@ -97,13 +104,17 @@ const BroadcastControlWrapper = forwardRef(
             isCameraHidden: isBroadcastCameraHidden
           };
 
+    /**
+     * Changes to "isScreenSharing" Redux state trigger startScreenShare or stopScreenShare
+     * in DeviceManager context via useEffect.
+     */
     const handleScreenShare = useCallback(() => {
       if (isScreenSharing) {
-        stopScreenShare();
+        dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
       } else if (StageFactory.hasPublishCapacity) {
-        startScreenShare();
+        dispatch(updateDisplayMediaStates({ isScreenSharing: true }));
       }
-    }, [isScreenSharing, startScreenShare, stopScreenShare]);
+    }, [dispatch, isScreenSharing]);
 
     const controllerButtonProps = useMemo(
       () => [
@@ -165,11 +176,34 @@ const BroadcastControlWrapper = forwardRef(
       ]
     );
 
+    const openStageJoinModal = useCallback(() => {
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+    }, [closeModal, openModal]);
+
     const handleSettingsClick = () => {
+      let modalData = {};
+
+      // Update modal functions for the join stage session flow
+      if (collaborate.isJoining) {
+        modalData = {
+          onCancel: () => {
+            openStageJoinModal();
+          },
+          onConfirm: () => {
+            openStageJoinModal();
+
+            return false; // should not close modal
+          }
+        };
+      }
       closeModal({ shouldCancel: false, shouldRefocus: false });
       openModal({
         type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-        lastFocusedElement: settingsButtonRef
+        lastFocusedElement: settingsButtonRef,
+        ...modalData
       });
     };
 

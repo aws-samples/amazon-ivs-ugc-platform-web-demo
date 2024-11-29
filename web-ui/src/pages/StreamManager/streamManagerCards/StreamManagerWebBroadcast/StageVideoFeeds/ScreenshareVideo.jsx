@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  ANIMATION_DURATION,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
 import Spinner from '../../../../../components/Spinner';
-import { useGlobalStage } from '../../../../../contexts/Stage';
+import { FULLSCREEN_ANIMATION_DURATION } from '../../../../../constants';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -17,9 +14,9 @@ const SIZE_VARIANTS = {
 };
 
 const ScreenshareVideo = ({ participant, type, className = '' }) => {
+  const { isPlayerMuted } = useSelector((state) => state.channel);
+  const { fullscreen } = useSelector((state) => state.streamManager);
   const videoRef = useRef(null);
-  const { isChannelStagePlayerMuted } = useGlobalStage();
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 
   const { mediaStream } = participant;
@@ -63,24 +60,26 @@ const ScreenshareVideo = ({ participant, type, className = '' }) => {
    */
   const toggleVideoSource = useCallback(() => {
     if (!videoRef?.current || !mediaStream) return;
-    const isSrcObjectNull = isFullScreenViewOpen && isGoLiveType;
+    const isSrcObjectNull = fullscreen.isOpen && isGoLiveType;
 
     if (isSrcObjectNull) {
       videoRef.current.srcObject = null;
     } else {
       updateVideoSource(mediaStream);
     }
-  }, [mediaStream, isFullScreenViewOpen, isGoLiveType, updateVideoSource]);
+  }, [mediaStream, fullscreen.isOpen, isGoLiveType, updateVideoSource]);
 
   useEffect(() => {
     if (isChannelType) return;
 
     // Swith video source once fullscreen collapse animation completes
-    const animationDelay = isFullScreenViewOpen ? 0 : ANIMATION_DURATION * 1000;
+    const animationDelay = fullscreen.isOpen
+      ? 0
+      : FULLSCREEN_ANIMATION_DURATION * 1000;
     setTimeout(toggleVideoSource, animationDelay);
 
     return () => clearTimeout(toggleVideoSource);
-  }, [isFullScreenViewOpen, toggleVideoSource, isChannelType]);
+  }, [fullscreen.isOpen, toggleVideoSource, isChannelType]);
 
   return (
     <div
@@ -106,7 +105,7 @@ const ScreenshareVideo = ({ participant, type, className = '' }) => {
           'h-full'
         ])}
         playsInline
-        {...(isChannelType && { muted: isChannelStagePlayerMuted })}
+        {...(isChannelType && { muted: isPlayerMuted })}
         aria-label="Local participant IVS stage video"
       >
         <track label="empty" kind="captions" srcLang="en" />

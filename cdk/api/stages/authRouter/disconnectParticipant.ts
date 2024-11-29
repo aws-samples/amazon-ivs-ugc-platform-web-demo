@@ -6,6 +6,7 @@ import { UserContext } from '../../shared/authorizer';
 
 export type DisconnectParticipantRequestBody = {
   participantId: string;
+  displayParticipantId?: string;
 };
 
 const handler = async (
@@ -13,17 +14,18 @@ const handler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { participantId } = request.body;
+    const { participantId, displayParticipantId = null } = request.body;
     if (!participantId) throw new Error('Participant id is required');
 
     const { sub } = request.requestContext.get('user') as UserContext;
 
-    const { userStageId, displayStageId } = await verifyUserIsStageHost(sub);
+    const { stageId } = await verifyUserIsStageHost(sub);
 
-    await Promise.allSettled([
-      handleDisconnectParticipant(participantId, userStageId),
-      handleDisconnectParticipant(participantId, displayStageId)
-    ]);
+    await handleDisconnectParticipant(participantId, stageId);
+
+    if (displayParticipantId) {
+      await handleDisconnectParticipant(displayParticipantId, stageId);
+    }
 
     reply.statusCode = 200;
     return reply.send({

@@ -1,9 +1,9 @@
-import { useRef } from 'react';
-import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../../utils';
-import { useGlobalStage } from '../../../../../contexts/Stage';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { PersonAdd, Group } from '../../../../../assets/icons';
@@ -11,10 +11,11 @@ import { streamManager as $content } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import Button from '../../../../../components/Button';
 import useClickAway from '../../../../../hooks/useClickAway';
-import withPortal from '../../../../../components/withPortal';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
 import RequestIndicator from './RequestIndicator';
 import { useStageManager } from '../../../../../contexts/StageManager';
+import { PARTICIPANT_TYPES } from '../../../../../constants';
+import useResize from '../../../../../hooks/useResize';
 
 const $stageContent = $content.stream_manager_stage;
 const BUTTON_TEXT_CLASSES = ['text-black', 'dark:text-white'];
@@ -27,19 +28,18 @@ const IconClasses = clsm([
 ]);
 
 const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
+  const { collaborate } = useSelector((state) => state.shared);
   const menuRef = useRef();
   const { openModal } = useModal();
-  const { stageRequestList } = useGlobalStage();
-  const {
-    user: userStage = null,
-    stageControls = null,
-    participantRole
-  } = useStageManager() || {};
-  const isStageActive = userStage?.isUserStageConnected;
-  const isHost = participantRole === 'host';
-  const { copyInviteUrl } = stageControls || {};
+  const { user: userStage = null, stageControls = null } =
+    useStageManager() || {};
   const { isMobileView } = useResponsiveDevice();
+
+  const isStageActive = userStage?.isConnected;
+  const { copyInviteUrl } = stageControls || {};
+  const isHost = collaborate.participantType === PARTICIPANT_TYPES.HOST;
   const shouldDisplayParticipantsModalButton = isHost && isStageActive;
+
   const handleOpenParticipantsModal = () => {
     openModal({
       type: MODAL_TYPE.STAGE_PARTICIPANTS,
@@ -47,68 +47,74 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
     });
   };
 
+  const closeMenu = useCallback(() => {
+    toggleMenu(false);
+  }, [toggleMenu]);
+
   useClickAway([toggleBtnRef, menuRef], toggleMenu, isOpen);
   useFocusTrap([menuRef]);
+  useResize(closeMenu);
 
   return (
     <AnimatePresence>
-      <motion.div
-        ref={menuRef}
-        {...createAnimationProps({
-          animations: ['fadeIn-full', 'scale'],
-          options: { isVisible: isOpen },
-          customVariants: {
-            visible: {
-              x: isMobileView ? '-50%' : 0,
-              display: 'flex'
-            },
-            hidden: {
-              x: isMobileView ? '-50%' : 0,
-              transitionEnd: { display: 'none' }
+      {isOpen && (
+        <motion.div
+          ref={menuRef}
+          {...createAnimationProps({
+            animations: ['fadeIn-full', 'scale'],
+            customVariants: {
+              visible: {
+                x: isMobileView ? '-75%' : 0,
+                display: 'flex'
+              },
+              hidden: {
+                transitionEnd: { display: 'none' }
+              }
             }
-          }
-        })}
-        className={clsm([
-          'bg-lightMode-gray-light',
-          'dark:bg-darkMode-gray',
-          'absolute',
-          'flex-col',
-          'gap-4',
-          'mt-2',
-          'origin-top-left',
-          isMobileView && 'origin-bottom-right',
-          'p-4',
-          'rounded-3xl',
-          'w-auto'
-        ])}
-      >
-        {shouldDisplayParticipantsModalButton && (
+          })}
+          className={clsm([
+            'z-20',
+            'bg-lightMode-gray-light',
+            'dark:bg-darkMode-gray',
+            'absolute',
+            'flex-col',
+            'gap-4',
+            'mt-2',
+            'origin-top-left',
+            'p-4',
+            'rounded-3xl',
+            'w-auto',
+            isMobileView && ['origin-top-right', 'top-full']
+          ])}
+        >
+          {shouldDisplayParticipantsModalButton && (
+            <Button
+              variant="tertiaryText"
+              onClick={handleOpenParticipantsModal}
+              className={clsm(BUTTON_TEXT_CLASSES, 'space-x-4')}
+            >
+              <div className="relative">
+                <Group className={IconClasses} />
+                {collaborate.requestList.length > 0 && (
+                  <RequestIndicator
+                    stageRequestsCount={collaborate.requestList.length}
+                    className={clsm(['left-[18px]', '-top-4'])}
+                  />
+                )}
+              </div>
+              <p>{$stageContent.participants}</p>
+            </Button>
+          )}
           <Button
             variant="tertiaryText"
-            onClick={handleOpenParticipantsModal}
-            className={clsm(BUTTON_TEXT_CLASSES, 'space-x-4')}
+            onClick={copyInviteUrl}
+            className={clsm(BUTTON_TEXT_CLASSES)}
           >
-            <div className="relative">
-              <Group className={IconClasses} />
-              {stageRequestList.length > 0 && (
-                <RequestIndicator
-                  stageRequestsCount={stageRequestList.length}
-                  className={clsm(['left-[18px]', '-top-4'])}
-                />
-              )}
-            </div>
-            <p>{$stageContent.participants}</p>
+            <PersonAdd className={IconClasses} />
+            <p>{$stageContent.copy_link}</p>
           </Button>
-        )}
-        <Button
-          variant="tertiaryText"
-          onClick={copyInviteUrl}
-          className={clsm(BUTTON_TEXT_CLASSES)}
-        >
-          <PersonAdd className={IconClasses} />
-          <p>{$stageContent.copy_link}</p>
-        </Button>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };
@@ -119,6 +125,4 @@ StageMenu.propTypes = {
   toggleBtnRef: PropTypes.object.isRequired
 };
 
-export default withPortal(StageMenu, 'stage-menu', {
-  isAnimated: true
-});
+export default StageMenu;

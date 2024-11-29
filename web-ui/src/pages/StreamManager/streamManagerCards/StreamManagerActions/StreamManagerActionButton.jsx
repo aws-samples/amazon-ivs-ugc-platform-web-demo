@@ -37,7 +37,7 @@ const StreamManagerActionButton = forwardRef(
       cancelActivePoll
     } = useStreamManagerActions();
     const { user: userStage = null } = useStageManager() || {};
-    const isStageActive = userStage?.isUserStageConnected;
+    const isStageActive = userStage?.isConnected;
 
     let activeStreamManagerActionDuration;
     let activeStreamManagerActionName;

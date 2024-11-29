@@ -29,8 +29,8 @@ const getCurrentSessionFetcher = async () => {
 };
 
 export const Provider = () => {
-  const [isCreatingResources, setIsCreatingResources] = useState(false);
-  const [hasErrorCreatingResources, setHasErrorCreatingResources] =
+  const [isProvisioningResources, setIsProvisioningResources] = useState(false);
+  const [hasErrorProvisioningResources, setHasErrorProvisioningResources] =
     useState(false);
   const [userData, setUserData] = useState();
   const [hasFetchedInitialUserData, setHasFetchedInitialUserData] =
@@ -89,18 +89,25 @@ export const Provider = () => {
     if (error) setHasErrorFetchingFollowingList(true);
   }, []);
 
-  // Initialize user resources
+  // Initialize or update user resources
   const initUserResources = useCallback(async () => {
-    if (await fetchUserData()) return;
+    const userData = await fetchUserData();
 
-    setIsCreatingResources(true);
-    setHasErrorCreatingResources(false);
-    const { result, error } = await channelAPI.createResources();
+    setIsProvisioningResources(true);
+    setHasErrorProvisioningResources(false);
+
+    let result, error;
+
+    if (userData) {
+      ({ result, error } = await channelAPI.updateChannelConfig());
+    } else {
+      ({ result, error } = await channelAPI.createResources());
+    }
 
     if (result) await fetchUserData();
-    if (error) setHasErrorCreatingResources(true);
+    if (error) setHasErrorProvisioningResources(true);
 
-    setIsCreatingResources(false);
+    setIsProvisioningResources(false);
   }, [fetchUserData]);
 
   const logOut = useCallback(
@@ -152,11 +159,11 @@ export const Provider = () => {
       checkSessionStatus,
       fetchUserData,
       fetchUserFollowingList,
-      hasErrorCreatingResources,
+      hasErrorProvisioningResources,
       hasErrorFetchingFollowingList,
       hasFetchedInitialUserData,
       initUserResources,
-      isCreatingResources,
+      isProvisioningResources,
       isSessionValid,
       logOut,
       logOutAction,
@@ -168,11 +175,11 @@ export const Provider = () => {
       checkSessionStatus,
       fetchUserData,
       fetchUserFollowingList,
-      hasErrorCreatingResources,
+      hasErrorProvisioningResources,
       hasErrorFetchingFollowingList,
       hasFetchedInitialUserData,
       initUserResources,
-      isCreatingResources,
+      isProvisioningResources,
       isSessionValid,
       logOut,
       logOutAction,

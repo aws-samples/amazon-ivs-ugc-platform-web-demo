@@ -85,7 +85,7 @@ const Chat = ({ shouldRunCelebration = false }) => {
       );
 
   const isRequestButtonVisible =
-    channelData?.userStageId &&
+    channelData?.stageId &&
     isSessionValid &&
     !isViewerBanned &&
     !pathname.includes('/manager') &&

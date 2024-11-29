@@ -1,4 +1,5 @@
+import GoLiveStageControl from './GoLiveStageControl';
 import StageControl from './StageControl';
 import StageMenu from './StageMenu';
 
-export { StageControl, StageMenu };
+export { GoLiveStageControl, StageControl, StageMenu };

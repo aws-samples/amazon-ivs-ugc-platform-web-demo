@@ -1,5 +1,7 @@
 import { streamManager as $streamManagerContent } from './content';
 
+const { StageLeftReason } = window.IVSBroadcastClient;
+
 /**
  * MISC
  */
@@ -359,6 +361,8 @@ export const BROADCAST_STREAM_CONFIG_PRESETS = {
 /**
  * AMAZON IVS REAL-TIME STREAMING
  */
+export const COLLABORATE_ROUTE_PATH = '/manager/collab';
+
 export const LOCAL_STAGE_STREAM_OPTIONS = {
   simulcast: {
     enabled: true
@@ -368,7 +372,32 @@ export const LOCAL_STAGE_STREAM_OPTIONS = {
 export const PARTICIPANT_TYPE_HOST = 'host';
 export const PARTICIPANT_TYPE_SCREENSHARE = 'screenshare';
 
+export const PARTICIPANT_TYPES = {
+  HOST: 'host',
+  INVITED: 'invited',
+  REQUESTED: 'requested',
+  SPECTATOR: 'spectator',
+  SCREENSHARE: 'screenshare'
+};
+
+export const HOST_CHANNEL_FETCHER_REFRESH_INTERVAL = 1 * 60 * 1000; // 1 minute
+
+export const STAGE_LEFT_REASONS = {
+  ...StageLeftReason,
+  SESSION_ENDED: 'session_ended',
+  FAILED_TO_JOIN: 'failed_to_join'
+};
+
 /**
  * CHANNEL DIRECTORY, FOLLOWING
  */
 export const MAX_AVATAR_COUNT = 14;
+
+/**
+ * Fullscreen
+ */
+export const FULLSCREEN_ANIMATION_DURATION = 0.25;
+export const FULLSCREEN_ANIMATION_TRANSITION = {
+  duration: FULLSCREEN_ANIMATION_DURATION,
+  type: 'tween'
+};

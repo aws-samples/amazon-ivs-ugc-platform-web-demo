@@ -27,7 +27,7 @@ export const FOLLOWING_LIST_DUPLICATE_EXCEPTION =
   'FollowingListDuplicateException';
 export const SORT_PRODUCTS_EXCEPTION = 'SortProductsException';
 export const TOO_MANY_REQUESTS_EXCEPTION = 'TooManyRequestsException';
-export const STAGE_DELETION_EXCEPTION = 'StageDeletionException';
+export const STAGE_END_EXCEPTION = 'StageEndException';
 export const RESOURCE_NOT_FOUND_EXCEPTION = 'ResourceNotFoundException';
 
 export const INGEST_FRAMERATE = 'IngestFramerate';
@@ -97,8 +97,7 @@ export const FETCH_AMAZON_PRODUCTS_ORIGINS = {
 export const STAGE_TOKEN_DURATION = 1440; // Minutes
 
 export const CHANNELS_TABLE_STAGE_FIELDS = {
-  USER_STAGE_ID: 'userStageId',
-  DISPLAY_STAGE_ID: 'displayStageId',
+  STAGE_ID: 'stageId',
   STAGE_CREATION_DATE: 'stageCreationDate'
 };
 

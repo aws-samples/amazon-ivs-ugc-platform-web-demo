@@ -1,6 +1,7 @@
 import { streamManager as $streamManagerContent } from '../content';
 import { isiOS } from '../utils';
 import { STREAM_ACTION_NAME } from '../constants';
+import { PARTICIPANT_GROUP } from '../contexts/StageManager/constants';
 
 const userJoinedNotificationContent =
   $streamManagerContent.stream_manager_stage.notifications.success
@@ -9,14 +10,13 @@ const userScreenshareNameContent =
   $streamManagerContent.stream_manager_stage.screenshare;
 const REPLACEMENT_TEXT = 'USERNAME';
 
-export const USER_STAGE_ID_URL_PARAM = 'user';
-export const DISPLAY_STAGE_ID_URL_PARAM = 'display';
+export const STAGE_ID_URL_PARAM = 'stageId';
 export const REQUEST_URL_PARAM_KEY = 'Request';
 
 export const createJoinParticipantLink = (stageId) => {
   const url = new URL(window.location.href);
-  if (!url.searchParams.get(USER_STAGE_ID_URL_PARAM)) {
-    url.searchParams.append(USER_STAGE_ID_URL_PARAM, stageId);
+  if (!url.searchParams.get(STAGE_ID_URL_PARAM)) {
+    url.searchParams.append(STAGE_ID_URL_PARAM, stageId);
   }
 
   return url.href;
@@ -24,16 +24,16 @@ export const createJoinParticipantLink = (stageId) => {
 
 export const createUserJoinedSuccessMessage = (
   username,
-  participantGroup = 'user'
+  participantGroup = PARTICIPANT_GROUP.USER
 ) => {
   let successMessageWithUsername;
-  if (participantGroup === 'user') {
+  if (participantGroup === PARTICIPANT_GROUP.USER) {
     successMessageWithUsername = userJoinedNotificationContent.replace(
       REPLACEMENT_TEXT,
       username
     );
   }
-  if (participantGroup === 'display') {
+  if (participantGroup === PARTICIPANT_GROUP.DISPLAY) {
     successMessageWithUsername = userJoinedNotificationContent.replace(
       REPLACEMENT_TEXT,
       `${username}${userScreenshareNameContent}`

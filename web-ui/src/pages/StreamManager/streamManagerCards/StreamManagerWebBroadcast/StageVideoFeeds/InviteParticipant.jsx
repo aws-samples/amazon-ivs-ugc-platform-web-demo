@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
@@ -13,6 +14,7 @@ import { useStageManager } from '../../../../../contexts/StageManager';
 const $stageContent = $content.stream_manager_stage;
 
 const InviteParticipant = ({ type, className = '', hideText = false }) => {
+  const { collaborate } = useSelector((state) => state.shared);
   const { isTouchscreenDevice, isDesktopView, isDefaultResponsiveView } =
     useResponsiveDevice();
   const isFullscreenType = type === 'fullscreen';
@@ -21,8 +23,7 @@ const InviteParticipant = ({ type, className = '', hideText = false }) => {
     ? isFullscreenType
     : !isDefaultResponsiveView;
 
-  const { stageControls = null, isJoiningStageByRequestOrInvite } =
-    useStageManager() || {};
+  const { stageControls = null } = useStageManager() || {};
   const { shouldRenderInviteLinkButton, copyInviteUrl } = stageControls || {};
 
   return (
@@ -38,7 +39,7 @@ const InviteParticipant = ({ type, className = '', hideText = false }) => {
         className
       ])}
     >
-      {!isJoiningStageByRequestOrInvite && shouldRenderInviteLinkButton && (
+      {!collaborate.isJoining && shouldRenderInviteLinkButton && (
         <div>
           <Tooltip
             key="stage-tooltip-participant-link"
