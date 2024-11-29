@@ -38,11 +38,13 @@ const {
  * }
  * - The stream config must match IVS account config
  */
-const orientation = 'landscape';
 const channelType = process.env.REACT_APP_CHANNEL_TYPE;
-const streamConfig = BROADCAST_STREAM_CONFIG_PRESETS[channelType][orientation];
-
-const logLevel = LOG_LEVEL.TRACE;
+const orientation = 'landscape';
+const streamConfig = {
+  ...BROADCAST_STREAM_CONFIG_PRESETS[channelType][orientation],
+  maxResolution: { width: 1280, height: 720 } // max resolution override to avoid full HD performance issues
+};
+const logLevel = LOG_LEVEL.ERROR;
 const CONNECTION_TIMEOUT = 10_000; // 10s
 
 // Singleton IVS Web Broadcast client instance

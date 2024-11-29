@@ -11,6 +11,7 @@ import {
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
+  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
@@ -20,6 +21,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { readFileSync } from 'fs';
 import {
@@ -30,7 +32,8 @@ import {
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
-  ChannelsResourceConfig
+  ChannelsResourceConfig,
+  defaultLambdaParams
 } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
@@ -539,9 +542,8 @@ export class ChannelsStack extends NestedStack {
       this,
       `${stackNamePrefix}-CleanupIdleStages-Handler`,
       {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
+        ...defaultLambdaParams,
+        logRetention: RetentionDays.ONE_WEEK,
         functionName: `${stackNamePrefix}-CleanupIdleStages`,
         entry: getLambdaEntryPath('cleanupIdleStages'),
         timeout: Duration.minutes(10),
@@ -557,9 +559,8 @@ export class ChannelsStack extends NestedStack {
       this,
       `${stackNamePrefix}-CleanupUnverifiedUsers-Handler`,
       {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
+        ...defaultLambdaParams,
+        logRetention: RetentionDays.ONE_WEEK,
         functionName: `${stackNamePrefix}-CleanupUnverifiedUsers`,
         entry: getLambdaEntryPath('cleanupUnverifiedUsers'),
         timeout: Duration.minutes(10),

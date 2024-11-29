@@ -42,6 +42,10 @@ Deploying the CDK stack will:
 
 ## Features
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fork/main
 ### User Registration, Login and Password Reset using Amazon Cognito
 
 New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
@@ -338,7 +342,6 @@ For improved communication between a stage host and a requestee (for example, re
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
-
 1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
 2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.

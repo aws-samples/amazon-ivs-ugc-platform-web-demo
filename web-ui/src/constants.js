@@ -37,6 +37,7 @@ export const CHAT_MESSAGE_EVENT_TYPES = {
   HEART_BEAT: 'HEART_BEAT'
 };
 export const CHANNEL_ARN_CHANNEL_ID_SEPARATOR = 'channel/';
+export const BANNED_USERNAME_CHANNEL_ID_SEPARATOR = 'channel/';
 export const MAX_RECONNECT_ATTEMPTS = 7;
 
 export const CHAT_LOG_LEVELS = {

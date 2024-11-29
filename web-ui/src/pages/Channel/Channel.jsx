@@ -133,7 +133,6 @@ const Channel = () => {
   }, [isMobileView, isStackedView]);
 
   useResize(updateChatSectionHeight, { shouldCallOnMount: true });
-
   // Ensures we have computed and set the chat section min-height before the first render
   useLayoutEffect(() => {
     if (!isMounted()) updateChatSectionHeight();

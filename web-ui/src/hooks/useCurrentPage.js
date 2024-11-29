@@ -26,7 +26,6 @@ const ROUTES = [
 
 const useCurrentPage = () => {
   const location = useLocation();
-
   const [match] = matchRoutes(ROUTES, location) || [];
 
   return match?.route?.name;

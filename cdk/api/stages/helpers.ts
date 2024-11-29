@@ -3,8 +3,6 @@ import {
   CreateParticipantTokenCommand,
   CreateParticipantTokenCommandInput,
   CreateStageCommand,
-  CreateStageCommandInput,
-  DeleteStageCommand,
   GetStageCommand,
   IVSRealTimeClient,
   ListParticipantsCommand,
@@ -545,10 +543,9 @@ export const validateRequestParams = (...requestParams: string[]) => {
 
 export const verifyUserIsStageHost = async (sub: string) => {
   const { Item: UserItem = {} } = await getUser(sub);
-  const response = unmarshall(UserItem);
-  const { stageId = null, channelArn } = response;
+  const { stageId = null, channelArn } = unmarshall(UserItem);
   if (!stageId) {
-    throw new Error('User stage ID was not found.');
+    throw new Error('No active stage found.');
   }
 
   const { stage } = await getStage(stageId);
