@@ -57,7 +57,7 @@ const url = '/stages/disconnectParticipant';
 const defaultRequestParams = { method: 'PUT' as const, url };
 const server = buildServer();
 
-describe('deleteStage controller', () => {
+describe('disconnectParticipant controller', () => {
   beforeAll(() => {
     mockGetUnmarshall(mockUserData);
   });

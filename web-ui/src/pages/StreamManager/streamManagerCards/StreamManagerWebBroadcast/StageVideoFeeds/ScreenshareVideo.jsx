@@ -1,19 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  ANIMATION_DURATION,
-  ANIMATION_TRANSITION as fullscreenViewTransition,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
-import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
-import { getAvatarSrc } from '../../../../../helpers';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
-import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
-import { useGlobalStage } from '../../../../../contexts/Stage';
+import { FULLSCREEN_ANIMATION_DURATION } from '../../../../../constants';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -21,32 +13,27 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const ScreenshareVideo = ({ type, participantKey, className = '' }) => {
+const ScreenshareVideo = ({ participant, type, className = '' }) => {
+  const { isPlayerMuted } = useSelector((state) => state.channel);
+  const { fullscreen } = useSelector((state) => state.streamManager);
   const videoRef = useRef(null);
-  const { participants, isChannelStagePlayerMuted } = useGlobalStage();
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 
-  const participant = participants.get(participantKey);
-  const { streams, attributes } = participant;
-  const { username = null } = attributes || {};
-  const avatarSrc = getAvatarSrc(attributes);
+  const { mediaStream } = participant;
 
   const isFullscreenType = type === STAGE_VIDEO_FEEDS_TYPES.FULL_SCREEN;
   const isGoLiveType = type === STAGE_VIDEO_FEEDS_TYPES.GO_LIVE;
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
-  const updateVideoSource = useCallback((streams) => {
-    videoRef.current.srcObject = new MediaStream(
-      streams.map((stream) => stream.mediaStreamTrack)
-    );
+  const updateVideoSource = useCallback((mediaStream) => {
+    videoRef.current.srcObject = mediaStream;
   }, []);
 
   useEffect(() => {
-    if (!streams || !isLoading) return;
+    if (!mediaStream || !isLoading) return;
 
-    updateVideoSource(streams);
-  }, [streams, updateVideoSource, isLoading]);
+    updateVideoSource(mediaStream);
+  }, [mediaStream, updateVideoSource, isLoading]);
 
   useEffect(() => {
     const videoElement = videoRef?.current;
@@ -72,25 +59,27 @@ const ScreenshareVideo = ({ type, participantKey, className = '' }) => {
    * Only one set should have videos with source object set to streams
    */
   const toggleVideoSource = useCallback(() => {
-    if (!videoRef?.current || !streams) return;
-    const isSrcObjectNull = isFullScreenViewOpen && isGoLiveType;
+    if (!videoRef?.current || !mediaStream) return;
+    const isSrcObjectNull = fullscreen.isOpen && isGoLiveType;
 
     if (isSrcObjectNull) {
       videoRef.current.srcObject = null;
     } else {
-      updateVideoSource(streams);
+      updateVideoSource(mediaStream);
     }
-  }, [streams, isFullScreenViewOpen, isGoLiveType, updateVideoSource]);
+  }, [mediaStream, fullscreen.isOpen, isGoLiveType, updateVideoSource]);
 
   useEffect(() => {
     if (isChannelType) return;
 
     // Swith video source once fullscreen collapse animation completes
-    const animationDelay = isFullScreenViewOpen ? 0 : ANIMATION_DURATION * 1000;
+    const animationDelay = fullscreen.isOpen
+      ? 0
+      : FULLSCREEN_ANIMATION_DURATION * 1000;
     setTimeout(toggleVideoSource, animationDelay);
 
     return () => clearTimeout(toggleVideoSource);
-  }, [isFullScreenViewOpen, toggleVideoSource, isChannelType]);
+  }, [fullscreen.isOpen, toggleVideoSource, isChannelType]);
 
   return (
     <div
@@ -116,44 +105,11 @@ const ScreenshareVideo = ({ type, participantKey, className = '' }) => {
           'h-full'
         ])}
         playsInline
-        {...(isChannelType && { muted: isChannelStagePlayerMuted })}
+        {...(isChannelType && { muted: isPlayerMuted })}
         aria-label="Local participant IVS stage video"
       >
         <track label="empty" kind="captions" srcLang="en" />
       </video>
-      <AnimatePresence>
-        {!isGoLiveType && (
-          <motion.div
-            {...createAnimationProps({
-              animations: ['fadeIn-full'],
-              transition: fullscreenViewTransition
-            })}
-            className={clsm([
-              '@stage-video-lg/screenshare:px-4',
-              '@stage-video-lg/screenshare:top-4',
-              '@stage-video-xl/screenshare:px-6',
-              '@stage-video-xl/screenshare:top-6',
-              'absolute',
-              'flex',
-              'h-auto',
-              'items-start',
-              'justify-between',
-              'px-3',
-              'top-3',
-              'w-full'
-            ])}
-          >
-            {username && (
-              <StageProfilePill
-                type={STAGE_PROFILE_TYPES.FULLSCREEN_VIDEO_FEED}
-                avatarSrc={avatarSrc}
-                username={username}
-                isScreenshare
-              />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
       {isLoading && (
         <div
           className={clsm([
@@ -182,9 +138,21 @@ const ScreenshareVideo = ({ type, participantKey, className = '' }) => {
 };
 
 ScreenshareVideo.propTypes = {
-  participantKey: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['golive', 'fullscreen', 'channel']).isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  participant: PropTypes.shape({
+    id: PropTypes.string,
+    attributes: PropTypes.shape({
+      username: PropTypes.string,
+      channelId: PropTypes.string,
+      profileColor: PropTypes.string,
+      type: PropTypes.string
+    }),
+    userId: PropTypes.string,
+    videoStopped: PropTypes.bool,
+    audioMuted: PropTypes.bool,
+    mediaStream: PropTypes.instanceOf(MediaStream)
+  }).isRequired
 };
 
 export default ScreenshareVideo;

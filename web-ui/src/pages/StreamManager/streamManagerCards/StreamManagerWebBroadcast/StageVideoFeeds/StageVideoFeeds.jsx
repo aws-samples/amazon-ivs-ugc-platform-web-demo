@@ -1,19 +1,25 @@
-import { useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import StageVideo from './StageVideo';
 
 import './StageVideoGrid.css';
-import { useBroadcastFullScreen } from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
-import { PARTICIPANT_TYPE_SCREENSHARE } from '../../../../../constants';
-import { useGlobalStage } from '../../../../../contexts/Stage';
 import { useLocation } from 'react-router-dom';
+import { useStageManager } from '../../../../../contexts/StageManager';
 import InviteParticipant from './InviteParticipant';
 import ParticipantOverflowCard from './ParticipantOverflowCard';
 import ScreenshareVideo from './ScreenshareVideo';
 import useCalculatedAspectRatio from '../FullScreenView/useCalculatedAspectRatio';
 import useScreenshareRow from '../../../hooks/useScreenshareRow';
+import {
+  COLLABORATE_ROUTE_PATH,
+  FULLSCREEN_ANIMATION_DURATION,
+  PARTICIPANT_TYPES
+} from '../../../../../constants';
+import Spinner from '../../../../../components/Spinner';
+import { PARTICIPANT_GROUP } from '../../../../../contexts/StageManager/constants';
 
 // These types in STAGE_VIDEO_FEEDS_TYPES correspond to different rendering locations for the component.
 export const STAGE_VIDEO_FEEDS_TYPES = {
@@ -23,65 +29,120 @@ export const STAGE_VIDEO_FEEDS_TYPES = {
 };
 
 const StageVideoFeeds = ({ styles = '', type }) => {
-  const { participants, isJoiningStageByRequestOrInvite, isRequestedUserType } =
-    useGlobalStage();
+  const { collaborate } = useSelector((state) => state.shared);
+  const { fullscreen } = useSelector((state) => state.streamManager);
   const {
-    isFullScreenViewOpen,
-    fullscreenAnimationControls,
-    dimensionClasses
-  } = useBroadcastFullScreen();
+    [PARTICIPANT_GROUP.USER]: userStage = null,
+    [PARTICIPANT_GROUP.DISPLAY]: displayStage = null
+  } = useStageManager() || {};
   const { pathname } = useLocation();
-  const stageVideoFeedsRef = useRef();
-  const { parentRef: containerRef } = useCalculatedAspectRatio({
-    childRef: stageVideoFeedsRef,
-    isAnimated: false
+
+  // Aspect ratio
+  const videoContainerRef = useRef();
+  const videoContainerAnimationControls = useAnimationControls();
+  const {
+    parentRef: containerRef,
+    controlAnimDefinition,
+    setControlAnimDefinition
+  } = useCalculatedAspectRatio({
+    childRef: videoContainerRef,
+    delay: FULLSCREEN_ANIMATION_DURATION * 1500 // Delay till the fullscreen expand transition ends
   });
 
-  const participantList = Array.from(participants).slice(0, 12);
-  const videoAudioParticipants = participantList.filter(
-    (participant) =>
-      participant[1]?.attributes?.type !== PARTICIPANT_TYPE_SCREENSHARE
-  );
-  const videoAudioParticipantsLength = videoAudioParticipants.length;
-  const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
-  const containerMinHeightPX = isFullScreenViewOpen || isChannelType ? 200 : 0;
+  // Participants
+  const isRequestedUserType =
+    collaborate.participantType === PARTICIPANT_TYPES.REQUESTED;
+  const publishingUserParticipants = userStage?.getParticipants({
+    isPublishing: true,
+    canSubscribeTo: true
+  });
+  const publishingDisplayParticipants = displayStage?.getParticipants({
+    isPublishing: true,
+    canSubscribeTo: true
+  });
+  const publishingUserParticipantsLength = publishingUserParticipants.length;
+
+  // UI states
+  const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL; // if true, the component is rendered on the channel page
+  const containerMinHeightPX = fullscreen.isOpen || isChannelType ? 200 : 0;
   const isInviteParticipantCardVisible =
-    pathname === '/manager' &&
+    pathname === COLLABORATE_ROUTE_PATH &&
     !isChannelType &&
     !isRequestedUserType &&
-    videoAudioParticipantsLength <= 1 &&
-    isFullScreenViewOpen;
+    type !== STAGE_VIDEO_FEEDS_TYPES.GO_LIVE &&
+    publishingUserParticipantsLength <= 1;
 
-  let gridItemCountClasses;
-  if (videoAudioParticipantsLength > 2 || isChannelType) {
-    gridItemCountClasses = `grid-${videoAudioParticipantsLength}`;
-  } else if (isRequestedUserType && videoAudioParticipantsLength === 1) {
-    gridItemCountClasses = ['grid-rows-1', 'grid-cols-1'];
-  } else {
-    gridItemCountClasses = ['grid-rows-1', 'grid-cols-2'];
-  }
+  const gridItemCountClasses = useMemo(() => {
+    if (publishingUserParticipantsLength > 2 || isChannelType) {
+      return `grid-${publishingUserParticipantsLength}`;
+    } else if (
+      !isInviteParticipantCardVisible &&
+      publishingUserParticipantsLength === 1
+    ) {
+      return ['grid-rows-1', 'grid-cols-1'];
+    } else {
+      return ['grid-rows-1', 'grid-cols-2'];
+    }
+  }, [
+    isChannelType,
+    isInviteParticipantCardVisible,
+    publishingUserParticipantsLength
+  ]);
 
   const {
     hiddenOverflowAvatarsLength,
     isOverflowCardVisible,
     isScreenshareVisible,
     maxColumnCount,
-    screenshareParticipantColCount,
-    screenshareParticipants,
     visibleOverflowAvatars
   } = useScreenshareRow({
-    participantList,
-    containerRef,
-    videoAudioParticipants,
+    publishingDisplayParticipants,
+    videoContainerRef,
+    videoAudioParticipants: publishingUserParticipants,
     containerMinHeightPX,
-    isInviteParticipantCardVisible
+    parentContainerRef: containerRef
   });
+
+  /**
+   * Animates the video container based on the controlAnimDefinition value
+   * Provided by useCalculateAspectRatio.
+   * This makes sure the container has the correct video aspect ratio.
+   */
+  useEffect(() => {
+    if (!videoContainerAnimationControls || !controlAnimDefinition) return;
+
+    videoContainerAnimationControls.set(
+      fullscreen.isOpen
+        ? controlAnimDefinition
+        : { width: '100%', height: '100%' }
+    );
+
+    setControlAnimDefinition(null);
+  }, [
+    controlAnimDefinition,
+    setControlAnimDefinition,
+    fullscreen.isOpen,
+    videoContainerAnimationControls
+  ]);
+
+  if (fullscreen.isAnimating)
+    return (
+      <div
+        className={clsm([
+          'flex',
+          'w-full',
+          'h-full',
+          'justify-center',
+          'items-center'
+        ])}
+      >
+        <Spinner variant="light" size="large" />
+      </div>
+    );
 
   return (
     <div
       className={clsm([
-        'bg-white',
-        'dark:bg-black',
         'flex',
         'h-full',
         'justify-center',
@@ -97,8 +158,8 @@ const StageVideoFeeds = ({ styles = '', type }) => {
       }}
     >
       <motion.div
-        animate={fullscreenAnimationControls}
-        ref={stageVideoFeedsRef}
+        animate={videoContainerAnimationControls}
+        ref={videoContainerRef}
         className={clsm([
           '-translate-y-1/2',
           '@container/video-container',
@@ -111,17 +172,16 @@ const StageVideoFeeds = ({ styles = '', type }) => {
             'grid',
             'gap-4',
             'grid-rows-[calc(80%-16px)_1fr]'
-          ],
-          dimensionClasses
+          ]
         ])}
       >
         {isScreenshareVisible && (
           <div className={clsm(['flex', 'flex-wrap', 'gap-4'])}>
-            {screenshareParticipants.map(([userId, _]) => (
+            {publishingDisplayParticipants.map((participant) => (
               <ScreenshareVideo
-                key={`stage-screenshare-video-${userId}`}
-                participantKey={userId}
+                key={`stage-screenshare-video-${participant.userId}`}
                 type={type}
+                participant={participant}
               />
             ))}
           </div>
@@ -129,32 +189,27 @@ const StageVideoFeeds = ({ styles = '', type }) => {
         <div
           className={clsm([
             'h-full',
-            isFullScreenViewOpen || isChannelType ? 'gap-4' : 'gap-1',
+            fullscreen.isOpen || isChannelType ? 'gap-4' : 'gap-1',
             isScreenshareVisible
               ? ['justify-center', 'flex', 'mx-auto']
               : ['w-full', 'grid', gridItemCountClasses]
           ])}
-          style={{
-            ...(isScreenshareVisible && {
-              width: `calc(((10% * ${screenshareParticipantColCount}) - 16px) * 16 / 9)`
-            })
-          }}
         >
-          {!isJoiningStageByRequestOrInvite &&
-            videoAudioParticipants.map(([userId, _], index) => {
+          {!collaborate.isJoining &&
+            publishingUserParticipants.map((participant, index) => {
               const isHidden =
                 isOverflowCardVisible && maxColumnCount <= index + 1;
 
               return (
                 <StageVideo
-                  key={`stage-video-${userId}`}
-                  participantKey={userId}
+                  key={`stage-video-${participant.id}`}
+                  participant={participant}
                   type={type}
                   className={clsm(
                     isScreenshareVisible
                       ? ['flex-1', isHidden && 'hidden']
                       : [
-                          videoAudioParticipantsLength > 2 &&
+                          publishingUserParticipantsLength > 2 &&
                             `slot-${index + 1}`
                         ]
                   )}
@@ -165,7 +220,7 @@ const StageVideoFeeds = ({ styles = '', type }) => {
             <ParticipantOverflowCard
               avatars={visibleOverflowAvatars}
               additionalCount={hiddenOverflowAvatarsLength}
-              isMinified={!isFullScreenViewOpen}
+              isMinified={!isChannelType && !fullscreen.isOpen}
             />
           )}
           {isInviteParticipantCardVisible && (
@@ -175,7 +230,7 @@ const StageVideoFeeds = ({ styles = '', type }) => {
               hideText={isScreenshareVisible}
             />
           )}
-          {isJoiningStageByRequestOrInvite && (
+          {collaborate.isJoining && (
             <div
               className={clsm([
                 '@container/invite-participant-container',

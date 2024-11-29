@@ -12,7 +12,8 @@ import { getUserByChannelArn } from '../../shared/helpers';
 import { buildChannelArn } from '../../metrics/helpers';
 
 type HostDisconnectedMessageRequestBody = {
-  hostChannelId?: string;
+  hostChannelId: string;
+  stageId: string;
 };
 
 const sqsClient = new SQSClient();
@@ -21,19 +22,24 @@ const handler = async (
   request: FastifyRequest<{ Body: HostDisconnectedMessageRequestBody }>,
   reply: FastifyReply
 ) => {
-  let hostChannelId;
+  let hostChannelId, stageId;
 
   if (typeof request.body === 'object') {
-    hostChannelId = request?.body?.hostChannelId;
+    hostChannelId = request.body.hostChannelId;
+    stageId = request.body.stageId;
   }
 
   // From Beacon API (JSON string)
   if (typeof request.body === 'string') {
     const parsedBody = JSON.parse(request?.body);
     const channelId = parsedBody.hostChannelId;
+    const bodyStageId = parsedBody.stageId;
 
-    if (channelId) {
+    if (!hostChannelId && channelId) {
       hostChannelId = channelId;
+    }
+    if (!stageId && bodyStageId) {
+      stageId = bodyStageId;
     }
   }
 
@@ -47,7 +53,15 @@ const handler = async (
     const { Items: UserItems } = await getUserByChannelArn(hostChannelArn);
     if (!UserItems?.length) throw new Error(USER_NOT_FOUND_EXCEPTION);
 
-    const { stageId, channelArn } = unmarshall(UserItems[0]);
+    const { stageId: recordedStageId, channelArn } = unmarshall(UserItems[0]);
+
+    if (!stageId && recordedStageId) {
+      stageId = recordedStageId;
+    }
+
+    if (!stageId && recordedStageId) {
+      stageId = recordedStageId;
+    }
 
     const stageArn = buildStageArn(stageId);
 

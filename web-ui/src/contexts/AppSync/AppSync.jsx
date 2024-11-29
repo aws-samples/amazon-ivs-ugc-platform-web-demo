@@ -1,6 +1,7 @@
-import { createContext, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { createContext, useCallback, useEffect, useMemo } from 'react';
 import { graphqlOperation, API } from '@aws-amplify/api';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { publishDoc, subscribeDoc } from './graphql';
 import useContextHook from '../useContextHook';
@@ -8,9 +9,16 @@ import { useUser } from '../User';
 import { useNotif } from '../Notification';
 import channelEvents from './channelEvents';
 import { streamManager as $streamManagerContent } from '../../content';
-import { useGlobalStage } from '../Stage';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useChannel } from '../Channel';
+import { extractChannelIdfromChannelArn } from '../../utils';
+import {
+  addToCollaborateRequestList,
+  removeFromCollaborateRequestList,
+  updateCollaborateStates,
+  updateError
+} from '../../reducers/shared';
+import { updateDisplayMediaStates } from '../../reducers/streamManager';
 
 const $contentNotification =
   $streamManagerContent.stream_manager_stage.notifications;
@@ -18,18 +26,20 @@ const $contentNotification =
 const Context = createContext(null);
 Context.displayName = 'AppSync';
 
-export const Provider = ({ children }) => {
+export const Provider = ({ children = null }) => {
+  const dispatch = useDispatch();
+  const { displayMedia } = useSelector((state) => state.streamManager);
   const { userData } = useUser();
   const { notifyNeutral, notifyError } = useNotif();
-  const {
-    isHost,
-    updateStageRequestList,
-    updateRequestingToJoinStage,
-    updateHasStageRequestBeenApproved,
-    updateIsScreensharePermissionRevoked
-  } = useGlobalStage();
   const { pathname } = useLocation();
   const { channelData } = useChannel();
+  const channelId = channelData?.channelArn
+    ? extractChannelIdfromChannelArn(channelData.channelArn)
+    : null;
+  const isChannelOwner =
+    channelId &&
+    userData?.channelId &&
+    channelId.toLowerCase() === userData.channelId.toLowerCase();
 
   /**
    * @param  {string} name the name of the channel
@@ -62,35 +72,44 @@ export const Provider = ({ children }) => {
       const channelEvent = JSON.parse(data);
       switch (channelEvent?.type) {
         case channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN:
-        case channelEvents.STAGE_REQUEST_TO_JOIN:
-          if (!isHost) return;
+          if (!isChannelOwner) return;
 
-          updateStageRequestList(channelEvent);
+          dispatch(removeFromCollaborateRequestList(channelEvent.channelId));
+          break;
+        case channelEvents.STAGE_REQUEST_TO_JOIN:
+          if (!isChannelOwner) return;
+
+          dispatch(addToCollaborateRequestList(channelEvent));
           break;
         case channelEvents.STAGE_HOST_ACCEPT_REQUEST_TO_JOIN:
-          if (!isHost) {
+          if (!isChannelOwner) {
             notifyNeutral($contentNotification.neutral.joining_session, {
               asPortal: true
             });
 
-            updateHasStageRequestBeenApproved(true);
-          }
-          break;
-        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
-          updateRequestingToJoinStage(false);
-          break;
-        case channelEvents.STAGE_PARTICIPANT_KICKED:
-          if (!isHost) {
-            notifyError(
-              $contentNotification.error.you_have_been_removed_from_session,
-              {
-                asPortal: true
-              }
+            dispatch(
+              updateCollaborateStates({
+                isJoining: true,
+                stageId: channelData.stageId
+              })
             );
           }
           break;
+        case channelEvents.STAGE_HOST_DELETE_REQUEST_TO_JOIN:
+          dispatch(updateCollaborateStates({ isRequesting: false }));
+          break;
+        case channelEvents.STAGE_PARTICIPANT_KICKED:
+          break;
         case channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE:
-          updateIsScreensharePermissionRevoked(true);
+          if (displayMedia.participantId !== channelEvent.participantId) return;
+
+          dispatch(
+            updateError(
+              $contentNotification.error.your_screen_share_has_been_removed
+            )
+          );
+          dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
+
           break;
         default:
           return;
@@ -100,16 +119,14 @@ export const Provider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [
     channelData,
-    isHost,
+    isChannelOwner,
     notifyNeutral,
     pathname,
     subscribe,
-    updateHasStageRequestBeenApproved,
     notifyError,
-    updateStageRequestList,
-    updateRequestingToJoinStage,
     userData?.channelId,
-    updateIsScreensharePermissionRevoked
+    dispatch,
+    displayMedia.participantId
   ]);
 
   const value = useMemo(
@@ -119,9 +136,11 @@ export const Provider = ({ children }) => {
     [publish]
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>{children || <Outlet />}</Context.Provider>
+  );
 };
 
-Provider.propTypes = { children: PropTypes.node.isRequired };
+Provider.propTypes = { children: PropTypes.node };
 
 export const useAppSync = () => useContextHook(Context);

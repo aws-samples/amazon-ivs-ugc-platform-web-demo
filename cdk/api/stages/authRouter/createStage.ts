@@ -1,92 +1,148 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { v4 as uuidv4 } from 'uuid';
 
-import {
-  CHANNELS_TABLE_STAGE_FIELDS,
-  UNEXPECTED_EXCEPTION
-} from '../../shared/constants';
+import { UNEXPECTED_EXCEPTION } from '../../shared/constants';
 import { getUser } from '../../channel/helpers';
 import {
   handleCreateStageParams,
   handleCreateStage,
-  PARTICIPANT_USER_TYPES
+  PARTICIPANT_USER_TYPES,
+  handleCreateParticipantToken,
+  participantTypesArray,
+  PARTICIPANT_GROUP,
+  isUserInStage,
+  PARTICIPANT_TYPES,
+  generateHostUserId
 } from '../helpers';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { getChannelId, updateDynamoItemAttributes } from '../../shared/helpers';
 import { UserContext } from '../../shared/authorizer';
 
 const handler = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const { sub, username } = request.requestContext.get('user') as UserContext;
-    const { Item: UserItem = {} } = await getUser(sub);
-    const { channelArn, stageId: channelTableStageId = null } =
-      unmarshall(UserItem);
+    const { Item: channelData = undefined } = await getUser(sub);
 
-    if (channelTableStageId) {
-      throw new Error('Operation cannot be completed. active stage found.');
-    }
+    const {
+      channelArn,
+      username: preferredUsername,
+      profileColor,
+      avatar,
+      channelAssetsAvatarUrl,
+      duration: userTokenDuration,
+      userId,
+      capabilities: userCapabilities,
+      userType: hostType,
+      stageId,
+      channelId
+    } = await handleCreateStageParams({
+      userSub: sub,
+      participantType: PARTICIPANT_USER_TYPES.HOST,
+      channelData
+    });
+
+    const {
+      duration: displayTokenDuration,
+      userId: displayUserId,
+      capabilities: displayCapabilities,
+      userType: screenshareType
+    } = await handleCreateStageParams({
+      participantType: PARTICIPANT_USER_TYPES.SCREENSHARE,
+      channelData
+    });
 
     if (!channelArn) {
       throw new Error('No IVS resources have been created for this user.');
     }
 
-    const channelId = getChannelId(channelArn);
-    const {
-      username: preferredUsername,
+    if (stageId) {
+      const stageArn = `arn:aws:ivs:${process.env.REGION}:${process.env.ACCOUNT_ID}:stage/${stageId}`;
+
+      const sharedAttrParams = {
+        username: preferredUsername || username,
+        profileColor,
+        avatar,
+        channelAssetsAvatarUrl,
+        ...(participantTypesArray.includes(PARTICIPANT_USER_TYPES.HOST) && {
+          participantTokenCreationDate: Date.now().toString()
+        }),
+        channelId
+      };
+
+      // Check if user, the host, is in the stage. If so, then the participantRole should be set to INVITE instead of HOST.
+      const isInStage = await isUserInStage(stageId, sub);
+      const participantRole = isInStage ? PARTICIPANT_TYPES.INVITED : hostType;
+      const userStageUserId = isInStage
+        ? userId
+        : generateHostUserId(channelArn);
+
+      console.log('User stage participantRole: ', participantRole);
+
+      const { token: userToken, participantId: userParticipantId } =
+        await handleCreateParticipantToken(
+          {
+            stageArn,
+            duration: userTokenDuration,
+            userId: userStageUserId,
+            attributes: {
+              ...sharedAttrParams,
+              type: participantRole,
+              participantGroup: PARTICIPANT_GROUP.USER
+            },
+            capabilities: userCapabilities
+          },
+          false
+        );
+      const { token: displayToken, participantId: displayParticipantId } =
+        await handleCreateParticipantToken(
+          {
+            stageArn,
+            duration: displayTokenDuration,
+            userId: displayUserId,
+            attributes: {
+              ...sharedAttrParams,
+              type: screenshareType,
+              participantGroup: PARTICIPANT_GROUP.DISPLAY
+            },
+            capabilities: displayCapabilities
+          },
+          false
+        );
+
+      if (
+        userToken &&
+        userParticipantId &&
+        displayToken &&
+        displayParticipantId
+      ) {
+        reply.statusCode = 200;
+        return reply.send({
+          [PARTICIPANT_GROUP.USER]: {
+            token: userToken,
+            participantId: userParticipantId,
+            participantGroup: PARTICIPANT_GROUP.USER
+          },
+          [PARTICIPANT_GROUP.DISPLAY]: {
+            token: displayToken,
+            participantId: displayParticipantId,
+            participantGroup: PARTICIPANT_GROUP.DISPLAY
+          },
+          stageId,
+          participantRole
+        });
+      }
+    }
+
+    const newStageConfig = await handleCreateStage({
+      username: preferredUsername || username,
       profileColor,
       avatar,
       channelAssetsAvatarUrl,
-      duration,
-      userId,
-      capabilities,
-      userType: type
-    } = await handleCreateStageParams({
-      userSub: sub,
-      participantType: PARTICIPANT_USER_TYPES.HOST
-    });
-    const stageCreationDate = Date.now().toString();
-
-    const params = {
-      name: `${username}-${uuidv4()}`,
-      participantTokenConfigurations: [
-        {
-          attributes: {
-            username: preferredUsername || username,
-            profileColor,
-            avatar,
-            channelAssetsAvatarUrl,
-            type
-          },
-          capabilities,
-          duration,
-          userId
-        }
-      ],
-      tags: {
-        creationDate: stageCreationDate,
-        stageOwnerChannelId: channelId,
-        stack: process.env.STACK as string
-      }
-    };
-
-    const { token, stageId } = await handleCreateStage(params);
-
-    await updateDynamoItemAttributes({
-      attributes: [
-        { key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID, value: stageId },
-        {
-          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
-          value: stageCreationDate
-        }
-      ],
-      primaryKey: { key: 'id', value: sub },
-      tableName: process.env.CHANNELS_TABLE_NAME as string
+      channelArn,
+      sub
     });
 
     reply.statusCode = 200;
     return reply.send({
-      token,
-      stageId
+      ...newStageConfig,
+      participantRole: hostType
     });
   } catch (error) {
     console.error(error);

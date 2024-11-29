@@ -93,7 +93,7 @@ const ENCODER_CONFIG_DATA = [
     ],
     transform: ([videoWidth, videoHeight]) => `${videoWidth} x ${videoHeight}`,
     units: '',
-    validate: ([videoWidth, videoHeight], channelType) => {
+    validate: ([videoWidth, videoHeight], channelType, isMultitrackEnabled) => {
       if (
         [
           CHANNEL_TYPE.BASIC,
@@ -101,6 +101,7 @@ const ENCODER_CONFIG_DATA = [
           CHANNEL_TYPE.ADVANCED_HD,
           CHANNEL_TYPE.ADVANCED_SD
         ].includes(channelType) &&
+        !isMultitrackEnabled &&
         exceedsFullHdRes(videoWidth, videoHeight)
       )
         return 'encoderResolutionError';
@@ -128,7 +129,11 @@ const ENCODER_CONFIG_DATA = [
     transform: ([targetBitrate]) =>
       +(targetBitrate * Math.pow(10, -6)).toFixed(2),
     units: $content.mbps,
-    validate: ([targetBitrate, videoWidth, videoHeight], channelType) => {
+    validate: (
+      [targetBitrate, videoWidth, videoHeight],
+      channelType,
+      isMultitrackEnabled
+    ) => {
       let hasEncoderTargetBitrateError = false;
 
       if (channelType === CHANNEL_TYPE.BASIC) {
@@ -144,6 +149,7 @@ const ENCODER_CONFIG_DATA = [
           hasEncoderTargetBitrateError = true;
       } else if (
         channelType === CHANNEL_TYPE.STANDARD &&
+        !isMultitrackEnabled &&
         targetBitrate > MAX_BITRATE_STANDARD
       ) {
         hasEncoderTargetBitrateError = true;
@@ -164,7 +170,11 @@ const ENCODER_CONFIG_DATA = [
   }
 ];
 
-export const processEncoderConfigData = (ingestConfiguration, channelType) => {
+export const processEncoderConfigData = ({
+  ingestConfiguration,
+  channelType,
+  isMultitrackEnabled = false
+}) => {
   if (!ingestConfiguration)
     return ENCODER_CONFIG_DATA.map(({ id, label }) => {
       return { id, label, value: NO_DATA_VALUE };
@@ -180,7 +190,7 @@ export const processEncoderConfigData = (ingestConfiguration, channelType) => {
       validate = () => null
     }) => {
       const values = path.map(([type, key]) => ingestConfiguration[type][key]);
-      const error = validate(values, channelType);
+      const error = validate(values, channelType, isMultitrackEnabled);
 
       let value = NO_DATA_VALUE;
       if (values.length && !values.some((v) => !v)) {

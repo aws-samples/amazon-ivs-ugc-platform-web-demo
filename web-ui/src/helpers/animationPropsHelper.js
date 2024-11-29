@@ -22,7 +22,7 @@ const defaultOptions = {
   shouldAnimateIn: true,
   shouldAnimateOut: true,
   isVisible: true, // Defines whether the animate prop is set to visible or hidden
-  shouldAnimate: true
+  shouldAnimate: true // When false, the element will not animate
 };
 
 /**
@@ -44,8 +44,6 @@ export const createAnimationProps = ({
   transition = defaultTransition
 }) => {
   const options = { ...defaultOptions, ...customOptions };
-
-  if (!options.shouldAnimate) return;
 
   // Default transitions
   const bounceVariants = {};
@@ -187,13 +185,19 @@ export const createAnimationProps = ({
     };
   }
 
-  return {
-    animate:
-      controls ||
-      (options.isVisible ? VISIBLE_VARIANT : HIDDEN_INITIAL_VARIANT),
-    initial: options.shouldAnimateIn ? HIDDEN_INITIAL_VARIANT : VISIBLE_VARIANT,
-    exit: options.shouldAnimateOut ? HIDDEN_EXIT_VARIANT : VISIBLE_VARIANT,
-    transition,
-    variants
-  };
+  return options.shouldAnimate
+    ? {
+        animate:
+          controls ||
+          (options.isVisible ? VISIBLE_VARIANT : HIDDEN_INITIAL_VARIANT),
+        exit: options.shouldAnimateOut ? HIDDEN_EXIT_VARIANT : VISIBLE_VARIANT,
+        transition,
+        variants,
+        initial: options.shouldAnimateIn
+          ? HIDDEN_INITIAL_VARIANT
+          : VISIBLE_VARIANT
+      }
+    : {
+        initial: false
+      };
 };

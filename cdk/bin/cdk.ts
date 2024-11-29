@@ -22,7 +22,7 @@ const region = process.env.CDK_DEFAULT_REGION;
 
 new UGCStack(app, stackName, {
   env: { account, region },
-  tags: { stage, project: 'ugc' },
+  tags: { stage, project: stackName },
   resourceConfig,
   shouldPublish,
   cognitoCleanupScheduleExp,
@@ -31,6 +31,6 @@ new UGCStack(app, stackName, {
 
 new UGCFrontendDeploymentStack(app, `UGC-Frontend-Deployment-${stage}`, {
   env: { account, region },
-  tags: { stage, project: 'ugc' },
+  tags: { stage, project: stackName },
   ugcStackId: stackName
 });

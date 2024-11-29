@@ -4,23 +4,14 @@ import PropTypes from 'prop-types';
 import useSWR from 'swr';
 
 import { CHANNEL_DATA_REFRESH_INTERVAL } from '../constants';
-import { channelsAPI } from '../api';
 import { getAvatarSrc } from '../helpers';
 import { useUser } from './User';
 import useContextHook from './useContextHook';
 import useCurrentPage from '../hooks/useCurrentPage';
+import { channelDataFetcher } from '../utils';
 
 const Context = createContext(null);
 Context.displayName = 'Channel';
-
-const channelDataFetcher = async (username) => {
-  const { result: data, error } =
-    await channelsAPI.getUserChannelData(username);
-
-  if (error) throw error;
-
-  return data;
-};
 
 export const Provider = ({ children }) => {
   const { isSessionValid, userData } = useUser();

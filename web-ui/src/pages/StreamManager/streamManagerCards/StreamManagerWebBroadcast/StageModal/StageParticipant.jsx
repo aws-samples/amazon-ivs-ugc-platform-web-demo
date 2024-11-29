@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '../../../../../components/Button';
 import {
@@ -21,21 +22,37 @@ import channelEvents from '../../../../../contexts/AppSync/channelEvents';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
 import { streamManager as $content } from '../../../../../content';
 import Tooltip from '../../../../../components/Tooltip';
-import { useGlobalStage } from '../../../../../contexts/Stage';
-import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
+import { updateError } from '../../../../../reducers/shared';
+import { PARTICIPANT_TYPES } from '../../../../../constants';
+import { useDeviceManager } from '../../../../../contexts/DeviceManager';
 
 const $stageContent = $content.stream_manager_stage;
+const REPLACEMENT_TEXT = 'USERNAME';
 
 const StageParticipant = ({ participant }) => {
+  const dispatch = useDispatch();
+  const {
+    displayMedia: { participantId: localDisplayId }
+  } = useSelector((state) => state.streamManager);
   const { isTouchscreenDevice, currentBreakpoint } = useResponsiveDevice();
-  const { id, attributes, isCameraHidden, isMicrophoneMuted, userId } =
-    participant;
-  const { username, profileColor, channelId, type } = attributes;
-  const avatarSrc = getAvatarSrc(attributes);
+  const { displayMedia } = useDeviceManager();
   const { publish } = useAppSync();
   const { closeModal, openModal } = useModal();
-  const { updateError, localParticipant } = useGlobalStage();
-  const REPLACEMENT_TEXT = 'USERNAME';
+
+  const {
+    videoStopped: isCameraHidden,
+    audioMuted: isMicrophoneMuted,
+    attributes,
+    id: participantId
+  } = participant;
+  const {
+    username,
+    profileColor,
+    channelId,
+    type,
+    displayParticipantId = null
+  } = attributes;
+  const avatarSrc = getAvatarSrc(attributes);
   const message = $stageContent.remove_participant_confirmation_text.replace(
     REPLACEMENT_TEXT,
     username
@@ -45,11 +62,8 @@ const StageParticipant = ({ participant }) => {
       REPLACEMENT_TEXT,
       username
     );
+  const isHost = type === PARTICIPANT_TYPES.HOST;
   const isScreenshare = type === PARTICIPANT_TYPES.SCREENSHARE;
-  const isHost =
-    userId.includes(PARTICIPANT_TYPES.HOST) ||
-    localParticipant?.userId.split(':')[1] ===
-      participant?.attributes.channelId;
 
   const handleDisconnectParticipant = () => {
     closeModal();
@@ -60,21 +74,25 @@ const StageParticipant = ({ participant }) => {
         message
       },
       onConfirm: async () => {
-        const { result, error } = await stagesAPI.disconnectParticipant(id);
+        const { result, error } = await stagesAPI.disconnectParticipant({
+          participantId,
+          displayParticipantId
+        });
 
         if (error) {
-          updateError({
-            message:
-              $stageContent.notifications.error.failed_to_remove_participant,
-            err: error
-          });
-        } else {
-          if (result?.message) {
-            publish(
-              channelId.toLowerCase(),
-              JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
-            );
-          }
+          console.error(error);
+          dispatch(
+            updateError(
+              $stageContent.notifications.error.failed_to_remove_participant
+            )
+          );
+        }
+        if (result && result.message) {
+          // Notify disconnected participant
+          publish(
+            channelId.toLowerCase(),
+            JSON.stringify({ type: channelEvents.STAGE_PARTICIPANT_KICKED })
+          );
         }
       },
       onCancel: () => {
@@ -94,12 +112,19 @@ const StageParticipant = ({ participant }) => {
         message: removeScreenshareMessage
       },
       onConfirm: () => {
-        publish(
-          channelId.toLowerCase(),
-          JSON.stringify({
-            type: channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE
-          })
-        );
+        // When the local display id matches the participant's id, the host is disconnecting their own screenshare
+        if (localDisplayId === participantId) {
+          displayMedia.stopScreenShare();
+        } else {
+          // Send an AppSync message to the participant with event type "HOST_REMOVES_PARTICIPANT_SCREEN_SHARE"
+          publish(
+            channelId.toLowerCase(),
+            JSON.stringify({
+              type: channelEvents.HOST_REMOVES_PARTICIPANT_SCREEN_SHARE,
+              participantId
+            })
+          );
+        }
       },
       onCancel: () => {
         openModal({
@@ -185,7 +210,7 @@ const StageParticipant = ({ participant }) => {
           {participantStreamingStatusIcon}
         </div>
 
-        {type !== PARTICIPANT_TYPES.HOST && !isHost && (
+        {type !== PARTICIPANT_TYPES.HOST && (
           <div className={clsm(['min-w-[44px]', 'min-h-[44px]'])}>
             <Tooltip
               key="remove-participant-control-tooltip"
@@ -229,11 +254,13 @@ StageParticipant.propTypes = {
       username: PropTypes.string,
       channelId: PropTypes.string,
       profileColor: PropTypes.string,
-      type: PropTypes.string
+      type: PropTypes.string,
+      displayParticipantId: PropTypes.string
     }),
     userId: PropTypes.string,
-    isCameraHidden: PropTypes.bool,
-    isMicrophoneMuted: PropTypes.bool
+    videoStopped: PropTypes.bool,
+    audioMuted: PropTypes.bool,
+    mediaStream: PropTypes.instanceOf(MediaStream)
   }).isRequired
 };
 

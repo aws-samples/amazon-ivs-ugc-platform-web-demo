@@ -1,5 +1,6 @@
 import { forwardRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../utils';
@@ -12,7 +13,6 @@ import PlayerOverlay from './PlayerOverlay';
 import StageVideoFeeds from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds';
 import { STAGE_VIDEO_FEEDS_TYPES } from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/StageVideoFeeds/StageVideoFeeds';
 import UnmuteButtonOverLay from './UnmuteButtonOverLay';
-import { useGlobalStage } from '../../../contexts/Stage';
 
 const StreamVideo = forwardRef(
   (
@@ -29,7 +29,7 @@ const StreamVideo = forwardRef(
     },
     ref
   ) => {
-    const { isChannelStagePlayerMuted } = useGlobalStage();
+    const { isPlayerMuted } = useSelector((state) => state.channel);
 
     const {
       isProfileViewExpanded,
@@ -93,9 +93,8 @@ const StreamVideo = forwardRef(
           type={STAGE_VIDEO_FEEDS_TYPES.CHANNEL}
           isProfileViewExpanded={isProfileViewExpanded}
           styles={clsm(
-            isProfileViewExpanded
-              ? ['bg-lightMode-gray-extraLight', 'dark:bg-darkMode-gray-dark']
-              : 'bg-lightMode-gray'
+            'dark:bg-black',
+            isProfileViewExpanded ? 'bg-white' : 'bg-lightMode-gray'
           )}
         />
       </motion.div>
@@ -143,9 +142,7 @@ const StreamVideo = forwardRef(
               isVolumeSettingEnabled={!stagePlayerVisible}
             />
           </PlayerOverlay>
-          {stagePlayerVisible && isChannelStagePlayerMuted && (
-            <UnmuteButtonOverLay />
-          )}
+          {stagePlayerVisible && isPlayerMuted && <UnmuteButtonOverLay />}
           {!shouldShowControlsOverlay && (
             <div
               className={clsm(['absolute', 'h-full', 'top-0', 'w-full'])}

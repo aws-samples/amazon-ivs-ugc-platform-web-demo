@@ -1,8 +1,7 @@
 import { GetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { GetStageCommandOutput } from '@aws-sdk/client-ivs-realtime';
-import { handleDeleteStage } from '../helpers';
 import { injectAuthorizedRequest } from '../../testUtils';
-import { STAGE_DELETION_EXCEPTION } from '../../shared/constants';
+import { STAGE_END_EXCEPTION } from '../../shared/constants';
 import * as helpers from '../../channel/helpers';
 import * as stageHelpers from '../helpers';
 import buildServer from '../../buildServer';
@@ -54,11 +53,11 @@ const mockGetUnmarshall = (mockData: IMockUnmarshalledUserData) =>
 
 jest.mock('@aws-sdk/util-dynamodb');
 
-const url = '/stages/delete';
+const url = '/stages/end';
 const defaultRequestParams = { method: 'PUT' as const, url };
 const server = buildServer();
 
-describe('deleteStage controller', () => {
+describe('endStage controller', () => {
   beforeAll(() => {
     mockGetUnmarshall(mockUserData);
   });
@@ -67,12 +66,6 @@ describe('deleteStage controller', () => {
   });
 
   describe('error handling', () => {
-    beforeAll(() => {
-      const deleteStage = handleDeleteStage as jest.Mock;
-      deleteStage.mockRejectedValue(
-        'call to ivsrealtime.deleteStage failed to delete the stage'
-      );
-    });
     it('should throw an error if unauthenticated', async () => {
       const response = await server.inject({
         ...defaultRequestParams,
@@ -83,18 +76,6 @@ describe('deleteStage controller', () => {
 
       expect(response.statusCode).toBe(500);
       expect(message).toBe('UnauthorizedException');
-    });
-
-    it('should throw an error if deleteStage function fails', async () => {
-      const response = await injectAuthorizedRequest(
-        server,
-        defaultRequestParams
-      );
-
-      const { __type: errType } = JSON.parse(response.payload);
-
-      expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
     });
 
     it('should throw an error if channelArn does not match stage stageOwnerChannelArn', async () => {
@@ -108,7 +89,7 @@ describe('deleteStage controller', () => {
       const { __type: errType } = JSON.parse(response.payload);
 
       expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
+      expect(errType).toBe(STAGE_END_EXCEPTION);
     });
     it('should throw an error if stageId is null', async () => {
       mockGetUser(Promise.resolve(mockUserData));
@@ -122,20 +103,11 @@ describe('deleteStage controller', () => {
       const { __type: errType } = JSON.parse(response.payload);
 
       expect(response.statusCode).toBe(500);
-      expect(errType).toBe(STAGE_DELETION_EXCEPTION);
+      expect(errType).toBe(STAGE_END_EXCEPTION);
     });
   });
 
   describe('general cases', () => {
-    beforeAll(() => {
-      const deleteStage = handleDeleteStage as jest.Mock;
-      deleteStage.mockImplementation(() => ({ statusCode: 200 }));
-    });
-
-    afterAll(() => {
-      jest.resetAllMocks();
-    });
-
     it('should successfully delete the stage and update the channel table', async () => {
       const { channelArn } = mockUserData;
       mockGetUser(Promise.resolve(mockUserData));

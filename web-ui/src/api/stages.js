@@ -15,32 +15,24 @@ export const createStage = async () =>
     url: `${apiBaseUrl}/stages/create`
   });
 
-export const deleteStage = async () =>
+export const endStage = async () =>
   await authFetch({
-    url: `${apiBaseUrl}/stages/delete`,
+    url: `${apiBaseUrl}/stages/end`,
     method: 'PUT'
   });
 
-export const getParticipationToken = async (stageId, participantType) =>
+export const getParticipationToken = async ({ stageId, participantType }) =>
   await authFetch({
     url: `${apiBaseUrl}/stages/createParticipantToken/${stageId}/${participantType}`
   });
 
-export const sendHostDisconnectedMessage = async (hostChannelId) => {
-  await authFetch({
-    method: 'POST',
-    url: `${apiBaseUrl}/stages/sendHostDisconnectedMessage`,
-    keepalive: true,
-    body: {
-      hostChannelId
-    }
-  });
-};
-
-export const disconnectParticipant = async (participantId) => {
+export const disconnectParticipant = async ({
+  participantId,
+  displayParticipantId = ''
+}) => {
   return await authFetch({
     url: `${apiBaseUrl}/stages/disconnectParticipant`,
     method: 'PUT',
-    body: { participantId }
+    body: { participantId, displayParticipantId }
   });
 };

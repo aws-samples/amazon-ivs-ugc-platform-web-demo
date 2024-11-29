@@ -8,6 +8,7 @@ import {
   useState
 } from 'react';
 import PropTypes from 'prop-types';
+import Keyv, { KeyvHooks } from 'keyv';
 import { useLocation } from 'react-router-dom';
 
 import { channel as $channelContent } from '../content';
@@ -52,6 +53,14 @@ const isDebug = false;
 const Context = createContext(null);
 Context.displayName = 'Chat';
 
+const tempChatStorage = new Keyv({ namespace: 'keyv-chat', ttl: 30000 });
+tempChatStorage.on('error', (err) =>
+  console.log('[Keyv] Connection Error', err)
+);
+tempChatStorage.hooks.addHandler(KeyvHooks.POST_GET, () =>
+  tempChatStorage.delete('temp')
+);
+
 /**
  * @typedef {Object} SenderAttributes
  * @property {string} avatar
@@ -82,44 +91,58 @@ const actionTypes = {
 };
 
 const reducer = (messages, action) => {
+  const messageMap = new Map(messages.map((message) => [message.id, message]));
+
   switch (action.type) {
     case actionTypes.INIT_MESSAGES: {
-      return action.initialMessages || [];
+      messageMap.clear();
+
+      action.initialMessages.forEach((message) => {
+        messageMap.set(message.id, { ...message, isPreloaded: true });
+      });
+
+      break;
     }
     case actionTypes.ADD_MESSAGE: {
       const { message: newMessage, isOwnMessage } = action;
 
-      return [...messages, { ...newMessage, isOwnMessage }];
+      messageMap.set(newMessage.id, { ...newMessage, isOwnMessage });
+
+      break;
     }
     case actionTypes.DELETE_MESSAGE: {
       const { messageId: messageIdToDelete, deletedMessageIds } = action;
       const wasDeletedByUser =
         deletedMessageIds.current.includes(messageIdToDelete);
 
-      const newMessages = messages.reduce(
-        (acc, msg) => [
-          ...acc,
-          msg.id === messageIdToDelete
-            ? { ...msg, isDeleted: true, wasDeletedByUser }
-            : msg
-        ],
-        []
-      );
+      const messageToDelete = messageMap.get(messageIdToDelete);
 
-      return newMessages;
+      messageMap.set(messageIdToDelete, {
+        ...messageToDelete,
+        isDeleted: true,
+        wasDeletedByUser
+      });
+
+      break;
     }
     case actionTypes.DELETE_MESSAGES_BY_USER_ID: {
       const { userId: userIdToDelete } = action;
 
-      const newMessages = messages.filter(
-        (msg) => msg.sender.attributes.channelArn !== userIdToDelete
-      );
+      for (const [id, message] of messageMap) {
+        if (message.sender.attributes.channelArn === userIdToDelete) {
+          messageMap.delete(id);
+        }
+      }
 
-      return newMessages;
+      break;
     }
     default:
       throw new Error('Unexpected action type');
   }
+
+  const newMessages = Array.from(messageMap.values());
+
+  return newMessages;
 };
 
 export const Provider = ({ children }) => {
@@ -133,13 +156,12 @@ export const Provider = ({ children }) => {
    */
   const sentMessageIds = useRef([]);
   const deletedMessageIds = useRef([]);
-  const { userData, isSessionValid } = useUser();
+  const { userData } = useUser();
   const { username: ownUsername } = userData || {};
-  const savedMessages = useRef({});
   const { channelData, refreshChannelData } = useChannel();
   const { username: chatRoomOwnerUsername, isViewerBanned = false } =
     channelData || {};
-  const { notifyError } = useNotif();
+  const { notifyError, dismissNotif } = useNotif();
   const retryConnectionAttemptsCounterRef = useRef(0);
   const chatCapabilities = useRef([]);
 
@@ -271,11 +293,11 @@ export const Provider = ({ children }) => {
     };
   }, [isActive, sendHeartBeat]);
 
-  const initMessages = useCallback(() => {
-    const initialMessages = savedMessages.current[chatRoomOwnerUsername] || [];
+  const initMessages = useCallback(async () => {
+    const initialMessages = (await tempChatStorage.get('temp')) || [];
 
     dispatch({ type: actionTypes.INIT_MESSAGES, initialMessages });
-  }, [chatRoomOwnerUsername]);
+  }, []);
 
   const addMessage = useCallback(
     (message) => {
@@ -303,6 +325,10 @@ export const Provider = ({ children }) => {
       userId
     });
   }, []);
+
+  const saveTempChatMessages = useCallback(async () => {
+    await tempChatStorage.set('temp', messages);
+  }, [messages]);
 
   // messages local state
   const handleDeleteMessage = useCallback(
@@ -407,6 +433,7 @@ export const Provider = ({ children }) => {
 
     const unsubscribeOnConnect = room.addListener('connect', () => {
       updateUserRole();
+      dismissNotif();
     });
 
     const unsubscribeOnDisconnect = room.addListener('disconnect', () => {
@@ -566,6 +593,7 @@ export const Provider = ({ children }) => {
     addMessage,
     room,
     updateUserRole,
+    dismissNotif,
     handleDeleteMessage,
     handleUserDisconnect,
     userData,
@@ -589,25 +617,6 @@ export const Provider = ({ children }) => {
     endPollAndResetPollProps
   ]);
 
-  // We are saving the chat messages in local state for only the currently signed-in user's chat room,
-  // and removing them from local state once the user has signed out
-  useEffect(() => {
-    if (isSessionValid) {
-      if (
-        ownUsername &&
-        chatRoomOwnerUsername &&
-        chatRoomOwnerUsername === ownUsername
-      ) {
-        savedMessages.current[ownUsername] = messages.map((message) => ({
-          ...message,
-          isPreloaded: true
-        }));
-      }
-    } else {
-      savedMessages.current = {};
-    }
-  }, [isSessionValid, messages, ownUsername, chatRoomOwnerUsername]);
-
   const value = useMemo(
     () => ({
       addMessage,
@@ -627,7 +636,8 @@ export const Provider = ({ children }) => {
       startPoll,
       endPoll,
       deletedMessage,
-      setDeletedMessage
+      setDeletedMessage,
+      saveTempChatMessages
     }),
     [
       actions,
@@ -644,7 +654,8 @@ export const Provider = ({ children }) => {
       startPoll,
       endPoll,
       deletedMessage,
-      setDeletedMessage
+      setDeletedMessage,
+      saveTempChatMessages
     ]
   );
 

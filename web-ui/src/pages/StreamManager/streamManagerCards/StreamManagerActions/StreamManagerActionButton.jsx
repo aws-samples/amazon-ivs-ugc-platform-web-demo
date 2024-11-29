@@ -10,7 +10,7 @@ import { useStreamManagerActions } from '../../../../contexts/StreamManagerActio
 import { useUser } from '../../../../contexts/User';
 import useCountdown from '../../../../hooks/useCountdown';
 import { usePoll } from '../../../../contexts/StreamManagerActions/Poll';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
+import { useStageManager } from '../../../../contexts/StageManager';
 
 const $content = $streamManagerContent.stream_manager_actions;
 const PROGRESS_PIE_RADIUS = 14;
@@ -36,7 +36,8 @@ const StreamManagerActionButton = forwardRef(
       endPollOnExpiry,
       cancelActivePoll
     } = useStreamManagerActions();
-    const { isStageActive } = useStreamManagerStage();
+    const { user: userStage = null } = useStageManager() || {};
+    const isStageActive = userStage?.isConnected;
 
     let activeStreamManagerActionDuration;
     let activeStreamManagerActionName;

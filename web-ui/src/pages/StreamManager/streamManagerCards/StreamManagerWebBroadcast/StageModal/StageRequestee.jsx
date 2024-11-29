@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-
+import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 import Button from '../../../../../components/Button';
 import { CheckCircle, Delete } from '../../../../../assets/icons';
@@ -12,9 +12,9 @@ import { getAvatarSrc } from '../../../../../helpers';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
 import { streamManager as $streamManagerContent } from '../../../../../content';
 import Tooltip from '../../../../../components/Tooltip';
-import { useGlobalStage } from '../../../../../contexts/Stage';
 import { useAppSync } from '../../../../../contexts/AppSync';
 import channelEvents from '../../../../../contexts/AppSync/channelEvents';
+import { removeFromCollaborateRequestList } from '../../../../../reducers/shared';
 
 const $content = $streamManagerContent.stream_manager_stage.participants_modal;
 
@@ -39,9 +39,9 @@ const elapsedTime = (requestSentTime) => {
 };
 
 const StageRequestee = ({ requestee }) => {
+  const dispatch = useDispatch();
   const { isTouchscreenDevice } = useResponsiveDevice();
   const { publish } = useAppSync();
-  const { deleteRequestToJoin } = useGlobalStage();
 
   const {
     username,
@@ -72,7 +72,7 @@ const StageRequestee = ({ requestee }) => {
   }, [sent]);
 
   const handleAcceptRequest = () => {
-    deleteRequestToJoin(channelId);
+    dispatch(removeFromCollaborateRequestList(channelId));
 
     publish(
       channelId,
@@ -83,7 +83,7 @@ const StageRequestee = ({ requestee }) => {
   };
 
   const handleRejectRequest = () => {
-    deleteRequestToJoin(channelId);
+    dispatch(removeFromCollaborateRequestList(channelId));
 
     publish(
       channelId,

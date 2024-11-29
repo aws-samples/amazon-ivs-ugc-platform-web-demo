@@ -7,7 +7,6 @@ import { NoSignal, Lock } from '../../../assets/icons';
 import { player as $content } from '../../../content';
 import { useChannel } from '../../../contexts/Channel';
 import { useChannelView } from '../contexts/ChannelView';
-import { useNotif } from '../../../contexts/Notification';
 import { usePlayerContext } from '../contexts/Player';
 import { usePoll } from '../../../contexts/StreamManagerActions/Poll';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
@@ -24,6 +23,8 @@ import StreamVideo from './StreamVideo';
 import useFullscreen from './useFullscreen';
 import usePrevious from '../../../hooks/usePrevious';
 import useProfileViewPlayerAnimation from './useProfileViewPlayerAnimation';
+import { updateError } from '../../../reducers/shared';
+import { useDispatch } from 'react-redux';
 
 const nonDoubleClickableTags = ['img', 'h3', 'button', 'svg', 'path'];
 const nonDoubleClickableIds = [
@@ -32,7 +33,7 @@ const nonDoubleClickableIds = [
 ];
 
 const Player = ({ chatSectionRef, stagePlayerVisible = false }) => {
-  const { notifyError } = useNotif();
+  const dispatch = useDispatch();
   const { isSplitView } = useChannelView();
   const { isLandscape } = useResponsiveDevice();
   const { channelData } = useChannel();
@@ -208,9 +209,9 @@ const Player = ({ chatSectionRef, stagePlayerVisible = false }) => {
   // Trigger an error notification when there is an error loading the stream
   useEffect(() => {
     if (hasPlayerError) {
-      notifyError($content.notification.error.error_loading_stream);
+      dispatch(updateError($content.notification.error.error_loading_stream));
     }
-  }, [hasPlayerError, notifyError]);
+  }, [hasPlayerError, dispatch]);
 
   // Keep the player overlays visible if a popup is open (e.g. volume or rendition setting popup)
   useEffect(() => {

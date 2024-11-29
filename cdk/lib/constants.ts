@@ -3,7 +3,11 @@ import {
   aws_lambda_nodejs as lambda,
   aws_logs as logs
 } from 'aws-cdk-lib';
-import { ChannelType, TranscodePreset } from '@aws-sdk/client-ivs';
+import {
+  ChannelType,
+  TranscodePreset,
+  MultitrackInputConfiguration
+} from '@aws-sdk/client-ivs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface UGCResourceWithChannelsConfig extends ChannelsResourceConfig {
@@ -25,6 +29,7 @@ export interface ChannelsResourceConfig {
   logRetention?: logs.RetentionDays;
   minScalingCapacity: number;
   signUpAllowedDomains: string[];
+  multitrackInputConfiguration: MultitrackInputConfiguration;
 }
 
 export const defaultLambdaParams: Partial<lambda.NodejsFunctionProps> = {

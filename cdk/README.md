@@ -128,3 +128,27 @@ The cleanup lambda function follows these steps:
 
 ### Amazon FIFO SQS
 A FIFO queue using content body for message deduplication and a 3-minute delayed delivery, allowing the host sufficient time to rejoin if they choose to.
+
+### Amazon IVS multitrack video
+
+Amazon Interactive Video Service (IVS) support low-latency streaming approach called multitrack video. This technology empowers broadcasting software like OBS Studio to:
+- Encode and stream multiple video qualities directly from their GPU-powered computer.
+- Automatically configure encoder settings for the best possible stream.
+- Deliver a high quality Adaptive Bitrate (ABR) viewing experience.
+
+Unlike single-track video streaming, which necessitates server-side transcoding, multitrack video achieves these capabilities without such requirements. Multitrack video enhances streaming efficiency and quality for content creators and viewers alike.
+
+Please refer to the [Amazon IVS Multitrack Video](https://docs.aws.amazon.com/ivs/latest/LowLatencyUserGuide/multitrack-video.html) documentation for more information.
+
+#### Required CDK configuration to enable channel multitrack input
+
+Please make sure the correct configurations are set in the [cdk.json](./cdk.json) file to enable multitrack. If any of these configurations are incorrectly set, the stack deployment process will throw an error. 
+
+Refer to the [Amazon IVS Multitrack Video: Setup Guide](https://docs.aws.amazon.com/ivs/latest/LowLatencyUserGuide/multitrack-video-setup.html) for more information on how to setup the feature. 
+
+- ivsChannelType = "STANDARD"
+- multitrackInputConfiguration.enabled = true
+- multitrackInputConfiguration.maximumResolution = "SD" | "HD" | "FULL_HD" 
+- multitrackInputConfiguration.policy = "ALLOW" | "REQUIRE" 
+
+Please note that `ContainerFormat` will be automatically set as "FRAGMENTED_MP4" when multitrack is enabled. 

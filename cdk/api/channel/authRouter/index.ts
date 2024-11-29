@@ -17,6 +17,7 @@ import addToFollowingList from './addToFollowingList';
 import removeFromFollowingList from './removeFromFollowingList';
 import getFollowingChannels from './getFollowingChannels';
 import getLiveStatus from './getLiveStatus';
+import updateChannelConfig from './updateChannelConfiguration';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -42,6 +43,7 @@ const router: FastifyPluginAsync = async (resource) => {
     generateImagePresignedPost
   );
 
+  resource.put('/config/update', updateChannelConfig);
   resource.put('/username/update', changeUsername);
   resource.put('/preferences/update', changeUserPreferences);
   resource.put('/followingList/add', addToFollowingList);

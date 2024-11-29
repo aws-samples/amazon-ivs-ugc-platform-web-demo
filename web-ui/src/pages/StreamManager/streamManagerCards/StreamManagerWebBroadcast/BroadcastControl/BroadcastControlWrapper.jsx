@@ -1,8 +1,8 @@
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useMemo, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import BroadcastControl from './BroadcastControl';
-import { useStreamManagerStage } from '../../../../../contexts/Stage';
 import {
   MicOff,
   MicOn,
@@ -15,51 +15,69 @@ import {
 import { useBroadcast } from '../../../../../contexts/Broadcast';
 import { streamManager as $streamManagerContent } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import { MICROPHONE_AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/useAudioMixer';
-import { CAMERA_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
+import { AUDIO_INPUT_NAME } from '../../../../../contexts/Broadcast/useAudioMixer';
+import { VIDEO_LAYER_NAME } from '../../../../../contexts/Broadcast/useLayers';
 import { MODAL_TYPE, useModal } from '../../../../../contexts/Modal';
-import { useGlobalStage } from '../../../../../contexts/Stage';
+import { useDeviceManager } from '../../../../../contexts/DeviceManager';
+import {
+  StageFactory,
+  useStageManager
+} from '../../../../../contexts/StageManager';
+import { PARTICIPANT_TYPES } from '../../../../../constants';
+import { updateDisplayMediaStates } from '../../../../../reducers/streamManager';
+import { PARTICIPANT_GROUP } from '../../../../../contexts/StageManager/constants';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
 const BroadcastControlWrapper = forwardRef(
   ({ isOpen, withSettingsButton, withScreenshareButton }, ref) => {
+    const dispatch = useDispatch();
+    const { collaborate } = useSelector((state) => state.shared);
+    const {
+      displayMedia: { isScreenSharing }
+    } = useSelector((state) => state.streamManager);
     const settingsButtonRef = useRef();
-    const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
+    const { isTouchscreenDevice } = useResponsiveDevice();
     const { openModal, closeModal } = useModal();
-    const {
-      toggleMicrophone: toggleStageMicrophone,
-      toggleCamera: toggleStageCamera,
-      stageControlsVisibility,
-      toggleScreenshare: toggleStageScreenshare
-    } = useStreamManagerStage();
-    const {
-      isStageActive,
-      isJoiningStageByRequestOrInvite,
-      updateShouldOpenSettingsModal,
-      localParticipant,
-      isSpectator: isStageSpectator,
-      shouldDisableScreenshareButton,
-      isScreensharing: isStageScreensharing
-    } = useGlobalStage();
-    const {
-      isMicrophoneMuted: isStageMicrophoneMuted,
-      isCameraHidden: isStageCameraHidden
-    } = localParticipant || {};
     const {
       toggleMicrophone: toggleBroadcastMicrophone,
       toggleCamera: toggleBroadcastCamera,
       toggleScreenShare,
-      isScreenSharing,
       isMicrophoneMuted: isBroadcastMicrophoneMuted,
       isCameraHidden: isBroadcastCameraHidden,
       activeDevices: {
-        [MICROPHONE_AUDIO_INPUT_NAME]: activeMicrophone,
-        [CAMERA_LAYER_NAME]: activeCamera
+        [AUDIO_INPUT_NAME]: activeMicrophone,
+        [VIDEO_LAYER_NAME]: activeCamera
       }
     } = useBroadcast();
+    const {
+      userMedia: { audioMuted, videoStopped }
+    } = useDeviceManager();
+    const {
+      [PARTICIPANT_GROUP.USER]: userStage = null,
+      [PARTICIPANT_GROUP.DISPLAY]: displayStage = null,
+      stageControls
+    } = useStageManager() || {};
+    const isStageActive = userStage?.isConnected;
+    const isStageSpectator =
+      collaborate.participantType === PARTICIPANT_TYPES.SPECTATOR;
 
-    const { shouldRenderShareScreenButton } = stageControlsVisibility;
+    const publishingUserParticipants =
+      userStage?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      }) || [];
+    const publishingDisplayParticipants =
+      displayStage?.getParticipants({
+        isPublishing: true,
+        canSubscribeTo: true
+      }) || [];
+    const shouldDisableScreenshareButton =
+      (publishingDisplayParticipants.length >= 2 ||
+        publishingUserParticipants.length >= 12) &&
+      !isScreenSharing;
+
+    const { shouldRenderShareScreenButton } = stageControls || {};
 
     const shouldRenderStageScreenShareButton =
       shouldRenderShareScreenButton && !isTouchscreenDevice;
@@ -67,23 +85,36 @@ const BroadcastControlWrapper = forwardRef(
       !isTouchscreenDevice && withScreenshareButton;
 
     const {
+      toggleCamera,
       toggleMicrophone,
       isMicrophoneMuted,
-      toggleCamera,
       isCameraHidden
-    } = isStageActive
-      ? {
-          toggleMicrophone: toggleStageMicrophone,
-          isMicrophoneMuted: isStageMicrophoneMuted,
-          toggleCamera: toggleStageCamera,
-          isCameraHidden: isStageCameraHidden
-        }
-      : {
-          toggleMicrophone: toggleBroadcastMicrophone,
-          isMicrophoneMuted: isBroadcastMicrophoneMuted,
-          toggleCamera: toggleBroadcastCamera,
-          isCameraHidden: isBroadcastCameraHidden
-        };
+    } =
+      isStageActive || collaborate.isJoining
+        ? {
+            toggleMicrophone: stageControls.toggleAudio,
+            isMicrophoneMuted: audioMuted,
+            toggleCamera: stageControls.toggleVideo,
+            isCameraHidden: videoStopped
+          }
+        : {
+            toggleMicrophone: toggleBroadcastMicrophone,
+            isMicrophoneMuted: isBroadcastMicrophoneMuted,
+            toggleCamera: toggleBroadcastCamera,
+            isCameraHidden: isBroadcastCameraHidden
+          };
+
+    /**
+     * Changes to "isScreenSharing" Redux state trigger startScreenShare or stopScreenShare
+     * in DeviceManager context via useEffect.
+     */
+    const handleScreenShare = useCallback(() => {
+      if (isScreenSharing) {
+        dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
+      } else if (StageFactory.hasPublishCapacity) {
+        dispatch(updateDisplayMediaStates({ isScreenSharing: true }));
+      }
+    }, [dispatch, isScreenSharing]);
 
     const controllerButtonProps = useMemo(
       () => [
@@ -108,7 +139,7 @@ const BroadcastControlWrapper = forwardRef(
           tooltip: isCameraHidden ? $content.show_camera : $content.hide_camera
         },
         {
-          onClick: isStageActive ? toggleStageScreenshare : toggleScreenShare,
+          onClick: isStageActive ? handleScreenShare : toggleScreenShare,
           ariaLabel: isScreenSharing
             ? 'Start screen sharing'
             : 'Stop screen sharing',
@@ -121,16 +152,10 @@ const BroadcastControlWrapper = forwardRef(
             !activeCamera ||
             !activeMicrophone ||
             shouldDisableScreenshareButton,
-          icon:
-            isScreenSharing || isStageScreensharing ? (
-              <ScreenShareOff />
-            ) : (
-              <ScreenShare />
-            ),
-          tooltip:
-            isScreenSharing || isStageScreensharing
-              ? $content.stop_sharing
-              : $content.share_your_screen
+          icon: isScreenSharing ? <ScreenShareOff /> : <ScreenShare />,
+          tooltip: isScreenSharing
+            ? $content.stop_sharing
+            : $content.share_your_screen
         }
       ],
       [
@@ -142,26 +167,44 @@ const BroadcastControlWrapper = forwardRef(
         isCameraHidden,
         activeCamera,
         isStageActive,
-        toggleStageScreenshare,
+        handleScreenShare,
         toggleScreenShare,
         isScreenSharing,
         shouldRenderStageScreenShareButton,
         shouldRenderBroadcastScreenShareButton,
-        shouldDisableScreenshareButton,
-        isStageScreensharing
+        shouldDisableScreenshareButton
       ]
     );
 
+    const openStageJoinModal = useCallback(() => {
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+      openModal({
+        type: MODAL_TYPE.STAGE_JOIN
+      });
+    }, [closeModal, openModal]);
+
     const handleSettingsClick = () => {
-      if (isJoiningStageByRequestOrInvite && !isMobileView) {
-        closeModal({ shouldCancel: false, shouldRefocus: true });
-        updateShouldOpenSettingsModal(true);
-      } else {
-        openModal({
-          type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
-          lastFocusedElement: settingsButtonRef
-        });
+      let modalData = {};
+
+      // Update modal functions for the join stage session flow
+      if (collaborate.isJoining) {
+        modalData = {
+          onCancel: () => {
+            openStageJoinModal();
+          },
+          onConfirm: () => {
+            openStageJoinModal();
+
+            return false; // should not close modal
+          }
+        };
       }
+      closeModal({ shouldCancel: false, shouldRefocus: false });
+      openModal({
+        type: MODAL_TYPE.STREAM_BROADCAST_SETTINGS,
+        lastFocusedElement: settingsButtonRef,
+        ...modalData
+      });
     };
 
     const controllerButtonPropsWithSettingsButton = [

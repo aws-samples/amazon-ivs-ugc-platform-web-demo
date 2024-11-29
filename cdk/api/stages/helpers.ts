@@ -3,8 +3,6 @@ import {
   CreateParticipantTokenCommand,
   CreateParticipantTokenCommandInput,
   CreateStageCommand,
-  CreateStageCommandInput,
-  DeleteStageCommand,
   GetStageCommand,
   IVSRealTimeClient,
   ListParticipantsCommand,
@@ -17,6 +15,7 @@ import {
   dynamoDbClient,
   getChannelAssetUrls,
   getChannelId,
+  getUserByChannelArn,
   updateDynamoItemAttributes
 } from '../shared/helpers';
 import {
@@ -29,7 +28,8 @@ import {
 import { getUser } from '../channel/helpers';
 import { ParticipantTokenCapability } from '@aws-sdk/client-ivs-realtime';
 import { convertToAttr, unmarshall } from '@aws-sdk/util-dynamodb';
-import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { buildChannelArn } from '../metrics/helpers';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
 
@@ -37,13 +37,18 @@ interface HandleCreateStageParams {
   userSub?: string;
   participantType: string;
   isHostInStage?: boolean;
+  channelData?: Record<string, AttributeValue>;
 }
 
-const CHANNEL_ASSET_AVATAR_DELIMITER = 'https://';
+export interface HostData {
+  username: AttributeValue | null;
+  status: STAGE_CONNECTION_STATES;
+}
 
-const STAGE_CONNECTION_STATES = {
-  CONNECTED: 'CONNECTED'
-};
+enum STAGE_CONNECTION_STATES {
+  DISCONNECTED = 'DISCONNECTED',
+  CONNECTED = 'CONNECTED'
+}
 
 export enum PARTICIPANT_TYPES {
   HOST = 'host',
@@ -59,6 +64,11 @@ export const PARTICIPANT_USER_TYPES = {
   INVITED: 'invited',
   REQUESTED: 'requested',
   SCREENSHARE: 'screenshare'
+};
+
+export const PARTICIPANT_GROUP = {
+  USER: 'user',
+  DISPLAY: 'display'
 };
 
 const PARTICIPANT_CONNECTION_STATES = {
@@ -94,38 +104,154 @@ export const extractStageIdfromStageArn = (
   return userStageArn.split(USER_STAGE_ID_SEPARATOR)[1];
 };
 
-export const handleCreateStage = async (input: CreateStageCommandInput) => {
-  const command = new CreateStageCommand(input);
-  const { participantTokens, stage } = await client.send(command);
-
-  const token = participantTokens?.[0].token;
-  const stageId = extractStageIdfromStageArn(stage?.arn);
-
-  return {
-    token,
-    stageId
+export const handleCreateStage = async ({
+  username,
+  profileColor,
+  avatar,
+  channelAssetsAvatarUrl,
+  channelArn,
+  sub
+}: {
+  username: string;
+  profileColor: string;
+  avatar: string;
+  channelAssetsAvatarUrl: string;
+  channelArn: string;
+  sub: string;
+}) => {
+  const channelId = getChannelId(channelArn);
+  const stageCreationDate = Date.now().toString();
+  const sharedAttrParams = {
+    username,
+    profileColor,
+    avatar,
+    channelAssetsAvatarUrl,
+    channelId
   };
-};
+  const participantTokenConfigurations = [
+    {
+      attributes: {
+        ...sharedAttrParams,
+        type: PARTICIPANT_USER_TYPES.HOST,
+        participantGroup: PARTICIPANT_GROUP.USER
+      },
+      capabilities: [
+        ParticipantTokenCapability.PUBLISH,
+        ParticipantTokenCapability.SUBSCRIBE
+      ],
+      duration: STAGE_TOKEN_DURATION,
+      userId: generateHostUserId(channelArn)
+    },
+    {
+      attributes: {
+        ...sharedAttrParams,
+        type: PARTICIPANT_USER_TYPES.SCREENSHARE,
+        participantGroup: PARTICIPANT_GROUP.DISPLAY
+      },
+      capabilities: [
+        ParticipantTokenCapability.PUBLISH,
+        ParticipantTokenCapability.SUBSCRIBE
+      ],
+      duration: STAGE_TOKEN_DURATION,
+      userId: uuidv4()
+    }
+  ];
+  const createStageCommandInput = {
+    name: `${username}-${uuidv4()}`,
+    participantTokenConfigurations,
+    tags: {
+      creationDate: stageCreationDate,
+      stageOwnerChannelId: channelId,
+      project: process.env.PROJECT_TAG as string
+    }
+  };
 
-export const handleDeleteStage = async (stageId: string) => {
-  const stageArn = buildStageArn(stageId);
+  try {
+    const command = new CreateStageCommand(createStageCommandInput);
+    const { participantTokens, stage } = await client.send(command);
 
-  const deleteStageCommand = new DeleteStageCommand({ arn: stageArn });
+    if (!participantTokens || !stage)
+      throw new Error('Failed to create stage resource.');
 
-  await client.send(deleteStageCommand);
+    const stageConfig = participantTokens.reduce(
+      (acc, { token, participantId, attributes }) => {
+        const participantGroup = attributes?.participantGroup;
+
+        if (
+          participantGroup &&
+          Object.values(PARTICIPANT_GROUP).includes(participantGroup)
+        ) {
+          return {
+            ...acc,
+            [participantGroup]: {
+              token,
+              participantId,
+              participantGroup
+            }
+          };
+        }
+
+        return acc;
+      },
+      {}
+    );
+
+    const stageId = extractStageIdfromStageArn(stage?.arn);
+
+    console.log(
+      `HANDLE CREATE STAGE: Stage resource, with stageId "${stageId}", successfully created.`
+    );
+
+    await updateDynamoItemAttributes({
+      attributes: [
+        {
+          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_ID,
+          value: stageId
+        },
+        {
+          key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
+          value: stageCreationDate
+        }
+      ],
+      primaryKey: { key: 'id', value: sub },
+      tableName: process.env.CHANNELS_TABLE_NAME as string
+    });
+
+    console.log('HANDLE CREATE STAGE: successfully updated channels table');
+
+    return {
+      ...stageConfig,
+      stageId
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error(
+      "[HELPER: handleCreateStage] Failed to create stage resources and update channel's table."
+    );
+  }
 };
 
 export const handleCreateParticipantToken = async (
-  input: CreateParticipantTokenCommandInput
+  input: CreateParticipantTokenCommandInput,
+  shouldThrowError = true
 ) => {
+  let response = {
+    token: null as string | null,
+    participantId: null as string | null
+  };
   try {
     const command = new CreateParticipantTokenCommand(input);
-    const { participantToken } = await client.send(command);
+    const { participantToken = null } = await client.send(command);
 
-    return participantToken?.token;
+    response = {
+      token: participantToken?.token ?? null,
+      participantId: participantToken?.participantId ?? null
+    };
   } catch (err) {
-    throw new Error('Failed to create token');
+    console.error(err);
+    if (shouldThrowError) throw new Error('Failed to create token');
   }
+  return response;
 };
 
 export const buildStageArn = (stageId: string) =>
@@ -181,7 +307,7 @@ export const getStage = async (stageId: string, hostChannelArn?: string) => {
   }
 };
 
-export const getEncodedChannelAssetAvatarURL = (
+export const getChannelAssetAvatarURL = (
   channelAssets: ChannelAssets,
   avatar: string
 ) => {
@@ -189,14 +315,15 @@ export const getEncodedChannelAssetAvatarURL = (
     getChannelAssetUrls(channelAssets)?.[ALLOWED_CHANNEL_ASSET_TYPES[0]];
 
   return avatar === CUSTOM_AVATAR_NAME && !!channelAssetsAvatarUrl
-    ? encodeURIComponent(channelAssetsAvatarUrl)
+    ? channelAssetsAvatarUrl
     : '';
 };
 
 export const handleCreateStageParams = async ({
   userSub,
   participantType,
-  isHostInStage = false
+  isHostInStage = false,
+  channelData
 }: HandleCreateStageParams) => {
   const shouldCreateHostUserType =
     participantType === PARTICIPANT_USER_TYPES.HOST && !isHostInStage;
@@ -207,26 +334,29 @@ export const handleCreateStageParams = async ({
     channelAssets,
     channelArn,
     channelId = '',
-    channelAssetsAvatarUrl = '';
+    channelAssetsAvatarUrl = '',
+    stageId = null;
 
   if (userSub && shouldFetchUserData.includes(participantType)) {
-    const { Item: UserItem = {} } = await getUser(userSub);
+    let UserItem = {};
+    if (channelData) {
+      ({ Item: UserItem = {} } = await getUser(userSub));
+    }
+
     ({
       avatar,
       color: profileColor,
       channelAssets,
       username,
-      channelArn
+      channelArn,
+      stageId
     } = unmarshall(UserItem));
 
     if (channelArn) {
       channelId = getChannelId(channelArn);
     }
 
-    channelAssetsAvatarUrl = getEncodedChannelAssetAvatarURL(
-      channelAssets,
-      avatar
-    );
+    channelAssetsAvatarUrl = getChannelAssetAvatarURL(channelAssets, avatar);
   }
 
   const capabilities =
@@ -236,10 +366,6 @@ export const handleCreateStageParams = async ({
           ParticipantTokenCapability.PUBLISH,
           ParticipantTokenCapability.SUBSCRIBE
         ];
-
-  const userId = shouldCreateHostUserType
-    ? generateHostUserId(channelArn)
-    : uuidv4();
 
   let userType;
 
@@ -263,10 +389,12 @@ export const handleCreateStageParams = async ({
     avatar,
     channelAssetsAvatarUrl,
     duration: STAGE_TOKEN_DURATION,
-    userId,
+    userId: uuidv4(),
     capabilities,
     userType,
-    channelId
+    channelId,
+    channelArn,
+    stageId
   };
 };
 
@@ -333,7 +461,12 @@ const getNumberOfParticipantsInStage = (
   return participantList.size;
 };
 
-export const shouldAllowParticipantToJoin = async (stageId: string) => {
+export const getStageHostDataAndSize = async (stageId: string) => {
+  let hostData: HostData = {
+    username: null,
+    status: STAGE_CONNECTION_STATES.DISCONNECTED
+  };
+
   const { stage } = await getStage(stageId);
   const stageArn = buildStageArn(stageId);
 
@@ -341,29 +474,52 @@ export const shouldAllowParticipantToJoin = async (stageId: string) => {
     throw new Error('Stage is not active');
   }
 
-  const { participants } = await listParticipants({
+  const { participants = [] } = await listParticipants({
     stageArn,
     sessionId: stage?.activeSessionId,
     filterByPublished: true
   });
 
-  const isHostInStage = participants?.find(
+  const [connectedHost] = participants.filter(
     (participant) =>
       participant.userId?.includes(PARTICIPANT_USER_TYPES.HOST) &&
       participant.state === STAGE_CONNECTION_STATES.CONNECTED
   );
 
-  if (!isHostInStage) {
-    const numberOfParticipantInStage =
-      getNumberOfParticipantsInStage(participants);
+  if (connectedHost) {
+    hostData.status = STAGE_CONNECTION_STATES.CONNECTED;
+    const hostChannelId = connectedHost.userId?.split('host:')[1];
 
-    // save the last spot for the host
-    if (numberOfParticipantInStage >= 11) {
-      return false;
+    if (hostChannelId) {
+      const hostChannelArn = buildChannelArn(hostChannelId);
+
+      const { Items = [] } = await getUserByChannelArn(hostChannelArn);
+
+      if (Items.length) {
+        const { username } = unmarshall(Items[0]);
+        hostData.username = username;
+      }
     }
   }
 
-  return true;
+  return { hostData, size: getNumberOfParticipantsInStage(participants) };
+};
+
+/**
+ * Participants are allowed to join a stage when the host is connected in the stage session.
+ * In the case the host is disconnected,
+ * make sure there is at least 1 spot, out of 12, for the host to rejoin
+ */
+export const shouldAllowParticipantToJoin = async ({
+  hostStatus,
+  numberOfParticipantInStage
+}: {
+  hostStatus: STAGE_CONNECTION_STATES;
+  numberOfParticipantInStage: number;
+}) => {
+  const isHostInStage = hostStatus === STAGE_CONNECTION_STATES.CONNECTED;
+
+  return isHostInStage || numberOfParticipantInStage < 11;
 };
 
 export const validateRequestParams = (...requestParams: string[]) => {

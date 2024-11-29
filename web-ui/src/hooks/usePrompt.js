@@ -12,7 +12,7 @@ import useBeforeUnload from './useBeforeUnload';
  */
 const usePrompt = (when, displayRefreshPrompt = true) => {
   const blocker = useBlocker(when);
-  const isBlocked = blocker.state === 'blocked';
+  const isBlocked = blocker.state === 'blocked' && Boolean(when);
 
   const onConfirm = useCallback(() => {
     if (isBlocked) blocker.proceed();
@@ -23,9 +23,8 @@ const usePrompt = (when, displayRefreshPrompt = true) => {
   }, [blocker, isBlocked]);
 
   // Triggered via browser's refresh button or attempting to navigate by entering a URL
-  const shouldShowBrowserLeavePrompt = ![when, displayRefreshPrompt].includes(
-    false
-  );
+  const shouldShowBrowserLeavePrompt =
+    Boolean(when) && Boolean(displayRefreshPrompt);
 
   useBeforeUnload(shouldShowBrowserLeavePrompt);
 

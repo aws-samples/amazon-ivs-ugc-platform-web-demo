@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CAMERA_LAYER_NAME } from '../useLayers';
+import { VIDEO_LAYER_NAME } from '../useLayers';
 import { getMediaDevices, requestMediaPermissions } from './utils';
 import { MICROPHONE_AUDIO_INPUT_NAME } from '../useAudioMixer';
 import { streamManager as $streamManagerContent } from '../../../content';
@@ -14,6 +14,11 @@ const defaultPermissions = {
   video: false
 };
 
+const defaultActiveDevices = {
+  [VIDEO_LAYER_NAME]: undefined,
+  [MICROPHONE_AUDIO_INPUT_NAME]: undefined
+};
+
 const useDevices = ({
   addMicAudioInput,
   addVideoLayer,
@@ -23,27 +28,21 @@ const useDevices = ({
   setError,
   setSuccess
 }) => {
-  const defaultActiveDevices = useRef({
-    [CAMERA_LAYER_NAME]: undefined,
-    [MICROPHONE_AUDIO_INPUT_NAME]: undefined
-  });
-
   const [permissions, setPermissions] = useState(defaultPermissions);
   const [devices, setDevices] = useState({
-    [CAMERA_LAYER_NAME]: [],
+    [VIDEO_LAYER_NAME]: [],
     [MICROPHONE_AUDIO_INPUT_NAME]: []
   });
-  const [activeDevices, setActiveDevices] = useStateWithCallback(
-    defaultActiveDevices.current
-  );
+  const [activeDevices, setActiveDevices] =
+    useStateWithCallback(defaultActiveDevices);
   const hasDevicesReset = useRef(false);
 
   const resetDevices = useCallback(() => {
     setDevices({
-      [CAMERA_LAYER_NAME]: [],
+      [VIDEO_LAYER_NAME]: [],
       [MICROPHONE_AUDIO_INPUT_NAME]: []
     });
-    setActiveDevices(defaultActiveDevices.current);
+    setActiveDevices(defaultActiveDevices);
     hasDevicesReset.current = true;
   }, [setActiveDevices]);
 
@@ -52,11 +51,11 @@ const useDevices = ({
       if (!deviceName) return;
 
       let addDevice;
-      if (deviceName === CAMERA_LAYER_NAME) {
+      if (deviceName === VIDEO_LAYER_NAME) {
         addDevice = addVideoLayer;
         options = {
           position: { index: 1 },
-          layerGroupId: CAMERA_LAYER_NAME,
+          layerGroupId: VIDEO_LAYER_NAME,
           ...options
         };
       }
@@ -88,16 +87,13 @@ const useDevices = ({
               If the device update failed, then switch back to the previously
               selected active device and display an error notification
               */
-
-              setActiveDevices((prev) => {
-                return {
-                  ...prev,
-                  [deviceName]: prevActiveDevices[deviceName]
-                };
-              });
+              setActiveDevices((prev) => ({
+                ...prev,
+                [deviceName]: prevActiveDevices[deviceName]
+              }));
 
               let errorMessage;
-              if (deviceName === CAMERA_LAYER_NAME)
+              if (deviceName === VIDEO_LAYER_NAME)
                 errorMessage = permissions.video
                   ? $content.notifications.error.failed_to_change_camera
                   : $content.notifications.error.failed_to_access_camera;
@@ -137,10 +133,10 @@ const useDevices = ({
         if (!isDeviceChangeEvent) return nextDevices;
 
         const deviceMap = {
-          [CAMERA_LAYER_NAME]: {
+          [VIDEO_LAYER_NAME]: {
             newActiveDeviceOptions: { hidden: true },
             onNewActiveDevice: () => presetLayers.noCamera.add(),
-            removeActiveDevice: () => removeLayer(CAMERA_LAYER_NAME)
+            removeActiveDevice: () => removeLayer(VIDEO_LAYER_NAME)
           },
           [MICROPHONE_AUDIO_INPUT_NAME]: {
             newActiveDeviceOptions: { muted: true },
@@ -150,7 +146,7 @@ const useDevices = ({
         };
 
         // A camera or microphone device was connected or disconnected
-        const deviceNames = [CAMERA_LAYER_NAME, MICROPHONE_AUDIO_INPUT_NAME];
+        const deviceNames = [VIDEO_LAYER_NAME, MICROPHONE_AUDIO_INPUT_NAME];
         for (const deviceName of deviceNames) {
           const activeDevice = activeDevices[deviceName];
           const prevDevicesList = prevDevices[deviceName];
@@ -195,7 +191,7 @@ const useDevices = ({
                 if (onNewActiveDevice) onNewActiveDevice();
 
                 let updateMessage;
-                if (deviceName === CAMERA_LAYER_NAME)
+                if (deviceName === VIDEO_LAYER_NAME)
                   updateMessage =
                     $content.notifications.success.camera_changed_to;
                 if (deviceName === MICROPHONE_AUDIO_INPUT_NAME)
@@ -237,7 +233,7 @@ const useDevices = ({
 
       let errorMessage;
       if (undetectedDeviceNames.length === 1) {
-        if (undetectedDeviceNames[0] === CAMERA_LAYER_NAME)
+        if (undetectedDeviceNames[0] === VIDEO_LAYER_NAME)
           errorMessage = $content.notifications.error.failed_to_access_camera;
         if (undetectedDeviceNames[0] === MICROPHONE_AUDIO_INPUT_NAME)
           errorMessage = $content.notifications.error.failed_to_access_mic;
@@ -279,7 +275,7 @@ const useDevices = ({
         err: error
       });
       setActiveDevices({
-        [CAMERA_LAYER_NAME]: false,
+        [VIDEO_LAYER_NAME]: false,
         [MICROPHONE_AUDIO_INPUT_NAME]: false
       });
     };
@@ -311,7 +307,7 @@ const useDevices = ({
       // Reset permission and active devices states
       setPermissions(defaultPermissions);
       setActiveDevices({
-        [CAMERA_LAYER_NAME]: false,
+        [VIDEO_LAYER_NAME]: false,
         [MICROPHONE_AUDIO_INPUT_NAME]: false
       });
 

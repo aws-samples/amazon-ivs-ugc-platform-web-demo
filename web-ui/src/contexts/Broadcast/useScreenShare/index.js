@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { CAMERA_LAYER_NAME } from '../useLayers';
+import { VIDEO_LAYER_NAME } from '../useLayers';
 import { captureScreenShareStream } from './utils';
 import { streamManager as $streamManagerContent } from '../../../content';
 import useLatest from '../../../hooks/useLatest';
 import useStateWithCallback from '../../../hooks/useStateWithCallback';
+import { updateDisplayMediaStates } from '../../../reducers/streamManager';
 
 const $content = $streamManagerContent.stream_manager_web_broadcast;
 
@@ -23,6 +25,7 @@ const useScreenShare = ({
   updateLayerGroup,
   setError
 }) => {
+  const dispatch = useDispatch();
   const [screenCaptureStream, setScreenCaptureStream] = useState(null);
   const [shouldShowCameraOnScreenShare, setShouldShowCameraOnScreenShare] =
     useStateWithCallback(true);
@@ -35,7 +38,7 @@ const useScreenShare = ({
   const updateCameraLayerGroupComposition = useCallback(
     (shouldShowCamera) =>
       updateLayerGroup(
-        CAMERA_LAYER_NAME,
+        VIDEO_LAYER_NAME,
         ({ width: canvasWidth, height: canvasHeight }) => ({
           width: shouldShowCamera ? canvasWidth / CAMERA_SIZE_DIVISOR : 0,
           height: shouldShowCamera ? canvasHeight / CAMERA_SIZE_DIVISOR : 0,
@@ -55,11 +58,13 @@ const useScreenShare = ({
     // Stop and close the media tracks bound to the shared screen
     for (const track of screenCaptureStreamTracks.current) track.stop();
 
-    updateLayerGroup(CAMERA_LAYER_NAME, {});
+    dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
+    updateLayerGroup(VIDEO_LAYER_NAME, {});
     removeLayer(SCREEN_SHARE_VIDEO_LAYER_NAME);
     removeAudioInput(SCREEN_SHARE_AUDIO_INPUT_NAME);
     setScreenCaptureStream(null);
   }, [
+    dispatch,
     isScreenSharing,
     removeAudioInput,
     removeLayer,
@@ -71,6 +76,8 @@ const useScreenShare = ({
     if (isScreenSharePromptOpen.current) return;
 
     if (isScreenSharing.current) stopScreenShare();
+
+    dispatch(updateDisplayMediaStates({ isScreenSharing: true }));
 
     let stream, error;
     try {
@@ -129,10 +136,12 @@ const useScreenShare = ({
 
       const tracks = stream?.getTracks() || [];
       for (const track of tracks) track.stop();
+      dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
     }
   }, [
     addScreenShareAudioInput,
     addScreenShareLayer,
+    dispatch,
     isScreenSharing,
     setError,
     shouldShowCameraOnScreenShare,
@@ -144,8 +153,11 @@ const useScreenShare = ({
     ({ shouldScreenShare } = {}) => {
       const isScreenSharingNext = shouldScreenShare ?? !isScreenSharing.current;
 
-      if (isScreenSharingNext) startScreenShare();
-      else stopScreenShare();
+      if (isScreenSharingNext) {
+        startScreenShare();
+      } else {
+        stopScreenShare();
+      }
     },
     [isScreenSharing, startScreenShare, stopScreenShare]
   );

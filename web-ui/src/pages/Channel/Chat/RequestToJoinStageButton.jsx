@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import React, { useCallback, useEffect } from 'react';
 
 import Button from '../../../components/Button/Button';
 import { RequestInvite } from '../../../assets/icons';
 import channelEvents from '../../../contexts/AppSync/channelEvents';
 import Tooltip from '../../../components/Tooltip/Tooltip';
 import { channelAPI } from '../../../api';
-import { useGlobalStage } from '../../../contexts/Stage';
 import { useAppSync } from '../../../contexts/AppSync';
 import { useChannel } from '../../../contexts/Channel';
 import { useUser } from '../../../contexts/User';
@@ -14,22 +14,28 @@ import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { clsm, extractChannelIdfromChannelArn } from '../../../utils';
 import Spinner from '../../../components/Spinner';
 import { useNavigate } from 'react-router-dom';
+import { useStageManager } from '../../../contexts/StageManager';
+import {
+  updateCollaborateStates,
+  updateError,
+  updateSuccess
+} from '../../../reducers/shared';
+import { COLLABORATE_ROUTE_PATH, PARTICIPANT_TYPES } from '../../../constants';
 
 const RequestToJoinStageButton = () => {
-  const {
-    requestingToJoinStage,
-    updateRequestingToJoinStage,
-    updateError,
-    updateSuccess,
-    participants,
-    hasStageRequestBeenApproved,
-    updateHasStageRequestBeenApproved
-  } = useGlobalStage();
+  const dispatch = useDispatch();
+  const { collaborate } = useSelector((state) => state.shared);
+  const navigate = useNavigate();
   const { publish } = useAppSync();
   const { channelData } = useChannel();
   const { userData, isSessionValid } = useUser();
   const { isTouchscreenDevice, isMobileView } = useResponsiveDevice();
-  const navigate = useNavigate();
+  const { user: userStage = null } = useStageManager() || {};
+  const publishingUserParticipants =
+    userStage?.getParticipants({
+      isPublishing: true,
+      canSubscribeTo: true
+    }) || [];
 
   let channelId;
 
@@ -39,20 +45,27 @@ const RequestToJoinStageButton = () => {
   // Consistent with FloatingNav
   const isMenuButtonVisible = isSessionValid && isMobileView;
 
+  const revokeRequestToJoinStage = useCallback(() => {
+    dispatch(
+      updateCollaborateStates({
+        isRequesting: false
+      })
+    );
+    publish(
+      channelId,
+      JSON.stringify({
+        type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
+        channelId: userData.channelId.toLowerCase()
+      })
+    );
+  }, [channelId, dispatch, publish, userData.channelId]);
+
   const requestToJoin = async () => {
-    if (hasStageRequestBeenApproved) return;
+    if (collaborate.isJoining) return;
 
-    if (requestingToJoinStage) {
-      updateRequestingToJoinStage(false);
-      publish(
-        channelId,
-        JSON.stringify({
-          type: channelEvents.STAGE_REVOKE_REQUEST_TO_JOIN,
-          channelId: userData.channelId.toLowerCase()
-        })
-      );
-
-      return;
+    // If request has been already submitted, the request will be revoked
+    if (collaborate.isRequesting) {
+      return revokeRequestToJoinStage();
     }
 
     const { result, error } = await channelAPI.getChannelLiveStatus();
@@ -61,10 +74,16 @@ const RequestToJoinStageButton = () => {
       result?.isBroadcasting || result?.isStageActive || !!error;
 
     if (displayErrorNotification) {
-      updateError({
-        message: $channelContent.notifications.error.request_to_join_stage_fail,
-        err: error
-      });
+      if (error) console.error(error);
+      if (result?.isStageActive || result?.isBroadcasting)
+        console.error(
+          'Cannot request to join: the user already has an active live stream or stage session.'
+        );
+      dispatch(
+        updateError(
+          $channelContent.notifications.error.request_to_join_stage_fail
+        )
+      );
     } else {
       const {
         username,
@@ -73,10 +92,13 @@ const RequestToJoinStageButton = () => {
         color: profileColor,
         channelAssetsAvatarUrl = undefined
       } = userData;
-      updateSuccess(
-        $channelContent.notifications.success.request_to_join_stage_success
+
+      dispatch(
+        updateCollaborateStates({
+          isRequesting: true,
+          participantType: PARTICIPANT_TYPES.REQUESTED
+        })
       );
-      updateRequestingToJoinStage(true);
       publish(
         channelId,
         JSON.stringify({
@@ -90,45 +112,39 @@ const RequestToJoinStageButton = () => {
           sent: Date.now().toString()
         })
       );
+      dispatch(
+        updateSuccess(
+          $channelContent.notifications.success.request_to_join_stage_success
+        )
+      );
     }
   };
 
+  /**
+   * Automatically navigate user to the stream manager collaborate path with delay
+   */
   useEffect(() => {
-    if (hasStageRequestBeenApproved) {
+    if (collaborate.isJoining) {
       setTimeout(() => {
-        updateHasStageRequestBeenApproved(false);
-        updateRequestingToJoinStage(false);
-        navigate('/manager', {
-          state: {
-            isJoiningStageByRequest: true,
-            stageId: channelData?.stageId
-          }
-        });
+        navigate(COLLABORATE_ROUTE_PATH);
       }, 1500);
     }
-  }, [
-    channelData.stageId,
-    hasStageRequestBeenApproved,
-    navigate,
-    updateHasStageRequestBeenApproved,
-    updateRequestingToJoinStage,
-    userData.channelId
-  ]);
+  }, [collaborate.isJoining, navigate]);
 
-  const icon = hasStageRequestBeenApproved ? <Spinner /> : <RequestInvite />;
+  const icon = collaborate.isJoining ? <Spinner /> : <RequestInvite />;
 
-  const message = hasStageRequestBeenApproved
+  const message = collaborate.isJoining
     ? ''
-    : requestingToJoinStage
+    : collaborate.isRequesting
       ? $channelContent.request_to_join_stage_button.tooltip.cancel_request
       : $channelContent.request_to_join_stage_button.tooltip.request_to_join;
 
-  const isUserAlreadyInStage = [...participants].some(
-    ([_, participant]) =>
-      participant.attributes.channelId === userData.channelId
+  const isUserAlreadyInStage = publishingUserParticipants.some(
+    (participant) => participant.attributes.channelId === userData.channelId
   );
 
-  const isDisabled = participants?.size >= 12 || isUserAlreadyInStage;
+  const isDisabled =
+    publishingUserParticipants?.length >= 12 || isUserAlreadyInStage;
 
   return (
     <Tooltip
@@ -140,7 +156,7 @@ const RequestToJoinStageButton = () => {
       <Button
         className={clsm([
           isMenuButtonVisible && 'mr-[56px]',
-          hasStageRequestBeenApproved && 'pointer-events-none',
+          collaborate.isJoining && 'pointer-events-none',
           'w-11',
           'h-11',
           'dark:[&>svg]:fill-white',
@@ -149,7 +165,7 @@ const RequestToJoinStageButton = () => {
           !isTouchscreenDevice && 'hover:bg-lightMode-gray-hover',
           'dark:focus:bg-darkMode-gray',
           'bg-lightMode-gray',
-          (requestingToJoinStage || hasStageRequestBeenApproved) && [
+          (collaborate.isRequesting || collaborate.isJoining) && [
             'dark:[&>svg]:fill-black',
             'dark:bg-darkMode-blue',
             'dark:focus:bg-darkMode-blue',

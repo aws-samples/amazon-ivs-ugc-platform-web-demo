@@ -3,10 +3,12 @@ import { extendTailwindMerge, fromTheme } from 'tailwind-merge';
 import clsx from 'clsx';
 
 import {
-  BANNED_USERNAME_CHANNEL_ID_SEPARATOR,
+  CHANNEL_ARN_CHANNEL_ID_SEPARATOR,
   CHANNEL_TYPE,
   NUM_MILLISECONDS_TO_BLOCK
 } from './constants';
+import store from './store';
+import { channelsAPI } from './api';
 
 export const noop = () => {};
 
@@ -329,10 +331,8 @@ export const convertConcurrentViews = (views) => {
 
 export const isS3Url = (url = '') => url.includes('.s3.');
 
-export const extractChannelIdfromChannelArn = (bannedUserChannelArn) =>
-  bannedUserChannelArn
-    .split(BANNED_USERNAME_CHANNEL_ID_SEPARATOR)[1]
-    ?.toLowerCase();
+export const extractChannelIdfromChannelArn = (channelArn) =>
+  channelArn.split(CHANNEL_ARN_CHANNEL_ID_SEPARATOR)[1]?.toLowerCase();
 
 export const updateVotes = (message, votes) => {
   const selectedOption = message.attributes?.option;
@@ -382,6 +382,35 @@ export const containsURL = (text) => {
   return urlRegex.test(text);
 };
 
+export function waitForReduxRehydration(reducer) {
+  return new Promise((resolve) => {
+    // Check if already rehydrated
+    if (store.getState()[reducer]._persist?.rehydrated) {
+      resolve();
+      return;
+    }
+
+    // Set up subscription
+    const unsubscribe = store.subscribe(() => {
+      if (store.getState()[reducer]._persist?.rehydrated) {
+        unsubscribe();
+        resolve();
+      }
+    });
+
+    /**
+     * CAUTION: If Redux is not rehydrated by the time this timeout ends,
+     * the loader will proceed with potentially stale or incomplete session storage data.
+     * This may cause the loader to fail and trigger the error boundary.
+     * Adjust the timeout duration if needed to balance between waiting for rehydration and ensuring the application doesn't hang indefinitely.
+     */
+    setTimeout(() => {
+      unsubscribe();
+      resolve();
+    }, 300);
+  });
+}
+
 export const connectToAppSyncGraphQlApi = () => {
   const {
     REACT_APP_APPSYNC_GRAPHQL_APIKEY,
@@ -396,4 +425,13 @@ export const connectToAppSyncGraphQlApi = () => {
     aws_appsync_authenticationType: REACT_APP_APPSYNC_GRAPHQL_AUTH_TYPE,
     aws_appsync_apiKey: REACT_APP_APPSYNC_GRAPHQL_APIKEY
   });
+};
+
+export const channelDataFetcher = async (username) => {
+  const { result: data, error } =
+    await channelsAPI.getUserChannelData(username);
+
+  if (error) throw error;
+
+  return data;
 };

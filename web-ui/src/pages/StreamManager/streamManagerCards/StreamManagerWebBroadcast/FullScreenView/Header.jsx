@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
@@ -7,74 +8,50 @@ import {
   CloseFullscreen as Collapse,
   Close
 } from '../../../../../assets/icons';
-import {
-  ANIMATION_DURATION,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
 import { streamManager as $content } from '../../../../../content';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
 import { useCallback, useRef } from 'react';
 import Tooltip from '../../../../../components/Tooltip';
-import { useChannel } from '../../../../../contexts/Channel';
+import { useStageManager } from '../../../../../contexts/StageManager';
+import {
+  initializeFullscreenClose,
+  updateFullscreenStates
+} from '../../../../../reducers/streamManager';
+import {
+  FULLSCREEN_ANIMATION_DURATION,
+  PARTICIPANT_TYPES
+} from '../../../../../constants';
 
 const $webBroadcastContent = $content.stream_manager_web_broadcast;
 const $stageContent = $content.stream_manager_stage;
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const { collaborate } = useSelector((state) => state.shared);
   const buttonRef = useRef();
-  const { channelData } = useChannel();
-  const { stageId } = channelData || {};
-  const {
-    isStageActive,
-    collaborateButtonAnimationControls,
-    shouldDisableStageButtonWithDelay,
-    isHost
-  } = useGlobalStage();
-  const { handleOnConfirmLeaveStage, shouldGetHostRejoinTokenRef } =
-    useStreamManagerStage();
-  const { handleOnClose, setIsFullScreenViewOpen } = useBroadcastFullScreen();
+  const { user: userStage = null, stageControls } = useStageManager() || {};
+  const { leaveStage } = stageControls || {};
 
-  const isCollapseButton = isHost || !isStageActive;
-  const isDisabled =
-    (!isCollapseButton && shouldDisableStageButtonWithDelay) || false;
+  const isStageActive = userStage?.isConnected;
+  const isHost = collaborate.participantType === PARTICIPANT_TYPES.HOST;
+  const isCollapseButtonVisible = isHost || !isStageActive; // else, display close button
 
-  const icon = isCollapseButton ? <Collapse /> : <Close />;
-
-  const handleOnCloseAndLeaveStage = useCallback(() => {
-    const closeFullscreenAndAnimateStreamButtonCallback = async () => {
-      setIsFullScreenViewOpen(false);
-      await collaborateButtonAnimationControls.start({
-        zIndex: 1000,
-        opacity: 1,
-        transition: { duration: 0.45 }
-      });
-      collaborateButtonAnimationControls.start({ zIndex: 'unset' });
-    };
-
-    if (!isHost && !!stageId) shouldGetHostRejoinTokenRef.current = false;
-    handleOnConfirmLeaveStage({
-      closeFullscreenAndAnimateStreamButtonCallback,
-      lastFocusedElementRef: buttonRef
-    });
-  }, [
-    collaborateButtonAnimationControls,
-    handleOnConfirmLeaveStage,
-    isHost,
-    setIsFullScreenViewOpen,
-    shouldGetHostRejoinTokenRef,
-    stageId
-  ]);
+  const handleOnCloseAndLeaveStage = useCallback(async () => {
+    dispatch(
+      updateFullscreenStates({
+        isOpen: false,
+        animate: true
+      })
+    );
+    await leaveStage();
+  }, [dispatch, leaveStage]);
 
   const handleCloseFullScreen = useCallback(() => {
-    if (isCollapseButton) {
-      handleOnClose();
+    if (isCollapseButtonVisible) {
+      dispatch(initializeFullscreenClose());
     } else {
       handleOnCloseAndLeaveStage();
     }
-  }, [handleOnClose, isCollapseButton, handleOnCloseAndLeaveStage]);
+  }, [isCollapseButtonVisible, dispatch, handleOnCloseAndLeaveStage]);
 
   return (
     <motion.div
@@ -90,7 +67,7 @@ const Header = () => {
             top: 20,
             right: 20,
             transition: {
-              opacity: { delay: ANIMATION_DURATION }
+              opacity: { delay: FULLSCREEN_ANIMATION_DURATION }
             }
           }
         }
@@ -99,16 +76,10 @@ const Header = () => {
       <Tooltip
         position="below"
         translate={{ y: -2 }}
-        message={
-          isStageActive &&
-          !isHost &&
-          !shouldDisableStageButtonWithDelay &&
-          $stageContent.leave_session
-        }
+        message={isStageActive && !isHost && $stageContent.leave_session}
       >
         <Button
           ref={buttonRef}
-          isDisabled={isDisabled}
           ariaLabel={$webBroadcastContent.collapse}
           variant="icon"
           onClick={handleCloseFullScreen}
@@ -122,9 +93,9 @@ const Header = () => {
             'w-11'
           ])}
         >
-          {icon}
+          {isCollapseButtonVisible ? <Collapse /> : <Close />}
         </Button>
-        {!isCollapseButton && (
+        {!isCollapseButtonVisible && (
           <div
             className={clsm([
               '-mt-11',
@@ -134,7 +105,7 @@ const Header = () => {
               'rounded-[50%]',
               'w-11',
               'pointer-events-none',
-              isDisabled ? ['opacity-100', 'block'] : ['opacity-0', 'hidden']
+              ['opacity-0', 'hidden']
             ])}
           />
         )}

@@ -4,8 +4,6 @@ import {
   ivsRealTimeClient,
   getIdleStageArns,
   deleteStagesWithRetry,
-  updateMultipleChannelDynamoItems,
-  getBatchChannelWriteUpdates,
   getIdleStages
 } from './helpers';
 
@@ -22,18 +20,11 @@ export const handler = async () => {
       const _nextToken = response?.nextToken || '';
 
       if (stages.length) {
-        // Filter list of stages by stack name
-        const projectStages = stages.filter(
-          ({ tags }) => !!tags?.stack && tags.stack === process.env.STACK_TAG
-        );
-        const idleStages = getIdleStages(projectStages);
+        const idleStages = getIdleStages(stages);
         const idleStageArns = getIdleStageArns(idleStages);
-        const batchChannelWriteUpdates =
-          getBatchChannelWriteUpdates(idleStages);
-        await Promise.all([
-          deleteStagesWithRetry(idleStageArns),
-          updateMultipleChannelDynamoItems(batchChannelWriteUpdates)
-        ]);
+
+        console.log('list of idle stage arns: ', idleStageArns);
+        await deleteStagesWithRetry(idleStageArns);
       }
 
       if (_nextToken) await deleteIdleStages(_nextToken);

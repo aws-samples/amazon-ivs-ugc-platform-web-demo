@@ -6,7 +6,8 @@ import {
   handleCreateStageParams,
   handleCreateParticipantToken,
   PARTICIPANT_USER_TYPES,
-  isStageActive
+  isStageActive,
+  PARTICIPANT_GROUP
 } from '../helpers';
 
 interface GetParticipantTokenParams {
@@ -28,26 +29,51 @@ const handler = async (
       throw new Error('Stage is empty');
     }
 
-    const { duration, userId, capabilities } = await handleCreateStageParams({
-      participantType
-    });
+    const { duration, userId, capabilities, userType } =
+      await handleCreateStageParams({
+        participantType
+      });
 
     const stageArn = buildStageArn(stageId);
 
-    const params = {
-      stageArn,
-      duration,
-      userId,
-      capabilities,
-      attributes: {
-        type: PARTICIPANT_USER_TYPES.SPECTATOR
-      }
-    };
-
-    const token = await handleCreateParticipantToken(params);
+    const { token: userToken, participantId: userParticipantId } =
+      await handleCreateParticipantToken({
+        stageArn,
+        duration,
+        userId,
+        capabilities,
+        attributes: {
+          type: PARTICIPANT_USER_TYPES.SPECTATOR,
+          participantGroup: PARTICIPANT_GROUP.USER
+        }
+      });
+    const { token: displayToken, participantId: displayParticipantId } =
+      await handleCreateParticipantToken({
+        stageArn,
+        duration,
+        userId,
+        capabilities,
+        attributes: {
+          type: PARTICIPANT_USER_TYPES.SPECTATOR,
+          participantGroup: PARTICIPANT_GROUP.DISPLAY
+        }
+      });
 
     reply.statusCode = 200;
-    return reply.send({ token });
+    return reply.send({
+      [PARTICIPANT_GROUP.USER]: {
+        token: userToken,
+        participantId: userParticipantId,
+        participantGroup: PARTICIPANT_GROUP.USER
+      },
+      [PARTICIPANT_GROUP.DISPLAY]: {
+        token: displayToken,
+        participantId: displayParticipantId,
+        participantGroup: PARTICIPANT_GROUP.DISPLAY
+      },
+      stageId,
+      participantRole: userType
+    });
   } catch (error) {
     console.error(error);
 

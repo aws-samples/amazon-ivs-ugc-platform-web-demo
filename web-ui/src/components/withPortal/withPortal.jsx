@@ -1,10 +1,19 @@
 import { createPortal } from 'react-dom';
-import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
+import {
+  memo,
+  useLayoutEffect,
+  useRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import { clsm } from '../../utils';
 
 const DEFAULT_PORTAL_OPTIONS = {
   isAnimated: false,
+  animationDuration: 250,
   baseContainerClasses: []
 };
 
@@ -49,6 +58,7 @@ const withPortal = (
   containerId,
   {
     isAnimated = DEFAULT_PORTAL_OPTIONS.isAnimated,
+    animationDuration,
     baseContainerClasses = DEFAULT_PORTAL_OPTIONS.baseContainerClasses
   } = DEFAULT_PORTAL_OPTIONS
 ) =>
@@ -67,14 +77,50 @@ const withPortal = (
         ref
       ) => {
         const id = useRef(`${containerId}-container`);
-        const container = isOpen
-          ? initContainer({
-              containerClassname: clsm(baseContainerClasses, containerClasses),
-              containerId: id.current,
-              parentEl,
-              prevSiblingEl
-            })
-          : null;
+        const [animatedContainer, setAnimatedContainer] = useState(null);
+
+        const memoizedContainer = useMemo(() => {
+          return isOpen
+            ? initContainer({
+                containerClassname: clsm(
+                  baseContainerClasses,
+                  containerClasses
+                ),
+                containerId: id.current,
+                parentEl,
+                prevSiblingEl
+              })
+            : null;
+        }, [containerClasses, isOpen, parentEl, prevSiblingEl]);
+
+        const container = useMemo(
+          () => (isAnimated ? animatedContainer : memoizedContainer),
+          [animatedContainer, memoizedContainer]
+        );
+
+        useEffect(() => {
+          let timeoutId;
+
+          if (isOpen) {
+            setAnimatedContainer(memoizedContainer);
+          } else {
+            timeoutId = setTimeout(() => {
+              setAnimatedContainer(null);
+            }, animationDuration);
+          }
+
+          return () => {
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+          };
+        }, [
+          memoizedContainer,
+          isOpen,
+          containerClasses,
+          parentEl,
+          prevSiblingEl
+        ]);
 
         useLayoutEffect(() => {
           if (position && container) {
@@ -86,7 +132,7 @@ const withPortal = (
         }, [container, parentEl, position, prevSiblingEl]);
 
         useEffect(() => {
-          if (!isAnimated) {
+          if (!isAnimated || containerId === 'modal') {
             return () => container?.remove();
           }
         }, [container]);

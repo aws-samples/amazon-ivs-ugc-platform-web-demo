@@ -9,6 +9,7 @@ const AUDIO_INPUT_TYPE = {
   SCREEN_SHARE: 'SCREEN_SHARE'
 };
 export const MICROPHONE_AUDIO_INPUT_NAME = 'microphone';
+export const AUDIO_INPUT_NAME = 'audio';
 
 const useAudioMixer = () => {
   const audioInputs = useMap();

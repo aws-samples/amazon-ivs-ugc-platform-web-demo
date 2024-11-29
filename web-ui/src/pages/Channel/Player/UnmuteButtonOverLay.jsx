@@ -1,21 +1,23 @@
+import { useDispatch } from 'react-redux';
+
 import { channel as $channelContent } from '../../../content';
 import { clsm } from '../../../utils';
 import { CONTROLLER_BUTTON_THEME } from '../../StreamManager/streamManagerCards/StreamManagerWebBroadcast/BroadcastControl/BroadcastControllerTheme';
-import { useGlobalStage } from '../../../contexts/Stage';
 import { useResponsiveDevice } from '../../../contexts/ResponsiveDevice';
 import { VolumeOff } from '../../../assets/icons';
 import Button from '../../../components/Button';
 import { useProfileViewAnimation } from '../contexts/ProfileViewAnimation';
+import { updateIsPlayerMuted } from '../../../reducers/channel';
 
 const UnmuteButtonOverLay = () => {
-  const { updateIsChannelStagePlayerMuted } = useGlobalStage();
+  const dispatch = useDispatch();
   const { isTouchscreenDevice } = useResponsiveDevice();
+  const { isProfileViewAnimationRunning, isProfileViewExpanded } =
+    useProfileViewAnimation();
 
   const handleOnClick = () => {
-    updateIsChannelStagePlayerMuted(false);
+    dispatch(updateIsPlayerMuted(false));
   };
-
-  const { isProfileViewExpanded } = useProfileViewAnimation();
 
   return (
     <div
@@ -44,7 +46,10 @@ const UnmuteButtonOverLay = () => {
           !isTouchscreenDevice && [
             'hover:bg-lightMode-gray-hover',
             'dark:hover:bg-darkMode-gray-hover'
-          ]
+          ],
+          'duration-75',
+          'transition-opacity',
+          isProfileViewAnimationRunning ? 'opacity-0' : 'opacity-100'
         ])}
         onClick={handleOnClick}
       >

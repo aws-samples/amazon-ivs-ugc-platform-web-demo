@@ -7,6 +7,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { defaultLambdaParams } from '../constants';
 

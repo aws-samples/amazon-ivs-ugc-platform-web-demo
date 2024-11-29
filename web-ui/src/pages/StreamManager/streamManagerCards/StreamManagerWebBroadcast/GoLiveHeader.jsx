@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { clsm } from '../../../../utils';
@@ -7,41 +7,25 @@ import { ChevronDown, ChevronUp, ExpandScreen } from '../../../../assets/icons';
 import { streamManager as $content } from '../../../../content';
 import { useBroadcast } from '../../../../contexts/Broadcast';
 import Button from '../../../../components/Button/Button';
-import { useStreamManagerStage } from '../../../../contexts/Stage';
 import { createAnimationProps } from '../../../../helpers/animationPropsHelper';
-import { useBroadcastFullScreen } from '../../../../contexts/BroadcastFullscreen';
-import { useGlobalStage } from '../../../../contexts/Stage';
+import { useStageManager } from '../../../../contexts/StageManager';
+import { initializeFullscreenOpen } from '../../../../reducers/streamManager';
 
 const GoLiveHeader = ({ onCollapse }) => {
-  const { isBroadcasting, resetPreview } = useBroadcast();
-  const { isStageActive } = useStreamManagerStage();
-  const {
-    collaborateButtonAnimationControls,
-    animateCollapseStageContainerWithDelay,
-    shouldAnimateGoLiveButtonChevronIcon
-  } = useGlobalStage();
-  const {
-    handleToggleFullscreen,
-    isFullScreenViewOpen,
-    setShouldRenderFullScreenCollaborateButton
-  } = useBroadcastFullScreen();
+  const dispatch = useDispatch();
+  const { goLiveContainer } = useSelector((state) => state.streamManager);
+  const { isBroadcasting } = useBroadcast();
+  const { user: userStage = null } = useStageManager() || {};
+  const isStageActive = userStage?.isConnected;
 
   const handleOpenFullScreen = () => {
-    if (!isStageActive) setShouldRenderFullScreenCollaborateButton(true);
-    collaborateButtonAnimationControls.start({ zIndex: 0 });
-    handleToggleFullscreen();
+    dispatch(initializeFullscreenOpen());
   };
-
-  useEffect(() => {
-    if (!isStageActive) {
-      resetPreview();
-    }
-  }, [resetPreview, isFullScreenViewOpen, isStageActive]);
 
   return (
     <div className={clsm(['flex', 'justify-between', 'items-center', 'mb-5'])}>
       <Button
-        isDisabled={animateCollapseStageContainerWithDelay}
+        isDisabled={goLiveContainer.delayAnimation}
         onClick={onCollapse}
         variant="primaryText"
         className={clsm([
@@ -61,7 +45,7 @@ const GoLiveHeader = ({ onCollapse }) => {
           '[&>svg]:mr-2'
         ])}
       >
-        {isBroadcasting || shouldAnimateGoLiveButtonChevronIcon ? (
+        {isBroadcasting || goLiveContainer.animateGoLiveButtonChevronIcon ? (
           <AnimatePresence>
             <motion.div
               className={clsm([
@@ -75,15 +59,16 @@ const GoLiveHeader = ({ onCollapse }) => {
                 createAnimationProps({
                   transition: {
                     type: 'easeInOut',
-                    from: animateCollapseStageContainerWithDelay ? 0.3 : 1,
-                    ...(!animateCollapseStageContainerWithDelay && {
+                    from: goLiveContainer.delayAnimation ? 0.3 : 1,
+                    ...(!goLiveContainer.delayAnimation && {
                       delay: 0.5,
                       duration: 0.3
                     })
                   },
                   controls: { opacity: 0.3 },
                   options: {
-                    shouldAnimate: shouldAnimateGoLiveButtonChevronIcon
+                    shouldAnimate:
+                      goLiveContainer.animateGoLiveButtonChevronIcon
                   }
                 }))}
             >
@@ -95,22 +80,24 @@ const GoLiveHeader = ({ onCollapse }) => {
         )}
         <p>{$content.stream_manager_web_broadcast.go_live}</p>
       </Button>
-      <Button
-        ariaLabel={$content.stream_manager_web_broadcast.expand}
-        variant="icon"
-        onClick={handleOpenFullScreen}
-        className={clsm([
-          'dark:[&>svg]:fill-white',
-          '[&>svg]:fill-black',
-          'p-2',
-          'dark:bg-darkMode-gray',
-          'bg-lightMode-gray',
-          'hover:bg-lightMode-gray-hover',
-          'dark:focus:bg-darkMode-gray'
-        ])}
-      >
-        <ExpandScreen className={clsm(['w-4', 'h-4'])} />
-      </Button>
+      {goLiveContainer.isExpandButtonVisible && (
+        <Button
+          ariaLabel={$content.stream_manager_web_broadcast.expand}
+          variant="icon"
+          onClick={handleOpenFullScreen}
+          className={clsm([
+            'dark:[&>svg]:fill-white',
+            '[&>svg]:fill-black',
+            'p-2',
+            'dark:bg-darkMode-gray',
+            'bg-lightMode-gray',
+            'hover:bg-lightMode-gray-hover',
+            'dark:focus:bg-darkMode-gray'
+          ])}
+        >
+          <ExpandScreen className={clsm(['w-4', 'h-4'])} />
+        </Button>
+      )}
     </div>
   );
 };

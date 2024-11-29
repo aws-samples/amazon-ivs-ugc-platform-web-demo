@@ -7,15 +7,13 @@ import { PersonAdd, Group } from '../../../../../assets/icons';
 import { clsm, noop } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
 import Button from '../../../../../components/Button';
 import useClickAway from '../../../../../hooks/useClickAway';
 import withPortal from '../../../../../components/withPortal';
 import useFocusTrap from '../../../../../hooks/useFocusTrap';
-import { BREAKPOINTS } from '../../../../../constants';
+import { BREAKPOINTS, PARTICIPANT_TYPES } from '../../../../../constants';
+import { useStageManager } from '../../../../../contexts/StageManager';
+import { useSelector } from 'react-redux';
 
 const $stageContent = $content.stream_manager_stage;
 const BUTTON_TEXT_CLASSES = ['text-black', 'dark:text-white'];
@@ -27,10 +25,15 @@ const IconClasses = clsm([
 ]);
 
 const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
-  const menuRef = useRef();
-  const { handleCopyJoinParticipantLinkAndNotify } = useStreamManagerStage();
-  const { isHost, isStageActive } = useGlobalStage();
+  const { collaborate } = useSelector((state) => state.shared);
+  const { user: userStage = null, stageControls = null } =
+    useStageManager() || {};
   const { isMobileView, currentBreakpoint } = useResponsiveDevice();
+  const menuRef = useRef();
+
+  const isStageActive = userStage?.isConnected;
+  const { copyInviteUrl } = stageControls || {};
+  const isHost = collaborate.participantType === PARTICIPANT_TYPES.HOST;
   const shouldDisplayParticipantsModalButton = isStageActive && isHost;
 
   useClickAway([toggleBtnRef, menuRef], toggleMenu, isOpen);
@@ -81,7 +84,7 @@ const StageMenu = ({ isOpen, toggleMenu, toggleBtnRef }) => {
         )}
         <Button
           variant="tertiaryText"
-          onClick={handleCopyJoinParticipantLinkAndNotify}
+          onClick={copyInviteUrl}
           className={clsm(BUTTON_TEXT_CLASSES)}
         >
           <PersonAdd className={IconClasses} />

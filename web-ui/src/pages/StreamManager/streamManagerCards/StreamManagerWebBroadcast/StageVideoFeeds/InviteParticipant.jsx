@@ -1,32 +1,30 @@
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { PersonAdd } from '../../../../../assets/icons';
 import { streamManager as $content } from '../../../../../content';
 import { useResponsiveDevice } from '../../../../../contexts/ResponsiveDevice';
-import {
-  useGlobalStage,
-  useStreamManagerStage
-} from '../../../../../contexts/Stage';
 import Button from '../../../../../components/Button/Button';
 import Tooltip from '../../../../../components/Tooltip/Tooltip';
+import { useStageManager } from '../../../../../contexts/StageManager';
 
 const $stageContent = $content.stream_manager_stage;
 
 const InviteParticipant = ({ type, className = '', hideText = false }) => {
-  const { isJoiningStageByRequestOrInvite } = useGlobalStage();
+  const { collaborate } = useSelector((state) => state.shared);
   const { isTouchscreenDevice, isDesktopView, isDefaultResponsiveView } =
     useResponsiveDevice();
   const isFullscreenType = type === 'fullscreen';
 
-  const { handleCopyJoinParticipantLinkAndNotify, stageControlsVisibility } =
-    useStreamManagerStage();
   const shouldRenderInviteParticipantText = isDesktopView
     ? isFullscreenType
     : !isDefaultResponsiveView;
-  const { shouldRenderInviteLinkButton } = stageControlsVisibility;
+
+  const { stageControls = null } = useStageManager() || {};
+  const { shouldRenderInviteLinkButton, copyInviteUrl } = stageControls || {};
 
   return (
     <div
@@ -41,7 +39,7 @@ const InviteParticipant = ({ type, className = '', hideText = false }) => {
         className
       ])}
     >
-      {!isJoiningStageByRequestOrInvite && shouldRenderInviteLinkButton && (
+      {!collaborate.isJoining && shouldRenderInviteLinkButton && (
         <div>
           <Tooltip
             key="stage-tooltip-participant-link"
@@ -54,7 +52,7 @@ const InviteParticipant = ({ type, className = '', hideText = false }) => {
                 ariaLabel={$stageContent.copy_session_link}
                 key="invite-participant-stage-btn"
                 variant="icon"
-                onClick={handleCopyJoinParticipantLinkAndNotify}
+                onClick={copyInviteUrl}
                 disableHover={isTouchscreenDevice}
                 className={clsm([
                   '-mt-1',

@@ -1,12 +1,18 @@
 import {
   ChannelType,
   CreateChannelCommand,
+  MultitrackInputConfiguration,
   TranscodePreset
 } from '@aws-sdk/client-ivs';
 import { CreateRoomCommand } from '@aws-sdk/client-ivschat';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { generateDeterministicId, getUser } from '../helpers';
+import {
+  ChannelConfiguration,
+  generateDeterministicId,
+  getMultitrackChannelInputFields,
+  getUser
+} from '../helpers';
 import {
   CHANNELS_TABLE_STAGE_FIELDS,
   UNEXPECTED_EXCEPTION
@@ -43,12 +49,15 @@ const handler = async (
     // Create IVS channel
     const cleanedUserName = username.replace(/[^a-zA-Z0-9-_]/g, '');
     const channelName = `${cleanedUserName}s-channel`;
+    const multitrackChannelInputFields = getMultitrackChannelInputFields();
+
     const createChannelCommand = new CreateChannelCommand({
       name: channelName,
       type: process.env.IVS_CHANNEL_TYPE as ChannelType,
       preset: process.env
         .IVS_ADVANCED_CHANNEL_TRANSCODE_PRESET as TranscodePreset,
-      tags: { project: process.env.PROJECT_TAG as string }
+      tags: { project: process.env.PROJECT_TAG as string },
+      ...multitrackChannelInputFields
     });
     const { channel, streamKey } = await ivsClient.send(createChannelCommand);
 
@@ -65,6 +74,11 @@ const handler = async (
     const streamKeyArn = streamKey?.arn;
     const playbackUrl = channel?.playbackUrl;
     const chatRoomArn = chatRoom.arn;
+    const channelConfiguration: ChannelConfiguration = {
+      type: channel?.type as ChannelType,
+      multitrackInputConfiguration:
+        channel?.multitrackInputConfiguration as MultitrackInputConfiguration
+    };
 
     let trackingId;
 
@@ -109,6 +123,10 @@ const handler = async (
         {
           key: CHANNELS_TABLE_STAGE_FIELDS.STAGE_CREATION_DATE,
           value: null
+        },
+        {
+          key: 'channelConfiguration',
+          value: channelConfiguration
         }
       ],
       primaryKey: { key: 'id', value: sub },

@@ -31,6 +31,11 @@
         "enableUserAutoVerify": true,
         "ivsChannelType": "BASIC",
         "ivsAdvancedChannelTranscodePreset": "",
+        "multitrackInputConfiguration": {
+          "enabled": false,
+          "maximumResolution": "",
+          "policy": ""
+        },
         "logRetention": 7,
         "maxAzs": 2,
         "minScalingCapacity": 1,
@@ -50,6 +55,11 @@
         "enableUserAutoVerify": false,
         "ivsChannelType": "STANDARD",
         "ivsAdvancedChannelTranscodePreset": "",
+        "multitrackInputConfiguration": {
+          "enabled": true,
+          "maximumResolution": "FULL_HD",
+          "policy": "ALLOW"
+        },
         "maxAzs": 3,
         "minScalingCapacity": 1,
         "natGateways": 2,

@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  ANIMATION_DURATION,
-  ANIMATION_TRANSITION as fullscreenViewTransition,
-  useBroadcastFullScreen
-} from '../../../../../contexts/BroadcastFullscreen';
 import { clsm } from '../../../../../utils';
 import { createAnimationProps } from '../../../../../helpers/animationPropsHelper';
 import { getAvatarSrc } from '../../../../../helpers';
@@ -14,8 +10,11 @@ import { MicOff, VideoCameraOff } from '../../../../../assets/icons';
 import { STAGE_VIDEO_FEEDS_TYPES } from './StageVideoFeeds';
 import StageProfilePill, { STAGE_PROFILE_TYPES } from './StageProfilePill';
 import Spinner from '../../../../../components/Spinner';
-import { useGlobalStage } from '../../../../../contexts/Stage';
-import { PARTICIPANT_TYPES } from '../../../../../contexts/Stage/Global/reducer/globalReducer';
+import {
+  FULLSCREEN_ANIMATION_DURATION,
+  FULLSCREEN_ANIMATION_TRANSITION,
+  PARTICIPANT_TYPES
+} from '../../../../../constants';
 
 const SIZE_VARIANTS = {
   LG: 'large',
@@ -23,15 +22,22 @@ const SIZE_VARIANTS = {
   SM: 'small'
 };
 
-const StageVideo = ({ type, participantKey, className = '' }) => {
+const StageVideo = ({ type, participant, className = '' }) => {
+  const {
+    fullscreen,
+    displayMedia: { isScreenSharing }
+  } = useSelector((state) => state.streamManager);
+  const { isPlayerMuted } = useSelector((state) => state.channel);
   const videoRef = useRef(null);
-  const { participants, isChannelStagePlayerMuted } = useGlobalStage();
-  const { isFullScreenViewOpen } = useBroadcastFullScreen();
   const [isLoading, setIsLoading] = useState(true);
 
-  const participant = participants.get(participantKey);
-  const { streams, isCameraHidden, isMicrophoneMuted, attributes } =
-    participant;
+  const {
+    mediaStream,
+    videoStopped: isCameraHidden,
+    audioMuted: isMicrophoneMuted,
+    attributes,
+    isLocal
+  } = participant;
   const {
     profileColor = null,
     username = null,
@@ -43,17 +49,15 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
   const isGoLiveType = type === STAGE_VIDEO_FEEDS_TYPES.GO_LIVE;
   const isChannelType = type === STAGE_VIDEO_FEEDS_TYPES.CHANNEL;
 
-  const updateVideoSource = useCallback((streams) => {
-    videoRef.current.srcObject = new MediaStream(
-      streams.map((stream) => stream.mediaStreamTrack)
-    );
+  const updateVideoSource = useCallback((mediaStream) => {
+    videoRef.current.srcObject = mediaStream;
   }, []);
 
   useEffect(() => {
-    if (!isChannelType || !streams || !isLoading) return;
+    if (!isChannelType || !mediaStream || !isLoading) return;
 
-    updateVideoSource(streams);
-  }, [streams, updateVideoSource, isLoading, isChannelType]);
+    updateVideoSource(mediaStream);
+  }, [updateVideoSource, isLoading, isChannelType, mediaStream]);
 
   useEffect(() => {
     const videoElement = videoRef?.current;
@@ -79,25 +83,27 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
    * Only one set should have videos with source object set to streams
    */
   const toggleVideoSource = useCallback(() => {
-    if (!videoRef?.current || !streams) return;
-    const isSrcObjectNull = isFullScreenViewOpen && isGoLiveType;
+    if (!videoRef?.current || !mediaStream) return;
+    const isSrcObjectNull = fullscreen.isOpen && isGoLiveType;
 
     if (isSrcObjectNull) {
       videoRef.current.srcObject = null;
     } else {
-      updateVideoSource(streams);
+      updateVideoSource(mediaStream);
     }
-  }, [streams, isFullScreenViewOpen, isGoLiveType, updateVideoSource]);
+  }, [mediaStream, fullscreen.isOpen, isGoLiveType, updateVideoSource]);
 
   useEffect(() => {
     if (isChannelType) return;
 
     // Swith video source once fullscreen collapse animation completes
-    const animationDelay = isFullScreenViewOpen ? 0 : ANIMATION_DURATION * 1000;
+    const animationDelay = fullscreen.isOpen
+      ? 0
+      : FULLSCREEN_ANIMATION_DURATION * 1000;
     setTimeout(toggleVideoSource, animationDelay);
 
     return () => clearTimeout(toggleVideoSource);
-  }, [isFullScreenViewOpen, toggleVideoSource, isChannelType]);
+  }, [fullscreen.isOpen, toggleVideoSource, isChannelType]);
 
   return (
     <div
@@ -107,9 +113,11 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
         'h-full',
         'overflow-hidden',
         'relative',
-        isFullscreenType || isChannelType ? 'rounded-xl' : 'rounded',
         'w-full',
         'aspect-video',
+        'bg-white',
+        'dark:bg-black',
+        isFullscreenType || isChannelType ? 'rounded-xl' : 'rounded',
         className
       ])}
     >
@@ -119,12 +127,15 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
         className={clsm([
           'aspect-video',
           'col-span-full',
-          'object-cover',
+          'object-contain',
           'row-span-full',
+          'absolute',
+          'top-0',
+          'left-0',
           isCameraHidden ? 'hidden' : ['w-full', 'h-full']
         ])}
         playsInline
-        {...(isChannelType && { muted: isChannelStagePlayerMuted })}
+        {...(isChannelType ? { muted: isPlayerMuted } : { muted: isLocal })}
         aria-label="Local participant IVS stage video"
       >
         <track label="empty" kind="captions" srcLang="en" />
@@ -134,7 +145,7 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
           <motion.div
             {...createAnimationProps({
               animations: ['fadeIn-full'],
-              transition: fullscreenViewTransition
+              transition: FULLSCREEN_ANIMATION_TRANSITION
             })}
             className={clsm([
               '@stage-video-lg/video:px-4',
@@ -196,6 +207,7 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
           'justify-center',
           'row-span-full',
           'rounded',
+          isGoLiveType && isScreenSharing && ['[&>svg]:w-4', '[&>svg]:h-4'],
           isCameraHidden ? ['w-full', 'h-full'] : 'hidden'
         ])}
       >
@@ -229,7 +241,20 @@ const StageVideo = ({ type, participantKey, className = '' }) => {
 };
 
 StageVideo.propTypes = {
-  participantKey: PropTypes.string.isRequired,
+  participant: PropTypes.shape({
+    mediaStream: PropTypes.instanceOf(MediaStream),
+    videoStopped: PropTypes.bool,
+    audioMuted: PropTypes.bool,
+    attributes: PropTypes.shape({
+      avatar: PropTypes.string,
+      channelAssetsAvatarUrl: PropTypes.string,
+      participantGroup: PropTypes.oneOf(['user', 'display']),
+      profileColor: PropTypes.string,
+      type: PropTypes.string,
+      username: PropTypes.string
+    }),
+    isLocal: PropTypes.bool
+  }).isRequired,
   type: PropTypes.oneOf(['golive', 'fullscreen', 'channel']).isRequired,
   className: PropTypes.string
 };

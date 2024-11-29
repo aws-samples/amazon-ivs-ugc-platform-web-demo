@@ -38,9 +38,8 @@ const ParticipantOverflowCard = ({
         <div
           className={clsm([
             '@[140px]/overflow-card:-ml-3',
-            '@[46px]/overflow-card:w-11',
-            '@[46px]/overflow-card:h-11',
-
+            '@[46px]/overflow-card:w-6',
+            '@[46px]/overflow-card:h-6',
             'bg-lightMode-gray-extraLight',
             'dark:bg-darkMode-gray',
             'dark:ring-white',
@@ -58,8 +57,8 @@ const ParticipantOverflowCard = ({
             className={clsm([
               'hidden',
               '@[140px]/overflow-card:block',
-              '@[46px]/overflow-card:text-[1.125rem]',
-              'text-[15px]'
+              '@[46px]/overflow-card:text-[0.75rem]',
+              'text-[16px]'
             ])}
           >
             +{additionalCount}
@@ -68,8 +67,8 @@ const ParticipantOverflowCard = ({
             className={clsm([
               'block',
               '@[140px]/overflow-card:hidden',
-              '@[46px]/overflow-card:text-[1.125rem]',
-              'text-[15px]'
+              '@[46px]/overflow-card:text-[0.75rem]',
+              'text-[16px]'
             ])}
           >
             +{totalOverflowParticipants}

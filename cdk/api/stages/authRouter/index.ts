@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { fastifyRequestContextPlugin } from '@fastify/request-context';
 import authorizer from '../../shared/authorizer';
 import createStage from './createStage';
-import deleteStage from './deleteStage';
+import endStage from './endStage';
 import getStage from './getStage';
 import createParticipantToken from './createParticipantToken';
 import disconnectParticipant from './disconnectParticipant';
@@ -17,7 +17,7 @@ const router: FastifyPluginAsync = async (resource) => {
     '/createParticipantToken/:stageId/:participantType',
     createParticipantToken
   );
-  resource.put('/delete', deleteStage);
+  resource.put('/end', endStage);
   resource.put('/disconnectParticipant', disconnectParticipant);
 };
 

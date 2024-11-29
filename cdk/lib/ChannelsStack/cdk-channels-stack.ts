@@ -24,6 +24,11 @@ import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { readFileSync } from 'fs';
+import {
+  ChannelType,
+  MultitrackMaximumResolution,
+  MultitrackPolicy
+} from '@aws-sdk/client-ivs';
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
@@ -38,6 +43,20 @@ import { EventField, RuleTargetInput } from 'aws-cdk-lib/aws-events';
 
 const getLambdaEntryPath = (functionName: string) =>
   join(__dirname, '../../lambdas', `${functionName}.ts`);
+
+const validateMultitrackConfig = (
+  value: string,
+  enumObj: object,
+  fieldName: string
+) => {
+  if (!Object.values(enumObj).includes(value)) {
+    throw new Error(
+      `Invalid multitrack ${fieldName}: "${value}". ` +
+        `Valid options are: ${Object.values(enumObj).join(', ')}. ` +
+        `Please correct the ${fieldName} in the CDK configuration (cdk.json).`
+    );
+  }
+};
 
 interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
@@ -83,8 +102,29 @@ export class ChannelsStack extends NestedStack {
       enableUserAutoVerify,
       ivsAdvancedChannelTranscodePreset,
       ivsChannelType,
-      signUpAllowedDomains
+      signUpAllowedDomains,
+      multitrackInputConfiguration
     } = resourceConfig;
+
+    // Validate IVS channel multitrack configuration
+    if (multitrackInputConfiguration.enabled) {
+      if (ivsChannelType !== ChannelType.StandardChannelType) {
+        throw new Error(
+          `IVS channel multitrack requires a STANDARD channel type. Current type: ${ivsChannelType}. ` +
+            'Please update the channel type in the CDK configuration (cdk.json).'
+        );
+      }
+      validateMultitrackConfig(
+        multitrackInputConfiguration.maximumResolution as string,
+        MultitrackMaximumResolution,
+        'maximum resolution'
+      );
+      validateMultitrackConfig(
+        multitrackInputConfiguration.policy as string,
+        MultitrackPolicy,
+        'policy'
+      );
+    }
 
     // Cognito Lambda triggers
     const { customMessageLambda, preAuthenticationLambda, preSignUpLambda } =
@@ -417,6 +457,7 @@ export class ChannelsStack extends NestedStack {
     const ivsPolicyStatement = new iam.PolicyStatement({
       actions: [
         'ivs:CreateChannel',
+        'ivs:UpdateChannel',
         'ivs:CreateParticipantToken',
         'ivs:CreateStage',
         'ivs:CreateStreamKey',
@@ -479,7 +520,7 @@ export class ChannelsStack extends NestedStack {
 
     // Cleanup idle stages users policies
     const deleteIdleStagesIvsPolicyStatement = new iam.PolicyStatement({
-      actions: ['ivs:ListStages', 'ivs:DeleteStage', 'dynamodb:BatchWriteItem'],
+      actions: ['ivs:ListStages', 'ivs:DeleteStage'],
       effect: iam.Effect.ALLOW,
       resources: ['*']
     });
@@ -508,7 +549,7 @@ export class ChannelsStack extends NestedStack {
         timeout: Duration.minutes(10),
         initialPolicy: [deleteIdleStagesIvsPolicyStatement],
         environment: {
-          STACK_TAG: parentStackName
+          PROJECT_TAG: tags.project
         }
       }
     );
@@ -591,7 +632,10 @@ export class ChannelsStack extends NestedStack {
       SIGN_UP_ALLOWED_DOMAINS: JSON.stringify(signUpAllowedDomains),
       USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
       USER_POOL_ID: userPool.userPoolId,
-      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl
+      SQS_DELETE_STAGE_QUEUE_URL: deleteStageQueue.queueUrl,
+      CHANNEL_MULTITRACK_INPUT_CONFIGURATION: JSON.stringify(
+        multitrackInputConfiguration
+      )
     };
     this.containerEnv = containerEnv;
 
