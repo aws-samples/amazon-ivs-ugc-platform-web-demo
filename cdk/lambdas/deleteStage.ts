@@ -30,6 +30,11 @@ interface HostDisconnectedEvent {
   shouldDeleteStage: boolean;
 }
 
+const HOST_USER_ID = {
+  PREFIX: 'host:',
+  SUFFIX: `/${process.env.PROJECT_TAG}`
+}
+
 export const handler: SQSHandler = async (message) => {
   const response: SQSBatchResponse = { batchItemFailures: [] };
   const addBatchItemFailure = (messageId: string) =>
@@ -49,7 +54,7 @@ export const handler: SQSHandler = async (message) => {
       }
 
       if (userId) {
-        channelId = userId.split('host:')[1];
+        channelId = userId.split(HOST_USER_ID.PREFIX)[1].split(HOST_USER_ID.SUFFIX)[0];
       }
 
       return {
@@ -93,7 +98,7 @@ export const handler: SQSHandler = async (message) => {
             const listParticipantsCommand = new ListParticipantsCommand({
               stageArn,
               sessionId: activeSessionId,
-              filterByUserId: `host:${stageOwnerChannelId}`
+              filterByUserId: `${HOST_USER_ID.PREFIX}${stageOwnerChannelId}${HOST_USER_ID.PREFIX}`
             });
             const { participants: hosts = [] } = await ivsRealTimeClient.send(
               listParticipantsCommand

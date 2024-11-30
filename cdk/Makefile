@@ -9,12 +9,7 @@ STAGE					 ?=	dev
 PUBLISH					 ?=	false
 STACK 					 ?=	UGC-$(STAGE)
 COGNITO_CLEANUP_SCHEDULE ?= rate(48 hours)
-STAGE_CLEANUP_SCHEDULE   ?= rate(24 hours)
-## Overide STAGE_CLEANUP_SCHEDULE for prod stage
-ifeq ($(STAGE),prod)
-STAGE_CLEANUP_SCHEDULE   = rate(10 minutes)
-endif
-CDK_OPTIONS 			 =	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c cognitoCleanupScheduleExp="$(strip $(COGNITO_CLEANUP_SCHEDULE))" -c stageCleanupScheduleExp="$(strip $(STAGE_CLEANUP_SCHEDULE))"
+CDK_OPTIONS 			 =	$(if $(AWS_PROFILE),$(AWS_PROFILE_FLAG)) -c stage=$(STAGE) -c publish=$(PUBLISH) -c stackName=$(STACK) -c cognitoCleanupScheduleExp="$(strip $(COGNITO_CLEANUP_SCHEDULE))"
 FE_DEPLOYMENT_STACK		 =	UGC-Frontend-Deployment-$(STAGE)
 SEED_COUNT 				 ?=	50
 OFFLINE_SESSION_COUNT	 ?=	1
