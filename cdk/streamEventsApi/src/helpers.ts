@@ -57,6 +57,49 @@ export const getStreamEvents = async (
   return truncatedEvents;
 };
 
+const getLiveStreamsByChannelArn = (userChannelArn: string) =>
+  dynamoDbClient.send(
+    new QueryCommand({
+      TableName: process.env.STREAM_TABLE_NAME,
+      IndexName: 'isOpenIndex',
+      ExpressionAttributeValues: {
+        ':userChannelArn': convertToAttr(userChannelArn)
+      },
+      KeyConditionExpression: 'channelArn=:userChannelArn',
+      ProjectionExpression: 'id'
+    })
+  );
+
+export const setOldLiveStreamsOffline = async (userChannelArn: string) => {
+  try {
+    const { Items: liveStreamSessions = [] } = await getLiveStreamsByChannelArn(
+      userChannelArn
+    );
+
+    const updateLiveStreamsPromises = liveStreamSessions.map(
+      (liveStreamSession) => {
+        const { id } = unmarshall(liveStreamSession);
+        return updateStreamSessionToOffline({
+          channelArn: userChannelArn,
+          streamId: id
+        });
+      }
+    );
+    const updateLiveStreamsResults = await Promise.allSettled(
+      updateLiveStreamsPromises
+    );
+    updateLiveStreamsResults.forEach((result) => {
+      if (result.status === 'rejected')
+        console.error('Failed to update stream session:', result.reason);
+    });
+  } catch (error) {
+    console.error(
+      'Error occurred while updating old live stream sessions:',
+      error
+    );
+  }
+};
+
 export const updateStreamEvents = ({
   additionalAttributes = {},
   attributesToRemove = [],

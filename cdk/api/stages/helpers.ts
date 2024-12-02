@@ -3,8 +3,6 @@ import {
   CreateParticipantTokenCommand,
   CreateParticipantTokenCommandInput,
   CreateStageCommand,
-  CreateStageCommandInput,
-  DeleteStageCommand,
   GetStageCommand,
   IVSRealTimeClient,
   ListParticipantsCommand,
@@ -34,6 +32,10 @@ import { AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { buildChannelArn } from '../metrics/helpers';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
+const HOST_USER_ID = {
+  PREFIX: 'host:',
+  SUFFIX: `/${process.env.PROJECT_TAG}`
+};
 
 interface HandleCreateStageParams {
   userSub?: string;
@@ -410,7 +412,7 @@ const listParticipants = async (input: ListParticipantsCommandInput) => {
 export const generateHostUserId = (channelArn: string) => {
   const channelId = getChannelId(channelArn);
 
-  return `${PARTICIPANT_USER_TYPES.HOST}:${channelId}`;
+  return `${HOST_USER_ID.PREFIX}${channelId}${HOST_USER_ID.SUFFIX}`;
 };
 
 export const isUserInStage = async (stageId: string, userSub: string) => {
@@ -490,7 +492,9 @@ export const getStageHostDataAndSize = async (stageId: string) => {
 
   if (connectedHost) {
     hostData.status = STAGE_CONNECTION_STATES.CONNECTED;
-    const hostChannelId = connectedHost.userId?.split('host:')[1];
+    const hostChannelId = connectedHost.userId
+      ?.split(HOST_USER_ID.PREFIX)[1]
+      .split(HOST_USER_ID.SUFFIX)[0];
 
     if (hostChannelId) {
       const hostChannelArn = buildChannelArn(hostChannelId);
@@ -545,10 +549,9 @@ export const validateRequestParams = (...requestParams: string[]) => {
 
 export const verifyUserIsStageHost = async (sub: string) => {
   const { Item: UserItem = {} } = await getUser(sub);
-  const response = unmarshall(UserItem);
-  const { stageId = null, channelArn } = response;
+  const { stageId = null, channelArn } = unmarshall(UserItem);
   if (!stageId) {
-    throw new Error('User stage ID was not found.');
+    throw new Error('No active stage found.');
   }
 
   const { stage } = await getStage(stageId);

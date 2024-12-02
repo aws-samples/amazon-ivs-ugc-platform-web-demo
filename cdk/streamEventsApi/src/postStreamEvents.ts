@@ -1,5 +1,4 @@
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { UpdateItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
@@ -7,6 +6,7 @@ import {
   SESSION_CREATED,
   SESSION_ENDED,
   STARVATION_START,
+  STREAM_END,
   STREAM_HEALTH_CHANGE_EVENT_TYPE,
   UNEXPECTED_EXCEPTION
 } from './constants';
@@ -14,9 +14,9 @@ import {
   AdditionalStreamAttributes,
   getStreamEvents,
   getStreamsByChannelArn,
+  setOldLiveStreamsOffline,
   StreamEvent,
-  updateStreamEvents,
-  updateStreamSessionToOffline
+  updateStreamEvents
 } from './helpers';
 import { getUserByChannelArn } from './helpers';
 
@@ -38,6 +38,14 @@ const handler = async (
       time: eventTime,
       resources
     } = request.body;
+
+    // Ignore "AWS API Call via CloudTrail" events
+    if (eventType === 'AWS API Call via CloudTrail') {
+      return;
+    }
+
+    console.info('Incoming Event', JSON.stringify(request.body));
+
     let {
       detail: { stream_id: streamId = '' }
     } = request.body;
@@ -88,9 +96,11 @@ const handler = async (
       streamEvents.sort(
         ({ eventTime: eventTime1 }, { eventTime: eventTime2 }) => {
           /* istanbul ignore else */
-          if (eventTime1 && eventTime2) {
+          if (eventTime1 === eventTime2) {
+            return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+          } else {
             return eventTime1 > eventTime2 ? 1 : -1; // Ascending order
-          } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
+          }
         }
       ) || [];
     const latestStreamHealthChangeEvent = sortedStreamEvents
@@ -104,34 +114,24 @@ const handler = async (
       latestStreamHealthChangeEvent?.name !== STARVATION_START;
 
     if (eventName === SESSION_CREATED) {
-      // Older stream sessions that have isOpen set to true will have isOpen attribute removed
-      const { Items: streamSessions = [] } = await getStreamsByChannelArn(
-        channelArn
-      );
-
-      const updateStreamSessionToOfflinePromises: Promise<
-        UpdateItemCommandOutput | undefined
-      >[] = [];
-      streamSessions.forEach((streamSession) => {
-        const unmarshalledStreamSession = unmarshall(streamSession);
-        if (unmarshalledStreamSession.id !== streamId) {
-          updateStreamSessionToOfflinePromises.push(
-            updateStreamSessionToOffline({
-              channelArn,
-              streamId: unmarshalledStreamSession.id
-            })
-          );
-        }
-      });
-
-      await Promise.all(updateStreamSessionToOfflinePromises);
+      // Older stream sessions with isOpen set to true will have the isOpen attribute removed
+      await setOldLiveStreamsOffline(channelArn);
 
       additionalAttributes.startTime = eventTime;
 
+      // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED or STREAM_END event
       if (
-        // Handle the case where a SESSION_CREATED event is dispatched after a SESSION_ENDED event
-        !streamEvents.find((streamEvent) => streamEvent.name === SESSION_ENDED)
+        streamEvents.some(
+          (streamEvent) =>
+            streamEvent.name === SESSION_ENDED ||
+            streamEvent.name === STREAM_END
+        )
       ) {
+        console.log(
+          'Session not set to live: a SESSION_ENDED or STREAM_END event was already detected. Stream ID: ',
+          streamId
+        );
+      } else {
         additionalAttributes.hasErrorEvent = false;
         additionalAttributes.isOpen = 'true';
       }

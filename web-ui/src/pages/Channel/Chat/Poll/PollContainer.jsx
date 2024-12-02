@@ -178,7 +178,6 @@ const PollContainer = forwardRef(({ children }, ref) => {
     }, 200),
     { shouldCallOnMount: true }
   );
-
   const defaultBounceTransition = getDefaultBounceTransition(isActive);
 
   return (

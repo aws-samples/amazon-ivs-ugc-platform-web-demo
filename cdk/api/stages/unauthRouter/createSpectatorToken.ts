@@ -25,7 +25,6 @@ const handler = async (
   try {
     const { stageId } = request.params;
     const shouldJoinStage = await isStageActive(stageId);
-
     if (!shouldJoinStage) {
       throw new Error('Stage is empty');
     }

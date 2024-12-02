@@ -122,7 +122,6 @@ const handler = async (
           } else return 0; // Adding this else case for completeness, but it is extremely unlikely that 2 events have the same timestamp
         })
         .slice(0, maxResults);
-
       const sortedLiveChannelArns = sortedStreamSessions.reduce(
         (acc, sortedStreamSession) => {
           const {

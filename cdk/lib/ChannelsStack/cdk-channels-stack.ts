@@ -11,6 +11,7 @@ import {
   aws_lambda_nodejs as nodejsLambda,
   aws_s3 as s3,
   aws_s3_notifications as s3n,
+  aws_sqs as sqs,
   Duration,
   NestedStack,
   NestedStackProps,
@@ -20,6 +21,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { readFileSync } from 'fs';
 import {
@@ -30,7 +32,8 @@ import {
 
 import {
   ALLOWED_CHANNEL_ASSET_TYPES,
-  ChannelsResourceConfig
+  ChannelsResourceConfig,
+  defaultLambdaParams
 } from '../constants';
 import ChannelsCognitoTriggers from './Constructs/ChannelsCognitoTriggers';
 import SQSLambdaTrigger from '../Constructs/SQSLambdaTrigger';
@@ -59,7 +62,6 @@ interface ChannelsStackProps extends NestedStackProps {
   resourceConfig: ChannelsResourceConfig;
   tags: { [key: string]: string };
   cognitoCleanupScheduleExp: string;
-  stageCleanupScheduleExp: string;
 }
 
 export class ChannelsStack extends NestedStack {
@@ -86,12 +88,7 @@ export class ChannelsStack extends NestedStack {
     const region = Stack.of(this.nestedStackParent!).region;
     const nestedStackName = 'Channels';
     const stackNamePrefix = `${parentStackName}-${nestedStackName}`;
-    const {
-      resourceConfig,
-      cognitoCleanupScheduleExp,
-      stageCleanupScheduleExp,
-      tags
-    } = props;
+    const { resourceConfig, cognitoCleanupScheduleExp, tags } = props;
 
     // Configuration variables based on the stage (dev or prod)
     const {
@@ -350,7 +347,8 @@ export class ChannelsStack extends NestedStack {
           environment: {
             CHANNELS_TABLE_NAME: channelsTable.tableName,
             REGION: region,
-            ACCOUNT_ID: accountId
+            ACCOUNT_ID: accountId,
+            PROJECT_TAG: tags.project
           },
           initialPolicy: [
             new iam.PolicyStatement({
@@ -515,13 +513,6 @@ export class ChannelsStack extends NestedStack {
     );
     this.policies = policies;
 
-    // Cleanup idle stages users policies
-    const deleteIdleStagesIvsPolicyStatement = new iam.PolicyStatement({
-      actions: ['ivs:ListStages', 'ivs:DeleteStage'],
-      effect: iam.Effect.ALLOW,
-      resources: ['*']
-    });
-
     // Cleanup unverified users policies
     const deleteUnverifiedChannelsPolicyStatement = new iam.PolicyStatement({
       actions: ['dynamodb:BatchWriteItem'],
@@ -534,32 +525,13 @@ export class ChannelsStack extends NestedStack {
       resources: [userPool.userPoolArn]
     });
 
-    // Cleanup idle stages lambda
-    const cleanupIdleStagesHandler = new nodejsLambda.NodejsFunction(
-      this,
-      `${stackNamePrefix}-CleanupIdleStages-Handler`,
-      {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
-        functionName: `${stackNamePrefix}-CleanupIdleStages`,
-        entry: getLambdaEntryPath('cleanupIdleStages'),
-        timeout: Duration.minutes(10),
-        initialPolicy: [deleteIdleStagesIvsPolicyStatement],
-        environment: {
-          PROJECT_TAG: tags.project
-        }
-      }
-    );
-
     // Cleanup unverified users lambda
     const cleanupUnverifiedUsersHandler = new nodejsLambda.NodejsFunction(
       this,
       `${stackNamePrefix}-CleanupUnverifiedUsers-Handler`,
       {
-        logRetention: 7,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        bundling: { minify: true },
+        ...defaultLambdaParams,
+        logRetention: RetentionDays.ONE_WEEK,
         functionName: `${stackNamePrefix}-CleanupUnverifiedUsers`,
         entry: getLambdaEntryPath('cleanupUnverifiedUsers'),
         timeout: Duration.minutes(10),
@@ -569,18 +541,6 @@ export class ChannelsStack extends NestedStack {
         ]
       }
     );
-
-    // Scheduled cleanup idle stages lambda function
-    new events.Rule(this, 'Cleanup-Idle-Stages-Schedule-Rule', {
-      schedule: events.Schedule.expression(stageCleanupScheduleExp),
-      ruleName: `${stackNamePrefix}-CleanupIdleStages-Schedule`,
-      targets: [
-        new targets.LambdaFunction(cleanupIdleStagesHandler, {
-          maxEventAge: Duration.minutes(2),
-          retryAttempts: 2
-        })
-      ]
-    });
 
     // Scheduled cleanup unverified users lambda function
     new events.Rule(this, 'Cleanup-Unverified-Users-Schedule-Rule', {
@@ -605,7 +565,7 @@ export class ChannelsStack extends NestedStack {
           detailType: ['IVS Stage Update'],
           detail: {
             event_name: ['Participant Unpublished'],
-            user_id: [{ prefix: 'host:' }]
+            user_id: [{ wildcard: `host:*${tags.project}` }]
           }
         }
       }

@@ -338,7 +338,6 @@ For improved communication between a stage host and a requestee (for example, re
 ### Setting your Product Advertising API credentials
 
 To set your Product Advertising API credentials you must:
-
 1. Locate the Secrets Manager in the AWS console (AWS Secrets Manager > Secrets).
 
 2. Find the secret name of `ProductAdvertisingAPISecret` followed by a unique string that should have been generated on deployment and click it.
