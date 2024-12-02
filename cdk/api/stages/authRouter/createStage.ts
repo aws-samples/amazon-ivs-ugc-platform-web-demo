@@ -11,7 +11,7 @@ import {
   PARTICIPANT_GROUP,
   isUserInStage,
   PARTICIPANT_TYPES,
-  generateHostUserId
+  createHostUserIdFromChannelArn
 } from '../helpers';
 import { UserContext } from '../../shared/authorizer';
 
@@ -71,7 +71,7 @@ const handler = async (request: FastifyRequest, reply: FastifyReply) => {
       const participantRole = isInStage ? PARTICIPANT_TYPES.INVITED : hostType;
       const userStageUserId = isInStage
         ? userId
-        : generateHostUserId(channelArn);
+        : createHostUserIdFromChannelArn(channelArn);
 
       console.log('User stage participantRole: ', participantRole);
 

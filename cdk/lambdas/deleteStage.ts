@@ -16,7 +16,9 @@ import {
 } from './helpers';
 import {
   buildStageArn,
-  extractStageIdfromStageArn
+  extractChannelIdFromUserId,
+  extractStageIdfromStageArn,
+  createHostUserIdFromChannelId
 } from '../api/stages/helpers';
 import { buildChannelArn } from '../api/metrics/helpers';
 import { CHANNELS_TABLE_STAGE_FIELDS } from '../api/shared/constants';
@@ -28,11 +30,6 @@ interface HostDisconnectedEvent {
   sessionId?: string;
   channelId?: string;
   shouldDeleteStage: boolean;
-}
-
-const HOST_USER_ID = {
-  PREFIX: 'host:',
-  SUFFIX: `/${process.env.PROJECT_TAG}`
 }
 
 export const handler: SQSHandler = async (message) => {
@@ -54,7 +51,7 @@ export const handler: SQSHandler = async (message) => {
       }
 
       if (userId) {
-        channelId = userId.split(HOST_USER_ID.PREFIX)[1].split(HOST_USER_ID.SUFFIX)[0];
+        channelId = extractChannelIdFromUserId(userId);
       }
 
       return {
@@ -94,11 +91,11 @@ export const handler: SQSHandler = async (message) => {
             ? buildChannelArn(stageOwnerChannelId)
             : '';
 
-          if (activeSessionId) {
+          if (activeSessionId && stageOwnerChannelId) {
             const listParticipantsCommand = new ListParticipantsCommand({
               stageArn,
               sessionId: activeSessionId,
-              filterByUserId: `${HOST_USER_ID.PREFIX}${stageOwnerChannelId}${HOST_USER_ID.PREFIX}`
+              filterByUserId: createHostUserIdFromChannelId(stageOwnerChannelId)
             });
             const { participants: hosts = [] } = await ivsRealTimeClient.send(
               listParticipantsCommand
