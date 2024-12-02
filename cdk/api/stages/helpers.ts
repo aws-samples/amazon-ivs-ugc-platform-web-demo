@@ -32,6 +32,7 @@ import { AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { buildChannelArn } from '../metrics/helpers';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
+
 const HOST_USER_ID = {
   PREFIX: 'host:',
   SUFFIX: `/${process.env.PROJECT_TAG}`
@@ -144,7 +145,7 @@ export const handleCreateStage = async ({
         ParticipantTokenCapability.SUBSCRIBE
       ],
       duration: STAGE_TOKEN_DURATION,
-      userId: generateHostUserId(channelArn)
+      userId: createHostUserIdFromChannelArn(channelArn)
     },
     {
       attributes: {
@@ -409,17 +410,20 @@ const listParticipants = async (input: ListParticipantsCommandInput) => {
   return await client.send(listParticipantsCommand);
 };
 
-export const generateHostUserId = (channelArn: string) => {
+export const createHostUserIdFromChannelId = (channelId: string) =>
+  `${HOST_USER_ID.PREFIX}${channelId}${HOST_USER_ID.SUFFIX}`;
+
+export const createHostUserIdFromChannelArn = (channelArn: string) => {
   const channelId = getChannelId(channelArn);
 
-  return `${HOST_USER_ID.PREFIX}${channelId}${HOST_USER_ID.SUFFIX}`;
+  return createHostUserIdFromChannelId(channelId);
 };
 
 export const isUserInStage = async (stageId: string, userSub: string) => {
   const { Item: UserItem = {} } = await getUser(userSub);
   const { channelArn } = unmarshall(UserItem);
   const { stage } = await getStage(stageId, channelArn);
-  const hostUserId = generateHostUserId(channelArn);
+  const hostUserId = createHostUserIdFromChannelArn(channelArn);
   const stageArn = buildStageArn(stageId);
 
   if (!stage?.activeSessionId) return false;
@@ -465,6 +469,10 @@ const getNumberOfParticipantsInStage = (
   return participantList.size;
 };
 
+export const extractChannelIdFromUserId = (stageUserId: string | undefined) =>
+  stageUserId?.split(HOST_USER_ID.PREFIX)[1]?.split(HOST_USER_ID.SUFFIX)[0] ??
+  undefined;
+
 export const getStageHostDataAndSize = async (stageId: string) => {
   let hostData: HostData = {
     username: null,
@@ -492,9 +500,7 @@ export const getStageHostDataAndSize = async (stageId: string) => {
 
   if (connectedHost) {
     hostData.status = STAGE_CONNECTION_STATES.CONNECTED;
-    const hostChannelId = connectedHost.userId
-      ?.split(HOST_USER_ID.PREFIX)[1]
-      .split(HOST_USER_ID.SUFFIX)[0];
+    const hostChannelId = extractChannelIdFromUserId(connectedHost.userId);
 
     if (hostChannelId) {
       const hostChannelArn = buildChannelArn(hostChannelId);

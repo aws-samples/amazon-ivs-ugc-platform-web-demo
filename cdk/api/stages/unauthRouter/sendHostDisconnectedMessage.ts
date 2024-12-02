@@ -5,7 +5,7 @@ import {
   UNEXPECTED_EXCEPTION,
   USER_NOT_FOUND_EXCEPTION
 } from '../../shared/constants';
-import { buildStageArn, generateHostUserId } from '../helpers';
+import { buildStageArn, createHostUserIdFromChannelArn } from '../helpers';
 import { getStage } from '../helpers';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { getUserByChannelArn } from '../../shared/helpers';
@@ -70,7 +70,7 @@ const handler = async (
         'A stageArn or stageID is required in order to delete a stage'
       );
 
-    const userId = generateHostUserId(channelArn);
+    const userId = createHostUserIdFromChannelArn(channelArn);
     const { stage } = await getStage(stageId, channelArn);
     const sessionId = stage?.activeSessionId;
 
