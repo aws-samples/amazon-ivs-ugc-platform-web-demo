@@ -16,7 +16,9 @@ import {
 } from './helpers';
 import {
   buildStageArn,
-  extractStageIdfromStageArn
+  extractChannelIdFromUserId,
+  extractStageIdfromStageArn,
+  createHostUserIdFromChannelId
 } from '../api/stages/helpers';
 import { buildChannelArn } from '../api/metrics/helpers';
 import { CHANNELS_TABLE_STAGE_FIELDS } from '../api/shared/constants';
@@ -49,7 +51,7 @@ export const handler: SQSHandler = async (message) => {
       }
 
       if (userId) {
-        channelId = userId.split('host:')[1];
+        channelId = extractChannelIdFromUserId(userId);
       }
 
       return {
@@ -89,11 +91,11 @@ export const handler: SQSHandler = async (message) => {
             ? buildChannelArn(stageOwnerChannelId)
             : '';
 
-          if (activeSessionId) {
+          if (activeSessionId && stageOwnerChannelId) {
             const listParticipantsCommand = new ListParticipantsCommand({
               stageArn,
               sessionId: activeSessionId,
-              filterByUserId: `host:${stageOwnerChannelId}`
+              filterByUserId: createHostUserIdFromChannelId(stageOwnerChannelId)
             });
             const { participants: hosts = [] } = await ivsRealTimeClient.send(
               listParticipantsCommand
