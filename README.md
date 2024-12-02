@@ -42,10 +42,6 @@ Deploying the CDK stack will:
 
 ## Features
 
-<<<<<<< HEAD
-=======
-
->>>>>>> fork/main
 ### User Registration, Login and Password Reset using Amazon Cognito
 
 New users can create an account from the `/register` route. Returning users can login to their account from the `/login` route. They can also reset their password at `/reset`.
