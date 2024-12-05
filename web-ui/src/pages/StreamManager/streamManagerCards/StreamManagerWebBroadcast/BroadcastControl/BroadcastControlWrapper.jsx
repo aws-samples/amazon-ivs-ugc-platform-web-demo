@@ -92,9 +92,9 @@ const BroadcastControlWrapper = forwardRef(
     } =
       isStageActive || collaborate.isJoining
         ? {
-            toggleMicrophone: stageControls.toggleAudio,
+            toggleMicrophone: stageControls?.toggleAudio,
             isMicrophoneMuted: audioMuted,
-            toggleCamera: stageControls.toggleVideo,
+            toggleCamera: stageControls?.toggleVideo,
             isCameraHidden: videoStopped
           }
         : {
