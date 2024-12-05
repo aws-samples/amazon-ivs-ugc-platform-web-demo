@@ -91,9 +91,8 @@ const JoinModal = () => {
 
   const onCancel = useCallback(() => {
     dispatch(resetStreamManagerStates());
-
-    navigate('/manager');
-  }, [dispatch, navigate]);
+    dispatch(updateCollaborateStates({ isLeaving: true }));
+  }, [dispatch]);
 
   const onConfirm = useCallback(async () => {
     await enterCollaborateSession();
