@@ -468,8 +468,6 @@ function StageManagerProvider({ children }) {
   const leaveStage = useCallback(
     async ({ isLeavingStreamManager = false } = {}) => {
       let result, error;
-      updateActiveDevice('video', null);
-      updateActiveDevice('audio', null);
 
       if (participantType === PARTICIPANT_TYPES.HOST) {
         ({ result, error } = await stagesAPI.endStage());
@@ -503,13 +501,7 @@ function StageManagerProvider({ children }) {
 
       return { result, error };
     },
-    [
-      updateActiveDevice,
-      participantType,
-      dispatch,
-      displayMedia.isScreenSharing,
-      stopScreenShare
-    ]
+    [participantType, dispatch, displayMedia.isScreenSharing, stopScreenShare]
   );
 
   /**
@@ -523,6 +515,10 @@ function StageManagerProvider({ children }) {
    */
   useEffect(() => {
     if (isLeavingStage) {
+      // Reset active devices
+      updateActiveDevice('video', null);
+      updateActiveDevice('audio', null);
+
       handleLeaveStages();
       if (
         !isLeavingStreamManagerRef.current &&
@@ -543,7 +539,8 @@ function StageManagerProvider({ children }) {
     isLeavingStage,
     navigate,
     pathname,
-    stageLeftReason
+    stageLeftReason,
+    updateActiveDevice
   ]);
 
   /**
