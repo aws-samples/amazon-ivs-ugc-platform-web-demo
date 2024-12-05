@@ -32,6 +32,7 @@ import { AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { buildChannelArn } from '../metrics/helpers';
 
 export const USER_STAGE_ID_SEPARATOR = ':stage/';
+
 const HOST_USER_ID = {
   PREFIX: 'host:',
   SUFFIX: `/${process.env.PROJECT_TAG}`
