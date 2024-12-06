@@ -85,6 +85,7 @@ const useScreenShare = ({
         isScreenSharePromptOpen.current = true;
         stream = await captureScreenShareStream();
       } catch (err) {
+        dispatch(updateDisplayMediaStates({ isScreenSharing: false }));
         console.error(err);
         error = err;
       } finally {
