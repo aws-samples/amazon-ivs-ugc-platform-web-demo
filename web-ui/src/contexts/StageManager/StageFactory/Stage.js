@@ -1,4 +1,3 @@
-import { unsetForceNode } from '../internal/forceNode';
 import { queueMacrotask } from '../utils';
 
 import StageStrategy from './StageStrategy';
@@ -94,16 +93,10 @@ class CustomStage extends Stage {
   emit = super.emit.bind(this);
 
   join = async (mediaStreamToPublish) => {
-    try {
-      await super.join();
+    await super.join();
 
-      if (mediaStreamToPublish) {
-        this.strategyMutators.publish(mediaStreamToPublish);
-      }
-    } catch (error) {
-      unsetForceNode();
-
-      throw error;
+    if (mediaStreamToPublish) {
+      this.strategyMutators.publish(mediaStreamToPublish);
     }
   };
 }

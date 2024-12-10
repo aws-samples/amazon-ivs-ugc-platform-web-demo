@@ -118,7 +118,7 @@ This flow is triggered by:
 3. EventBridge
 4. SQS [Amazon FIFO SQS](#amazon-fifo-sqs)
 
-### Amazon IVS real-time host disconnect event lamnda cleanup
+### Amazon IVS real-time host disconnect event lambda cleanup
 
 The cleanup lambda function follows these steps:
 1. Lambda receives a message from the SQS queue

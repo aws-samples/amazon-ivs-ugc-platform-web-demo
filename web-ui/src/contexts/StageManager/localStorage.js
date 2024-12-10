@@ -1,4 +1,8 @@
-import { APP_ENV, DEFAULT_SIMULCAST_CONFIG, STORAGE_VERSION } from './constants'
+import {
+  APP_ENV,
+  DEFAULT_SIMULCAST_CONFIG,
+  STORAGE_VERSION
+} from './constants';
 
 const isStagingEnv = process.env.APP_ENV === APP_ENV.STAGING;
 const isLocalStorageSupported = (function isSupported() {
@@ -63,10 +67,7 @@ function getLocalStorageValue(key) {
   return value;
 }
 
-function setLocalStorageValue(
-  key,
-  value
-) {
+function setLocalStorageValue(key, value) {
   if (isLocalStorageSupported) {
     localStorage.setItem(key, serialize(value));
   }

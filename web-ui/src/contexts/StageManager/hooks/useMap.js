@@ -1,8 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-function useMap(
-  initialStateMap = new Map()
-) {
+function useMap(initialStateMap = new Map()) {
   const [map, setMap] = useState(new Map(initialStateMap));
 
   const set = useCallback((key, value) => {

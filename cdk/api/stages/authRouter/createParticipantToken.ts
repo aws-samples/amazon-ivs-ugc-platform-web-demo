@@ -7,7 +7,6 @@ import {
   handleCreateStageParams,
   handleCreateParticipantToken,
   ParticipantType,
-  isUserInStage,
   shouldAllowParticipantToJoin,
   PARTICIPANT_USER_TYPES,
   validateRequestParams,
@@ -36,15 +35,13 @@ const handler = async (
     if (missingParams) {
       throw new Error(`Missing ${missingParams}`);
     }
+    if (participantType === PARTICIPANT_USER_TYPES.HOST)
+      throw new Error('Host participant type is not permitted');
 
     const { sub, username } = request.requestContext.get('user') as UserContext;
 
-    let isHostInStage = false;
     let hostData = null;
-    if (participantType === PARTICIPANT_USER_TYPES.HOST) {
-      // Check for host presence
-      isHostInStage = await isUserInStage(stageId, sub);
-    } else if (
+    if (
       participantType === PARTICIPANT_USER_TYPES.INVITED ||
       participantType === PARTICIPANT_USER_TYPES.REQUESTED
     ) {
@@ -61,6 +58,7 @@ const handler = async (
       }
     }
 
+    // Get create participant token parameters
     const { Item: channelData = {} } = await getUser(sub);
 
     const {
@@ -100,6 +98,7 @@ const handler = async (
 
     const stageArn = buildStageArn(stageId);
 
+    // Create the user and display participant tokens
     const displayStageConfig = await handleCreateParticipantToken({
       stageArn,
       duration: displayTokenDuration,
